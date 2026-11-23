@@ -128,6 +128,32 @@ public sealed class AgentRuntimePackageCoverageBatch16Tests
     }
 
     [Fact]
+    public async Task StreamJsonAsync_nonstreaming_provider_late_completion_does_not_yield_after_cancellation()
+    {
+        using CancellationTokenSource caller = new();
+        Mock<IAgentCompletionClient> inner = new();
+        inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("stub", "stub"));
+        inner.Setup(c => c.CompleteJsonAsync(
+                It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                // Non-cooperative client returns an answer after its consumer has canceled.
+                caller.Cancel();
+                return Task.FromResult(new string('x', 120));
+            });
+
+        LlmCompletionAccountingClient sut = CreateAccountingClient(inner.Object, Guid.NewGuid());
+
+        await using IAsyncEnumerator<string> enumerator = sut
+            .StreamJsonAsync("sys", "user", cancellationToken: caller.Token)
+            .GetAsyncEnumerator();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(
+            async () => { await enumerator.MoveNextAsync(); });
+    }
+
+    [Fact]
     public async Task ComputeAnyPassingReferenceCase_returns_true_for_matching_topology_trace()
     {
         AgentOutputReferenceCaseRunEvaluator sut = CreateReferenceCaseEvaluator(enabled: true);

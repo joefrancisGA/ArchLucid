@@ -1,0 +1,48 @@
+name: Provider Breaker Focused Regression
+
+# Target only provider resilience code and its regression tests on pull requests.
+# This workflow never dispatches the full master CI suite.
+on:
+  pull_request:
+    branches: [master, main]
+    paths:
+      - 'ArchLucid.Core/Resilience/ProviderHttpFailurePolicy.cs'
+      - 'ArchLucid.AgentRuntime/CircuitBreakingAgentCompletionClient.cs'
+      - 'ArchLucid.AgentRuntime/LlmCompletionFailureClassifier.cs'
+      - 'ArchLucid.Retrieval/Embedding/CircuitBreakingOpenAiEmbeddingClient.cs'
+      - 'ArchLucid.Api.Tests/CircuitBreakingAgentCompletionClientTests.cs'
+      - 'ArchLucid.Retrieval.Tests/CircuitBreakingOpenAiEmbeddingClientTests.cs'
+      - 'ArchLucid.AgentRuntime.Tests/LlmCompletionFailureClassifierTests.cs'
+      - '.github/workflows/provider-breaker-focused.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  focused-provider-breakers:
+    name: Provider breaker .NET targeted tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Embedding single/batch and half-open probe regression
+        run: >-
+          dotnet test ArchLucid.Retrieval.Tests/ArchLucid.Retrieval.Tests.csproj
+          -c Release
+          --filter 'FullyQualifiedName~CircuitBreakingOpenAiEmbeddingClientTests'
+          --logger 'trx;LogFileName=provider-embedding.trx'
+      - name: Completion and lazy-stream probe regression
+        run: >-
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj
+          -c Release
+          --filter 'FullyQualifiedName~CircuitBreakingAgentCompletionClientTests'
+          --logger 'trx;LogFileName=provider-completion.trx'
+      - name: Shared provider failure classification regression
+        run: >-
+          dotnet test ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj
+          -c Release
+          --filter 'FullyQualifiedName~LlmCompletionFailureClassifierTests'
+          --logger 'trx;LogFileName=provider-classifier.trx'

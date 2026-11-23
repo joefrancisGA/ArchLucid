@@ -6,6 +6,12 @@
 # ArchLucid changelog
 
 
+## 2026-11-22 - Score lift round 115 (batch 80): Hub overview gate, explorer filters, buyer bundle
+
+**Outcome.** Resource hub overview partial-capture not-load-failure line mounts only when latest capture is partial. Infrastructure explorer category-only and name-prefix-only filter empties name successful filter reads versus catalog load failure. Manifest buyer bundle download names unsealed finalize gate beside blocked hint.
+
+**Surfaces.** Resource hub client, resources explorer, manifest buyer bundle download section, honesty and mounted contract tests.
+
 ## 2026-11-22 - Score lift round 114 (batch 79): Hub overview partial, golden primary, explorer combined, digests subscription
 
 **Outcome.** Resource hub overview partial-capture band names thin capture versus failed hub read. Golden manifest buyer-primary button carries server Markdown finalize discipline. Infrastructure explorer combined category and name-prefix filter exposes mounted not-load-failure test id. Digests browse subscription-list-only empty mounts not-load-failure test id.

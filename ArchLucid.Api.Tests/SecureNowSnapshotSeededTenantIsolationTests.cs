@@ -1,8 +1,8 @@
-using ArchLucid.Api.Controllers.Planning;
+using System.Security.Claims;
 using ArchLucid.Api.Security;
 using ArchLucid.Core.Authorization;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using ArchLucid.Api.Controllers.Planning;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -76,9 +76,9 @@ public sealed class SecureNowSnapshotSeededTenantIsolationTests
             Mock<IFeatureFlags> flags = new();
             flags.Setup(f => f.IsEnabledAsync("SecureNow.ReadOnlySnapshotExchange",
                 It.IsAny<CancellationToken>())).ReturnsAsync(true);
-            // Direct controller invocation still has to exercise the actual evidence-read
-            // authorization gate. A separate entitled principal is required for each scope:
-            // A must be rejected by the repository's tenant boundary, not by missing DI.
+            // The exchange path fails closed without a registered authorization gate.
+            // Exercise its actual authorization boundary so this test reaches the
+            // second, repository-enforced tenant isolation check.
             Mock<IAuthorizationService> authorization = new();
             authorization.Setup(a => a.AuthorizeAsync(
                     It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), ArchLucidPolicies.ReadAuthority))
@@ -111,10 +111,9 @@ public sealed class SecureNowSnapshotSeededTenantIsolationTests
                     {
                         RequestServices = services,
                         User = new ClaimsPrincipal(new ClaimsIdentity(
-                            [new Claim(ClaimTypes.NameIdentifier, "tenant-boundary-test"),
+                            [new Claim(ClaimTypes.NameIdentifier, "tenant-isolation-test-operator"),
                              new Claim("archlucid.resource_entitlement",
-                                 $"evidence.read:{scope.TenantId:D}:{scope.WorkspaceId:D}:{scope.ProjectId:D}:{Run:D}")],
-                            "test"))
+                                 $"evidence.read:{scope.TenantId:D}:{scope.WorkspaceId:D}:{scope.ProjectId:D}:{Run:D}")], "test"))
                     }
                 }
             };

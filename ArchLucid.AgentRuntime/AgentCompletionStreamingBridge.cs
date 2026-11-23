@@ -24,6 +24,7 @@ public static class AgentCompletionStreamingBridge
         ArgumentNullException.ThrowIfNull(client);
         ArgumentException.ThrowIfNullOrWhiteSpace(systemPrompt);
         ArgumentException.ThrowIfNullOrWhiteSpace(userPrompt);
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (client is IAgentStreamingCompletionClient streamingClient)
         {
@@ -34,10 +35,14 @@ public static class AgentCompletionStreamingBridge
                                temperature,
                                cancellationToken).ConfigureAwait(false))
             {
+                // Enforce consumer cancellation even if a streaming provider ignores its token.
+                cancellationToken.ThrowIfCancellationRequested();
                 if (chunk.Length > 0)
                     yield return chunk;
             }
 
+            // A non-cooperative provider may signal end-of-stream after the caller canceled.
+            cancellationToken.ThrowIfCancellationRequested();
             yield break;
         }
 
@@ -48,8 +53,13 @@ public static class AgentCompletionStreamingBridge
             temperature,
             cancellationToken).ConfigureAwait(false);
 
+        // A buffered completion might finish after the consumer canceled.
+        cancellationToken.ThrowIfCancellationRequested();
         foreach (string chunk in SimulateChunks(full))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
             yield return chunk;
+        }
     }
 
     internal static IEnumerable<string> SimulateChunks(string full)
