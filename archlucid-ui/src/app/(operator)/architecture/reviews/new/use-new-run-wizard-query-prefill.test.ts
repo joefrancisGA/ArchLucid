@@ -64,6 +64,41 @@ describe("useNewRunWizardQueryPrefill", () => {
     expect(persistWizardMode).toHaveBeenCalledTimes(1);
   });
 
+  it("resets the form when a second accelerator pack arrives on the same mount", async () => {
+    const reset = vi.fn<UseFormReset<WizardFormValues>>();
+
+    const { rerender } = renderHook(
+      ({ packId }: { packId: string }) =>
+        useNewRunWizardQueryPrefill({
+          params: buildParams(packId),
+          stepIndex: 0,
+          wizardMode: "full",
+          reset,
+          setValue: vi.fn(),
+          goToStep: vi.fn(),
+          persistWizardMode: vi.fn(),
+          onPendingEvidenceFileChange: vi.fn(),
+          showToast: vi.fn(),
+        }),
+      { initialProps: { packId: "ai-llm-workload" } },
+    );
+
+    await waitFor(() => {
+      expect(reset).toHaveBeenCalledWith(
+        expect.objectContaining({ systemName: "Enterprise.Copilot.RagPlatform" }),
+      );
+    });
+
+    reset.mockClear();
+    rerender({ packId: "healthcare-data-workflow" });
+
+    await waitFor(() => {
+      expect(reset).toHaveBeenCalledWith(
+        expect.objectContaining({ systemName: "Clinical.DataHub" }),
+      );
+    });
+  });
+
   it("applies example template prefill once after full wizard reaches step 2", async () => {
     const exampleTemplate = REVIEW_INTAKE_EXAMPLE_TEMPLATES[0]!;
     const setValue = vi.fn();

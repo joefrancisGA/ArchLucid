@@ -50,9 +50,9 @@ export function restoreWizardFormWithDeeplinkPolicy(
  * Applies link-borne prefills to the form: accelerator pack, preset deep link, zero-config demo
  * package, and example-request template.
  *
- * Accelerator, preset, policy, and demo links run at most once. Example templates apply again when
- * the template id changes, matching guided intake. Accelerator and preset links also force the full
- * wizard, because the fields they fill are only visible there.
+ * Preset, policy, and demo links run at most once. Example templates and accelerator packs apply
+ * again when their id changes. Accelerator and preset links also force the full wizard, because the
+ * fields they fill are only visible there.
  */
 export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void {
   const {
@@ -82,7 +82,7 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
   const zeroConfigAppliedRef = useRef(false);
   const exampleTemplateAppliedIdRef = useRef<string | null>(null);
   const policyPackPrefillAppliedRef = useRef(false);
-  const acceleratorPrefillAppliedRef = useRef(false);
+  const acceleratorPrefillAppliedIdRef = useRef<string | null>(null);
   const presetPrefillAppliedRef = useRef(false);
 
   useEffect(() => {
@@ -95,7 +95,12 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
   }, [deeplinkPolicyPackId, setValue]);
 
   useEffect(() => {
-    if (acceleratorPackId === null || acceleratorPrefillAppliedRef.current) {
+    if (acceleratorPackId === null) {
+      return;
+    }
+
+    // A boolean latch keeps the first pack after the operator opens another accelerator link.
+    if (acceleratorPrefillAppliedIdRef.current === acceleratorPackId) {
       return;
     }
 
@@ -105,7 +110,7 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
       return;
     }
 
-    acceleratorPrefillAppliedRef.current = true;
+    acceleratorPrefillAppliedIdRef.current = acceleratorPackId;
     reset(applyWizardPreset(buildDefaultWizardValues(), preset));
     applyPolicyPackPrefill(deeplinkPolicyPackId, setValue);
     goToStep(1);

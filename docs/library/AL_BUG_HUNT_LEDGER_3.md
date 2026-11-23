@@ -12463,16 +12463,28 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
+2026-11-23 thorough hunt (hit): no rotation (shouldRotate false). Cheap-disproof: the same example id staying applied is the session guard in applies example template prefill only once across hook remounts; a first accelerator link resetting the form is the pack apply. Promoted a second accelerator pack: acceleratorPrefillAppliedRef was a boolean, so healthcare-data-workflow after ai-llm-workload never called reset. The latch is now the pack id. The same pack still applies once when goToStep changes. Query-prefill vitest 13/13. Private beta: opening a second accelerator pack on the detailed wizard replaces the system name and the rest of the pack fields.
+
+- [x] (proven) useNewRunWizardQueryPrefill — second accelerator pack id — hit 2026-11-23 thorough hunt: regression above.
+- [x] (valid-no-repro) useGuidedIntakeBriefForm — same example id after preset — cheap-disproof 2026-11-23 thorough hunt: once-across-remounts test.
+- [x] (valid-no-repro) useNewRunWizardQueryPrefill — first accelerator reset — cheap-disproof 2026-11-23 thorough hunt: pack apply resets the form.
+
+- [ ] (candidate) ReviewsNewPathSwitcher.selectPath — guided-intake and detailed returns still use silent replaceState — locus: non-quick-review branch; input: path=detailed and step=3, switch to guided intake; wrong outcome: Next search params keep step=; reachability: more-ways path links on /architecture/reviews/new.
+- [ ] (candidate) router.replace after quick-review return remounts the job chooser and drops an in-progress quick form — locus: selectPath; input: typed quick-start fields, open a pack, go back; wrong outcome: typed fields gone; reachability: quick start form then accelerator pack.
+- [ ] (candidate) useNewRunWizardQueryPrefill — a second preset deeplink id on the same mount does not reset the form — locus: presetPrefillAppliedRef; input: change preset= from one valid token to another while the detailed wizard stays mounted; wrong outcome: first preset fields remain; reachability: preset query on /architecture/reviews/new.
+- [ ] (candidate) useNewRunWizardQueryPrefill — a second accelerator pack calls goToStep(1) and leaves a later step — locus: accelerator effect; input: sit on step 3, then change accelerator=; wrong outcome: wizard jumps back to step 1; reachability: accelerator query on the detailed wizard.
+- [ ] (candidate) useNewRunWizardQueryPrefill — changing accelerator= while packId= is also set keeps the old policy pack over the new accelerator policy references — locus: applyPolicyPackPrefill after reset; input: baseline=1, accelerator=ai-llm-workload, packId=cis-azure-baseline, then change only accelerator; wrong outcome: policyReferences stays on the deeplink pack; reachability: accelerator link opened from a policy-pack handoff URL.
+
 2026-11-23 thorough hunt (hit): no rotation (shouldRotate false). Cheap-disproof: a second policy pack id on the same mount is the existing contract in applies policy pack deeplink prefill only once when packId changes without remounting. Promoted guided intake starter preset: seeing an example template set starterTemplatePrefillApplied, so removing template= left the example system name in place. Quick start reapplies the preset when the example leaves. The latch is now set only when the preset is written. Brief-form vitest 11/11. Private beta: after a sample and a starter preset are both on guided intake, removing the sample fills the brief from the starter preset.
 
 - [x] (proven) useGuidedIntakeBriefForm — starter latch consumed while example was present — hit 2026-11-23 thorough hunt: regression above.
 - [x] (valid-no-repro) useNewRunWizardQueryPrefill — second policy pack id — cheap-disproof 2026-11-23 thorough hunt: existing once-only packId test.
 
-- [ ] (candidate) useNewRunWizardQueryPrefill — a second accelerator pack id on the same mount does not reset the form — locus: acceleratorPrefillAppliedRef; input: change accelerator= from one valid pack to another while the detailed wizard stays mounted; wrong outcome: first pack fields remain; reachability: accelerator query on /architecture/reviews/new.
-- [ ] (candidate) ReviewsNewPathSwitcher.selectPath — guided-intake and detailed returns still use silent replaceState — locus: non-quick-review branch; input: path=detailed and step=3, switch to guided intake; wrong outcome: Next search params keep step=; reachability: more-ways path links on /architecture/reviews/new.
-- [ ] (candidate) router.replace after quick-review return remounts the job chooser and drops an in-progress quick form — locus: selectPath; input: typed quick-start fields, open a pack, go back; wrong outcome: typed fields gone; reachability: quick start form then accelerator pack.
-- [ ] (candidate) useGuidedIntakeBriefForm — the same example id does not return after the starter preset is applied — locus: guidedIntakeExampleTemplatePrefillAppliedIds; input: drop template=, then put the same template id back; wrong outcome: starter system name stays; reachability: guided intake template and preset queries.
-- [ ] (candidate) useNewRunWizardQueryPrefill — a late accelerator id resets edited policy references — locus: accelerator effect reset(); input: edit policyReferences, then set accelerator= to a valid pack; wrong outcome: edits replaced by the pack defaults; reachability: accelerator query added on the detailed wizard.
+- [x] (proven) useNewRunWizardQueryPrefill — a second accelerator pack id on the same mount does not reset the form — hit 2026-11-23 thorough hunt: latch is the pack id; regression resets the form when a second accelerator pack arrives on the same mount.
+- [x] (carried) ReviewsNewPathSwitcher.selectPath — guided-intake and detailed returns still use silent replaceState — locus: non-quick-review branch; input: path=detailed and step=3, switch to guided intake; wrong outcome: Next search params keep step=; reachability: more-ways path links on /architecture/reviews/new.
+- [x] (carried) router.replace after quick-review return remounts the job chooser and drops an in-progress quick form — locus: selectPath; input: typed quick-start fields, open a pack, go back; wrong outcome: typed fields gone; reachability: quick start form then accelerator pack.
+- [x] (valid-no-repro) useGuidedIntakeBriefForm — the same example id does not return after the starter preset is applied — cheap-disproof 2026-11-23 thorough hunt: applies example template prefill only once across hook remounts.
+- [x] (valid-no-repro) useNewRunWizardQueryPrefill — a late accelerator id resets edited policy references — cheap-disproof 2026-11-23 thorough hunt: the accelerator link replaces the form via reset; same-id reruns stay once-only.
 
 2026-11-23 thorough hunt (hit): no rotation (shouldRotate false). Cheap-disproof left guided-intake silent replaceState, quick-form remount, starter-preset after dropping example, and a second accelerator pack as open candidates. Promoted the example-template latch: exampleTemplatePrefillAppliedRef was a boolean, so a later template id on step 2 never rewrote systemName or description. The latch is now the template id, matching guided intake. Same-id cloud rerender still skips. Query-prefill vitest 12/12. Private beta: opening a second sample request on the detailed wizard replaces the system name and description with that sample.
 
@@ -12822,8 +12834,8 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 4
-- **bugs-found:** 3
+- **hunts:** 5
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

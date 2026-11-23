@@ -42,3 +42,4 @@
 {"at":"2026-11-23T16:53:59.8734310Z","zoneId":"ui-review-intake-wizards","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: quick start return left Next on the accelerator URL"}
 {"at":"2026-11-23T17:00:47.1852706Z","zoneId":"ui-review-intake-wizards","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: second example template id ignored on step 2"}
 {"at":"2026-11-23T17:06:28.0341780Z","zoneId":"ui-review-intake-wizards","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: starter preset stayed blocked after example template left"}
+{"at":"2026-11-23T17:11:03.8312687Z","zoneId":"ui-review-intake-wizards","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: second accelerator pack id ignored on the same wizard"}
