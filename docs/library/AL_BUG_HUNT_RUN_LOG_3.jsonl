@@ -5,3 +5,4 @@
 {"at":"2026-11-22T22:35:05.8949995Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared","set":3,"note":"seed hunt: pass-25 ladder monitors cheap-disproved; five non-ladder candidates"}
 {"at":"2026-11-22T22:41:18.5041183Z","zoneId":"ui-auth-proxy","outcome":"seed-only","productLine":"archlucid-shared","set":3,"note":"seed hunt: pass-19 ladder monitors cheap-disproved; five non-ladder candidates"}
 {"at":"2026-11-23T00:54:28.1800715Z","zoneId":"ui-lib-governance","outcome":"dry","productLine":"archlucid-shared","set":3,"note":"thorough hunt: reseed stub invalid; four pass-1 monitors cheap-disproved"}
+{"at":"2026-11-23T01:01:37.0731940Z","zoneId":"ui-lib-product-line","outcome":"hit","productLine":"securenow","set":3,"note":"thorough hunt: assigned-to-me findings path remapped between governance and SecureNow"}

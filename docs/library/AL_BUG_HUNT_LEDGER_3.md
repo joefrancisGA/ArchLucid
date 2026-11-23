@@ -43,6 +43,12 @@
 
 ## Zone: ui-lib-product-line
 
+2026-11-23 thorough hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). The reseed stub had no locus and is `(invalid)`. Promoted assigned-to-me queue remap: `findingsQueuePathFromPathname` treated `/governance/findings/assigned-to-me` as a child of `/compliance/findings`, and `/security/assigned-to-me` was not a findings route so it fell through to the general findings hub. The helper now swaps those two queue paths and keeps the query string; `useFindingsQueuePath` calls that helper. Regression `remaps assigned-to-me between the governance and SecureNow queues`; securenow-compliance-routes vitest **9/9**. Cheap-disproof closed nested href, trailing-slash, and admin-merge monitors. Private beta: an invited operator on the SecureNow assigned-to-me findings queue keeps triage and scope links on that queue instead of being sent to the general findings list.
+
+- [x] (proven) `findingsQueuePathFromPathname` — assigned-to-me remapped onto `/compliance/findings/assigned-to-me` or the general findings hub — **hit 2026-11-23 thorough hunt:** suffix swap to `assignedToMeFindingsPathForProductLine`; regression `remaps assigned-to-me between the governance and SecureNow queues`.
+
+- [ ] (candidate) `readProductLineCookie` — a padded or mixed-case cookie is ignored while the server reader trims and lowercases — locus: `isProductLineId(raw)` without trim; input: cookie value ` security`; wrong outcome: the client falls back to the build product line while `resolveProductLineIdForServer` accepts security; reachability: `archlucid_product_line_v1` cookie.
+
 2026-11-20 thorough hunt #1 (hit): cheap-disproved four (hunt-ready) monitors — valid-no-repro filterNavGroupsForProductLine (typed ProductLineId), valid-no-repro resolveProductLineIdForServer (cookie trim), valid-no-repro marketing route trailing-slash normalize, valid-no-repro collection snapshot helper. Promoted useFindingsQueuePath: governance pathname under SecureNow shell broke triage URL sync — findingsQueuePathFromPathname remaps namespace and preserves query; securenow-compliance-routes vitest 8/8.
 
 - [x] (valid-no-repro) filterNavGroupsForProductLine — unknown product line leak — cheap-disproof 2026-11-20 thorough hunt #1.
@@ -51,16 +57,16 @@
 - [x] (valid-no-repro) resolve-collection-snapshot-capture-succeeded — empty error success — cheap-disproof 2026-11-20 thorough hunt #1.
 - [x] (proven) use-findings-queue-path — governance pathname under security shell — hit 2026-11-20 thorough hunt #1: findingsQueuePathFromPathname.
 
-- [ ] (candidate) remapGovernanceOperatorHref — nested findings subpaths — monitor; hunt #1 reseed.
-- [ ] (candidate) readProductLineCookie — padded cookie — monitor; hunt #1 reseed.
-- [ ] (candidate) resolveProductLineAssignmentForPath — trailing slash href — monitor; hunt #1 reseed.
-- [ ] (candidate) mergeInternalNavUnderAdministration — admin href merge order — monitor; hunt #1 reseed.
-- [ ] (candidate) findingsQueuePathFromPathname — assigned-to-me family — monitor; hunt #1 reseed.
+- [x] (valid-no-repro) `remapGovernanceOperatorHref` — nested findings subpaths — **cheap-disproof 2026-11-23 thorough hunt:** the function matches the assigned-to-me, packs, and standards paths exactly, and assigned-to-me is that exact path.
+- [x] (valid-no-repro) `resolveProductLineAssignmentForPath` — trailing slash href — **cheap-disproof 2026-11-23 thorough hunt:** `/governance/findings/` still matches the nested prefix `/governance/findings` through `pathMatchesRoutePrefix`.
+- [x] (valid-no-repro) `mergeInternalNavUnderAdministration` — admin href merge order — **cheap-disproof 2026-11-23 thorough hunt:** administration links stay first and internal links are appended only when the href is not already present.
+- [x] (proven) `findingsQueuePathFromPathname` — assigned-to-me family — **hit 2026-11-23 thorough hunt:** see header regression.
+
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/product-line`. Seeded five `(hunt-ready)` rows; no production change.
 
 ### Hypotheses
 
-- [ ] (hunt-ready) reseed after hunt #1; prior queue closed in zone header diary.
+- [x] (invalid) reseed stub after hunt #1 — **cheap-disproof 2026-11-23 thorough hunt:** the row names no file, method, input, or wrong outcome.
 
 - **id:** ui-lib-product-line
 - **status:** open
@@ -68,11 +74,11 @@
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-23
+- **last-bug:** 2026-11-23
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
