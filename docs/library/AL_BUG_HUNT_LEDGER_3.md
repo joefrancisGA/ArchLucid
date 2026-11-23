@@ -1213,6 +1213,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-11-23 seed hunt (hit): no open rows remained. Offline replay treated a captured list status of 204 No Content as a verified absence when the outcome sentence said HTTP 200 and foreign runId absent. Live scans skip 204. Replay now skips that capture too. Regression `RunOffline_SkipsExcludeRunIdProbeWhenStatusIs204ButOutcomeClaimsHttp200Absent`. Scoped TenantIsolationNegativeTestRunnerTests **67/67**. Private beta: An invited operator replaying a tenant-isolation fixture no longer gets a pass when the captured list status is 204 No Content and the outcome sentence says the run was absent. That capture stays unverified.
+
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner.ShouldTrustVerifiedAbsentOutcomeOverFieldStatus` — 204 field status plus an HTTP 200 absent sentence passed the list probe — **hit 2026-11-23 seed hunt:** do not trust a 204 capture as a verified 2xx scan; regression above. Private beta: An invited operator replaying a tenant-isolation fixture no longer gets a pass when the captured list status is 204 No Content and the outcome sentence says the run was absent. That capture stays unverified.
+
 2026-11-23 seed hunt (hit): no open rows remained. A live run id with an extra path segment was interpolated into probe URLs, so the visibility check could read another route, that route could be denied, and the overall result still passed. A run id that is not one guid now fails before any request is sent. Regression `RunLiveAsync_FailsWhenRunIdAddsARouteSegment`. Scoped TenantIsolationNegativeTestRunnerTests **66/66**. Private beta: An invited operator who runs the tenant-isolation check with a run id that includes another path segment no longer gets a pass for that other route. The check fails before those requests are sent.
 
 - [x] (proven) `TenantIsolationNegativeTestLiveRunner.RunAsync` — run id suffix retargets live probe URLs and the check can still pass — **hit 2026-11-23 seed hunt:** reject a run id that is not one guid before HTTP; regression above. Private beta: An invited operator who runs the tenant-isolation check with a run id that includes another path segment no longer gets a pass for that other route. The check fails before those requests are sent.
@@ -1425,8 +1429,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 6
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

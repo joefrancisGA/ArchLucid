@@ -180,6 +180,10 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
         if (probe.ObservedStatusCode is not int fieldStatusCode)
             return true;
 
+        // Live list scans treat 204 No Content as unverified. A 2xx outcome sentence must not turn that capture into a pass.
+        if (fieldStatusCode == (int)HttpStatusCode.NoContent)
+            return false;
+
         if (fieldStatusCode is >= 200 and < 300)
             return true;
 
