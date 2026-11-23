@@ -54,9 +54,9 @@ export function readSharedSessionLastActivityAtMs(): number {
 
     const nowMs = Date.now();
 
-    // A clock jump ahead stores a future instant. Leaving it extends idle time until that instant.
+    // Returning now on every read would restart the idle window while the stored instant stays in the future.
     if (parsed > nowMs) {
-      return nowMs;
+      return nowMs - SESSION_IDLE_WORKING_TIMEOUT_MS;
     }
 
     return parsed;

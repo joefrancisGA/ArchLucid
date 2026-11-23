@@ -4206,6 +4206,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. `isBffSessionIdleExpired` treated a future `la` as recent activity, so `now - la` never reached the idle window and the proxy kept the HttpOnly session. Clamping `la` to the check time would restart that window on every request. A future `la` is now idle-expired. The shared reader had the same restart: returning `Date.now()` while storage stayed in 2099. It now returns `now - SESSION_IDLE_WORKING_TIMEOUT_MS`. Regression `expires a Guided session one idle window after a future last-activity instant` failed first (received false), then both idle files passed 8/8. Private beta: a future activity stamp on the HttpOnly session or the shared idle clock now ends the session instead of keeping an invited operator signed in.
+
+- [x] (proven) `isBffSessionIdleExpired` — future `la` never reaches the idle window — **proven 2026-11-23 seed hunt:** `la` of `2099-01-01` stayed unexpired; a future stamp now returns expired, and `readSharedSessionLastActivityAtMs` no longer restarts the window by returning now.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. `readSharedSessionLastActivityAtMs` returned a future ISO timestamp unchanged, so `remainingSessionIdleMs` stayed past the idle window after the clock moved back. `writeSharedSessionLastActivityAt` stores `new Date(nowMs).toISOString()` in `archlucid.session.lastActivityAt`. Regression `clamps a future last-activity timestamp to the current clock` failed first (received the 2099 instant), then the file passed 3/3. Private beta: a clock that jumps ahead and then back no longer keeps an invited operator signed in past the idle window.
 
 - [x] (proven) `readSharedSessionLastActivityAtMs` — future last-activity extends the idle window — **proven 2026-11-23 seed hunt:** stored `2099-01-01T00:00:00.000Z` was returned as-is; a future instant is now clamped to `Date.now()`.
@@ -4657,8 +4661,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 6
-- **bugs-found:** 5
+- **hunts:** 7
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

@@ -54,3 +54,4 @@
 {"at":"2026-11-23T18:18:42.8699598Z","zoneId":"ui-auth-proxy","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: idle expiry dropped the review-tab hash from the return path"}
 {"at":"2026-11-23T18:21:46.8828233Z","zoneId":"ui-auth-proxy","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: error recovery dropped the review-tab hash from desk restore"}
 {"at":"2026-11-23T18:28:29.5307385Z","zoneId":"ui-auth-proxy","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: a future last-activity timestamp kept the idle window open"}
+{"at":"2026-11-23T18:33:43.9813711Z","zoneId":"ui-auth-proxy","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: a future BFF activity stamp never reached the idle window"}

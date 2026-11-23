@@ -29,12 +29,19 @@ describe("session-idle-timeout", () => {
     window.localStorage.removeItem(SESSION_LAST_ACTIVITY_STORAGE_KEY);
   });
 
-  it("clamps a future last-activity timestamp to the current clock", () => {
+  it("treats a future last-activity timestamp as already idle", () => {
     const nowMs = Date.parse("2026-11-23T18:00:00.000Z");
     vi.useFakeTimers();
     vi.setSystemTime(nowMs);
     window.localStorage.setItem(SESSION_LAST_ACTIVITY_STORAGE_KEY, "2099-01-01T00:00:00.000Z");
 
-    expect(readSharedSessionLastActivityAtMs()).toBe(nowMs);
+    expect(readSharedSessionLastActivityAtMs()).toBe(nowMs - SESSION_IDLE_WORKING_TIMEOUT_MS);
+    expect(
+      remainingSessionIdleMs(
+        readSharedSessionLastActivityAtMs(),
+        nowMs,
+        SESSION_IDLE_WORKING_TIMEOUT_MS,
+      ),
+    ).toBe(0);
   });
 });
