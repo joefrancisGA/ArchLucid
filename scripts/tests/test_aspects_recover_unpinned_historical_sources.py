@@ -268,5 +268,77 @@ class UnpinnedRecoveryTests(unittest.TestCase):
 
 
 
+
+    def test_workbook_row22_explicit_prefixed_paths(self):
+        # Original workbook Excel row 22 / #6634 at SHA
+        # 8eb82c61fe1304d034414fe9d7b7a6bac4e9abee.
+        # Six explicit relative subpaths under a FULL declared repo directory;
+        # nonblank counts must be independently Git checked (195) by recovery.
+        raw = (
+            "Reviewed spans under archlucid-ui/src:\n"
+            "- hooks/use-collection-runs-query.ts lines 1–54\n"
+            "- hooks/use-operator-scope-query-key.ts lines 1–21\n"
+            "- lib/operator/operator-scope-query-key.ts lines 1–53\n"
+            "- lib/collection-runs-api.ts lines 1–44\n"
+            "- lib/proxy-fetch-registration-scope.ts lines 1–26\n"
+            "- lib/proxy-json-client.ts lines 1–18, 47–61, 90–93"
+        )
+        parsed = sut.parse_explicit_unpinned(raw)
+        self.assertIsNotNone(parsed)
+        self.assertEqual(len(parsed), 6)
+        self.assertEqual(sum(len(x["reported_inclusive_intervals"]) for x in parsed), 8)
+        self.assertEqual(parsed[0], {
+            "path": "archlucid-ui/src/hooks/use-collection-runs-query.ts",
+            "reported_inclusive_intervals": [[1, 54]],
+        })
+        self.assertEqual(parsed[-1], {
+            "path": "archlucid-ui/src/lib/proxy-json-client.ts",
+            "reported_inclusive_intervals": [[1, 18], [47, 61], [90, 93]],
+        })
+
+    def test_prefixed_directory_review_is_atomic_source_at_commit_candidate(self):
+        for suffix, content in (
+            ("hooks/a.cs", "one\n\ntwo\n"),
+            ("lib/b.cs", "three\nfour\n"),
+        ):
+            dest = self.repo / "src" / "explicit" / suffix
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_text(content, encoding="utf-8")
+        git(self.repo, "add", ".")
+        git(self.repo, "commit", "-qm", "explicit prefixed full paths")
+        self.head = git(self.repo, "rev-parse", "HEAD")
+        self.checkpoint.update(head_sha=self.head, oldest_included_sha=self.head)
+        raw = ("Reviewed spans under src/explicit:\n"
+               "- hooks/a.cs lines 1–3\n"
+               "- lib/b.cs lines 1–2")
+        report, rows = sut.recover(
+            self.repo,
+            [self.row(22, raw, 4), self.row(23, raw, 5)],
+            self.checkpoint,
+        )
+        self.assertEqual(report["candidate_rows"], 1)
+        self.assertEqual(rows[0]["status"], "git_source_at_review_commit_candidate_only")
+        self.assertEqual(rows[0]["candidate_nonblank_loc"], 4)
+        self.assertFalse(rows[0]["original_blob_pinned"])
+        self.assertEqual([x["nonblank_loc"] for x in rows[0]["sources"]], [2, 2])
+        self.assertEqual(rows[1]["status"], "workbook_nonblank_loc_mismatch")
+        self.assertEqual(rows[1]["candidate_nonblank_loc"], 0)
+        self.assertEqual(rows[1]["sources"], [])
+
+    def test_prefix_cannot_resolve_basename_guess_or_narrative(self):
+        rejected = (
+            "Reviewed spans under src/explicit:\n- a.cs lines 1–3",
+            "Reviewed spans under src/explicit:\n- hooks/a.cs lines 1–3\n- b.cs lines 1–1",
+            "Reviewed spans under src/explicit:\n- hooks/a.cs 1–3",
+            "Reviewed spans under src/explicit:\n- hooks/a.cs lines 1–3 and narrative",
+            "Reviewed spans under src/../explicit:\n- hooks/a.cs lines 1–3",
+            "Reviewed spans under src/explicit:\n- hooks/../a.cs lines 1–3",
+            "Reviewed spans under src/explicit:\n- hooks/a.cs lines 1–3\nAnd now narrative",
+            "Reviewed the complete baseline SQL connection factories in src/explicit: a.cs (27)",
+        )
+        for raw in rejected:
+            with self.subTest(raw=raw):
+                self.assertIsNone(sut.parse_explicit_unpinned(raw))
+
 if __name__ == "__main__":
     unittest.main()
