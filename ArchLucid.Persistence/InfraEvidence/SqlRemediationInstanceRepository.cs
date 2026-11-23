@@ -22,7 +22,7 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
                                 PathNarrativeJson, AssessmentId,
                                 ControlId, PreflightSnapshotId, ExecutionSnapshotId, VerificationSnapshotId, WaveId,
                                 PreflightResultJson, VerificationResultJson, CreatedByActorKey, ApprovedByActorKey,
-                                CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, ChangeImplementedUtc, VerifiedUtc, ClosedUtc, RowVersion)
+                                CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, ChangeImplementedUtc, VerifiedUtc, ClosedUtc)
                            VALUES
                                (@InstanceId, @TenantId, @WorkspaceId, @ProjectId, @FindingId, @PatternId, @PatternVersionId,
                                 @PatternKey, @FrozenPatternVersion, @AutomationLevel, @Status, @CloudResourceId, @PathId,
@@ -56,7 +56,7 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
                                 PathNarrativeJson, AssessmentId,
                                 ControlId, PreflightSnapshotId, ExecutionSnapshotId, VerificationSnapshotId, WaveId,
                                 PreflightResultJson, VerificationResultJson, CreatedByActorKey, ApprovedByActorKey,
-                                CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, ChangeImplementedUtc, VerifiedUtc, ClosedUtc, RowVersion)
+                                CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, ChangeImplementedUtc, VerifiedUtc, ClosedUtc)
                            VALUES
                                (@InstanceId, @TenantId, @WorkspaceId, @ProjectId, @FindingId, @PatternId, @PatternVersionId,
                                 @PatternKey, @FrozenPatternVersion, @AutomationLevel, @Status, @CloudResourceId, @PathId,
@@ -72,6 +72,11 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
 
     public async Task UpdateInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(instance);
+        if (instance.Status == RemediationInstanceStatus.Approved)
+            throw new InvalidOperationException(
+                "Approving a remediation instance requires an atomic provenance commit.");
+
         const string sql = """
                            UPDATE dbo.RemediationInstances
                            SET Status = @Status,
@@ -109,6 +114,9 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(mutation);
+        if (mutation.Status == RemediationInstanceStatus.Approved)
+            throw new InvalidOperationException(
+                "Approving a remediation instance requires an atomic provenance commit.");
 
         const string sql = """
                            UPDATE dbo.RemediationInstances
