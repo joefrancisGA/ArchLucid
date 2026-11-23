@@ -19329,6 +19329,10 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-architecture-diagram
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. `inventoryNodeElementMatchesFocusIds` in `help-mermaid.ts` still substring-matched Mermaid node ids for viewport fit after the prior hit aligned subject highlight. `ArchitectureDiagramViewer` zoomed to a union that included `flowchart-apigateway-0` when focus was `api`. The helper now delegates to `inventoryDiagramNodeElementMatchesFocusId`. Regression `fits the viewport to the api node only when focus slug api is not a substring of apigateway` failed first (`baseWidthPx` 300), then help-mermaid and camera-focus passed 41/41. Private beta: when a SecureNow question focuses a short resource slug, the diagram viewport frames that node only instead of every node whose generated id contains the same substring.
+
+- [x] (proven) `inventoryNodeElementMatchesFocusIds` — viewport fit substring-matched unrelated longer node ids — **proven 2026-11-23 seed hunt:** focus `api` included `flowchart-apigateway-0` in the fit union; matching now reuses `diagramFocusTokensMatch`.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted the open focus-token `(candidate)`. `inventoryDiagramNodeElementMatchesFocusId` used substring `includes` on Mermaid node ids, so a SecureNow subject slug `api` also matched `flowchart-apigateway-0`. Outline matching already required an exact bare slug; DOM highlight did not. Matching now reuses `diagramFocusTokensMatch`. Regression `does not match a short focus slug inside a longer unrelated node id` failed first (received true), then camera-focus and question-subject passed 11/11. Private beta: when a SecureNow question focuses a short resource slug on the inventory diagram, only that node receives the subject stroke, not every node whose generated id contains the same substring.
 
 - [x] (proven) `inventoryDiagramNodeElementMatchesFocusId` — short focus slug matches unrelated longer node id via substring — **proven 2026-11-23 seed hunt:** focus `api` matched `flowchart-apigateway-0`; bare slugs now use the same token rules as `diagramOutlineIncludesFocusResource`.
@@ -19359,8 +19363,8 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

@@ -1,3 +1,5 @@
+import { inventoryDiagramNodeElementMatchesFocusId } from "@/lib/architecture/architecture-diagram-camera-focus";
+
 const MERMAID_DIAGRAM_START =
   /^(?:flowchart|graph\s+(?:TD|TB|BT|RL|LR|DT|DR)|sequenceDiagram|classDiagram|stateDiagram|erDiagram|journey|gantt|pie\s|gitGraph|mindmap|timeline|quadrantChart|requirementDiagram|C4Context|C4Container|C4Component|C4Dynamic|C4Deployment)\b/i;
 
@@ -872,45 +874,12 @@ export function fitMermaidSvgElementToHost(
   applyMermaidSvgPixelSize(svg, width, height);
 }
 
-function normalizeDiagramFocusToken(value: string): string {
-  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "");
-}
-
 function inventoryNodeElementMatchesFocusIds(
   element: SVGGraphicsElement,
   focusNodeIds: readonly string[],
 ): boolean {
-  if (focusNodeIds.length === 0) {
-    return false;
-  }
-
-  const id = element.getAttribute("id") ?? "";
-  const title = element.querySelector("title")?.textContent?.trim() ?? "";
-
-  for (const focusId of focusNodeIds) {
-    const trimmed = focusId.trim();
-
-    if (trimmed.length === 0) {
-      continue;
-    }
-
-    if (id.includes(trimmed) || title.includes(trimmed)) {
-      return true;
-    }
-
-    const normalizedFocus = normalizeDiagramFocusToken(trimmed);
-    const normalizedId = normalizeDiagramFocusToken(id);
-    const normalizedTitle = normalizeDiagramFocusToken(title);
-
-    if (
-      normalizedFocus.length > 0
-      && (normalizedId.includes(normalizedFocus) || normalizedTitle.includes(normalizedFocus))
-    ) {
-      return true;
-    }
-  }
-
-  return false;
+  // Architecture diagram viewer focus uses the same token rules as SecureNow subject highlight.
+  return inventoryDiagramNodeElementMatchesFocusId(element, focusNodeIds);
 }
 
 function readMappedFocusNodeUnionBBox(
