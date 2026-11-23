@@ -60,6 +60,8 @@ import { ResourceHubFindingsArchitectureScopeAndSeverityEmptyPartialHonesty } fr
 import { RESOURCE_HUB_FINDINGS_ARCHITECTURE_SCOPE_AND_SEVERITY_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-findings-architecture-scope-and-severity-empty-copy";
 import { ResourceHubFindingsOperationalSecurityStreamEmptyPartialHonesty } from "@/components/infra-evidence/ResourceHubFindingsOperationalSecurityStreamEmptyPartialHonesty";
 import { RESOURCE_HUB_FINDINGS_OPERATIONAL_SECURITY_STREAM_EMPTY_LINE } from "@/lib/infra-evidence/resource-hub-findings-operational-security-stream-empty-copy";
+import { RESOURCE_HUB_FINDINGS_ARCHITECTURE_SCOPE_AND_SEVERITY_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-findings-architecture-scope-and-severity-empty-not-load-failure-copy";
+import { RESOURCE_HUB_FINDINGS_OPERATIONAL_SECURITY_STREAM_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/resource-hub-findings-operational-security-stream-empty-not-load-failure-copy";
 import {
   RESOURCE_HUB_DIAGRAM_TAB_PARTIAL_CAPTURE_LINE,
   RESOURCE_HUB_DRIFT_TAB_PARTIAL_CAPTURE_LINE,
@@ -2470,6 +2472,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                             >
                               {RESOURCE_HUB_FINDINGS_ARCHITECTURE_SCOPE_AND_SEVERITY_EMPTY_LINE}
                             </p>
+                            <p
+                              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                              data-testid="infra-resource-hub-findings-architecture-scope-and-severity-empty-not-load-failure"
+                            >
+                              {RESOURCE_HUB_FINDINGS_ARCHITECTURE_SCOPE_AND_SEVERITY_EMPTY_NOT_LOAD_FAILURE_LINE}
+                            </p>
                             <ResourceHubFindingsArchitectureScopeAndSeverityEmptyPartialHonesty />
                           </>
                         ) : (
@@ -2479,6 +2487,12 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                               data-testid="infra-resource-hub-findings-operational-security-stream-empty"
                             >
                               {RESOURCE_HUB_FINDINGS_OPERATIONAL_SECURITY_STREAM_EMPTY_LINE}
+                            </p>
+                            <p
+                              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                              data-testid="infra-resource-hub-findings-operational-security-stream-empty-not-load-failure"
+                            >
+                              {RESOURCE_HUB_FINDINGS_OPERATIONAL_SECURITY_STREAM_EMPTY_NOT_LOAD_FAILURE_LINE}
                             </p>
                             <ResourceHubFindingsOperationalSecurityStreamEmptyPartialHonesty />
                           </>
