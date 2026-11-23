@@ -60,6 +60,9 @@ public static class AdvisoryIntegrationSeed
             RunId = runId,
             ProjectId = projectSlug,
             CreatedUtc = createdUtc,
+            // Temporal snapshot resolver requires the run to reference its persisted graph.
+            // The graph row is inserted after the run to satisfy the run-first seed order.
+            GraphSnapshotId = graphSnapshotId,
             GoldenManifestId = manifestId
         };
 
