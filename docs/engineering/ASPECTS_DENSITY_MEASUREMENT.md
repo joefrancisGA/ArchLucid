@@ -160,3 +160,30 @@ source population lacks original review pins. This does not block reproducible
 historical/provisional charts or the narrower verified ledger report, but it
 does block claiming a complete current 900-commit defect density. The report
 makes that boundary explicit.
+
+
+## Required Aspects pass-to-pass SMA25 delta
+
+**Every time the operator requests "Aspects":** after reviewing source, show the
+previous Aspects pass's **25-point simple moving average (SMA25)**, the current
+pass's SMA25 and the **signed delta = current SMA25 − preceding SMA25**,
+all in defects/KLOC to at least six decimal places. Always state whether this
+is an increase or decrease. A relative percentage may be added, calculated as
+`(current / previous - 1) * 100`. Keep these fields visible even if the pass
+adds no new reviewed LOC or defects.
+
+Use *the preceding recorded pass in the same operational accounting series*;
+do not compare an audited narrow-ledger SMA to a historical-workbook SMA, or
+substitute a stale historical checkpoint. Calculate the moving averages from
+the last 25 per-pass defect-density values; do not reuse a cached workbook SMA
+or overwrite the preceding pass's rate when appending a new pass. If fewer
+than 25 observations exist, or prior pass data are unavailable, state
+**not available** instead of inventing a delta.
+
+**Example from the 2026-11-23 workbook pass:** previous operational SMA25
+1.3486852526541062; current 1.3542275959012933; signed delta
+**+0.0055423432471871 defects/KLOC** (**+0.410944%** relative), an increase.
+The source workbook `Operational trend` column I records the per-pass SMA
+delta; `Current operational update` rows 43–48 summarize the last two.
+The associated reported rates are provisional operational carry-forwards, not
+newly re-anchored current 900-commit density.
