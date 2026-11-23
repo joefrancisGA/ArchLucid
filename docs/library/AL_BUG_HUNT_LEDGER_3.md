@@ -35,7 +35,7 @@
 - **test-filter:** lib/governance
 - **hunts:** 1
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** never
 - **related-pd-tb:** none
@@ -237,7 +237,7 @@
 - **paths:** archlucid-ui/src/lib/api/
 - **test-filter:** lib/api
 - **hunts:** 7
-- **bugs-found:** 6
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -1486,7 +1486,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
 - **hunts:** 7
-- **bugs-found:** 6
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -4893,6 +4893,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue after the 2026-11-23 thorough dry pass. `resolveRpLogoutUrlFromBffSession` normalized the BFF logout URL with `normalizeOidcConfigurationString`, which does not strip soft hyphens, so an IdP hostname pasted with U+00AD survived into `signOutAndRedirectHome` navigation. Logout URLs now use `normalizeOidcOAuthFormString`. Regression `strips soft hyphens from BFF logout URLs before safety checks` failed first; `bff-session-sync` vitest 157/157. Private beta: sign-out still reaches the configured identity-provider logout endpoint when the BFF URL was copied with invisible soft hyphens.
+
+- [x] (proven) `resolveRpLogoutUrlFromBffSession` — soft hyphen in BFF logout URL host — **proven 2026-11-23 seed hunt:** U+00AD in hostname survived configuration-only normalization; OAuth-form normalization now strips it before RP-initiated logout.
 2026-11-23 thorough hunt (dry): no rotation (shouldRotate false). Cheap-disproof closed the four discovery and keepalive candidates. The authority query is omitted on purpose: ignores hash fragments when building the discovery URL, and the B2C policy lives on the authority path (accepts B2C-style authorization and token endpoints that include required query parameters). The discovery issuer is not read by sign-in, callback, refresh, or RP logout; those paths use authorization_endpoint, token_endpoint, and end_session_endpoint, which already require http(s). A soft hyphen in discoveryUrlForAuthority only remains when a caller skips the env getter; initiate, the supplemental Google redirect, callback, refresh, and RP logout all pass getOidcAuthority or getGoogleOidcAuthority, which now strip it. A missing CSRF cookie stays ignored because the activity route returns 403 for an empty CSRF header and pulse treats 403 as unauthorized, which would clear a still-valid session. No failing repro was established. Private beta: n/a.
 
 - [x] (valid-no-repro) discoveryUrlForAuthority — the discovery URL drops the authority query string — cheap-disproof 2026-11-23 thorough hunt: ignores hash fragments when building the discovery URL; B2C policy is on the authority path.
@@ -8217,9 +8220,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 6
-- **bugs-found:** 6
-- **consecutive-dry-hunts:** 1
+- **hunts:** 7
+- **bugs-found:** 7
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
 - **related-pd-tb:** none
@@ -9051,7 +9054,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **bugs-found:** 122- **consecutive-dry-hunts:** 1
+- **bugs-found:** 122- **consecutive-dry-hunts:** 0
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12381,8 +12384,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -12924,8 +12927,8 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -19376,8 +19379,8 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
