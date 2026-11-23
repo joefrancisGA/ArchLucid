@@ -12,7 +12,8 @@ public static class DeskContinuityValues
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
-    public static DeskContinuityDto Default { get; } = new();
+    // Do not share a mutable continuity DTO between requests or users.
+    public static DeskContinuityDto Default => new();
 
     public static DeskContinuityDto NormalizeOrDefault(string? storedJson)
     {
