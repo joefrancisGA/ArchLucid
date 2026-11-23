@@ -8218,7 +8218,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **hunts:** 6
-- **bugs-found:** 5
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -12381,8 +12381,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 6
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -12925,7 +12925,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
 - **hunts:** 6
-- **bugs-found:** 5
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -19329,6 +19329,9 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-architecture-diagram
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. Evidence-family filtering hid every bundled forest edge because `applyConnectorVisibility` read only `data-from`/`data-to` while the generator emits `data-bundle-from`/`data-bundle-to` for collapsed private-endpoint lines. Shared helper now token-matches bundle endpoints like click-focus and connector selection. Regression `keeps bundled edges visible when the family filter lists an endpoint pair`; connector-visibility + click-focus 6/6. Private beta: filtering the inventory diagram by evidence family keeps bundled connector lines on the canvas instead of hiding them all.
+
+- [x] (proven) `applyConnectorVisibility` — family filter ignored bundled edge endpoint attributes — **proven 2026-11-23 seed hunt:** bundle-only SVG edges were always `display:none` under family filter; bundle token matching now mirrors selection dimming.
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `applyArchitectureDiagramOverrides` `(candidate)`. Device-local edge overrides keyed only `edge_0`; inserting a data-flow row before restore removed the wrong connector after positional ids shifted. Overrides now match endpoints when stored ids no longer align. Regression `applies edge removal by stable endpoints when positional edge ids shift` failed first (`edge_0` removal dropped `Gamma -> Alpha`), then model suites passed 12/12. Private beta: operators who hid a diagram connector keep that same flow hidden after the brief gains new flows, instead of losing a different line.
 
 - [x] (proven) `applyArchitectureDiagramOverrides` — persisted edge overrides keyed only by generated positional ids — **proven 2026-11-23 seed hunt:**`edge_0` removal after reorder deleted `Gamma -> Alpha`; endpoint-keyed overrides now apply safely.
@@ -19373,8 +19376,8 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 6
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -19396,7 +19399,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `findNodeIdByLabel` / `parseFlowEndpoints` in `architecture-diagram-model.ts` — duplicate case-insensitive labels across stakeholder and system entities made `Gateway -> API` attach to the first `API` node (stakeholder) instead of the system service; ambiguous targets now prefer the same node kind as the resolved source; regression `resolves duplicate labels to the endpoint in the same node kind as the source`.
 - [x] (proven) `addFlowEdges` / `resolveEntityFlowParseText` in `architecture-diagram-model.ts` — pipe-delimited data-flow entities with a description column joined ` · ` in `detail` were parsed as `label -> full detail`, so the target never matched a live node; now treats the first ` · ` segment as the target endpoint and keeps later segments as the edge label; regression `materializes pipe-delimited data flows when detail includes a description column`.
 - [x] (proven) `applyArchitectureDiagramOverrides` in `architecture-diagram-model.ts` — persisted edge overrides keyed only by generated positional ids — **proven 2026-11-23 seed hunt:** reordering flows mis-applied `edge_0` removal; endpoint keys now win when ids shift.
-- (candidate) `parseDiagramNeighborhoodMap` in `architecture-diagram-neighborhood-map.ts` — malformed or negative `resource-count`/link `count` attributes are silently converted to zero, so a reachable inventory SVG with invalid numeric metadata can undercount neighborhood size and suppress the auto-open threshold; input originates from sanitized inventory diagram SVG metadata.
+- [x] (valid-no-repro) `parseDiagramNeighborhoodMap` — invalid numeric metadata — **cheap-disproof 2026-11-23 seed hunt:** `readNonNegativeInteger` already returns `null` for negative and non-finite values; tests cover missing counts.
 - [x] (proven) `readArchitectureDiagramCache` / `getActiveArchitectureDiagramVersion` — valid JSON in device-local storage with missing cache arrays was accepted as a typed record, then `.versions.find` threw during diagram restoration; now malformed cache records are rejected; regression `ignores valid JSON cache records with an invalid shape`.
 - [x] (proven) `architectureDiagramModelToTextAlternative` — an edge whose source or target node was removed remained in the accessible text alternative while Mermaid omitted it; now only edges with active endpoints are rendered; regression `omits edges connected to removed nodes from the text alternative`.
 - [x] (proven) `resolveDiagramCameraFocusNodeIds` — a URL/highlight seed whose casing or whitespace differs from outline endpoint ids returned only the seed and missed its one-hop neighbors because this helper compared raw strings; normalized comparisons and added regression `matches seed and outline endpoint ids case-insensitively`.
