@@ -16,18 +16,21 @@ describe("score-lift round59 mounted contract", () => {
       "app/(operator)/governance/remediation-factory/RemediationFactoryAttackPathReportSection.tsx",
     ];
 
+    const sharedLinks = readUiSource("components/product-line/SecureNowPartialCaptureRecoveryLinks.tsx");
+    expect(sharedLinks).toContain("buildSecureNowSecondCaptureExtractUploadHref");
+
     for (const relativePath of surfaces) {
       const source = readUiSource(relativePath);
 
       expect(source).toContain("partial-capture-extract-upload");
-      expect(source).toContain("buildSecureNowSecondCaptureExtractUploadHref");
+      expect(source).toMatch(/SecureNowPartialCaptureRecovery(?:Links|Paragraph)/);
     }
   });
 
   it("remediation factory priority queue partial-capture strip", () => {
     const source = readUiSource("app/(operator)/governance/remediation-factory/RemediationFactoryClient.tsx");
 
-    expect(source).toContain('data-testid="remediation-partial-capture-priority-queue"');
+    expect(source).toContain('testId="remediation-partial-capture-priority-queue"');
     expect(source).toContain("remediation-priority-queue-partial-capture-cloud-connections");
   });
 
