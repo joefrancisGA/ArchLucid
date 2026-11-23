@@ -166,7 +166,12 @@ export function ItsmOutboundQuickActions({
         </p>
       ) : null}
       {correlationsLoaded && correlationsError && errorMessage === null ? (
-        <p className={cn("text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}>{linkageUnavailableMessage}</p>
+        <p
+          className={cn("text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="itsm-create-correlation-load-failure"
+        >
+          {linkageUnavailableMessage}
+        </p>
       ) : null}
     </div>
   );
