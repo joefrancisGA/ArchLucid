@@ -74,7 +74,7 @@ public sealed class RemediationSqlRolePrivilegesTests(SqlServerPersistenceFixtur
             // Repeat both real migrations after role provisioning to verify idempotence.
             foreach (int replay in Enumerable.Range(0, 2))
             {
-                foreach (string batch in Regex.Split(migrationSql, @"(?im)^\\s*GO\\s*$"))
+                foreach (string batch in Regex.Split(migrationSql, @"(?im)^\s*GO\s*$"))
                 {
                     if (!string.IsNullOrWhiteSpace(batch))
                         await connection.ExecuteAsync(batch);
