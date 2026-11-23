@@ -43,6 +43,8 @@ on:
       - scripts/tests/test_aspects_current_900_discovery_candidates.py
       - scripts/aspects_current_900_proven_source_lineage.py
       - scripts/tests/test_aspects_current_900_proven_source_lineage.py
+      - scripts/aspects_current_900_candidate_provenance.py
+      - scripts/tests/test_aspects_current_900_candidate_provenance.py
       - docs/engineering/aspects-historical/**
       - scripts/tests/test_aspects_validate_historical_corpus.py
       - scripts/tests/test_aspects_import_historical_workbook.py
@@ -639,6 +641,53 @@ jobs:
               )
           PY
 
+      - name: Audit historical derived candidate sources in CURRENT master-base first-parent window
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/master')
+        env:
+          MASTER_900_HEAD: ${{ github.event.pull_request.base.sha || github.sha }}
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_current_900_candidate_provenance.py' -v
+          python scripts/aspects_current_900_candidate_provenance.py \
+            --repo . \
+            --master-base-head "$MASTER_900_HEAD" \
+            --window 900 \
+            --historical-root docs/engineering/aspects-historical \
+            --pin-rows artifacts/aspects/historical-git-pin-rows.jsonl \
+            --pin-report artifacts/aspects/historical-git-pin-audit.json \
+            --candidate-rows artifacts/aspects/historical-unpinned-source-candidates.jsonl \
+            --candidate-report artifacts/aspects/historical-unpinned-source-candidates.json \
+            --json-out artifacts/aspects/aspects-current-master-base-900-candidate-provenance.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          d = json.loads(Path(
+              "artifacts/aspects/aspects-current-master-base-900-candidate-provenance.json"
+          ).read_text())
+          exact = json.loads(Path(
+              "artifacts/aspects/aspects-current-master-base-900-exact-subset.json"
+          ).read_text())
+          assert d["status"] == "current_master_900_derived_review_source_candidate_provenance"
+          assert d["historical_observations_imported"] == exact["original_historical_events_total"] == 5741
+          assert d["cohort"]["head_sha"] == exact["cohort"]["head_sha"] == os.environ["MASTER_900_HEAD"]
+          assert d["cohort"]["oldest_included_sha"] == exact["cohort"]["oldest_included_sha"]
+          assert d["cohort"]["ordered_shas_sha256"] == exact["cohort"]["ordered_shas_sha256"]
+          assert d["candidate_rows_promoted_to_independent_original_blob_pins"] == 0
+          assert d["newly_independently_verified_reviewed_loc"] == 0
+          assert d["full_cross_revision_900_reviewed_loc"] is None
+          assert d["new_comparable_900_density"] is None
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
+              out.write(
+                  f"Current master-base historical candidate triage: "
+                  f"**{d['candidate_source_rows_reverified_git_in_current_cohort']}** "
+                  "Git-derived candidate review references, "
+                  f"**{d['candidate_exact_overlap_with_original_pins']:,}** "
+                  "same-path/blob candidate line identities already in original pins, "
+                  f"**{d['candidate_exact_identities_not_in_original_pins']:,}** "
+                  "exact-unmatched candidate identities; 0 new independently "
+                  "verified reviewed LOC, 0 density promotion.\\n\\n"
+              )
+          PY
+
       - name: Locate latest comparable master snapshot
         if: github.event_name != 'pull_request'
         env:
@@ -694,6 +743,7 @@ jobs:
             artifacts/aspects/aspects-current-master-base-900-exact-subset.json
             artifacts/aspects/aspects-current-master-base-900-discovery-candidates.json
             artifacts/aspects/aspects-current-master-base-900-proven-continuity.json
+            artifacts/aspects/aspects-current-master-base-900-candidate-provenance.json
           if-no-files-found: error
 
       - name: Require anchored, nonempty historical lineage cohort
