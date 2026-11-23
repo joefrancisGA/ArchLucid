@@ -12,6 +12,11 @@ namespace ArchLucid.Api.Tests.Planning;
 internal sealed class SeededTestEvidenceEntitlementAuthority : IEvidenceEntitlementAuthority
 {
     private readonly ConcurrentDictionary<Guid, byte> _seededRuns = new();
+    private int _checkedRequests;
+    private int _grantedRequests;
+
+    // Test-only counters; no caller identity, evidence content or tokens are recorded.
+    public string DiagnosticCounts => $"ACL checks={Volatile.Read(ref _checkedRequests)}; seeded grants={Volatile.Read(ref _grantedRequests)}";
 
     public void Allow(Guid runId)
     {
@@ -28,6 +33,8 @@ internal sealed class SeededTestEvidenceEntitlementAuthority : IEvidenceEntitlem
             && resource.WorkspaceId == ScopeIds.DefaultWorkspace
             && resource.ProjectId == ScopeIds.DefaultProject
             && _seededRuns.ContainsKey(resource.EvidenceId);
+        Interlocked.Increment(ref _checkedRequests);
+        if (allowed) Interlocked.Increment(ref _grantedRequests);
         return Task.FromResult(allowed);
     }
 }
