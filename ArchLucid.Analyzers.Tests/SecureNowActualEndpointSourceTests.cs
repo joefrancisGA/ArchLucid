@@ -34,8 +34,11 @@ public sealed class SecureNowActualEndpointSourceTests
     private static InvocationExpressionSyntax[] Calls(
         MethodDeclarationSyntax method, string name) =>
         method.DescendantNodes().OfType<InvocationExpressionSyntax>()
-            .Where(x => x.Expression is MemberAccessExpressionSyntax member &&
-                        member.Name.Identifier.ValueText == name)
+            .Where(x =>
+                (x.Expression is MemberAccessExpressionSyntax member &&
+                 member.Name.Identifier.ValueText == name) ||
+                (x.Expression is IdentifierNameSyntax direct &&
+                 direct.Identifier.ValueText == name))
             .OrderBy(x => x.SpanStart).ToArray();
 
     [Fact]
