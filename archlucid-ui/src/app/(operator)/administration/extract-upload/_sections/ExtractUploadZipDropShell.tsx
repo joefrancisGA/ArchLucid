@@ -12,6 +12,7 @@ import {
   EXTRACT_UPLOAD_STEP_UPLOAD_DESCRIPTION,
   EXTRACT_UPLOAD_STEP_UPLOAD_TITLE,
 } from "@/lib/extract-upload-settings-page-copy";
+import { EXTRACT_UPLOAD_EVALUATION_PENDING_NOT_LOAD_FAILURE_LINE } from "@/lib/extract-upload/extract-upload-evaluation-pending-not-load-failure-copy";
 
 import type { ExtractUploadSettingsViewModel } from "./use-extract-upload-settings";
 
@@ -74,12 +75,20 @@ export function ExtractUploadZipDropShell(props: ExtractUploadZipDropShellProps)
           />
         ) : null}
         {packageId !== null ? (
-          <p
-            className={cn("m-0 text-emerald-800 dark:text-emerald-300", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="extract-upload-success"
-          >
-            Package accepted (<span className="font-mono">{packageId}</span>).
-          </p>
+          <div className="space-y-1">
+            <p
+              className={cn("m-0 text-emerald-800 dark:text-emerald-300", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="extract-upload-success"
+            >
+              Package accepted (<span className="font-mono">{packageId}</span>).
+            </p>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="extract-upload-evaluation-pending-not-load-failure"
+            >
+              {EXTRACT_UPLOAD_EVALUATION_PENDING_NOT_LOAD_FAILURE_LINE}
+            </p>
+          </div>
         ) : null}
       </CardContent>
     </Card>
