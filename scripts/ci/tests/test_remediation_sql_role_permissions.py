@@ -9,6 +9,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[3]
 MIGRATION = ROOT / "ArchLucid.Persistence/Migrations/426_RemediationRoleWritePermissions.sql"
+PROCEDURES = ROOT / "ArchLucid.Persistence/Migrations/427_RemediationProcedureOnlyUpdates.sql"
 SCHEMA = ROOT / "ArchLucid.Persistence/Scripts/ArchLucid.sql"
 STARTUP = ROOT / "ArchLucid.Host.Core/Startup/Validation/Rules/SqlSealedEvidenceImmutabilityRules.cs"
 DELETE = ROOT / "ArchLucid.Persistence/InfraEvidence/SqlAzureInventorySnapshotRepository.Delete.cs"
@@ -45,19 +46,42 @@ class RemediationSqlRolePermissionsTests(unittest.TestCase):
         ):
             with self.subTest(expression=expression):
                 self.assertIn(expression, code)
-        # This tuple must exist in required DML, not in the DENY list:
-        # the production repository must retain scoped-CAS UPDATE access.
+        # Direct UPDATE must be denied; only the procedures may mutate instances.
         denied = code.split("RemediationDenyPermissions =", 1)[1].split(
             "RemediationRequiredPermissions =", 1)[0]
         allowed = code.split("RemediationRequiredPermissions =", 1)[1].split(
             "internal static bool ShouldValidate(", 1)[0]
-        self.assertNotIn('("dbo.RemediationInstances", "UPDATE")', denied)
-        self.assertIn('("dbo.RemediationInstances", "UPDATE")', allowed)
+        self.assertIn('("dbo.RemediationInstances", "UPDATE")', denied)
+        self.assertNotIn('("dbo.RemediationInstances", "UPDATE")', allowed)
+        self.assertIn("dbo.uspRemediationUpdateScoped", code)
+        self.assertIn("dbo.uspRemediationCommitApproval", code)
+        self.assertIn("dbo.uspRemediationCommitVerification", code)
+        self.assertIn("ProcedureExists(", code)
         self.assertIn('("dbo.RemediationEvidence", "INSERT")', allowed)
         self.assertIn("SqlDatabaseImmutabilityProbeHelpers.IsCurrentPrincipalRoleMember(", code)
         helper = (ROOT / "ArchLucid.Host.Core/Startup/Validation/Rules/"
                   "SqlDatabaseImmutabilityProbeHelpers.cs").read_text()
         self.assertIn("IS_ROLEMEMBER(@RoleName)", helper)
+
+    def test_scoped_updates_have_single_db_authority_not_table_write(self):
+        sql = PROCEDURES.read_text()
+        schema = SCHEMA.read_text()
+        self.assertTrue(schema.rstrip().endswith(sql.rstrip()))
+        for name in ("uspRemediationUpdateScoped", "uspRemediationCommitApproval",
+                     "uspRemediationCommitVerification"):
+            self.assertIn("CREATE OR ALTER PROCEDURE dbo." + name, sql)
+            self.assertIn("GRANT EXECUTE ON OBJECT::dbo." + name, sql)
+        self.assertIn("DENY UPDATE ON OBJECT::dbo.RemediationInstances TO [ArchLucidApp]", sql)
+        self.assertEqual(3, sql.count("WITH EXECUTE AS OWNER"))
+        self.assertEqual(3, sql.count("AND RowVersion = @ExpectedRowVersion"))
+        self.assertIn("THROW 50427", sql)
+        for path in (
+            "ArchLucid.Persistence/InfraEvidence/SqlRemediationInstanceRepository.cs",
+            "ArchLucid.Persistence/InfraEvidence/SqlRemediationInstanceRepository.AtomicApproval.cs",
+            "ArchLucid.Persistence/InfraEvidence/SqlRemediationInstanceRepository.AtomicVerification.cs",
+            "ArchLucid.Persistence/InfraEvidence/SqlAzureInventorySnapshotRepository.Delete.cs",
+        ):
+            self.assertNotIn("UPDATE dbo.RemediationInstances", (ROOT / path).read_text())
 
     def test_snapshot_delete_blocks_path_refs_instead_of_blind_instance_update(self):
         code = DELETE.read_text()
@@ -83,7 +107,7 @@ class RemediationSqlRolePermissionsTests(unittest.TestCase):
         code = SQL_TEST.read_text()
         for expression in (
             "GetManifestResourceNames()",
-            "426_RemediationRoleWritePermissions.sql",
+            "foreach (int migrationNumber in new[] { 426, 427 })",
             "EXECUTE AS USER",
             "ALTER ROLE [db_datawriter] ADD MEMBER",
             "UPDATE dbo.RemediationEvidence",
