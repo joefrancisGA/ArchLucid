@@ -730,8 +730,8 @@ public sealed class RemediationInstanceService(
                 || current.TenantId != verified.TenantId
                 || current.WorkspaceId != verified.WorkspaceId
                 || current.ProjectId != verified.ProjectId
-                || ToMutation(current) with { ExpectedRowVersion = null }
-                    != ToMutation(verified) with { ExpectedRowVersion = null })
+                || (ToMutation(current) with { ExpectedRowVersion = null })
+                    != (ToMutation(verified) with { ExpectedRowVersion = null }))
             {
                 throw new InvalidOperationException(
                     "Verified instance was modified before association-failure recovery.");
