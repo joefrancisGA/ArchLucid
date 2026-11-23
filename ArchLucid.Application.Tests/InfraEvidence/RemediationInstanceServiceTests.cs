@@ -884,6 +884,52 @@ public sealed class RemediationInstanceServiceTests
     }
 
     [Fact]
+    public async Task Failed_association_cannot_restore_over_a_newer_concurrent_remediation_state()
+    {
+        Guid controlId = Guid.NewGuid();
+        Mock<IVerifiedRemediationControlAssociationRepository> associations = new();
+        PassingVerifyHarness harness = ArrangePassingVerify(
+            controlId, assessmentId: null, associations: associations.Object);
+
+        associations.Setup(repository => repository.UpsertAsync(
+                It.IsAny<ProjectScopeKey>(),
+                It.IsAny<VerifiedRemediationControlAssociationRecord>(),
+                It.IsAny<CancellationToken>()))
+            .Returns((ProjectScopeKey scope,
+                      VerifiedRemediationControlAssociationRecord _,
+                      CancellationToken _) =>
+            {
+                RemediationInstanceRecord current = harness.Instances.Instances.Single();
+                current.Status.Should().Be(RemediationInstanceStatus.Verified);
+                current.RowVersion.Should().HaveCount(8);
+
+                // Simulate a separate legitimate writer following verification:
+                // current-row CAS succeeds, but recovery must not clobber it.
+                harness.Instances.UpdateInstanceInScopeAsync(scope,
+                    new RemediationInstanceMutation
+                    {
+                        InstanceId = current.InstanceId,
+                        ExpectedRowVersion = current.RowVersion,
+                        Status = RemediationInstanceStatus.Closed,
+                        UpdatedUtc = current.UpdatedUtc.AddSeconds(1),
+                    }).GetAwaiter().GetResult();
+
+                return Task.FromException<VerifiedRemediationControlAssociationRecord>(
+                    new InvalidOperationException("Association insert unavailable."));
+            });
+
+        Func<Task> verify = () => harness.Service.VerifyAsync(
+            CreateScope(), harness.InstanceId, SnapshotB, "verifier");
+
+        AggregateException failure = (await verify.Should()
+            .ThrowAsync<AggregateException>()).Which;
+        failure.InnerExceptions.Should().HaveCount(2);
+        RemediationInstanceRecord latest = harness.Instances.Instances.Single();
+        latest.Status.Should().Be(RemediationInstanceStatus.Closed);
+        latest.RowVersion.Should().HaveCount(8);
+    }
+
+    [Fact]
     public async Task Passing_verify_saves_the_association_when_the_caller_cancels_after_verifying()
     {
         using CancellationTokenSource cancellation = new();
