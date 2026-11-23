@@ -88,3 +88,39 @@ No cloud mutation or execution enablement is added.
 
 Focused unit, structural and SQL-fixture regression tests must
 be reviewed on the PR. SQL fixture skips do not certify the transaction.
+
+
+## Strict rowversion CAS on all protected remediation updates — 2026-11-23
+
+The original scoped SQL update and atomic verification transaction accepted
+`(@ExpectedRowVersion IS NULL OR RowVersion = @ExpectedRowVersion)`. That
+allowed a null expected token to bypass concurrency protection, unlike the
+stronger approval transaction. Both now require an **eight-byte current
+rowversion** before opening the write and use the unconditional SQL predicate
+`RowVersion = @ExpectedRowVersion`, in addition to exact tenant, workspace,
+project and instance scope. A stale/null/malformed token cannot mutate state;
+a rejected verification cannot insert its evidence record.
+
+A successful verification advances SQL Server's generated rowversion. If a
+subsequent association write fails, the existing compensation path must
+not reuse the pre-verification token: it rereads the scoped current record
+without using a caller cancellation token, confirms it is still in the exact
+just-verified mutable state, then restores with a CAS against the freshly
+observed rowversion. If another writer has changed the state, recovery
+raises an aggregate failure rather than clobbering the newer state.
+This does not make the independently stored association and evidence
+transactionally atomic across repositories; that remains a separate
+reconciliation/design concern.
+
+The in-memory test mutation mapping now retains its source token and may
+accept a fixture-supplied replacement token to simulate SQL Server's
+generation after writes. Legacy test-only records without a token are not
+proof of SQL concurrency safety. SQL-backed tests must execute against a
+disposable test catalog; a skipped fixture does not validate this repair.
+
+**Scope of this pass:** the two protected SQL operations and the verified
+association-failure compensation path. The older `UpdateInstanceAsync`
+tenant-only legacy method still deserves a separate caller/deprecation
+audit because it does not itself require scoped CAS; do not treat this
+change as proof that all direct/administrative database writers have been
+eliminated. No FND-015 signing authority or cloud execution was enabled.
