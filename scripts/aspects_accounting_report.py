@@ -150,6 +150,10 @@ def verified_subset(snapshot: dict | None, *, expected_head: str | None = None) 
         "current_head": None, "captured_utc": None,
         "defects_per_kloc": None, "distinct_defect_ids": None,
         "exact_path_blob_unique_reviewed_loc": None,
+        "verified_review_rows": None,
+        "distinct_review_observations": None,
+        "distinct_reviewed_files": None,
+        "new_observations_since_prior": None,
         "new_reviewed_loc": None, "new_line_occurrences": None,
         "repeated_reviewed_loc": None, "new_distinct_defect_ids": None,
         "signed_rate_delta": None, "comparison": "unavailable",
@@ -194,6 +198,17 @@ def verified_subset(snapshot: dict | None, *, expected_head: str | None = None) 
         "defects_per_kloc": rate,
         "distinct_defect_ids": defect_ids,
         "exact_path_blob_unique_reviewed_loc": loc,
+        "verified_review_rows": numeric(reviewed.get("verified_rows"),
+                                         "verified review rows", integer=True),
+        "distinct_review_observations": numeric(
+            reviewed.get("distinct_verified_observations"),
+            "distinct verified observations", integer=True),
+        "distinct_reviewed_files": numeric(
+            reviewed.get("distinct_reviewed_files"),
+            "distinct reviewed files", integer=True),
+        "new_observations_since_prior": (
+            optional_nonnegative_int(reviewed.get("new_observations_since_prior"),
+                                     "new observations") if comparable else None),
         "comparison": comparison or "unavailable",
         "freshness": snapshot.get("freshness"),
         "new_reviewed_loc": (
@@ -211,6 +226,15 @@ def verified_subset(snapshot: dict | None, *, expected_head: str | None = None) 
         "signed_rate_delta": (
             d.get("signed_delta") if comparable else None),
     })
+    if result["distinct_review_observations"] > result["verified_review_rows"]:
+        raise ValueError("distinct verified observations exceed reviewed rows")
+    if (result["distinct_defect_ids"] > result["verified_review_rows"]
+            or result["distinct_reviewed_files"] > result["verified_review_rows"]):
+        raise ValueError("defect/file identity counts exceed reviewed observation rows")
+    if (comparable and result["new_observations_since_prior"] is not None
+            and result["new_observations_since_prior"] >
+                result["distinct_review_observations"]):
+        raise ValueError("new review observation delta exceeds current observations")
     new = result["new_reviewed_loc"]
     repetitions = result["repeated_reviewed_loc"]
     occurrences = result["new_line_occurrences"]
@@ -290,8 +314,11 @@ def markdown(report: dict) -> str:
         f"- Verified Git head: \`{v['current_head'] or 'unavailable'}\`",
         f"- Verified distinct defect IDs: **{integer(v['distinct_defect_ids'])}**",
         f"- Verified exact path/blob reviewed LOC: **{integer(v['exact_path_blob_unique_reviewed_loc'])}**",
+        f"- Source-verified review rows / distinct observations: **{integer(v['verified_review_rows'])} / {integer(v['distinct_review_observations'])}**",
+        f"- Distinct reviewed source files: **{integer(v['distinct_reviewed_files'])}**",
         f"- Subset defect density: **{fmt(v['defects_per_kloc'])} defects/KLOC**",
         f"- Prior comparable capture: **{v['comparison']}**",
+        f"- Newly verified review observations: **{integer(v['new_observations_since_prior'])}**",
         f"- Newly verified unique LOC: **{integer(v['new_reviewed_loc'])}**",
         f"- Repeated LOC in new verified observations: **{integer(v['repeated_reviewed_loc'])}**",
         f"- New verified source-line occurrences: **{integer(v['new_line_occurrences'])}**",
