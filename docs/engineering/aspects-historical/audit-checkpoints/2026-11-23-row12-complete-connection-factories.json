@@ -41,5 +41,22 @@
   "reviewed_source_original_blob_pinned": false,
   "new_independently_verified_reviewed_loc": 0,
   "no_new_comparable_rate": true,
-  "interpretation": "The original workbook explicitly names every file under the declared repository folder and reports whole-file nonblank line counts. All five Git blobs and the 282 nonblank lines were checked at the original SHA. These derived source identities are candidate-only, not a second independently verified original review or a newly deduplicated 900-commit denominator. Workbook-reported 219 'new unique' lines are not independently cross-revision verified."
+  "interpretation": "The original workbook explicitly names every file under the declared repository folder and reports whole-file nonblank line counts. All five Git blobs and the 282 nonblank lines were checked at the original SHA. These derived source identities are candidate-only, not a second independently verified original review or a newly deduplicated 900-commit denominator. Workbook-reported 219 'new unique' lines are not independently cross-revision verified.",
+  "prior_completed_aspects_evidence": {
+    "successful_run_id": 45160219395,
+    "artifact_id": 14812729056,
+    "population": "historical pinned source rows and derived candidate rows before row12 source recovery",
+    "original_verified_pinned_path_blob_keys": 2906,
+    "other_derived_candidate_path_blob_keys": 2690,
+    "matching_row12_path_blob_keys_with_old_pins": 0,
+    "matching_row12_path_blob_keys_with_other_derived_candidates": 0,
+    "first_parent_anchor": "15ac3b9abeff23e4fa8cb7a16027bf9b17211251"
+  },
+  "exact_path_blob_overlap_golden": {
+    "candidate_exact_new_path_blob_lines_vs_old_pins_and_candidates": 282,
+    "candidate_exact_repeated_path_blob_lines": 0,
+    "denominator_increment": 0,
+    "confidence": "exact path/blob mismatch against prior proven source corpus; NOT unique source lines across different revisions"
+  },
+  "original_workbook_new_unique_not_promoted": 219
 }
