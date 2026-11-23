@@ -50,3 +50,4 @@
 {"at":"2026-11-23T17:51:33.2508081Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: soft hyphen in the OIDC authority env survived into discovery"}
 {"at":"2026-11-23T17:55:35.6625549Z","zoneId":"ui-oidc","outcome":"dry","productLine":"archlucid-shared","set":3,"note":"thorough hunt: discovery query, issuer, raw authority trim, and missing CSRF pulse were not reachable defects"}
 {"at":"2026-11-23T18:06:27.0594061Z","zoneId":"ui-auth-proxy","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: lookalike Referer prefix passed the BFF origin gate before the session cookie was issued"}
+{"at":"2026-11-23T18:13:48.7435651Z","zoneId":"ui-auth-proxy","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: sandbox GET dropped the BFF idle Set-Cookie"}

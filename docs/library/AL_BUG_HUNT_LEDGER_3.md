@@ -4206,13 +4206,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-11-23 thorough hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). A sandbox GET of `v1/architecture/telemetry/roi` returned the mock before `appendProxyBffSlideCookieHeaders`, so a live BFF cookie did not receive a new `Set-Cookie` and the HttpOnly idle clock stayed put. Fix appends the guard slide headers on that early return. Regression `slides the HttpOnly session cookie when a sandbox GET returns before upstream fetch` failed first (no session cookie), then passed. Cheap-disproof: DELETE body is **valid-no-repro** (`forwards DELETE without body`; no in-zone caller sends a DELETE body); whitespace JSON is **valid-no-repro** (`text.trim().length === 0` is the blank-document branch, and three spaces are the same class); Idempotency CR is **valid-no-repro** (Fetch `Headers.set` rejects CR/LF, so that value cannot arrive on `request.headers` and then 500 the route). Private beta: with sandbox mocks on, browsing a mocked operator page now refreshes the HttpOnly idle cookie, so the operator is not signed out while that page is still in use.
+
+- [x] (proven) `forward` — sandbox GET returned the mock before `appendProxyBffSlideCookieHeaders` — **proven 2026-11-23 thorough hunt:** `slides the HttpOnly session cookie when a sandbox GET returns before upstream fetch` failed, then `appendProxyBffSlideCookieHeaders` runs on the sandbox return.
+- [x] (valid-no-repro) `forward` — DELETE does not read or forward a request body — **cheap-disproof 2026-11-23 thorough hunt:** `forwards DELETE without body`; no in-zone caller passes a DELETE body.
+- [x] (valid-no-repro) `passThrough` — whitespace JSON success becomes `{}` — **cheap-disproof 2026-11-23 thorough hunt:** `text.trim().length === 0` is the blank JSON document branch; three spaces are that branch.
+- [x] (valid-no-repro) `buildProxyUpstreamHeaders` — Idempotency-Key CR — **cheap-disproof 2026-11-23 thorough hunt:** Fetch `Headers.set` rejects CR/LF, so the value cannot be stored on the incoming request and then thrown as a proxy 500.
+
 2026-11-23 thorough hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). `isSameOriginBffRequest` treated a Referer as same-origin when the string merely started with the app origin, so `http://127.0.0.1:3000.evil.test/auth/signin` passed when Origin and Sec-Fetch-Site were absent. POST `/api/auth/bff-session` uses that check before issuing the session cookie and does not require a CSRF header. Fix compares `new URL(referer).origin` to the app origin. Regression `rejects a lookalike Referer that only prefixes the app origin` failed first (received true), then the file passed 11/11. Private beta: a host that only prefixes the app origin can no longer pass the BFF origin gate, so invited operators establish the session cookie only from the real app origin.
 
-- [ ] (candidate) `forward` — a sandbox GET returns the mock before `appendProxyBffSlideCookieHeaders` — locus: `trySandboxProxyMock` early return in `proxy-forward.ts`; input: `ARCHLUCID_UI_SANDBOX_MOCKS=true` and GET `v1/architecture/telemetry/roi` with a live BFF cookie; wrong outcome: activity `Set-Cookie` omitted so the HttpOnly idle clock does not move; reachability: sandbox env used to browse the operator UI without the API.
 - [x] (proven) `isSameOriginBffRequest` — `Referer` is accepted by prefix, so a lookalike host passes the origin gate when `Origin` and `Sec-Fetch-Site` are absent — locus: `referer.startsWith(request.nextUrl.origin)`; input: Referer `https://app.example.com.evil.test/` against origin `https://app.example.com`; wrong outcome: same-origin check returns true; reachability: POST `/api/auth/bff-session` and mutating `/api/proxy` calls that omit `Origin` — **proven 2026-11-23 thorough hunt:** prefix match returned true for `http://127.0.0.1:3000.evil.test/auth/signin`; `refererHasAppOrigin` compares parsed origins.
-- [ ] (candidate) `forward` — DELETE does not read or forward a request body, while POST, PUT, and PATCH do — locus: DELETE `fetch` in `proxy-forward.ts`; input: DELETE `/api/proxy/v1/resource` with a JSON body; wrong outcome: upstream DELETE has no body; reachability: browser DELETE through the proxy catch-all.
-- [ ] (candidate) `passThrough` — a successful JSON body that is only whitespace is replaced with `{}` — locus: `text.trim().length === 0` branch; input: upstream HTTP 200 `application/json` body three spaces; wrong outcome: browser receives `{}`; reachability: upstream JSON success with a blank body.
-- [ ] (candidate) `buildProxyUpstreamHeaders` — an `Idempotency-Key` within the 256-character cap but containing CR is passed to `Headers.set` — locus: idempotency copy; input: key `abc\r\nX-Extra: 1`; wrong outcome: header construction throws and the proxy route surfaces 500 instead of 400; reachability: browser `Idempotency-Key` on a mutating proxy call.
 
 2026-11-22 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Re-read `enforceProxyBffSessionGuard`, `passThrough`, `isUnsafeProxyPathSegment`, `buildProxyUpstreamHeaders`, `declaredPostBodyExceedsLimit`, and `forward`. Cheap-disproof closed the five pass-19 monitors as the same branches hunt #177 and hunt #181 already recorded: idle expiry returns 401 before `slideBffSessionActivity`, `Retry-After` is not in the pass-through allowlist, a segment containing `\` is unsafe, `X-Api-Key` is set only when `key && !hasBearer`, and `Content-Length: 0` falls through to the streaming cap. No new row was promoted. Seeded five `(candidate)` rows from other branches. Private beta: n/a.
 
@@ -4642,8 +4645,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 2
-- **bugs-found:** 1
+- **hunts:** 3
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
