@@ -107,6 +107,9 @@ internal static class RealAgentExecutorSingleHandlerExecution
                             cancellationToken);
                     }
 
+                    RealAgentExecutorHandlerResiliencePipeline.ObserveOutcome(
+                        dispatchKey, task.AgentType, AgentHandlerFailureBudgetOutcome.Success, activity);
+
                     ArchLucidInstrumentation.AgentHandlerInvocationsTotal.Add(
                         1,
                         new KeyValuePair<string, object?>("agent_type_key", dispatchKey),
@@ -115,10 +118,17 @@ internal static class RealAgentExecutorSingleHandlerExecution
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
                     // Caller cancellation is not a handler failure or a degraded result.
+                    RealAgentExecutorHandlerResiliencePipeline.ObserveOutcome(
+                        dispatchKey, task.AgentType, AgentHandlerFailureBudgetOutcome.CallerCancelled, activity);
                     throw;
                 }
                 catch (Exception ex)
                 {
+                    // One observation per handler outcome, before deciding between a degraded
+                    // placeholder and a terminal error. No effect on admission or recovery.
+                    RealAgentExecutorHandlerResiliencePipeline.ObserveOutcome(
+                        dispatchKey, task.AgentType, AgentHandlerFailureBudgetOutcome.Failure, activity);
+
                     if (RealAgentExecutorHandlerResiliencePipeline.ShouldUseDegradedFallback(task, resilienceOptions)
                         && RealAgentExecutorHandlerResiliencePipeline.IsDegradableFailure(ex))
                     {
