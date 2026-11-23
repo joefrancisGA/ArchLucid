@@ -1,7 +1,7 @@
 name: FND-017 .NET Semantic Architecture Boundaries
 on:
   pull_request:
-    branches: [master, main, architecture/fnd017-conformance-advisory, architecture/fnd017-dotnet-compiler-boundaries, architecture/fnd017-auth-before-access-advisory, architecture/fnd017-authorization-result-flow, architecture/fnd017-cfg-dominance, architecture/fnd017-resource-binding, architecture/fnd017-baseline-reconciliation]
+    branches: [RC49, master, main, architecture/fnd017-conformance-advisory, architecture/fnd017-dotnet-compiler-boundaries, architecture/fnd017-auth-before-access-advisory, architecture/fnd017-authorization-result-flow, architecture/fnd017-cfg-dominance, architecture/fnd017-resource-binding, architecture/fnd017-baseline-reconciliation]
   workflow_dispatch:
 permissions:
   contents: read
