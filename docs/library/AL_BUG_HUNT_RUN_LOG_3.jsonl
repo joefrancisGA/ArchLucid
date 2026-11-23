@@ -56,3 +56,4 @@
 {"at":"2026-11-23T18:28:29.5307385Z","zoneId":"ui-auth-proxy","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: a future last-activity timestamp kept the idle window open"}
 {"at":"2026-11-23T18:33:43.9813711Z","zoneId":"ui-auth-proxy","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: a future BFF activity stamp never reached the idle window"}
 {"at":"2026-11-23T18:55:31.5171849Z","zoneId":"ui-auth-proxy","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: a rejected bootstrap fetch left the page pending"}
+{"at":"2026-11-23T19:04:46.3085934Z","zoneId":"ui-auth-proxy","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: idle desk restore overwrote a workspace chosen after expiry"}

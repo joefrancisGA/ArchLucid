@@ -4206,6 +4206,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. `restoreIdleDeskScopeAfterSignIn` always wrote the idle snapshot scope. `PostAuthBootstrapClient.applyBootstrapSession` applies the workspace from the new access token and then calls that restore, so a workspace chosen after idle expiry was replaced by the pre-timeout tenant. When storage already holds a different tenant, workspace, and project, the restore now leaves that scope in place. An empty scope store still receives the snapshot. Regression `keeps a workspace chosen after idle expiry instead of restoring the saved desk scope` failed first (received `tenant-a` / `project-c`), then the file passed 16/16. Private beta: after an idle timeout, choosing or creating a workspace keeps that workspace instead of snapping the operator back to the workspace they were in before the timeout.
+
+- [x] (proven) `restoreIdleDeskScopeAfterSignIn` — idle snapshot overwrites a workspace chosen after expiry — **proven 2026-11-23 seed hunt:** storage set to `tenant-new` was replaced by the saved `tenant-a` scope; a different current scope is now left in place.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. `createPostAuthWorkspace`, `acceptPostAuthInvitation`, `selectPostAuthWorkspace`, and `initiatePostAuthAccessRequest` returned a failure result on HTTP errors, but a rejected `fetch` threw. `PostAuthBootstrapClient` awaits those helpers with no catch, so a dropped connection left the button pending and skipped the failure copy. `fetchBootstrapMutation` now returns null, and each helper maps that to the same failure as a non-OK response. Regressions `returns generic failure when workspace creation fetch rejects`, `returns null when invitation accept fetch rejects`, `returns null when workspace select fetch rejects`, and `returns false when access-request fetch rejects` failed first (promise rejected `TypeError: Failed to fetch`), then the file passed 21/21. Private beta: a dropped connection while creating a workspace, accepting an invitation, selecting a workspace, or requesting access now shows the existing failure copy and releases the button, instead of leaving the bootstrap page stuck pending.
 
 - [x] (proven) `fetchBootstrapMutation` — rejected bootstrap fetch throws and the page stays pending — **proven 2026-11-23 seed hunt:** `TypeError: Failed to fetch` rejected the four helpers; a rejected fetch now returns the same failure as a non-OK response.
@@ -4665,8 +4669,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 8
-- **bugs-found:** 7
+- **hunts:** 9
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

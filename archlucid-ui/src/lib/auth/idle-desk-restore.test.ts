@@ -160,6 +160,22 @@ describe("idle-desk-restore (DR-12)", () => {
     expect(localStorage.getItem(IDLE_DESK_RESTORE_STORAGE_KEY)).toBeNull();
   });
 
+  it("keeps a workspace chosen after idle expiry instead of restoring the saved desk scope", () => {
+    persistIdleDeskRestoreBeforeSessionClear("/architecture/reviews/run-1");
+
+    const chosenScope = {
+      tenantId: "tenant-new",
+      workspaceId: "workspace-new",
+      projectId: "project-new",
+      workspaceLabel: "New",
+      projectLabel: "Pilot",
+    };
+    writeOperatorScopeToStorage(chosenScope);
+
+    expect(restoreIdleDeskScopeAfterSignIn()).toBe(true);
+    expect(readOperatorScopeFromStorage()).toEqual(chosenScope);
+  });
+
   it("drops unsafe return paths", () => {
     persistIdleDeskRestoreBeforeSessionClear("https://evil.example/phish");
 
