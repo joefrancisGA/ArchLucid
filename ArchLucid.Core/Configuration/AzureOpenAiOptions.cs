@@ -59,6 +59,23 @@ public sealed class AzureOpenAiOptions
         set;
     } = false;
 
+    /// <summary>Default SDK network timeout for each chat completion network operation.</summary>
+    public const int DefaultCompletionNetworkTimeoutSeconds = 60;
+
+    /// <summary>
+    ///     Azure OpenAI chat completion SDK network timeout in seconds (5–180).
+    ///     Applies to each transport operation in both streaming and non-streaming completions,
+    ///     including API-key and managed-identity clients. This is not a total request budget.
+    /// </summary>
+    public int CompletionNetworkTimeoutSeconds
+    {
+        get;
+        set;
+    } = DefaultCompletionNetworkTimeoutSeconds;
+
+    public TimeSpan GetEffectiveCompletionNetworkTimeout() =>
+        TimeSpan.FromSeconds(Math.Clamp(CompletionNetworkTimeoutSeconds, 5, 180));
+
     /// <summary>
     ///     Polly retry attempts for Azure OpenAI completion calls. When zero, falls back to
     ///     <c>AgentExecution:Resilience:LlmCallMaxRetryAttempts</c>.
