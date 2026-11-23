@@ -71,7 +71,8 @@ public sealed partial class InMemoryTenantRepository
 
         lock (list)
 
-            row = list.OrderBy(static w => w.CreatedUtc).FirstOrDefault();
+            row = TenantWorkspaceOrdering.OrderByCreatedUtcThenSqlId(
+                list, static w => w.CreatedUtc, static w => w.Id).FirstOrDefault();
 
         if (row is null)
             return Task.FromResult<TenantWorkspaceLink?>(null);
@@ -135,7 +136,8 @@ public sealed partial class InMemoryTenantRepository
 
         lock (list)
         {
-            copy = list.OrderBy(static w => w.CreatedUtc)
+            copy = TenantWorkspaceOrdering.OrderByCreatedUtcThenSqlId(
+                    list, static w => w.CreatedUtc, static w => w.Id)
                 .Select(static w => new TenantWorkspaceListItem
                 {
                     WorkspaceId = w.Id,
