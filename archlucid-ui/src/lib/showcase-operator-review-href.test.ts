@@ -1,13 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import {
   resolveShowcaseOperatorFindingHref,
   resolveShowcaseOperatorReviewHref,
 } from "@/lib/showcase-operator-review-href";
 
 vi.mock("@/lib/desk-continuity-preference", () => ({
-  readCachedLastOpenArchitectureId: vi.fn(() => "architecture-showcase-001"),
+  readCachedLastOpenArchitectureId: () => "architecture-showcase-001",
 }));
 
 describe("resolveShowcaseOperatorReviewHref", () => {
