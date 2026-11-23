@@ -15,10 +15,13 @@ public static class PilotValueReportAcceptFormat
         if (mediaTypes.Count == 0)
             return acceptHeader.Contains("text/markdown", StringComparison.OrdinalIgnoreCase);
 
-        double markdownQuality = GetMediaTypeQuality(mediaTypes, "text/markdown");
-        double jsonQuality = Math.Max(
-            GetExactMediaTypeQuality(mediaTypes, "application/json"),
-            Math.Max(GetMediaTypeQuality(mediaTypes, "application/*"), GetMediaTypeQuality(mediaTypes, "*/*")));
+        // An explicit Accept entry wins over a less-specific wildcard even when q=0.
+        // Otherwise "text/markdown;q=0, */*;q=1" incorrectly selects Markdown.
+        double markdownQuality = GetEffectiveMediaTypeQuality(mediaTypes, "text/markdown");
+        double jsonQuality = GetEffectiveMediaTypeQuality(mediaTypes, "application/json");
+
+        if (markdownQuality <= 0)
+            return false;
 
         if (markdownQuality > jsonQuality)
             return true;
@@ -57,19 +60,33 @@ public static class PilotValueReportAcceptFormat
         return mediaTypes;
     }
 
-    private static double GetExactMediaTypeQuality(IList<MediaTypeHeaderValue> mediaTypes, string mediaType)
+    /// <summary>
+    /// Returns q for the most specific matching media range, honoring explicit exclusions.
+    /// </summary>
+    private static double GetEffectiveMediaTypeQuality(IList<MediaTypeHeaderValue> mediaTypes, string requestedMediaType)
     {
+        int bestSpecificity = -1;
         double bestQuality = 0.0;
 
         foreach (MediaTypeHeaderValue candidate in mediaTypes)
         {
-            if (!MatchesExactMediaType(candidate, mediaType))
+            if (!candidate.MatchesMediaType(requestedMediaType))
                 continue;
 
+            int specificity = MatchesExactMediaType(candidate, requestedMediaType)
+                ? 2
+                : string.Equals(candidate.MediaType.Value, "*/*", StringComparison.Ordinal) ? 0 : 1;
             double quality = candidate.Quality ?? 1.0;
 
-            if (quality > bestQuality)
+            if (specificity > bestSpecificity)
+            {
+                bestSpecificity = specificity;
                 bestQuality = quality;
+            }
+            else if (specificity == bestSpecificity && quality > bestQuality)
+            {
+                bestQuality = quality;
+            }
         }
 
         return bestQuality;
@@ -78,24 +95,6 @@ public static class PilotValueReportAcceptFormat
     private static bool MatchesExactMediaType(MediaTypeHeaderValue candidate, string mediaType)
     {
         return string.Equals(candidate.MediaType.Value, mediaType, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static double GetMediaTypeQuality(IList<MediaTypeHeaderValue> mediaTypes, string mediaType)
-    {
-        double bestQuality = 0.0;
-
-        foreach (MediaTypeHeaderValue candidate in mediaTypes)
-        {
-            if (!candidate.MatchesMediaType(mediaType))
-                continue;
-
-            double quality = candidate.Quality ?? 1.0;
-
-            if (quality > bestQuality)
-                bestQuality = quality;
-        }
-
-        return bestQuality;
     }
 
     private static int IndexOfFirstMatch(IList<MediaTypeHeaderValue> mediaTypes, string mediaType)

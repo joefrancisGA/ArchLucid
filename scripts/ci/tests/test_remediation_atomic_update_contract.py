@@ -5,6 +5,19 @@ import unittest
 ROOT = Path(__file__).resolve().parents[3]
 
 class RemediationAtomicUpdateContractTests(unittest.TestCase):
+    def test_legacy_tenant_only_update_is_absent_from_every_repository_surface(self):
+        paths = (
+            "ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/IRemediationInstanceRepository.cs",
+            "ArchLucid.Persistence/InfraEvidence/SqlRemediationInstanceRepository.cs",
+            "ArchLucid.Persistence/InfraEvidence/NoOpRemediationInstanceRepository.cs",
+            "ArchLucid.Application.Tests/InfraEvidence/RemediationInstanceServiceTests.cs",
+            "ArchLucid.Application.Tests/InfraEvidence/RemediationPrioritizationAndWaveServiceTests.cs",
+        )
+        for path in paths:
+            with self.subTest(path=path):
+                source = (ROOT / path).read_text()
+                self.assertNotIn("UpdateInstanceAsync(", source)
+
     def test_default_scoped_update_fails_closed(self):
         source = (ROOT / "ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/IRemediationInstanceRepository.cs").read_text()
         method = source.split("Task UpdateInstanceInScopeAsync(", 1)[1].split("/// <summary>Persist verification evidence", 1)[0]
