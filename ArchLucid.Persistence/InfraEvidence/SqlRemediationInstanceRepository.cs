@@ -114,6 +114,10 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(mutation);
+        if (mutation.ExpectedRowVersion is not { Length: 8 })
+            throw new InvalidOperationException(
+                "Scoped remediation mutation requires an eight-byte expected rowversion.");
+
         if (mutation.Status == RemediationInstanceStatus.Approved)
             throw new InvalidOperationException(
                 "Approving a remediation instance requires an atomic provenance commit.");
@@ -143,7 +147,7 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
                              AND WorkspaceId = @WorkspaceId
                              AND ProjectId = @ProjectId
                              AND InstanceId = @InstanceId
-                             AND (@ExpectedRowVersion IS NULL OR RowVersion = @ExpectedRowVersion);
+                             AND RowVersion = @ExpectedRowVersion;
                            """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
