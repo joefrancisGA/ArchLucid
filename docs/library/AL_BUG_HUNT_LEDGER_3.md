@@ -19329,6 +19329,10 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-architecture-diagram
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted the open focus-token `(candidate)`. `inventoryDiagramNodeElementMatchesFocusId` used substring `includes` on Mermaid node ids, so a SecureNow subject slug `api` also matched `flowchart-apigateway-0`. Outline matching already required an exact bare slug; DOM highlight did not. Matching now reuses `diagramFocusTokensMatch`. Regression `does not match a short focus slug inside a longer unrelated node id` failed first (received true), then camera-focus and question-subject passed 11/11. Private beta: when a SecureNow question focuses a short resource slug on the inventory diagram, only that node receives the subject stroke, not every node whose generated id contains the same substring.
+
+- [x] (proven) `inventoryDiagramNodeElementMatchesFocusId` — short focus slug matches unrelated longer node id via substring — **proven 2026-11-23 seed hunt:** focus `api` matched `flowchart-apigateway-0`; bare slugs now use the same token rules as `diagramOutlineIncludesFocusResource`.
+
 2026-10-21 thorough hunt (hit, lane C): `ui-review-detail-workspace` — triaged review-detail vitest on `bugsmash` and `origin/master` (both 494 passed / 48 failed / 542 total, 31 files). Fixed largest groups: (1) `RunDetailReviewPackageStampViewport` tests — incomplete `WorkspaceModeProvider` / career-rehearsal hook mocks after `useEffectiveWorkingCareerRehearsalDoor` adoption (7, test drift); (2) buyer-polished RRE/RRF/ERU/APR Sources strips — assert full link catalog without `filterOrientationSourcesForJobContext` + pathname (4, test drift); (3) `buyerFindingNextStepCopy` omitted PHI showcase recommended-action fallback while decision-impact still special-cased (1, product bug); (4) `FavoriteReviewToggle` tests missing `useReviewPinMutation` / operate-capability mocks (2, test drift); (5) incomplete `next/navigation` mocks for create-home capture + malformed report problem (4, test drift); (6) finding inspect/detail fixtures missing `typedPayload.title` and buyer-polished label drift (4, test drift). After: 512 passed / 27 failed. Remaining `(candidate)` backlog groups: `RunDetailPresenterElicitationBridge` presenter surfaces + deep-link router (5, test drift); static import graph `run-detail-bundle-deferred-imports` + `RunDetailBelowFoldSectionsDeferred` + architect section order (3, test drift); create-home evidence panel orientation + activity wiring + empty-state CTAs (4, mixed); governance CTA href/query (2, test drift); print route `page.test` + simulator honesty strip + session activity (4, mixed); bundle section titles + decision delta badges + segment error recovery (4, mixed); pipeline banner / sibling queue / keyboard triage / AI availability panel (4, mixed); sponsor explanation citations (1, test drift).
 
 2026-10-21 thorough hunt (hit, lane C cont.): `ui-review-detail-workspace` — continued vitest triage (27 failed → 14 failed; 512 → 525 passed). Fixed: (1) `RunDetailPresenterElicitationBridge` — presenter question URL sync raced IR-012 nested-architecture redirect (product: skip question sync when `parentArchitectureId` set) + test drift (window `history` + `commitHrefIfChanged` assertions); (2) print route tests — pass `searchParams` promise + buyer-polished header assertion drift; (3) create-home evidence panel `buyerPolished={false}` for orientation band; (4) create-home activity wiring source scan → `RunDetailPageViewCreateHome.tsx`; (5) findings workspace empty states — `WorkspaceModeProvider` partial mock + eager `QuickDecisionSummary` card view; (6) `PackagePrintPageView` rehearsal title copy drift; (7) `FindingInspectView` inspect test secondary-strip assertion. Remaining `(candidate)`: sibling in-flight queue, pipeline banner, AI availability panel, keyboard triage, segment error, artifacts exports DOCX link, below-fold deferred import strings, decision delta badges, governance CTA hrefs, sponsor citations, architect section order, bundle deferred import graph, print client session activity.
@@ -19355,11 +19359,11 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-23
+- **last-bug:** 2026-11-23
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -19389,7 +19393,7 @@ ABQ-09 churn hotspot.
 
 - [x] (proven) `useArchitectureDiagramPanel` / `ArchitectureDiagramPanel` — `highlightedNodeId` from the findings dual-pane was read only when `diagramModel` changed, so a later highlight left the first provenance node selected — **hit 2026-10-09 seed hunt:** effect depends on `highlightedNodeId`. Regression `moves provenance selection when the highlighted node changes after the diagram is ready`.
 - [x] (proven) `groupDiagramNeighborhoodSections` / `DiagramNeighborhoodMapView` — inventory SVG metadata from `DiagramForestLayoutSvgRenderer` emits kind `shared-services` for the shared-services frame, but the subscription map treated every kind other than `vnet` as a resource group, so that tile rendered under Resource groups. Resource-group cells remain `shared`, `remainder`, and `other`. Regression `keeps shared services out of the resource group section`.
-- [ ] (candidate) `diagramOutlineIncludesFocusResource` / `inventoryDiagramNodeElementMatchesFocusId` — normalized substring matching can treat a short reachable focus resource id as the same as a longer node id, moving the camera or dimming an unrelated architecture node; a production Mermaid outline with colliding IDs is still required before promotion.
+- [x] (proven) `inventoryDiagramNodeElementMatchesFocusId` — short focus slug matched a longer unrelated Mermaid node id via substring `includes` — **proven 2026-11-23 seed hunt:** focus `api` highlighted `flowchart-apigateway-0`; DOM matching now uses `diagramFocusTokensMatch`.
 - [x] (valid-no-repro) `resolveDiagramClickFocus` — when the clicked node is inside a VNet frame, frame expansion keeps every node whose center is inside that frame — **cheap-disproof 2026-10-10 thorough hunt:** the existing test `keeps cards in the clicked node's VNet frame when the outline omits containment` establishes this as the intended VNet focus behavior; the focused click-focus suite passed.
 
 2026-10-09 seed hunt (seed-only): re-read ArchitectureDiagram viewer, focus, selection, model, readiness, SVG, neighborhood, and provenance paths; no candidate met the full reachability and wrong-outcome bar. Added two mechanism-backed candidates for focus-token collision and VNet frame expansion. The scoped suite reported 96 passed, 13 pre-existing viewer failures, and 17 passed test files.

@@ -92,4 +92,14 @@ describe("inventoryDiagramNodeElementMatchesFocusId", () => {
 
     expect(inventoryDiagramNodeElementMatchesFocusId(node, ["api"])).toBe(true);
   });
+
+  it("does not match a short focus slug inside a longer unrelated node id", () => {
+    const gateway = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    gateway.setAttribute("id", "flowchart-apigateway-0");
+    const gatewayTitle = document.createElementNS("http://www.w3.org/2000/svg", "title");
+    gatewayTitle.textContent = "API Gateway";
+    gateway.appendChild(gatewayTitle);
+
+    expect(inventoryDiagramNodeElementMatchesFocusId(gateway, ["api"])).toBe(false);
+  });
 });
