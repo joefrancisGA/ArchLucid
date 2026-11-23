@@ -622,7 +622,7 @@ describe("SignupForm", () => {
     vi.unstubAllGlobals();
   });
 
-  it("still posts register when first-touch cookie contains non-Latin1 UTM values", async () => {
+  it("posts register and preserves UTF-8 first-touch attribution when UTM values are non-Latin1", async () => {
     const capturedUtc = "2026-10-06T00:00:00.000Z";
     const cookieValue = encodeURIComponent(
       JSON.stringify({ utm_source: "launch", utm_campaign: "🚀", capturedUtc }),
@@ -654,7 +654,14 @@ describe("SignupForm", () => {
 
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     const headers = init.headers as Record<string, string>;
-    expect(headers["x-archlucid-first-touch"]).toBeUndefined();
+    const header = headers["x-archlucid-first-touch"];
+    expect(header).toBeTruthy();
+    const utf8Bytes = Uint8Array.from(atob(header!), (char) => char.charCodeAt(0));
+    expect(JSON.parse(new TextDecoder().decode(utf8Bytes))).toEqual({
+      utm_source: "launch",
+      utm_campaign: "🚀",
+      capturedUtc,
+    });
 
     document.cookie = "archlucid.firstTouch.v1=; Max-Age=0";
     vi.unstubAllGlobals();
