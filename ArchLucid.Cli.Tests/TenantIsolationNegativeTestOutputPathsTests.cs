@@ -83,4 +83,15 @@ public sealed class TenantIsolationNegativeTestOutputPathsTests
             .Should()
             .Be(TenantIsolationNegativeTestOutputPaths.OfflineArtifactKey);
     }
+
+    [Fact]
+    public void BuildDefaultRunDirectory_RejectsArtifactKeyThatLeavesTheArtifactRoot()
+    {
+        string repositoryRoot = Path.Combine(Path.GetTempPath(), "al-ti-" + Guid.NewGuid().ToString("N"));
+        string artifactKey = Path.Combine("..", "..", "outside");
+
+        Action build = () => TenantIsolationNegativeTestOutputPaths.BuildDefaultRunDirectory(repositoryRoot, artifactKey);
+
+        build.Should().Throw<ArgumentException>();
+    }
 }

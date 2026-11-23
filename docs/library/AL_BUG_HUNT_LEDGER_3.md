@@ -1213,6 +1213,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-11-23 seed hunt (hit): no open rows remained. `BuildDefaultRunDirectory` joins the manifest primary run id or the live run id with `Path.Combine`, which keeps `..`, so the report can be written outside `artifacts/tenant-isolation-negative-test`. The resolved directory is now rejected, and the command returns a configuration error. Regression `BuildDefaultRunDirectory_RejectsArtifactKeyThatLeavesTheArtifactRoot`. Scoped TenantIsolationNegativeTestOutputPathsTests **5/5**. Private beta: An invited operator who runs the tenant-isolation check with a run id or manifest id that points outside the artifact folder no longer gets the report written beside other files. The check stops before that write.
+
+- [x] (proven) `TenantIsolationNegativeTestOutputPaths.BuildDefaultRunDirectory` — manifest primary run id or live run id can leave the artifact directory — **hit 2026-11-23 seed hunt:** reject a resolved path outside `artifacts/tenant-isolation-negative-test`; regression above. Private beta: An invited operator who runs the tenant-isolation check with a run id or manifest id that points outside the artifact folder no longer gets the report written beside other files. The check stops before that write.
+
 2026-11-23 seed hunt (hit): no open rows remained. A repeated `--run-id` kept the first value, so the run named last was never checked. `GetOptionValue` now keeps the last repeated value and still rejects a blank or flag-like token. Regressions `Parse_UsesTheLastRunIdWhenTheFlagIsRepeated` and `Parse_RejectsALaterBlankRunIdAfterAValidOne`. Scoped TenantIsolationNegativeTestRunnerTests **65/65**. Private beta: An invited operator who passes the tenant-isolation run id twice is checked against the last run id. An earlier id no longer hides the run they named last.
 
 - [x] (proven) `TenantIsolationNegativeTestOptions.GetOptionValue` — first repeated `--run-id` hid the run named last — **hit 2026-11-23 seed hunt:** last value wins; regressions above. Private beta: An invited operator who passes the tenant-isolation run id twice is checked against the last run id. An earlier id no longer hides the run they named last.
@@ -1417,8 +1421,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

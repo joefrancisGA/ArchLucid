@@ -28,3 +28,4 @@
 {"at":"2026-11-23T14:36:02.7390267Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: offline replay passed while captured list contained the primary run"}
 {"at":"2026-11-23T14:51:47.2307805Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: blank run id selected the offline fixture"}
 {"at":"2026-11-23T15:00:00.2251795Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: repeated run id kept the first value"}
+{"at":"2026-11-23T15:14:55.1414995Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: artifact directory accepted a parent-segment run id"}
