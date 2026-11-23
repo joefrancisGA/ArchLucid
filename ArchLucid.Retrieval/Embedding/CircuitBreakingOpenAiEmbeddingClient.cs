@@ -43,9 +43,13 @@ public sealed class CircuitBreakingOpenAiEmbeddingClient : IOpenAiEmbeddingClien
         {
             ct.ThrowIfCancellationRequested();
 
-            float[] result = await _llmRetryPipeline.ExecuteAsync(
-                async innerCt => await _inner.EmbedAsync(text, innerCt),
-                ct);
+            // A half-open probe sends only one provider request; closed calls retain normal retries.
+            bool isHalfOpenProbe = _gate.CurrentState.Equals("HalfOpen", StringComparison.Ordinal);
+            float[] result = isHalfOpenProbe
+                ? await _inner.EmbedAsync(text, ct)
+                : await _llmRetryPipeline.ExecuteAsync(
+                    async innerCt => await _inner.EmbedAsync(text, innerCt),
+                    ct);
 
             _gate.RecordSuccess();
 
@@ -78,9 +82,13 @@ public sealed class CircuitBreakingOpenAiEmbeddingClient : IOpenAiEmbeddingClien
         {
             ct.ThrowIfCancellationRequested();
 
-            IReadOnlyList<float[]> result = await _llmRetryPipeline.ExecuteAsync(
-                async innerCt => await _inner.EmbedManyAsync(texts, innerCt),
-                ct);
+            // Batch recovery probes follow the same single-attempt budget as individual embeddings.
+            bool isHalfOpenProbe = _gate.CurrentState.Equals("HalfOpen", StringComparison.Ordinal);
+            IReadOnlyList<float[]> result = isHalfOpenProbe
+                ? await _inner.EmbedManyAsync(texts, ct)
+                : await _llmRetryPipeline.ExecuteAsync(
+                    async innerCt => await _inner.EmbedManyAsync(texts, innerCt),
+                    ct);
 
             _gate.RecordSuccess();
 

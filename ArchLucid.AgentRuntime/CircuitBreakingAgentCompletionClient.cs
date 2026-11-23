@@ -63,9 +63,13 @@ public sealed class CircuitBreakingAgentCompletionClient(
             // Snapshot after ThrowIfBroken (HalfOpen probes may transition Open → HalfOpen there).
             string stateBeforeOutcome = _gate.CurrentState;
 
-            string result = await _llmRetryPipeline.ExecuteAsync(
-                async ct => await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, ct),
-                cancellationToken);
+            // A half-open recovery probe must represent exactly one provider request.
+            // Normal retries remain enabled while the breaker is closed.
+            string result = stateBeforeOutcome.Equals("HalfOpen", StringComparison.Ordinal)
+                ? await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken)
+                : await _llmRetryPipeline.ExecuteAsync(
+                    async ct => await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, ct),
+                    cancellationToken);
 
             _gate.RecordSuccess();
 

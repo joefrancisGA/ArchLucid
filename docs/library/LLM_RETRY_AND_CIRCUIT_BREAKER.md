@@ -112,9 +112,11 @@ Canonical provider fault policy: `ProviderHttpFailurePolicy.ShouldRecordProvider
 
 ### Circuit breaker interaction
 
-- **One logical call** that exhausts all retries on a **transport-retryable** fault produces **one** `RecordFailure` (one step toward open).
+- While **Closed**, one logical call that exhausts all retries on a **transport-retryable** fault produces **one** `RecordFailure` (one step toward open).
+- While **HalfOpen**, completion and embedding decorators bypass Polly retries and send **one provider request per recovery probe**. A transient failure reopens the circuit rather than issuing multiple attempts during a fragile recovery window.
+- When `HalfOpenSuccessThreshold` is greater than one, the gate atomically reserves **each successive probe slot**, rejecting concurrent probes until the in-flight call completes.
 - **Semantic-terminal** failures (empty assistant, schema parse, non-429 4xx, etc.) surface to the caller **without** ticking the breaker (TB-944).
-- A call that eventually succeeds after retries produces **one** `RecordSuccess` (helps half-open recovery).
+- A call that eventually succeeds after retries while Closed produces **one** `RecordSuccess`; a half-open probe success advances the configured recovery streak.
 
 State machine (simplified):
 
