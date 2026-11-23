@@ -1,13 +1,20 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
+const deskFixture = vi.hoisted(() => ({ id: "architecture-alerts-001", reads: 0 }));
 import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-review-href";
 
 vi.mock("@/lib/desk-continuity-preference", () => ({
-  readCachedLastOpenArchitectureId: vi.fn(() => "architecture-alerts-001"),
+  readCachedLastOpenArchitectureId: () => {
+    deskFixture.reads += 1;
+    return deskFixture.id;
+  },
 }));
 
 describe("resolveOperatorScopedRunReviewHref", () => {
+  beforeEach(() => {
+    deskFixture.id = "architecture-alerts-001";
+    deskFixture.reads = 0;
+  });
   it("opens nested review when architecture id is on the scope banner", () => {
     expect(
       resolveOperatorScopedRunReviewHref("run-alert-1", "architecture-explicit-002"),
@@ -18,6 +25,6 @@ describe("resolveOperatorScopedRunReviewHref", () => {
     expect(resolveOperatorScopedRunReviewHref("run-alert-2")).toBe(
       "/architecture/architectures/architecture-alerts-001/reviews/run-alert-2",
     );
-    expect(vi.mocked(readCachedLastOpenArchitectureId)).toHaveBeenCalled();
+    expect(deskFixture.reads).toBeGreaterThan(0);
   });
 });
