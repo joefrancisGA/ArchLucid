@@ -2,6 +2,8 @@
 
 ## Zone: ui-lib-governance
 
+2026-11-23 thorough hunt (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). The only hunt-ready row was a reseed stub with no locus, input, or wrong outcome, so it is `(invalid)`. Re-read `governanceFindingsClearAllFiltersHref`, `governanceFindingsClearReviewScopeHref`, `governanceFindingsNlTitleHrefFromSearch`, and `resolveGovernanceScopedReviewOpenHref`. Cheap-disproof closed the four pass-1 monitors: clear-all deletes `bulkDispConfirm`, clear-scope deletes keyboard triage params, row review href trims `runId` before encoding, and title facets go through `URLSearchParams.set`. Inverse checks on architecture-id case, approval status `Promoted`/`Activated`, and the untrimmed findings search reader did not meet the hunt-ready bar. Private beta: n/a.
+
 2026-11-20 thorough hunt #2 (hit): cheap-disproof closed four header `(hunt-ready)` URL helpers — **valid-no-repro** `governanceFindingsClearAllFiltersHref` drops bulk confirm without selection (`governance-findings-clear-all-filters-url.test.ts`), **valid-no-repro** `governanceFindingsClearReviewScopeHref` clears keyboard triage with `runId` removal (suite), **valid-no-repro** `governanceFindingQueueRowReviewHref` trims padded ids via `resolveGovernanceScopedReviewOpenHref`, **valid-no-repro** NL title/`URLSearchParams` encoding for embedded `=` (title facet join path). Promoted architecture scope chip: `governanceFindingsArchitectureScopeHrefFromSearch` wrote whitespace-only `architectureId` into the URL instead of canonical `all`; normalize trim and map empty to `architectureId=all`; regression `treats whitespace-only architecture id as all-architectures scope without dropping filters`; architecture-scope suite **6/6**. Scoped governance URL cluster **26/26** (pick-review, clear filters, clear scope, architecture-scope). Private beta: bad architecture scope input no longer leaves padded `architectureId` query junk on the findings queue.
 
 - [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — bulk confirm without selection may linger — **cheap-disproof 2026-11-20 thorough hunt #2:** existing regression clears confirm param.
@@ -14,16 +16,16 @@
 
 - [x] (proven) `governanceFindingsPickReviewForTriageHref` — whitespace-only `reviewId` returns bare pathname and drops unrelated params when `architectureId` was absent — **hit 2026-11-20 thorough hunt (ui-lib-governance #1):** regression above.
 
-- [ ] (candidate) `governanceFindingsClearAllFiltersUrl` — clearing filters may retain bulk-disposition confirm params when bulk selection param already cleared — locus: param deletion order; input: bulk confirm without selection; wrong outcome: stale confirm modal URL; reachability: clear-all-filters control (monitor; pass 1 reseed).
-- [ ] (candidate) `governanceFindingsClearReviewScopeUrl` — may leave keyboard triage params when only `runId` removed — locus: scope vs triage params; input: scoped run with triage confirm params; wrong outcome: triage overlay stuck; reachability: clear review scope chip (monitor; pass 1 reseed).
-- [ ] (candidate) `governanceFindingQueueRowReviewHref` — padded `runId` on row may encode unpadded id inconsistently vs inspect link — locus: trim at encode boundary; input: padded run id row; wrong outcome: review vs inspect mismatch; reachability: queue row review column (monitor; pass 1 reseed).
-- [ ] (candidate) `governanceFindingsNlFacetFilterUrl` — NL facet token with embedded `=` may split incorrectly when re-appended to search — locus: facet encoding; input: value containing `=`; wrong outcome: broken facet filter URL; reachability: NL facet chips (monitor; pass 1 reseed).
+- [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — bulk confirm may linger — **cheap-disproof 2026-11-23 thorough hunt:** `params.delete` removes `bulkDispConfirm` with the bulk selection param.
+- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — keyboard triage params may linger — **cheap-disproof 2026-11-23 thorough hunt:** clear-scope deletes both keyboard triage params with `runId`.
+- [x] (valid-no-repro) `governanceFindingQueueRowReviewHref` — padded `runId` — **cheap-disproof 2026-11-23 thorough hunt:** `resolveGovernanceScopedReviewOpenHref` trims `runId` before the review path is built.
+- [x] (valid-no-repro) `governanceFindingsNlTitleHrefFromSearch` — embedded `=` in a title facet — **cheap-disproof 2026-11-23 thorough hunt:** the title is one `URLSearchParams.set` value, so `=` stays inside the parameter.
 
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/governance` (nominate gap — app route zone did not cover lib URL helpers). Seeded five `(hunt-ready)` rows on findings queue URL builders; no production change.
 
 ### Hypotheses
 
-- [ ] (hunt-ready) reseed after hunt #2; prior queue closed in zone header diary.
+- [x] (invalid) reseed stub after hunt #2 — **cheap-disproof 2026-11-23 thorough hunt:** the row names no file, method, input, or wrong outcome.
 
 - **id:** ui-lib-governance
 - **status:** open
@@ -31,10 +33,10 @@
 - **aliases:** governance lib; findings URL helpers
 - **paths:** archlucid-ui/src/lib/governance/
 - **test-filter:** lib/governance
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-23
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
