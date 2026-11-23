@@ -4206,6 +4206,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-11-23 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. Re-read `applyDedicatedWorkspaceScopeFromAccessToken`, `consumeLivelihoodPendingMutationForReturnPath`, `exitLiveSeatTraining`, `beginLiveSeatTrainingWalkthroughFromHome`, and `resolveConfiguredBffOrigins`. `applyDedicatedWorkspaceScopeFromAccessToken` clears the sample visit before it parses the token, but the failing input is a JWT with no scope claims. `IssueSession` only runs after a succeeded bootstrap and always passes tenant, workspace, and project ids, so that input has no reachability citation and was not promoted. No new row was promoted. Seeded five `(candidate)` rows. Private beta: n/a.
+
+- [ ] (candidate) `consumeLivelihoodPendingMutationForReturnPath` — truncated localStorage JSON is removed before parse and not restored — locus: `removeItem` before `parseLivelihoodPendingMutationRaw`; input: raw `{`; wrong outcome: the pending mutation is gone and not written back; reachability: the key is claimed before parse, so a value the parser rejects cannot be restored.
+- [ ] (candidate) `exitLiveSeatTraining` — dedicated scope is written before preference updates — locus: `returnToDedicatedWorkspaceFromSample` then `setUserFirstSessionPurpose`; input: the purpose call rejects; wrong outcome: scope is dedicated while first-session purpose stays training; reachability: `exitLiveSeatTraining` awaits the preference helpers with no rollback.
+- [ ] (candidate) `beginLiveSeatTrainingWalkthroughFromHome` — training purpose is written before the sample visit — locus: `setUserFirstSessionPurpose`, then `setUserWorkspaceMode`, then `visitSampleWorkspaceScope`; input: the mode call rejects; wrong outcome: purpose is training and the sample visit never starts; reachability: the Home training CTA awaits those helpers in order.
+- [ ] (candidate) `resolvePostAuthBootstrapDenialMessage` — unknown short denial strings are shown raw — locus: return `trimmed` when the string misses `TECHNICAL_DENIAL_PATTERN` and is at most 280 characters; input: `workspace quota exceeded`; wrong outcome: API text outside `KNOWN_DENIAL_MESSAGES` is rendered; reachability: bootstrap no-access copy passes `denialReason` from the status payload.
+- [ ] (candidate) `resolveConfiguredBffOrigins` — a configured origin with a trailing slash is dropped — locus: `parsed.origin === candidate`; input: `ARCHLUCID_BFF_ALLOWED_ORIGINS=https://app.example.com/`; wrong outcome: a same-origin request from that host fails the BFF gate; reachability: `rejects malformed configured origins` already drops a path suffix; a trailing slash is the same fail-closed branch.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. `resolveEmailOtpPostAuthPath` treated an explicit `"/"` as a chosen destination, so a desk path already stored by idle expiry or an OIDC retry was consumed and dropped. The sign-in page passes `"/"` whenever the query has no `returnUrl`. `"/"` is now only the default: a stored non-auth desk path wins, and a stored `/auth/signin` path still loses to home. Regression `uses a stored desk path when the explicit return is only the default root` failed first (received `"/"`), then the file passed 15/15. Private beta: after signing in from a page that has no return query, an invited operator returns to the desk saved before idle expiry or an OIDC retry instead of the home page.
 
 - [x] (proven) `resolvePostAuthReturnPath` — default `"/"` discards a stored desk path — **proven 2026-11-23 seed hunt:** Complete with `returnUrl` `"/"` and stored `/architecture/reviews/run-1` returned `"/"`; the stored desk path is now used.
@@ -4677,7 +4685,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 11
+- **hunts:** 12
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
