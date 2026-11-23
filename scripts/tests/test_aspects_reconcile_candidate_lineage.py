@@ -116,7 +116,7 @@ class CandidateLineageTests(unittest.TestCase):
 
     def test_candidate_source_with_no_same_path_original_pin_is_not_assumed_new_review(self):
         (self.repo / "unreviewed.cs").write_text(
-            "extra-a\\nextra-b\\n", encoding="utf-8")
+            "extra-a\nextra-b\n", encoding="utf-8")
         git(self.repo, "add", "unreviewed.cs")
         git(self.repo, "commit", "-qm", "extra explicit candidate-only source")
         current = git(self.repo, "rev-parse", "HEAD")
