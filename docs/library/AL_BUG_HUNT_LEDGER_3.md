@@ -1213,6 +1213,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-11-23 seed hunt (hit): no open rows remained. A live run id with an extra path segment was interpolated into probe URLs, so the visibility check could read another route, that route could be denied, and the overall result still passed. A run id that is not one guid now fails before any request is sent. Regression `RunLiveAsync_FailsWhenRunIdAddsARouteSegment`. Scoped TenantIsolationNegativeTestRunnerTests **66/66**. Private beta: An invited operator who runs the tenant-isolation check with a run id that includes another path segment no longer gets a pass for that other route. The check fails before those requests are sent.
+
+- [x] (proven) `TenantIsolationNegativeTestLiveRunner.RunAsync` — run id suffix retargets live probe URLs and the check can still pass — **hit 2026-11-23 seed hunt:** reject a run id that is not one guid before HTTP; regression above. Private beta: An invited operator who runs the tenant-isolation check with a run id that includes another path segment no longer gets a pass for that other route. The check fails before those requests are sent.
+
 2026-11-23 seed hunt (hit): no open rows remained. `BuildDefaultRunDirectory` joins the manifest primary run id or the live run id with `Path.Combine`, which keeps `..`, so the report can be written outside `artifacts/tenant-isolation-negative-test`. The resolved directory is now rejected, and the command returns a configuration error. Regression `BuildDefaultRunDirectory_RejectsArtifactKeyThatLeavesTheArtifactRoot`. Scoped TenantIsolationNegativeTestOutputPathsTests **5/5**. Private beta: An invited operator who runs the tenant-isolation check with a run id or manifest id that points outside the artifact folder no longer gets the report written beside other files. The check stops before that write.
 
 - [x] (proven) `TenantIsolationNegativeTestOutputPaths.BuildDefaultRunDirectory` — manifest primary run id or live run id can leave the artifact directory — **hit 2026-11-23 seed hunt:** reject a resolved path outside `artifacts/tenant-isolation-negative-test`; regression above. Private beta: An invited operator who runs the tenant-isolation check with a run id or manifest id that points outside the artifact folder no longer gets the report written beside other files. The check stops before that write.
@@ -1421,8 +1425,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 4
-- **bugs-found:** 4
+- **hunts:** 5
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

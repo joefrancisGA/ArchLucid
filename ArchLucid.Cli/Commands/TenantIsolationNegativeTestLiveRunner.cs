@@ -45,6 +45,29 @@ internal sealed class TenantIsolationNegativeTestLiveRunner
         ArgumentException.ThrowIfNullOrWhiteSpace(options.RunId);
 
         (string tenantId, string workspaceId, string projectId) = ResolveAlternateScope(options);
+
+        // Request paths are interpolated from the run id. Guid.TryParse rejects a suffix such as "/roi", which would otherwise retarget the visibility probe onto another route and still pass.
+        if (!Guid.TryParse(options.RunId, out _))
+        {
+            return new TenantIsolationNegativeTestLiveRunResult(
+                primaryClient.BaseAddress?.ToString()?.Trim().TrimEnd('/'),
+                options.RunId,
+                tenantId,
+                workspaceId,
+                projectId,
+                [
+                    new TenantIsolationNegativeTestProbeResult
+                    {
+                        Name = "primary-scope-run-visible",
+                        Path = "/v1/architecture/review/{runId}",
+                        ExpectedOutcome = "allow-status",
+                        ObservedOutcome = "run id is not a guid",
+                        Verdict = TenantIsolationNegativeTestVerdict.Fail,
+                        Evidence = "Live probes require one run id guid so an extra path segment cannot move the check onto another route.",
+                    },
+                ]);
+        }
+
         List<TenantIsolationNegativeTestProbeResult> probes = new();
 
         TenantIsolationNegativeTestProbeResult primarySanity = await ProbePrimaryRunVisibilityAsync(
