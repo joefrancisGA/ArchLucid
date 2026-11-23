@@ -77,7 +77,29 @@ BEGIN
         -- The existing verification-association compensating write
         -- restores ChangeImplemented after a failed separate association.
         OR (Status = 6 AND @Status = 9 AND @VerifiedUtc IS NULL)
-      );
+      )
+      -- Once approved, the frozen preflight and approval provenance cannot
+      -- be rewritten through the ordinary scoped mutation procedure.
+      AND (Status < 3 OR NOT EXISTS (
+          SELECT @CloudResourceId, @PathId, @PathNarrativeJson, @AssessmentId,
+                 @ControlId, @PreflightSnapshotId, @PreflightResultJson,
+                 @ApprovedByActorKey, @ApprovedUtc
+          EXCEPT
+          SELECT CloudResourceId, PathId, PathNarrativeJson, AssessmentId,
+                 ControlId, PreflightSnapshotId, PreflightResultJson,
+                 ApprovedByActorKey, ApprovedUtc
+      ))
+      AND (Status < 4 OR NOT EXISTS (SELECT @WaveId EXCEPT SELECT WaveId))
+      AND (Status < 5 OR NOT EXISTS (
+          SELECT @ExecutionSnapshotId, @ExecutedUtc
+          EXCEPT SELECT ExecutionSnapshotId, ExecutedUtc
+      ))
+      -- Normal Verified -> Closed must retain the verified receipt fields.
+      -- Only Verified -> ChangeImplemented compensation may clear them.
+      AND (@Status <> 8 OR NOT EXISTS (
+          SELECT @VerificationSnapshotId, @VerificationResultJson, @VerifiedUtc
+          EXCEPT SELECT VerificationSnapshotId, VerificationResultJson, VerifiedUtc
+      ));
     SELECT CAST(@@ROWCOUNT AS INT) AS UpdatedCount;
 END;
 GO
