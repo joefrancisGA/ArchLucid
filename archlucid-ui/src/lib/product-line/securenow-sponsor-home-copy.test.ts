@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { SETTINGS_SECURITY_TRUST_PATH } from "@/lib/settings-admin-route-paths";
+
 import {
   SECURENOW_SPONSOR_HOME_ROWS,
   SECURENOW_SPONSOR_HOME_SECTION_HEADING,
@@ -39,7 +41,7 @@ describe("SecureNow sponsor home copy", () => {
     expect(SECURENOW_SPONSOR_HOME_ROWS[5]?.summary).toBe(
       "Stage 6 facilitation. Not an approved offer and not customer evidence.",
     );
-    expect(SECURENOW_SPONSOR_HOME_ROWS[6]?.href).toBe("/trust#self-assessment");
+    expect(SECURENOW_SPONSOR_HOME_ROWS[6]?.href).toBe(SETTINGS_SECURITY_TRUST_PATH);
     expect(SECURENOW_SPONSOR_HOME_ROWS[6]?.summary).toMatch(/Not CPA attestation/);
   });
 

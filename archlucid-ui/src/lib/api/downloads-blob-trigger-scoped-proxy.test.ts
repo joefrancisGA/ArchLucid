@@ -1,0 +1,127 @@
+import { describe, expect, it, vi } from "vitest";
+
+import { downloadScopedProxyFileGet, openScopedProxyFileGetInNewTab } from "./downloads-blob-trigger-scoped-proxy";
+
+describe("downloadScopedProxyFileGet", () => {
+  it("does not save a 200 HTML page when the caller omitted content-type prefixes", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response("<!doctype html><html></html>", {
+          status: 200,
+          headers: { "Content-Type": "text/html; charset=utf-8" },
+        }),
+      ),
+    );
+    const createObjectUrl = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:test");
+
+    await expect(
+      downloadScopedProxyFileGet("/api/proxy/v1/authority/reviews/run-1/decision-receipt", {
+        accept: "application/json",
+        defaultFileName: "decision-receipt-run-1.json",
+      }),
+    ).rejects.toThrow(/text\/html/);
+
+    expect(createObjectUrl).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+    createObjectUrl.mockRestore();
+  });
+
+  it("does not save a 200 text/plain error body when the caller omitted content-type prefixes", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response("Not found", {
+          status: 200,
+          headers: { "Content-Type": "text/plain; charset=utf-8" },
+        }),
+      ),
+    );
+    const createObjectUrl = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:test");
+
+    await expect(
+      downloadScopedProxyFileGet("/api/proxy/v1/authority/reviews/run-1/decision-receipt", {
+        accept: "application/json",
+        defaultFileName: "decision-receipt-run-1.json",
+      }),
+    ).rejects.toThrow(/text\/plain/);
+
+    expect(createObjectUrl).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+    createObjectUrl.mockRestore();
+  });
+
+  it("still saves a 200 JSON body when content-type prefixes are omitted", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response("{}", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+    const createObjectUrl = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:test");
+
+    await downloadScopedProxyFileGet("/api/proxy/v1/authority/reviews/run-1/decision-receipt", {
+      accept: "application/json",
+      defaultFileName: "decision-receipt-run-1.json",
+    });
+
+    expect(createObjectUrl).toHaveBeenCalledTimes(1);
+    vi.unstubAllGlobals();
+    createObjectUrl.mockRestore();
+  });
+
+  it("still saves HTML when the caller declared a text/html prefix", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response("<html></html>", {
+          status: 200,
+          headers: { "Content-Type": "text/html; charset=utf-8" },
+        }),
+      ),
+    );
+    const createObjectUrl = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:test");
+
+    await downloadScopedProxyFileGet("/api/proxy/v1/authority/reviews/run-1/package", {
+      accept: "text/html",
+      defaultFileName: "run-package-run-1.html",
+      expectedContentTypePrefixes: ["text/html"],
+    });
+
+    expect(createObjectUrl).toHaveBeenCalledTimes(1);
+    vi.unstubAllGlobals();
+    createObjectUrl.mockRestore();
+  });
+});
+
+describe("openScopedProxyFileGetInNewTab", () => {
+  it("keeps the blob URL alive after opening a new tab so noopener navigation can load it", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response("{}", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+    const createObjectUrl = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:report");
+    const revokeObjectUrl = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    const open = vi.spyOn(window, "open").mockReturnValue(null);
+
+    await openScopedProxyFileGetInNewTab("/api/proxy/v1/product-learning/report?format=json", {
+      accept: "application/json",
+    });
+
+    expect(open).toHaveBeenCalledWith("blob:report", "_blank", "noopener,noreferrer");
+    expect(revokeObjectUrl).not.toHaveBeenCalled();
+
+    vi.unstubAllGlobals();
+    createObjectUrl.mockRestore();
+    revokeObjectUrl.mockRestore();
+    open.mockRestore();
+  });
+});

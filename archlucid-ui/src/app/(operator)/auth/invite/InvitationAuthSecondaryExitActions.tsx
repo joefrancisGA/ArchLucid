@@ -14,7 +14,7 @@ import {
   AUTH_INVITE_SIGN_IN_AGAIN_PATH,
   AUTH_INVITE_USE_DIFFERENT_ACCOUNT_LABEL,
 } from "@/lib/auth/invitation-auth-secondary-exit-copy";
-import { clearOidcSession, signOutAndRedirectHome } from "@/lib/oidc/session";
+import { endOidcBrowserSession, signOutAndRedirectHome } from "@/lib/oidc/session";
 import { appSiteHref } from "@/lib/site-urls";
 
 export type InvitationAuthSecondaryExitActionsProps = {
@@ -22,8 +22,13 @@ export type InvitationAuthSecondaryExitActionsProps = {
   readonly showSignInAgain?: boolean;
 };
 
-function redirectToSignInAgain(): void {
-  clearOidcSession();
+async function redirectToSignInAgain(): Promise<void> {
+  const ended = await endOidcBrowserSession();
+
+  if (!ended) {
+    return;
+  }
+
   window.location.assign(AUTH_INVITE_SIGN_IN_AGAIN_PATH);
 }
 

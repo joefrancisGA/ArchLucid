@@ -15,7 +15,7 @@ describe("learning-planning-report-download", () => {
     const projectId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
     writeOperatorScopeToStorage({ tenantId, workspaceId, projectId });
 
-    const fetchMock = vi.fn(async () => new Response("# report", { status: 200 }));
+    const fetchMock = vi.fn(async () => new Response("# report", { status: 200, headers: { "Content-Type": "text/markdown; charset=utf-8" } }));
     vi.stubGlobal("fetch", fetchMock);
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock");
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});

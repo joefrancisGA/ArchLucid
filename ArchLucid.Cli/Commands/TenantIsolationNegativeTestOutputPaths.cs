@@ -60,11 +60,34 @@ internal static class TenantIsolationNegativeTestOutputPaths
         ArgumentException.ThrowIfNullOrWhiteSpace(repositoryRoot);
         ArgumentException.ThrowIfNullOrWhiteSpace(artifactKey);
 
-        return Path.Combine(
+        string combined = Path.Combine(
             repositoryRoot,
             "artifacts",
             ArtifactDirectorySegment,
             artifactKey.Trim());
+
+        // Path.Combine keeps ".." in the string. The file write resolves it later, so a manifest primaryRunId or run id can leave the artifact directory.
+        EnsureCombinedPathStaysUnderArtifactRoot(repositoryRoot, combined);
+
+        return combined;
+    }
+
+    private static void EnsureCombinedPathStaysUnderArtifactRoot(string repositoryRoot, string combinedPath)
+    {
+        string artifactRoot = Path.GetFullPath(
+            Path.Combine(repositoryRoot, "artifacts", ArtifactDirectorySegment));
+        string resolved = Path.GetFullPath(combinedPath);
+        string rootPrefix = artifactRoot.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+            + Path.DirectorySeparatorChar;
+
+        if (resolved.StartsWith(rootPrefix, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        throw new ArgumentException(
+            "Tenant isolation artifact path must stay under artifacts/tenant-isolation-negative-test.",
+            nameof(combinedPath));
     }
 
     private static string? TryBuildDefaultRunDirectory(string? repositoryRoot, string artifactKey)

@@ -305,6 +305,34 @@ describe("useGuidedIntakeBriefForm", () => {
     expect(result.current.businessOutcome).toBe(exampleTemplate.businessOutcome);
   });
 
+  it("applies the starter preset after the example template leaves the guided intake URL", async () => {
+    scopeGateSearchParamsHarness.state.query =
+      "path=guided-intake&template=customer-intake-modernization&preset=starter-api-platform-b2b";
+
+    const { result, rerender } = renderHook(
+      ({ example }: { example: typeof exampleTemplate | null }) =>
+        useGuidedIntakeBriefForm({
+          exampleTemplate: example,
+          isCreateArchitectureFlow: false,
+          requiresSystemName: true,
+        }),
+      { initialProps: { example: exampleTemplate } },
+    );
+
+    await waitFor(() => {
+      expect(result.current.systemName).toBe(exampleTemplate.systemName);
+    });
+
+    scopeGateSearchParamsHarness.state.query = "path=guided-intake&preset=starter-api-platform-b2b";
+    rerender({ example: null });
+
+    await waitFor(() => {
+      expect(result.current.systemName).toBe("PartnerApiPlatform");
+    });
+
+    expect(result.current.freeTextIntent).toContain("B2B API platform");
+  });
+
   it("keeps architecture brief present when attachments exist with partial typed brief (P-09)", () => {
     const file = new File(["diagram"], "topology.png", { type: "image/png" });
 

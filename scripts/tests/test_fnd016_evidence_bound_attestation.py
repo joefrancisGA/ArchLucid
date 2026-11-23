@@ -1,9 +1,12 @@
+import base64
 import copy
-from datetime import datetime, timezone
+from dataclasses import replace
+from datetime import datetime, timedelta, timezone
 import unittest
 from unittest.mock import Mock
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from scripts.integration.fnd016_signed_recovery_attestation import canonical
 from scripts.integration.fnd014_isolated_dry_run import (
     DryRunAuthorization, RemediationStep, simulate_remediation,
 )
@@ -20,6 +23,8 @@ from scripts.integration.fnd016_recovery_stop_gate import (
 from scripts.integration.fnd016_evidence_bound_attestation import (
     prepare_attestation, issue_with_external_signer,
     verify_evidence_bound_attestation,
+    ReviewedPlanSnapshot, reviewed_plan_content_sha256,
+    issue_from_authoritative_plan, verify_against_authoritative_plan,
 )
 
 
@@ -50,6 +55,187 @@ class EvidenceBoundAttestationTests(unittest.TestCase):
             key if key is not None else self.key.public_key(), "independent-v1",
             expected_forward_steps=self.forward if forward is None else forward,
             expected_inverse_steps=self.inverse if inverse is None else inverse)
+
+    def reviewed(self, **changes):
+        now = datetime.now(timezone.utc)
+        draft = ReviewedPlanSnapshot(
+            tenant_id="t", project_id="p", proposal_id="proposal",
+            revision=4, approved=True,
+            approved_at=now - timedelta(minutes=2),
+            expires_at=now + timedelta(minutes=10),
+            forward_steps=tuple(self.forward), inverse_steps=tuple(self.inverse),
+            content_sha256="",
+        )
+        amended = replace(draft, **changes)
+        return replace(amended, content_sha256=reviewed_plan_content_sha256(amended))
+
+    def sign_via_reader(self, snapshot=None, reader=None, revision=4):
+        plan = self.reviewed() if snapshot is None else snapshot
+        lookup = Mock(return_value=plan) if reader is None else reader
+        signer = Mock(side_effect=self.key.sign)
+        issued = issue_from_authoritative_plan(
+            self.payload, signer, evidence=self.evidence,
+            tenant_id="t", project_id="p", proposal_id="proposal",
+            min_revision=revision, now=datetime.now(timezone.utc),
+            read_current_plan=lookup)
+        return issued, lookup, signer
+
+    def test_current_authorized_plan_reread_before_sign_and_verify(self):
+        signed, reader, signer = self.sign_via_reader()
+        reader.assert_called_once_with("t", "p", "proposal")
+        signer.assert_called_once()
+        verified = verify_against_authoritative_plan(
+            signed, self.evidence, self.key.public_key(), "independent-v1",
+            tenant_id="t", project_id="p", proposal_id="proposal",
+            min_revision=4, now=datetime.now(timezone.utc),
+            read_current_plan=reader)
+        self.assertTrue(verified.signed_by_independent_authority)
+        self.assertEqual(reader.call_count, 2)
+
+    def test_signer_never_called_without_authoritative_plan(self):
+        for plan in (None, self.reviewed(approved=False),
+                     self.reviewed(tenant_id="foreign"),
+                     self.reviewed(revision=2),
+                     self.reviewed(expires_at=datetime.now(timezone.utc)
+                                   - timedelta(seconds=1)),
+                     self.reviewed(approved_at=datetime.now(timezone.utc)
+                                   + timedelta(minutes=5))):
+            with self.subTest(plan=plan):
+                reader = Mock(return_value=plan)
+                signer = Mock(side_effect=self.key.sign)
+                with self.assertRaises(ValueError):
+                    issue_from_authoritative_plan(
+                        self.payload, signer, evidence=self.evidence,
+                        tenant_id="t", project_id="p", proposal_id="proposal",
+                        min_revision=4, now=datetime.now(timezone.utc),
+                        read_current_plan=reader)
+                signer.assert_not_called()
+
+    def test_altered_or_untrusted_plan_checksum_never_reaches_signer(self):
+        plan = self.reviewed()
+        for altered in (
+            replace(plan, content_sha256="0" * 64),
+            replace(plan, forward_steps=(
+                RemediationStep("set-property", "resource", "public", "true", "unsafe"),
+                RemediationStep("set-property", "resource", "public", "unsafe", "false"),
+            )),
+            self.reviewed(forward_steps=(
+                RemediationStep("set-property", "resource", "public", "true", "unsafe"),
+                RemediationStep("set-property", "resource", "public", "unsafe", "false"),
+            )),
+        ):
+            with self.subTest(altered=altered):
+                signer = Mock(side_effect=self.key.sign)
+                with self.assertRaises(ValueError):
+                    issue_from_authoritative_plan(
+                        self.payload, signer, evidence=self.evidence,
+                        tenant_id="t", project_id="p", proposal_id="proposal",
+                        min_revision=4, now=datetime.now(timezone.utc),
+                        read_current_plan=Mock(return_value=altered))
+                signer.assert_not_called()
+
+    def test_missing_or_failing_plan_reader_never_signs(self):
+        for reader in (None, Mock(side_effect=RuntimeError("store offline"))):
+            signer = Mock(side_effect=self.key.sign)
+            with self.subTest(reader=reader), self.assertRaises((ValueError, RuntimeError)):
+                issue_from_authoritative_plan(
+                    self.payload, signer, evidence=self.evidence,
+                    tenant_id="t", project_id="p", proposal_id="proposal",
+                    min_revision=4, now=datetime.now(timezone.utc),
+                    read_current_plan=reader)
+            signer.assert_not_called()
+
+    def test_verifier_rereads_current_plan_and_rejects_stale_or_foreign(self):
+        for plan in (None, self.reviewed(tenant_id="foreign"),
+                     self.reviewed(revision=3), self.reviewed(approved=False)):
+            with self.subTest(plan=plan), self.assertRaises(ValueError):
+                verify_against_authoritative_plan(
+                    self.signed, self.evidence, self.key.public_key(),
+                    "independent-v1", tenant_id="t", project_id="p",
+                    proposal_id="proposal", min_revision=4,
+                    now=datetime.now(timezone.utc),
+                    read_current_plan=Mock(return_value=plan))
+
+    def test_verifier_rejects_invalid_signed_plan_time_and_scope(self):
+        plan = self.reviewed()
+        for bad_payload in (
+            dict(self.payload, tenantId="foreign"),
+            dict(self.payload, issuedAt=(
+                datetime.now(timezone.utc) - timedelta(minutes=12)).isoformat()),
+        ):
+            with self.subTest(bad_payload=bad_payload):
+                signed = {
+                    "payload": bad_payload,
+                    "signature": base64.b64encode(self.key.sign(canonical(bad_payload))).decode("ascii"),
+                }
+                with self.assertRaises(ValueError):
+                    verify_against_authoritative_plan(
+                        signed, self.evidence, self.key.public_key(),
+                        "independent-v1", tenant_id="t", project_id="p",
+                        proposal_id="proposal", min_revision=4,
+                        now=datetime.now(timezone.utc),
+                        read_current_plan=Mock(return_value=plan))
+
+    def test_authoritative_plan_reader_rejects_foreign_project_and_proposal(self):
+        for altered in (
+            self.reviewed(project_id="foreign-project"),
+            self.reviewed(proposal_id="foreign-proposal"),
+        ):
+            with self.subTest(plan=altered):
+                signer = Mock(side_effect=self.key.sign)
+                reader = Mock(return_value=altered)
+                with self.assertRaisesRegex(ValueError, "scope mismatch"):
+                    issue_from_authoritative_plan(
+                        self.payload, signer, evidence=self.evidence,
+                        tenant_id="t", project_id="p", proposal_id="proposal",
+                        min_revision=4, now=datetime.now(timezone.utc),
+                        read_current_plan=reader)
+                reader.assert_called_once_with("t", "p", "proposal")
+                signer.assert_not_called()
+
+    def test_trusted_min_revision_must_be_positive_plain_integer(self):
+        for invalid in (None, True, False, 0, -1, "4"):
+            with self.subTest(invalid=invalid):
+                reader = Mock(return_value=self.reviewed())
+                signer = Mock(side_effect=self.key.sign)
+                with self.assertRaisesRegex(ValueError, "lookup context"):
+                    issue_from_authoritative_plan(
+                        self.payload, signer, evidence=self.evidence,
+                        tenant_id="t", project_id="p", proposal_id="proposal",
+                        min_revision=invalid, now=datetime.now(timezone.utc),
+                        read_current_plan=reader)
+                reader.assert_not_called()
+                signer.assert_not_called()
+
+    def test_stale_signed_claim_never_reaches_signer_despite_valid_review_window(self):
+        now = datetime.now(timezone.utc)
+        plan = self.reviewed(
+            approved_at=now - timedelta(minutes=20),
+            expires_at=now + timedelta(minutes=20))
+        old_claim = prepare_attestation(
+            self.evidence, key_id="independent-v1",
+            issued_at=now - timedelta(minutes=7))
+        signer = Mock(side_effect=self.key.sign)
+        with self.assertRaisesRegex(ValueError, "freshness window"):
+            issue_from_authoritative_plan(
+                old_claim, signer, evidence=self.evidence,
+                tenant_id="t", project_id="p", proposal_id="proposal",
+                min_revision=4, now=now,
+                read_current_plan=Mock(return_value=plan))
+        signer.assert_not_called()
+
+    def test_verifier_rejects_revoked_or_unavailable_current_plan(self):
+        for reader in (
+            Mock(return_value=self.reviewed(approved=False)),
+            Mock(return_value=None),
+            Mock(side_effect=RuntimeError("authoritative store unavailable")),
+        ):
+            with self.subTest(reader=reader), self.assertRaises((ValueError, RuntimeError)):
+                verify_against_authoritative_plan(
+                    self.signed, self.evidence, self.key.public_key(), "independent-v1",
+                    tenant_id="t", project_id="p", proposal_id="proposal",
+                    min_revision=4, now=datetime.now(timezone.utc),
+                    read_current_plan=reader)
 
     def test_valid_independently_signed_rehearsal(self):
         self.assertTrue(self.verify().signed_by_independent_authority)

@@ -36,7 +36,7 @@ import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/desig
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
 import { isJwtAuthMode } from "@/lib/oidc/config";
-import { clearOidcSession, isLikelySignedIn, readSignedInDisplayName, signOutAndRedirectHome } from "@/lib/oidc/session";
+import { endOidcBrowserSession, isLikelySignedIn, readSignedInDisplayName, signOutAndRedirectHome } from "@/lib/oidc/session";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
 import {
@@ -102,8 +102,13 @@ export function OperatorAccessDeniedPageClient() {
     setAdministratorContactHref(resolveAdministratorContactHref(productLine));
   }, [productLine]);
 
-  const handleReturnToSignIn = (): void => {
-    clearOidcSession();
+  const handleReturnToSignIn = async (): Promise<void> => {
+    const ended = await endOidcBrowserSession();
+
+    if (!ended) {
+      return;
+    }
+
     window.location.assign("/auth/signin");
   };
 

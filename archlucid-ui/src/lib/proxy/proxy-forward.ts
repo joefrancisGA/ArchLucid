@@ -73,7 +73,8 @@ async function forward(
   const sandbox = trySandboxProxyMock(method, pathSegments, correlationId);
 
   if (sandbox) {
-    return sandbox;
+    // The guard already slid the idle clock. Returning the mock here used to drop those Set-Cookie headers.
+    return appendProxyBffSlideCookieHeaders(sandbox, bffGuard.slideCookieHeaders);
   }
 
   const resolved = resolveUpstreamApiBaseUrlForProxy();

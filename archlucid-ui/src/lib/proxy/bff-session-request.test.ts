@@ -72,6 +72,12 @@ describe("isSameOriginBffRequest", () => {
     ).toBe(true);
   });
 
+  it("rejects a lookalike Referer that only prefixes the app origin", () => {
+    expect(
+      isSameOriginBffRequest(mockRequest({ referer: `${ORIGIN}.evil.test/auth/signin` })),
+    ).toBe(false);
+  });
+
   it("rejects a request with no Origin, Sec-Fetch-Site, or Referer", () => {
     expect(isSameOriginBffRequest(mockRequest())).toBe(false);
   });

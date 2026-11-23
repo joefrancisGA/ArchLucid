@@ -35,6 +35,11 @@ function mapDisposition(raw: Record<string, unknown>): SecureNowPilotPathDisposi
   };
 }
 
+function pilotDispositionPath(pathId: string): string {
+  // Path inspect puts this id in a query. A slash must stay one path segment.
+  return `${PATHS_PATH}/${encodeURIComponent(pathId)}/pilot-disposition`;
+}
+
 export async function fetchSecureNowPilotPathDisposition(
   pathId: string,
 ): Promise<SecureNowPilotPathDispositionServerRecord | null> {
@@ -45,7 +50,7 @@ export async function fetchSecureNowPilotPathDisposition(
   }
 
   try {
-    const raw = await proxyJsonGet<Record<string, unknown>>(`${PATHS_PATH}/${trimmed}/pilot-disposition`);
+    const raw = await proxyJsonGet<Record<string, unknown>>(`${pilotDispositionPath(trimmed)}`);
     const disposition = mapDisposition(raw);
 
     return disposition.pathId.length > 0 && disposition.outcome.length > 0 ? disposition : null;
@@ -65,7 +70,7 @@ export async function saveSecureNowPilotPathDisposition(
   body: { readonly outcome: string; readonly rationale: string },
 ): Promise<SecureNowPilotPathDispositionSaveResult> {
   const trimmed = pathId.trim();
-  const raw = await proxyJsonPut<Record<string, unknown>>(`${PATHS_PATH}/${trimmed}/pilot-disposition`, body);
+  const raw = await proxyJsonPut<Record<string, unknown>>(`${pilotDispositionPath(trimmed)}`, body);
   const dispositionRaw = raw.disposition as Record<string, unknown> | null | undefined;
 
   return {

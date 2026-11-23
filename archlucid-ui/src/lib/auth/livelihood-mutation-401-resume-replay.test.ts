@@ -257,4 +257,22 @@ describe("replayLivelihoodPendingMutation (LW-063 / LW-066)", () => {
       { idempotencyKey },
     );
   });
+
+  it("publishes a saved policy pack when replay runs after confirm", async () => {
+    await replayLivelihoodPendingMutation({
+      kind: "policy_pack_save",
+      idempotencyKey: "33333333-3333-4333-8333-333333333333",
+      returnPath: "/governance/policy-packs",
+      savedAtUtc: "2026-09-10T12:00:00.000Z",
+      requestLeftClient: true,
+      payload: {
+        operation: "publish",
+        policyPackId: "pack-1",
+        body: { versionLabel: "v2" },
+        autoReplay: false,
+      },
+    });
+
+    expect(publishPolicyPackVersion).toHaveBeenCalledWith("pack-1", { versionLabel: "v2" });
+  });
 });

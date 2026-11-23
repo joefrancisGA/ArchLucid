@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -24,6 +24,49 @@ public sealed class TenantIsolationNegativeTestRunnerTests
         parse.Should()
             .Throw<ArgumentException>()
             .WithMessage("*--run-id*requires a value*");
+    }
+
+    [Fact]
+    public void Parse_RejectsBlankValueForRunId()
+    {
+        Action blank = () => TenantIsolationNegativeTestOptions.Parse(["--run-id", ""]);
+        Action whitespace = () => TenantIsolationNegativeTestOptions.Parse(["--run-id", "   "]);
+
+        blank.Should().Throw<ArgumentException>().WithMessage("*--run-id*requires a value*");
+        whitespace.Should().Throw<ArgumentException>().WithMessage("*--run-id*requires a value*");
+    }
+
+    [Fact]
+    public void Parse_TrimsRunIdValue()
+    {
+        TenantIsolationNegativeTestOptions options = TenantIsolationNegativeTestOptions.Parse(
+            ["--run-id", "  aaaaaaaa-1111-1111-1111-111111111111  "]);
+
+        options.RunId.Should().Be("aaaaaaaa-1111-1111-1111-111111111111");
+    }
+
+    [Fact]
+    public void Parse_UsesTheLastRunIdWhenTheFlagIsRepeated()
+    {
+        TenantIsolationNegativeTestOptions options = TenantIsolationNegativeTestOptions.Parse(
+        [
+            "--run-id", "aaaaaaaa-1111-1111-1111-111111111111",
+            "--run-id", "bbbbbbbb-2222-2222-2222-222222222222",
+        ]);
+
+        options.RunId.Should().Be("bbbbbbbb-2222-2222-2222-222222222222");
+    }
+
+    [Fact]
+    public void Parse_RejectsALaterBlankRunIdAfterAValidOne()
+    {
+        Action laterBlank = () => TenantIsolationNegativeTestOptions.Parse(
+        [
+            "--run-id", "aaaaaaaa-1111-1111-1111-111111111111",
+            "--run-id", "",
+        ]);
+
+        laterBlank.Should().Throw<ArgumentException>().WithMessage("*--run-id*requires a value*");
     }
 
     [Fact]
@@ -1767,6 +1810,57 @@ public sealed class TenantIsolationNegativeTestRunnerTests
     }
 
     [Fact]
+    public void RunOffline_SkipsExcludeRunIdProbeWhenStatusIs204ButOutcomeClaimsHttp200Absent()
+    {
+        string? repositoryRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot();
+
+        repositoryRoot.Should().NotBeNull();
+
+        string manifestPath = Path.Combine(Path.GetTempPath(), $"tenant-isolation-manifest-{Guid.NewGuid():N}.json");
+        string manifestJson = """
+                              {
+                                "schemaVersion": 1,
+                                "primaryRunId": "aaaaaaaa-1111-1111-1111-111111111111",
+                                "scenarios": [
+                                  {
+                                    "name": "list-no-content-outcome-mismatch",
+                                    "probes": [
+                                      {
+                                        "name": "cross-tenant-run-list",
+                                        "path": "/v1/runs",
+                                        "expectedOutcome": "exclude-run-id",
+                                        "observedOutcome": "HTTP 200; foreign runId absent",
+                                        "observedStatusCode": 204,
+                                        "evidence": "captured status is 204 No Content while the outcome sentence says HTTP 200 absent",
+                                        "foreignRunIdVisible": false,
+                                        "verdict": "pass"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                              """;
+
+        File.WriteAllText(manifestPath, manifestJson);
+
+        try
+        {
+            TenantIsolationNegativeTestRunner runner = new();
+            TenantIsolationNegativeTestReport report = runner.RunOffline(
+                repositoryRoot!,
+                new TenantIsolationNegativeTestOptions { ManifestPath = manifestPath });
+
+            report.Probes.Should().ContainSingle();
+            report.Probes[0].Verdict.Should().Be(TenantIsolationNegativeTestVerdict.Skip);
+            report.OverallVerdict.Should().Be(TenantIsolationNegativeTestVerdict.Skip);
+        }
+        finally
+        {
+            File.Delete(manifestPath);
+        }
+    }
+
+    [Fact]
     public void RunOffline_SkipsExcludeRunIdProbeOnServerError()
     {
         string? repositoryRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot();
@@ -2065,6 +2159,56 @@ public sealed class TenantIsolationNegativeTestRunnerTests
     }
 
     [Fact]
+    public void RunOffline_FailsExcludeRunIdProbeWhenEvidenceListContainsPrimaryRunIdDespiteAbsentOutcome()
+    {
+        string? repositoryRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot();
+
+        repositoryRoot.Should().NotBeNull();
+
+        string manifestPath = Path.Combine(Path.GetTempPath(), $"tenant-isolation-manifest-{Guid.NewGuid():N}.json");
+        string manifestJson = """
+                              {
+                                "schemaVersion": 1,
+                                "primaryRunId": "aaaaaaaa-1111-1111-1111-111111111111",
+                                "scenarios": [
+                                  {
+                                    "name": "captured-list-still-contains-run",
+                                    "probes": [
+                                      {
+                                        "name": "cross-tenant-run-list",
+                                        "path": "/v1/runs",
+                                        "expectedOutcome": "exclude-run-id",
+                                        "observedOutcome": "HTTP 200; foreign runId absent",
+                                        "observedStatusCode": 200,
+                                        "evidence": "{\"items\":[{\"runId\":\"aaaaaaaa-1111-1111-1111-111111111111\"}],\"hasMore\":false}",
+                                        "foreignRunIdVisible": false
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                              """;
+
+        File.WriteAllText(manifestPath, manifestJson);
+
+        try
+        {
+            TenantIsolationNegativeTestRunner runner = new();
+            TenantIsolationNegativeTestReport report = runner.RunOffline(
+                repositoryRoot!,
+                new TenantIsolationNegativeTestOptions { ManifestPath = manifestPath });
+
+            report.Probes.Should().ContainSingle();
+            report.Probes[0].Verdict.Should().Be(TenantIsolationNegativeTestVerdict.Fail);
+            report.OverallVerdict.Should().Be(TenantIsolationNegativeTestVerdict.Fail);
+        }
+        finally
+        {
+            File.Delete(manifestPath);
+        }
+    }
+
+    [Fact]
     public void RunOffline_SkipsExcludeRunIdProbeWhenLaterEmbeddedJsonClaimsMorePagesAfterHasMoreFalse()
     {
         string? repositoryRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot();
@@ -2314,6 +2458,62 @@ public sealed class TenantIsolationNegativeTestRunnerTests
         {
             File.Delete(manifestPath);
         }
+    }
+
+    [Fact]
+    public async Task RunLiveAsync_FailsWhenRunIdAddsARouteSegment()
+    {
+        const string poisonedRunId = "aaaaaaaa-1111-1111-1111-111111111111/roi";
+        string poisonedPath = "/v1/architecture/review/" + poisonedRunId;
+        StubHandler handler = new()
+        {
+            OnRequest = req =>
+            {
+                string path = req.RequestUri!.AbsolutePath;
+                string? tenant = req.Headers.TryGetValues("X-Tenant-Id", out IEnumerable<string>? values)
+                    ? values.FirstOrDefault()
+                    : null;
+
+                if (string.Equals(tenant, "44444444-4444-4444-4444-444444444444", StringComparison.OrdinalIgnoreCase))
+                {
+
+                    if (string.Equals(path, "/v1/runs", StringComparison.Ordinal))
+                    {
+                        return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
+                        {
+                            items = Array.Empty<object>(),
+                            hasMore = false,
+                        }));
+                    }
+
+                    return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { title = "Not found" }));
+                }
+
+                if (string.Equals(path, poisonedPath, StringComparison.Ordinal))
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new { run = new { runId = RunId } }));
+
+                return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
+            },
+        };
+
+        using HttpClient primaryClient = CreateClient(handler);
+        using HttpClient alternateClient = CreateClient(handler);
+        CliScopeHeaders.ApplyExplicit(
+            alternateClient,
+            "44444444-4444-4444-4444-444444444444",
+            "55555555-5555-5555-5555-555555555555",
+            "66666666-6666-6666-6666-666666666666");
+
+        TenantIsolationNegativeTestRunner runner = new();
+        TenantIsolationNegativeTestReport report = await runner.RunLiveAsync(
+            Directory.GetCurrentDirectory(),
+            primaryClient,
+            alternateClient,
+            new TenantIsolationNegativeTestOptions { RunId = poisonedRunId });
+
+        report.OverallVerdict.Should().Be(
+            TenantIsolationNegativeTestVerdict.Fail,
+            "a run id with an extra path segment must not pass by reading a different route");
     }
 
     private sealed class StubHandler : HttpMessageHandler

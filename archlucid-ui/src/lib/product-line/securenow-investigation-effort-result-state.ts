@@ -5,6 +5,8 @@ import {
 import {
   formatSecureNowInvestigationEffortMissingFieldsReason,
   listSecureNowInvestigationEffortMissingFieldLabels,
+  parseSecureNowInvestigationEffortNonNegative,
+  parseSecureNowInvestigationEffortPositive,
 } from "@/lib/product-line/securenow-investigation-effort-missing-fields";
 
 export type SecureNowInvestigationEffortIncompleteReason =
@@ -27,19 +29,14 @@ export type SecureNowInvestigationEffortResultState =
       readonly ratio: number;
     };
 
-function parsePositiveNumber(raw: string): number | null {
-  const parsed = Number(raw.trim());
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
-}
-
 export function resolveSecureNowInvestigationEffortResultState(
   inputs: SecureNowInvestigationEffortInputFields,
 ): SecureNowInvestigationEffortResultState {
-  const baselineHours = parsePositiveNumber(inputs.baselineHours);
-  const afterHours = parsePositiveNumber(inputs.afterHours);
-  const annualInvestigations = parsePositiveNumber(inputs.annualInvestigations);
-  const hourlyRate = parsePositiveNumber(inputs.hourlyRate);
-  const annualCost = parsePositiveNumber(inputs.annualCost);
+  const baselineHours = parseSecureNowInvestigationEffortNonNegative(inputs.baselineHours);
+  const afterHours = parseSecureNowInvestigationEffortNonNegative(inputs.afterHours);
+  const annualInvestigations = parseSecureNowInvestigationEffortPositive(inputs.annualInvestigations);
+  const hourlyRate = parseSecureNowInvestigationEffortPositive(inputs.hourlyRate);
+  const annualCost = parseSecureNowInvestigationEffortPositive(inputs.annualCost);
 
   if (
     baselineHours === null

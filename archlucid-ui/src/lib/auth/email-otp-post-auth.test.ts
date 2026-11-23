@@ -28,6 +28,12 @@ describe("resolveEmailOtpPostAuthPath", () => {
     expect(resolveEmailOtpPostAuthPath("Complete", "/")).toBe("/");
   });
 
+  it("uses a stored desk path when the explicit return is only the default root", () => {
+    vi.mocked(consumePostSignInReturnUrl).mockReturnValueOnce("/architecture/reviews/run-1");
+
+    expect(resolveEmailOtpPostAuthPath("Complete", "/")).toBe("/architecture/reviews/run-1");
+  });
+
   it("rejects open redirects for Complete", () => {
     expect(resolveEmailOtpPostAuthPath("Complete", "https://evil.example")).toBe("/saved-return");
   });
@@ -64,10 +70,14 @@ describe("resolveEmailOtpPostAuthPath", () => {
   });
 
   it("routes AcceptInvitation to bootstrap", () => {
+    vi.mocked(consumePostSignInReturnUrl).mockReturnValueOnce(null);
+
     expect(resolveEmailOtpPostAuthPath("AcceptInvitation", "/")).toBe("/auth/bootstrap");
   });
 
   it("routes CreateWorkspace to bootstrap", () => {
+    vi.mocked(consumePostSignInReturnUrl).mockReturnValueOnce(null);
+
     expect(resolveEmailOtpPostAuthPath("CreateWorkspace", "/")).toBe("/auth/bootstrap");
   });
 
@@ -78,6 +88,8 @@ describe("resolveEmailOtpPostAuthPath", () => {
   });
 
   it("routes SelectWorkspace to bootstrap", () => {
+    vi.mocked(consumePostSignInReturnUrl).mockReturnValueOnce(null);
+
     expect(resolveEmailOtpPostAuthPath("SelectWorkspace", "/")).toBe("/auth/bootstrap");
   });
 

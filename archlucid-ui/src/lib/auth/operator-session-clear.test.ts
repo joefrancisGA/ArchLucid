@@ -83,4 +83,24 @@ describe("clearOperatorSessionForExpiry", () => {
     expect(readEmailOtpResendCooldown(now + 1_000).active).toBe(true);
     expect(push).toHaveBeenCalled();
   });
+
+  it("keeps the review-tab hash on the session-expired return path", () => {
+    const storage = sessionStorage as unknown as Storage;
+
+    vi.stubGlobal("window", {
+      location: {
+        pathname: "/architecture/reviews/run-1",
+        search: "",
+        hash: "#review-summary",
+      },
+      sessionStorage: storage,
+    });
+
+    clearOperatorSessionForExpiry(router);
+
+    expect(push).toHaveBeenCalledWith(
+      "/auth/session-expired?returnPath=" +
+        encodeURIComponent("/architecture/reviews/run-1#review-summary"),
+    );
+  });
 });

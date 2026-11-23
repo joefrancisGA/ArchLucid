@@ -153,10 +153,9 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
       return;
     }
 
-    // Example request templates own the brief, matching quick start when both links are present.
+    // Example templates own the brief while they are on the URL. Quick start reapplies the preset
+    // when the example leaves, so do not consume this latch until the preset is actually written.
     if (exampleTemplate !== null) {
-      starterTemplatePrefillApplied.current = true;
-
       return;
     }
 

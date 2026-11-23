@@ -67,4 +67,16 @@ describe("securenow-marketing-route-policy", () => {
       shouldRedirectMarketingLayout({ productLineId: "architecture", pathname: "/why-securenow" }),
     ).toBe(false);
   });
+
+  it("keeps the SecureNow SKU card on the security shell", () => {
+    expect(
+      shouldRedirectMarketingLayout({ productLineId: "security", pathname: "/securenow-sku" }),
+    ).toBe(false);
+    expect(
+      shouldRedirectMarketingLayout({ productLineId: "security", pathname: "/securenow-sku/" }),
+    ).toBe(false);
+    expect(
+      shouldRedirectMarketingLayout({ productLineId: "security", pathname: "/securenow-sku/extra" }),
+    ).toBe(true);
+  });
 });
