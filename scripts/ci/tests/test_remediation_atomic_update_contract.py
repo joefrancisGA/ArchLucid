@@ -25,7 +25,7 @@ class RemediationAtomicUpdateContractTests(unittest.TestCase):
         self.assertNotIn("UpdateInstanceAsync(", method)
         self.assertNotIn("TryGetByIdInScopeAsync(", method)
 
-    def test_role_migration_is_mirrored_and_does_not_disable_instance_updates(self):
+    def test_role_migrations_are_mirrored_and_enforce_procedure_only_updates(self):
         migration_path = ROOT / "ArchLucid.Persistence/Migrations/426_RemediationRoleWritePermissions.sql"
         migration = migration_path.read_text()
         consolidated = (ROOT / "ArchLucid.Persistence/Scripts/ArchLucid.sql").read_text()
@@ -67,9 +67,10 @@ class RemediationAtomicUpdateContractTests(unittest.TestCase):
                 "RemediationSqlRolePrivilegesTests.cs").read_text()
         self.assertIn("SqlServerPersistenceFixture", test)
         self.assertIn('InitialCatalog.Should().Contain("Test"', test)
-        self.assertIn("426_RemediationRoleWritePermissions.sql", test)
+        self.assertIn("foreach (int migrationNumber in new[] { 426, 427 })", test)
         self.assertIn("EXECUTE AS USER =", test)
-        self.assertIn("the existing rowversion-protected repository still requires UPDATE", test)
+        self.assertIn("forbiddenDirectUpdate", test)
+        self.assertIn("uspRemediationUpdateScoped", test)
         self.assertIn("approval and verification evidence remains appendable", test)
         self.assertIn("ThrowAsync<SqlException>", test)
         self.assertIn("Enumerable.Range(0, 2)", test)
