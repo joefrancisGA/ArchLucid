@@ -465,4 +465,43 @@ describe("useNewRunWizardQueryPrefill", () => {
       shouldDirty: true,
     });
   });
+
+  it("resets the form when a second preset deeplink arrives on the same mount", async () => {
+    const reset = vi.fn<UseFormReset<WizardFormValues>>();
+
+    const { rerender } = renderHook(
+      ({ token }: { token: "greenfield" | "modernize" }) =>
+        useNewRunWizardQueryPrefill({
+          params: {
+            ...buildParams(null),
+            presetDeeplinkPresetId: token,
+            presetDeeplinkToken: token,
+          },
+          stepIndex: 0,
+          wizardMode: "full",
+          reset,
+          setValue: vi.fn(),
+          goToStep: vi.fn(),
+          persistWizardMode: vi.fn(),
+          onPendingEvidenceFileChange: vi.fn(),
+          showToast: vi.fn(),
+        }),
+      { initialProps: { token: "greenfield" } },
+    );
+
+    await waitFor(() => {
+      expect(reset).toHaveBeenCalledWith(
+        expect.objectContaining({ systemName: "CustomerWebApp" }),
+      );
+    });
+
+    reset.mockClear();
+    rerender({ token: "modernize" });
+
+    await waitFor(() => {
+      expect(reset).toHaveBeenCalledWith(
+        expect.objectContaining({ systemName: "LegacyModernization" }),
+      );
+    });
+  });
 });

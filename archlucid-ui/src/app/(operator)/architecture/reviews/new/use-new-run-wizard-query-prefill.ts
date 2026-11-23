@@ -50,9 +50,9 @@ export function restoreWizardFormWithDeeplinkPolicy(
  * Applies link-borne prefills to the form: accelerator pack, preset deep link, zero-config demo
  * package, and example-request template.
  *
- * Preset, policy, and demo links run at most once. Example templates and accelerator packs apply
- * again when their id changes. Accelerator and preset links also force the full wizard, because the
- * fields they fill are only visible there.
+ * Policy and demo links run at most once. Example templates, accelerator packs, and preset deeplinks
+ * apply again when their id changes. Accelerator and preset links also force the full wizard, because
+ * the fields they fill are only visible there.
  */
 export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void {
   const {
@@ -83,7 +83,7 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
   const exampleTemplateAppliedIdRef = useRef<string | null>(null);
   const policyPackPrefillAppliedRef = useRef(false);
   const acceleratorPrefillAppliedIdRef = useRef<string | null>(null);
-  const presetPrefillAppliedRef = useRef(false);
+  const presetPrefillAppliedIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (deeplinkPolicyPackId === null || policyPackPrefillAppliedRef.current) {
@@ -121,7 +121,12 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
   }, [acceleratorPackId, baselineFirst, deeplinkPolicyPackId, goToStep, persistWizardMode, reset, setValue]);
 
   useEffect(() => {
-    if (presetDeeplinkToken === null || presetDeeplinkPresetId === null || presetPrefillAppliedRef.current) {
+    if (presetDeeplinkToken === null || presetDeeplinkPresetId === null) {
+      return;
+    }
+
+    // A boolean latch keeps the first preset after the operator opens another preset link.
+    if (presetPrefillAppliedIdRef.current === presetDeeplinkPresetId) {
       return;
     }
 
@@ -137,7 +142,7 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
       return;
     }
 
-    presetPrefillAppliedRef.current = true;
+    presetPrefillAppliedIdRef.current = presetDeeplinkPresetId;
     reset(applyWizardPreset(buildDefaultWizardValues(), presetValues));
     applyPolicyPackPrefill(deeplinkPolicyPackId, setValue);
     goToStep(1);
