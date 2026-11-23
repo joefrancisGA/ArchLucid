@@ -49,7 +49,8 @@ function writeCookieValue(name: string, value: string | null): void {
 }
 
 export function readProductLineCookie(): ProductLineId | null {
-  const raw = readCookieValue(PRODUCT_LINE_COOKIE);
+  // Match resolveProductLineIdForServer and the route gate, which trim and lowercase before the id check.
+  const raw = readCookieValue(PRODUCT_LINE_COOKIE)?.trim().toLowerCase() ?? "";
 
   if (!isProductLineId(raw)) {
     return null;

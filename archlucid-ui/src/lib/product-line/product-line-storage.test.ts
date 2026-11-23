@@ -16,4 +16,14 @@ describe("product-line storage", () => {
     expect(() => readProductLineCookie()).not.toThrow();
     expect(readProductLineCookie()).toBeNull();
   });
+
+  it("accepts a padded or mixed-case product-line cookie the same way the server reader does", () => {
+    document.cookie = `${PRODUCT_LINE_COOKIE}=${encodeURIComponent(" security")}; Path=/`;
+
+    expect(readProductLineCookie()).toBe("security");
+
+    document.cookie = `${PRODUCT_LINE_COOKIE}=${encodeURIComponent("Security")}; Path=/`;
+
+    expect(readProductLineCookie()).toBe("security");
+  });
 });

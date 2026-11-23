@@ -43,11 +43,15 @@
 
 ## Zone: ui-lib-product-line
 
+2026-11-23 thorough hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted the open cookie candidate. `readProductLineCookie` passed the raw cookie to `isProductLineId`, so ` security` and `Security` returned null, while `resolveProductLineIdForServer` and `resolveProductLineIdFromRequest` trim and lowercase first. The browser reader now uses that same normalization. Regression `accepts a padded or mixed-case product-line cookie the same way the server reader does`; product-line storage vitest **2/2**. Private beta: an invited operator whose product-line cookie has extra spaces or different casing now sees the same shell the server gate already chose, instead of the build default.
+
+- [x] (proven) `readProductLineCookie` — padded or mixed-case `archlucid_product_line_v1` was ignored — **hit 2026-11-23 thorough hunt:** trim and lowercase before `isProductLineId`; regression above.
+
 2026-11-23 thorough hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). The reseed stub had no locus and is `(invalid)`. Promoted assigned-to-me queue remap: `findingsQueuePathFromPathname` treated `/governance/findings/assigned-to-me` as a child of `/compliance/findings`, and `/security/assigned-to-me` was not a findings route so it fell through to the general findings hub. The helper now swaps those two queue paths and keeps the query string; `useFindingsQueuePath` calls that helper. Regression `remaps assigned-to-me between the governance and SecureNow queues`; securenow-compliance-routes vitest **9/9**. Cheap-disproof closed nested href, trailing-slash, and admin-merge monitors. Private beta: an invited operator on the SecureNow assigned-to-me findings queue keeps triage and scope links on that queue instead of being sent to the general findings list.
 
 - [x] (proven) `findingsQueuePathFromPathname` — assigned-to-me remapped onto `/compliance/findings/assigned-to-me` or the general findings hub — **hit 2026-11-23 thorough hunt:** suffix swap to `assignedToMeFindingsPathForProductLine`; regression `remaps assigned-to-me between the governance and SecureNow queues`.
 
-- [ ] (candidate) `readProductLineCookie` — a padded or mixed-case cookie is ignored while the server reader trims and lowercases — locus: `isProductLineId(raw)` without trim; input: cookie value ` security`; wrong outcome: the client falls back to the build product line while `resolveProductLineIdForServer` accepts security; reachability: `archlucid_product_line_v1` cookie.
+- [x] (proven) `readProductLineCookie` — padded or mixed-case cookie — **hit 2026-11-23 thorough hunt:** see header regression.
 
 2026-11-20 thorough hunt #1 (hit): cheap-disproved four (hunt-ready) monitors — valid-no-repro filterNavGroupsForProductLine (typed ProductLineId), valid-no-repro resolveProductLineIdForServer (cookie trim), valid-no-repro marketing route trailing-slash normalize, valid-no-repro collection snapshot helper. Promoted useFindingsQueuePath: governance pathname under SecureNow shell broke triage URL sync — findingsQueuePathFromPathname remaps namespace and preserves query; securenow-compliance-routes vitest 8/8.
 
@@ -74,8 +78,8 @@
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
