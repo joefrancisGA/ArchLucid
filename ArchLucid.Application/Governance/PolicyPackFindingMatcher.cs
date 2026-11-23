@@ -16,6 +16,10 @@ internal static class PolicyPackFindingMatcher
             ? null
             : finding.PolicyRuleId.Trim();
 
+        // Explicit pack attribution must take precedence over reusable compliance rule keys.
+        if (HasConflictingPackAttribution(finding, policyRuleId, assignment.PolicyPackId))
+            return false;
+
         if (assignment.ComplianceRuleKeys is { Count: > 0 } ruleKeys
             && policyRuleId is not null)
         {
@@ -45,6 +49,51 @@ internal static class PolicyPackFindingMatcher
             return true;
 
         return EngineTypeReferencesPack(finding.EngineType, assignment.PolicyPackId);
+    }
+
+    private static bool HasConflictingPackAttribution(
+        Finding finding,
+        string? policyRuleId,
+        Guid assignmentPackId)
+    {
+        if (policyRuleId is not null
+            && TryParseWrappedPackId(policyRuleId, out Guid rulePackId)
+            && rulePackId != assignmentPackId)
+            return true;
+
+        if (finding.Properties is not null
+            && finding.Properties.TryGetValue("policyPackId", out string? propertyPackId)
+            && Guid.TryParse(propertyPackId, out Guid parsedPropertyPackId)
+            && parsedPropertyPackId != assignmentPackId)
+            return true;
+
+        if (!string.IsNullOrWhiteSpace(finding.EngineType))
+        {
+            const string enginePrefix = "policy-pack:";
+            string engineType = finding.EngineType.Trim();
+            if (engineType.StartsWith(enginePrefix, StringComparison.OrdinalIgnoreCase)
+                && Guid.TryParse(engineType[enginePrefix.Length..], out Guid enginePackId)
+                && enginePackId != assignmentPackId)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryParseWrappedPackId(string policyRuleId, out Guid packId)
+    {
+        packId = default;
+        const string prefix = "policy-pack-";
+        if (!policyRuleId.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        ReadOnlySpan<char> remainder = policyRuleId.AsSpan(prefix.Length);
+        return (remainder.Length > 36
+                && remainder[36] == '-'
+                && Guid.TryParseExact(remainder[..36], "D", out packId))
+               || (remainder.Length > 32
+                   && remainder[32] == '-'
+                   && Guid.TryParseExact(remainder[..32], "N", out packId));
     }
 
     private static bool PolicyRuleIdReferencesPack(string policyRuleId, Guid packId)

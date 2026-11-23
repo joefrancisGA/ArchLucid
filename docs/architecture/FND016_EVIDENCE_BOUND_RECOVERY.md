@@ -95,3 +95,102 @@ has been created. Do not read `Approval` phase evidence as a signed
 remediation-plan authorization. A separate immutable, scoped plan
 approval/version domain and independently held signing key would
 still be required before production adoption.
+
+## Existing production persistence review — current approved pattern version (2026-11-23)
+
+The FND-016 v3 reference signing adapter now expects a separately trusted,
+current, approved FND-015 *plan*. The current ArchLucid .NET codebase **does
+not yet contain an identified persisted, immutable FND-015 plan record**
+with the ordered forward/inverse steps, approval validity, independent actor
+and revision watermark required by that contract. Do not cast a signed
+in-memory rehearsal, an architecture-intelligence source artifact, or a
+governance manifest approval into an approved remediation plan.
+
+The real `IRemediationPatternRepository` already persists *remediation
+patterns* and version states in `dbo.RemediationPatterns` and
+`dbo.RemediationPatternVersions` (migration 357). Pattern approval
+atomically updates a version and the parent `CurrentApprovedVersion`
+pointer. A generic `TryGetVersionAsync` can still retrieve an older
+approved version after the pointer advances, while the bulk
+`ListApprovedVersionsForTenantAsync` deliberately includes every approved
+version for matcher version-skew/conflict analysis. Neither is safe to
+silently substitute for a **current** approval lookup.
+
+This reuse increment adds the narrow, fail-closed
+`IRemediationPatternRepository.TryGetCurrentApprovedVersionAsync(tenantId,
+patternId)`. Its SQL implementation joins the parent and pointed version
+**in one statement** while checking the exact tenant/pattern, current
+version, `Approved` status and recorded independent approval metadata.
+Draft, noncurrent, retired, deleted or out-of-tenant versions return no
+record. The read additionally requires a distinct nonempty approval actor and
+approval timestamp, preventing corrupted direct SQL metadata from silently
+impersonating independently reviewed pattern approval. Unsupported repository implementations default to no result.
+Existing pattern matcher, frozen-version instance workflows, and global
+retention/repair semantics are **unchanged**.
+
+This is a **production-oriented read primitive for approved patterns**, not
+a production integration from FND-016 to FND-015. Pattern content does not
+establish the proposal's scoped forward/inverse steps or independent plan
+signing policy. The SQL read uses the current persisted pointer; an actor
+must still supply independently authenticated tenant scope and signing
+authority. The pattern's `ApprovedUtc` and status do not provide
+remediation-plan expiration, revision revocation, immutable plan-content
+attestation, or approval of cloud mutations.
+
+SQL integration coverage is intentionally contained in a disposable test
+catalog; it tests old approved versions remaining in SQL while the current
+pointer moves, foreign tenants, drafts, and retirement. The existing SQL
+fixture may skip if unavailable; a skip is not a passing SQL proof.
+No production signing service or Azure mutation was enabled.
+
+## Independently reread reviewed plan — FND-016 reuse increment (2026-11-23)
+
+The v3 signer originally accepted expected forward/inverse steps as arguments
+beside the evidence. Although each digest was checked, nothing in that direct
+adapter required a separate authoritative plan read. A caller could submit
+matching but self-selected evidence and steps.
+
+The reference now provides `issue_from_authoritative_plan` and
+`verify_against_authoritative_plan` using the **same** existing v3
+`issue_with_external_signer`, `verify_evidence_bound_attestation`,
+and `remediation_steps_sha256` controls. The adapter takes a trusted
+server-side tenant/project/proposal scope, minimum permitted plan revision,
+trusted clock, and a separately configured `read_current_plan(scope)`
+callback. It does **not** accept expected plan steps from the signing request.
+A `ReviewedPlanSnapshot` must match scope, be explicitly approved, have
+a positive revision not below the trusted minimum, and fall within its
+approval/expiry interval. The reference recalculates the snapshot SHA-256
+from canonical scope, revision, approval interval, and both ordered step
+digests. The resulting steps are rechecked against signed rehearsal evidence
+before invoking the signer; the corresponding verifier must independently
+reread the current plan and validate its signature and freshness.
+
+Missing, foreign, stale, unapproved, expired, malformed, or checksum-inconsistent
+snapshots reject before signing; a missing or failing provider never falls
+back to request-supplied steps. The existing lower-level direct signing and
+verification functions are retained as pure test/reference helpers. They
+**are not independently authenticated production entry points**.
+
+**Critical boundary still missing:** this Python reference does not supply
+a trustworthy `read_current_plan` implementation, a separately authenticated
+session, a monotonic revision anchor, or managed signing-key custody. The
+callback, clock and minimum revision must be installed by a trusted signing
+service, not controlled by a client submitting the evidence. A checksum
+recomputed from a forged snapshot is *not proof of an immutable authoritative
+store*. No production plan repository or execution worker is added here.
+The existing `IImmutableSourceStore` in the .NET architecture-intelligence
+module has content-hash checks but stores a different artifact type, and
+its `GetById` interface alone does not establish a tenant-authorized
+remediation-plan approval. Likewise, the governance approval-request
+repository is scoped for a different workflow, not a FND-015 approved-plan
+store. Directly wiring either to the Python reference would invent a
+security integration. Production adoption needs a purpose-reviewed,
+scope-authorized current-plan adapter, durable immutable/append-only
+storage, trusted revision watermark and signer authority.
+
+This increment does not alter the v3 signing envelope; it validates the
+current plan at signing/verification time. **The envelope still does not
+carry a separate plan revision or immutable plan-record identifier.**
+Long-lived replay, revocation and revision-identity evidence therefore
+remain separate design and release gates. Valid reference attestations
+continue to yield `eligible_for_execution=False`.

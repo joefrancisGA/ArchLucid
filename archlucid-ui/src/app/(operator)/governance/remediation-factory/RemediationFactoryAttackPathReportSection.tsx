@@ -40,6 +40,7 @@ import { REMEDIATION_FACTORY_ATTACK_PATH_REPORT_LOAD_FAILURE_PARTIAL_CAPTURE_LIN
 import { REMEDIATION_FACTORY_ATTACK_PATH_DIAGRAM_FILTER_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-diagram-filter-empty-partial-capture-copy";
 import { ATTACK_PATH_REPORT_DIAGRAM_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/remediation-factory/attack-path-report-diagram-filter-empty-not-load-failure-copy";
 import { ATTACK_PATH_REPORT_VULNERABLE_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/remediation-factory/attack-path-report-vulnerable-empty-not-load-failure-copy";
+import { ATTACK_PATH_REPORT_UNEVALUATED_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/remediation-factory/attack-path-report-unevaluated-empty-not-load-failure-copy";
 import {
   attackPathReportPathChipOverflowLine,
   formatAttackPathReportPathChipLabel,
@@ -237,6 +238,8 @@ export function RemediationFactoryAttackPathReportSection(props: {
             title={REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_TITLE}
             emptyTestId="attack-path-report-unevaluated-empty"
             emptyCopy={REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_EMPTY}
+            notLoadFailureTestId="attack-path-report-unevaluated-empty-not-load-failure"
+            notLoadFailureLine={ATTACK_PATH_REPORT_UNEVALUATED_EMPTY_NOT_LOAD_FAILURE_LINE}
             isEmpty={props.reportQuery.data.unevaluatedGroups.length === 0}
           >
             <EnterpriseTable ariaLabel={REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_TITLE} role="grid">
