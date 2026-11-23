@@ -239,6 +239,95 @@ class UnpinnedRecoveryTests(unittest.TestCase):
                                  expected_spans)
                 self.assertEqual(event["reviewed_file_spans_raw"], raw)
 
+    def test_workbook_row12_complete_factory_files_have_explicit_path_scope(self):
+        raw = (
+            "Reviewed the complete baseline SQL connection factories in "
+            "ArchLucid.Persistence/Connections: "
+            "SqlConnectionFactory.cs (27), ScopedRoutingSqlConnectionFactory.cs (69), "
+            "DedicatedSystemSqlConnectionFactory.cs (44), "
+            "ReadReplicaRoutedConnectionFactory.cs (63), "
+            "and ReadOnlyDbConnectionFactory.cs (79)."
+        )
+        parsed = sut.parse_explicit_unpinned(raw)
+        self.assertIsNotNone(parsed)
+        self.assertEqual(len(parsed), 5)
+        self.assertEqual(sum(item["reported_full_file_nonblank_loc"] for item in parsed), 282)
+        self.assertEqual(parsed[0], {
+            "path": "ArchLucid.Persistence/Connections/SqlConnectionFactory.cs",
+            "reported_inclusive_intervals": [],
+            "reported_full_file_nonblank_loc": 27,
+        })
+        self.assertTrue(all(item["reported_inclusive_intervals"] == [] for item in parsed))
+
+    def test_complete_factory_source_at_commit_is_all_or_nothing_and_candidate_only(self):
+        factory_root = self.repo / "ArchLucid.Persistence" / "Connections"
+        factory_root.mkdir(parents=True)
+        names = [
+            ("SqlConnectionFactory.cs", "one\n\ntwo\n", 2),
+            ("ScopedRoutingSqlConnectionFactory.cs", "three\n", 1),
+            ("DedicatedSystemSqlConnectionFactory.cs", "four\n\nfive\n", 2),
+            ("ReadReplicaRoutedConnectionFactory.cs", "six\n", 1),
+            ("ReadOnlyDbConnectionFactory.cs", "seven\neight\n", 2),
+        ]
+        for file, payload, _ in names:
+            (factory_root / file).write_text(payload, encoding="utf-8")
+        git(self.repo, "add", ".")
+        git(self.repo, "commit", "-qm", "fully scoped complete SQL factory review")
+        self.head = git(self.repo, "rev-parse", "HEAD")
+        self.checkpoint.update(head_sha=self.head, oldest_included_sha=self.head)
+        def reference(counts):
+            files = ", ".join(f"{file} ({count})" for file, count in counts[:-1])
+            return (
+                "Reviewed the complete baseline SQL connection factories in "
+                "ArchLucid.Persistence/Connections: "
+                + files + f", and {counts[-1][0]} ({counts[-1][1]})."
+            )
+        report, rows = sut.recover(
+            self.repo,
+            [
+                self.row(12, reference([(file, count) for file, _, count in names]), 8),
+                self.row(13, reference([
+                    (file, count + (1 if i == 3 else 0))
+                    for i, (file, _, count) in enumerate(names)
+                ]), 9),
+            ],
+            self.checkpoint,
+        )
+        self.assertEqual(report["candidate_rows"], 1)
+        self.assertEqual(report["candidate_line_occurrences"], 8)
+        self.assertEqual(rows[0]["status"], "git_source_at_review_commit_candidate_only")
+        self.assertFalse(rows[0]["original_blob_pinned"])
+        self.assertEqual([source["nonblank_loc"] for source in rows[0]["sources"]],
+                         [2, 1, 2, 1, 2])
+        self.assertEqual([source["reported_full_file_nonblank_loc"]
+                          for source in rows[0]["sources"]], [2, 1, 2, 1, 2])
+        self.assertEqual(rows[0]["sources"][0]["reported_inclusive_intervals"], [])
+        self.assertEqual(rows[1]["status"], "full_file_nonblank_loc_mismatch")
+        self.assertEqual(rows[1]["candidate_nonblank_loc"], 0)
+        self.assertEqual(rows[1]["sources"], [])
+
+    def test_complete_factory_cannot_infer_undeclared_directory_or_narrative(self):
+        allowed = (
+            "Reviewed the complete baseline SQL connection factories in "
+            "ArchLucid.Persistence/Connections: SqlConnectionFactory.cs (27), "
+            "and ScopedRoutingSqlConnectionFactory.cs (69)."
+        )
+        self.assertIsNotNone(sut.parse_explicit_unpinned(allowed))
+        invalid = [
+            allowed.replace("ArchLucid.Persistence/Connections",
+                            "ArchLucid.Persistence/SomeOtherDirectory"),
+            allowed.replace("SqlConnectionFactory.cs (27)",
+                            "src/SqlConnectionFactory.cs (27)"),
+            allowed.replace("ScopedRoutingSqlConnectionFactory.cs (69)",
+                            "SqlConnectionFactory.cs (69)"),
+            allowed[:-1] + " and a code-review summary.",
+            allowed.replace(" (27)", " (0)"),
+            allowed.replace(", and ", " and "),
+        ]
+        for raw in invalid:
+            with self.subTest(raw=raw):
+                self.assertIsNone(sut.parse_explicit_unpinned(raw))
+
     def test_workbook_row32_period_between_two_full_paths_only(self):
         raw = ("ArchLucid.Persistence/InfraEvidence/SqlSecurityEvidencePathRankRepository.cs 188–274 and 277–344. "
                "ArchLucid.Application/InfraEvidence/SecurityEvidencePathRankQueryService.cs 15–102.")

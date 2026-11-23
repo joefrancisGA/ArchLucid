@@ -213,7 +213,54 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
                             first_parent_proven_matches.add((path, candidate_blob, candidate_line))
     if len(matches) > expected_only:
         raise RuntimeError("Provisional lineage exceeded candidate-only cohort")
+    # Expose source-line evidence by ORIGINAL Excel row, not by an inferred PR
+    # or defect identifier. This is diagnostic per-review attribution of
+    # already-computed cohort-wide source identity sets, not newly verified
+    # review LOC. Exact same-blob repeats are kept separate from full
+    # first-parent proven different-blob identity links.
+    review_provenance = []
+    for row in candidates:
+        if (row.get("status") != "git_source_at_review_commit_candidate_only"
+                or row.get("window_membership") != "in_900_first_parent_window"):
+            continue
+        raw_occurrences = exact_repeats = cross_proven = provisional = 0
+        for src in row.get("sources", []):
+            key = (src["path"], src["blob_derived_at_reviewed_commit"])
+            observed = intervals(src, "nonblank_intervals_at_reviewed_commit")
+            raw_occurrences += len(observed)
+            exact_repeats += len(observed & original.get(key, set()))
+            unmatched = observed - original.get(key, set())
+            cross_proven += sum(
+                (src["path"], src["blob_derived_at_reviewed_commit"], n)
+                in first_parent_proven_matches for n in unmatched)
+            provisional += sum(
+                (src["path"], src["blob_derived_at_reviewed_commit"], n)
+                in matches and
+                (src["path"], src["blob_derived_at_reviewed_commit"], n)
+                not in first_parent_proven_matches for n in unmatched)
+        if raw_occurrences != row.get("candidate_nonblank_loc"):
+            raise ValueError(f"Candidate Excel row {row.get('excel_row')} source LOC drift")
+        if exact_repeats + cross_proven + provisional > raw_occurrences:
+            raise ValueError("Per-row source identity proof exceeds candidate coverage")
+        review_provenance.append({
+            "excel_row": row["excel_row"],
+            "review_id": row.get("review_id"),
+            "reviewed_master_sha": row.get("reviewed_master_sha"),
+            "candidate_source_line_occurrences": raw_occurrences,
+            "exact_repeat_with_original_pin_same_path_blob_line": exact_repeats,
+            "different_blob_full_first_parent_proven_repeat_with_original_pin": cross_proven,
+            "different_blob_provisional_equal_hunk_only": provisional,
+            "without_proven_original_pin_identity": (
+                raw_occurrences - exact_repeats - cross_proven),
+            "newly_independently_verified_reviewed_loc": 0,
+            "confidence": "source_at_review_commit_candidate_only",
+        })
+    review_provenance.sort(key=lambda r: r["excel_row"])
+    if len({r["excel_row"] for r in review_provenance}) != len(review_provenance):
+        raise ValueError("Repeated original Excel row in per-review lineage report")
     result.update({
+        "candidate_review_source_lineage_by_excel_row": review_provenance,
+        "candidate_row_lineage_proof_not_reviewed_loc": True,
         "status": "provisional_cross_revision_candidate_lineage",
         "window_definition": "original immutable 900-first-parent Git SHA cohort",
         "head_sha": anchor["head_sha"],
