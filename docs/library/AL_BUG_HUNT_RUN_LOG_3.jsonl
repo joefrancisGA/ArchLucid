@@ -17,3 +17,4 @@
 {"at":"2026-11-23T01:54:57.4103367Z","zoneId":"ui-lib-product-line","outcome":"hit","productLine":"securenow","set":3,"note":"seed hunt: sponsor Trust Center link uses the operator security-trust page"}
 {"at":"2026-11-23T02:08:17.3128799Z","zoneId":"ui-lib-product-line","outcome":"hit","productLine":"securenow","set":3,"note":"seed hunt: decision cycle log fragment matches the decision-cycle section id"}
 {"at":"2026-11-23T02:18:40.2568651Z","zoneId":"ui-lib-product-line","outcome":"hit","productLine":"securenow","set":3,"note":"seed hunt: collection scope label counts every listed Azure subscription"}
+{"at":"2026-11-23T02:33:18.2557281Z","zoneId":"ui-lib-product-line","outcome":"hit","productLine":"securenow","set":3,"note":"seed hunt: zero after-product hours calculates investigation-effort ROI"}

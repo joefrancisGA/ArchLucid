@@ -43,6 +43,10 @@
 
 ## Zone: ui-lib-product-line
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted zero after-product hours: the Investigation effort hour inputs allow 0, but the positive-number parser treated 0 as missing. A blank field also becomes numeric 0, so the blank check has to run first. Zero after-hours now stays an entered value, and the ROI uses the full baseline reduction. Regression `calculates ROI when after-product hours are zero`; result-state and input-storage vitest **6/6**. Private beta: an invited SecureNow operator who enters zero after-product hours on Investigation effort sees the ROI for that full reduction. The page no longer says those hours are still needed.
+
+- [x] (proven) `resolveSecureNowInvestigationEffortResultState` — zero after-product hours was reported as still needed — **hit 2026-11-23 seed hunt:** non-negative hour parser; regression above.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted the Azure subscription scope label: `deriveAzureSubscriptionScopeFromConnections` and the cloud-connections page read only the first connection row. The list endpoint returns one row per subscription, so a second subscription was omitted from the collection scope line. The helper now collects, trims, and dedupes every row, and the page uses that label. Regression `counts every listed subscription row, not only the first connection`; collection-setup vitest **1/1**. Private beta: an invited SecureNow operator who has more than one Azure subscription sees the extra subscriptions on the collection scope line. The line no longer names only the first listed subscription.
 
 - [x] (proven) `deriveAzureSubscriptionScopeFromConnections` — scope label used only the first connection row — **hit 2026-11-23 seed hunt:** every listed subscription id is counted; regression above.
@@ -118,8 +122,8 @@
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 12
-- **bugs-found:** 12
+- **hunts:** 13
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

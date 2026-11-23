@@ -10,10 +10,29 @@ export const SECURENOW_INVESTIGATION_EFFORT_FIELD_LABELS: Readonly<
   annualCost: "Annual product and operating cost (C)",
 };
 
-function parsePositiveNumber(raw: string): number | null {
-  const parsed = Number(raw.trim());
+function parseSecureNowInvestigationEffortNumber(raw: string): number | null {
+  const trimmed = raw.trim();
 
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  const parsed = Number(trimmed);
+
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+/** Hour inputs use min=0. Zero is an entered value, not a blank field. */
+export function parseSecureNowInvestigationEffortNonNegative(raw: string): number | null {
+  const parsed = parseSecureNowInvestigationEffortNumber(raw);
+
+  return parsed !== null && parsed >= 0 ? parsed : null;
+}
+
+export function parseSecureNowInvestigationEffortPositive(raw: string): number | null {
+  const parsed = parseSecureNowInvestigationEffortNumber(raw);
+
+  return parsed !== null && parsed > 0 ? parsed : null;
 }
 
 /** Buyer-safe names for inputs that block ROI calculation. */
@@ -22,23 +41,23 @@ export function listSecureNowInvestigationEffortMissingFieldLabels(
 ): readonly string[] {
   const missing: string[] = [];
 
-  if (parsePositiveNumber(inputs.baselineHours) === null) {
+  if (parseSecureNowInvestigationEffortNonNegative(inputs.baselineHours) === null) {
     missing.push(SECURENOW_INVESTIGATION_EFFORT_FIELD_LABELS.baselineHours);
   }
 
-  if (parsePositiveNumber(inputs.afterHours) === null) {
+  if (parseSecureNowInvestigationEffortNonNegative(inputs.afterHours) === null) {
     missing.push(SECURENOW_INVESTIGATION_EFFORT_FIELD_LABELS.afterHours);
   }
 
-  if (parsePositiveNumber(inputs.annualInvestigations) === null) {
+  if (parseSecureNowInvestigationEffortPositive(inputs.annualInvestigations) === null) {
     missing.push(SECURENOW_INVESTIGATION_EFFORT_FIELD_LABELS.annualInvestigations);
   }
 
-  if (parsePositiveNumber(inputs.hourlyRate) === null) {
+  if (parseSecureNowInvestigationEffortPositive(inputs.hourlyRate) === null) {
     missing.push(SECURENOW_INVESTIGATION_EFFORT_FIELD_LABELS.hourlyRate);
   }
 
-  if (parsePositiveNumber(inputs.annualCost) === null) {
+  if (parseSecureNowInvestigationEffortPositive(inputs.annualCost) === null) {
     missing.push(SECURENOW_INVESTIGATION_EFFORT_FIELD_LABELS.annualCost);
   }
 
