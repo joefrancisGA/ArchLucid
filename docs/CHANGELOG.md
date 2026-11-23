@@ -5,6 +5,13 @@
 
 # ArchLucid changelog
 
+
+## 2026-11-23 - Score lift round 131 (batch 96): Diagram stale gate, export finalize contracts
+
+**Outcome.** Diagram reconcile stale-snapshot filter empty honesty renders only when the workbench load succeeded, not beside the load-error panel. Mounted contracts lock consulting and whitelabel DOCX finalize-not-load-failure ids, golden manifest Markdown finalize on buyer-primary and more-formats surfaces, and run-detail evidence or manifest ZIP finalize ids.
+
+**Surfaces.** Diagram reconcile, consulting DOCX, whitelabel consulting DOCX, golden manifest export menu, run detail deliverables exports, honesty and mounted contract tests.
+
 ## 2026-11-23 - Score lift round 130 (batch 95): Upload pending, collection parity, health tiles
 
 **Outcome.** Extract-upload zip success names an accepted package that is still short of evaluation, using the same pending line as the accepted-package panel. Operator home and the reviews hub share the collection-missing strip. System-health demo summary tiles carry the same point-in-time refresh line as the live tiles. Each workspace-health KPI card names a point-in-time rollup versus a failed health load.
