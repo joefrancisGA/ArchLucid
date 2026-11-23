@@ -38,6 +38,24 @@ public interface IRemediationPatternRepository
         string version,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    ///     Returns only the tenant's CURRENT approved remediation PATTERN version.
+    ///     This is a trusted-pattern read primitive, NOT an authorized FND-015
+    ///     remediation plan or evidence that cloud execution is permitted.
+    ///     Implementations must bind pattern pointer, version status and tenant
+    ///     in one authoritative read, not via two stale independent lookups.
+    ///     Unsupported providers fail closed rather than returning an old
+    ///     approved version from a tenant-wide list.
+    /// </summary>
+    Task<RemediationPatternApprovedVersionRecord?> TryGetCurrentApprovedVersionAsync(
+        Guid tenantId,
+        Guid patternId,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult<RemediationPatternApprovedVersionRecord?>(null);
+    }
+
     async Task<IReadOnlyList<RemediationPatternVersionRecord>> TryGetVersionsAsync(
         Guid tenantId,
         IReadOnlyList<RemediationPatternVersionKey> keys,
