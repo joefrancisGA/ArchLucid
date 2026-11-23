@@ -5,6 +5,10 @@ on:
     branches: [master]
     paths:
       - 'ArchLucid.Persistence/Migrations/426_RemediationRoleWritePermissions.sql'
+      - 'ArchLucid.Persistence/Migrations/427_RemediationProcedureOnlyUpdates.sql'
+      - 'ArchLucid.Persistence/InfraEvidence/SqlRemediationInstanceRepository*.cs'
+      - 'scripts/ci/tests/test_atomic_remediation_verification.py'
+      - 'scripts/ci/tests/test_remediation_rowversion_enforcement.py'
       - 'ArchLucid.Persistence/Scripts/ArchLucid.sql'
       - 'ArchLucid.Host.Core/Startup/Validation/Rules/SqlSealedEvidenceImmutabilityRules.cs'
       - 'ArchLucid.Host.Core/Startup/Validation/Rules/SqlDatabaseImmutabilityProbeHelpers.cs'
@@ -29,6 +33,8 @@ jobs:
           python-version: '3.11'
       - run: python -m unittest discover -s scripts/ci/tests -p test_remediation_sql_role_permissions.py -v
       - run: python -m unittest discover -s scripts/ci/tests -p test_remediation_atomic_update_contract.py -v
+      - run: python -m unittest discover -s scripts/ci/tests -p test_atomic_remediation_verification.py -v
+      - run: python -m unittest discover -s scripts/ci/tests -p test_remediation_rowversion_enforcement.py -v
 
   sql-permissions-integration:
     runs-on: ubuntu-latest
@@ -58,12 +64,12 @@ jobs:
         uses: ./.github/actions/wait-for-sqlserver
       - name: Prepare isolated SQL test catalog
         run: bash scripts/ci/ensure-ci-sql-catalog.sh ArchLucidPersistenceTests
-      - name: Execute actual SQL app-role permission test
+      - name: Execute app-role and scoped-approval SQL integration tests
         run: |
           mkdir -p "$RUNNER_TEMP/remediation-sql"
           dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj \
             --configuration Release \
-            --filter "FullyQualifiedName~RemediationSqlRolePrivilegesTests" \
+            --filter "FullyQualifiedName~RemediationSqlRolePrivilegesTests|FullyQualifiedName~SqlRemediationInstanceApprovalProvenanceTests" \
             --logger "trx;LogFileName=remediation-permissions.trx" \
             --results-directory "$RUNNER_TEMP/remediation-sql"
       - name: Fail if SQL permission tests were skipped or not discovered
