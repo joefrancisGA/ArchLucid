@@ -19329,6 +19329,9 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-architecture-diagram
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. After the dom-id mapping hit, `resolveInventoryDiagramClickFocusId` still compared the full accessibility `<title>` (for example `vm-app (Virtual machine)`) only to outline `node.id`, so forest inventory clicks kept the Mermaid slug and neighbor dimming failed. Mapping now matches flowchart dom slugs, stripped title resource names, and outline labels. Regression `maps forest accessibility titles to outline ids for neighbor dimming` failed first (focus stayed `flowchart-vm-app-0`), then click-focus passed 5/5. Private beta: clicking a resource on a forest inventory diagram keeps its linked neighbors visible instead of dimming the entire canvas.
+
+- [x] (proven) `resolveInventoryDiagramClickFocusId` — accessibility title only matched outline id, not resource label — **proven 2026-11-23 seed hunt:** title `vm-app (Virtual machine)` did not resolve to outline `vm-app`; title tokens and dom slug now align with label and resource name.
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. Inventory diagram click focus passed Mermaid dom ids such as `flowchart-api-0` into `resolveDiagramClickFocus` while the outline stores logical ids such as `api`, so one-hop neighbors were dimmed. `resolveInventoryDiagramClickFocusId` maps the node title to the outline id on click and when applying dim classes. Regression `maps a flowchart node id to the outline id before resolving neighbors` failed first (received `flowchart-api-0`), then click-focus passed 4/4. Private beta: clicking an inventory diagram node with an outline loaded keeps its linked neighbors visible instead of dimming the whole plate.
 
 - [x] (proven) `resolveDiagramClickFocus` — Mermaid dom node id skips outline neighbors — **proven 2026-11-23 seed hunt:** click id `flowchart-api-0` left only `flowchartapi0` in `keptNodeIds`; title-to-outline mapping now resolves `api` and keeps `gateway`.
@@ -19367,8 +19370,8 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

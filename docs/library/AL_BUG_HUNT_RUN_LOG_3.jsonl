@@ -63,3 +63,4 @@
 {"at":"2026-11-23T19:31:08.7028981Z","zoneId":"ui-architecture-diagram","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: SecureNow subject highlight matched unrelated node via substring id"}
 {"at":"2026-11-23T19:36:13.7317106Z","zoneId":"ui-architecture-diagram","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: viewport fit substring-matched unrelated Mermaid node ids"}
 {"at":"2026-11-23T19:40:39.9373544Z","zoneId":"ui-architecture-diagram","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: inventory click focus used Mermaid dom id instead of outline id"}
+{"at":"2026-11-23T19:45:06.5816471Z","zoneId":"ui-architecture-diagram","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: inventory click title did not map forest accessibility labels to outline ids"}

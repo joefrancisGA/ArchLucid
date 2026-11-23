@@ -87,4 +87,48 @@ describe("resolveDiagramClickFocus", () => {
     expect(focusId).toBe("api");
     expect([...result.keptNodeIds].sort()).toEqual(["api", "gateway"]);
   });
+
+  it("maps forest accessibility titles to outline ids for neighbor dimming", () => {
+    const outline = {
+      nodes: [
+        {
+          id: "vm-app",
+          label: "vm-app (Virtual machine)",
+          resourceType: "Microsoft.Compute/virtualMachines",
+          resourceGroup: "rg-app-prod",
+        },
+        {
+          id: "sqldb-app",
+          label: "sqldb-app (SQL database)",
+          resourceType: "Microsoft.Sql/servers/databases",
+          resourceGroup: "rg-data-prod",
+        },
+      ],
+      edges: [
+        {
+          from: "vm-app",
+          to: "sqldb-app",
+          label: null,
+          source: "observed",
+          declaredConnectionId: null,
+        },
+      ],
+    };
+    const focusId = resolveInventoryDiagramClickFocusId(
+      "flowchart-vm-app-0",
+      "vm-app (Virtual machine)",
+      outline,
+    );
+    const result = resolveDiagramClickFocus(focusId, outline, {
+      nodes: [
+        { id: "flowchart-vm-app-0", center: { x: 10, y: 10 } },
+        { id: "flowchart-sqldb-app-1", center: { x: 120, y: 10 } },
+      ],
+      frames: [],
+      edges: [],
+    });
+
+    expect(focusId).toBe("vm-app");
+    expect([...result.keptNodeIds].sort()).toEqual(["sqldbapp", "vmapp"]);
+  });
 });
