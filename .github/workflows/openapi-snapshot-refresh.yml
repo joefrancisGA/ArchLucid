@@ -30,6 +30,8 @@ on:
   push:
     branches: [main, master, RC35]
     paths: &openapi-contract-paths
+      # Changes to this generator's own workflow must also exercise generation.
+      - '.github/workflows/openapi-snapshot-refresh.yml'
       - 'ArchLucid.Api/**'
       - 'ArchLucid.Api.Tests/**'
       - 'ArchLucid.Application/**'
