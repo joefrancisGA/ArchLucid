@@ -120,8 +120,8 @@ class Row12PinnedLineageTests(unittest.TestCase):
         self.assertEqual(result["exact_same_blob_candidate_line_identities"], 0)
         self.assertEqual(result["all_first_parent_proven_repeat_candidate_lines"], 2)
         self.assertEqual(result["candidate_line_numbers_with_proven_continuity"], [1, 3])
-        self.assertEqual(result["unique_text_endpoint_matching_candidates_not_lineage_proof"], 2)
-        self.assertEqual(result["unique_text_endpoint_candidate_line_numbers"], [1, 3])
+        self.assertEqual(result["unique_text_endpoint_matching_candidates_not_lineage_proof"], 3)
+        self.assertEqual(result["unique_text_endpoint_candidate_line_numbers"], [1, 2, 3])
         self.assertTrue(result["upper_bound_is_not_first_parent_proof"])
         self.assertEqual(result["candidate_lines_on_shared_path_without_full_proof"], 1)
         self.assertEqual(result["candidate_lines_without_original_pinned_path"], 5)
@@ -145,8 +145,9 @@ class Row12PinnedLineageTests(unittest.TestCase):
         # Another pinned review DOES include omega; its source-line coverage
         # must be considered separately, not joined into the earliest SHA.
         r = self.run_proof(pins=pinned)
-        self.assertEqual(r["unique_text_endpoint_candidate_line_numbers"], [1, 3])
+        self.assertEqual(r["unique_text_endpoint_candidate_line_numbers"], [1, 2, 3])
         self.assertEqual(r["all_first_parent_proven_repeat_candidate_lines"], 2)
+        self.assertNotIn(2, r["candidate_line_numbers_with_proven_continuity"])
         self.assertEqual(r["new_independently_verified_reviewed_loc"], 0)
         self.assertIsNone(r["new_comparable_900_density"])
 
