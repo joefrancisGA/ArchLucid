@@ -19,7 +19,7 @@ public sealed class SecureNowEnabledPersistedHttpTests(SecureNowExchangeEnabledA
         using HttpClient owner = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(owner);
         Guid run = await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(
-            factory.Services, CancellationToken.None);
+            factory.Services, CancellationToken.None, pinTemporalSnapshotChain: true);
         // The production entitlement service intentionally denies all reads.
         // This host-only server-side test ACL grants the exact seeded run.
         factory.GrantSeededTestRun(run);
