@@ -12,6 +12,7 @@ import {
   isLikelySignedIn,
   persistTokenResponse,
   readAuthorizeRetryReturnPathSnapshot,
+  signOutAndRedirectHome,
   readPostSignInReturnUrl,
   readSignedInDisplayName,
   readSignedInUserSubject,
@@ -1075,5 +1076,42 @@ describe("clearOidcSession", () => {
     clearOidcSession({ broadcastAuthCleared: false });
 
     expect(postMessageMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("signOutAndRedirectHome", () => {
+  afterEach(() => {
+    sessionStorage.clear();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("keeps the operator signed in when the session-cookie DELETE returns 500", async () => {
+    const assign = vi.fn();
+
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: { ...window.location, assign },
+    });
+    sessionStorage.setItem(OIDC_ACCESS_TOKEN_KEY, accessTokenWithSubjectClaim());
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "user-test");
+    sessionStorage.setItem(OIDC_DISPLAY_NAME_KEY, "Test User");
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Date.now() + 3_600_000));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url: string, init?: RequestInit) => {
+        if (init?.method === "DELETE") {
+          return new Response("cookie not cleared", { status: 500 });
+        }
+
+        return new Response(JSON.stringify({ url: null }), { status: 200 });
+      }),
+    );
+
+    await signOutAndRedirectHome();
+
+    expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBe(accessTokenWithSubjectClaim());
+    expect(isLikelySignedIn()).toBe(true);
+    expect(assign).not.toHaveBeenCalled();
   });
 });

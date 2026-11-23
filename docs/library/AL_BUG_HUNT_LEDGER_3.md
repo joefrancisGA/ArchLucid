@@ -4847,16 +4847,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-11-23 thorough hunt (hit): no rotation (shouldRotate false). Cheap-disproof: notifyAuthContextChanged before the cookie POST is the optimistic hint path, and the prior hit already drops those hints when POST returns 500 (drops client sign-in hints when the BFF session cookie POST returns 500). A finite past expires_at_ms still returns shouldClearSession false (rejects refresh responses whose expires_at_ms is far in the past). Activity HTTP 500 stays ignored so a transient server error does not sign the operator out; only 401 and 403 return unauthorized (reports unauthorized when the activity route rejects the BFF session). A non-http RP logout URL returns null because isSafeOidcEndpointUrl allows only http(s); discovery already omits a javascript end_session_endpoint, and the BFF helper returns null for userinfo credentials. Promoted DELETE /api/auth/bff-session HTTP 500: clearBffSessionCookie ignored the status, and signOutAndRedirectHome cleared client hints and left for home while the HttpOnly cookie remained. Sign-out now waits for the DELETE and stays on the signed-in page when the response is not OK. Session and BFF sync vitest 253/253. Private beta: if sign-out cannot clear the session cookie, the operator stays signed in and can retry, instead of looking signed out while API calls still carry the cookie.
+
+- [x] (proven) clearBffSessionCookie — DELETE 500 is swallowed after client hints are already cleared — hit 2026-11-23 thorough hunt: keeps the operator signed in when the session-cookie DELETE returns 500.
+- [x] (valid-no-repro) persistTokenResponse — notifyAuthContextChanged runs before the cookie POST finishes — cheap-disproof 2026-11-23 thorough hunt: drops client sign-in hints when the BFF session cookie POST returns 500.
+- [x] (valid-no-repro) refreshBffSessionCookie — a finite but already-expired expires_at_ms returns shouldClearSession false — cheap-disproof 2026-11-23 thorough hunt: rejects refresh responses whose expires_at_ms is far in the past.
+- [x] (valid-no-repro) pulseBffSessionActivity — HTTP 500 returns ignored, so idle activity is not slid — cheap-disproof 2026-11-23 thorough hunt: only 401 and 403 are unauthorized; other non-OK statuses stay ignored so a server error does not clear the session.
+- [x] (valid-no-repro) resolveRpLogoutUrlFromBffSession — a 200 body with a non-http url returns null and sign-out skips the IdP — cheap-disproof 2026-11-23 thorough hunt: isSafeOidcEndpointUrl rejects non-http(s); returns null when the BFF logout URL embeds userinfo credentials; discovery omits a javascript end_session_endpoint.
+
+- [ ] (candidate) clearOidcSession — client hints are removed before the DELETE result is known — locus: removeOidcKeys then void clearBffSessionCookie; input: a caller other than signOutAndRedirectHome clears the session while DELETE returns 500; wrong outcome: local sign-in hints are gone and the HttpOnly cookie remains; reachability: token-expiry clear and invite or bootstrap exit actions.
+
 2026-11-23 thorough hunt (hit): no rotation (shouldRotate false). Cheap-disproof: POST 503 stays a resolved no-cookie path because that status means the host has no BFF signing secret; sub-second expires_in stays zero; decimal expires_at_ms strings and numbers share coerceAcceptedOidcEpochMsHint; a first return URL that consumes the retry marker is restored by markAuthorizeCallbackFailed when discovery fails. Promoted HTTP 500 on POST /api/auth/bff-session: the status check threw inside the network catch, so the promise resolved and persistTokenResponse left the operator signed in with no HttpOnly cookie. The status check now runs after the network catch, and syncTokenToBff drops client hints when the cookie was not issued. BFF sync vitest 156/156 and session vitest 96/96. Private beta: if the session cookie cannot be issued after sign-in, the operator is signed back out instead of looking signed in with API calls that have no bearer.
 
 - [x] (proven) syncBffSessionCookieFromTokenResponse — POST 500 still resolved — hit 2026-11-23 thorough hunt: rejects when the BFF session cookie POST returns 500; drops client sign-in hints when the BFF session cookie POST returns 500.
 - [x] (valid-no-repro) syncBffSessionCookieFromTokenResponse — POST 503 — cheap-disproof 2026-11-23 thorough hunt: keeps client sign-in usable when the BFF session route returns 503.
 
-- [ ] (candidate) clearBffSessionCookie — DELETE 500 is swallowed after client hints are already cleared — locus: fetch DELETE without response.ok; input: DELETE /api/auth/bff-session returns 500; wrong outcome: the HttpOnly cookie remains after sign-out; reachability: Operator sign-out.
-- [ ] (candidate) persistTokenResponse — notifyAuthContextChanged runs before the cookie POST finishes — locus: persistTokenResponse; input: POST returns 500 after the shell has rendered signed-in; wrong outcome: a signed-in frame appears and then drops; reachability: authorization-code exchange on a host with a BFF signing secret.
-- [ ] (candidate) refreshBffSessionCookie — a finite but already-expired expires_at_ms returns shouldClearSession false — locus: expiresAtMs > Date.now() - skew else branch; input: refresh JSON expires_at_ms in the past beyond the 60s skew; wrong outcome: the stale cookie stays and the client does not sign out; reachability: BFF refresh response.
-- [ ] (candidate) pulseBffSessionActivity — HTTP 500 returns ignored, so idle activity is not slid — locus: response.ok branch; input: POST /api/auth/bff-session/activity returns 500; wrong outcome: the server idle clock is not extended while the client thinks the pulse was skipped quietly; reachability: presenter keepalive.
-- [ ] (candidate) resolveRpLogoutUrlFromBffSession — a 200 body with a non-http url returns null and sign-out skips the IdP — locus: isSafeOidcEndpointUrl; input: url is a javascript: or relative path; wrong outcome: local sign-out finishes without the identity provider session; reachability: Operator sign-out RP logout URL.
 
 2026-11-22 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Re-read `pkceStoredValueContainsUnsafeControlCharacters`, `readOAuthJsonErrorDescription`, `decodeOAuthErrorDescription`, `parseOidcTokenResponse`, `refreshBffSessionCookie`, `syncBffSessionCookieFromTokenResponse`, and `resolveExpiresInSeconds`. Cheap-disproof closed the five pass-25 monitors as the same predicates already covered by hunt #497: the C0 class includes form feed, punctuation-only descriptions already return empty, any non-object token JSON throws, and any refresh status other than 401 or 403 soft-fails without clearing the session. No new row was promoted. Seeded five `(candidate)` rows from other branches. Private beta: n/a.
 
@@ -8150,8 +8155,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 2
-- **bugs-found:** 1
+- **hunts:** 3
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

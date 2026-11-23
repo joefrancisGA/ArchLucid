@@ -93,20 +93,29 @@ export async function syncBffSessionCookieFromTokenResponse(tokens: OidcTokenRes
   }
 }
 
-/** Clears the HttpOnly BFF session cookie during sign-out. */
-export async function clearBffSessionCookie(): Promise<void> {
+/**
+ * Clears the HttpOnly BFF session cookie during sign-out.
+ * Returns false when the route responds but does not clear the cookie.
+ * A network failure still returns true so local hints can be dropped when the route is unreachable.
+ */
+export async function clearBffSessionCookie(): Promise<boolean> {
   if (typeof fetch === "undefined") {
-    return;
+    return true;
   }
 
+  let response: Response;
+
   try {
-    await fetch(BFF_SESSION_SYNC_PATH, {
+    response = await fetch(BFF_SESSION_SYNC_PATH, {
       method: "DELETE",
       credentials: "same-origin",
     });
   } catch {
-    // Sign-out still clears client session hints even when the BFF route is unavailable.
+    // Sign-out still clears client session hints when the BFF route is unreachable.
+    return true;
   }
+
+  return response.ok;
 }
 
 export type BffSessionRefreshResult =

@@ -747,6 +747,12 @@ export async function signOutAndRedirectHome(): Promise<void> {
   }
 
   const rpLogoutUrl = await resolveRpLogoutUrlFromBffSession();
+  const sessionCookieCleared = await clearBffSessionCookie();
+
+  // The HttpOnly cookie is the API session. Stay signed in when the route did not clear it.
+  if (!sessionCookieCleared) {
+    return;
+  }
 
   clearOidcSession();
   clearOperatorScopeStorage();
