@@ -70,3 +70,62 @@ The legacy workbook may be reconciled later only by importing its individual
 source observations, validating each against its pinned Git baseline and
 deduplicating cross-revision content lineage. Until then it is explicitly
 **historical, not a current verified metric**.
+
+
+## Single consolidated update (historical, provisional and current)
+
+Run the consolidated command. It validates three distinct populations before
+producing the standard user-facing Aspects update:
+
+```bash
+python -m unittest discover -s scripts/tests -p 'test_aspects_accounting_report.py' -v
+python scripts/aspects_accounting_report.py \
+  --verified-snapshot artifacts/aspects/aspects-density-snapshot.json \
+  --json-out artifacts/aspects/aspects-accounting-report.json \
+  --markdown-out artifacts/aspects/aspects-accounting-report.md \
+  --700-csv-out artifacts/aspects/aspects-provisional-700-sma25.csv \
+  --900-csv-out artifacts/aspects/aspects-historical-900-sma25.csv \
+  --700-svg-out artifacts/aspects/aspects-provisional-700-sma25.svg
+```
+
+`aspects-density-snapshot.yml` runs this after revalidating the live reviewed
+source ledger and uploads all five report artifacts in the *existing* Aspects
+snapshot bundle. The lightweight `aspects-accounting-report.yml` validates
+the historical/provisional inputs and Python calculation on PRs without a
+comprehensive master build. GitHub Actions artifacts (and the generated
+Markdown) are the report; creating a new Git commit alone is not a measurement.
+
+The three outputs **must not be mixed**:
+
+- **Historical 900-first-parent captures:** exactly **79 actual recorded**
+  workbook snapshots as originally imported. Latest partial source checkpoint
+  is the November 22, 2026 capture at 463 / 343,492 = 1.3479207667/KLOC.
+  All 25-point moving averages are recalculated. This is not current.
+- **700-observation provisional trend:** exactly **100 workbook-derived
+  backprojections plus 600 separately imported workbook event rows**. Event
+  increments, cumulative counts, each reported rate and all 600 shared rows
+  must reconcile before generating its CSV/SVG. The latest workbook-provisional
+  rate is 491 / 343,818 = 1.42808113595/KLOC, distinct from the historical
+  900-commit snapshot. This is a 700-point chart, **not 700 independent
+  snapshots or 700 source-verified reviews**.
+- **Current verified ledger subset:** only live Git revalidated source
+  observations and distinct IDs from `aspects_density_snapshot.py`. As-of
+  HEAD, scope, current subset defect IDs and exact path/blob reviewed LOC are
+  displayed explicitly. New/repeated reviewed LOC, new defect IDs, rate and
+  signed delta appear only when a *comparable prior verified snapshot* exists.
+  If no comparable predecessor is available, those fields are **unknown
+  (`null`), never represented as zero**.
+
+Every Aspects progress report must state (1) the actual as-of Git SHA,
+(2) current live verified reviewed LOC and repeats **or unknown if no
+comparison**, (3) actual new distinct defect IDs **or unknown**, (4)
+historical/provisional context marked by provenance, and (5) CI status.
+Never repeat 463/343,492, 232,219, 6,020 or the 700 provisional count as
+new code-review progress.
+
+**Outstanding audit work:** Git path/blob coverage is not yet fully
+content-lineage deduplicated across revisions, and the historical candidate
+source population lacks original review pins. This does not block reproducible
+historical/provisional charts or the narrower verified ledger report, but it
+does block claiming a complete current 900-commit defect density. The report
+makes that boundary explicit.
