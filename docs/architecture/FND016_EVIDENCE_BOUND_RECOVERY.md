@@ -122,7 +122,9 @@ patternId)`. Its SQL implementation joins the parent and pointed version
 **in one statement** while checking the exact tenant/pattern, current
 version, `Approved` status and recorded independent approval metadata.
 Draft, noncurrent, retired, deleted or out-of-tenant versions return no
-record. Unsupported repository implementations default to no result.
+record. The read additionally requires a distinct nonempty approval actor and
+approval timestamp, preventing corrupted direct SQL metadata from silently
+impersonating independently reviewed pattern approval. Unsupported repository implementations default to no result.
 Existing pattern matcher, frozen-version instance workflows, and global
 retention/repair semantics are **unchanged**.
 
