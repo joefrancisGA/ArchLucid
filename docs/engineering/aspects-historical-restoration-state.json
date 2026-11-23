@@ -47,8 +47,8 @@
     "goal": "Reject mixed head/oldest/ordered SHA digests, clean review loss, candidate overcount and premature rate promotion",
     "no_master_full_build_requested": true
   },
-  "state": "row12_candidate_source_282_exact_no_repeat_and_test_fixture_fixed_pending_CI",
-  "next_priority": "Validate PR #7884 exact-head Aspects run including row12 five Git blobs and 282 nonblank whole-file candidate lines, 0 exact path/blob repeats against all original-pinned and other derived candidate source identities. Confirm fixed test strings contain real Python newlines, examine logs if any test or evidence fails; do not merge until all required checks are green. After CI, continue verified cross-revision original/derived source attribution, distinct defect discoveries, current 900-master-base comparable rate and 600/700 SMA25 only with complete population.",
+  "state": "row12_path_level_original_pin_eligibility_79_vs_203_committed_pending_CI",
+  "next_priority": "Validate exact PR-head Aspects tests and row12 candidate source path partition: one factory has an original Git-pinned review of different blob (79 candidate lines), four factories have no original pinned source path (203 candidate lines). First-parent source-line proven repeats may be 0..79 and must be measured only from full-history PR CI, with no independent reviewed LOC increment. Then reconcile complete 900 master-first-parent reviewed source and independently typed defect discoveries before rate or 600/700 SMA25.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -828,6 +828,37 @@
       "cross_revision_uniqueness_of_282_not_proven": true,
       "workbook_new_unique_lines_claim_219_unverified": true,
       "test_fixture_correction": "replaced ten accidental literal escaped backslash-n sequences with newline escapes for correct nonblank line assertions"
+    },
+    "row12_path_eligibility": {
+      "status": "source_path_evidence_from_successful_earlier_aspects_artifact; code_and_tests_submitted_exact_head_CI_pending",
+      "source_run_id": 45160219395,
+      "source_artifact_id": 14812729056,
+      "original_row": 12,
+      "reviewed_sha": "a50d94ad912a10009f47b1d2699f9a6ee998eaf5",
+      "scope": "older November22 900-first-parent Git-pinned original review population vs original row12 derived whole-source candidate",
+      "row12_total_candidate_git_source_lines": 282,
+      "candidate_lines_on_shared_original_pin_path": 79,
+      "shared_original_pin_path": "ArchLucid.Persistence/Connections/ReadOnlyDbConnectionFactory.cs",
+      "original_git_pin_review_occurrences_on_shared_path": 3,
+      "candidate_lines_on_paths_with_no_original_pin": 203,
+      "unmatched_original_pin_source_paths": 4,
+      "same_path_diff_blob_proven_first_parent_repeat_count": "pending full-history CI; 0..79 possible, not measured",
+      "code": "scripts/aspects_reconcile_candidate_lineage.py",
+      "tests": "scripts/tests/test_aspects_reconcile_candidate_lineage.py",
+      "workflow": ".github/workflows/aspects-density-snapshot.yml",
+      "golden": "docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row12-complete-connection-factories.json",
+      "historical_rows_migrated": 5741,
+      "historical_clean_review_rows": 4864,
+      "newly_independently_verified_reviewed_loc_this_run": 0,
+      "new_verified_reviewed_loc_this_run": 0,
+      "repeated_verified_reviewed_loc_this_run": 0,
+      "newly_verified_distinct_defect_ids_this_run": 0,
+      "new_measurement_produced_this_run": true,
+      "new_measurement_scope": "path-level eligibility only, 79 candidate lines on historically reviewed same path and 203 without original-pin paths; NOT new reviewed LOC or cross-revision repetition proof",
+      "new_comparable_rate": null,
+      "do_not_merge_before_required_checks_green": true,
+      "full_master_build_dispatched": false,
+      "rc49_PR7702_touched": false
     }
   },
   "latest_restoration_run": {
