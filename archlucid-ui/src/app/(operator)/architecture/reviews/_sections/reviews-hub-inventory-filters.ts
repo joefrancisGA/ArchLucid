@@ -132,7 +132,8 @@ export function resolveInventoryFilterCountRuns(
     return mergedRuns;
   }
 
-  return visibilityFilteredRuns;
+  // The archived view passes every run as the visible pool. Other chips still count active reviews.
+  return visibilityFilteredRuns.filter((run) => !isArchivedRun(run));
 }
 
 export function countRunsMatchingInventoryFilter(

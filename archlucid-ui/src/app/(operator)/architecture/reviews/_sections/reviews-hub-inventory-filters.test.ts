@@ -3,8 +3,10 @@ import { describe, expect, it } from "vitest";
 import type { RunSummary } from "@/types/authority";
 
 import {
+  countRunsMatchingInventoryFilter,
   matchesFilter,
   parseReviewsHubInventoryFilter,
+  resolveInventoryFilterCountRuns,
   parseReviewsHubInventorySearchQuery,
   reviewsHubInventoryFilterHref,
   reviewsHubInventoryHrefFromSearch,
@@ -77,3 +79,15 @@ describe("reviews hub inventory filter URL", () => {
       ),
     ).toBe(true);
   });
+describe("resolveInventoryFilterCountRuns", () => {
+  it("keeps the All count on active reviews when the archived view supplies every run", () => {
+    const active = run({ runId: "active", isArchived: false });
+    const archived = run({ runId: "archived", isArchived: true, hasGoldenManifest: false });
+    const merged = [active, archived];
+    const allPool = resolveInventoryFilterCountRuns("all", merged, merged);
+    const archivedPool = resolveInventoryFilterCountRuns("Archived", merged, merged);
+
+    expect(countRunsMatchingInventoryFilter(allPool, "all", {}, merged)).toBe(1);
+    expect(countRunsMatchingInventoryFilter(archivedPool, "Archived", {}, merged)).toBe(1);
+  });
+});
