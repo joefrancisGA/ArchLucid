@@ -176,14 +176,19 @@ def _read_current_reviewed_plan(
     if (plan.tenant_id != tenant_id or plan.project_id != project_id
             or plan.proposal_id != proposal_id):
         raise ValueError("Reviewed plan scope mismatch")
+    # Reject malformed provider data as a controlled denial, not a type
+    # comparison failure that could be confused with a signable plan.
+    if (not isinstance(plan.revision, int) or isinstance(plan.revision, bool)
+            or plan.revision < 1):
+        raise ValueError("Invalid reviewed plan revision")
     if plan.revision < min_revision:
         raise ValueError("Reviewed plan revision stale")
     if plan.approved is not True:
         raise ValueError("Reviewed plan not approved")
+    expected_hash = reviewed_plan_content_sha256(plan)
     if (plan.approved_at > now or now >= plan.expires_at
             or plan.approved_at >= plan.expires_at):
         raise ValueError("Reviewed plan expired or not yet approved")
-    expected_hash = reviewed_plan_content_sha256(plan)
     if (not isinstance(plan.content_sha256, str)
             or plan.content_sha256 != expected_hash):
         raise ValueError("Reviewed plan content integrity mismatch")
