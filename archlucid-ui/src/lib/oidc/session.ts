@@ -739,6 +739,26 @@ export function isLikelySignedIn(): boolean {
 }
 
 /**
+ * Drops client hints only after the HttpOnly cookie DELETE succeeds.
+ * A non-OK response leaves the operator signed in so API calls are not still authenticated.
+ */
+export async function endOidcBrowserSession(options?: ClearOidcSessionOptions): Promise<boolean> {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const sessionCookieCleared = await clearBffSessionCookie();
+
+  // The HttpOnly cookie is the API session. Stay signed in when the route did not clear it.
+  if (!sessionCookieCleared) {
+    return false;
+  }
+
+  clearOidcSession(options);
+  return true;
+}
+
+/**
  * Clears local session and redirects to the IdP end_session endpoint when available (OIDC RP-initiated logout).
  */
 export async function signOutAndRedirectHome(): Promise<void> {
@@ -747,14 +767,12 @@ export async function signOutAndRedirectHome(): Promise<void> {
   }
 
   const rpLogoutUrl = await resolveRpLogoutUrlFromBffSession();
-  const sessionCookieCleared = await clearBffSessionCookie();
+  const ended = await endOidcBrowserSession();
 
-  // The HttpOnly cookie is the API session. Stay signed in when the route did not clear it.
-  if (!sessionCookieCleared) {
+  if (!ended) {
     return;
   }
 
-  clearOidcSession();
   clearOperatorScopeStorage();
 
   if (rpLogoutUrl) {

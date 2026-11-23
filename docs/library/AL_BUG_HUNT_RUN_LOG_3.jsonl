@@ -46,3 +46,4 @@
 {"at":"2026-11-23T17:15:07.2593382Z","zoneId":"ui-review-intake-wizards","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: second preset deeplink id ignored on the same wizard"}
 {"at":"2026-11-23T17:23:42.1331270Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: BFF session POST 500 left the operator signed in without a cookie"}
 {"at":"2026-11-23T17:34:32.8308658Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: sign-out DELETE 500 left the operator signed out with the session cookie still set"}
+{"at":"2026-11-23T17:45:39.7647174Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: sign-in again cleared client hints while the session cookie DELETE returned 500"}
