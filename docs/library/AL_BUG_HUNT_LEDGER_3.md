@@ -115,13 +115,11 @@
 
 - [x] (proven) `resolveSecureNowReturnPathFromSearch` — protocol-relative `securenowReturnPath` rendered as the return link — **hit 2026-11-23 seed hunt:** `canonicalSafeReturnPath`; regression above.
 
-## Zone: ui-review-detail-workspace
 
 2026-11-23 thorough hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted the open cookie candidate. `readProductLineCookie` passed the raw cookie to `isProductLineId`, so ` security` and `Security` returned null, while `resolveProductLineIdForServer` and `resolveProductLineIdFromRequest` trim and lowercase first. The browser reader now uses that same normalization. Regression `accepts a padded or mixed-case product-line cookie the same way the server reader does`; product-line storage vitest **2/2**. Private beta: an invited operator whose product-line cookie has extra spaces or different casing now sees the same shell the server gate already chose, instead of the build default.
 
 - [x] (proven) `readProductLineCookie` — padded or mixed-case `archlucid_product_line_v1` was ignored — **hit 2026-11-23 thorough hunt:** trim and lowercase before `isProductLineId`; regression above.
 
-## Zone: ui-review-detail-workspace
 
 2026-11-23 thorough hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). The reseed stub had no locus and is `(invalid)`. Promoted assigned-to-me queue remap: `findingsQueuePathFromPathname` treated `/governance/findings/assigned-to-me` as a child of `/compliance/findings`, and `/security/assigned-to-me` was not a findings route so it fell through to the general findings hub. The helper now swaps those two queue paths and keeps the query string; `useFindingsQueuePath` calls that helper. Regression `remaps assigned-to-me between the governance and SecureNow queues`; securenow-compliance-routes vitest **9/9**. Cheap-disproof closed nested href, trailing-slash, and admin-merge monitors. Private beta: an invited operator on the SecureNow assigned-to-me findings queue keeps triage and scope links on that queue instead of being sent to the general findings list.
 
@@ -212,11 +210,13 @@ odeCount >= maxNodes with null guard; **valid-no-repro** snapshot freshness uses
 - [x] (valid-no-repro) ask panel grounding undefined citations — cheap-disproof 2026-11-20 thorough hunt #1.
 - [x] (valid-no-repro) resource hub facet dependent keys — cheap-disproof 2026-11-20 thorough hunt #1; runId clear regression above.
 
-- [ ] (candidate) uildInfrastructureAskHref — audit scope without unId may omit run-scoped handoff — monitor; hunt #1 reseed.
+- [ ] (candidate) uildInfrastructureAskHref — audit scope without 
+unId may omit run-scoped handoff — monitor; hunt #1 reseed.
 - [ ] (candidate) diagramReconcileFilterHrefFromSearch — compare mode param may linger when filter reset — monitor; hunt #1 reseed.
 - [ ] (candidate) ormatInfraEvidenceSnapshotCapturedUtcLabel — double UTC suffix when TZ already UTC — monitor; hunt #1 reseed.
 - [ ] (candidate) submitInfraEvidenceAsk — non-array citations becomes empty array not null — monitor; hunt #1 reseed.
-- [ ] (candidate) esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePrefix — monitor; hunt #1 reseed.
+- [ ] (candidate) 
+esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePrefix — monitor; hunt #1 reseed.
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/infra-evidence`. Seeded five `(hunt-ready)` rows; no production change.
 
 ### Hypotheses
