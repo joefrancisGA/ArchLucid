@@ -10,7 +10,7 @@ import {
 const round = (value) => Math.round(value * 10) / 10;
 
 /** Only inspect build-owned JavaScript chunks; never follow arbitrary paths from diagnostics JSON. */
-const BUILD_CHUNK_PATH = /^\\.next\\/static\\/chunks\\/[A-Za-z0-9_-]+\\.js$/;
+const BUILD_CHUNK_PATH = /^\.next\/static\/chunks\/[A-Za-z0-9_-]+\.js$/;
 
 /**
  * Observe bytes on disk for the exact hashed chunks referenced by Next's route stats.
