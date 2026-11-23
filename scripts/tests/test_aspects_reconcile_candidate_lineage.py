@@ -171,5 +171,48 @@ class CandidateLineageTests(unittest.TestCase):
         self.assertEqual(r["candidate_only_proven_same_path_first_parent_lineage_to_original_pin"], 0)
         self.assertEqual(r["first_parent_lineage_skipped_reasons"]["missing_intermediate_path"], 1)
 
+
+class LongFirstParentLineageTests(unittest.TestCase):
+    """Long unchanged gaps must be examined edge by edge, not guessed."""
+
+    @staticmethod
+    def trace(*, mutate_and_revert=False, max_edges=128):
+        from aspects_verify_first_parent_lineage import trace_unique_first_parent_lines
+        shas = [f"{i:040x}" for i in range(41)]
+        old, new, mutation = "a" * 40, "b" * 40, "c" * 40
+        blobs = [old] * 40 + [new]
+        if mutate_and_revert:
+            blobs[20] = mutation
+        positions = dict(zip(shas, blobs))
+        contents = {
+            old: ["unique", "stable"],
+            new: ["unique", "stable", "additional"],
+            mutation: ["modified", "stable"],
+        }
+        return trace_unique_first_parent_lines(
+            shas, "a.cs", old, 0, new, 40, {1, 2},
+            lambda sha, path: positions[sha] if path == "a.cs" else None,
+            lambda blob: contents.get(blob), max_edges=max_edges,
+        )
+
+    def test_40_parent_edges_prove_unchanged_unique_lines(self):
+        mapped, reason, edges = self.trace()
+        self.assertEqual(mapped, {1: 1, 2: 2})
+        self.assertIsNone(reason)
+        self.assertEqual(edges, 40)
+
+    def test_modified_then_restored_line_stays_unproven(self):
+        mapped, reason, edges = self.trace(mutate_and_revert=True)
+        self.assertEqual(mapped, {2: 2})
+        self.assertIsNone(reason)
+        self.assertEqual(edges, 40)
+
+    def test_shorter_explicit_cap_fails_closed(self):
+        mapped, reason, edges = self.trace(max_edges=16)
+        self.assertEqual(mapped, {})
+        self.assertEqual(reason, "distance_cap")
+        self.assertEqual(edges, 40)
+
+
 if __name__ == "__main__":
     unittest.main()
