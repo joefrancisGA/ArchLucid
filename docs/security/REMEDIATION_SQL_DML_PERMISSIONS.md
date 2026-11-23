@@ -118,9 +118,13 @@ and bypass the application's CAS/approval evidence code. Fully
 eliminating that escape path requires migrating every legitimate update,
 including any maintenance/snapshot path, to reviewed privileged stored
 procedures or another authenticated database authority, then revoking
-direct instance UPDATE from the runtime identity. The snapshot
-delete reference check also needs a separate concurrency/FK review
-for concurrent path-binding writes. Role-based DENYs do not protect
+direct instance UPDATE from the runtime identity. The snapshot-deletion protection
+also relies on the existing `FK_RemediationInstances_SecurityEvidencePaths`
+defined in migration 384. Where that FK has been applied and enabled,
+SQL Server rejects deletion of a path referenced by a remediation
+instance, including conflicting concurrent writes. The new scoped
+precheck provides the existing `BlockedReferencedByRemediationInstance`
+response; concurrent delete outcomes still need executed SQL tests. Role-based DENYs do not protect
 against privileged administrators or out-of-band database migrations.
 
 No cloud remediation executor, `remediation.execute` permission,
