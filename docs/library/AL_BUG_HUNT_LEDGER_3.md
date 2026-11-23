@@ -162,6 +162,20 @@
 
 ## Zone: ui-lib-api
 
+2026-11-23 thorough hunt #4 (hit): cheap-disproof closed the reseed monitors that were already guarded — valid-no-repro value-report JSON 200 is rejected by `assertBinaryDownloadContentType`; valid-no-repro whitespace-only comparison ids throw before replay; valid-no-repro non-ok scoped downloads build the blocked reason from the response body; valid-no-repro padded replay ids are trimmed by `trimRequiredPathSegment`; valid-no-repro declared `application/json` bodies are saved as JSON rather than sniffed for HTML. Promoted the compare-summary PDF handoff: `createAndDownloadComparisonPdf` read `x-archlucid-comparison-record-id`, but the API sets `X-ArchLucid-ComparisonRecordId`, and the proxy passthrough dropped that header, so a successful persist never started the PDF replay. The client and proxy now use the API header name. Regression vitest **5/5**. Private beta: creating a comparison and downloading its PDF replay now continues after the summary is saved, instead of stopping with a missing comparison id.
+
+- [x] (proven) `createAndDownloadComparisonPdf` — summary header name does not match `X-ArchLucid-ComparisonRecordId` — **hit 2026-11-23 thorough hunt #4:** shared header constant plus proxy passthrough; regressions above.
+- [x] (valid-no-repro) `downloadValueReportDocx` — 200 JSON envelope — **cheap-disproof 2026-11-23 thorough hunt #4:** binary guard rejects `application/json`.
+- [x] (valid-no-repro) `createAndDownloadComparisonPdf` — whitespace-only comparison id — **cheap-disproof 2026-11-23 thorough hunt #4:** trim then empty check.
+- [x] (valid-no-repro) `fetchScopedProxyFileGet` — non-ok body vs blocked reason — **cheap-disproof 2026-11-23 thorough hunt #4:** body is parsed into the failure before the blocked reason.
+- [x] (valid-no-repro) `downloadComparisonReplayPdf` — padded comparison id — **cheap-disproof 2026-11-23 thorough hunt #4:** `trimRequiredPathSegment`.
+- [x] (valid-no-repro) `rejectUnguardedHtmlOrProblemDownload` — HTML inside `application/json` — **cheap-disproof 2026-11-23 thorough hunt #4:** declared JSON stays a JSON download.
+
+- [ ] (candidate) `downloadManifestMarkdownExport` — omitted content-type prefixes on markdown — locus: `downloadScopedProxyFileGet` options; input: 200 `text/html`; wrong outcome: HTML rejected, but `text/csv` would still save; reachability: sealed manifest markdown export.
+- [ ] (candidate) `downloadSponsorReviewPacketMarkdown` — omitted prefixes — locus: pilots collateral GET; input: 200 `text/plain`; wrong outcome: markdown packet blocked after the plain-text guard; reachability: sponsor review packet download. API sends `text/markdown`, so monitor only.
+- [ ] (candidate) `parseFilenameFromContentDisposition` — percent-encoded `filename*` — locus: filename regex; input: `filename*=UTF-8''report%20name.pdf` with no quoted filename; wrong outcome: saved name stays percent-encoded; reachability: ASP.NET file results with spaces.
+- [ ] (candidate) `openScopedProxyFileGetInNewTab` — immediate `revokeObjectURL` — locus: blob URL lifetime; input: successful JSON open; wrong outcome: new tab fails to load the blob; reachability: product learning report preview.
+- [ ] (candidate) `downloadValueReportDocx` — 202 async window — locus: status 202 branch; input: 202 with JSON job body; wrong outcome: operator sees the large-window error and no download; reachability: Enterprise value report over a large date range. Confirm this is intended before treating it as a defect.
 2026-11-23 thorough hunt #3 (hit): cheap-disproof closed four reseed monitors — valid-no-repro `createAndDownloadComparisonPdf` throws before any PDF download when `x-archlucid-comparison-record-id` is absent; valid-no-repro `openScopedProxyFileGetInNewTab` uses the same `fetchScopedProxyFileGet` HTML guard as file download; valid-no-repro `assertBinaryDownloadContentType` matches DOCX MIME types with `startsWith` so charset parameters still pass; valid-no-repro `downloadComparisonReplayPdf` already rejects `application/json` bodies via the binary guard. Promoted omitted-prefix scoped JSON export: `rejectUnguardedHtmlOrProblemDownload` blocked HTML but still saved a 200 `text/plain` proxy error as a `.json` artifact. The guard now rejects `text/plain` on the omitted-prefix path; scoped-proxy vitest **4/4**. Private beta: decision-receipt and other scoped JSON downloads fail fast instead of saving plain-text error pages as JSON files.
 
 - [x] (proven) `downloadScopedProxyFileGet` — 200 `text/plain` saved when prefixes omitted — **hit 2026-11-23 thorough hunt #3:** reject `text/plain` beside HTML/problem JSON; regression above.
@@ -170,11 +184,11 @@
 - [x] (valid-no-repro) `assertBinaryDownloadContentType` — DOCX charset suffix — **cheap-disproof 2026-11-23 thorough hunt #3:** `startsWith` prefix match.
 - [x] (valid-no-repro) `downloadComparisonReplayPdf` — 200 `application/json` body — **cheap-disproof 2026-11-23 thorough hunt #3:** existing binary guard regression.
 
-- [ ] (candidate) `downloadValueReportDocx` — 200 `application/json` envelope without DOCX body — locus: post-ok guard; input: JSON problem with 200; wrong outcome: misleading error text vs blocked reason; reachability: Enterprise value report export.
-- [ ] (candidate) `createAndDownloadComparisonPdf` — 200 JSON with header but empty comparison id — locus: header trim; input: header whitespace only; wrong outcome: download replay with blank id; reachability: compare summary PDF flow.
-- [ ] (candidate) `fetchScopedProxyFileGet` — non-ok body text consumed before blocked reason — locus: error path; input: 403 HTML; wrong outcome: correlation-only message; reachability: sealed manifest exports.
-- [ ] (candidate) `downloadComparisonReplayPdf` — padded comparisonRecordId in path — locus: encode vs trim; input: leading spaces in id; wrong outcome: 404 on replay POST; reachability: comparison history replay download.
-- [ ] (candidate) `rejectUnguardedHtmlOrProblemDownload` — `application/json` with HTML payload — locus: trust content-type header; input: JSON type with `<html` body; wrong outcome: invalid JSON file saved; reachability: scoped JSON downloads (monitor).
+- [x] (valid-no-repro) `downloadValueReportDocx` — 200 `application/json` envelope without DOCX body — locus: post-ok guard; input: JSON problem with 200; wrong outcome: misleading error text vs blocked reason; reachability: Enterprise value report export.
+- [x] (valid-no-repro) `createAndDownloadComparisonPdf` — 200 JSON with header but empty comparison id — locus: header trim; input: header whitespace only; wrong outcome: download replay with blank id; reachability: compare summary PDF flow.
+- [x] (valid-no-repro) `fetchScopedProxyFileGet` — non-ok body text consumed before blocked reason — locus: error path; input: 403 HTML; wrong outcome: correlation-only message; reachability: sealed manifest exports.
+- [x] (valid-no-repro) `downloadComparisonReplayPdf` — padded comparisonRecordId in path — locus: encode vs trim; input: leading spaces in id; wrong outcome: 404 on replay POST; reachability: comparison history replay download.
+- [x] (valid-no-repro) `rejectUnguardedHtmlOrProblemDownload` — `application/json` with HTML payload — locus: trust content-type header; input: JSON type with `<html` body; wrong outcome: invalid JSON file saved; reachability: scoped JSON downloads (monitor).
 2026-11-23 seed hunt (hit): promoted `downloadValueReportDocx` — `downloadComparisonReplayPdf` in the same module already rejected non-PDF 200 responses via `assertBinaryDownloadContentType`, but the sponsor value report DOCX export skipped that guard, so a 200 HTML login or error page could save as `ArchLucid-value-report.docx`. Added the DOCX prefix check before `triggerBrowserBlobDownload`; regression vitest **3/3**. Private beta: Enterprise Controls value report download now fails fast with a clear error instead of saving a bogus `.docx` when the proxy returns HTML.
 
 - [x] (proven) `downloadValueReportDocx` — 200 HTML saved as DOCX — **hit 2026-11-23 seed hunt:** `assertBinaryDownloadContentType` with DOCX MIME prefix; regression above.
@@ -209,8 +223,8 @@
 - **aliases:** UI API client; fetch boundaries
 - **paths:** archlucid-ui/src/lib/api/
 - **test-filter:** lib/api
-- **hunts:** 5
-- **bugs-found:** 4
+- **hunts:** 6
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

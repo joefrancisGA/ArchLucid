@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { COMPARISON_RECORD_ID_HEADER } from "@/lib/api/comparison-record-id-header";
 import {
   CORRELATION_ID_HEADER,
 } from "@/lib/correlation";
@@ -76,6 +77,12 @@ export async function passThrough(res: Response, cacheControlPrivateMaxAgeSecond
 
   if (location !== null && location.trim().length > 0) {
     out.headers.set("Location", location.trim());
+  }
+
+  const comparisonRecordId = res.headers.get(COMPARISON_RECORD_ID_HEADER);
+
+  if (comparisonRecordId !== null && comparisonRecordId.trim().length > 0) {
+    out.headers.set(COMPARISON_RECORD_ID_HEADER, comparisonRecordId.trim());
   }
 
   if (

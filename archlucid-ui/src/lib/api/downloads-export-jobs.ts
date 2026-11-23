@@ -6,6 +6,7 @@ import { sponsorPackSentMutationBlockedReason } from "@/lib/pilots/sponsor-pack-
 import { comparisonReplayMutationBlockedReason } from "@/lib/compare/comparison-replay-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import { COMPARISON_RECORD_ID_HEADER } from "./comparison-record-id-header";
 import {
   encodeRequiredPathSegment,
   trimRequiredPathSegment,
@@ -106,8 +107,9 @@ export async function createAndDownloadComparisonPdf(leftRunId: string, rightRun
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
 
-  const comparisonRecordId = response.headers.get("x-archlucid-comparison-record-id");
-  if (!comparisonRecordId) {
+  const comparisonRecordId = response.headers.get(COMPARISON_RECORD_ID_HEADER)?.trim() ?? "";
+
+  if (comparisonRecordId.length === 0) {
     throw new Error("Failed to get comparisonRecordId from response headers.");
   }
 
