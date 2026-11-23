@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "historical_import_complete_all_positive_fix_states_reconciled_cohort_v2_and_CI_corrections_pending_required_checks",
-  "next_priority": "Validate the exact new PR #7822 head: Aspects snapshot, evidence gate, Merge Protection and CI. Keep required security/FND failures blocking merge; do not dispatch full master CI. Inspect the new row-908 golden (673 derived nonblank LOC after UTF-8 BOM handling) and 877 fixing-PR state reconciliation, then resolve the remaining 40 unparseable historical-window source rows. Prove cross-revision lineage across original pins, derived candidates and the incremental ledger before publishing a new comparable full900 rate.",
+  "state": "historical_import_complete_nine_range_candidates_source_verified_CI_golden_submitted",
+  "next_priority": "Validate exact-head #7822 nine-row recovered candidate golden tests and security/FND checks. Continue 34 unparseable in-window unpinned source rows, reconcile current ledger and cross-revision source identities plus distinct discovery IDs before publishing 900-window density; never dispatch full master build.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -114,7 +114,7 @@
         "derived_blob": "40eeeaeec78f47861e703932a29701ca6f1d96fd",
         "scope": "one all-history candidate, 900-window membership not yet established"
       },
-      "coverage_count_status": "Prior successful CI had1182 all-history candidates and438 in the historical900 window. Encoding correction recovers clean row908 (673LOC) locally; expected1183/439 requires new CI confirmation. Candidates remain excluded from verified density.",
+      "coverage_count_status": "New successful PR Aspects 45097064576: 1193 all-history accepted derived candidates, 448 in anchored 900 first-parent; candidate-only no verified denominator promotion.",
       "counting_contract": "Do not add candidate lines to independently pinned exact path/blob union or to workbook 463/343492. Missing/conflicting full paths and nonblank mismatches get zero candidate coverage; all rows remain in immutable corpus.",
       "row908_encoding_recovery": {
         "original_excel_row": 908,
@@ -127,6 +127,30 @@
         "confidence": "Derived source at original reviewed commit, not original workbook blob pin or verified cross-revision denominator",
         "verified_denominator_increment": 0,
         "checkpoint": "docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row908-utf8-bom.json"
+      },
+      "numeric_range_nine_recovery": {
+        "original_excel_rows": [
+          32,
+          33,
+          34,
+          35,
+          38,
+          40,
+          46,
+          47,
+          49
+        ],
+        "ci_evidence_run": 45097064576,
+        "source_at_commit_blob_components": 38,
+        "reported_nonblank_loc_matched": 1795,
+        "exact_new_candidate_identities_vs_preexisting_candidates_and_original_pins": 1645,
+        "exact_repeated_line_occurrences_vs_preexisting_candidates_and_pins": 150,
+        "original_pin_denominator_increment": 0,
+        "new_verified_distinct_defects": 0,
+        "checked_in_golden": "docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-numeric-range-nine.json",
+        "audit_artifact": "artifacts/aspects/historical-numeric-range-nine.json",
+        "new_ci_status": "pending",
+        "confidence": "derived_at_original_review_commit_candidate_only_not_original_pinned_or_cross_revision_dedup"
       }
     },
     "cross_population_reconciliation": {
@@ -137,15 +161,15 @@
       "exact_overlap_report": "artifacts/aspects/historical-recovered-vs-pinned-overlap.json",
       "code": "scripts/aspects_reconcile_recovered_candidates.py",
       "tests": "scripts/tests/test_aspects_reconcile_recovered_candidates.py",
-      "status": "executed_current_saved_artifact_success_then_replay_golden_added_to_PR7822",
+      "status": "successful_45097064576_exact_overlap_artifacts_derived_candidate_only_900_lineage_unresolved",
       "digests": "canonical_row_level_sha256_on_both_pinned_and_derived_candidate_rows; matching first_parent_head_oldest_count_and_member_classifications_required",
       "dedup_policy": "exact_path_blob_line_overlap_only_inside_same_900_SHA_window; candidate-only identities are NOT verified reviewed LOC or additive to 463/343492; cross-revision mapping pending",
       "new_verified_lines_added": 0,
       "defect_ids_reconciled_this_stage": 0,
-      "candidate_exact_overlap_with_original_pins_in_900_window": 9762,
-      "candidate_exact_only_not_verified_history": 94148,
-      "in_window_derived_candidate_rows": 438,
-      "in_window_derived_candidate_line_occurrences": 108957
+      "candidate_exact_overlap_with_original_pins_in_900_window": 10303,
+      "candidate_exact_only_not_verified_history": 95925,
+      "in_window_derived_candidate_rows": 448,
+      "in_window_derived_candidate_line_occurrences": 111425
     },
     "multifile_34_source_checkpoint": {
       "path": "docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-github-multisource-34.json",
@@ -250,19 +274,26 @@
     },
     "last_ci_observation": {
       "pr": 7822,
-      "observed_head_sha": "7461284c7d5f48c1ef4f710a6aec98b4ca6a4f5f",
-      "aspects_snapshot_run": 45088019526,
+      "observed_head_sha": "b643e65de74f26c737c174a23af7bad1f1f9f482",
+      "aspects_snapshot_run": 45097064576,
       "aspects_snapshot_result": "success",
-      "historical_source_gate_run": 45088019471,
-      "historical_source_gate_result": "failure_due_to_exact_accounting_migration_allowlist_outdated",
-      "next_head_gate_code_fix": "Narrow exact-path accounting migration allowlist updated without exempting product code",
-      "ci_run": 45088019642,
-      "ci_result": "failure",
-      "security_gitleaks_note": "Four findings in old commits of scripts/tests/test_fnd010_evidence_authorization.py; retain security gate, investigate source without suppressing checks.",
-      "dotnet_fast_core_note": "Aggregate failed only because fast core build was skipped downstream of upstream CI failure; no application .NET test failure established.",
-      "successful_merge_protection_run": 45088019231,
-      "merge_allowed": false,
-      "new_comparable_rate_produced": false
+      "historical_source_gate_run": 45097064644,
+      "historical_source_gate_result": "success",
+      "merge_protection_run": 45097064437,
+      "merge_protection_result": "success",
+      "ci_run": 45097064804,
+      "ci_result": "failure_existing_gitleaks_test_fixture_and_upstream_fast_core_build_skipped",
+      "additional_fnd_failures": [
+        "FND-011 HTTP/OpenAPI Verification",
+        "FND-011 .NET Projection Tests",
+        "FND-017 .NET Semantic Architecture Boundaries"
+      ],
+      "security_remediation_PR": 7827,
+      "full_master_build_dispatched": false,
+      "merge_attempted": false,
+      "newly_verified_original_pin_loc": 0,
+      "newly_reconciled_distinct_defects": 0,
+      "new_comparable_rate_computed": false
     },
     "numeric_pr_review_identity_recovery": {
       "implementation": "scripts/aspects_reconcile_historical_defect_ids.py",
