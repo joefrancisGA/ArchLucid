@@ -95,3 +95,55 @@ has been created. Do not read `Approval` phase evidence as a signed
 remediation-plan authorization. A separate immutable, scoped plan
 approval/version domain and independently held signing key would
 still be required before production adoption.
+
+## Independently reread reviewed plan — FND-016 reuse increment (2026-11-23)
+
+The v3 signer originally accepted expected forward/inverse steps as arguments
+beside the evidence. Although each digest was checked, nothing in that direct
+adapter required a separate authoritative plan read. A caller could submit
+matching but self-selected evidence and steps.
+
+The reference now provides `issue_from_authoritative_plan` and
+`verify_against_authoritative_plan` using the **same** existing v3
+`issue_with_external_signer`, `verify_evidence_bound_attestation`,
+and `remediation_steps_sha256` controls. The adapter takes a trusted
+server-side tenant/project/proposal scope, minimum permitted plan revision,
+trusted clock, and a separately configured `read_current_plan(scope)`
+callback. It does **not** accept expected plan steps from the signing request.
+A `ReviewedPlanSnapshot` must match scope, be explicitly approved, have
+a positive revision not below the trusted minimum, and fall within its
+approval/expiry interval. The reference recalculates the snapshot SHA-256
+from canonical scope, revision, approval interval, and both ordered step
+digests. The resulting steps are rechecked against signed rehearsal evidence
+before invoking the signer; the corresponding verifier must independently
+reread the current plan and validate its signature and freshness.
+
+Missing, foreign, stale, unapproved, expired, malformed, or checksum-inconsistent
+snapshots reject before signing; a missing or failing provider never falls
+back to request-supplied steps. The existing lower-level direct signing and
+verification functions are retained as pure test/reference helpers. They
+**are not independently authenticated production entry points**.
+
+**Critical boundary still missing:** this Python reference does not supply
+a trustworthy `read_current_plan` implementation, a separately authenticated
+session, a monotonic revision anchor, or managed signing-key custody. The
+callback, clock and minimum revision must be installed by a trusted signing
+service, not controlled by a client submitting the evidence. A checksum
+recomputed from a forged snapshot is *not proof of an immutable authoritative
+store*. No production plan repository or execution worker is added here.
+The existing `IImmutableSourceStore` in the .NET architecture-intelligence
+module has content-hash checks but stores a different artifact type, and
+its `GetById` interface alone does not establish a tenant-authorized
+remediation-plan approval. Likewise, the governance approval-request
+repository is scoped for a different workflow, not a FND-015 approved-plan
+store. Directly wiring either to the Python reference would invent a
+security integration. Production adoption needs a purpose-reviewed,
+scope-authorized current-plan adapter, durable immutable/append-only
+storage, trusted revision watermark and signer authority.
+
+This increment does not alter the v3 signing envelope; it validates the
+current plan at signing/verification time. **The envelope still does not
+carry a separate plan revision or immutable plan-record identifier.**
+Long-lived replay, revocation and revision-identity evidence therefore
+remain separate design and release gates. Valid reference attestations
+continue to yield `eligible_for_execution=False`.
