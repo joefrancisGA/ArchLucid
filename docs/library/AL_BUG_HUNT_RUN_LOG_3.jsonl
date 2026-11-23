@@ -76,3 +76,4 @@
 {"at":"2026-11-23T21:14:35.3326985Z","zoneId":"ui-operator-routes","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: inventory sort rejected leading space on createdUtc"}
 {"at":"2026-11-23T21:30:45.3973779Z","zoneId":"ui-operator-routes","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: open risks omitted hint fired without warning flags"}
 {"at":"2026-11-23T21:33:52.3867656Z","zoneId":"ui-operator-routes","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: findings omitted hint fired for a draft with no findings snapshot"}
+{"at":"2026-11-23T21:37:26.7343429Z","zoneId":"ui-operator-routes","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: awaiting approval counted a package that already had a decision"}

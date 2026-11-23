@@ -34,7 +34,12 @@ export function deriveReviewsWorkspaceSummary(runs: readonly RunSummary[]): Revi
   for (const run of tenantRuns) {
     if (run.hasGoldenManifest === true) {
       committed += 1;
-      readyForGovernance += 1;
+      const decision = run.operatorGovernanceDecision?.trim() ?? "";
+
+      // A stored decision means approval already happened, so the package is not awaiting it.
+      if (decision.length === 0) {
+        readyForGovernance += 1;
+      }
     } else {
       inProgress += 1;
     }

@@ -89,4 +89,24 @@ describe("deriveReviewsWorkspaceSummary", () => {
     expect(summary.findings).toBe(0);
     expect(summary.findingsTotalOmitted).toBe(true);
   });
+  it("does not count a finalized package with a stored approval decision as awaiting approval", () => {
+    const summary = deriveReviewsWorkspaceSummary([
+      run({
+        runId: "approved",
+        hasGoldenManifest: true,
+        findingCount: 1,
+        warningCount: 0,
+        operatorGovernanceDecision: "Approved",
+      }),
+      run({
+        runId: "undecided",
+        hasGoldenManifest: true,
+        findingCount: 1,
+        warningCount: 0,
+      }),
+    ]);
+
+    expect(summary.committed).toBe(2);
+    expect(summary.readyForGovernance).toBe(1);
+  });
 });
