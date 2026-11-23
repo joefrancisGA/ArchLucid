@@ -354,8 +354,14 @@ jobs:
           assert review["review_id"] == golden["review_id"] == "#6624"
           assert review["reviewed_master_sha"] == golden["reviewed_master_sha"]
           assert review["candidate_source_line_occurrences"] == golden["candidate_nonblank_loc_expected"] == 282
+          path_golden=golden["original_pinned_same_path_candidate_eligibility"]
+          assert review["source_paths_with_original_pinned_review"] == path_golden["paths_with_original_git_pinned_reviews"]
+          assert review["source_paths_without_original_pinned_review"] == path_golden["paths_without_original_git_pinned_reviews"]
+          assert review["candidate_line_occurrences_on_paths_with_original_pins"] == path_golden["candidate_line_occurrences_on_path_with_original_git_pin"] == 79
+          assert review["candidate_line_occurrences_on_paths_without_original_pins"] == path_golden["candidate_line_occurrences_on_paths_without_original_git_pins"] == 203
           assert review["exact_repeat_with_original_pin_same_path_blob_line"] == 0
-          assert 0 <= review["different_blob_full_first_parent_proven_repeat_with_original_pin"] <= 282
+          assert 0 <= review["different_blob_full_first_parent_proven_repeat_with_original_pin"] <= 79
+          assert review["without_proven_original_pin_identity"] >= 203
           assert (review["different_blob_full_first_parent_proven_repeat_with_original_pin"]
                   + review["without_proven_original_pin_identity"] == 282)
           assert review["newly_independently_verified_reviewed_loc"] == 0
@@ -363,6 +369,8 @@ jobs:
           with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
               out.write(
                   f"Excel row12 original #6624 282 Git-derived candidate lines: "
+                  "**79** lines on one path with an earlier original pin and "
+                  "**203** lines across four paths without any earlier original pin. "
                   f"**{review['different_blob_full_first_parent_proven_repeat_with_original_pin']:,}** "
                   f"verified unchanged across first-parent revisions to an original pin, "
                   f"**{review['without_proven_original_pin_identity']:,}** without such proof. "
