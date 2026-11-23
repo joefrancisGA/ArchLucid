@@ -53,9 +53,12 @@ This migration follows migrations 051/247: it does not create the
 application role, grant membership, or assign `GRANT` permissions. If
 the role is missing at migration time, the DDL does not apply. The
 existing production-like sealed-evidence startup probe has been
-extended to check these three role DENYs and the **effective** rights of
-the connected principal. Failure to meet those checks is a startup
-error where that probe runs. A `dbo` / `db_owner` connection can
+extended to check these three role DENYs, **membership of the connected
+runtime principal in [ArchLucidApp]**, and the **effective** absence of
+the forbidden rights. It also requires effective `SELECT`/`INSERT` on
+both tables and `UPDATE` on remediation instances so that the existing
+scoped-Dapper workflow remains usable. Failure to meet those checks is a
+startup error where that probe runs. A `dbo` / `db_owner` connection can
 bypass object DENYs and should not be used by the runtime.
 
 ## Operator verification — each real tenant catalog
