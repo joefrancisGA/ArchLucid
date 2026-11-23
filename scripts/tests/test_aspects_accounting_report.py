@@ -115,7 +115,7 @@ class AccountingReportTests(unittest.TestCase):
             "schema_version":2,
             "method":"first_parent_verified_path_blob_span_union_v2",
             "scope":"narrow_incremental_review_ledger_subset",
-            "cohort":{"status":"complete","actual_commits":900},
+            "cohort":{"status":"complete","actual_commits":900,"head_sha":"a"*40},
             "status":"source_verified_subset",
             "head":"a"*40,"captured_utc":"2026-11-23T17:00:00+00:00",
             "freshness":"no_prior_snapshot",
@@ -142,7 +142,7 @@ class AccountingReportTests(unittest.TestCase):
             "schema_version":2,
             "method":"first_parent_verified_path_blob_span_union_v2",
             "scope":"narrow_incremental_review_ledger_subset",
-            "cohort":{"status":"complete","actual_commits":900},
+            "cohort":{"status":"complete","actual_commits":900,"head_sha":"a"*40},
             "status":"source_verified_subset","head":"a"*40,
             "comparison":{"status":"comparable"},"freshness":"new_verified_evidence",
             "density":{"distinct_confirmed_defects":2,
@@ -163,11 +163,32 @@ class AccountingReportTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"new . repeats"):
             sut.verified_subset(snapshot)
 
+    def test_live_report_rejects_prior_git_head_even_with_valid_arithmetic(self):
+        snap={
+            "schema_version":2,
+            "method":"first_parent_verified_path_blob_span_union_v2",
+            "scope":"narrow_incremental_review_ledger_subset",
+            "cohort":{"status":"complete","actual_commits":900,"head_sha":"a"*40},
+            "status":"source_verified_subset","head":"a"*40,
+            "density":{"distinct_confirmed_defects":1,
+                       "unique_path_blob_reviewed_lines":1000,
+                       "defects_per_kloc":1.0},
+            "review":{},
+        }
+        with self.assertRaisesRegex(ValueError,"Git head differs"):
+            sut.verified_subset(snap,expected_head="b"*40)
+        snap["cohort"]["head_sha"]="c"*40
+        with self.assertRaisesRegex(ValueError,"Git head differs"):
+            sut.verified_subset(snap,expected_head="a"*40)
+        snap["cohort"]["head_sha"]="a"*40
+        self.assertEqual(sut.verified_subset(snap,expected_head="a"*40)["current_head"],
+                         "a"*40)
+
     def test_bad_live_density_never_accepted(self):
         snapshot={
             "schema_version":2,"method":"first_parent_verified_path_blob_span_union_v2",
             "scope":"narrow_incremental_review_ledger_subset",
-            "cohort":{"status":"complete","actual_commits":900},
+            "cohort":{"status":"complete","actual_commits":900,"head_sha":"a"*40},
             "status":"source_verified_subset",
             "density":{"distinct_confirmed_defects":2,
                        "unique_path_blob_reviewed_lines":1000,
