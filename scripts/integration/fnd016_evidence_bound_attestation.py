@@ -70,10 +70,55 @@ def prepare_attestation(evidence: Mapping[str, object], *, key_id: str,
     }
 
 
-def issue_with_external_signer(payload: dict[str, object],
-                               signer: Callable[[bytes], bytes]) -> dict[str, object]:
-    if set(payload) != REQUIRED or payload["domain"] != DOMAIN:
+def _validate_payload_binding(
+    payload: Mapping[str, object], evidence: Mapping[str, object],
+    expected_forward_steps: Sequence[RemediationStep],
+    expected_inverse_steps: Sequence[RemediationStep],
+) -> datetime:
+    """Shared evidence/plan validation used before signing and on verification.
+
+    Expected steps must come from a separately authenticated, immutable plan;
+    comparing caller-supplied copies is not an independent provenance proof.
+    """
+    if not isinstance(payload, dict) or set(payload) != REQUIRED or payload["domain"] != DOMAIN:
         raise ValueError("Unsupported attestation")
+    if payload["rehearsalPassed"] is not True or payload["isolation"] != "in-memory-only":
+        raise ValueError("Invalid rehearsal claim")
+    digest = evidence_digest(evidence)
+    if (evidence["forwardStepsSha256"] != remediation_steps_sha256(expected_forward_steps)
+            or evidence["inverseStepsSha256"] != remediation_steps_sha256(expected_inverse_steps)):
+        raise ValueError("Rehearsal inputs do not match independently expected steps")
+    if payload["rehearsalEvidenceSha256"] != digest:
+        raise ValueError("Rehearsal evidence digest mismatch")
+    for field in ("tenantId", "projectId", "proposalId", "originalDigest",
+                  "rollbackDigest", "forwardStepsSha256", "inverseStepsSha256"):
+        if payload[field] != evidence[field]:
+            raise ValueError("Rehearsal scope or state mismatch")
+    key_id = payload["keyId"]
+    if not isinstance(key_id, str) or not key_id.strip():
+        raise ValueError("Missing signing key identifier")
+    raw_time = payload["issuedAt"]
+    if not isinstance(raw_time, str):
+        raise ValueError("Invalid attestation timestamp")
+    try:
+        issued = datetime.fromisoformat(raw_time.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ValueError("Invalid attestation timestamp") from exc
+    if issued.tzinfo is None or issued.utcoffset() is None:
+        raise ValueError("Unsigned or naive timestamp")
+    return issued
+
+
+def issue_with_external_signer(
+    payload: dict[str, object], signer: Callable[[bytes], bytes], *,
+    evidence: Mapping[str, object],
+    expected_forward_steps: Sequence[RemediationStep],
+    expected_inverse_steps: Sequence[RemediationStep],
+) -> dict[str, object]:
+    # Fail closed before crossing the external signing boundary. A correct
+    # shape/domain alone is not proof of reviewed rehearsal or plan inputs.
+    _validate_payload_binding(
+        payload, evidence, expected_forward_steps, expected_inverse_steps)
     signature = signer(canonical(payload))
     if not isinstance(signature, bytes) or len(signature) != 64:
         raise ValueError("External signer returned invalid Ed25519 signature")
@@ -93,24 +138,8 @@ def verify_evidence_bound_attestation(
         raise ValueError("Unexpected attestation fields")
     if payload["domain"] != DOMAIN or payload["keyId"] != expected_key_id:
         raise ValueError("Untrusted attestation key or domain")
-    if payload["rehearsalPassed"] is not True or payload["isolation"] != "in-memory-only":
-        raise ValueError("Invalid rehearsal claim")
-    digest = evidence_digest(evidence)
-    # These inputs must originate independently of the signed envelope and
-    # its evidence snapshot (e.g. the authorized, pinned plan under review).
-    # Without them, a valid signature only proves a before/after digest.
-    if (evidence["forwardStepsSha256"] != remediation_steps_sha256(expected_forward_steps)
-            or evidence["inverseStepsSha256"] != remediation_steps_sha256(expected_inverse_steps)):
-        raise ValueError("Rehearsal inputs do not match independently expected steps")
-    if payload["rehearsalEvidenceSha256"] != digest:
-        raise ValueError("Rehearsal evidence digest mismatch")
-    for field in ("tenantId", "projectId", "proposalId", "originalDigest",
-                  "rollbackDigest", "forwardStepsSha256", "inverseStepsSha256"):
-        if payload[field] != evidence[field]:
-            raise ValueError("Rehearsal scope or state mismatch")
-    issued = datetime.fromisoformat(payload["issuedAt"].replace("Z", "+00:00"))
-    if issued.tzinfo is None or issued.utcoffset() is None:
-        raise ValueError("Unsigned or naive timestamp")
+    issued = _validate_payload_binding(
+        payload, evidence, expected_forward_steps, expected_inverse_steps)
     signature = base64.b64decode(document["signature"], validate=True)
     pinned_key.verify(signature, canonical(payload))
     return RecoveryAttestation(
