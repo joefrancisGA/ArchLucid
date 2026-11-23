@@ -12463,6 +12463,11 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
+2026-11-23 thorough hunt (hit): no rotation (shouldRotate false). Cheap-disproof left guided-intake silent replaceState, quick-form remount, starter-preset after dropping example, and a second accelerator pack as open candidates. Promoted the example-template latch: exampleTemplatePrefillAppliedRef was a boolean, so a later template id on step 2 never rewrote systemName or description. The latch is now the template id, matching guided intake. Same-id cloud rerender still skips. Query-prefill vitest 12/12. Private beta: opening a second sample request on the detailed wizard replaces the system name and description with that sample.
+
+- [x] (proven) useNewRunWizardQueryPrefill — second example template id on step 2 — hit 2026-11-23 thorough hunt: id latch; regression above.
+- [ ] (candidate) useNewRunWizardQueryPrefill — policy pack ref latches the first deeplink id — locus: policyPackPrefillAppliedRef; input: change the policy pack query while the detailed wizard stays mounted; wrong outcome: policyReferences stays on the first pack; reachability: policy pack deep link on the detailed wizard.
+
 2026-11-23 thorough hunt (hit): no rotation (shouldRotate false). Cheap-disproof: quick-mode summary polling on every step is the existing track-stream contract; prior-run filename clear when enabled flips is the source-architecture suppression reset the reload test depends on. Promoted back to quick start: selectPath("quick-review") only called commitHrefIfChanged with notify false, so the App Router stayed on accelerator= and the same pack link did not navigate. Quick-review return now also calls router.replace without that query. Path-switcher vitest 26/26; returning job chooser URL 3/3. Private beta: after leaving an accelerator pack for the job chooser, choosing that same pack opens the wizard again.
 
 - [x] (proven) ReviewsNewPathSwitcher.selectPath — silent history replace left the App Router on the accelerator URL — hit 2026-11-23 thorough hunt: router.replace on quick-review return; regression above.
@@ -12474,7 +12479,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - [ ] (candidate) ReviewsNewPathSwitcher.selectPath — guided-intake and detailed returns still use silent replaceState — locus: non-quick-review branch; input: path=detailed and step=3, switch to guided intake; wrong outcome: Next search params keep step=; reachability: more-ways path links on /architecture/reviews/new.
 - [ ] (candidate) router.replace after quick-review return remounts the job chooser and drops an in-progress quick form — locus: selectPath; input: typed quick-start fields, open a pack, go back; wrong outcome: typed fields gone; reachability: quick start form then accelerator pack.
 - [ ] (candidate) useNewRunWizardQueryPrefill — accelerator preset applied once, then a different accelerator= on the same mount is ignored — locus: accelerator effect ref; input: change pack id without leaving step 2; wrong outcome: first pack fields remain; reachability: accelerator query on the detailed wizard.
-- [ ] (candidate) useNewRunWizardQueryPrefill — the example-template ref latches on the first step-2 apply (carried) — locus: exampleTemplatePrefillAppliedRef; input: change example= while wizardMode is full and stepIndex is 2; wrong outcome: first template fields remain; reachability: example query on the detailed wizard.
+- [x] (proven) useNewRunWizardQueryPrefill — the example-template ref latches on the first step-2 apply — hit 2026-11-23 thorough hunt: latch is the template id; regression rewrites system name and description when a second example template arrives on step 2.
 
 2026-11-22 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Re-read `ReviewsNewPathSwitcher.selectPath`, `useNewRunWizardQueryPrefill`, `useGuidedIntakeBriefForm`, `useNewRunWizardTrackStream`, and `useRunSummaryStream`. Cheap-disproof closed the five pass-30 monitors: view-all stays on guided-intake because that path owns the disclosure; policy-pack null does not latch the one-shot ref; example text wins over prior-run empty-field copy and session restore is an explicit overwrite; track polling stops when the wizard unmounts (`useRunSummaryStream` closes the EventSource); suppress after quick-review return is what keeps the chooser visible while Next search params are still stale. Seeded five `(candidate)` rows below. Private beta: n/a.
 
@@ -12806,8 +12811,8 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 2
-- **bugs-found:** 1
+- **hunts:** 3
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

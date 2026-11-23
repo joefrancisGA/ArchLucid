@@ -111,6 +111,52 @@ describe("useNewRunWizardQueryPrefill", () => {
     });
   });
 
+  it("rewrites system name and description when a second example template arrives on step 2", async () => {
+    const firstTemplate = REVIEW_INTAKE_EXAMPLE_TEMPLATES[0]!;
+    const secondTemplate = REVIEW_INTAKE_EXAMPLE_TEMPLATES[1]!;
+    const setValue = vi.fn();
+
+    const { rerender } = renderHook(
+      ({ exampleTemplate }) =>
+        useNewRunWizardQueryPrefill({
+          params: {
+            ...buildParams(null),
+            exampleTemplate,
+          },
+          stepIndex: 2,
+          wizardMode: "full",
+          reset: vi.fn(),
+          setValue,
+          goToStep: vi.fn(),
+          persistWizardMode: vi.fn(),
+          onPendingEvidenceFileChange: vi.fn(),
+          showToast: vi.fn(),
+        }),
+      { initialProps: { exampleTemplate: firstTemplate } },
+    );
+
+    await waitFor(() => {
+      expect(setValue).toHaveBeenCalledWith("systemName", firstTemplate.systemName, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    });
+
+    setValue.mockClear();
+    rerender({ exampleTemplate: secondTemplate });
+
+    await waitFor(() => {
+      expect(setValue).toHaveBeenCalledWith("systemName", secondTemplate.systemName, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      expect(setValue).toHaveBeenCalledWith("description", secondTemplate.briefText, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    });
+  });
+
   it("applies zero-config demo prefill while wizard mode is still quick", async () => {
     const persistWizardMode = vi.fn();
     const onPendingEvidenceFileChange = vi.fn();

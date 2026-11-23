@@ -40,3 +40,4 @@
 {"at":"2026-11-23T16:38:39.3998149Z","zoneId":"ui-lib-api","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: comparison PDF header name mismatch"}
 {"at":"2026-11-23T16:43:48.1130799Z","zoneId":"ui-lib-api","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: noopener tab revoked blob URL immediately"}
 {"at":"2026-11-23T16:53:59.8734310Z","zoneId":"ui-review-intake-wizards","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: quick start return left Next on the accelerator URL"}
+{"at":"2026-11-23T17:00:47.1852706Z","zoneId":"ui-review-intake-wizards","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: second example template id ignored on step 2"}

@@ -50,8 +50,9 @@ export function restoreWizardFormWithDeeplinkPolicy(
  * Applies link-borne prefills to the form: accelerator pack, preset deep link, zero-config demo
  * package, and example-request template.
  *
- * Each one runs at most once. Accelerator and preset links also force the full wizard, because the
- * fields they fill are only visible there.
+ * Accelerator, preset, policy, and demo links run at most once. Example templates apply again when
+ * the template id changes, matching guided intake. Accelerator and preset links also force the full
+ * wizard, because the fields they fill are only visible there.
  */
 export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void {
   const {
@@ -79,7 +80,7 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
   } = params;
 
   const zeroConfigAppliedRef = useRef(false);
-  const exampleTemplatePrefillAppliedRef = useRef(false);
+  const exampleTemplateAppliedIdRef = useRef<string | null>(null);
   const policyPackPrefillAppliedRef = useRef(false);
   const acceleratorPrefillAppliedRef = useRef(false);
   const presetPrefillAppliedRef = useRef(false);
@@ -153,11 +154,12 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
       return;
     }
 
-    if (exampleTemplatePrefillAppliedRef.current) {
+    // A boolean latch drops a later sample opened on the same wizard. Guided intake keys this by id.
+    if (exampleTemplateAppliedIdRef.current === exampleTemplate.id) {
       return;
     }
 
-    exampleTemplatePrefillAppliedRef.current = true;
+    exampleTemplateAppliedIdRef.current = exampleTemplate.id;
     setValue("systemName", exampleTemplate.systemName, { shouldValidate: true, shouldDirty: true });
     setValue("description", exampleTemplate.briefText, { shouldValidate: true, shouldDirty: true });
 
