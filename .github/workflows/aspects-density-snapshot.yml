@@ -239,6 +239,36 @@ jobs:
           print("Excel row22: six explicitly scoped paths, 195 Git-attested candidate-only LOC; no original-pin promotion")
           PY
           python - <<'PY'
+          import json
+          from pathlib import Path
+          golden = json.loads(Path(
+              "docs/engineering/aspects-historical/audit-checkpoints/"
+              "2026-11-23-row12-complete-connection-factories.json"
+          ).read_text())
+          rows = [json.loads(line) for line in Path(
+              "artifacts/aspects/historical-unpinned-source-candidates.jsonl"
+          ).read_text().splitlines()]
+          matching = [row for row in rows if row["excel_row"] == golden["excel_row"]]
+          assert len(matching) == 1, "Missing/duplicate original Excel row12"
+          row = matching[0]
+          assert row["status"] == golden["historical_review_candidate_status"]
+          assert row["review_id"] == golden["review_id"] == "#6624"
+          assert row["reviewed_master_sha"] == golden["reviewed_master_sha"]
+          assert row["original_blob_pinned"] is False
+          assert row["candidate_nonblank_loc"] == row["reviewed_loc_workbook_reported"] == golden["candidate_nonblank_loc_expected"] == 282
+          assert row["candidate_repeated_exact_path_blob_loc"] + row["candidate_new_exact_path_blob_loc"] == 282
+          assert len(row["sources"]) == len(golden["sources"]) == 5
+          for actual, expected in zip(row["sources"], golden["sources"]):
+              for field in ("path", "blob_derived_at_reviewed_commit", "reported_full_file_nonblank_loc"):
+                  assert actual[field] == expected[field], f"Excel row12 Git source evidence drift: {field}"
+              assert actual["nonblank_loc"] == expected["reported_full_file_nonblank_loc"]
+              assert actual["reported_inclusive_intervals"] == [], "Whole-file workbook review must not invent numerical intervals"
+              assert actual["original_blob_pinned"] is False
+          assert golden["new_independently_verified_reviewed_loc"] == 0
+          assert golden["no_new_comparable_rate"] is True
+          print("Excel row12: 282 Git-attested whole-file nonblank candidate lines across five factories; original reviewed LOC remains unverified")
+          PY
+          python - <<'PY'
           import json, os
           from pathlib import Path
           data = json.loads(Path("artifacts/aspects/historical-unpinned-source-candidates.json").read_text())
