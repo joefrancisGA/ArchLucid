@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "evidence_run_url": "https://github.com/joefrancisGA/ArchLucid/actions/runs/45088019526",
+  "evidence_run_id": 45088019526,
+  "evidence_head_sha": "7461284c7d5f48c1ef4f710a6aec98b4ca6a4f5f",
+  "git_pin_audited_rows_sha256": "d890f8beecab68473e25bdb6c765c2a6baf5628435a4c5e87687e513a06ef432",
+  "cohort": {
+    "kind": "historical_workbook_review_commits_in_anchored_900_first_parent_SHAs",
+    "head_sha": "15ac3b9abeff23e4fa8cb7a16027bf9b17211251",
+    "oldest_included_sha": "6252805a908f5bf0413bb40c68cb546013ff1843",
+    "first_parent_commits": 900
+  },
+  "source_review_rows": {
+    "imported_historical_total": 5741,
+    "source_pin_verified_in_window_total": 4514,
+    "one_source_rows_in_window": 4511,
+    "multi_source_rows_in_window": 3,
+    "multi_source_excel_rows": [
+      1250,
+      1252,
+      1255
+    ],
+    "unparsed_unverified_in_window": 479
+  },
+  "original_git_pin_exact_identities": {
+    "line_occurrences": 238239,
+    "unique_path_blob_line_loc": 232219,
+    "repeated_path_blob_line_occurrences": 6020,
+    "single_file_rows_unique_path_blob_line_loc": 228684,
+    "multi_file_rows_line_occurrences": 3693,
+    "multi_file_rows_unique_path_blob_line_loc": 3693,
+    "multi_file_exact_path_blob_line_overlap_with_single_file_rows": 158,
+    "multi_file_new_exact_path_blob_line_loc_vs_single_file_rows": 3535,
+    "invariant": "228684 + 3535 = 232219; 3693 = 158 + 3535; 238239 - 232219 = 6020"
+  },
+  "derived_at_commit_not_original_pins": {
+    "candidate_rows_in_window": 438,
+    "candidate_line_occurrences": 108957,
+    "candidate_unique_exact_path_blob_line_loc": 103910,
+    "same_revision_candidate_repeat_occurrences": 5047,
+    "exact_candidate_line_overlap_with_original_pins": 9762,
+    "candidate_exact_line_identities_outside_original_pins": 94148,
+    "eligible_for_published_denominator": false
+  },
+  "cross_revision_lineage": {
+    "same_path_unchanged_unique_candidate_loc": 231105,
+    "provisional_additional_repeated_loc": 1114,
+    "not_proven_exact_review_unique": true
+  },
+  "defect_identification": {
+    "positive_historical_workbook_observations_all_history": 877,
+    "positive_rows_in_900_window": 464,
+    "unique_named_discovery_id_candidates_all_history": 203,
+    "missing_or_noncanonical_discovery_id_rows": 674,
+    "fix_PR_states_GitHub_checked": 9,
+    "fresh_comparable_distinct_defect_count": null,
+    "positive_reviews_on_anchored_900_window": 464,
+    "distinct_fix_pr_number_references_on_anchored_window": 463,
+    "positive_rows_without_explicit_fix_pr_number": 1,
+    "unlinked_excel_rows": [
+      27
+    ],
+    "unlinked_original_record": {
+      "excel_row": 27,
+      "workbook_sheet": "Review evidence",
+      "defect_id_text": "Operational drain",
+      "recorded_defects": 1,
+      "source_reference": null,
+      "source_statement": "Simulated SQL failure reproduced record loss after three attempts. Fix PR pending at confirmation.",
+      "recorded_revision": "e810c4057170297b59abd9381b92c891f05aa5ce"
+    },
+    "warning": "463 distinct PR references plus one separately recorded positive row do NOT independently establish 463 distinct defects; fix PR is not discovery identity. Do not discard Excel row 27 to force historical numerator."
+  },
+  "accounting": {
+    "new_comparable_rate_produced": false,
+    "historical_checkpoint_unchanged": true,
+    "published_rate_updated": false
+  },
+  "provenance": "Derived from full 5,741-row SHA-256-protected Git-pin audit artifact; GitHub Actions run reported success. Three original multi-pinned rows had 34 source components independently verified in earlier run; the 158/3535 overlap is an exact path/blob/line identity partition newly computed from this artifact, not an extra source review, nor a new rate.",
+  "limitations": "Old and new blob revisions are not automatically equivalent; 479 in-window unparsed rows and ambiguous discovery IDs prevent a fully recomputed 900-window defect density. Derived candidates cannot be promoted as verified reviews."
+}

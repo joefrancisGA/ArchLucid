@@ -51,7 +51,8 @@ class FailureFacts:
     evidence_verified: bool
     authorization_verified: bool
     audit_writable: bool
-    emergency_stop_active: bool = False
+    # Missing or unverified stop status must never be interpreted as a cleared stop.
+    emergency_stop_active: bool | None = None
 
 
 @dataclass(frozen=True)
@@ -67,20 +68,23 @@ def assess_containment(facts: FailureFacts) -> ContainmentDecision:
         return ContainmentDecision(Mode.ISOLATED, frozenset(), ("incomplete_dependency_inventory",))
     unavailable_critical = sorted(
         d.value for d in CRITICAL if facts.status[d] is not Health.HEALTHY)
-    if unavailable_critical or not facts.authorization_verified or not facts.audit_writable:
+    if unavailable_critical or facts.authorization_verified is not True or facts.audit_writable is not True:
         reasons = tuple("critical_unavailable:" + name for name in unavailable_critical)
-        if not facts.authorization_verified:
+        if facts.authorization_verified is not True:
             reasons += ("authorization_unverified",)
-        if not facts.audit_writable:
+        if facts.audit_writable is not True:
             reasons += ("audit_unavailable",)
         return ContainmentDecision(Mode.ISOLATED, frozenset(), reasons)
-    if facts.emergency_stop_active:
-        return ContainmentDecision(
-            Mode.DEGRADED,
-            frozenset({Capability.VIEW_VERIFIED_EVIDENCE}) if facts.evidence_verified else frozenset(),
-            ("emergency_stop_active",))
-    if not facts.evidence_verified:
+    if facts.evidence_verified is not True:
         return ContainmentDecision(Mode.ISOLATED, frozenset(), ("evidence_unverified",))
+    # Only an explicit, independently supplied Boolean False may clear the stop.
+    # Ambiguous/missing values still permit verified evidence viewing, not planning.
+    if facts.emergency_stop_active is not False:
+        reason = ("emergency_stop_active" if facts.emergency_stop_active is True
+                  else "emergency_stop_unverified")
+        return ContainmentDecision(
+            Mode.DEGRADED, frozenset({Capability.VIEW_VERIFIED_EVIDENCE}),
+            (reason,))
     allowed = {Capability.VIEW_VERIFIED_EVIDENCE}
     reasons = []
     if facts.status[Dependency.AI_REASONING] is Health.HEALTHY:
@@ -117,7 +121,7 @@ def transition_recovery(
         return RecoveryState(Mode.DEGRADED, 0)
     if previous.mode is Mode.HEALTHY:
         return RecoveryState(Mode.HEALTHY, minimum_healthy_observations)
-    if not independent_recovery_verified:
+    if independent_recovery_verified is not True:
         return RecoveryState(Mode.RECOVERING, 0)
     observations = min(previous.healthy_observations + 1, minimum_healthy_observations)
     return RecoveryState(

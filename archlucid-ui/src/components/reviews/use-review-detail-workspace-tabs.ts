@@ -126,6 +126,10 @@ export function useReviewDetailWorkspaceTabs(
       return null;
     }
 
+    if (!isWorkbenchTab(searchParamTab)) {
+      return null;
+    }
+
     const fromParam = resolveReviewWorkbenchFocusColumn(
       searchParams.get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM),
     );
@@ -134,7 +138,7 @@ export function useReviewDetailWorkspaceTabs(
       return fromParam;
     }
 
-    return isWorkbenchTab(searchParamTab) ? searchParamTab : null;
+    return searchParamTab;
   }, [props.tabLifecycle, searchParams, searchParamTab]);
   const [activeTab, setActiveTab] = useState<ReviewDetailTabId>(searchParamTab);
   const [workbenchFocusColumn, setWorkbenchFocusColumnState] =
@@ -229,6 +233,34 @@ export function useReviewDetailWorkspaceTabs(
   }, [searchParamWorkbenchFocus]);
 
   useEffect(() => {
+    if (typeof window === "undefined" || props.tabLifecycle === undefined) {
+      return;
+    }
+
+    if (isWorkbenchTab(activeTab)) {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+
+    if (!params.has(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM)) {
+      return;
+    }
+
+    const hash = window.location.hash.slice(1);
+
+    writeReviewDetailTabToUrl(activeTab, {
+      hash: hash.length > 0 ? hash : null,
+      workbenchFocus: null,
+      presenter: presenterModeRef.current ? true : null,
+      runId: props.runId,
+      architectureId: props.parentArchitectureId,
+    });
+    workbenchFocusColumnRef.current = null;
+    setWorkbenchFocusColumnState(null);
+  }, [activeTab, props.parentArchitectureId, props.runId, props.tabLifecycle]);
+
+  useEffect(() => {
     // Next.js client navigations update useSearchParams without a popstate event.
     if (presenterModeRef.current === searchParamPresenter) {
       return;
@@ -267,11 +299,25 @@ export function useReviewDetailWorkspaceTabs(
       const nextWorkbenchFocus = resolveReviewWorkbenchFocusColumn(
         new URLSearchParams(window.location.search).get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM),
       );
-      const normalizedFocus = nextWorkbenchFocus ?? (isWorkbenchTab(nextTab) ? nextTab : null);
+      const normalizedFocus = isWorkbenchTab(nextTab)
+        ? (nextWorkbenchFocus ?? nextTab)
+        : null;
 
       if (workbenchFocusColumnRef.current !== normalizedFocus) {
         workbenchFocusColumnRef.current = normalizedFocus;
         setWorkbenchFocusColumnState(normalizedFocus);
+      }
+
+      if (!isWorkbenchTab(nextTab) && params.has(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM)) {
+        const hash = window.location.hash.slice(1);
+
+        writeReviewDetailTabToUrl(nextTab, {
+          hash: hash.length > 0 ? hash : null,
+          workbenchFocus: null,
+          presenter: presenterModeRef.current ? true : null,
+          runId: props.runId,
+          architectureId: props.parentArchitectureId,
+        });
       }
     };
 
@@ -292,7 +338,11 @@ export function useReviewDetailWorkspaceTabs(
       workbenchFocusColumnRef.current = nextWorkbenchFocus;
       writeReviewDetailTabToUrl(tab, {
         hash: null,
-        findingId: options?.findingId,
+        findingId: options?.findingId !== undefined
+          ? options.findingId
+          : tab === "findings" || isWorkbenchTab(tab)
+            ? undefined
+            : null,
         workbenchFocus: nextWorkbenchFocus,
         presenter: presenterModeRef.current ? true : null,
         runId: props.runId,
@@ -317,14 +367,29 @@ export function useReviewDetailWorkspaceTabs(
       return;
     }
 
+    // A section hash names the tab on first paint. Do not keep the query workbenchFocus on a non-workbench tab.
+    const normalizedFocus = isWorkbenchTab(tabFromHash) ? tabFromHash : null;
+
     setActiveTab(tabFromHash);
-    writeReviewDetailTabToUrl(tabFromHash, { hash });
+
+    if (workbenchFocusColumnRef.current !== normalizedFocus) {
+      workbenchFocusColumnRef.current = normalizedFocus;
+      setWorkbenchFocusColumnState(normalizedFocus);
+    }
+
+    writeReviewDetailTabToUrl(tabFromHash, {
+      hash,
+      workbenchFocus: normalizedFocus,
+      presenter: presenterModeRef.current ? true : null,
+      runId: props.runId,
+      architectureId: props.parentArchitectureId,
+    });
     setHashResolved(true);
 
     if (hash.length > 0) {
       scheduleScrollToReviewDetailSection(hash);
     }
-  }, [hashResolved]);
+  }, [hashResolved, props.parentArchitectureId, props.runId]);
 
   useEffect(() => {
     const hash = window.location.hash.slice(1);
@@ -346,7 +411,8 @@ export function useReviewDetailWorkspaceTabs(
     const onHashChange = () => {
       const hash = window.location.hash.slice(1);
       const params = new URLSearchParams(window.location.search);
-      const nextTab = resolveReviewDetailTabFromHash(hash) ?? (
+      const tabFromHash = resolveReviewDetailTabFromHash(hash);
+      const nextTab = tabFromHash ?? (
         props.tabLifecycle === undefined
           ? readReviewDetailTabFromWindowLocation()
           : resolveReviewWorkspaceTabFromSearchParams(
@@ -359,14 +425,26 @@ export function useReviewDetailWorkspaceTabs(
 
       setActiveTab((current) => (current === nextTab ? current : nextTab));
 
-      const nextWorkbenchFocus = resolveReviewWorkbenchFocusColumn(
-        params.get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM),
-      );
-      const normalizedFocus = nextWorkbenchFocus ?? (isWorkbenchTab(nextTab) ? nextTab : null);
+      // A section hash names the tab. Do not keep a stale workbenchFocus query on a non-workbench tab.
+      const normalizedFocus = tabFromHash !== null
+        ? (isWorkbenchTab(nextTab) ? nextTab : null)
+        : (isWorkbenchTab(nextTab)
+          ? (resolveReviewWorkbenchFocusColumn(params.get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM)) ?? nextTab)
+          : null);
 
       if (workbenchFocusColumnRef.current !== normalizedFocus) {
         workbenchFocusColumnRef.current = normalizedFocus;
         setWorkbenchFocusColumnState(normalizedFocus);
+      }
+
+      if (tabFromHash !== null) {
+        writeReviewDetailTabToUrl(nextTab, {
+          hash: hash.length > 0 ? hash : null,
+          workbenchFocus: normalizedFocus,
+          presenter: presenterModeRef.current ? true : null,
+          runId: props.runId,
+          architectureId: props.parentArchitectureId,
+        });
       }
 
       if (hash.length === 0) {
@@ -379,7 +457,7 @@ export function useReviewDetailWorkspaceTabs(
     window.addEventListener("hashchange", onHashChange);
 
     return () => window.removeEventListener("hashchange", onHashChange);
-  }, [lifecycle, props.tabLifecycle, props.visitDefaultReviewTabWhenUrlSilent, resolved]);
+  }, [lifecycle, props.parentArchitectureId, props.runId, props.tabLifecycle, props.visitDefaultReviewTabWhenUrlSilent, resolved]);
 
   const counts = props.tabCounts ?? {};
   const inPipelineBanner = props.inPipelineBanner ?? null;

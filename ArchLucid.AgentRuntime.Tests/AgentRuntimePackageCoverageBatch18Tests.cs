@@ -14,6 +14,46 @@ namespace ArchLucid.AgentRuntime.Tests;
 public sealed class AgentRuntimePackageCoverageBatch18Tests
 {
     [Fact]
+    public async Task Breaker_rejection_does_not_invoke_handler_or_consume_FND018_handler_budget()
+    {
+        string key = "rejection-budget-audit-" + Guid.NewGuid().ToString("N");
+        AgentExecutionResilienceOptions options = new()
+        {
+            HandlerCircuitBreakerFailureThreshold = 2,
+            HandlerCircuitBreakerBreakSeconds = 60,
+        };
+        var pipeline = RealAgentExecutorHandlerResiliencePipeline.Resolve(key, 0, options);
+
+        for (int i = 0; i < 2; i++)
+        {
+            Func<Task> failing = async () => await pipeline.ExecuteAsync(
+                _ => ValueTask.FromException<AgentResult>(new InvalidOperationException("handler failed")),
+                CancellationToken.None);
+            await failing.Should().ThrowAsync<InvalidOperationException>();
+            RealAgentExecutorHandlerResiliencePipeline.ObserveOutcome(
+                key, AgentType.Topology, AgentHandlerFailureBudgetOutcome.Failure);
+        }
+
+        bool handlerEntered = false;
+        Func<Task> rejected = async () => await pipeline.ExecuteAsync(
+            _ =>
+            {
+                handlerEntered = true;
+                return ValueTask.FromResult(new AgentResult());
+            },
+            CancellationToken.None);
+        await rejected.Should().ThrowAsync<BrokenCircuitException>();
+        handlerEntered.Should().BeFalse("Polly must reject before entering the handler delegate");
+
+        AgentHandlerFailureBudgetSnapshot observation =
+            RealAgentExecutorHandlerResiliencePipeline.ObserveOutcome(
+                key, AgentType.Topology, AgentHandlerFailureBudgetOutcome.NotAdmitted);
+        observation.Counted.Should().BeFalse();
+        observation.Requests.Should().Be(2);
+        observation.Failures.Should().Be(2);
+    }
+
+    [Fact]
     public void RealAgentExecutorHandlerResiliencePipeline_Resolve_caches_pipelines_per_dispatch_key()
     {
         AgentExecutionResilienceOptions options = new()

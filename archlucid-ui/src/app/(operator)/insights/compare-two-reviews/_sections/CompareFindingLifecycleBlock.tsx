@@ -26,6 +26,7 @@ import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { COMPARE_FINDING_LIFECYCLE_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/compare/compare-finding-lifecycle-empty-not-load-failure-copy";
 import { COMPARE_FINDING_LIFECYCLE_STATUS_FILTER_EMPTY_LINE } from "@/lib/compare/compare-finding-lifecycle-status-filter-empty-copy";
+import { COMPARE_FINDING_LIFECYCLE_STATUS_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/compare/compare-finding-lifecycle-status-filter-empty-not-load-failure-copy";
 import { cn } from "@/lib/utils";
 
 export type CompareFindingLifecycleBlockProps = {
@@ -143,6 +144,12 @@ export function CompareFindingLifecycleBlock(props: CompareFindingLifecycleBlock
             data-testid="compare-finding-lifecycle-status-filter-empty"
           >
             {COMPARE_FINDING_LIFECYCLE_STATUS_FILTER_EMPTY_LINE}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="compare-finding-lifecycle-status-filter-empty-not-load-failure"
+          >
+            {COMPARE_FINDING_LIFECYCLE_STATUS_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
           </p>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             No findings match {lifecycleStatusChipLabel(activeStatus).toLowerCase()}.{" "}

@@ -497,13 +497,6 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
             return Task.CompletedTask;
         }
 
-        public Task UpdateInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default)
-        {
-            Instances.RemoveAll(item => item.InstanceId == instance.InstanceId);
-            Instances.Add(instance);
-            return Task.CompletedTask;
-        }
-
         public Task UpdateInstanceInScopeAsync(
             ProjectScopeKey scope,
             RemediationInstanceMutation mutation,

@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "source": "GitHub Actions prior successful immutable original workbook Git pin audit",
+  "source_run_id": 45160219395,
+  "source_artifact_id": 14812729056,
+  "source_pin_rows_sha256": "d890f8beecab68473e25bdb6c765c2a6baf5628435a4c5e87687e513a06ef432",
+  "cohort": {
+    "head_sha": "15ac3b9abeff23e4fa8cb7a16027bf9b17211251",
+    "oldest_sha": "6252805a908f5bf0413bb40c68cb546013ff1843",
+    "first_parent_commits": 900
+  },
+  "candidate_excel_row": 12,
+  "candidate_review_id": "#6624",
+  "candidate_reviewed_master_sha": "a50d94ad912a10009f47b1d2699f9a6ee998eaf5",
+  "candidate_git_derived_source_golden": "docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row12-complete-connection-factories.json",
+  "original_pinned_review_rows": [
+    {
+      "excel_row": 3821,
+      "review_id": "Aspects Aspects_2026-11-21_Manual_0732-1",
+      "reviewed_master_sha": "24632174bd2571ad3232f12edc38e34820a9faec",
+      "path": "ArchLucid.Persistence/Connections/ReadOnlyDbConnectionFactory.cs",
+      "blob": "4edbae41e5f074f4ad690b2f03db1bfe28cb12c4",
+      "spans": [
+        [
+          28,
+          36
+        ]
+      ],
+      "nonblank_reviewed_loc": 9
+    },
+    {
+      "excel_row": 4446,
+      "review_id": "Aspects Aspects_2026-11-21_Manual_1247-5",
+      "reviewed_master_sha": "757e6dc98ea18afa5fa0354031a6c93b5108bb44",
+      "path": "ArchLucid.Persistence/Connections/ReadOnlyDbConnectionFactory.cs",
+      "blob": "4edbae41e5f074f4ad690b2f03db1bfe28cb12c4",
+      "spans": [
+        [
+          1,
+          4
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          12,
+          12
+        ],
+        [
+          14,
+          26
+        ],
+        [
+          37,
+          43
+        ],
+        [
+          45,
+          46
+        ],
+        [
+          48,
+          48
+        ],
+        [
+          50,
+          55
+        ],
+        [
+          57,
+          60
+        ],
+        [
+          62,
+          63
+        ],
+        [
+          65,
+          68
+        ],
+        [
+          70,
+          73
+        ],
+        [
+          75,
+          76
+        ],
+        [
+          78,
+          78
+        ],
+        [
+          80,
+          83
+        ],
+        [
+          85,
+          85
+        ],
+        [
+          87,
+          88
+        ],
+        [
+          90,
+          91
+        ]
+      ],
+      "nonblank_reviewed_loc": 64
+    },
+    {
+      "excel_row": 4471,
+      "review_id": "Aspects Aspects_2026-11-21_1335-4",
+      "reviewed_master_sha": "757e6dc98ea18afa5fa0354031a6c93b5108bb44",
+      "path": "ArchLucid.Persistence/Connections/ReadOnlyDbConnectionFactory.cs",
+      "blob": "4edbae41e5f074f4ad690b2f03db1bfe28cb12c4",
+      "spans": [
+        [
+          92,
+          92
+        ]
+      ],
+      "nonblank_reviewed_loc": 1
+    }
+  ],
+  "candidate_expected_nonblank_loc_same_path": 79,
+  "candidate_expected_nonblank_loc_other_paths": 203,
+  "confidence": "Original pin row labels/intervals from successful historical audit, Git re-verification required; row12 remains source-at-commit candidate only",
+  "new_independently_verified_reviewed_loc": 0,
+  "distinct_defects_reconciled": null,
+  "new_comparable_900_density": null
+}

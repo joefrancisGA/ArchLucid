@@ -93,6 +93,7 @@ public sealed class TenantAzureOpenAiCompletionClientFactory(
             maxTokens,
             schema,
             logger: null,
-            truncationReporter: _truncationReporter);
+            truncationReporter: _truncationReporter,
+            networkTimeout: _azureOpenAiOptions.GetEffectiveCompletionNetworkTimeout());
     }
 }

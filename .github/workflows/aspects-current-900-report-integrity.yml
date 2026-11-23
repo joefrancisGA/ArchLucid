@@ -1,0 +1,27 @@
+# Focused test-only verification: no comprehensive build and no master push trigger.
+name: Aspects current 900 report integrity guard
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - "scripts/aspects_verify_current_900_reports.py"
+      - "scripts/tests/test_aspects_verify_current_900_reports.py"
+      - ".github/workflows/aspects-density-snapshot.yml"
+      - ".github/workflows/aspects-current-900-report-integrity.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  cross-artifact-integrity:
+    name: "Aspects: 900-cohort evidence consistency unit tests"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Refuse mismatched source, discovery, lineage and candidate cohorts
+        run: python -m unittest discover -s scripts/tests -p 'test_aspects_verify_current_900_reports.py' -v

@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "source_workbook_name": "ArchLucid_Defect_Density_Trend_repaired.xlsx",
+  "source_workbook_sha256": "9fab94e0cd7d642f84d37ae9b8988e72b34367a479ebdba65fb893349ade0787",
+  "workbook_excel_row": 22,
+  "review_id": "#6634",
+  "reviewed_master_sha": "8eb82c61fe1304d034414fe9d7b7a6bac4e9abee",
+  "in_historical_900_first_parent_cohort": true,
+  "reported_nonblank_loc": 195,
+  "recovered_provenance": "explicit_workbook_full_directory_and_relative_subpaths_derived_git_blobs_at_original_review_commit_candidate_only",
+  "independent_source_attestation": "GitHub fetched six commit:path blobs; exact inclusive intervals matched original 195 nonblank LOC",
+  "candidate_loc_not_original_pin": 195,
+  "newly_original_pinned_verified_loc": 0,
+  "newly_verified_distinct_discoveries": 0,
+  "candidate_cross_revision_denominator_increment": 0,
+  "sources": [
+    {
+      "path": "archlucid-ui/src/hooks/use-collection-runs-query.ts",
+      "blob_derived_at_reviewed_commit": "1e85444fdefaebd553afbec67c1b124f5c5bf8a4",
+      "reported_inclusive_intervals": [
+        [
+          1,
+          54
+        ]
+      ],
+      "nonblank_loc": 46
+    },
+    {
+      "path": "archlucid-ui/src/hooks/use-operator-scope-query-key.ts",
+      "blob_derived_at_reviewed_commit": "37d0390d6010b02fc9787f478a1fe18968cb10fc",
+      "reported_inclusive_intervals": [
+        [
+          1,
+          21
+        ]
+      ],
+      "nonblank_loc": 17
+    },
+    {
+      "path": "archlucid-ui/src/lib/operator/operator-scope-query-key.ts",
+      "blob_derived_at_reviewed_commit": "f29c1979b75186db6f98b3d2d9d585378df21027",
+      "reported_inclusive_intervals": [
+        [
+          1,
+          53
+        ]
+      ],
+      "nonblank_loc": 42
+    },
+    {
+      "path": "archlucid-ui/src/lib/collection-runs-api.ts",
+      "blob_derived_at_reviewed_commit": "78d9c1ff8889b8bfdd1cb692b4438c847195ff76",
+      "reported_inclusive_intervals": [
+        [
+          1,
+          44
+        ]
+      ],
+      "nonblank_loc": 35
+    },
+    {
+      "path": "archlucid-ui/src/lib/proxy-fetch-registration-scope.ts",
+      "blob_derived_at_reviewed_commit": "7614d22617e5dd6804dfd84958dda3e55aea36ec",
+      "reported_inclusive_intervals": [
+        [
+          1,
+          26
+        ]
+      ],
+      "nonblank_loc": 22
+    },
+    {
+      "path": "archlucid-ui/src/lib/proxy-json-client.ts",
+      "blob_derived_at_reviewed_commit": "9f8450971ffaa0323ed6cedb672f71047ba8751a",
+      "reported_inclusive_intervals": [
+        [
+          1,
+          18
+        ],
+        [
+          47,
+          61
+        ],
+        [
+          90,
+          93
+        ]
+      ],
+      "nonblank_loc": 33
+    }
+  ],
+  "workbook_original_reviewed_source_text_preserved_in_immutable_historical_corpus": true,
+  "no_new_comparable_rate": true,
+  "exact_overlap_reconciliation": {
+    "source": "Anchored 900-first-parent Git pin rows and prior derived candidate rows from passing Aspects run 45127163301, plus separately matched six raw Git blob SHAs",
+    "baseline_artifact_id": 14796158537,
+    "candidate_exact_new_vs_preexisting_pins_and_candidates": 195,
+    "exact_repeated_line_occurrences": 0,
+    "exact_overlap_with_original_pins": 0,
+    "verification_status": "locally_reconciled_against_passed_prior_artifact_pending_new_head_CI",
+    "cross_revision_unique_loc": "not_verified",
+    "verified_reviewed_loc_increment": 0
+  }
+}

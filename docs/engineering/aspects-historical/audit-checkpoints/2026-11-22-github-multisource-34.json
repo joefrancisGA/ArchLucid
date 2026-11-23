@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "verification_method": "2026-11-22 independent GitHub fetch_file(path, reviewed_master_sha): response blob SHA must match original workbook pin; count union of reported inclusive nonblank source lines per file",
+  "note": "This checkpoint documents 34 live Git source checks and three historical workbook review rows. It proves source identity and interval parity only, not that the reviews happened or that these lines are new across the other historical review rows. Do not add to existing all-history or 900-first-parent denominators.",
+  "provenance": "original committed workbook review-events shard plus independently fetched GitHub source blobs",
+  "workbook_sheet": "Review evidence",
+  "cohort": "Historical 900-first-parent eligible review SHAs; eligibility established in earlier Git pin audit, not independently recomputed by this checkpoint",
+  "reviewed_commit": "253529b2d198528404c5922133cb5c7a5b4e43a7",
+  "checked_observation_count": 3,
+  "checked_source_count": 34,
+  "checked_source_line_occurrences": 3693,
+  "exact_path_blob_line_repeats_within_these_3_rows": 0,
+  "overlap_with_other_pinned_history": "uncomputed",
+  "historical_defect_identifiers_reconciled": 0,
+  "comparable_density_updated": false,
+  "rows": [
+    {
+      "excel_row": 1250,
+      "reviewed_master_sha": "253529b2d198528404c5922133cb5c7a5b4e43a7",
+      "reviewed_loc_reported": 822,
+      "independently_git_verified_nonblank_occurrences": 822,
+      "sources": [
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/RunComparisonController.cs",
+          "blob_sha": "e74c01b253c751e6d5c16b41a6b3858453096436",
+          "nonblank_loc_checked": 80
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/RunComparisonController.Agents.cs",
+          "blob_sha": "542444e7dc507e415a4bae51f43134b5ef9977cb",
+          "nonblank_loc_checked": 169
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/RunComparisonController.Replay.cs",
+          "blob_sha": "da7d62ac7c2017667b0a8881ad358cbb3da49b73",
+          "nonblank_loc_checked": 173
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/RunComparisonController.SealedManifestGuard.cs",
+          "blob_sha": "a806de81ac0cc70aed092fd0739b82913b0d188f",
+          "nonblank_loc_checked": 46
+        },
+        {
+          "path": "ArchLucid.Application/Analysis/CompareRunsApplicationFacade.PairLoad.cs",
+          "blob_sha": "1310a4d599cea5e266b4b20ca95541aef94164ae",
+          "nonblank_loc_checked": 196
+        },
+        {
+          "path": "ArchLucid.Application/Analysis/CompareRunsResults.cs",
+          "blob_sha": "1f2318c7a64c3286b3f4b0088fd85e99be0609be",
+          "nonblank_loc_checked": 60
+        },
+        {
+          "path": "ArchLucid.Application/Analysis/CompareRunsApplicationFacade.AgentDiff.cs",
+          "blob_sha": "6bb64dd1df52a697d23e67909f9b411406b876ca",
+          "nonblank_loc_checked": 50
+        },
+        {
+          "path": "ArchLucid.Application/Analysis/CompareRunsApplicationFacade.cs",
+          "blob_sha": "a2a282438ef360aa495b1548e1ff680ec398f0ef",
+          "nonblank_loc_checked": 48
+        }
+      ]
+    },
+    {
+      "excel_row": 1252,
+      "reviewed_master_sha": "253529b2d198528404c5922133cb5c7a5b4e43a7",
+      "reviewed_loc_reported": 528,
+      "independently_git_verified_nonblank_occurrences": 528,
+      "sources": [
+        {
+          "path": "ArchLucid.Application/SecureNow/CollectionRunManifest.cs",
+          "blob_sha": "e857f6d2a35ec629b489f7cca52bff450deaf1d7",
+          "nonblank_loc_checked": 20
+        },
+        {
+          "path": "ArchLucid.Application/SecureNow/ICollectionRunTriggerIdempotencyStore.cs",
+          "blob_sha": "4f59c4e7e8e8ab74f0a672c5ba852036dedbca9c",
+          "nonblank_loc_checked": 6
+        },
+        {
+          "path": "ArchLucid.Core/Configuration/HostedAzureExtractorOptions.cs",
+          "blob_sha": "8a5de0d18e4a7dc63e4e05ab7b1b20ee9a7684da",
+          "nonblank_loc_checked": 22
+        },
+        {
+          "path": "ArchLucid.Core/Persistence/ApplicationPorts/SecureNow/ICollectionRunTrigger.cs",
+          "blob_sha": "086be9f0f7d1bf8058ef06d3986d978d6021d622",
+          "nonblank_loc_checked": 10
+        },
+        {
+          "path": "ArchLucid.Core/SecureNow/CollectionRun.cs",
+          "blob_sha": "da2476be9e9422e729a8b0cf6f163ce4910fed63",
+          "nonblank_loc_checked": 18
+        },
+        {
+          "path": "ArchLucid.Core/SecureNow/CollectionRunTriggerRequest.cs",
+          "blob_sha": "85dbad496aee3d3548fe2d6c558d5d882235d16a",
+          "nonblank_loc_checked": 6
+        },
+        {
+          "path": "ArchLucid.Core/SecureNow/CollectionRunTriggerResult.cs",
+          "blob_sha": "f8e38c3922aeb5a910457a22fa46ce732078b37d",
+          "nonblank_loc_checked": 5
+        },
+        {
+          "path": "ArchLucid.Application/SecureNow/CollectionRunTriggerService.cs",
+          "blob_sha": "6f5c7799cd90b50394952c823bdd9f31147665ba",
+          "nonblank_loc_checked": 222
+        },
+        {
+          "path": "ArchLucid.Application/SecureNow/InMemoryCollectionRunTriggerIdempotencyStore.cs",
+          "blob_sha": "00f2ba1fda7864c24ce264c17c299e9df57fdac3",
+          "nonblank_loc_checked": 10
+        },
+        {
+          "path": "ArchLucid.Integrations.AzureExtractor/AzureAutomationCollectionRunTrigger.cs",
+          "blob_sha": "53ecad8b6f9ffa132066dbcbeb79c34722622fa4",
+          "nonblank_loc_checked": 117
+        },
+        {
+          "path": "ArchLucid.Application/InfraEvidence/Mermaid/AzureInventorySnapshotResourceIndex.cs",
+          "blob_sha": "3a4f0cf1ff8287e857b8f1c4d0abad8779e10fa9",
+          "nonblank_loc_checked": 23
+        },
+        {
+          "path": "ArchLucid.Application/Common/ArchitectureDomainAdmissionPattern.cs",
+          "blob_sha": "ecea2106077a05958a806fd438b4fc26a6f9f381",
+          "nonblank_loc_checked": 20
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/DraftAdmissionDomainHeuristic.cs",
+          "blob_sha": "c7d99bbaed58d58316149507b22cee81b927f15c",
+          "nonblank_loc_checked": 26
+        },
+        {
+          "path": "ArchLucid.Application/Runs/Orchestration/LlmSemanticAdmissionGate.cs",
+          "blob_sha": "64a5befba2bb45177fd3d63c60d2ee31c52cfea3",
+          "nonblank_loc_checked": 23
+        }
+      ]
+    },
+    {
+      "excel_row": 1255,
+      "reviewed_master_sha": "253529b2d198528404c5922133cb5c7a5b4e43a7",
+      "reviewed_loc_reported": 2343,
+      "independently_git_verified_nonblank_occurrences": 2343,
+      "sources": [
+        {
+          "path": "archlucid-ui/src/app/(operator)/insights/architecture-scorecard/_sections/ScorecardMetricCard.tsx",
+          "blob_sha": "cc0dcc461beab2be754e9d6f7c96d743ec827be3",
+          "nonblank_loc_checked": 304
+        },
+        {
+          "path": "archlucid-ui/src/components/product-line/SecureNowInfraPartialCaptureStrip.tsx",
+          "blob_sha": "4162996b82a1ba9ee90f2b9001b755e2ec674bd7",
+          "nonblank_loc_checked": 32
+        },
+        {
+          "path": "archlucid-ui/src/components/security/SecurityEvidencePathInspectPanel.tsx",
+          "blob_sha": "dc68fffb8e925f7654326608a3cb7f88f5f58bcc",
+          "nonblank_loc_checked": 1264
+        },
+        {
+          "path": "archlucid-ui/src/lib/architecture/first-review-partial-capture-copy.ts",
+          "blob_sha": "93f7b19b2356defb62d179a85b0e6277de51aef2",
+          "nonblank_loc_checked": 3
+        },
+        {
+          "path": "archlucid-ui/src/lib/governance/decision-register-empty-partial-capture-copy.ts",
+          "blob_sha": "759bc18271ec6ddaafa033ea8ded57fd07caa395",
+          "nonblank_loc_checked": 3
+        },
+        {
+          "path": "archlucid-ui/src/lib/product-line/path-inspect-partial-capture-honesty-copy.ts",
+          "blob_sha": "7144d4048333b3d1a327508033345f50c8620c8c",
+          "nonblank_loc_checked": 4
+        },
+        {
+          "path": "archlucid-ui/src/lib/scorecard/pilot-scorecard-headline-band-roi-non-summing-copy.ts",
+          "blob_sha": "0d95075cdbb0ef519ae1b356a4312e3df468497c",
+          "nonblank_loc_checked": 12
+        },
+        {
+          "path": "archlucid-ui/src/app/(operator)/administration/extract-upload/_sections/ExtractUploadAcceptedPackagePanel.tsx",
+          "blob_sha": "7ae617bdee24024be8003598fa9364ee917b449b",
+          "nonblank_loc_checked": 217
+        },
+        {
+          "path": "archlucid-ui/src/app/(operator)/administration/securenow-first-hour/SecureNowFirstHourPageView.tsx",
+          "blob_sha": "836d42e3b3f6f710673df4ffb8d7a9a0db851686",
+          "nonblank_loc_checked": 101
+        },
+        {
+          "path": "archlucid-ui/src/app/(operator)/administration/securenow-pilot-decision/SecureNowPilotDecisionPageView.tsx",
+          "blob_sha": "7d5b3a45fe86e042daf8f50c0a3b7ec1dda56696",
+          "nonblank_loc_checked": 260
+        },
+        {
+          "path": "archlucid-ui/src/app/(operator)/administration/securenow-pilot-spine/SecureNowPilotSpinePageView.tsx",
+          "blob_sha": "d37bf240ecec69882c1927d90ef4971ddc62b83d",
+          "nonblank_loc_checked": 67
+        },
+        {
+          "path": "archlucid-ui/src/app/(operator)/administration/securenow-self-service/SecureNowSelfServicePageView.tsx",
+          "blob_sha": "4f14fc09f5f8ea92c01cfe4f75ba7409f4f978e1",
+          "nonblank_loc_checked": 76
+        }
+      ]
+    }
+  ]
+}

@@ -52,6 +52,13 @@ export function readSharedSessionLastActivityAtMs(): number {
       return Date.now();
     }
 
+    const nowMs = Date.now();
+
+    // Returning now on every read would restart the idle window while the stored instant stays in the future.
+    if (parsed > nowMs) {
+      return nowMs - SESSION_IDLE_WORKING_TIMEOUT_MS;
+    }
+
     return parsed;
   }
   catch {

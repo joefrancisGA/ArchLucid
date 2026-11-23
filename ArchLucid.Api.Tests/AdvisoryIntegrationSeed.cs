@@ -25,7 +25,8 @@ public static class AdvisoryIntegrationSeed
     ///     Inserts one authority run + golden manifest for <see cref="ScopeIds" /> defaults and project slug <c>default</c>.
     /// </summary>
     /// <returns>The seeded run id (useful for Ask tests that need a run anchor).</returns>
-    public static async Task<Guid> SeedDefaultScopeAuthorityRunAsync(IServiceProvider services, CancellationToken ct)
+    public static async Task<Guid> SeedDefaultScopeAuthorityRunAsync(
+        IServiceProvider services, CancellationToken ct, bool pinTemporalSnapshotChain = false)
     {
         using IServiceScope scope = services.CreateScope();
         IServiceProvider serviceProvider = scope.ServiceProvider;
@@ -60,14 +61,13 @@ public static class AdvisoryIntegrationSeed
             RunId = runId,
             ProjectId = projectSlug,
             CreatedUtc = createdUtc,
-            // Persist the full seeded authority lineage on the run header. Temporal
-            // graph resolution and in-memory detail loading use these anchors;
-            // saving child snapshots alone does not populate the run's pointers.
-            ContextSnapshotId = contextSnapshotId,
-            GraphSnapshotId = graphSnapshotId,
-            FindingsSnapshotId = findingsSnapshotId,
-            DecisionTraceId = decisionTraceId,
-            GoldenManifestId = manifestId
+            // Persist the full seeded authority lineage on the run header unless the
+            // temporal HTTP fixture defers anchors until child snapshots exist.
+            ContextSnapshotId = pinTemporalSnapshotChain ? null : contextSnapshotId,
+            GraphSnapshotId = pinTemporalSnapshotChain ? null : graphSnapshotId,
+            FindingsSnapshotId = pinTemporalSnapshotChain ? null : findingsSnapshotId,
+            DecisionTraceId = pinTemporalSnapshotChain ? null : decisionTraceId,
+            GoldenManifestId = pinTemporalSnapshotChain ? null : manifestId
         };
 
         // Authority chain FK order: Runs → ContextSnapshots → GraphSnapshots → FindingsSnapshots → DecisioningTraces → GoldenManifests.
@@ -122,6 +122,20 @@ public static class AdvisoryIntegrationSeed
                     FindingsSnapshotId = findingsSnapshotId
                 }),
             ct);
+
+        if (pinTemporalSnapshotChain)
+        {
+            // The temporal SQL resolver requires Runs.GraphSnapshotId, not
+            // merely an independently stored GraphSnapshots row. Persist
+            // all source anchors together before sealing GoldenManifestId.
+            // Ordinary advisory integration seeds retain their prior shape.
+            run.ContextSnapshotId = contextSnapshotId;
+            run.GraphSnapshotId = graphSnapshotId;
+            run.FindingsSnapshotId = findingsSnapshotId;
+            run.DecisionTraceId = decisionTraceId;
+            run.GoldenManifestId = manifestId;
+            await runRepo.UpdateAsync(run, ct);
+        }
 
         ManifestDocument manifest = new()
         {

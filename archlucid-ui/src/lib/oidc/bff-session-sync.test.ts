@@ -64,6 +64,40 @@ describe("bff-session-sync (LK-05 P1)", () => {
     );
   });
 
+  it("rejects when the BFF session cookie POST returns 500", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: false,
+        status: 500,
+      })),
+    );
+
+    await expect(
+      syncBffSessionCookieFromTokenResponse({
+        access_token: "access-1",
+        expires_in: 3600,
+      }),
+    ).rejects.toThrow("BFF session cookie was not issued");
+  });
+
+  it("keeps client sign-in usable when the BFF session route returns 503", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: false,
+        status: 503,
+      })),
+    );
+
+    await expect(
+      syncBffSessionCookieFromTokenResponse({
+        access_token: "access-1",
+        expires_in: 3600,
+      }),
+    ).resolves.toBeUndefined();
+  });
+
   it("clears the BFF session cookie on sign-out", async () => {
     await clearBffSessionCookie();
 
@@ -254,6 +288,21 @@ describe("resolveRpLogoutUrlFromBffSession", () => {
     const url = await resolveRpLogoutUrlFromBffSession();
 
     expect(url).toBe(b2cLogout);
+  });
+
+
+  it("strips soft hyphens from BFF logout URLs before safety checks", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ url: "https://idp.ex\u00adample.com/logout" }),
+      })),
+    );
+
+    const url = await resolveRpLogoutUrlFromBffSession();
+
+    expect(url).toBe("https://idp.example.com/logout");
   });
 
   it("strips zero-width characters from BFF logout URLs before safety checks", async () => {

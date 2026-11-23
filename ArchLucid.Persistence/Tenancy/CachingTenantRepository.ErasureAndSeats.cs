@@ -4,13 +4,17 @@ namespace ArchLucid.Persistence.Tenancy;
 
 public sealed partial class CachingTenantRepository
 {
+    // Eviction follows a completed tenant mutation. The request may have been
+    // cancelled after the database committed; post-write eviction must still
+    // run with an independent token to avoid serving stale tenant safeguards.
+
     /// <inheritdoc />
     public async Task<bool> TryIncrementEnterpriseScimSeatAsync(Guid tenantId, CancellationToken ct)
     {
         bool incremented = await _inner.TryIncrementEnterpriseScimSeatAsync(tenantId, ct);
 
         if (incremented)
-            await InvalidateAsync(tenantId, ct);
+            await InvalidateAsync(tenantId, CancellationToken.None);
 
         return incremented;
     }
@@ -19,7 +23,7 @@ public sealed partial class CachingTenantRepository
     public async Task DecrementEnterpriseScimSeatAsync(Guid tenantId, CancellationToken ct)
     {
         await _inner.DecrementEnterpriseScimSeatAsync(tenantId, ct);
-        await InvalidateAsync(tenantId, ct);
+        await InvalidateAsync(tenantId, CancellationToken.None);
     }
 
     /// <inheritdoc />
@@ -32,7 +36,7 @@ public sealed partial class CachingTenantRepository
         bool approved = await _inner.TryApproveTenantErasureAsync(tenantId, approvedUtc, approvedByUserId, ct);
 
         if (approved)
-            await InvalidateAsync(tenantId, ct);
+            await InvalidateAsync(tenantId, CancellationToken.None);
 
         return approved;
     }
@@ -43,7 +47,7 @@ public sealed partial class CachingTenantRepository
         bool reverted = await _inner.TryRevertTenantErasureApprovalAsync(tenantId, ct);
 
         if (reverted)
-            await InvalidateAsync(tenantId, ct);
+            await InvalidateAsync(tenantId, CancellationToken.None);
 
         return reverted;
     }
@@ -62,7 +66,7 @@ public sealed partial class CachingTenantRepository
             ct);
 
         if (started)
-            await InvalidateAsync(tenantId, ct);
+            await InvalidateAsync(tenantId, CancellationToken.None);
 
         return started;
     }
@@ -73,7 +77,7 @@ public sealed partial class CachingTenantRepository
         bool restored = await _inner.TryRestoreTenantErasureQuarantineAsync(tenantId, ct);
 
         if (restored)
-            await InvalidateAsync(tenantId, ct);
+            await InvalidateAsync(tenantId, CancellationToken.None);
 
         return restored;
     }

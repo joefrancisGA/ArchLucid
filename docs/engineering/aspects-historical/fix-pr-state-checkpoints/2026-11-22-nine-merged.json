@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "repository": "joefrancisGA/ArchLucid",
+  "checked_at_utc": "2026-11-23T00:17:15.434Z",
+  "confidence": "GitHub PR metadata snapshot only, not proof of required CI or that the fix was effective",
+  "source": "GitHub connected get_pr_info; individually verified during 2026-11-22 ET restoration iteration",
+  "scope": "targeted sample of 9 named historical workbook PR references; all other referenced PRs remain unverified",
+  "pr_states": [
+    {
+      "number": 7474,
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-11-21T06:08:49Z",
+      "head_sha": "e490f4a15c28f81ec2470798c72ab4d325f0c865",
+      "fix_pr_url": "https://github.com/joefrancisGA/ArchLucid/pull/7474",
+      "status_verified_at_utc": "2026-11-23T00:17:15.434Z"
+    },
+    {
+      "number": 7558,
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-11-21T20:57:22Z",
+      "head_sha": "31d0815e92c32ca3751fd889b3ea40479db18a11",
+      "fix_pr_url": "https://github.com/joefrancisGA/ArchLucid/pull/7558",
+      "status_verified_at_utc": "2026-11-23T00:17:15.434Z"
+    },
+    {
+      "number": 7601,
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-11-22T03:19:08Z",
+      "head_sha": "a11d16dd4dd730db72308c7156d9f0bca99897b0",
+      "fix_pr_url": "https://github.com/joefrancisGA/ArchLucid/pull/7601",
+      "status_verified_at_utc": "2026-11-23T00:17:15.434Z"
+    },
+    {
+      "number": 7650,
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-11-22T08:27:12Z",
+      "head_sha": "01e6021b0fd2e6d5ef44fc6177620be9827bfcc1",
+      "fix_pr_url": "https://github.com/joefrancisGA/ArchLucid/pull/7650",
+      "status_verified_at_utc": "2026-11-23T00:17:15.434Z"
+    },
+    {
+      "number": 7681,
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-11-22T08:20:46Z",
+      "head_sha": "26786c7683d736f8f4bbe9dfc29c9d20e0a7c675",
+      "fix_pr_url": "https://github.com/joefrancisGA/ArchLucid/pull/7681",
+      "status_verified_at_utc": "2026-11-23T00:17:15.434Z"
+    },
+    {
+      "number": 7695,
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-11-22T15:47:16Z",
+      "head_sha": "62a076014c9fff34be7d646345428c364fb7f018",
+      "fix_pr_url": "https://github.com/joefrancisGA/ArchLucid/pull/7695",
+      "status_verified_at_utc": "2026-11-23T00:17:15.434Z"
+    },
+    {
+      "number": 7696,
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-11-22T15:47:20Z",
+      "head_sha": "7e68f963d6b036f1f03a440601ea358ff4b4baf5",
+      "fix_pr_url": "https://github.com/joefrancisGA/ArchLucid/pull/7696",
+      "status_verified_at_utc": "2026-11-23T00:17:15.434Z"
+    },
+    {
+      "number": 7704,
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-11-22T15:47:37Z",
+      "head_sha": "b32b3a6346c83c3e1b0815336f76498c5760bcfd",
+      "fix_pr_url": "https://github.com/joefrancisGA/ArchLucid/pull/7704",
+      "status_verified_at_utc": "2026-11-23T00:17:15.434Z"
+    },
+    {
+      "number": 7709,
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-11-22T15:47:59Z",
+      "head_sha": "1dc9bb6090595d4526c1310b787e2e43891c0782",
+      "fix_pr_url": "https://github.com/joefrancisGA/ArchLucid/pull/7709",
+      "status_verified_at_utc": "2026-11-23T00:17:15.434Z"
+    }
+  ]
+}

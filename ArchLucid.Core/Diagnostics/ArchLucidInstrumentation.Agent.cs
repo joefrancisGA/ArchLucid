@@ -60,7 +60,7 @@ public static partial class ArchLucidInstrumentation
 
     
     /// <summary>
-    ///     FND-018 observation-only handler outcomes (labels: agent_type enum, outcome=success|failure|cancelled).
+    ///     FND-018 observation-only handler outcomes (labels: agent_type enum, outcome=success|failure|cancelled|not_admitted).
     ///     Cancelled calls do not consume a failure-budget sample.
     /// </summary>
     public static readonly Counter<long> AgentHandlerFailureBudgetObservationsTotal =

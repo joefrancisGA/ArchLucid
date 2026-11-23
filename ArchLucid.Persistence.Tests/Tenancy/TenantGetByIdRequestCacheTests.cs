@@ -43,4 +43,100 @@ public sealed class TenantGetByIdRequestCacheTests
         (await cache.GetByIdAsync(tenantId, CancellationToken.None)).Should().BeNull();
         inner.Verify(repository => repository.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    [Fact]
+    public async Task Concurrent_same_tenant_misses_share_one_inner_read()
+    {
+        Guid tenantId = Guid.NewGuid();
+        TenantRecord record = new() { Id = tenantId, Name = "Acme", Slug = "acme" };
+        TaskCompletionSource<TenantRecord?> pending = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<ITenantRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .Returns(pending.Task);
+        TenantGetByIdRequestCache cache = new(inner.Object);
+
+        Task<TenantRecord?> first = cache.GetByIdAsync(tenantId, CancellationToken.None);
+        Task<TenantRecord?> second = cache.GetByIdAsync(tenantId, CancellationToken.None);
+        inner.Verify(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()), Times.Once);
+
+        pending.SetResult(record);
+        (await first).Should().BeSameAs(record);
+        (await second).Should().BeSameAs(record);
+        (await cache.GetByIdAsync(tenantId, CancellationToken.None)).Should().BeSameAs(record);
+        inner.Verify(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Canceled_leader_does_not_cache_failure_or_cancel_independent_waiter()
+    {
+        Guid tenantId = Guid.NewGuid();
+        TenantRecord record = new() { Id = tenantId, Name = "Acme", Slug = "acme" };
+        using CancellationTokenSource leaderCancellation = new();
+        TaskCompletionSource<TenantRecord?> pending = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<ITenantRepository> inner = new(MockBehavior.Strict);
+        inner.SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .Returns(pending.Task)
+            .ReturnsAsync(record);
+        TenantGetByIdRequestCache cache = new(inner.Object);
+
+        Task<TenantRecord?> leader = cache.GetByIdAsync(tenantId, leaderCancellation.Token);
+        Task<TenantRecord?> independent = cache.GetByIdAsync(tenantId, CancellationToken.None);
+
+        leaderCancellation.Cancel();
+        pending.SetCanceled(leaderCancellation.Token);
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => leader);
+
+        (await independent).Should().BeSameAs(record);
+        (await cache.GetByIdAsync(tenantId, CancellationToken.None)).Should().BeSameAs(record);
+        inner.Verify(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task Canceled_follower_does_not_abort_leader_or_poison_cached_result()
+    {
+        Guid tenantId = Guid.NewGuid();
+        TenantRecord record = new() { Id = tenantId, Name = "Acme", Slug = "acme" };
+        TaskCompletionSource<TenantRecord?> pending = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<ITenantRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .Returns(pending.Task);
+        TenantGetByIdRequestCache cache = new(inner.Object);
+        using CancellationTokenSource followerCancellation = new();
+
+        Task<TenantRecord?> leader = cache.GetByIdAsync(tenantId, CancellationToken.None);
+        Task<TenantRecord?> follower = cache.GetByIdAsync(tenantId, followerCancellation.Token);
+        followerCancellation.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => follower);
+
+        pending.SetResult(record);
+        (await leader).Should().BeSameAs(record);
+        (await cache.GetByIdAsync(tenantId, CancellationToken.None)).Should().BeSameAs(record);
+        inner.Verify(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Independent_tenant_ids_can_load_concurrently()
+    {
+        Guid tenantA = Guid.NewGuid();
+        Guid tenantB = Guid.NewGuid();
+        TenantRecord a = new() { Id = tenantA, Name = "A", Slug = "a" };
+        TenantRecord b = new() { Id = tenantB, Name = "B", Slug = "b" };
+        TaskCompletionSource<TenantRecord?> pendingA = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource<TenantRecord?> pendingB = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<ITenantRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(r => r.GetByIdAsync(tenantA, It.IsAny<CancellationToken>())).Returns(pendingA.Task);
+        inner.Setup(r => r.GetByIdAsync(tenantB, It.IsAny<CancellationToken>())).Returns(pendingB.Task);
+        TenantGetByIdRequestCache cache = new(inner.Object);
+
+        Task<TenantRecord?> first = cache.GetByIdAsync(tenantA, CancellationToken.None);
+        Task<TenantRecord?> second = cache.GetByIdAsync(tenantB, CancellationToken.None);
+        inner.Verify(r => r.GetByIdAsync(tenantA, It.IsAny<CancellationToken>()), Times.Once);
+        inner.Verify(r => r.GetByIdAsync(tenantB, It.IsAny<CancellationToken>()), Times.Once);
+
+        pendingB.SetResult(b);
+        pendingA.SetResult(a);
+        (await first).Should().BeSameAs(a);
+        (await second).Should().BeSameAs(b);
+    }
+
 }

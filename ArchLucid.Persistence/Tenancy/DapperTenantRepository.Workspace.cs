@@ -14,6 +14,20 @@ namespace ArchLucid.Persistence.Tenancy;
 
 public sealed partial class DapperTenantRepository
 {
+    internal const string GetFirstWorkspaceSql = """
+                                                 SELECT TOP (1) Id AS WorkspaceId, DefaultProjectId
+                                                 FROM dbo.TenantWorkspaces
+                                                 WHERE TenantId = @TenantId
+                                                 ORDER BY CreatedUtc ASC, Id ASC;
+                                                 """;
+
+    internal const string ListWorkspacesSql = """
+                                              SELECT Id AS WorkspaceId, TenantId, Name, DefaultProjectId, CreatedUtc
+                                              FROM dbo.TenantWorkspaces
+                                              WHERE TenantId = @TenantId
+                                              ORDER BY CreatedUtc ASC, Id ASC;
+                                              """;
+
 
     public async Task InsertWorkspaceAsync(
         Guid workspaceId,
@@ -47,15 +61,10 @@ public sealed partial class DapperTenantRepository
     {
         await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
-        const string sql = """
-                           SELECT TOP (1) Id AS WorkspaceId, DefaultProjectId
-                           FROM dbo.TenantWorkspaces
-                           WHERE TenantId = @TenantId
-                           ORDER BY CreatedUtc ASC;
-                           """;
+
 
         WorkspaceRow? row = await connection.QuerySingleOrDefaultAsync<WorkspaceRow>(
-            new CommandDefinition(sql, new
+            new CommandDefinition(GetFirstWorkspaceSql, new
             {
                 TenantId = tenantId
             }, cancellationToken: ct)).ConfigureAwait(false);
@@ -113,16 +122,11 @@ public sealed partial class DapperTenantRepository
     {
         await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
-        const string sql = """
-                           SELECT Id AS WorkspaceId, TenantId, Name, DefaultProjectId, CreatedUtc
-                           FROM dbo.TenantWorkspaces
-                           WHERE TenantId = @TenantId
-                           ORDER BY CreatedUtc ASC;
-                           """;
+
 
         IEnumerable<WorkspaceListRow> rows =
             await connection.QueryAsync<WorkspaceListRow>(
-                new CommandDefinition(sql, new
+                new CommandDefinition(ListWorkspacesSql, new
                 {
                     TenantId = tenantId
                 }, cancellationToken: ct)).ConfigureAwait(false);

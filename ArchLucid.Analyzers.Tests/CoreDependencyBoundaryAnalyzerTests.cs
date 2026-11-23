@@ -14,7 +14,7 @@ public sealed class CoreDependencyBoundaryAnalyzerTests
         var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
         var dependency = CSharpCompilation.Create(dependencyAssemblyName,
             new[] { CSharpSyntaxTree.ParseText(
-                "namespace Forbidden { public class SecretService {} }") },
+                "namespace Forbidden { public class SecretService { public static void Touch() {} public static int Number => 1; } }") },
             new[] { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) },
             options);
         using var stream = new System.IO.MemoryStream();
@@ -37,6 +37,27 @@ public sealed class CoreDependencyBoundaryAnalyzerTests
             "using Forbidden; public class X { public SecretService Service = new(); }",
             "ArchLucid.Persistence");
         Assert.Contains(diagnostics, d => d.Id == "FND017001");
+    }
+
+    [Theory]
+    [InlineData("using Forbidden; public class X { public void Run() { SecretService.Touch(); } }")]
+    [InlineData("using Forbidden; public class X { public int Read() => SecretService.Number; }")]
+    public async Task Core_static_member_only_reference_reports_boundary(string source)
+    {
+        // No field, parameter, new-expression or typeof introduces this type:
+        // its only use is as the receiver of a static member access.
+        var diagnostics = await AnalyzeAsync("ArchLucid.Core", source,
+            "ArchLucid.Persistence");
+        Assert.Single(diagnostics.Where(d => d.Id == "FND017001"));
+    }
+
+    [Fact]
+    public async Task Independent_static_member_receiver_is_allowed()
+    {
+        var diagnostics = await AnalyzeAsync("ArchLucid.Core",
+            "using Forbidden; public class X { public void Run() { SecretService.Touch(); } }",
+            "ArchLucid.Contracts");
+        Assert.Empty(diagnostics);
     }
 
     [Fact]

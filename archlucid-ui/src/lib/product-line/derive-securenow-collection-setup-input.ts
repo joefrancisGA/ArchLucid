@@ -22,17 +22,30 @@ export function deriveSecureNowCollectionSetupInput(input: {
   };
 }
 
+function listedSubscriptionIds(subscriptionIds: string | null | undefined): string[] {
+  return (subscriptionIds ?? "")
+    .split(",")
+    .map((id) => id.trim())
+    .filter((id) => id.length > 0);
+}
+
 export function deriveAzureSubscriptionScopeFromConnections(
   azureConnections: readonly { readonly subscriptionIds: string }[],
 ): { readonly azureSubscriptionIdsPresent: boolean; readonly azureSubscriptionScopeLabel: string | null } {
-  const firstSubscriptionIds = azureConnections.find((connection) =>
-    connection.subscriptionIds.split(",").some((id) => id.trim().length > 0),
-  )?.subscriptionIds;
+  // The connection list is one row per subscription. A comma-separated row still counts as several ids.
+  const ids = [
+    ...new Set(azureConnections.flatMap((connection) => listedSubscriptionIds(connection.subscriptionIds))),
+  ];
+
+  if (ids.length === 0) {
+    return {
+      azureSubscriptionIdsPresent: false,
+      azureSubscriptionScopeLabel: null,
+    };
+  }
 
   return {
-    azureSubscriptionIdsPresent: firstSubscriptionIds !== undefined,
-    azureSubscriptionScopeLabel: firstSubscriptionIds === undefined
-      ? null
-      : formatAzureSubscriptionSummary(firstSubscriptionIds),
+    azureSubscriptionIdsPresent: true,
+    azureSubscriptionScopeLabel: formatAzureSubscriptionSummary(ids.join(", ")),
   };
 }

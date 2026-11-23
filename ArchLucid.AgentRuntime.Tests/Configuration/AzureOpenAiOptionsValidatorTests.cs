@@ -82,6 +82,32 @@ public sealed class AzureOpenAiOptionsValidatorTests
         result.Succeeded.Should().BeTrue();
     }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(4)]
+    [InlineData(181)]
+    public void Validate_completion_network_timeout_outside_allowed_range_fails(int seconds)
+    {
+        AzureOpenAiOptions options = new() { CompletionNetworkTimeoutSeconds = seconds };
+
+        ValidateOptionsResult result = _sut.Validate(Options.DefaultName, options);
+
+        result.Failed.Should().BeTrue();
+        result.Failures.Should().Contain(message =>
+            message.Contains(nameof(AzureOpenAiOptions.CompletionNetworkTimeoutSeconds), StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData(5)]
+    [InlineData(60)]
+    [InlineData(180)]
+    public void Validate_bounded_completion_network_timeout_succeeds(int seconds)
+    {
+        AzureOpenAiOptions options = new() { CompletionNetworkTimeoutSeconds = seconds };
+
+        _sut.Validate(Options.DefaultName, options).Succeeded.Should().BeTrue();
+    }
+
     [Fact]
     public void Validate_negative_max_completion_tokens_fails()
     {

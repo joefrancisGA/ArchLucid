@@ -5,6 +5,73 @@
 
 # ArchLucid changelog
 
+## 2026-11-23 - Score lift round 128 (batch 93): Hub findings streams, terraform and compare contracts
+
+**Outcome.** Resource hub architecture-review and operational-security findings streams expose not-load-failure lines beside the existing empty ids. Terraform hub load failure renders only when a resource scope is pinned, exclusive of the unscoped panel. A mounted contract keeps compare governance-diff loading and empty honesty on separate branches.
+
+**Surfaces.** Resource hub findings tab, Terraform workbench, compare governance diff, honesty and mounted contract tests.
+
+## 2026-11-23 - Score lift round 127 (batch 92): Attack-path unevaluated empty, digest failure gates
+
+**Outcome.** Unevaluated attack-path subsection empty names a successful report with zero unevaluated groups versus a failed report load. A mounted contract keeps the unevaluated-only banner in the success branch and off the retry panel. Digest browse setup checklist while digests exist stays hidden during a hard list load failure, alongside the existing empty-composition gate.
+
+**Surfaces.** Remediation factory attack-path report, digests browse, honesty and mounted contract tests.
+
+## 2026-11-23 - Score lift round 126 (batch 91): Compare empty ids, terraform and diagram family
+
+**Outcome.** Compare quality-delta and classification-band zero-count paragraphs expose not-load-failure test ids beside the existing parent ids. Terraform mapping empty names a successful catalog read with no row versus a failed Terraform load. Diagram evidence-family empty names a loaded diagram with no relationships in the selected family versus a failed diagram read.
+
+**Surfaces.** Compare quality delta, compare classification band, Terraform workbench, diagrams workbench, honesty and mounted contract tests.
+
+## 2026-11-23 - Score lift round 125 (batch 90): Attack-path vulnerable empty, digest failure
+
+**Outcome.** Attack-path vulnerable empty names a successful report read with zero vulnerable rows versus a failed report load. The retry panel and the table empty stay in separate branches. Digest browse names a hard failure apart from empty filter bands, and the scoped-plus-subscription empty uses the not-load-failure test id.
+
+**Surfaces.** Remediation factory attack-path report, digests browse, honesty and mounted contract tests.
+## 2026-11-23 - Score lift round 124 (batch 89): Graph focus combinations
+
+**Outcome.** Evidence graph names path-only plus node focus, node focus plus edge focus, and path-only plus edge focus as combined empties versus a failed graph read. A type filter with node focus and path-only is a separate triple. Those bands stay exclusive of the matching single-filter lines.
+
+**Surfaces.** Evidence graph loaded experience, honesty and mounted contract tests.
+## 2026-11-23 - Score lift round 123 (batch 88): Graph edge partial, type combinations
+
+**Outcome.** Evidence graph edge-focus empty mounts partial-capture recovery when inventory capture is thin. Type-filter empties combined with a narrowed graph scope, a path-only slice, or a pinned edge name a filter miss versus a failed graph read, and those bands stay exclusive of the type-only line.
+
+**Surfaces.** Evidence graph loaded experience, honesty and mounted contract tests.
+
+## 2026-11-23 - Score lift round 122 (batch 87): Explorer work-queue quadruple, graph partial capture
+
+**Outcome.** Infrastructure explorer names work queue with resource type, name prefix, and resource group together versus a failed catalog read, exclusive of the type-prefix-group band when the work queue is All. Evidence graph node-focus and path-only empty bands mount partial-capture recovery when inventory capture is thin.
+
+**Surfaces.** Resources explorer, evidence graph loaded experience, honesty and mounted contract tests.
+## 2026-11-23 - Score lift round 121 (batch 86): Explorer work-queue triples, attack-path diagram filter
+
+**Outcome.** Infrastructure explorer names work-queue empties combined with resource type and name prefix, type and resource group, or name prefix and resource group versus a failed catalog read. Triple bands stay exclusive of work-queue pair and category-plus-prefix bands. Attack-path diagram filter empty names a successful report read with no diagram nodes versus a failed attack-path read.
+
+**Surfaces.** Resources explorer, remediation factory attack-path report, honesty and mounted contract tests.
+## 2026-11-23 - Score lift round 120 (batch 85): Explorer work-queue pairs, subscription scope empty
+
+**Outcome.** Infrastructure explorer names resource-group, resource-type, and name-prefix empties combined with a work queue versus a failed catalog read. Those pair bands stay exclusive of the single-filter bands. Connection status names a pinned subscription scope with every category and zero connectors versus a failed status read.
+
+**Surfaces.** Resources explorer, connection status dashboard, honesty and mounted contract tests.
+
+## 2026-11-23 - Score lift round 119 (batch 84): Hub audit and terraform partial, explorer triple, lifecycle filter
+
+**Outcome.** Resource hub audit and terraform-not-mapped empties name thin capture versus a failed hub read only when the latest capture is partial. Infrastructure explorer names a type, prefix, and resource-group filter empty versus a failed catalog read. Compare finding lifecycle names a status-filter empty versus a failed compare load.
+
+**Surfaces.** Resource hub client, resources explorer, compare finding lifecycle block, honesty and mounted contract tests.
+
+## 2026-11-23 - Score lift round 118 (batch 83): Hub remediation partial, explorer combined and queue
+
+**Outcome.** Resource hub remediation empty names thin capture versus a failed hub read only when the latest capture is partial. Infrastructure explorer names type-plus-group, prefix-plus-group, and work-queue-only empties versus a failed catalog read.
+
+**Surfaces.** Resource hub client, resources explorer, honesty and mounted contract tests.
+
+## 2026-11-23 - Score lift round 117 (batch 82): Hub partial gates, manifest lineage menu
+
+**Outcome.** Resource hub diagram, configuration, and drift empty states name thin capture versus a failed hub read only when the latest capture is partial. Golden manifest More formats menu names lineage verify HTTP failure apart from commit-before-seal.
+
+**Surfaces.** Resource hub client, golden manifest export menu, honesty and mounted contract tests.
 
 ## 2026-11-23 - Score lift round 116 (batch 81): Explorer filters, compare one finalized, hub findings partial
 

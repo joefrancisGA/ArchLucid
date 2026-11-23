@@ -14,7 +14,7 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 const mocks = vi.hoisted(() => ({
   signOutAndRedirectHome: vi.fn(async () => undefined),
-  clearOidcSession: vi.fn(),
+  endOidcBrowserSession: vi.fn(async () => true),
   readSignedInDisplayName: vi.fn(() => "jane@contoso.com"),
   readOperatorScopeFromStorage: vi.fn(() => ({
     tenantId: "tenant-abc",
@@ -33,7 +33,7 @@ vi.mock("@/lib/oidc/config", () => ({
 vi.mock("@/lib/oidc/session", () => ({
   isLikelySignedIn: () => true,
   readSignedInDisplayName: mocks.readSignedInDisplayName,
-  clearOidcSession: mocks.clearOidcSession,
+  endOidcBrowserSession: mocks.endOidcBrowserSession,
   signOutAndRedirectHome: mocks.signOutAndRedirectHome,
 }));
 
@@ -118,7 +118,7 @@ describe("OperatorAccessDeniedPageClient", () => {
     expect(mocks.signOutAndRedirectHome).toHaveBeenCalledTimes(1);
 
     fireEvent.click(screen.getByRole("button", { name: /Return to sign-in/i }));
-    expect(mocks.clearOidcSession).toHaveBeenCalledTimes(1);
+    expect(mocks.endOidcBrowserSession).toHaveBeenCalledTimes(1);
   });
 
   it("shows the administrator contact link only when configured", () => {

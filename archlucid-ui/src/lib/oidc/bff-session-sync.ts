@@ -1,7 +1,6 @@
 import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
 import {
   coerceAcceptedOidcEpochMsHint,
-  normalizeOidcConfigurationString,
   normalizeOidcOAuthFormString,
   normalizeOptionalOidcOAuthFormToken,
   normalizeRequiredOidcOAuthFormToken,
@@ -63,8 +62,10 @@ export async function syncBffSessionCookieFromTokenResponse(tokens: OidcTokenRes
   const refreshToken = normalizeOptionalOidcOAuthFormToken(tokens.refresh_token);
   const idToken = normalizeOptionalOidcOAuthFormToken(tokens.id_token);
 
+  let response: Response;
+
   try {
-    await fetch(BFF_SESSION_SYNC_PATH, {
+    response = await fetch(BFF_SESSION_SYNC_PATH, {
       method: "POST",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
@@ -78,23 +79,42 @@ export async function syncBffSessionCookieFromTokenResponse(tokens: OidcTokenRes
     });
   } catch {
     // Proxy session requires BFF signing secret on the host.
-  }
-}
-
-/** Clears the HttpOnly BFF session cookie during sign-out. */
-export async function clearBffSessionCookie(): Promise<void> {
-  if (typeof fetch === "undefined") {
     return;
   }
 
+  // 503 means this host has no BFF signing secret, so client hints can stand alone.
+  if (response.status === 503) {
+    return;
+  }
+
+  if (!response.ok) {
+    throw new Error("BFF session cookie was not issued");
+  }
+}
+
+/**
+ * Clears the HttpOnly BFF session cookie during sign-out.
+ * Returns false when the route responds but does not clear the cookie.
+ * A network failure still returns true so local hints can be dropped when the route is unreachable.
+ */
+export async function clearBffSessionCookie(): Promise<boolean> {
+  if (typeof fetch === "undefined") {
+    return true;
+  }
+
+  let response: Response;
+
   try {
-    await fetch(BFF_SESSION_SYNC_PATH, {
+    response = await fetch(BFF_SESSION_SYNC_PATH, {
       method: "DELETE",
       credentials: "same-origin",
     });
   } catch {
-    // Sign-out still clears client session hints even when the BFF route is unavailable.
+    // Sign-out still clears client session hints when the BFF route is unreachable.
+    return true;
   }
+
+  return response.ok;
 }
 
 export type BffSessionRefreshResult =
@@ -193,7 +213,7 @@ export async function resolveRpLogoutUrlFromBffSession(): Promise<string | null>
     const url =
       typeof body.url !== "string"
         ? ""
-        : normalizeOidcConfigurationString(body.url);
+        : normalizeOidcOAuthFormString(body.url);
 
     if (url.length === 0 || !isSafeOidcEndpointUrl(url)) {
       return null;

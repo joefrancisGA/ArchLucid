@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "confidence": "candidate_only_derived_at_reported_commit",
+  "workbook_source_sha256": "9fab94e0cd7d642f84d37ae9b8988e72b34367a479ebdba65fb893349ade0787",
+  "ci_evidence_run": "https://github.com/joefrancisGA/ArchLucid/actions/runs/45097064576",
+  "cohort": {
+    "head_sha": "15ac3b9abeff23e4fa8cb7a16027bf9b17211251",
+    "oldest_included_sha": "6252805a908f5bf0413bb40c68cb546013ff1843",
+    "first_parent_commits": 900
+  },
+  "population": {
+    "review_rows": 5741,
+    "unparsed_rows": 1230,
+    "pin_audit_rows_sha256": "d890f8beecab68473e25bdb6c765c2a6baf5628435a4c5e87687e513a06ef432"
+  },
+  "increments": {
+    "recovered_review_rows": 9,
+    "source_components": 38,
+    "candidate_line_occurrences": 1795,
+    "candidate_new_exact_identities": 1645,
+    "candidate_repeated_line_occurrences": 150,
+    "candidate_exact_overlap_with_original_pins": 0,
+    "original_pin_denominator_increment": 0,
+    "new_distinct_defects_promoted": 0
+  },
+  "rows": [
+    {
+      "excel_row": 32,
+      "review_id": "#6694",
+      "reviewed_master_sha": "ebd231533c8ecb199ebaa1bed82182a013d99941",
+      "nonblank_loc": 215,
+      "source_components": 2,
+      "source_sha256": "135e43cdf3a5b88e66f192858e7bde4af06324820c23ff195f5871df649f6aca"
+    },
+    {
+      "excel_row": 33,
+      "review_id": "#6695",
+      "reviewed_master_sha": "2b8d8d471ae5ba69f8e6f7e8018056dea4ac9524",
+      "nonblank_loc": 56,
+      "source_components": 1,
+      "source_sha256": "66b9750310e86f2b684fab705799691b9d98b08f7481711724e56cb6ea797d0f"
+    },
+    {
+      "excel_row": 34,
+      "review_id": "#6696",
+      "reviewed_master_sha": "2b8d8d471ae5ba69f8e6f7e8018056dea4ac9524",
+      "nonblank_loc": 107,
+      "source_components": 2,
+      "source_sha256": "8c1d90cdf71d312ecac00aedb0d6639e4000f6632d00b5df6a271ffc03727176"
+    },
+    {
+      "excel_row": 35,
+      "review_id": "#6699",
+      "reviewed_master_sha": "2fb432aaf6a499f428c52e41f579779616fe8d6c",
+      "nonblank_loc": 206,
+      "source_components": 5,
+      "source_sha256": "6375128cf8eee4dc2b87059d65334be4c301713f8d06cdd58c0719166c9db39c"
+    },
+    {
+      "excel_row": 38,
+      "review_id": "#6703",
+      "reviewed_master_sha": "c21b578f95fa131db853346d0911a45621098067",
+      "nonblank_loc": 194,
+      "source_components": 6,
+      "source_sha256": "12614b9fab62a1152af552e63950643fbc1c98bcd51ffaca08ac26eda2d97c69"
+    },
+    {
+      "excel_row": 40,
+      "review_id": "#6705",
+      "reviewed_master_sha": "c21b578f95fa131db853346d0911a45621098067",
+      "nonblank_loc": 181,
+      "source_components": 5,
+      "source_sha256": "ddaa49ec61cf98b21d73d6b3f27d14d1566fd9eb5c1d73a1eb331314560559dd"
+    },
+    {
+      "excel_row": 46,
+      "review_id": "#6712",
+      "reviewed_master_sha": "c21b578f95fa131db853346d0911a45621098067",
+      "nonblank_loc": 186,
+      "source_components": 6,
+      "source_sha256": "da3ce0f51eef325bfb86cda4480006e1b5f1d88631b45cf5117b8c94b7ae7c97"
+    },
+    {
+      "excel_row": 47,
+      "review_id": "#6713",
+      "reviewed_master_sha": "c21b578f95fa131db853346d0911a45621098067",
+      "nonblank_loc": 229,
+      "source_components": 6,
+      "source_sha256": "f3c6b7fecf1984cdf9c7309325c623b818ebca919e6220fc905a9c9b20f46270"
+    },
+    {
+      "excel_row": 49,
+      "review_id": "#6715",
+      "reviewed_master_sha": "c21b578f95fa131db853346d0911a45621098067",
+      "nonblank_loc": 421,
+      "source_components": 5,
+      "source_sha256": "6cbd8ee02d2c941402282557b74ac4c8c7792b1fa16e23c187debdd989f85d81"
+    }
+  ]
+}

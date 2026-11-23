@@ -68,9 +68,18 @@ const replace = vi.fn();
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
+  const { useSyncExternalStore } = await import("react");
   return {
     ...actual,
-    useSearchParams: () => new URLSearchParams(pathSwitcherUrlHarness.state.query),
+    useSearchParams: () => {
+      const query = useSyncExternalStore(
+        pathSwitcherUrlHarness.subscribe,
+        () => pathSwitcherUrlHarness.state.query,
+        () => pathSwitcherUrlHarness.state.query,
+      );
+
+      return new URLSearchParams(query);
+    },
     usePathname: () => "/architecture/reviews/new",
     useRouter: () => ({ replace }),
     redirect: vi.fn(),
@@ -434,6 +443,27 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     });
 
     expectNavigationCommitted("path=quick-review");
+  });
+
+  it("asks the Next router to drop the accelerator query when returning to quick start", async () => {
+    seedReviewsNewSearchParams("baseline=1&accelerator=ai-llm-workload");
+
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("new-run-wizard-stub")).toBeTruthy();
+    });
+
+    replace.mockClear();
+    fireEvent.click(screen.getByTestId("reviews-new-back-to-quick-start"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-job-chooser-section")).toBeInTheDocument();
+    });
+
+    const replacedHref = String(replace.mock.calls.at(-1)?.[0] ?? "");
+    expect(replacedHref).toContain("path=quick-review");
+    expect(replacedHref.includes("accelerator=")).toBe(false);
   });
 
   it("keeps default review path hints when an accelerator pack deep link is used", async () => {

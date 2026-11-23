@@ -64,6 +64,41 @@ describe("useNewRunWizardQueryPrefill", () => {
     expect(persistWizardMode).toHaveBeenCalledTimes(1);
   });
 
+  it("resets the form when a second accelerator pack arrives on the same mount", async () => {
+    const reset = vi.fn<UseFormReset<WizardFormValues>>();
+
+    const { rerender } = renderHook(
+      ({ packId }: { packId: string }) =>
+        useNewRunWizardQueryPrefill({
+          params: buildParams(packId),
+          stepIndex: 0,
+          wizardMode: "full",
+          reset,
+          setValue: vi.fn(),
+          goToStep: vi.fn(),
+          persistWizardMode: vi.fn(),
+          onPendingEvidenceFileChange: vi.fn(),
+          showToast: vi.fn(),
+        }),
+      { initialProps: { packId: "ai-llm-workload" } },
+    );
+
+    await waitFor(() => {
+      expect(reset).toHaveBeenCalledWith(
+        expect.objectContaining({ systemName: "Enterprise.Copilot.RagPlatform" }),
+      );
+    });
+
+    reset.mockClear();
+    rerender({ packId: "healthcare-data-workflow" });
+
+    await waitFor(() => {
+      expect(reset).toHaveBeenCalledWith(
+        expect.objectContaining({ systemName: "Clinical.DataHub" }),
+      );
+    });
+  });
+
   it("applies example template prefill once after full wizard reaches step 2", async () => {
     const exampleTemplate = REVIEW_INTAKE_EXAMPLE_TEMPLATES[0]!;
     const setValue = vi.fn();
@@ -108,6 +143,52 @@ describe("useNewRunWizardQueryPrefill", () => {
 
     await waitFor(() => {
       expect(setValue).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  it("rewrites system name and description when a second example template arrives on step 2", async () => {
+    const firstTemplate = REVIEW_INTAKE_EXAMPLE_TEMPLATES[0]!;
+    const secondTemplate = REVIEW_INTAKE_EXAMPLE_TEMPLATES[1]!;
+    const setValue = vi.fn();
+
+    const { rerender } = renderHook(
+      ({ exampleTemplate }) =>
+        useNewRunWizardQueryPrefill({
+          params: {
+            ...buildParams(null),
+            exampleTemplate,
+          },
+          stepIndex: 2,
+          wizardMode: "full",
+          reset: vi.fn(),
+          setValue,
+          goToStep: vi.fn(),
+          persistWizardMode: vi.fn(),
+          onPendingEvidenceFileChange: vi.fn(),
+          showToast: vi.fn(),
+        }),
+      { initialProps: { exampleTemplate: firstTemplate } },
+    );
+
+    await waitFor(() => {
+      expect(setValue).toHaveBeenCalledWith("systemName", firstTemplate.systemName, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    });
+
+    setValue.mockClear();
+    rerender({ exampleTemplate: secondTemplate });
+
+    await waitFor(() => {
+      expect(setValue).toHaveBeenCalledWith("systemName", secondTemplate.systemName, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      expect(setValue).toHaveBeenCalledWith("description", secondTemplate.briefText, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
     });
   });
 
@@ -382,6 +463,45 @@ describe("useNewRunWizardQueryPrefill", () => {
     expect(setValue).toHaveBeenCalledWith("policyReferences", ["cis-azure-baseline"], {
       shouldValidate: true,
       shouldDirty: true,
+    });
+  });
+
+  it("resets the form when a second preset deeplink arrives on the same mount", async () => {
+    const reset = vi.fn<UseFormReset<WizardFormValues>>();
+
+    const { rerender } = renderHook(
+      ({ token }: { token: "greenfield" | "modernize" }) =>
+        useNewRunWizardQueryPrefill({
+          params: {
+            ...buildParams(null),
+            presetDeeplinkPresetId: token,
+            presetDeeplinkToken: token,
+          },
+          stepIndex: 0,
+          wizardMode: "full",
+          reset,
+          setValue: vi.fn(),
+          goToStep: vi.fn(),
+          persistWizardMode: vi.fn(),
+          onPendingEvidenceFileChange: vi.fn(),
+          showToast: vi.fn(),
+        }),
+      { initialProps: { token: "greenfield" } },
+    );
+
+    await waitFor(() => {
+      expect(reset).toHaveBeenCalledWith(
+        expect.objectContaining({ systemName: "CustomerWebApp" }),
+      );
+    });
+
+    reset.mockClear();
+    rerender({ token: "modernize" });
+
+    await waitFor(() => {
+      expect(reset).toHaveBeenCalledWith(
+        expect.objectContaining({ systemName: "LegacyModernization" }),
+      );
     });
   });
 });

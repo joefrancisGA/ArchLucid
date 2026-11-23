@@ -40,6 +40,29 @@ class RecoveryStopGateTests(unittest.TestCase):
         self.assertEqual(self.assess(stop=replace(self.stop, authority_verified=False)).reasons,
                          ("stop_state_unavailable",))
 
+    def test_only_literal_stop_authority_proof_is_accepted(self):
+        for untrusted in ("false", 1, None):
+            with self.subTest(untrusted=untrusted):
+                decision = self.assess(stop=replace(self.stop, authority_verified=untrusted))
+                self.assertEqual(decision.reasons, ("stop_state_unavailable",))
+                self.assertFalse(decision.eligible_for_execution)
+
+    def test_only_literal_false_clears_stop(self):
+        for ambiguous in (None, 0, "", "false", "0"):
+            with self.subTest(ambiguous=ambiguous):
+                decision = self.assess(stop=replace(self.stop, active=ambiguous))
+                self.assertEqual(decision.reasons, ("stop_state_unavailable",))
+                self.assertFalse(decision.eligible_for_execution)
+
+    def test_recovery_requires_literal_independent_signing_and_success(self):
+        for field in ("signed_by_independent_authority", "rehearsal_passed"):
+            for untrusted in ("false", 1, None):
+                with self.subTest(field=field, untrusted=untrusted):
+                    decision = self.assess(attestation=replace(
+                        self.attestation, **{field: untrusted}))
+                    self.assertEqual(decision.reasons, ("recovery_not_independently_verified",))
+                    self.assertFalse(decision.eligible_for_execution)
+
     def test_unsigned_recovery(self):
         self.assertEqual(self.assess(attestation=replace(
             self.attestation, signed_by_independent_authority=False)).reasons,

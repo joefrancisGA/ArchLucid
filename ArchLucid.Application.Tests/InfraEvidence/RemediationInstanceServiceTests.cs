@@ -512,6 +512,114 @@ public sealed class RemediationInstanceServiceTests
     }
 
     [Fact]
+    public async Task ApproveAsync_atomically_records_frozen_pattern_and_preflight_provenance()
+    {
+        InMemoryRemediationInstanceRepository instances = new();
+        Guid instanceId = Guid.NewGuid();
+        instances.Instances.Add(CreateInstance(
+            instanceId, RemediationInstanceStatus.PreflightPassed,
+            preflightSnapshotId: SnapshotA,
+            preflightResultJson: "{\"passed\":true}",
+            rowVersion: new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }));
+
+        RemediationInstanceService sut = CreateSut(
+            instances, new InMemoryRemediationPatternMatchRepository(),
+            new InMemoryRemediationPatternRepository());
+
+        RemediationInstanceOperationResult result =
+            await sut.ApproveAsync(CreateScope(), instanceId, "independent-approver");
+
+        result.Succeeded.Should().BeTrue();
+        result.Status.Should().Be(RemediationInstanceStatus.Approved);
+        instances.Instances.Should().ContainSingle();
+        instances.Instances[0].ApprovedByActorKey.Should().Be("independent-approver");
+        instances.Instances[0].FrozenPatternVersion.Should().Be("1.0.0");
+        instances.Instances[0].PatternVersionId.Should().Be(VersionId);
+        instances.Evidence.Should().ContainSingle();
+        RemediationEvidenceRecord evidence = instances.Evidence[0];
+        evidence.Phase.Should().Be(RemediationEvidencePhase.Approval);
+        evidence.TenantId.Should().Be(TenantId);
+        evidence.InstanceId.Should().Be(instanceId);
+        evidence.ActorKey.Should().Be("independent-approver");
+        using JsonDocument document = JsonDocument.Parse(evidence.PayloadJson);
+        JsonElement proof = document.RootElement;
+        proof.GetProperty("kind").GetString().Should()
+            .Be("remediation-instance-approval-provenance");
+        proof.GetProperty("patternVersionId").GetGuid().Should().Be(VersionId);
+        proof.GetProperty("frozenPatternVersion").GetString().Should().Be("1.0.0");
+        proof.GetProperty("preflightSnapshotId").GetGuid().Should().Be(SnapshotA);
+        proof.GetProperty("preflightResultSha256").GetString().Should()
+            .MatchRegex("^[a-f0-9]{64}$");
+        proof.GetProperty("expectedRowVersion").GetString().Should().Be("0102030405060708");
+        proof.TryGetProperty("forwardSteps", out _).Should().BeFalse(
+            "an approved pattern preflight is not an independently approved FND-015 plan");
+    }
+
+    [Theory]
+    [InlineData("no-snapshot")]
+    [InlineData("no-result")]
+    [InlineData("no-rowversion")]
+    [InlineData("self-approval")]
+    public async Task ApproveAsync_rejects_incomplete_or_self_approved_preflight_without_evidence(string defect)
+    {
+        InMemoryRemediationInstanceRepository instances = new();
+        Guid instanceId = Guid.NewGuid();
+        instances.Instances.Add(CreateInstance(
+            instanceId, RemediationInstanceStatus.PreflightPassed,
+            preflightSnapshotId: defect == "no-snapshot" ? null : SnapshotA,
+            preflightResultJson: defect == "no-result" ? null : "{\"passed\":true}",
+            rowVersion: defect == "no-rowversion" ? null : new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }));
+        RemediationInstanceService sut = CreateSut(
+            instances, new InMemoryRemediationPatternMatchRepository(),
+            new InMemoryRemediationPatternRepository());
+
+        RemediationInstanceOperationResult outcome = await sut.ApproveAsync(
+            CreateScope(), instanceId, defect == "self-approval" ? "creator" : "reviewer");
+
+        outcome.Succeeded.Should().BeFalse();
+        instances.Instances[0].Status.Should().Be(RemediationInstanceStatus.PreflightPassed);
+        instances.Evidence.Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData("race")]
+    [InlineData("evidence-failure")]
+    public async Task ApproveAsync_failed_atomic_commit_leaves_no_approval_or_evidence(string failure)
+    {
+        InMemoryRemediationInstanceRepository instances = new();
+        Guid instanceId = Guid.NewGuid();
+        instances.Instances.Add(CreateInstance(
+            instanceId, RemediationInstanceStatus.PreflightPassed,
+            preflightSnapshotId: SnapshotA,
+            preflightResultJson: "{\"passed\":true}",
+            rowVersion: new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }));
+        if (failure == "race")
+        {
+            instances.BeforeApprovalCommit = () => instances.Instances[0] = CreateInstance(
+                instanceId, RemediationInstanceStatus.PreflightPassed,
+                preflightSnapshotId: SnapshotA,
+                preflightResultJson: "{\"passed\":true}",
+                rowVersion: new byte[] { 8, 7, 6, 5, 4, 3, 2, 1 });
+        }
+        else
+        {
+            instances.FailApprovalEvidenceInsert = true;
+        }
+
+        RemediationInstanceService sut = CreateSut(
+            instances, new InMemoryRemediationPatternMatchRepository(),
+            new InMemoryRemediationPatternRepository());
+
+        Func<Task> act = async () => await sut.ApproveAsync(
+            CreateScope(), instanceId, "independent-approver");
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        instances.Instances[0].Status.Should().Be(RemediationInstanceStatus.PreflightPassed);
+        instances.Instances[0].ApprovedByActorKey.Should().BeNull();
+        instances.Evidence.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task ApproveAsync_foreign_project_instance_returns_not_found()
     {
         InMemoryRemediationInstanceRepository instanceRepository = new();
@@ -776,6 +884,52 @@ public sealed class RemediationInstanceServiceTests
     }
 
     [Fact]
+    public async Task Failed_association_cannot_restore_over_a_newer_concurrent_remediation_state()
+    {
+        Guid controlId = Guid.NewGuid();
+        Mock<IVerifiedRemediationControlAssociationRepository> associations = new();
+        PassingVerifyHarness harness = ArrangePassingVerify(
+            controlId, assessmentId: null, associations: associations.Object);
+
+        associations.Setup(repository => repository.UpsertAsync(
+                It.IsAny<ProjectScopeKey>(),
+                It.IsAny<VerifiedRemediationControlAssociationRecord>(),
+                It.IsAny<CancellationToken>()))
+            .Returns((ProjectScopeKey scope,
+                      VerifiedRemediationControlAssociationRecord ignoredAssociation,
+                      CancellationToken ignoredToken) =>
+            {
+                RemediationInstanceRecord current = harness.Instances.Instances.Single();
+                current.Status.Should().Be(RemediationInstanceStatus.Verified);
+                current.RowVersion.Should().HaveCount(8);
+
+                // Simulate a separate legitimate writer following verification:
+                // current-row CAS succeeds, but recovery must not clobber it.
+                harness.Instances.UpdateInstanceInScopeAsync(scope,
+                    new RemediationInstanceMutation
+                    {
+                        InstanceId = current.InstanceId,
+                        ExpectedRowVersion = current.RowVersion,
+                        Status = RemediationInstanceStatus.Closed,
+                        UpdatedUtc = current.UpdatedUtc.AddSeconds(1),
+                    }).GetAwaiter().GetResult();
+
+                return Task.FromException<VerifiedRemediationControlAssociationRecord>(
+                    new InvalidOperationException("Association insert unavailable."));
+            });
+
+        Func<Task> verify = () => harness.Service.VerifyAsync(
+            CreateScope(), harness.InstanceId, SnapshotB, "verifier");
+
+        AggregateException failure = (await verify.Should()
+            .ThrowAsync<AggregateException>()).Which;
+        failure.InnerExceptions.Should().HaveCount(2);
+        RemediationInstanceRecord latest = harness.Instances.Instances.Single();
+        latest.Status.Should().Be(RemediationInstanceStatus.Closed);
+        latest.RowVersion.Should().HaveCount(8);
+    }
+
+    [Fact]
     public async Task Passing_verify_saves_the_association_when_the_caller_cancels_after_verifying()
     {
         using CancellationTokenSource cancellation = new();
@@ -843,7 +997,8 @@ public sealed class RemediationInstanceServiceTests
             changeImplementedUtc: new DateTime(2026, 9, 27, 12, 0, 30, DateTimeKind.Utc),
             cloudResourceId: CloudResourceId,
             controlId: controlId,
-            assessmentId: assessmentId));
+            assessmentId: assessmentId,
+            rowVersion: new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }));
 
         InMemoryRemediationPatternRepository patternRepository = new();
         patternRepository.Versions.Add(CreateVersion(
@@ -942,6 +1097,7 @@ public sealed class RemediationInstanceServiceTests
             {
                 InstanceId = current.InstanceId,
                 Status = RemediationInstanceStatus.ChangeImplemented,
+                ExpectedRowVersion = current.RowVersion,
                 CloudResourceId = current.CloudResourceId,
                 PathId = current.PathId,
                 PathNarrativeJson = current.PathNarrativeJson,
@@ -1083,13 +1239,19 @@ public sealed class RemediationInstanceServiceTests
         Guid? cloudResourceId = null,
         Guid? projectId = null,
         Guid? controlId = null,
-        Guid? assessmentId = null) =>
+        Guid? assessmentId = null,
+        Guid? preflightSnapshotId = null,
+        string? preflightResultJson = null,
+        byte[]? rowVersion = null) =>
         new()
         {
             InstanceId = instanceId,
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
             ProjectId = projectId ?? ProjectId,
+            PreflightSnapshotId = preflightSnapshotId,
+            PreflightResultJson = preflightResultJson,
+            RowVersion = rowVersion,
             FindingId = FindingId,
             PatternId = PatternId,
             PatternVersionId = VersionId,
@@ -1164,19 +1326,13 @@ public sealed class RemediationInstanceServiceTests
 
         public List<RemediationEvidenceRecord> Evidence { get; } = [];
 
+        public Action? BeforeApprovalCommit { get; set; }
+
+        public bool FailApprovalEvidenceInsert { get; set; }
+
         public Task InsertInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default)
         {
             Instances.Add(instance);
-            return Task.CompletedTask;
-        }
-
-        public Task UpdateInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default)
-        {
-            int index = Instances.FindIndex(row => row.InstanceId == instance.InstanceId);
-
-            if (index >= 0)
-                Instances[index] = instance;
-
             return Task.CompletedTask;
         }
 
@@ -1191,10 +1347,56 @@ public sealed class RemediationInstanceServiceTests
                 && scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId));
             if (index < 0)
                 throw new InvalidOperationException("Scoped remediation instance was not found.");
-            Instances[index] = mutation.ApplyTo(Instances[index]);
+            RemediationInstanceRecord current = Instances[index];
+            // Existing legacy fixtures with no persisted token still model
+            // non-SQL behavior. SQL-mode fixtures enforce CAS and advance it.
+            if (current.RowVersion is { Length: 8 }
+                && (mutation.ExpectedRowVersion is not { Length: 8 }
+                    || !current.RowVersion.SequenceEqual(mutation.ExpectedRowVersion)))
+                throw new InvalidOperationException("Stale scoped remediation rowversion.");
+            Instances[index] = mutation.ApplyTo(
+                current, current.RowVersion is { Length: 8 } ? NextRowVersion(current.RowVersion) : null);
             return Task.CompletedTask;
         }
 
+
+        public Task CommitApprovalInScopeAsync(
+            ProjectScopeKey scope,
+            RemediationInstanceMutation mutation,
+            RemediationEvidenceRecord evidence,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            BeforeApprovalCommit?.Invoke();
+            int index = Instances.FindIndex(row => row.InstanceId == mutation.InstanceId
+                && scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId));
+            if (index < 0 || mutation.ExpectedRowVersion is not { Length: 8 }
+                || evidence.InstanceId != mutation.InstanceId || evidence.TenantId != scope.TenantId
+                || evidence.Phase != RemediationEvidencePhase.Approval
+                || mutation.Status != RemediationInstanceStatus.Approved
+                || mutation.ApprovedByActorKey != evidence.ActorKey
+                || mutation.ApprovedUtc != evidence.CreatedUtc)
+                throw new InvalidOperationException("Approval evidence is not scoped to the instance.");
+
+            RemediationInstanceRecord current = Instances[index];
+            if (current.Status != RemediationInstanceStatus.PreflightPassed
+                || current.RowVersion is null
+                || !current.RowVersion.SequenceEqual(mutation.ExpectedRowVersion)
+                || current.PreflightSnapshotId is null
+                || string.IsNullOrWhiteSpace(current.PreflightResultJson)
+                || string.Equals(current.CreatedByActorKey, mutation.ApprovedByActorKey,
+                    StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Approval is stale or not authorized.");
+
+            // This fixture models one transaction: a failed evidence insert
+            // must leave the prior instance status and approval unchanged.
+            if (FailApprovalEvidenceInsert)
+                throw new InvalidOperationException("Approval evidence insert failed.");
+
+            Instances[index] = mutation.ApplyTo(current);
+            Evidence.Add(evidence);
+            return Task.CompletedTask;
+        }
 
         public Task CommitVerificationInScopeAsync(
             ProjectScopeKey scope,
@@ -1208,10 +1410,27 @@ public sealed class RemediationInstanceServiceTests
             if (index < 0 || evidence.InstanceId != mutation.InstanceId || evidence.TenantId != scope.TenantId)
                 throw new InvalidOperationException("Scoped verification mismatch.");
 
-            RemediationInstanceRecord updated = mutation.ApplyTo(Instances[index]);
+            RemediationInstanceRecord current = Instances[index];
+            if (current.RowVersion is { Length: 8 }
+                && (mutation.ExpectedRowVersion is not { Length: 8 }
+                    || !current.RowVersion.SequenceEqual(mutation.ExpectedRowVersion)))
+                throw new InvalidOperationException("Stale scoped verification rowversion.");
+            RemediationInstanceRecord updated = mutation.ApplyTo(
+                current, current.RowVersion is { Length: 8 } ? NextRowVersion(current.RowVersion) : null);
             Instances[index] = updated;
             Evidence.Add(evidence);
             return Task.CompletedTask;
+        }
+
+        private static byte[] NextRowVersion(byte[] token)
+        {
+            byte[] next = token.ToArray();
+            for (int index = next.Length - 1; index >= 0; index--)
+            {
+                if (++next[index] != 0)
+                    break;
+            }
+            return next;
         }
 
         public Task<RemediationInstanceRecord?> TryGetByIdAsync(

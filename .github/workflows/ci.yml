@@ -537,6 +537,59 @@ jobs:
         continue-on-error: true
         run: python scripts/ci/assert-score-lift-round116-batch.py
 
+      - name: Score lift round 117 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round117-batch.py
+
+      - name: Score lift round 118 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round118-batch.py
+
+      - name: Score lift round 119 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round119-batch.py
+
+      - name: Score lift round 120 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round120-batch.py
+
+      - name: Score lift round 121 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round121-batch.py
+
+      - name: Score lift round 122 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round122-batch.py
+
+      - name: Score lift round 123 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round123-batch.py
+
+      - name: Score lift round 124 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round124-batch.py
+
+      - name: Score lift round 125 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round125-batch.py
+
+      - name: Score lift round 126 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round126-batch.py
+
+      - name: Score lift round 127 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round127-batch.py
+
+      - name: Score lift round 128 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round128-batch.py
+
+
+
+
+
+
       - name: CD BUILD_ID / OCI label contract (unit tests)
         run: python -m unittest discover -s scripts/ci/tests -p "test_oci_build_identity.py"
 

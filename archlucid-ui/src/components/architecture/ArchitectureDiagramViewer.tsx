@@ -54,12 +54,14 @@ import {
 import {
   normalizeDiagramFocusToken,
   resolveDiagramClickFocus,
+  resolveInventoryDiagramClickFocusId,
   type DiagramClickFocusEdge,
   type DiagramClickFocusFacts,
   type DiagramClickFocusFrame,
   type DiagramClickFocusNode,
   type DiagramClickFocusRect,
 } from '@/lib/architecture/architecture-diagram-click-focus';
+import { applyConnectorVisibility } from '@/lib/architecture/architecture-diagram-connector-visibility';
 import type { InfraEvidenceMermaidOutline } from '@/lib/infra-evidence/parse-infra-evidence-mermaid-outline';
 import {
   INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_AUTHORIZATION_HINT,
@@ -396,38 +398,6 @@ function applyConnectorSelectionClasses(
     const sameLabel = selectedLabel.length === 0 || label === selectedLabel;
 
     edge.classList.toggle('diagram-click-dim', !(sameEndpoints && sameLabel));
-  });
-}
-
-function applyConnectorVisibility(
-  svg: SVGSVGElement,
-  visibleConnectors: readonly ArchitectureDiagramConnectorSelection[] | null | undefined,
-): void {
-  [...svg.querySelectorAll<SVGGElement>('g.edge')].forEach((edge) => {
-    edge.classList.remove('diagram-family-hidden');
-    edge.style.removeProperty('display');
-  });
-
-  if (visibleConnectors == null) {
-    return;
-  }
-
-  [...svg.querySelectorAll<SVGGElement>('g.edge')].forEach((edge) => {
-    const from = edge.getAttribute('data-from') ?? '';
-    const to = edge.getAttribute('data-to') ?? '';
-    const label = edge.querySelector('title')?.textContent?.trim() ?? null;
-    const normalizedLabel = (label ?? "").toLowerCase();
-    const isVisible = visibleConnectors.some(
-      (connector) =>
-        normalizeDiagramFocusToken(connector.from) === normalizeDiagramFocusToken(from)
-        && normalizeDiagramFocusToken(connector.to) === normalizeDiagramFocusToken(to)
-        && (connector.label?.trim().toLowerCase() ?? "") === normalizedLabel,
-    );
-
-    if (!isVisible) {
-      edge.classList.add('diagram-family-hidden');
-      edge.style.display = 'none';
-    }
   });
 }
 
@@ -1186,7 +1156,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       const result = resolveDiagramClickFocus(clickFocus.id, outline, readClickFocusFacts(svg));
 
       [...svg.querySelectorAll('g.node')].forEach((node) => {
-        const nodeId = normalizeDiagramFocusToken(node.getAttribute('id')?.replace(/^node-/u, '') ?? '');
+        const rawId = node.getAttribute('id')?.replace(/^node-/u, '') ?? '';
+        const title = node.querySelector('title')?.textContent ?? "";
+        const nodeId = normalizeDiagramFocusToken(resolveInventoryDiagramClickFocusId(rawId, title, outline));
         node.classList.toggle('diagram-click-dim', !result.keptNodeIds.has(nodeId));
       });
       [...svg.querySelectorAll('g.vnet-frame, g.rg-frame')].forEach((frame) => {
@@ -1256,14 +1228,14 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         return;
       }
 
-      const id = node.getAttribute('id')?.replace(/^node-/u, '') ?? '';
+      const rawId = node.getAttribute('id')?.replace(/^node-/u, '') ?? '';
+      const title = node.querySelector('title')?.textContent ?? "";
+      const id = resolveInventoryDiagramClickFocusId(rawId, title, outline);
 
       if (normalizeDiagramFocusToken(id) === normalizeDiagramFocusToken(clickFocus?.id ?? '')) {
         clearFocus();
         return;
       }
-
-      const title = node.querySelector('title')?.textContent ?? "";
       const memberNamesAttribute = node.getAttribute('data-member-names');
       const memberNames =
         memberNamesAttribute !== null

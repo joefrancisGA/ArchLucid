@@ -127,6 +127,26 @@ describe("loadDiscoveryDocument", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
+
+  it("strips soft hyphens from discovery authorization and token endpoints", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        issuer: "https://login.microsoftonline.com/tenant/v2.0",
+        authorization_endpoint: "https://login.micro\u00adsoftonline.com/authorize",
+        token_endpoint: "https://login.micro\u00adsoftonline.com/token",
+      }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { loadDiscoveryDocument } = await import("@/lib/oidc/discovery");
+
+    const doc = await loadDiscoveryDocument("https://login.microsoftonline.com/tenant/v2.0");
+
+    expect(doc.authorization_endpoint).toBe("https://login.microsoftonline.com/authorize");
+    expect(doc.token_endpoint).toBe("https://login.microsoftonline.com/token");
+  });
   it("omits malformed end_session_endpoint instead of advertising RP-initiated logout", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,

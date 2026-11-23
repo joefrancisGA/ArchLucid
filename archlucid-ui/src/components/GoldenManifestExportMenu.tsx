@@ -538,9 +538,15 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
       {exportPartialCaptureOnError}
       {exportError !== null ? (
         <div className="space-y-1" role="alert" data-testid="golden-manifest-export-error">
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="golden-manifest-export-error-commit-before-seal">
+          {exportVerifyRequestFailed ? (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="golden-manifest-lineage-verify-http-failure-more-formats">
+              {GOLDEN_MANIFEST_LINEAGE_VERIFY_HTTP_FAILURE_LINE}
+            </p>
+          ) : (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="golden-manifest-export-error-commit-before-seal">
             {REVIEW_COMMIT_EVIDENCE_BEFORE_SEAL_LINE}
           </p>
+          )}
           <p className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}>{exportError}</p>
         </div>
       ) : null}

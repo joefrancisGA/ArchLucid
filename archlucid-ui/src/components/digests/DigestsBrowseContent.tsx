@@ -172,7 +172,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
       ) : null}
 
       {failure !== null ? (
-        <div className="mt-4" role="alert">
+        <div className="mt-4" role="alert" data-testid="digests-browse-load-failure">
           <OperatorApiProblem
             problem={failure.problem}
             fallbackMessage={failure.message}
@@ -188,7 +188,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
         </>
       ) : null}
 
-      {showEmptyComposition ? (
+      {showEmptyComposition && failure === null ? (
         <div className="mt-4 space-y-3" data-testid="digests-browse-empty-state">
           {scopedRunFilterActive ? (
             <EnterpriseCompactEmptyState
@@ -200,7 +200,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
                   <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="digests-browse-scoped-filter-empty-not-load-failure">
                     {DIGESTS_BROWSE_SCOPED_REVIEW_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
                   </p>
-                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="digests-browse-scoped-and-subscription-filter-empty">
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="digests-browse-scoped-and-subscription-filter-empty-not-load-failure">
                     {DIGESTS_BROWSE_SCOPED_AND_SUBSCRIPTION_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
                   </p>
                   
@@ -267,7 +267,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
         </div>
       ) : null}
 
-      {setupChecklist !== null && setupIncomplete && digests.length > 0 ? (
+      {setupChecklist !== null && setupIncomplete && digests.length > 0 && failure === null ? (
         <div className="mt-4">
           <DigestsBrowseSetupChecklist items={setupChecklist} />
         </div>

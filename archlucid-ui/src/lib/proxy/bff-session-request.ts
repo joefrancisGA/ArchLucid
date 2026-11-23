@@ -36,11 +36,20 @@ export function isSameOriginBffRequest(request: NextRequest): boolean {
 
   const referer = request.headers.get("referer")?.trim() ?? "";
 
-  if (referer.startsWith(request.nextUrl.origin)) {
+  if (refererHasAppOrigin(referer, request.nextUrl.origin)) {
     return true;
   }
 
   return false;
+}
+
+function refererHasAppOrigin(referer: string, appOrigin: string): boolean {
+  try {
+    // Prefix checks treat https://app.example.com.evil.test as the app.
+    return new URL(referer).origin === appOrigin;
+  } catch {
+    return false;
+  }
 }
 
 function resolvePostLogoutRedirectUri(request: NextRequest): string {

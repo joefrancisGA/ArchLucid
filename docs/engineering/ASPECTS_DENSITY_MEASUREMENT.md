@@ -70,3 +70,124 @@ The legacy workbook may be reconciled later only by importing its individual
 source observations, validating each against its pinned Git baseline and
 deduplicating cross-revision content lineage. Until then it is explicitly
 **historical, not a current verified metric**.
+
+
+## Important: recorded historical review LOC is NOT just the newer 2,528-line ledger
+
+The successful original historical-900 Git source-pin audit (Actions run
+45160219395, artifact 14812729056, source audit SHA-256
+6bd330eb81fa105ee2b48deb32be2b77885daa5d3a629fa54e1472ac975dd3c1)
+verified exact source at 4,514 of 5,741 historical review records:
+**238,239 source-line occurrences**, **6,020 repeated exact path/blob lines**,
+and **232,219 unique exact path/blob source identities** at the original
+900-first-parent historical head 15ac3b9abeff23e4fa8cb7a16027bf9b17211251.
+The immutable census, linked to its source artifact, is in
+docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-original-900-source-pin-coverage.json.
+
+The **2,528-line, 45-defect** successful source ledger measurement is a
+*separate narrow follow-on review population*, measured at its own old PR
+synthetic merge head 48689d5dde62a2c08097ef9733609773ffeacec1;
+**17.800633 defects/KLOC applies only to those 2,528 lines**, NEVER to the
+232,219 historically pinned lines. The 232,219 pinned source identities prove
+source/blob/span integrity, not all the original review events, not full
+cross-revision deduplication, and not a distinct-defect numerator; therefore
+do not calculate a rate by dividing the ledger's 45 defects or the workbook's
+463 by 232,219. The historical workbook's last **343,492** reported unique
+reviewed LOC and rate **1.347921 defects/KLOC** remain separately labeled
+partial workbook accounting; also do not splice them into a new verified rate.
+
+Every Aspects report MUST prominently display the original historical
+**232,219 Git-pinned candidate source lines** and its exact original cohort
+and provenance, not merely the small incremental ledger. A new run can
+accurately report the incremental source-verified density without implying it
+represents all prior code-review work. This reporting correction adds no
+independently verified new review LOC or confirmed distinct defects.
+
+## Single consolidated update (historical, provisional and current)
+
+Run the consolidated command. It validates three distinct populations before
+producing the standard user-facing Aspects update:
+
+```bash
+python -m unittest discover -s scripts/tests -p 'test_aspects_accounting_report.py' -v
+python scripts/aspects_accounting_report.py \
+  --verified-snapshot artifacts/aspects/aspects-density-snapshot.json \
+  --json-out artifacts/aspects/aspects-accounting-report.json \
+  --markdown-out artifacts/aspects/aspects-accounting-report.md \
+  --700-csv-out artifacts/aspects/aspects-provisional-700-sma25.csv \
+  --900-csv-out artifacts/aspects/aspects-historical-900-sma25.csv \
+  --700-svg-out artifacts/aspects/aspects-provisional-700-sma25.svg
+```
+
+`aspects-density-snapshot.yml` runs this after revalidating the live reviewed
+source ledger and uploads all five report artifacts in the *existing* Aspects
+snapshot bundle. The lightweight `aspects-accounting-report.yml` validates
+the historical/provisional inputs and Python calculation on PRs without a
+comprehensive master build. GitHub Actions artifacts (and the generated
+Markdown) are the report; creating a new Git commit alone is not a measurement.
+
+The three outputs **must not be mixed**:
+
+- **Historical 900-first-parent captures:** exactly **79 actual recorded**
+  workbook snapshots as originally imported. Latest partial source checkpoint
+  is the November 22, 2026 capture at 463 / 343,492 = 1.3479207667/KLOC.
+  All 25-point moving averages are recalculated. This is not current.
+- **700-observation provisional trend:** exactly **100 workbook-derived
+  backprojections plus 600 separately imported workbook event rows**. Event
+  increments, cumulative counts, each reported rate and all 600 shared rows
+  must reconcile before generating its CSV/SVG. The latest workbook-provisional
+  rate is 491 / 343,818 = 1.42808113595/KLOC, distinct from the historical
+  900-commit snapshot. This is a 700-point chart, **not 700 independent
+  snapshots or 700 source-verified reviews**.
+- **Current verified ledger subset:** only live Git revalidated source
+  observations and distinct IDs from `aspects_density_snapshot.py`. As-of
+  HEAD, scope, current subset defect IDs and exact path/blob reviewed LOC are
+  displayed explicitly. New/repeated reviewed LOC, new defect IDs, rate and
+  signed delta appear only when a *comparable prior verified snapshot* exists.
+  If no comparable predecessor is available, those fields are **unknown
+  (`null`), never represented as zero**.
+
+Every Aspects progress report must state (1) the actual as-of Git SHA,
+(2) current live verified reviewed LOC and repeats **or unknown if no
+comparison**, (3) actual new distinct defect IDs **or unknown**, (4)
+historical/provisional context marked by provenance, and (5) CI status.
+Never repeat 463/343,492, 232,219, 6,020 or the 700 provisional count as
+new code-review progress.
+
+**Outstanding audit work:** Git path/blob coverage is not yet fully
+content-lineage deduplicated across revisions, and the historical candidate
+source population lacks original review pins. This does not block reproducible
+historical/provisional charts or the narrower verified ledger report, but it
+does block claiming a complete current 900-commit defect density. The report
+makes that boundary explicit.
+
+## Required Aspects pass-to-pass SMA25 change (operator standard, Nov 23)
+
+Every time an Aspects review iteration completes, the operational workbook and
+user-visible summary **MUST** include all of these from the SAME accounting series:
+
+1. Actually inspected LOC, previously reviewed LOC, new unique LOC and newly
+   discovered distinct defect IDs. Repeated LOC do not raise the denominator.
+2. Previous pass cumulative defects, unique LOC and density; updated pass totals.
+3. **Previous 25-observation SMA**, **current 25-observation SMA**, **signed change
+   (current minus previous, defects/KLOC)** and **relative percent change**
+   (`(current - previous) / previous * 100`). Increases and decreases must
+   retain their signs; never report the delta as a new defect count.
+4. The operational trend's preceding row must be *frozen* before updating the
+   live summary, so recalculating the newest row does not rewrite historical
+   moving averages. Append the new observation, compute SMA25 from the last
+   25 compatible density observations and display the comparison prominently.
+5. Distinguish historical workbook provisional carry-forward from a fully
+   re-anchored 900-first-parent Git-verified rate; never silently blend those
+   series. If a previous comparable sample is absent, display unknown rather
+   than fabricating a zero delta.
+6. Link the newly reviewed Git source SHA, defect ID, fix PR, and relevant
+   workbook source spans. A pass that finds no defects still gets a new
+   observation when genuine LOC review occurred.
+
+For Nov 23 pass #3 (trial baseline preseed diagnostics), the accepted operational
+comparison is previous **1.3542275959012933** versus current
+**1.3597854672651855** SMA25 defects/KLOC, signed
+**+0.005557871363892186** /KLOC (**+0.410408957897%**). The pass inspected
+50 nonblank source lines, all present in historical workbook Excel source-pin
+rows 4725 and 4746, so 50 repeated LOC, 0 new unique LOC, +1 defect ID.

@@ -17,6 +17,7 @@ import {
   queryInventoryDiagramResourceGroupFrameElements,
   resolveMermaidInkViewBox,
   resolveMermaidNodeUnionViewBox,
+  fitInventoryDiagramSvgElementToFocusNodeIds,
   resolveMermaidViewportDefaultZoom,
   sanitizeMermaidRenderId,
 } from "@/lib/help/help-mermaid";
@@ -802,5 +803,63 @@ describe("help-mermaid", () => {
     expect(
       mermaidViewportFitNeedsRetry(fit(100, 24)),
     ).toBe(false);
+  });
+
+  it("fits the viewport to the api node only when focus slug api is not a substring of apigateway", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 300 60");
+
+    const apiNode = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    apiNode.setAttribute("class", "node");
+    apiNode.setAttribute("id", "flowchart-api-0");
+    const apiTitle = document.createElementNS("http://www.w3.org/2000/svg", "title");
+    apiTitle.textContent = "api";
+    apiNode.appendChild(apiTitle);
+    svg.appendChild(apiNode);
+
+    const gatewayNode = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    gatewayNode.setAttribute("class", "node");
+    gatewayNode.setAttribute("id", "flowchart-apigateway-1");
+    const gatewayTitle = document.createElementNS("http://www.w3.org/2000/svg", "title");
+    gatewayTitle.textContent = "API Gateway";
+    gatewayNode.appendChild(gatewayTitle);
+    svg.appendChild(gatewayNode);
+    document.body.appendChild(svg);
+
+    const identityMatrix = {
+      a: 1, b: 0, c: 0, d: 1, e: 0, f: 0,
+      inverse: () => identityMatrix,
+      multiply: () => identityMatrix,
+    };
+
+    svg.getScreenCTM = () => identityMatrix as DOMMatrix;
+    svg.createSVGPoint = () =>
+      ({
+        x: 0,
+        y: 0,
+        matrixTransform() {
+          return { x: this.x, y: this.y };
+        },
+      }) as SVGPoint;
+
+    const bindBBox = (element: SVGGraphicsElement, box: DOMRect) => {
+      element.getScreenCTM = () => identityMatrix as DOMMatrix;
+      element.getBBox = () => box;
+    };
+
+    bindBBox(apiNode as SVGGraphicsElement, {
+      x: 10, y: 10, width: 30, height: 30, top: 10, right: 40, bottom: 40, left: 10, toJSON: () => ({}),
+    } as DOMRect);
+    bindBBox(gatewayNode as SVGGraphicsElement, {
+      x: 200, y: 10, width: 30, height: 30, top: 10, right: 230, bottom: 40, left: 200, toJSON: () => ({}),
+    } as DOMRect);
+
+    const focused = fitInventoryDiagramSvgElementToFocusNodeIds(svg, 500, 400, ["api"]);
+
+    expect(focused).not.toBeNull();
+    expect(focused?.baseWidthPx).toBeLessThan(120);
+    expect(svg.getAttribute("viewBox")?.startsWith("-2 ")).toBe(true);
+
+    svg.remove();
   });
 });

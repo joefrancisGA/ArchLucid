@@ -13,6 +13,7 @@ import { CONNECTION_STATUS_CATEGORY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@
 import { ConnectionStatusCategoryAndSubscriptionScopeFilterEmptyPartialHonesty } from "@/components/integrations/ConnectionStatusCategoryAndSubscriptionScopeFilterEmptyPartialHonesty";
 import { ConnectionStatusDashboardPartialCaptureHonesty } from "@/components/integrations/ConnectionStatusDashboardPartialCaptureHonesty";
 import { CONNECTION_STATUS_CATEGORY_AND_SUBSCRIPTION_SCOPE_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/integrations/connection-status-category-and-subscription-scope-filter-empty-not-load-failure-copy";
+import { CONNECTION_STATUS_SUBSCRIPTION_SCOPE_ONLY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/integrations/connection-status-subscription-scope-only-filter-empty-not-load-failure-copy";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
@@ -217,7 +218,19 @@ export function ConnectorOperationsDashboard(props: ConnectorOperationsDashboard
         title={CONNECTION_STATUS_EMPTY_STATE.title}
         description={CONNECTION_STATUS_EMPTY_STATE.description}
         testId="connection-status-empty-state"
-        footer={<ConnectionStatusEmptyPartialHonesty />}
+        footer={
+          <>
+            {workspaceSubscriptionScopePinned && activeCategory === null ? (
+              <p
+                className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="connection-status-subscription-scope-only-filter-empty-not-load-failure"
+              >
+                {CONNECTION_STATUS_SUBSCRIPTION_SCOPE_ONLY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+              </p>
+            ) : null}
+            <ConnectionStatusEmptyPartialHonesty />
+          </>
+        }
       />
     );
   }

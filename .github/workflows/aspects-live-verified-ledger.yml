@@ -1,0 +1,218 @@
+name: Aspects live verified ledger density
+
+# This is a lightweight Python source-evidence report, NOT a comprehensive build.
+# It measures against the ACTUAL master first-parent head, never the synthetic
+# pull-request merge commit. Historical source candidate recovery is separate.
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'docs/engineering/aspects-review-ledger.jsonl'
+      - 'docs/engineering/aspects-historical/**'
+      - 'scripts/aspects_review_evidence.py'
+      - 'scripts/aspects_density_snapshot.py'
+      - 'scripts/aspects_historical_pinned_coverage.py'
+      - 'scripts/aspects_accounting_report.py'
+      - 'scripts/tests/test_aspects_review_evidence.py'
+      - 'scripts/tests/test_aspects_density_snapshot.py'
+      - 'scripts/tests/test_aspects_accounting_report.py'
+      - '.github/workflows/aspects-live-verified-ledger.yml'
+  pull_request:
+    branches: [master]
+    paths:
+      - 'docs/engineering/aspects-review-ledger.jsonl'
+      - 'docs/engineering/aspects-historical/**'
+      - 'scripts/aspects_review_evidence.py'
+      - 'scripts/aspects_density_snapshot.py'
+      - 'scripts/aspects_historical_pinned_coverage.py'
+      - 'scripts/aspects_accounting_report.py'
+      - 'scripts/tests/test_aspects_review_evidence.py'
+      - 'scripts/tests/test_aspects_density_snapshot.py'
+      - 'scripts/tests/test_aspects_accounting_report.py'
+      - '.github/workflows/aspects-live-verified-ledger.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: aspects-live-verified-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verified-density:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate source evidence and verified-subset density
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_review_evidence.py' -v
+          python -m unittest discover -s scripts/tests -p 'test_aspects_density_snapshot.py' -v
+      - name: Measure exactly the source-verified ledger on real master-base 900 commits
+        env:
+          MASTER_900_HEAD: ${{ github.event.pull_request.base.sha || github.sha }}
+        run: |
+          mkdir -p artifacts/aspects
+          python scripts/aspects_density_snapshot.py \
+            --repo . --ledger docs/engineering/aspects-review-ledger.jsonl \
+            --head "$MASTER_900_HEAD" --window 900 \
+            --json-out artifacts/aspects/aspects-density-snapshot.json \
+            --markdown-out artifacts/aspects/aspects-density-snapshot.md
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          s=json.loads(Path("artifacts/aspects/aspects-density-snapshot.json").read_text())
+          assert s["head"] == os.environ["MASTER_900_HEAD"]
+          assert s["cohort"]["status"] == "complete"
+          assert s["cohort"]["actual_commits"] == 900
+          assert s["cohort"]["head_sha"] == s["head"]
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as out:
+              out.write(Path("artifacts/aspects/aspects-density-snapshot.md").read_text())
+          PY
+      - name: Publish verified density BEFORE optional chart or comparison jobs
+        uses: actions/upload-artifact@v4
+        with:
+          name: aspects-live-verified-ledger
+          path: |
+            artifacts/aspects/aspects-density-snapshot.json
+            artifacts/aspects/aspects-density-snapshot.md
+          if-no-files-found: error
+
+  comparison-and-history:
+    # A historical workbook/CSV/chart error must NEVER suppress the current
+    # source-verified defect-density artifact from verified-density.
+    needs: verified-density
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate historical source data and SMA25 arithmetic separately
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_accounting_report.py' -v
+      - name: Download independently published verified density
+        uses: actions/download-artifact@v4
+        with:
+          name: aspects-live-verified-ledger
+          path: artifacts/aspects
+      - name: Recover only a genuinely comparable prior source-verified snapshot
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MASTER_900_HEAD: ${{ github.event.pull_request.base.sha || github.sha }}
+        run: |
+          mkdir -p .aspects-prior
+          while IFS= read -r run_id; do
+            if [ -z "$run_id" ] || [ "$run_id" = "$GITHUB_RUN_ID" ]; then
+              continue
+            fi
+            folder=".aspects-prior/run-$run_id"
+            mkdir -p "$folder"
+            if ! gh run download "$run_id" --repo joefrancisGA/ArchLucid \
+                    --name aspects-live-verified-ledger --dir "$folder" >/dev/null 2>&1; then
+              continue
+            fi
+            prior="$folder/aspects-density-snapshot.json"
+            if [ ! -s "$prior" ]; then
+              continue
+            fi
+            if PYTHONPATH=scripts python - "$MASTER_900_HEAD" "$prior" <<'PY'
+          import json,sys
+          from pathlib import Path
+          from aspects_density_snapshot import (
+              ordered_first_parent, cohort_identity, comparison_reason,
+          )
+          head, filename = sys.argv[1:]
+          cohort = cohort_identity(ordered_first_parent(Path("."), head, 900), head, 900)
+          before = json.loads(Path(filename).read_text(encoding="utf-8"))
+          reason = comparison_reason(before, cohort)
+          if reason is not None:
+              print("Not comparable:",reason)
+              sys.exit(1)
+          PY
+            then
+              cp "$prior" .aspects-prior/comparable.json
+              echo "Comparable prior verified run: $run_id"
+              break
+            fi
+          done < <(gh run list --workflow aspects-live-verified-ledger.yml \
+                     --limit 40 --json databaseId \
+                     --jq '.[].databaseId' || true)
+          if [ ! -f .aspects-prior/comparable.json ]; then
+            echo "No proven comparable predecessor. Prior delta stays unknown."
+          fi
+      - name: Calculate comparable delta and separately render historical charts
+        env:
+          MASTER_900_HEAD: ${{ github.event.pull_request.base.sha || github.sha }}
+        run: |
+          if [ -f .aspects-prior/comparable.json ]; then
+            python scripts/aspects_density_snapshot.py \
+              --repo . --ledger docs/engineering/aspects-review-ledger.jsonl \
+              --head "$MASTER_900_HEAD" --window 900 \
+              --previous .aspects-prior/comparable.json \
+              --json-out artifacts/aspects/aspects-comparable-density-snapshot.json \
+              --markdown-out artifacts/aspects/aspects-comparable-density-snapshot.md
+          else
+            cp artifacts/aspects/aspects-density-snapshot.json \
+               artifacts/aspects/aspects-comparable-density-snapshot.json
+            cp artifacts/aspects/aspects-density-snapshot.md \
+               artifacts/aspects/aspects-comparable-density-snapshot.md
+          fi
+          python scripts/aspects_accounting_report.py \
+            --verified-snapshot artifacts/aspects/aspects-comparable-density-snapshot.json \
+            --expected-head "$MASTER_900_HEAD" \
+            --json-out artifacts/aspects/aspects-accounting-report.json \
+            --markdown-out artifacts/aspects/aspects-accounting-report.md \
+            --700-csv-out artifacts/aspects/aspects-provisional-700-sma25.csv \
+            --900-csv-out artifacts/aspects/aspects-historical-900-sma25.csv \
+            --700-svg-out artifacts/aspects/aspects-provisional-700-sma25.svg
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          first=json.loads(Path("artifacts/aspects/aspects-density-snapshot.json").read_text())
+          after=json.loads(Path("artifacts/aspects/aspects-comparable-density-snapshot.json").read_text())
+          report=json.loads(Path("artifacts/aspects/aspects-accounting-report.json").read_text())
+          live=report["current_verified_subset"]
+          assert first["head"] == after["head"] == os.environ["MASTER_900_HEAD"]
+          assert first["cohort"] == after["cohort"]
+          assert first["density"]["distinct_confirmed_defects"] == after["density"]["distinct_confirmed_defects"]
+          assert first["density"]["unique_path_blob_reviewed_lines"] == after["density"]["unique_path_blob_reviewed_lines"]
+          assert live["current_head"] == first["head"]
+          assert live["distinct_defect_ids"] == first["density"]["distinct_confirmed_defects"]
+          assert live["exact_path_blob_unique_reviewed_loc"] == first["density"]["unique_path_blob_reviewed_lines"]
+          assert report["historical_original_source_pin_coverage"]["unique_exact_path_blob_source_loc"] == 232219
+          assert report["historical_original_source_pin_coverage"]["defects_per_kloc_for_this_population"] is None
+          assert report["historical_900"]["actual_snapshots"] == 79
+          assert report["provisional_700"]["observations"] == 700
+          if live["comparison"] != "comparable":
+              assert live["new_reviewed_loc"] is None
+              assert live["repeated_reviewed_loc"] is None
+              assert live["new_distinct_defect_ids"] is None
+              assert live["signed_rate_delta"] is None
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as out:
+              out.write(Path("artifacts/aspects/aspects-accounting-report.md").read_text())
+              out.write("\nLive verified artifact was already published independently.\n")
+          PY
+      - name: Upload optional comparison, 79 historical 900-snapshot and 700 provisional charts
+        uses: actions/upload-artifact@v4
+        with:
+          name: aspects-live-comparison-and-history
+          path: |
+            artifacts/aspects/aspects-comparable-density-snapshot.json
+            artifacts/aspects/aspects-comparable-density-snapshot.md
+            artifacts/aspects/aspects-accounting-report.json
+            artifacts/aspects/aspects-accounting-report.md
+            artifacts/aspects/aspects-provisional-700-sma25.csv
+            artifacts/aspects/aspects-historical-900-sma25.csv
+            artifacts/aspects/aspects-provisional-700-sma25.svg
+          if-no-files-found: error

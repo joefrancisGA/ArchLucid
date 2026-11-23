@@ -87,7 +87,7 @@ public sealed partial class DapperUsageEventRepository
             usageEvent.Quantity,
             usageEvent.RecordedUtc,
             usageEvent.CorrelationId,
-            usageEvent.IdempotencyKey
+            IdempotencyKey = UsageEventRepositoryCore.IdempotencyKeyOrNull(usageEvent.IdempotencyKey)
         };
 
     private static SqlChunkedBatchCommand BuildUsageEventInsertChunk(
@@ -119,7 +119,7 @@ public sealed partial class DapperUsageEventRepository
             parameters.Add($"Quantity{i}", usageEvent.Quantity);
             parameters.Add($"RecordedUtc{i}", usageEvent.RecordedUtc);
             parameters.Add($"CorrelationId{i}", usageEvent.CorrelationId);
-            parameters.Add($"IdempotencyKey{i}", usageEvent.IdempotencyKey);
+            parameters.Add($"IdempotencyKey{i}", UsageEventRepositoryCore.IdempotencyKeyOrNull(usageEvent.IdempotencyKey));
         }
 
         commandText.Append(insertFooter);

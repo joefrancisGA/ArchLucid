@@ -50,9 +50,10 @@ public sealed class CoreDependencyBoundaryAnalyzer : DiagnosticAnalyzer
         if (name.Parent is QualifiedNameSyntax qualified &&
             !ReferenceEquals(qualified.Right, name))
             return;
-        if (name.Parent is MemberAccessExpressionSyntax member &&
-            !ReferenceEquals(member.Name, name))
-            return;
+        // A type may appear as a static member receiver, for example
+        // SecretService.Touch(). Skipping the expression side of member access
+        // would miss that forbidden dependency. Namespace and member symbols
+        // are filtered by the INamedTypeSymbol check below.
 
         var symbol = context.SemanticModel.GetSymbolInfo(name, context.CancellationToken).Symbol;
         if (symbol is IAliasSymbol alias)

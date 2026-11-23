@@ -20,6 +20,24 @@ describe("resolveSecureNowInvestigationEffortResultState", () => {
     });
   });
 
+  it("calculates ROI when after-product hours are zero", () => {
+    expect(
+      resolveSecureNowInvestigationEffortResultState({
+        baselineHours: "3",
+        afterHours: "0",
+        annualInvestigations: "10",
+        hourlyRate: "80",
+        annualCost: "5000",
+      }),
+    ).toEqual({
+      kind: "calculated",
+      headline: "Entered inputs. Not a customer result.",
+      gross: 2400,
+      net: -2600,
+      ratio: -2600 / 5000,
+    });
+  });
+
   it("rejects after hours above baseline", () => {
     expect(
       resolveSecureNowInvestigationEffortResultState({

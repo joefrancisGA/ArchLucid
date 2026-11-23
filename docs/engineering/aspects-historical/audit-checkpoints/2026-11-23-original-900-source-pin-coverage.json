@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "source": {
+    "run_id": 45160219395,
+    "artifact_id": 14812729056,
+    "audit_filename": "historical-git-pin-audit.json",
+    "original_audit_json_sha256": "6bd330eb81fa105ee2b48deb32be2b77885daa5d3a629fa54e1472ac975dd3c1",
+    "source_url": "https://github.com/joefrancisGA/ArchLucid/actions/runs/45160219395",
+    "original_audited_rows_sha256": "d890f8beecab68473e25bdb6c765c2a6baf5628435a4c5e87687e513a06ef432"
+  },
+  "source_run_conclusion": "success",
+  "audit_status": "git_blob_and_nonblank_intervals_subset_only_cross_revision_unresolved",
+  "source_proof_confidence": "source_pin_integrity_only_not_independent_reconstruction_of_review_history",
+  "cohort": {
+    "first_parent_commits": 900,
+    "head_sha": "15ac3b9abeff23e4fa8cb7a16027bf9b17211251",
+    "oldest_sha": "6252805a908f5bf0413bb40c68cb546013ff1843"
+  },
+  "original_workbook_review_observations": 5741,
+  "verified_pinned_review_rows": 4514,
+  "verified_clean_review_rows": 4314,
+  "verified_positive_review_rows_not_distinct_defect_ids": 200,
+  "quarantined_or_ambiguous_review_rows": 1227,
+  "verified_exact_unique_path_blob_loc": 232219,
+  "verified_exact_line_occurrences": 238239,
+  "verified_exact_repeated_line_occurrences": 6020,
+  "historical_source_lineage_cross_revision_complete": false,
+  "independent_review_confirmation_complete": false,
+  "distinct_defect_ids_verified_for_these_232219_lines": null,
+  "defects_per_kloc_for_these_232219_lines": null,
+  "note": "Frozen source-pin census from successful historical 900-first-parent audit, not a current master 900-window measurement, a proof every source line was inspected, or a denominator that can be combined with the newer incremental ledger."
+}

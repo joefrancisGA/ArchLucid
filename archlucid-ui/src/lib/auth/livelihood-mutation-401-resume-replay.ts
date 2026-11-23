@@ -42,7 +42,6 @@ import {
   type RiskExceptionWritePendingPayload,
   writeLivelihoodPendingMutation,
 } from "@/lib/auth/livelihood-mutation-401-resume";
-import { notifyLivelihoodMutationReplayed } from "@/lib/auth/livelihood-mutation-replay-notify";
 import { recordGovernanceMutationCorrection } from "@/lib/governance/governance-mutation-correction-api";
 
 /** Replays one stored livelihood mutation with the same idempotency key (ADR 0076 / 0089). */
@@ -132,11 +131,7 @@ export async function replayLivelihoodPendingMutation(
       case "policy_pack_save": {
         const payload = pending.payload as PolicyPackSavePendingPayload;
 
-        if (!payload.autoReplay) {
-          notifyLivelihoodMutationReplayed({ pending, result: null });
-
-          return null;
-        }
+        // autoReplay false only stops a silent retry. The resume hook calls this after confirm.
 
         if (payload.operation === "create") {
           return await createPolicyPack(payload.body as Parameters<typeof createPolicyPack>[0]);

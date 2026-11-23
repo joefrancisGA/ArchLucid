@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Application.InfraEvidence.RemediationPatterns;
@@ -272,16 +274,63 @@ public sealed class RemediationInstanceService(
             return Failed(transitionError ?? "Invalid remediation instance transition.");
         }
 
+        // Approval must bind to a completed preflight and a concrete stored
+        // SQL rowversion, not just the caller's read of the current status.
+        if (instance.PreflightSnapshotId is null ||
+            string.IsNullOrWhiteSpace(instance.PreflightResultJson))
+            return Failed("Preflight evidence is required for approval.");
+
+        if (instance.RowVersion is not { Length: 8 })
+            return Failed("A current remediation rowversion is required for approval.");
+
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
+        string actorKey = approverActorKey.Trim();
 
         RemediationInstanceRecord updated = CloneInstance(
             instance,
             status: RemediationInstanceStatus.Approved,
-            approvedByActorKey: approverActorKey.Trim(),
+            approvedByActorKey: actorKey,
             approvedUtc: utcNow,
             updatedUtc: utcNow);
 
-        await instanceRepository.UpdateInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
+        // This records *which frozen pattern/preflight was approved*, without
+        // fabricating an approved FND-015 forward/inverse execution plan.
+        string preflightSha256 = Convert.ToHexString(
+            SHA256.HashData(Encoding.UTF8.GetBytes(instance.PreflightResultJson)))
+            .ToLowerInvariant();
+        string provenanceJson = JsonSerializer.Serialize(new
+        {
+            schemaVersion = "1.0.0",
+            kind = "remediation-instance-approval-provenance",
+            instanceId,
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            instance.FindingId,
+            instance.PatternId,
+            instance.PatternVersionId,
+            instance.FrozenPatternVersion,
+            instance.PreflightSnapshotId,
+            preflightResultSha256 = preflightSha256,
+            expectedRowVersion = Convert.ToHexString(instance.RowVersion).ToLowerInvariant(),
+            approvedByActorKey = actorKey,
+            approvedUtc = utcNow,
+        }, AuditJsonSerializationOptions.Instance);
+
+        RemediationEvidenceRecord approvalEvidence = new()
+        {
+            EvidenceId = Guid.NewGuid(),
+            InstanceId = instanceId,
+            TenantId = scope.TenantId,
+            Phase = RemediationEvidencePhase.Approval,
+            PayloadJson = provenanceJson,
+            ActorKey = actorKey,
+            CorrelationId = $"remediation-instance-approval:{instanceId:N}",
+            CreatedUtc = utcNow,
+        };
+
+        await instanceRepository.CommitApprovalInScopeAsync(
+            scope.ToProjectScopeKey(), ToMutation(updated), approvalEvidence, cancellationToken);
 
         return Succeeded(instanceId, RemediationInstanceStatus.Approved);
     }
@@ -648,7 +697,8 @@ public sealed class RemediationInstanceService(
         {
             // The instance row is already Verified. Put it back so a passed check cannot
             // remain verified when the association statement did not save.
-            await RestoreInstanceAfterAssociationFailureAsync(scope, beforeVerify, writeFailure);
+            await RestoreInstanceAfterAssociationFailureAsync(
+                scope, beforeVerify, verified, writeFailure);
             return Failed("Verified remediation association could not be saved.");
         }
     }
@@ -656,18 +706,40 @@ public sealed class RemediationInstanceService(
     private async Task RestoreInstanceAfterAssociationFailureAsync(
         ScopeContext scope,
         RemediationInstanceRecord beforeVerify,
+        RemediationInstanceRecord verified,
         Exception writeFailure)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(beforeVerify);
+        ArgumentNullException.ThrowIfNull(verified);
         ArgumentNullException.ThrowIfNull(writeFailure);
 
         try
         {
-            // CancellationToken.None so a cancelled request token cannot skip the restore.
+            // SQL generates a NEW rowversion for the successful verification
+            // commit. The version read before verification is now stale.
+            // Reread in the same trusted scope, compare every mutable field
+            // to the exact just-verified state, then CAS its current token.
+            // Never overwrite a concurrent change that happened meanwhile.
+            ProjectScopeKey projectScope = scope.ToProjectScopeKey();
+            RemediationInstanceRecord? current = await instanceRepository.TryGetByIdInScopeAsync(
+                projectScope, verified.InstanceId, CancellationToken.None);
+            if (current?.RowVersion is not { Length: 8 }
+                || current.Status != RemediationInstanceStatus.Verified
+                || current.InstanceId != verified.InstanceId
+                || current.TenantId != verified.TenantId
+                || current.WorkspaceId != verified.WorkspaceId
+                || current.ProjectId != verified.ProjectId
+                || (ToMutation(current) with { ExpectedRowVersion = null })
+                    != (ToMutation(verified) with { ExpectedRowVersion = null }))
+            {
+                throw new InvalidOperationException(
+                    "Verified instance was modified before association-failure recovery.");
+            }
+
             await instanceRepository.UpdateInScopeAsync(
-                scope.ToProjectScopeKey(),
-                ToMutation(beforeVerify),
+                projectScope,
+                ToMutation(beforeVerify) with { ExpectedRowVersion = current.RowVersion },
                 CancellationToken.None);
         }
         catch (Exception restoreFailure)

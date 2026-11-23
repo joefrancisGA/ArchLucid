@@ -52,7 +52,8 @@ partial class AgentAzureOpenAiExecutorRegistrar
                         schema,
                         completionLogger,
                         llmTelemetryOptions,
-                        truncationReporter);
+                        truncationReporter,
+                        networkTimeout: ao.GetEffectiveCompletionNetworkTimeout());
                 }
 
                 if (string.IsNullOrWhiteSpace(apiKey))
@@ -69,7 +70,8 @@ partial class AgentAzureOpenAiExecutorRegistrar
                     schema,
                     completionLogger,
                     llmTelemetryOptions,
-                    truncationReporter);
+                    truncationReporter,
+                    networkTimeout: ao.GetEffectiveCompletionNetworkTimeout());
             });
         });
 
@@ -107,7 +109,8 @@ partial class AgentAzureOpenAiExecutorRegistrar
                     schema,
                     completionLogger,
                     llmTelemetryOptions,
-                    truncationReporter);
+                    truncationReporter,
+                    networkTimeout: ao.GetEffectiveCompletionNetworkTimeout());
             }
 
             if (string.IsNullOrWhiteSpace(apiKey))
@@ -121,7 +124,8 @@ partial class AgentAzureOpenAiExecutorRegistrar
                 schema,
                 completionLogger,
                 llmTelemetryOptions,
-                truncationReporter);
+                truncationReporter,
+                networkTimeout: ao.GetEffectiveCompletionNetworkTimeout());
         });
 
         services.AddSingleton<LlmTokenQuotaWindowTracker>();

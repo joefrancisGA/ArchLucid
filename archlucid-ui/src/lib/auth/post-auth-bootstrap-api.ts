@@ -77,6 +77,26 @@ export async function fetchPostAuthBootstrapStatus(
   return payload;
 }
 
+function workspaceCreationTransportFailure(): {
+  succeeded: false;
+  customerMessage: string;
+} {
+  return {
+    succeeded: false,
+    customerMessage: "Workspace creation could not be completed.",
+  };
+}
+
+async function fetchBootstrapMutation(url: string, init: RequestInit): Promise<Response | null> {
+  try {
+    return await fetch(url, init);
+  } catch {
+    // PostAuthBootstrapClient awaits these helpers with no catch. A rejected fetch
+    // leaves the button pending and never shows the failure copy.
+    return null;
+  }
+}
+
 export async function createPostAuthWorkspace(
   body: PostAuthCreateWorkspaceBody,
 ): Promise<{
@@ -86,7 +106,7 @@ export async function createPostAuthWorkspace(
   session?: PostAuthBootstrapSessionResponse | null;
   duplicateOrganization?: PostAuthBootstrapStatusResponse["duplicateOrganization"];
 }> {
-  const response = await fetch(
+  const response = await fetchBootstrapMutation(
     "/api/proxy/v1/auth/bootstrap/workspaces",
     mergeRegistrationScopeForProxy({
       method: "POST",
@@ -95,8 +115,8 @@ export async function createPostAuthWorkspace(
     }),
   );
 
-  if (!response.ok) {
-    return { succeeded: false, customerMessage: "Workspace creation could not be completed." };
+  if (response === null || !response.ok) {
+    return workspaceCreationTransportFailure();
   }
 
   return (await response.json()) as {
@@ -115,7 +135,7 @@ export async function acceptPostAuthInvitation(
   confirmEmailMismatch = false,
 ): Promise<PostAuthBootstrapSessionResponse | null> {
   const query = returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : "";
-  const response = await fetch(
+  const response = await fetchBootstrapMutation(
     `/api/proxy/v1/auth/bootstrap/invitations/accept${query}`,
     mergeRegistrationScopeForProxy({
       method: "POST",
@@ -124,7 +144,7 @@ export async function acceptPostAuthInvitation(
     }),
   );
 
-  if (!response.ok) {
+  if (response === null || !response.ok) {
     return null;
   }
 
@@ -137,7 +157,7 @@ export async function selectPostAuthWorkspace(
   returnUrl?: string,
 ): Promise<PostAuthBootstrapSessionResponse | null> {
   const query = returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : "";
-  const response = await fetch(
+  const response = await fetchBootstrapMutation(
     `/api/proxy/v1/auth/bootstrap/workspaces/select${query}`,
     mergeRegistrationScopeForProxy({
       method: "POST",
@@ -146,7 +166,7 @@ export async function selectPostAuthWorkspace(
     }),
   );
 
-  if (!response.ok) {
+  if (response === null || !response.ok) {
     return null;
   }
 
@@ -154,7 +174,7 @@ export async function selectPostAuthWorkspace(
 }
 
 export async function initiatePostAuthAccessRequest(message?: string): Promise<boolean> {
-  const response = await fetch(
+  const response = await fetchBootstrapMutation(
     "/api/proxy/v1/auth/bootstrap/access-request",
     mergeRegistrationScopeForProxy({
       method: "POST",
@@ -162,6 +182,10 @@ export async function initiatePostAuthAccessRequest(message?: string): Promise<b
       body: JSON.stringify({ message }),
     }),
   );
+
+  if (response === null) {
+    return false;
+  }
 
   return response.status === 202;
 }

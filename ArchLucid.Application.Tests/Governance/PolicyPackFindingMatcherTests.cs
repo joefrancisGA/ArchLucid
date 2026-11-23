@@ -10,6 +10,79 @@ namespace ArchLucid.Application.Tests.Governance;
 public sealed class PolicyPackFindingMatcherTests
 {
     [Theory]
+    [InlineData("D")]
+    [InlineData("N")]
+    public void MatchesAssignment_rejects_another_explicit_pack_even_with_matching_rule_key(string format)
+    {
+        Guid assignedPackId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid otherPackId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        CommittedGovernancePackAssignmentSnapshot assignment = new()
+        {
+            PolicyPackId = assignedPackId,
+            PolicyPackVersion = "1.0",
+            ComplianceRuleKeys = ["cis-azure-1.2"],
+        };
+
+        Finding finding = new()
+        {
+            FindingId = "cross-pack-wrapped-rule",
+            PolicyRuleId = $"policy-pack-{otherPackId.ToString(format)}-cis-azure-1.2",
+            EngineType = "compliance-engine",
+        };
+
+        PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeFalse(
+            "an explicit rule owner must not be overridden by a reused compliance rule key");
+    }
+
+    [Fact]
+    public void MatchesAssignment_rejects_another_pack_property_even_with_matching_rule_key()
+    {
+        Guid assignedPackId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid otherPackId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        CommittedGovernancePackAssignmentSnapshot assignment = new()
+        {
+            PolicyPackId = assignedPackId,
+            PolicyPackVersion = "1.0",
+            ComplianceRuleKeys = ["cis-azure-1.2"],
+        };
+
+        Finding finding = new()
+        {
+            FindingId = "cross-pack-property",
+            PolicyRuleId = "cis-azure-1.2",
+            EngineType = "compliance-engine",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["policyPackId"] = otherPackId.ToString("N"),
+            },
+        };
+
+        PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeFalse();
+    }
+
+    [Fact]
+    public void MatchesAssignment_rejects_another_pack_engine_even_with_matching_rule_key()
+    {
+        Guid assignedPackId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid otherPackId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        CommittedGovernancePackAssignmentSnapshot assignment = new()
+        {
+            PolicyPackId = assignedPackId,
+            PolicyPackVersion = "1.0",
+            ComplianceRuleKeys = ["cis-azure-1.2"],
+        };
+
+        Finding finding = new()
+        {
+            FindingId = "cross-pack-engine",
+            PolicyRuleId = "cis-azure-1.2",
+            EngineType = $"policy-pack:{otherPackId:D}",
+        };
+
+        PolicyPackFindingMatcher.MatchesAssignment(finding, assignment).Should().BeFalse();
+    }
+
+    [Theory]
     [InlineData("unrelated-{0}-rule")]
     [InlineData("unrelated-{1}-rule")]
     [InlineData("policy-pack-{0}extra-rule")]

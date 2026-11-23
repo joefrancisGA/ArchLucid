@@ -111,7 +111,9 @@ public sealed class SecureNowSnapshotSeededTenantIsolationTests
                     {
                         RequestServices = services,
                         User = new ClaimsPrincipal(new ClaimsIdentity(
-                            [new Claim(ClaimTypes.NameIdentifier, "tenant-isolation-test-operator")], "test"))
+                            [new Claim(ClaimTypes.NameIdentifier, "tenant-isolation-test-operator"),
+                             new Claim("archlucid.resource_entitlement",
+                                 $"evidence.read:{scope.TenantId:D}:{scope.WorkspaceId:D}:{scope.ProjectId:D}:{Run:D}")], "test"))
                     }
                 }
             };

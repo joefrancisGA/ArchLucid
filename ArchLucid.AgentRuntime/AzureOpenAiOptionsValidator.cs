@@ -28,6 +28,12 @@ public sealed class AzureOpenAiOptionsValidator : IValidateOptions<AzureOpenAiOp
                 $"{AzureOpenAiOptions.SectionName}:{nameof(AzureOpenAiOptions.MaxRetries)} must be zero or greater.");
         }
 
+        if (options.CompletionNetworkTimeoutSeconds is < 5 or > 180)
+        {
+            return ValidateOptionsResult.Fail(
+                $"{AzureOpenAiOptions.SectionName}:{nameof(AzureOpenAiOptions.CompletionNetworkTimeoutSeconds)} must be between 5 and 180 seconds.");
+        }
+
         int effectiveMaxCompletionTokens = options.MaxCompletionTokens <= 0
             ? AzureOpenAiOptions.DefaultMaxCompletionTokens
             : options.MaxCompletionTokens;

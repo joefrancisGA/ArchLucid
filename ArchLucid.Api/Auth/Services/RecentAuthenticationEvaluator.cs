@@ -20,10 +20,8 @@ public static class RecentAuthenticationEvaluator
 
             foreach (Claim claim in authTimeClaims)
             {
-                if (!long.TryParse(claim.Value, out long authTimeSeconds))
+                if (!TryParseUnixInstant(claim.Value, out DateTimeOffset instant))
                     continue;
-
-                DateTimeOffset instant = DateTimeOffset.FromUnixTimeSeconds(authTimeSeconds);
 
                 if (latest is null || instant > latest)
                     latest = instant;
@@ -41,16 +39,29 @@ public static class RecentAuthenticationEvaluator
 
         foreach (Claim claim in iatClaims)
         {
-            if (!long.TryParse(claim.Value, out long iatSeconds))
+            if (!TryParseUnixInstant(claim.Value, out DateTimeOffset instant))
                 continue;
-
-            DateTimeOffset instant = DateTimeOffset.FromUnixTimeSeconds(iatSeconds);
 
             if (latestIat is null || instant > latestIat)
                 latestIat = instant;
         }
 
         return latestIat;
+    }
+
+    // A syntactically valid Int64 can still be outside DateTimeOffset's supported UTC range.
+    // Treat those claims as malformed rather than turning step-up validation into a 500.
+    private static bool TryParseUnixInstant(string raw, out DateTimeOffset instant)
+    {
+        instant = default;
+
+        if (!long.TryParse(raw, out long seconds)
+            || seconds < DateTimeOffset.MinValue.ToUnixTimeSeconds()
+            || seconds > DateTimeOffset.MaxValue.ToUnixTimeSeconds())
+            return false;
+
+        instant = DateTimeOffset.FromUnixTimeSeconds(seconds);
+        return true;
     }
 
     public static bool HasRecentAuthentication(
