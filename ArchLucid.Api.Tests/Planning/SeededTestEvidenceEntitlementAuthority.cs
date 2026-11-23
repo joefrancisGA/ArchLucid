@@ -33,8 +33,14 @@ internal sealed class SeededTestEvidenceEntitlementAuthority : IEvidenceEntitlem
             && resource.WorkspaceId == ScopeIds.DefaultWorkspace
             && resource.ProjectId == ScopeIds.DefaultProject
             && _seededRuns.ContainsKey(resource.EvidenceId);
+
         Interlocked.Increment(ref _checkedRequests);
-        if (allowed) Interlocked.Increment(ref _grantedRequests);
+
+        if (allowed)
+        {
+            Interlocked.Increment(ref _grantedRequests);
+        }
+
         return Task.FromResult(allowed);
     }
 }
