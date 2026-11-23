@@ -2,6 +2,13 @@
 
 ## Zone: ui-lib-governance
 
+2026-11-23 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reread findings search, approval status filter, assigned-to-me sort, density sort, and due-date helpers after the 2026-11-23 dry pass. No row met hunt-ready: approval status still matches only `approved` (Promoted/Activated remain uncited), and assigned-to-me severity ranks use title case while the findings signal sort lowercases. Seeded five `(candidate)` monitors. Private beta: n/a.
+
+- [ ] (candidate) `compareSeverity` — title-case severity ranks only — locus: `SEVERITY_ORDER` keys `Critical`/`High`; input: queue row severity `critical`; wrong outcome: rank 99 while `sortGovernanceFindingsRowsBySignal` ranks it first; reachability: register mapper stores trimmed API severity (monitor; shipped enums are title case).
+- [ ] (candidate) `parseGovernanceFindingsSearchQuery` — reader keeps padding the writer strips — locus: returns `raw` untrimmed; input: `q=%20vault%20`; wrong outcome: URL chip and matcher disagree until the next write; reachability: pasted findings search (monitor; matcher trims).
+- [ ] (candidate) `isApprovedStatus` — `Promoted` and `Activated` miss the approved filter — locus: equality on `approved` only; input: approval row status `Promoted`; wrong outcome: row hidden under Approved; reachability: approval queue status strings (monitor; prior dry pass did not cite a producer).
+- [ ] (candidate) `resolveGovernanceAssignedToMeOldestFinding` — null `agingDays` sorts as `-1` — locus: `?? -1`; input: finding with null aging and an older due date; wrong outcome: a zero-aging row wins oldest; reachability: assigned-to-me rows missing aging (monitor).
+- [ ] (candidate) `parseDecisionRegisterCategoryFromSearch` — reader does not trim — locus: returns raw category; input: `category=%20Risk%20`; wrong outcome: filter chip misses the trimmed writer value; reachability: decision register category URL (monitor).
 2026-11-23 thorough hunt (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). The only hunt-ready row was a reseed stub with no locus, input, or wrong outcome, so it is `(invalid)`. Re-read `governanceFindingsClearAllFiltersHref`, `governanceFindingsClearReviewScopeHref`, `governanceFindingsNlTitleHrefFromSearch`, and `resolveGovernanceScopedReviewOpenHref`. Cheap-disproof closed the four pass-1 monitors: clear-all deletes `bulkDispConfirm`, clear-scope deletes keyboard triage params, row review href trims `runId` before encoding, and title facets go through `URLSearchParams.set`. Inverse checks on architecture-id case, approval status `Promoted`/`Activated`, and the untrimmed findings search reader did not meet the hunt-ready bar. Private beta: n/a.
 
 2026-11-20 thorough hunt #2 (hit): cheap-disproof closed four header `(hunt-ready)` URL helpers — **valid-no-repro** `governanceFindingsClearAllFiltersHref` drops bulk confirm without selection (`governance-findings-clear-all-filters-url.test.ts`), **valid-no-repro** `governanceFindingsClearReviewScopeHref` clears keyboard triage with `runId` removal (suite), **valid-no-repro** `governanceFindingQueueRowReviewHref` trims padded ids via `resolveGovernanceScopedReviewOpenHref`, **valid-no-repro** NL title/`URLSearchParams` encoding for embedded `=` (title facet join path). Promoted architecture scope chip: `governanceFindingsArchitectureScopeHrefFromSearch` wrote whitespace-only `architectureId` into the URL instead of canonical `all`; normalize trim and map empty to `architectureId=all`; regression `treats whitespace-only architecture id as all-architectures scope without dropping filters`; architecture-scope suite **6/6**. Scoped governance URL cluster **26/26** (pick-review, clear filters, clear scope, architecture-scope). Private beta: bad architecture scope input no longer leaves padded `architectureId` query junk on the findings queue.
@@ -33,7 +40,7 @@
 - **aliases:** governance lib; findings URL helpers
 - **paths:** archlucid-ui/src/lib/governance/
 - **test-filter:** lib/governance
-- **hunts:** 1
+- **hunts:** 2
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
