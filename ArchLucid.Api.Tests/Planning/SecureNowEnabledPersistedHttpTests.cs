@@ -2,6 +2,8 @@ using System.Net;
 using System.Net.Http.Json;
 using ArchLucid.Api.Controllers.Planning;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Core.Configuration;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +25,34 @@ public sealed class SecureNowEnabledPersistedHttpTests(SecureNowExchangeEnabledA
         // The production entitlement service intentionally denies all reads.
         // This host-only server-side test ACL grants the exact seeded run.
         factory.GrantSeededTestRun(run);
+
+        // Prove the real scoped SQL query sees the persisted graph on Runs,
+        // not merely a separately stored GraphSnapshots row. This exact
+        // query is what the HTTP temporal resolver uses before authorization
+        // of the resolved run; a false-negative seed must fail here.
+        using (IServiceScope seededScope = factory.Services.CreateScope())
+        {
+            IRunRepository runs =
+                seededScope.ServiceProvider.GetRequiredService<IRunRepository>();
+            ScopeContext ownerScope = new()
+            {
+                TenantId = ScopeIds.DefaultTenant,
+                WorkspaceId = ScopeIds.DefaultWorkspace,
+                ProjectId = ScopeIds.DefaultProject
+            };
+            RunRecord? pinned = await runs.GetByIdAsync(
+                ownerScope, run, CancellationToken.None);
+            pinned.Should().NotBeNull();
+            pinned!.GraphSnapshotId.Should().NotBeNull(
+                because: "the temporal query filters Runs.GraphSnapshotId IS NOT NULL");
+            RunRecord? resolved = await runs.GetLatestWithGraphAtOrBeforeAsync(
+                ownerScope, pinned.ProjectId, DateTime.UtcNow.AddMinutes(1),
+                CancellationToken.None);
+            resolved.Should().NotBeNull(
+                because: "the seeded run must meet the SQL temporal graph predicate");
+            resolved!.RunId.Should().Be(run);
+        }
+
         string url = $"/v1/evidence-graph/snapshot?runId={run:D}"
             + $"&asOf={Uri.EscapeDataString(DateTimeOffset.UtcNow.AddMinutes(1).ToString("O"))}"
             + "&secureNowExchange=true";
