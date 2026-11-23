@@ -49,6 +49,53 @@ public sealed class TenantTrialLifecycleCoreTests
     }
 
     [Fact]
+    public void ApplyPersistTrialSignupBaselineReviewCycle_preserves_preseed_diagnostics()
+    {
+        DateTimeOffset failureUtc = DateTimeOffset.Parse("2026-11-20T12:10:00Z");
+        DateTimeOffset capturedUtc = failureUtc.AddHours(2);
+        TenantRecord existing = new()
+        {
+            Id = TenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Free,
+            CreatedUtc = DateTimeOffset.Parse("2026-11-01T00:00:00Z"),
+            TrialStatus = TrialLifecycleStatus.Active,
+            TrialArchitecturePreseedEnqueuedUtc = failureUtc.AddMinutes(-10),
+            TrialArchitecturePreseedAttemptCount = 4,
+            TrialArchitecturePreseedFailedUtc = failureUtc,
+            TrialArchitecturePreseedLastError = "Retryable sample-run failure",
+            TrialRunsUsed = 2,
+            TrialSeatsUsed = 1,
+            TrialFirstManifestCommittedUtc = failureUtc.AddDays(-1),
+            TrialWelcomeRunId = Guid.NewGuid(),
+        };
+
+        TenantTrialLifecycleCore.PersistTrialSignupBaselineReviewCycleMutation mutation = new()
+        {
+            BaselineReviewCycleHours = 17.5m,
+            BaselineReviewCycleSource = "operator-baseline-correction",
+            BaselineReviewCycleCapturedUtc = capturedUtc,
+        };
+
+        TenantRecord actual = TenantTrialLifecycleCore.ApplyPersistTrialSignupBaselineReviewCycle(
+            existing, mutation);
+
+        actual.BaselineReviewCycleHours.Should().Be(17.5m);
+        actual.BaselineReviewCycleSource.Should().Be("operator-baseline-correction");
+        actual.BaselineReviewCycleCapturedUtc.Should().Be(capturedUtc);
+        actual.TrialArchitecturePreseedAttemptCount.Should().Be(4);
+        actual.TrialArchitecturePreseedFailedUtc.Should().Be(failureUtc);
+        actual.TrialArchitecturePreseedLastError.Should().Be("Retryable sample-run failure");
+        actual.TrialArchitecturePreseedEnqueuedUtc.Should().Be(existing.TrialArchitecturePreseedEnqueuedUtc);
+        actual.TrialWelcomeRunId.Should().Be(existing.TrialWelcomeRunId);
+        actual.TrialFirstManifestCommittedUtc.Should().Be(existing.TrialFirstManifestCommittedUtc);
+        actual.TrialRunsUsed.Should().Be(2);
+        actual.TrialSeatsUsed.Should().Be(1);
+        actual.Id.Should().Be(existing.Id);
+    }
+
+    [Fact]
     public void TryApplyMarkTrialConverted_returns_null_when_not_active()
     {
         TenantRecord existing = CreateTenant(trialStatus: TrialLifecycleStatus.Converted);

@@ -241,6 +241,15 @@ public interface IRunRepository
     /// </summary>
     Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(IReadOnlyList<Guid> runIds, CancellationToken ct);
 
+    /// <summary>
+    ///     Archives requested run IDs only if their tenant/workspace/project scope
+    ///     matches at the point of mutation. Unlike the catalog-wide archival
+    ///     method, this is suitable for scoped admin HTTP callers. Out-of-scope
+    ///     IDs are reported as not found without revealing their existence.
+    /// </summary>
+    Task<RunArchiveByIdsResult> ArchiveRunsByIdsForScopeAsync(
+        ScopeContext scope, IReadOnlyList<Guid> runIds, CancellationToken ct);
+
     /// <summary>Archives an active run in the caller's scope only while it has no golden manifest.</summary>
     Task<RunArchiveByIdsResult> ArchiveUnsealedRunAsync(ScopeContext scope, Guid runId, CancellationToken ct);
 
