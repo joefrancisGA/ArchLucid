@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "original_pinned_lineage_passed_exact_head_CI_failure_remediation_submitted",
-  "next_priority": "Inspect exact PR #7822 head on automatic Aspects run 45188327546, FND-011 run 45188326617 and CI run 45188327966. Prior head d4773ecc failed FND-011 owner 200 requirement (returned 404) and several real CI guards. This run separated test helper classes, repaired library audience scope, removed a sensitive log token identifier and invalid TSX marker; added test-only read-only ordinary snapshot probe + seed ACL decision counts to isolate owner 404 without bypassing security. If owner still returns 404, compare ordinary snapshot response vs exchange ACL access count, resolve real root cause, preserve foreign 404. Do not merge until all required checks pass. Then continue full 900-source/defect identity reconciliation before reporting any new comparable rate.",
+  "state": "exact_head_CI_guard_and_FND011_temporal_seed_repairs_submitted",
+  "next_priority": "Inspect PR #7822 newest head automatic CI: docs audience/scope and pre-corset control flow spacing guards, then FND-011 owner 200 / foreign 404 persisted SQL snapshot test. The prior failure was confirmed as an unpinned Runs.GraphSnapshotId despite a persisted GraphSnapshots row, so new isolated opt-in test seeding pins the snapshot chain BEFORE setting sealed GoldenManifestId; existing other seeding call sites unchanged. On any failure use exact head logs and repair narrowly without weakening tenant security. Then resume current 900-cohort distinct-defect discovery and reviewed source coverage mapping; do not compute density or SMA series until comparable cohort recomputed.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -570,6 +570,47 @@
       "new_comparable_rate": null,
       "no_full_master_build": true,
       "do_not_merge_before_required_green": true
+    },
+    "ci_fix_20261123_0950_et": {
+      "previous_failed_head": "3fc52ab25ed52ea8c0e407d1e73539011dfb1e4d",
+      "evidence": {
+        "fnd011_run_id": 45188466944,
+        "fnd011_job_id": 137740187241,
+        "full_pr_ci_run_id": 45188466687,
+        "pre_corset_job": 137751650268,
+        "docs_audience_job": 137751650329,
+        "docs_scope_job": 137751650602,
+        "aspects_passed_run_id": 45188467118
+      },
+      "fixes": [
+        {
+          "path": "ArchLucid.Api.Tests/Planning/SeededTestEvidenceEntitlementAuthority.cs",
+          "issue": "control-flow spacing guard missing blank line before if",
+          "correction": "format guarded increment without changing authorization"
+        },
+        {
+          "path": "docs/library/AL_BUG_PICKER_RESET_RUNBOOK.md",
+          "issue": "scope blockquote not first nonblank line",
+          "correction": "move existing Scope declaration before title"
+        },
+        {
+          "path": "ArchLucid.Api.Tests/AdvisoryIntegrationSeed.cs",
+          "issue": "SQL temporal graph resolver requires Runs.GraphSnapshotId nonnull; seed persisted GraphSnapshots independently but did not pin run to graph; owner ordinary GET returned RESOURCE_NOT_FOUND before exchange authorization",
+          "correction": "new optional isolated test-only pinTemporalSnapshotChain parameter; construct run with null GoldenManifestId, seed snapshots, update all run snapshot anchors, seal GoldenManifestId before persisting manifest; existing seed default semantics preserved"
+        },
+        {
+          "path": "ArchLucid.Api.Tests/Planning/SecureNowEnabledPersistedHttpTests.cs",
+          "issue": "positive HTTP test used legacy seed without Run.GraphSnapshotId",
+          "correction": "opt-in to complete temporal seed, retain owner 200 and foreign 404 assertions"
+        }
+      ],
+      "status": "committed_pending_automatic_exact_head_CI",
+      "newly_independently_verified_reviewed_LOC": 0,
+      "new_reviewed_LOC": 0,
+      "repeated_reviewed_LOC": 0,
+      "newly_verified_distinct_defects": 0,
+      "new_comparable_rate": null,
+      "master_full_build_dispatched": false
     }
   },
   "latest_restoration_run": {
