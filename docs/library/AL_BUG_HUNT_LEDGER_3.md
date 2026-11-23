@@ -1213,6 +1213,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-11-23 seed hunt (hit): no open rows remained. A blank `--run-id` token was accepted, and a whitespace run id selects offline fixture mode, which can pass. `GetOptionValue` now trims every value option and rejects a blank token. Regressions `Parse_RejectsBlankValueForRunId` and `Parse_TrimsRunIdValue`. Scoped TenantIsolationNegativeTestRunnerTests **63/63**. Private beta: An invited operator who runs the tenant-isolation check with an empty run id gets a usage error instead of an offline fixture pass. A padded run id is used as the live run id.
+
+- [x] (proven) `TenantIsolationNegativeTestOptions.GetOptionValue` — blank `--run-id` falls through to offline fixture mode — **hit 2026-11-23 seed hunt:** trim the value and reject a blank token; regressions above. Private beta: An invited operator who runs the tenant-isolation check with an empty run id gets a usage error instead of an offline fixture pass. A padded run id is used as the live run id.
+
 2026-11-23 seed hunt (hit): the five open monitors repeat claims closed on 2026-11-02 (wrong-path artifact 404, live overall SKIP, empty 200 list body, conflicting hasMore, json exit code). Promoted offline replay: `EvaluateReplayProbe` treated captured list JSON as authoritative for `hasMore` but still passed `exclude-run-id` when that JSON contained the manifest primary run and the outcome said foreign runId absent. Replay now fails when a scannable evidence fragment contains the primary run. Regression `RunOffline_FailsExcludeRunIdProbeWhenEvidenceListContainsPrimaryRunIdDespiteAbsentOutcome`. Scoped TenantIsolationNegativeTestRunnerTests **61/61**. Private beta: An invited operator replaying a tenant-isolation fixture no longer gets a pass when the captured run list still contains the primary run. The check fails that captured leak.
 
 - [x] (proven) `TenantIsolationNegativeTestOfflineRunner.EvaluateReplayProbe` — captured list JSON contains the primary run while the outcome says foreign runId absent — **hit 2026-11-23 seed hunt:** `EmbeddedEvidenceContainsPrimaryRunId`; regression above. Private beta: An invited operator replaying a tenant-isolation fixture no longer gets a pass when the captured run list still contains the primary run. The check fails that captured leak.
@@ -1409,8 +1413,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

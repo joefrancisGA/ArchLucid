@@ -27,6 +27,25 @@ public sealed class TenantIsolationNegativeTestRunnerTests
     }
 
     [Fact]
+    public void Parse_RejectsBlankValueForRunId()
+    {
+        Action blank = () => TenantIsolationNegativeTestOptions.Parse(["--run-id", ""]);
+        Action whitespace = () => TenantIsolationNegativeTestOptions.Parse(["--run-id", "   "]);
+
+        blank.Should().Throw<ArgumentException>().WithMessage("*--run-id*requires a value*");
+        whitespace.Should().Throw<ArgumentException>().WithMessage("*--run-id*requires a value*");
+    }
+
+    [Fact]
+    public void Parse_TrimsRunIdValue()
+    {
+        TenantIsolationNegativeTestOptions options = TenantIsolationNegativeTestOptions.Parse(
+            ["--run-id", "  aaaaaaaa-1111-1111-1111-111111111111  "]);
+
+        options.RunId.Should().Be("aaaaaaaa-1111-1111-1111-111111111111");
+    }
+
+    [Fact]
     public void EvaluateDenyStatus_Treats404And403AsPass()
     {
         TenantIsolationNegativeTestAggregator.EvaluateDenyStatus(404).Should().Be(TenantIsolationNegativeTestVerdict.Pass);

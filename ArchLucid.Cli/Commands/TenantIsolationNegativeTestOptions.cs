@@ -43,12 +43,20 @@ internal sealed class TenantIsolationNegativeTestOptions
             if (!string.Equals(args[index], optionName, StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            if (index == args.Count - 1 || args[index + 1].StartsWith("--", StringComparison.Ordinal))
+            if (index == args.Count - 1)
             {
                 throw new ArgumentException($"Option '{optionName}' requires a value.", optionName);
             }
 
-            return args[index + 1];
+            // A blank token is not a value. Trimmed padding must not change which mode the command runs.
+            string value = args[index + 1].Trim();
+
+            if (value.Length == 0 || value.StartsWith("--", StringComparison.Ordinal))
+            {
+                throw new ArgumentException($"Option '{optionName}' requires a value.", optionName);
+            }
+
+            return value;
         }
 
         return null;
