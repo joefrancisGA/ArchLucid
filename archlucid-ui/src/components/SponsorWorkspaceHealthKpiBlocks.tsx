@@ -32,15 +32,24 @@ import { cn } from "@/lib/utils";
 import type { SponsorWorkspaceHealthKpiViewModel } from "./use-sponsor-workspace-health-dashboard";
 import { WORKSPACE_HEALTH_KPI_CARD_AS_OF_LINE } from "@/lib/insights/workspace-health-kpi-card-as-of-copy";
 import { WORKSPACE_HEALTH_KPI_TILES_POINT_IN_TIME_NOT_LOAD_FAILURE_LINE } from "@/lib/insights/workspace-health-kpi-tiles-point-in-time-not-load-failure-copy";
+import { WORKSPACE_HEALTH_KPI_CARD_POINT_IN_TIME_NOT_LOAD_FAILURE_LINE } from "@/lib/insights/workspace-health-kpi-card-point-in-time-not-load-failure-copy";
 
 function WorkspaceHealthKpiCardAsOfLine(): React.JSX.Element {
   return (
-    <p
-      className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-      data-testid="sponsor-workspace-health-kpi-card-as-of"
-    >
-      {WORKSPACE_HEALTH_KPI_CARD_AS_OF_LINE}
-    </p>
+    <>
+      <p
+        className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="sponsor-workspace-health-kpi-card-as-of"
+      >
+        {WORKSPACE_HEALTH_KPI_CARD_AS_OF_LINE}
+      </p>
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="workspace-health-kpi-card-point-in-time-not-load-failure"
+      >
+        {WORKSPACE_HEALTH_KPI_CARD_POINT_IN_TIME_NOT_LOAD_FAILURE_LINE}
+      </p>
+    </>
   );
 }
 
