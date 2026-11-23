@@ -20,6 +20,7 @@ from aspects_reconcile_historical_lineage import blob_lines
 from aspects_reconcile_recovered_candidates import intervals
 from aspects_validate_historical_pins import git, SHA
 from aspects_verify_first_parent_lineage import (
+    bounded_unique_unchanged_pairs,
     git_verified_changed_first_parent_orders, trace_unique_first_parent_lines,
 )
 
@@ -128,6 +129,22 @@ def proof(repo: Path, original: dict, comparators: dict,
                comparators.get("candidate_expected_nonblank_loc_other_paths")):
         raise ValueError("candidate 79/203 path-level original-pin eligibility drift")
 
+    # Compute an endpoint TEXT bound separately from full first-parent proof.
+    # Only lines unique in both endpoint blobs and present in an ACTUAL
+    # original pinned review span are eligible. A matching string is never
+    # promoted to a proven review or a continuous line by this calculation.
+    unique_endpoint_candidates = set()
+    for _excel, _sha, _path, pinned_blob, reviewed_lines in records:
+        candidate_blob = by_path[_path]["blob"]
+        text_map, strategy = bounded_unique_unchanged_pairs(
+            source(candidate_blob), source(pinned_blob))
+        if text_map is None:
+            raise ValueError("unique endpoint source comparison unavailable: " + strategy)
+        unique_endpoint_candidates.update(
+            candidate_line for candidate_line, pinned_line in text_map.items()
+            if candidate_line in by_path[_path]["selected"] and pinned_line in reviewed_lines
+        )
+
     matches = set()
     overlaps_same_blob = set()
     skipped = Counter()
@@ -180,6 +197,8 @@ def proof(repo: Path, original: dict, comparators: dict,
         raise ValueError("lineage proof exceeded Git-verified candidate source")
     if len(matches) > len(selected_candidate):
         raise ValueError("candidate source line proof exceeded original source")
+    if not matches.issubset(unique_endpoint_candidates):
+        raise ValueError("first-parent proven matches exceed unique reviewed endpoint text ceiling")
     return {
         "status":"row12_candidate_to_original_pins_first_parent_path_proof",
         "provenance":"Git-at-reported-review-commit source candidate vs three exact independently originally pinned review spans",
@@ -194,6 +213,11 @@ def proof(repo: Path, original: dict, comparators: dict,
         "candidate_lines_on_path_with_original_pin":len(selected_candidate),
         "candidate_lines_on_paths_without_original_pin":
             candidate_nonblank_total-len(selected_candidate),
+        "unique_text_endpoint_matching_candidates_not_lineage_proof":
+            len(unique_endpoint_candidates),
+        "unique_text_endpoint_candidate_line_numbers":
+            sorted(unique_endpoint_candidates),
+        "upper_bound_is_not_first_parent_proof":True,
         "original_pinned_review_rows_reverified":len(records),
         "unique_original_pinned_review_commits":len({r[1] for r in records}),
         "exact_same_blob_candidate_line_identities":len(overlaps_same_blob),
