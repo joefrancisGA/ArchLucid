@@ -20,6 +20,8 @@ import re
 from statistics import mean
 from xml.sax.saxutils import escape
 
+from aspects_historical_pinned_coverage import audited_historical_source_coverage
+
 ROOT = Path("docs/engineering/aspects-historical")
 SHA = re.compile(r"^[0-9a-f]{40}$")
 LEGACY_WINDOW = 900
@@ -267,7 +269,8 @@ def verified_subset(snapshot: dict | None, *, expected_head: str | None = None) 
 def build_report(historical: list[dict], provisional: list[dict],
                  workbook600: list[dict], verified: dict | None,
                  *, inputs: dict[str, str] | None = None,
-                 expected_head: str | None = None) -> tuple[dict, list[dict], list[dict]]:
+                 expected_head: str | None = None,
+                 historical_pin_checkpoint: dict | None = None) -> tuple[dict, list[dict], list[dict]]:
     if len(historical) != 79:
         raise ValueError("expected 79 actual historical 900-window snapshots")
     historical_points = calculated_points(historical, mode="historical_900")
@@ -279,6 +282,13 @@ def build_report(historical: list[dict], provisional: list[dict],
         "captured_utc": datetime.now(timezone.utc).isoformat(),
         "publication_contract": "three_disjoint_accounting_populations_no_splicing",
         "provenance_sha256": inputs or {},
+        "historical_original_source_pin_coverage": (
+            audited_historical_source_coverage(historical_pin_checkpoint, latest_historical)
+            if historical_pin_checkpoint is not None else {
+                "status": "historical_source_pin_checkpoint_unavailable",
+                "unique_exact_path_blob_source_loc": None,
+                "defects_per_kloc_for_this_population": None,
+            }),
         "historical_900": {
             "status": "partial_workbook_historical_only",
             "actual_snapshots": len(historical_points),
@@ -307,6 +317,8 @@ def build_report(historical: list[dict], provisional: list[dict],
         },
         "current_verified_subset": verified_subset(verified, expected_head=expected_head),
         "limits": [
+            "Historical 232219 Git-matching source-pin LOC are a separate original 900-commit audit, not the 2528-line incremental ledger.",
+            "Git source pin matching alone is not proof of independently performed reviews or complete cross-revision deduplication.",
             "79 historical 900-commit capture points are not 700 distinct 900-commit snapshots.",
             "The 700-point series has 100 backprojected and 600 workbook observations, not Git-verified independent reviewed LOC.",
             "Neither historical rate can update the Git-verified population or vice versa.",
@@ -320,6 +332,7 @@ def build_report(historical: list[dict], provisional: list[dict],
 def markdown(report: dict) -> str:
     h, p, v = (report["historical_900"], report["provisional_700"],
                report["current_verified_subset"])
+    a = report["historical_original_source_pin_coverage"]
     def fmt(x, n=4):
         return "not available" if x is None else f"{x:,.{n}f}"
     def integer(x):
@@ -328,6 +341,15 @@ def markdown(report: dict) -> str:
         "# Aspects — authoritative accounting update",
         "",
         f"Generated UTC: {report['captured_utc']}",
+        "",
+        "## Historical source-pin audit — original 900-commit cohort",
+        f"- Unique exact Git path/blob source lines: **{integer(a['unique_exact_path_blob_source_loc'])}**.",
+        f"- Git-matching source line occurrences: **{integer(a.get('pinned_source_line_occurrences'))}**; repeated exact path/blob occurrences: **{integer(a.get('repeated_exact_path_blob_line_occurrences'))}**.",
+        f"- Source-pinned original review records: **{integer(a.get('git_verified_pinned_review_rows'))}** of **{integer(a.get('all_historical_review_rows'))}** historical workbook rows.",
+        f"- Audit cohort HEAD: {a.get('original_900_head_sha', 'not loaded')}",
+        f"- Archived independent source audit: {a.get('artifact_url', 'not loaded')}",
+        "- This confirms historical Git source pin integrity, NOT that all reviews occurred, complete cross-revision deduplication, or a distinct-defect numerator for this exact population.",
+        "- **Do not add these LOC to the much smaller newer source-verified ledger or calculate a blended rate.**",
         "",
         "## Current Git-verified subset (not full codebase)",
         f"- Status: **{v['status']}**; freshness: **{v['freshness']}**",
@@ -442,6 +464,8 @@ def main() -> None:
                    default=ROOT/"aspects-provisional-700-series.jsonl")
     p.add_argument("--historical-600", type=Path,
                    default=ROOT/"aspects-provisional-600-series.jsonl")
+    p.add_argument("--historical-pin-checkpoint", type=Path,
+                   default=ROOT/"audit-checkpoints"/"2026-11-23-original-900-source-pin-coverage.json")
     p.add_argument("--verified-snapshot", type=Path, default=None)
     p.add_argument("--expected-head", default=None,
                    help="Exact master-base head expected in source-verified snapshot")
@@ -454,6 +478,10 @@ def main() -> None:
     historical, sha79 = rows_from(args.historical_900)
     provisional, sha700 = rows_from(args.provisional_700)
     workbook600, sha600 = rows_from(args.historical_600)
+    if not args.historical_pin_checkpoint.is_file():
+        raise ValueError("historical original source-pin evidence checkpoint missing")
+    historical_pin_checkpoint = json.loads(
+        args.historical_pin_checkpoint.read_text(encoding="utf-8"))
     verified = None
     if args.verified_snapshot is not None:
         if not args.verified_snapshot.exists():
@@ -463,7 +491,8 @@ def main() -> None:
         historical, provisional, workbook600, verified,
         inputs={"historical_900_sha256":sha79, "provisional_700_sha256":sha700,
                 "historical_600_sha256":sha600},
-        expected_head=args.expected_head)
+        expected_head=args.expected_head,
+        historical_pin_checkpoint=historical_pin_checkpoint)
     outputs = {
         args.json_out:json.dumps(report,sort_keys=True,indent=2)+"\n",
         args.markdown_out:markdown(report),
