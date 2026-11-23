@@ -458,5 +458,35 @@
       "checkpoint": "docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row908-utf8-bom.json"
     },
     "source_backed_duplicate_relations_preserved_from_concurrent_run": 1
+  },
+  "lineage_run_2026_11_23_0550_utc": {
+    "source_workflow_run": 45119809488,
+    "source_workflow_artifact": 14792834711,
+    "source_run_completed": "success",
+    "source_run_merge_ref": "1157c917e9a3200fbab23a53d90c46c88e19c954",
+    "historical_original_900_first_parent_head": "15ac3b9abeff23e4fa8cb7a16027bf9b17211251",
+    "historical_original_900_first_parent_oldest": "6252805a908f5bf0413bb40c68cb546013ff1843",
+    "imported_rows_unchanged": 5741,
+    "original_pinned_exact_unique_loc_unchanged": 232219,
+    "original_pinned_exact_repeat_occurrences_unchanged": 6020,
+    "verified_distinct_defect_ids_added": 0,
+    "newly_verified_review_loc_added": 0,
+    "candidate_exact_only_line_identities": 95925,
+    "candidate_endpoint_matches_provisional": 6872,
+    "candidate_fully_proven_first_parent_lineage_in_artifact": 0,
+    "lineage_pairs_skipped_distance_cap": 137,
+    "old_max_intermediate_edges": 16,
+    "expanded_max_intermediate_edges_submitted_on_pr": 128,
+    "new_head_validation": "pending_at_commit_0a5bf2bf4243a4838d388883e0ef09cfa8ae3858",
+    "no_new_comparable_900_rate": true,
+    "rate_blockers": [
+      "lineage not yet proven for distance-cap pairs",
+      "cross revision remaining unreconciled",
+      "distinct defect discovery identities not yet fully proven",
+      "follow-on ledger scope unresolved"
+    ],
+    "no_full_master_build_dispatched": true,
+    "status": "actual artifact inspected and bounded implementation committed; new head CI pending",
+    "next_priority": "Inspect exact-head artifact and targeted regressions; count proven lines conservatively; preserve Gitleaks/FND gate failures as blocking."
   }
 }
