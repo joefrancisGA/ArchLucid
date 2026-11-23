@@ -76,6 +76,13 @@ internal static class ItsmInboundJsonElementReader
     {
         double rounded = Math.Round(numeric);
 
+        // Conversion from a finite double outside Int64's range is not a valid status ID.
+        // 2^63 is the first unrepresentable positive Int64 value (long.MaxValue rounds to it).
+        const double minInclusive = -9_223_372_036_854_775_808d;
+        const double maxExclusive = 9_223_372_036_854_775_808d;
+        if (rounded < minInclusive || rounded >= maxExclusive)
+            return null;
+
         if (Math.Abs(numeric - rounded) < 0.0000001d)
             return NormalizeWholeNumberStatusText((long)rounded);
 
