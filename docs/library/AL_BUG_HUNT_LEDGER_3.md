@@ -43,6 +43,14 @@
 
 ## Zone: ui-lib-product-line
 
+2026-11-23 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Reread the product-line library. No row met the hunt-ready bar. Investigation-effort number notation and zero-hour save were already fixed, and the form does not send the remaining save disagreement. Private beta: n/a.
+
+- [ ] (candidate) `SecureNowInvestigationEffortInputService.TryNormalize` — baselineHours `3` and afterHours `5` still save. The page treats that pair as invalid. The form does not send it.
+- [ ] (candidate) `remapGovernanceOperatorHref` — `/governance/findings#queue` keeps the hash on the path, so the security remap does not match. No production caller with that hash was found.
+- [ ] (candidate) `resolveProductLineAssignmentForPath` — `/security` is a nested prefix with no assignment, so an unlisted child such as `/security/remediation-factory/extra` falls through to architecture. No page exists at that path today.
+- [ ] (candidate) `formatSecureNowCitationRejectionDetail` — rejection text `Evidence:hop-1` with allowed ref `evidence:hop-1`. The regex is case-insensitive and the allow-set compare is case-sensitive. No cited model string was found.
+- [ ] (candidate) `SECURENOW_INVESTIGATION_EFFORT_GUARDRAIL` — the sentence says the page does not calculate ROI while a completed worksheet prints an ROI ratio.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted the Investigation effort exponent: the page number inputs and `Number()` accept `1e2`, but the audit save parsed with `NumberStyles.Number` and rejected that form. Both readers now allow exponent notation. Regression `SaveAsync_accepts_hourly_rate_written_as_an_exponent`; input-service tests **7/7**. Private beta: an invited SecureNow operator who types an exponent such as 1e2 in an Investigation effort number field can save that worksheet. The audit save no longer rejects the form the page already calculates.
 
 - [x] (proven) `SecureNowInvestigationEffortInputService` number parse — audit save rejected exponent form from number inputs — **hit 2026-11-23 seed hunt:** allow exponent notation on both readers; regression above.
@@ -142,7 +150,7 @@
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
