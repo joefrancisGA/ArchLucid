@@ -41,6 +41,45 @@ def git_verified_changed_first_parent_orders(
     return {allowed[sha] for sha in history}, None
 
 
+def bounded_unique_unchanged_pairs(
+    before: list[str], after: list[str], max_blob_lines: int = 4000,
+    max_linear_blob_lines: int = 100_000,
+) -> tuple[dict[int, int] | None, str]:
+    """Conservative linear fallback for capped quadratic equal-hunk mapping.
+
+    Only unique nonblank lines in identical prefix/suffix runs map. Interior,
+    reordered and duplicated text never acquires inferred source identity.
+    """
+    if max_blob_lines <= 0 or max_linear_blob_lines <= 0:
+        return None, "invalid_alignment_cap"
+    if (max(len(before), len(after)) <= max_blob_lines
+            and len(before) * len(after) <= 2_000_000):
+        return dict(unique_unchanged_pairs(before, after)), "unique_equal_hunks"
+    if max(len(before), len(after)) > max_linear_blob_lines:
+        return None, "complexity_cap"
+    from collections import Counter
+    old_counts, new_counts = Counter(before), Counter(after)
+    prefix = 0
+    common = min(len(before), len(after))
+    while prefix < common and before[prefix] == after[prefix]:
+        prefix += 1
+    suffix = 0
+    while (suffix < common - prefix
+           and before[len(before) - 1 - suffix] == after[len(after) - 1 - suffix]):
+        suffix += 1
+    mapped = {}
+    for i in range(prefix):
+        line = before[i]
+        if line.strip() and old_counts[line] == new_counts[line] == 1:
+            mapped[i + 1] = i + 1
+    for offset in range(suffix):
+        old, new = len(before) - 1 - offset, len(after) - 1 - offset
+        line = before[old]
+        if line.strip() and old_counts[line] == new_counts[line] == 1:
+            mapped[old + 1] = new + 1
+    return mapped, "unique_prefix_suffix_only"
+
+
 def trace_unique_first_parent_lines(
     ordered_shas: list[str], path: str, candidate_blob: str,
     candidate_order: int, original_blob: str, original_order: int,
@@ -99,10 +138,10 @@ def trace_unique_first_parent_lines(
             before, after = source_lines(current_blob), source_lines(next_blob)
             if before is None or after is None:
                 return {}, "missing_or_non_utf8_blob", edges
-            if (max(len(before), len(after)) > max_blob_lines
-                    or len(before) * len(after) > 2_000_000):
-                return {}, "complexity_cap", edges
-            edge_map = dict(unique_unchanged_pairs(before, after))
+            edge_map, alignment = bounded_unique_unchanged_pairs(
+                before, after, max_blob_lines=max_blob_lines)
+            if edge_map is None:
+                return {}, alignment, edges
             live = {origin: edge_map[line] for origin, line in live.items()
                     if line in edge_map}
         current_blob = next_blob
