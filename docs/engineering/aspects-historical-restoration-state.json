@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "original_pinned_900_first_parent_lineage_proven;FND011_SQL_and_seeded_test_entitlement_repair_submitted",
-  "next_priority": "On PR #7822 exact newest head, validate Aspects original-first-parent artifact, 7 passing regression tests, FND-011 .NET Projection and enabled HTTP owner=200/foreign=404 after narrowly correcting SQL bootstrap invalid EXEC(QUOTENAME) and installing a server-side test-only seeded entitlement authority. Do not weaken production default-deny entitlement or other security gates. If required checks pass, resume 900-window distinct discovery identity and unpinned original reviewed source reconciliation; do not publish new density or merge until all required checks pass.",
+  "state": "original_pinned_900_lineage_validated_FND011_two_tenant_GET_isolation_repaired_diagnostics_submitted",
+  "next_priority": "Check PR #7822 exact new head FND-011 .NET Projection Tests and HTTP & OpenAPI Verification. Prior failing projection run 45169147816 hit an unrelated architecture POST warmup HTTP 400 in GET-only unknown-run two-tenant test; new test provisions both real SQL scopes and exercises snapshot GET without POST warmup. Prior HTTP run 45169147847 still returned owner 404 despite seeded ACL; new test separately asserts feature flag and reports response body to isolate which fail-closed gate is involved. Fix only concrete failures without bypassing authorization/CI. Aspects 45169147900 succeeded with already verified 1014 original-pinned first-parent line identities. Next continue 900-window independent historical discovery identity and source coverage, no density until complete.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -515,6 +515,28 @@
       "newly_reviewed_LOC": 0,
       "newly_reconciled_distinct_discoveries": 0,
       "new_comparable_rate": null,
+      "full_master_build_dispatched": false
+    },
+    "fnd011_exact_head_diagnostics_20261123": {
+      "cause_evidence": {
+        "projection_run_id": 45169147816,
+        "failed_job_id": 137673813167,
+        "observation": "Unknown graph run two-tenant GET test failed before exercising GET due unrelated POST /v1/architecture/request warmup HTTP 400.",
+        "http_run_id": 45169147847,
+        "observation_http": "Feature-enabled persisted owner snapshot returned 404 instead of required 200; foreign 404 guard remains required."
+      },
+      "code_changes": [
+        "ArchLucid.Api.Tests/Planning/SecureNowSnapshotTwoTenantHttpTests.cs",
+        "ArchLucid.Api.Tests/Planning/SecureNowEnabledPersistedHttpTests.cs"
+      ],
+      "protection": "Retains production read entitlement and feature gates, explicit two SQL tenant/workspace/project rows, and owner=200 foreign=404 acceptance criteria; SQL host startup is still required; no skipped tests or bypass.",
+      "tests": "PR-branch CI just queued for new head; no success claim until exact-head checks complete",
+      "newly_verified_independently_reviewed_LOC": 0,
+      "newly_verified_new_LOC": 0,
+      "newly_verified_repeated_LOC": 0,
+      "newly_reconciled_distinct_defects": 0,
+      "new_comparable_density": null,
+      "previous_passed_aspects_run": 45169147900,
       "full_master_build_dispatched": false
     }
   },
