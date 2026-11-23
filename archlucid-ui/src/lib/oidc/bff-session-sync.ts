@@ -214,7 +214,7 @@ export async function resolveRpLogoutUrlFromBffSession(): Promise<string | null>
     const url =
       typeof body.url !== "string"
         ? ""
-        : normalizeOidcConfigurationString(body.url);
+        : normalizeOidcOAuthFormString(body.url);
 
     if (url.length === 0 || !isSafeOidcEndpointUrl(url)) {
       return null;

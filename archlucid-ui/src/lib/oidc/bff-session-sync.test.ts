@@ -290,6 +290,21 @@ describe("resolveRpLogoutUrlFromBffSession", () => {
     expect(url).toBe(b2cLogout);
   });
 
+
+  it("strips soft hyphens from BFF logout URLs before safety checks", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ url: "https://idp.ex\u00adample.com/logout" }),
+      })),
+    );
+
+    const url = await resolveRpLogoutUrlFromBffSession();
+
+    expect(url).toBe("https://idp.example.com/logout");
+  });
+
   it("strips zero-width characters from BFF logout URLs before safety checks", async () => {
     vi.stubGlobal(
       "fetch",
