@@ -36,6 +36,17 @@ INTERVAL_SPLIT = re.compile(RANGE_SEPARATOR)
 # fragment starts with an explicit slash-qualified repo-relative path.
 SOURCE_SENTENCE_SPLIT = re.compile(r"(?<=\d)\.\s+(?=[A-Za-z0-9_.-]+/)")
 PREFIX = "Reviewed spans (inclusive):"
+# An explicitly declared repository directory may qualify a line-oriented
+# list of RELATIVE subpaths. The subpath itself must contain '/', preventing
+# basename-only guesses. Every Git tree/blob and nonblank count is still
+# verified at the original reviewed SHA; partial rows remain quarantined.
+PREFIXED_HEADER = re.compile(
+    r"^Reviewed spans under (?P<base>[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)+):$"
+)
+PREFIXED_ITEM = re.compile(
+    rf"^- (?P<rel>[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)+) lines "
+    rf"(?P<ranges>{SPAN_TOKEN}(?:{RANGE_SEPARATOR}{SPAN_TOKEN})*)$"
+)
 
 
 def parse_explicit_unpinned(raw: object) -> list[dict] | None:
@@ -43,6 +54,28 @@ def parse_explicit_unpinned(raw: object) -> list[dict] | None:
     if not isinstance(raw, str) or "[blob " in raw:
         return None
     raw = raw.strip()
+    if raw.startswith("Reviewed spans under "):
+        pieces = raw.splitlines()
+        header = PREFIXED_HEADER.fullmatch(pieces[0])
+        if header is None or len(pieces) < 2:
+            return None
+        base = header.group("base")
+        # Only documented explicit nested subpaths are accepted. No basename
+        # searching, narrative inference, glob, or missing interval repair.
+        if any(seg in {".", ".."} for seg in base.split("/")):
+            return None
+        expanded = []
+        for item in pieces[1:]:
+            match = PREFIXED_ITEM.fullmatch(item.strip())
+            if match is None:
+                return None
+            relative = match.group("rel")
+            if any(seg in {".", ".."} for seg in relative.split("/")):
+                return None
+            expanded.append(
+                f"{base}/{relative} {match.group('ranges')}"
+            )
+        raw = "; ".join(expanded)
     if raw.startswith(PREFIX):
         raw = raw[len(PREFIX):].strip()
     if not raw:
