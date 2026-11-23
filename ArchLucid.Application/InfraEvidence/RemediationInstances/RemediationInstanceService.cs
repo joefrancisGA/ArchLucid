@@ -697,7 +697,8 @@ public sealed class RemediationInstanceService(
         {
             // The instance row is already Verified. Put it back so a passed check cannot
             // remain verified when the association statement did not save.
-            await RestoreInstanceAfterAssociationFailureAsync(scope, beforeVerify, writeFailure);
+            await RestoreInstanceAfterAssociationFailureAsync(
+                scope, beforeVerify, verified, writeFailure);
             return Failed("Verified remediation association could not be saved.");
         }
     }
@@ -705,18 +706,40 @@ public sealed class RemediationInstanceService(
     private async Task RestoreInstanceAfterAssociationFailureAsync(
         ScopeContext scope,
         RemediationInstanceRecord beforeVerify,
+        RemediationInstanceRecord verified,
         Exception writeFailure)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(beforeVerify);
+        ArgumentNullException.ThrowIfNull(verified);
         ArgumentNullException.ThrowIfNull(writeFailure);
 
         try
         {
-            // CancellationToken.None so a cancelled request token cannot skip the restore.
+            // SQL generates a NEW rowversion for the successful verification
+            // commit. The version read before verification is now stale.
+            // Reread in the same trusted scope, compare every mutable field
+            // to the exact just-verified state, then CAS its current token.
+            // Never overwrite a concurrent change that happened meanwhile.
+            ProjectScopeKey projectScope = scope.ToProjectScopeKey();
+            RemediationInstanceRecord? current = await instanceRepository.TryGetByIdInScopeAsync(
+                projectScope, verified.InstanceId, CancellationToken.None);
+            if (current?.RowVersion is not { Length: 8 }
+                || current.Status != RemediationInstanceStatus.Verified
+                || current.InstanceId != verified.InstanceId
+                || current.TenantId != verified.TenantId
+                || current.WorkspaceId != verified.WorkspaceId
+                || current.ProjectId != verified.ProjectId
+                || ToMutation(current) with { ExpectedRowVersion = null }
+                    != ToMutation(verified) with { ExpectedRowVersion = null })
+            {
+                throw new InvalidOperationException(
+                    "Verified instance was modified before association-failure recovery.");
+            }
+
             await instanceRepository.UpdateInScopeAsync(
-                scope.ToProjectScopeKey(),
-                ToMutation(beforeVerify),
+                projectScope,
+                ToMutation(beforeVerify) with { ExpectedRowVersion = current.RowVersion },
                 CancellationToken.None);
         }
         catch (Exception restoreFailure)
