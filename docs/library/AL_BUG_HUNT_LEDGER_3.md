@@ -43,6 +43,10 @@
 
 ## Zone: ui-lib-product-line
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted the Investigation effort exponent: the page number inputs and `Number()` accept `1e2`, but the audit save parsed with `NumberStyles.Number` and rejected that form. Both readers now allow exponent notation. Regression `SaveAsync_accepts_hourly_rate_written_as_an_exponent`; input-service tests **7/7**. Private beta: an invited SecureNow operator who types an exponent such as 1e2 in an Investigation effort number field can save that worksheet. The audit save no longer rejects the form the page already calculates.
+
+- [x] (proven) `SecureNowInvestigationEffortInputService` number parse — audit save rejected exponent form from number inputs — **hit 2026-11-23 seed hunt:** allow exponent notation on both readers; regression above.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted the Investigation effort save: the page accepts zero after-product hours, but `TryNormalize` still required every field to be greater than zero, so the audit save rejected that worksheet. Baseline and after-product hours now accept zero. Investigations, rate, and cost stay greater than zero. Regression `SaveAsync_accepts_zero_after_product_hours`; input-service tests **6/6**. Private beta: an invited SecureNow operator who enters zero after-product hours can save that worksheet. The audit save no longer rejects those hours as not positive.
 
 - [x] (proven) `SecureNowInvestigationEffortInputService.TryNormalize` — audit save rejected zero after-product hours — **hit 2026-11-23 seed hunt:** accept zero baseline and after-product hours; regression above.
@@ -138,8 +142,8 @@
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 17
-- **bugs-found:** 17
+- **hunts:** 18
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

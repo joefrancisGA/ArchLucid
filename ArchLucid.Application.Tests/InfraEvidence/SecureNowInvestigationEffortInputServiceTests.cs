@@ -180,6 +180,28 @@ public sealed class SecureNowInvestigationEffortInputServiceTests
         zeroCost.Succeeded.Should().BeFalse();
     }
 
+    [Fact]
+    public async Task SaveAsync_accepts_hourly_rate_written_as_an_exponent()
+    {
+        SecureNowInvestigationEffortInputService sut = CreateSut(new InMemoryAuditRepository());
+
+        SecureNowInvestigationEffortInputsSaveResult saved = await sut.SaveAsync(
+            CreateScope(),
+            new SecureNowInvestigationEffortInputsWriteRequest
+            {
+                BaselineHours = "3",
+                AfterHours = "1",
+                AnnualInvestigations = "10",
+                HourlyRate = "1e2",
+                AnnualCost = "5000",
+            },
+            "operator-actor",
+            CancellationToken.None);
+
+        saved.Succeeded.Should().BeTrue();
+        saved.Inputs!.HourlyRate.Should().Be("1e2");
+    }
+
     private static SecureNowInvestigationEffortInputsWriteRequest ValidRequest() =>
         new()
         {

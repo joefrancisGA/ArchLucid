@@ -154,6 +154,9 @@ public sealed class SecureNowInvestigationEffortInputService(
         return true;
     }
 
+    // HTML number inputs submit exponent form such as 1e2. The page calculator accepts that form.
+    private const NumberStyles EffortNumberStyle = NumberStyles.Number | NumberStyles.AllowExponent;
+
     private static bool TryReadNonNegative(
         string? raw,
         string label,
@@ -171,7 +174,7 @@ public sealed class SecureNowInvestigationEffortInputService(
             return false;
         }
 
-        if (!decimal.TryParse(stored, NumberStyles.Number, CultureInfo.InvariantCulture, out value) || value < 0m)
+        if (!decimal.TryParse(stored, EffortNumberStyle, CultureInfo.InvariantCulture, out value) || value < 0m)
         {
             errorMessage = $"{label} must be zero or greater.";
             return false;
@@ -197,7 +200,7 @@ public sealed class SecureNowInvestigationEffortInputService(
             return false;
         }
 
-        if (!decimal.TryParse(stored, NumberStyles.Number, CultureInfo.InvariantCulture, out value) || value <= 0m)
+        if (!decimal.TryParse(stored, EffortNumberStyle, CultureInfo.InvariantCulture, out value) || value <= 0m)
         {
             errorMessage = $"{label} must be a positive number.";
             return false;
