@@ -39,7 +39,8 @@ public sealed partial class CachingTenantRepository
             industryVerticalOther,
             ct);
 
-        await InvalidateAsync(tenantId, ct);
+        // The write has completed; the caller's cancellation must not strand a stale cache entry.
+        await InvalidateAsync(tenantId, CancellationToken.None);
     }
 
     /// <inheritdoc />
@@ -57,7 +58,7 @@ public sealed partial class CachingTenantRepository
             baselineReviewCycleCapturedUtc,
             ct);
 
-        await InvalidateAsync(tenantId, ct);
+        await InvalidateAsync(tenantId, CancellationToken.None);
     }
 
     /// <inheritdoc />
@@ -69,14 +70,14 @@ public sealed partial class CachingTenantRepository
         CancellationToken ct)
     {
         await _inner.UpdateBaselineAsync(tenantId, manualPrepHoursPerReview, peoplePerReview, capturedUtc, ct);
-        await InvalidateAsync(tenantId, ct);
+        await InvalidateAsync(tenantId, CancellationToken.None);
     }
 
     /// <inheritdoc />
     public async Task<bool> MarkTrialConvertedAsync(Guid tenantId, TenantTier? newCommercialTier, CancellationToken ct)
     {
         bool converted = await _inner.MarkTrialConvertedAsync(tenantId, newCommercialTier, ct);
-        await InvalidateAsync(tenantId, ct);
+        await InvalidateAsync(tenantId, CancellationToken.None);
         return converted;
     }
 
@@ -86,7 +87,7 @@ public sealed partial class CachingTenantRepository
         bool updated = await _inner.UpdateEntraTenantIdAsync(tenantId, entraTenantId, ct);
 
         if (updated)
-            await InvalidateAsync(tenantId, ct);
+            await InvalidateAsync(tenantId, CancellationToken.None);
 
         return updated;
     }
@@ -99,12 +100,19 @@ public sealed partial class CachingTenantRepository
         IDbTransaction? transaction = null)
     {
         await _inner.TryIncrementActiveTrialRunAsync(tenantId, ct, connection, transaction);
-        await InvalidateAsync(tenantId, ct);
+        await InvalidateAsync(tenantId, CancellationToken.None);
     }
 
     /// <inheritdoc />
-    public Task TryClaimTrialSeatAsync(Guid tenantId, string principalKey, CancellationToken ct) =>
-        _inner.TryClaimTrialSeatAsync(tenantId, principalKey, ct);
+    public async Task TryClaimTrialSeatAsync(Guid tenantId, string principalKey, CancellationToken ct)
+    {
+        await _inner.TryClaimTrialSeatAsync(tenantId, principalKey, ct).ConfigureAwait(false);
+
+        // A successful claim can increment TrialSeatsUsed. The write may have
+        // committed even if the request was cancelled immediately afterward,
+        // so eviction must not reuse that potentially-cancelled token.
+        await InvalidateAsync(tenantId, CancellationToken.None).ConfigureAwait(false);
+    }
 
     /// <inheritdoc />
     public Task<IReadOnlyList<Guid>> ListTrialLifecycleAutomationTenantIdsAsync(CancellationToken ct) =>
@@ -126,7 +134,7 @@ public sealed partial class CachingTenantRepository
             ct);
 
         if (recorded)
-            await InvalidateAsync(tenantId, ct);
+            await InvalidateAsync(tenantId, CancellationToken.None);
 
         return recorded;
     }
@@ -141,7 +149,7 @@ public sealed partial class CachingTenantRepository
             await _inner.TryMarkFirstManifestCommittedAsync(tenantId, committedUtc, ct);
 
         if (outcome is not null)
-            await InvalidateAsync(tenantId, ct);
+            await InvalidateAsync(tenantId, CancellationToken.None);
 
         return outcome;
     }
@@ -153,21 +161,21 @@ public sealed partial class CachingTenantRepository
         CancellationToken ct)
     {
         await _inner.E2eHarnessSetTrialExpiresUtcAsync(tenantId, expiresUtc, ct);
-        await InvalidateAsync(tenantId, ct);
+        await InvalidateAsync(tenantId, CancellationToken.None);
     }
 
     /// <inheritdoc />
     public async Task E2eHarnessGrantEnterpriseCommercialAsync(Guid tenantId, CancellationToken ct)
     {
         await _inner.E2eHarnessGrantEnterpriseCommercialAsync(tenantId, ct);
-        await InvalidateAsync(tenantId, ct);
+        await InvalidateAsync(tenantId, CancellationToken.None);
     }
 
     /// <inheritdoc />
     public async Task EnqueueTrialArchitecturePreseedAsync(Guid tenantId, CancellationToken ct)
     {
         await _inner.EnqueueTrialArchitecturePreseedAsync(tenantId, ct);
-        await InvalidateAsync(tenantId, ct);
+        await InvalidateAsync(tenantId, CancellationToken.None);
     }
 
     /// <inheritdoc />
@@ -181,7 +189,7 @@ public sealed partial class CachingTenantRepository
         CancellationToken ct)
     {
         await _inner.MarkTrialArchitecturePreseedCompletedAsync(tenantId, welcomeRunId, ct);
-        await InvalidateAsync(tenantId, ct);
+        await InvalidateAsync(tenantId, CancellationToken.None);
     }
 
     /// <inheritdoc />
@@ -191,7 +199,7 @@ public sealed partial class CachingTenantRepository
         CancellationToken ct)
     {
         int attempts = await _inner.IncrementTrialArchitecturePreseedAttemptAsync(tenantId, lastError, ct);
-        await InvalidateAsync(tenantId, ct);
+        await InvalidateAsync(tenantId, CancellationToken.None);
 
         return attempts;
     }

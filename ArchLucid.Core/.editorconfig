@@ -1,0 +1,5 @@
+# FND-017 phased enforcement: ArchLucid.Core only.
+# All other FND017 diagnostics remain advisory until mode-aware source baselines pass.
+# Compiler consumes this file for sources beneath ArchLucid.Core.
+[*.cs]
+dotnet_diagnostic.FND017001.severity = error

@@ -1,0 +1,707 @@
+{
+  "confidence": "Commit-derived source candidate; all15 fetched raw Gitblob IDs match. Historical source row unchanged. Not an original workbook blob pin or cross-revision reviewed denominator.",
+  "decoded_source_nonblank_loc": 673,
+  "defects_recorded": 0,
+  "excel_row": 908,
+  "new_comparable_density": null,
+  "new_verified_denominator_loc": 0,
+  "nonblank_definition": "Decode original bytes as utf-8-sig; preserve every line position and interior U+FEFF; only the leading UTF-8 encoding marker is removed before nonblank checks. Git blob identity remains based on original bytes.",
+  "overlap_with_prior_successful_audit": {
+    "approved_verified_denominator_increment": 0,
+    "exact_overlap_original_pinned900": 541,
+    "new_candidate_union900_ifaccepted": 104583,
+    "new_identities_absent_from_both": 132,
+    "new_vs_earlier_candidate_events_allhistory": 673,
+    "nonblank": 673,
+    "not_in_original_pinned900": 132,
+    "repeat_vs_earlier_candidate_events_allhistory": 0,
+    "repeat_with_other900_candidates": 0,
+    "row": 908,
+    "scope": "Derived candidate at original reviewed commit; excludes cross-revision inference and published denominator",
+    "unique_not_in_any_other900_candidate": 673
+  },
+  "prior_audited_rows_sha256": "d890f8beecab68473e25bdb6c765c2a6baf5628435a4c5e87687e513a06ef432",
+  "prior_evidence_run": 45088019526,
+  "raw_utf8_nonblank_loc_before_encoding_fix": 675,
+  "reported_nonblank_loc": 673,
+  "review_id": "aspects-20261120T0735-data-next-clean",
+  "reviewed_master_sha": "b975aab7635ff2b433b110ab757b5f588b45542f",
+  "schema_version": 1,
+  "source_components": 15,
+  "source_workbook_sha256": "9fab94e0cd7d642f84d37ae9b8988e72b34367a479ebdba65fb893349ade0787",
+  "sources": [
+    {
+      "blob_derived_at_reviewed_commit": "065bda6c5bdf11c134b64db83b0fd6cd179afeaa",
+      "nonblank_intervals_at_reviewed_commit": [
+        [
+          2,
+          2
+        ],
+        [
+          4,
+          9
+        ],
+        [
+          11,
+          13
+        ]
+      ],
+      "nonblank_loc": 10,
+      "original_blob_pinned": false,
+      "path": "ArchLucid.Persistence/ArtifactBundles/ArtifactBundleStatusParser.cs",
+      "raw_utf8_nonblank_loc_before_encoding_fix": 11,
+      "reported_inclusive_intervals": [
+        [
+          1,
+          13
+        ]
+      ],
+      "source_url": "https://github.com/joefrancisGA/ArchLucid/blob/b975aab7635ff2b433b110ab757b5f588b45542f/ArchLucid.Persistence/ArtifactBundles/ArtifactBundleStatusParser.cs"
+    },
+    {
+      "blob_derived_at_reviewed_commit": "a04c700d3d1e202ffbd9ff84793b1bcb88df49f0",
+      "nonblank_intervals_at_reviewed_commit": [
+        [
+          2,
+          2
+        ],
+        [
+          4,
+          10
+        ],
+        [
+          12,
+          14
+        ]
+      ],
+      "nonblank_loc": 11,
+      "original_blob_pinned": false,
+      "path": "ArchLucid.Persistence/ArtifactBundles/SynthesizedArtifactSliceStatusParser.cs",
+      "raw_utf8_nonblank_loc_before_encoding_fix": 12,
+      "reported_inclusive_intervals": [
+        [
+          1,
+          14
+        ]
+      ],
+      "source_url": "https://github.com/joefrancisGA/ArchLucid/blob/b975aab7635ff2b433b110ab757b5f588b45542f/ArchLucid.Persistence/ArtifactBundles/SynthesizedArtifactSliceStatusParser.cs"
+    },
+    {
+      "blob_derived_at_reviewed_commit": "131607c42adeba3c76249779288e2660c9233caa",
+      "nonblank_intervals_at_reviewed_commit": [
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          5,
+          13
+        ],
+        [
+          15,
+          19
+        ],
+        [
+          21,
+          25
+        ],
+        [
+          27,
+          31
+        ],
+        [
+          33,
+          37
+        ],
+        [
+          39,
+          43
+        ],
+        [
+          45,
+          49
+        ],
+        [
+          51,
+          55
+        ],
+        [
+          57,
+          61
+        ],
+        [
+          63,
+          68
+        ],
+        [
+          70,
+          76
+        ]
+      ],
+      "nonblank_loc": 64,
+      "original_blob_pinned": false,
+      "path": "ArchLucid.Persistence/ArtifactBundles/ArtifactBundleStorageRow.cs",
+      "raw_utf8_nonblank_loc_before_encoding_fix": 64,
+      "reported_inclusive_intervals": [
+        [
+          1,
+          76
+        ]
+      ],
+      "source_url": "https://github.com/joefrancisGA/ArchLucid/blob/b975aab7635ff2b433b110ab757b5f588b45542f/ArchLucid.Persistence/ArtifactBundles/ArtifactBundleStorageRow.cs"
+    },
+    {
+      "blob_derived_at_reviewed_commit": "c93b0102e3de785962ab0508ed06b0138a0dda6a",
+      "nonblank_intervals_at_reviewed_commit": [
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          11
+        ]
+      ],
+      "nonblank_loc": 10,
+      "original_blob_pinned": false,
+      "path": "ArchLucid.Contracts/Persistence/Artifacts/ArtifactBundleStatus.cs",
+      "raw_utf8_nonblank_loc_before_encoding_fix": 10,
+      "reported_inclusive_intervals": [
+        [
+          1,
+          11
+        ]
+      ],
+      "source_url": "https://github.com/joefrancisGA/ArchLucid/blob/b975aab7635ff2b433b110ab757b5f588b45542f/ArchLucid.Contracts/Persistence/Artifacts/ArtifactBundleStatus.cs"
+    },
+    {
+      "blob_derived_at_reviewed_commit": "286c91ce4557bc5ab659241d7f20766907e6fa96",
+      "nonblank_intervals_at_reviewed_commit": [
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          9
+        ]
+      ],
+      "nonblank_loc": 8,
+      "original_blob_pinned": false,
+      "path": "ArchLucid.Contracts/Persistence/Artifacts/SynthesizedArtifactGenerationStatus.cs",
+      "raw_utf8_nonblank_loc_before_encoding_fix": 8,
+      "reported_inclusive_intervals": [
+        [
+          1,
+          9
+        ]
+      ],
+      "source_url": "https://github.com/joefrancisGA/ArchLucid/blob/b975aab7635ff2b433b110ab757b5f588b45542f/ArchLucid.Contracts/Persistence/Artifacts/SynthesizedArtifactGenerationStatus.cs"
+    },
+    {
+      "blob_derived_at_reviewed_commit": "b6af08392de2a2203a7f6f2040b4923a563989f5",
+      "nonblank_intervals_at_reviewed_commit": [
+        [
+          12,
+          17
+        ],
+        [
+          19,
+          25
+        ],
+        [
+          27,
+          29
+        ],
+        [
+          31,
+          33
+        ],
+        [
+          35,
+          42
+        ],
+        [
+          44,
+          46
+        ],
+        [
+          48,
+          87
+        ],
+        [
+          89,
+          91
+        ]
+      ],
+      "nonblank_loc": 73,
+      "original_blob_pinned": false,
+      "path": "ArchLucid.Persistence/GoldenManifests/GoldenManifestPhase1RelationalRead.Hydrate.cs",
+      "raw_utf8_nonblank_loc_before_encoding_fix": 73,
+      "reported_inclusive_intervals": [
+        [
+          12,
+          91
+        ]
+      ],
+      "source_url": "https://github.com/joefrancisGA/ArchLucid/blob/b975aab7635ff2b433b110ab757b5f588b45542f/ArchLucid.Persistence/GoldenManifests/GoldenManifestPhase1RelationalRead.Hydrate.cs"
+    },
+    {
+      "blob_derived_at_reviewed_commit": "e5f5244f2ad74ee36951ea0af79ab61498fee42c",
+      "nonblank_intervals_at_reviewed_commit": [
+        [
+          9,
+          22
+        ],
+        [
+          24,
+          37
+        ],
+        [
+          39,
+          53
+        ],
+        [
+          55,
+          56
+        ],
+        [
+          58,
+          59
+        ],
+        [
+          61,
+          68
+        ]
+      ],
+      "nonblank_loc": 55,
+      "original_blob_pinned": false,
+      "path": "ArchLucid.Persistence/GoldenManifests/GoldenManifestPhase1RelationalRead.Hydrate.SliceCounts.cs",
+      "raw_utf8_nonblank_loc_before_encoding_fix": 55,
+      "reported_inclusive_intervals": [
+        [
+          9,
+          68
+        ]
+      ],
+      "source_url": "https://github.com/joefrancisGA/ArchLucid/blob/b975aab7635ff2b433b110ab757b5f588b45542f/ArchLucid.Persistence/GoldenManifests/GoldenManifestPhase1RelationalRead.Hydrate.SliceCounts.cs"
+    },
+    {
+      "blob_derived_at_reviewed_commit": "f9240e708b19f5dabdb37f5d3046979a78a76c82",
+      "nonblank_intervals_at_reviewed_commit": [
+        [
+          10,
+          12
+        ],
+        [
+          14,
+          16
+        ],
+        [
+          18,
+          20
+        ]
+      ],
+      "nonblank_loc": 9,
+      "original_blob_pinned": false,
+      "path": "ArchLucid.Persistence/GoldenManifests/GoldenManifestPhase1RelationalRead.Fallback.cs",
+      "raw_utf8_nonblank_loc_before_encoding_fix": 9,
+      "reported_inclusive_intervals": [
+        [
+          10,
+          20
+        ]
+      ],
+      "source_url": "https://github.com/joefrancisGA/ArchLucid/blob/b975aab7635ff2b433b110ab757b5f588b45542f/ArchLucid.Persistence/GoldenManifests/GoldenManifestPhase1RelationalRead.Fallback.cs"
+    },
+    {
+      "blob_derived_at_reviewed_commit": "f1d7e53a4587dd7274a5cb8d30d5345b73f44f26",
+      "nonblank_intervals_at_reviewed_commit": [
+        [
+          10,
+          19
+        ],
+        [
+          21,
+          34
+        ],
+        [
+          36,
+          47
+        ],
+        [
+          49,
+          60
+        ],
+        [
+          62,
+          63
+        ],
+        [
+          65,
+          66
+        ]
+      ],
+      "nonblank_loc": 52,
+      "original_blob_pinned": false,
+      "path": "ArchLucid.Persistence/GoldenManifests/GoldenManifestPhase1RelationalRead.Provenance.cs",
+      "raw_utf8_nonblank_loc_before_encoding_fix": 52,
+      "reported_inclusive_intervals": [
+        [
+          10,
+          66
+        ]
+      ],
+      "source_url": "https://github.com/joefrancisGA/ArchLucid/blob/b975aab7635ff2b433b110ab757b5f588b45542f/ArchLucid.Persistence/GoldenManifests/GoldenManifestPhase1RelationalRead.Provenance.cs"
+    },
+    {
+      "blob_derived_at_reviewed_commit": "e956281685f7e9aceb0a1002b0bb239f50460862",
+      "nonblank_intervals_at_reviewed_commit": [
+        [
+          12,
+          23
+        ],
+        [
+          25,
+          29
+        ],
+        [
+          31,
+          32
+        ],
+        [
+          34,
+          39
+        ],
+        [
+          41,
+          45
+        ],
+        [
+          47,
+          52
+        ],
+        [
+          54,
+          58
+        ],
+        [
+          60,
+          60
+        ],
+        [
+          62,
+          68
+        ],
+        [
+          70,
+          71
+        ],
+        [
+          73,
+          73
+        ],
+        [
+          75,
+          81
+        ],
+        [
+          83,
+          84
+        ],
+        [
+          86,
+          86
+        ],
+        [
+          88,
+          91
+        ],
+        [
+          93,
+          94
+        ],
+        [
+          96,
+          98
+        ],
+        [
+          100,
+          114
+        ],
+        [
+          116,
+          117
+        ]
+      ],
+      "nonblank_loc": 88,
+      "original_blob_pinned": false,
+      "path": "ArchLucid.Persistence/GoldenManifests/GoldenManifestPhase1RelationalRead.Hydrate.Decisions.cs",
+      "raw_utf8_nonblank_loc_before_encoding_fix": 88,
+      "reported_inclusive_intervals": [
+        [
+          12,
+          117
+        ]
+      ],
+      "source_url": "https://github.com/joefrancisGA/ArchLucid/blob/b975aab7635ff2b433b110ab757b5f588b45542f/ArchLucid.Persistence/GoldenManifests/GoldenManifestPhase1RelationalRead.Hydrate.Decisions.cs"
+    },
+    {
+      "blob_derived_at_reviewed_commit": "a04d3758f0bb9b92030d6ff9c2bedf792f270c5b",
+      "nonblank_intervals_at_reviewed_commit": [
+        [
+          36,
+          47
+        ],
+        [
+          49,
+          49
+        ],
+        [
+          51,
+          53
+        ],
+        [
+          55,
+          57
+        ],
+        [
+          59,
+          61
+        ],
+        [
+          63,
+          65
+        ],
+        [
+          67,
+          69
+        ],
+        [
+          71,
+          74
+        ]
+      ],
+      "nonblank_loc": 32,
+      "original_blob_pinned": false,
+      "path": "ArchLucid.Persistence/GoldenManifests/GoldenManifestRelationalWriter.cs",
+      "raw_utf8_nonblank_loc_before_encoding_fix": 32,
+      "reported_inclusive_intervals": [
+        [
+          36,
+          74
+        ]
+      ],
+      "source_url": "https://github.com/joefrancisGA/ArchLucid/blob/b975aab7635ff2b433b110ab757b5f588b45542f/ArchLucid.Persistence/GoldenManifests/GoldenManifestRelationalWriter.cs"
+    },
+    {
+      "blob_derived_at_reviewed_commit": "bfb0d214d08653a19d0a5e440f8f87cf00de5e3e",
+      "nonblank_intervals_at_reviewed_commit": [
+        [
+          125,
+          127
+        ],
+        [
+          129,
+          150
+        ],
+        [
+          152,
+          153
+        ],
+        [
+          155,
+          157
+        ],
+        [
+          159,
+          160
+        ],
+        [
+          162,
+          165
+        ],
+        [
+          167,
+          169
+        ],
+        [
+          171,
+          189
+        ]
+      ],
+      "nonblank_loc": 58,
+      "original_blob_pinned": false,
+      "path": "ArchLucid.Persistence/GoldenManifests/GoldenManifestHasherBoundPayload.cs",
+      "raw_utf8_nonblank_loc_before_encoding_fix": 58,
+      "reported_inclusive_intervals": [
+        [
+          125,
+          189
+        ]
+      ],
+      "source_url": "https://github.com/joefrancisGA/ArchLucid/blob/b975aab7635ff2b433b110ab757b5f588b45542f/ArchLucid.Persistence/GoldenManifests/GoldenManifestHasherBoundPayload.cs"
+    },
+    {
+      "blob_derived_at_reviewed_commit": "a6fcfebd4092f012abcfccd3bb21476a839fedfa",
+      "nonblank_intervals_at_reviewed_commit": [
+        [
+          28,
+          30
+        ],
+        [
+          32,
+          46
+        ],
+        [
+          48,
+          62
+        ],
+        [
+          64,
+          79
+        ]
+      ],
+      "nonblank_loc": 49,
+      "original_blob_pinned": false,
+      "path": "ArchLucid.Persistence/GoldenManifests/GoldenManifestSerializedPayload.cs",
+      "raw_utf8_nonblank_loc_before_encoding_fix": 49,
+      "reported_inclusive_intervals": [
+        [
+          28,
+          79
+        ]
+      ],
+      "source_url": "https://github.com/joefrancisGA/ArchLucid/blob/b975aab7635ff2b433b110ab757b5f588b45542f/ArchLucid.Persistence/GoldenManifests/GoldenManifestSerializedPayload.cs"
+    },
+    {
+      "blob_derived_at_reviewed_commit": "78ea55d1a4489ab210bc8b12d9715c24d7b8bc4a",
+      "nonblank_intervals_at_reviewed_commit": [
+        [
+          15,
+          21
+        ],
+        [
+          23,
+          56
+        ],
+        [
+          58,
+          61
+        ],
+        [
+          63,
+          79
+        ],
+        [
+          81,
+          84
+        ],
+        [
+          86,
+          93
+        ],
+        [
+          95,
+          97
+        ],
+        [
+          99,
+          106
+        ],
+        [
+          108,
+          110
+        ],
+        [
+          112,
+          119
+        ],
+        [
+          121,
+          123
+        ],
+        [
+          125,
+          133
+        ],
+        [
+          135,
+          137
+        ],
+        [
+          139,
+          148
+        ],
+        [
+          150,
+          156
+        ],
+        [
+          158,
+          158
+        ],
+        [
+          160,
+          161
+        ],
+        [
+          163,
+          163
+        ],
+        [
+          165,
+          167
+        ]
+      ],
+      "nonblank_loc": 135,
+      "original_blob_pinned": false,
+      "path": "ArchLucid.Persistence/GoldenManifests/GoldenManifestInsertParameters.cs",
+      "raw_utf8_nonblank_loc_before_encoding_fix": 135,
+      "reported_inclusive_intervals": [
+        [
+          15,
+          167
+        ]
+      ],
+      "source_url": "https://github.com/joefrancisGA/ArchLucid/blob/b975aab7635ff2b433b110ab757b5f588b45542f/ArchLucid.Persistence/GoldenManifests/GoldenManifestInsertParameters.cs"
+    },
+    {
+      "blob_derived_at_reviewed_commit": "7887d4c9ea04e6a3f0fa7d82b2b0c3974def103b",
+      "nonblank_intervals_at_reviewed_commit": [
+        [
+          1,
+          1
+        ],
+        [
+          3,
+          9
+        ],
+        [
+          11,
+          15
+        ],
+        [
+          17,
+          22
+        ]
+      ],
+      "nonblank_loc": 19,
+      "original_blob_pinned": false,
+      "path": "ArchLucid.Core/Manifest/Sections/ManifestProvenance.cs",
+      "raw_utf8_nonblank_loc_before_encoding_fix": 19,
+      "reported_inclusive_intervals": [
+        [
+          1,
+          22
+        ]
+      ],
+      "source_url": "https://github.com/joefrancisGA/ArchLucid/blob/b975aab7635ff2b433b110ab757b5f588b45542f/ArchLucid.Core/Manifest/Sections/ManifestProvenance.cs"
+    }
+  ],
+  "verified_at_utc": "2026-11-23T01:04:14Z"
+}

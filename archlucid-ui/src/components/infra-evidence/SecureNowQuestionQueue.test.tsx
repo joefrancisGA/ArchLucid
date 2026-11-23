@@ -575,8 +575,9 @@ describe("SecureNowQuestionQueue", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
 
     expect(screen.getByTestId("infra-diagrams-question-resource-name")).toHaveTextContent(
-      "Policy pack question. Resource group was read from question text, not from stored scope.",
+      "Resource group question",
     );
+    expect(screen.getByText("Scope: Question scope was not stored.")).toBeInTheDocument();
     expect(screen.queryByText("Resource type was not stored")).not.toBeInTheDocument();
   });
 
@@ -601,7 +602,7 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.queryByText("Resource type was not stored")).not.toBeInTheDocument();
     expect(screen.queryByText("Resource name was stored empty.")).not.toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-question-resource-name")).toHaveTextContent(
-      "Policy pack question. Stored scope was not on this title.",
+      "Subscription question",
     );
   });
 

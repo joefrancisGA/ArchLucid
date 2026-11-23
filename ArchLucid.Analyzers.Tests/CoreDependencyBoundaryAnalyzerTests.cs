@@ -57,6 +57,52 @@ public sealed class CoreDependencyBoundaryAnalyzerTests
         Assert.Empty(diagnostics);
     }
 
+    [Theory]
+    [InlineData("ArchLucid.Host.Composition")]
+    [InlineData("ArchLucid.Host.Core")]
+    public async Task Core_referencing_host_implementation_reports_boundary(string hostAssembly)
+    {
+        var diagnostics = await AnalyzeAsync("ArchLucid.Core",
+            "using Forbidden; public class X { public SecretService Service = new(); }",
+            hostAssembly);
+        Assert.Contains(diagnostics, d => d.Id == "FND017001");
+    }
+
+    [Fact]
+    public async Task Core_does_not_flag_forbidden_namespace_in_allowed_assembly()
+    {
+        // The rule must check resolved assembly identity, not matching namespace text.
+        var diagnostics = await AnalyzeAsync("ArchLucid.Core",
+            "using Forbidden; public class X { public SecretService Service = new(); }",
+            "ArchLucid.Contracts");
+        Assert.Empty(diagnostics);
+    }
+
+    [Fact]
+    public void Core_project_is_wired_to_analyzer_and_has_scoped_enforcement()
+    {
+        DirectoryInfo? directory = new(Directory.GetCurrentDirectory());
+        for (; directory is not null; directory = directory.Parent)
+        {
+            string coreProject = Path.Combine(directory.FullName, "ArchLucid.Core", "ArchLucid.Core.csproj");
+            string coreConfig = Path.Combine(directory.FullName, "ArchLucid.Core", ".editorconfig");
+            if (!File.Exists(coreProject))
+                continue;
+
+            Assert.True(File.Exists(coreConfig), "Core must have a scoped diagnostic-severity configuration");
+            string projectText = File.ReadAllText(coreProject);
+            string configText = File.ReadAllText(coreConfig);
+            Assert.Contains("ArchLucid.Analyzers.csproj", projectText);
+            Assert.Contains("OutputItemType=\"Analyzer\"", projectText);
+            Assert.Contains("dotnet_diagnostic.FND017001.severity = error", configText);
+            Assert.DoesNotContain("dotnet_diagnostic.FND017002.severity = error", configText);
+            Assert.DoesNotContain("dotnet_diagnostic.FND017004.severity = error", configText);
+            return;
+        }
+
+        throw new FileNotFoundException("Unable to locate checked-in ArchLucid.Core source tree");
+    }
+
     [Fact]
     public async Task Core_can_use_independent_assembly()
     {

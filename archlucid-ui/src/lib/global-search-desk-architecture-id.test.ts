@@ -1,6 +1,11 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { resolveGlobalSearchDeskArchitectureId } from "@/lib/global-search-desk-architecture-id";
+import {
+  extractArchitectureIdentityIdFromPathname,
+  readCachedLastOpenArchitectureId,
+} from "@/lib/desk-continuity-preference";
+import { readRecentPrimaryReviewDeskTarget } from "@/lib/reviews/review-pin-run-url";
 
 vi.mock("@/lib/desk-continuity-preference", () => ({
   extractArchitectureIdentityIdFromPathname: vi.fn(() => null),
@@ -15,6 +20,18 @@ vi.mock("@/lib/reviews/review-pin-run-url", () => ({
 }));
 
 describe("resolveGlobalSearchDeskArchitectureId", () => {
+  // This suite shares the repository's restoreMocks:true Vitest setup.
+  // Re-seed factory mocks per case so preceding tests cannot leave a
+  // disabled/no-op cache or recent-review fixture.
+  beforeEach(() => {
+    vi.mocked(extractArchitectureIdentityIdFromPathname).mockReturnValue(null);
+    vi.mocked(readCachedLastOpenArchitectureId).mockReturnValue("arch-cached");
+    vi.mocked(readRecentPrimaryReviewDeskTarget).mockReturnValue({
+      primaryRunId: "run-recent",
+      architectureId: "arch-recent",
+    });
+  });
+
   it("prefers wire architecture id", () => {
     expect(
       resolveGlobalSearchDeskArchitectureId({

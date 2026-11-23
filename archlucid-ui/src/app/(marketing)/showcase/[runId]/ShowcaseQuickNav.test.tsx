@@ -1,5 +1,12 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
+
+// The shared setup may have eagerly imported navigation utilities. Ensure
+// this file's hoisted desk-continuity mock binds to the component under test.
+vi.hoisted(() => {
+  vi.resetModules();
+});
 
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -29,6 +36,10 @@ function samplePayload(): DemoCommitPagePreviewResponse {
 }
 
 describe("ShowcaseQuickNav", () => {
+  beforeEach(() => {
+    vi.mocked(readCachedLastOpenArchitectureId).mockReturnValue("architecture-showcase-desk");
+  });
+
   it("renders operator deep links when anonymous access is available", () => {
     render(<ShowcaseQuickNav payload={samplePayload()} operatorDeepLinksAvailable renderMode="static" />);
 

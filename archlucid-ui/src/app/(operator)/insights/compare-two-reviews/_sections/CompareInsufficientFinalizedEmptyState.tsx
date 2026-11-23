@@ -64,7 +64,10 @@ export function CompareInsufficientFinalizedEmptyState(props: CompareInsufficien
           ) : null}
           {finalizedCount === 1 ? (
             <div className="space-y-2" data-testid="compare-insufficient-finalized-one-finalized-second-empty">
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+              <p
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="compare-insufficient-finalized-one-finalized-second-empty-not-load-failure"
+              >
                 {COMPARE_INSUFFICIENT_FINALIZED_ONE_FINALIZED_SECOND_EMPTY_NOT_LOAD_FAILURE_LINE}
               </p>
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
