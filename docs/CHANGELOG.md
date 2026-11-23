@@ -5,6 +5,11 @@
 
 # ArchLucid changelog
 
+## 2026-11-23 - Score lift round 121 (batch 86): Explorer work-queue triples, attack-path diagram filter
+
+**Outcome.** Infrastructure explorer names work-queue empties combined with resource type and name prefix, type and resource group, or name prefix and resource group versus a failed catalog read. Triple bands stay exclusive of work-queue pair and category-plus-prefix bands. Attack-path diagram filter empty names a successful report read with no diagram nodes versus a failed attack-path read.
+
+**Surfaces.** Resources explorer, remediation factory attack-path report, honesty and mounted contract tests.
 ## 2026-11-23 - Score lift round 120 (batch 85): Explorer work-queue pairs, subscription scope empty
 
 **Outcome.** Infrastructure explorer names resource-group, resource-type, and name-prefix empties combined with a work queue versus a failed catalog read. Those pair bands stay exclusive of the single-filter bands. Connection status names a pinned subscription scope with every category and zero connectors versus a failed status read.
