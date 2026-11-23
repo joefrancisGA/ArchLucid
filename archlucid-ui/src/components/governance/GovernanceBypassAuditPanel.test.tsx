@@ -6,7 +6,7 @@ import { GovernanceBypassAuditPanel } from "./GovernanceBypassAuditPanel";
 const listRecentGovernanceBypassAuditEvents = vi.fn();
 
 vi.mock("@/lib/desk-continuity-preference", () => ({
-  readCachedLastOpenArchitectureId: vi.fn(() => "architecture-bypass-desk"),
+  readCachedLastOpenArchitectureId: () => "architecture-bypass-desk",
 }));
 
 vi.mock("@/lib/list-recent-governance-bypass-audit-events", () => ({
