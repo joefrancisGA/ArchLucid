@@ -148,7 +148,19 @@ public sealed partial class InMemoryRunRepository
     }
 
     /// <inheritdoc />
-    public Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(IReadOnlyList<Guid> runIds, CancellationToken ct)
+    public Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(IReadOnlyList<Guid> runIds, CancellationToken ct) =>
+        ArchiveRunsByIdsCoreAsync(runIds, scope: null, ct);
+
+    /// <inheritdoc />
+    public Task<RunArchiveByIdsResult> ArchiveRunsByIdsForScopeAsync(
+        ScopeContext scope, IReadOnlyList<Guid> runIds, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        return ArchiveRunsByIdsCoreAsync(runIds, scope, ct);
+    }
+
+    private Task<RunArchiveByIdsResult> ArchiveRunsByIdsCoreAsync(
+        IReadOnlyList<Guid> runIds, ScopeContext? scope, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(runIds);
         ct.ThrowIfCancellationRequested();
@@ -164,8 +176,8 @@ public sealed partial class InMemoryRunRepository
         foreach (Guid id in distinctOrdered)
         {
             ArchiveTransition transition = TryArchiveCurrentRun(
-                id, stamp, static _ => true, unsealedGuard: null,
-                ct, out ArchivedRunScopeRow? row);
+                id, stamp, r => scope is null || RunRepositoryCore.MatchesScope(r, scope),
+                unsealedGuard: null, ct, out ArchivedRunScopeRow? row);
 
             if (transition == ArchiveTransition.Archived)
                 archived.Add(row!);
