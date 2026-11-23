@@ -49,10 +49,14 @@ internal static class ItsmInboundJsonElementReader
         if (element.TryGetInt64(out long whole))
             return NormalizeWholeNumberStatusText(whole);
 
-        if (element.TryGetDouble(out double numeric) && double.IsFinite(numeric))
-            return TryNormalizeWholeNumberStatusText(numeric) ?? element.GetRawText();
+        string raw = element.GetRawText();
+        if (IsOutsideInt64Range(raw))
+            return raw;
 
-        return element.GetRawText();
+        if (element.TryGetDouble(out double numeric) && double.IsFinite(numeric))
+            return TryNormalizeWholeNumberStatusText(numeric) ?? raw;
+
+        return raw;
     }
 
     internal static string NormalizeStatusText(string? raw)
@@ -65,12 +69,20 @@ internal static class ItsmInboundJsonElementReader
         if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out int whole))
             return NormalizeWholeNumberStatusText(whole);
 
+        // Double rounding can hide an out-of-range integer, especially just below Int64.MinValue.
+        if (IsOutsideInt64Range(trimmed))
+            return trimmed;
+
         if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
             && double.IsFinite(numeric))
             return TryNormalizeWholeNumberStatusText(numeric) ?? trimmed;
 
         return trimmed;
     }
+
+    private static bool IsOutsideInt64Range(string value) =>
+        decimal.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out decimal exact)
+        && (exact < long.MinValue || exact > long.MaxValue);
 
     private static string? TryNormalizeWholeNumberStatusText(double numeric)
     {
