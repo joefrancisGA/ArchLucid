@@ -17,6 +17,8 @@ public sealed class SecureNowExchangeEnabledApiFactory : ArchLucidApiFactory
 
     public void GrantSeededTestRun(Guid runId) => _testEntitlements.Allow(runId);
 
+    public string TestEntitlementDiagnosticCounts => _testEntitlements.DiagnosticCounts;
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         base.ConfigureWebHost(builder);
