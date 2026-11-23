@@ -802,21 +802,56 @@ jobs:
               )
           PY
 
-      - name: Locate latest comparable master snapshot
-        if: github.event_name != 'pull_request'
+      - name: Find last comparable successful source-verified snapshot across branches
+        # A successful PR run is selected only when its exact first-parent
+        # Git history and prior evidence hash genuinely match this master base.
         env:
           GH_TOKEN: ${{ github.token }}
+          MASTER_900_HEAD: ${{ github.event.pull_request.base.sha || github.sha }}
         run: |
           mkdir -p .aspects-previous
-          prior_id="$(gh run list --workflow aspects-density-snapshot.yml --branch master --status success --limit 10 --json databaseId --jq '.[0].databaseId' || true)"
-          if [ -n "$prior_id" ] && [ "$prior_id" != "null" ]; then
-            gh run download "$prior_id" --name aspects-900-density-snapshot --dir .aspects-previous || echo 'No comparable historical artifact; delta unavailable.'
-          else
-            echo 'No prior snapshot yet; previous density and delta unavailable.'
-          fi
-          previous_file="$(find .aspects-previous -type f -name aspects-density-snapshot.json -print -quit)"
-          if [ -n "$previous_file" ]; then
-            cp "$previous_file" .aspects-previous/previous.json
+          found=0
+          while IFS= read -r prior_id; do
+            if [ -z "$prior_id" ] || [ "$prior_id" = "$GITHUB_RUN_ID" ]; then
+              continue
+            fi
+            folder=".aspects-previous/candidate-$prior_id"
+            mkdir -p "$folder"
+            if ! gh run download "$prior_id" \
+                 --name aspects-900-density-snapshot --dir "$folder" >/dev/null 2>&1; then
+              continue
+            fi
+            prior_file="$folder/aspects-density-snapshot.json"
+            if [ ! -s "$prior_file" ]; then
+              continue
+            fi
+            if PYTHONPATH=scripts python - "$MASTER_900_HEAD" "$prior_file" <<'PY'
+          import json,sys
+          from pathlib import Path
+          from aspects_density_snapshot import (
+              ordered_first_parent, cohort_identity, comparison_reason,
+          )
+          head, previous_path = sys.argv[1:]
+          cohort = cohort_identity(ordered_first_parent(Path('.'), head, 900), head, 900)
+          prior = json.loads(Path(previous_path).read_text(encoding='utf-8'))
+          reason = comparison_reason(prior, cohort)
+          if reason:
+              print(f'Prior evidence is not comparable: {reason}')
+              sys.exit(1)
+          print(f'Comparable prior evidence: {prior["head"]}')
+          PY
+            then
+              cp "$prior_file" .aspects-previous/previous.json
+              echo "ASPECTS_PRIOR_RUN_ID=$prior_id" >> "$GITHUB_ENV"
+              echo "Selected comparable successful Aspects run $prior_id"
+              found=1
+              break
+            fi
+          done < <(gh run list --workflow aspects-density-snapshot.yml \
+                    --status success --limit 40 --json databaseId \
+                    --jq '.[].databaseId' || true)
+          if [ "$found" -eq 0 ]; then
+            echo "No comparable previous snapshot; new/repeated LOC and deltas unknown."
           fi
 
       - name: Revalidate pinned source blobs and generate the 900-commit snapshot
