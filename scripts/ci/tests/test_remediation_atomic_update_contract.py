@@ -75,8 +75,13 @@ class RemediationAtomicUpdateContractTests(unittest.TestCase):
     def test_sql_implements_scoped_update(self):
         source = (ROOT / "ArchLucid.Persistence/InfraEvidence/SqlRemediationInstanceRepository.cs").read_text()
         method = source.split("public async Task UpdateInstanceInScopeAsync(", 1)[1].split("public async Task<RemediationInstanceRecord?>", 1)[0]
-        for token in ("WHERE TenantId = @TenantId", "AND WorkspaceId = @WorkspaceId", "AND ProjectId = @ProjectId", "AND InstanceId = @InstanceId"):
-            self.assertIn(token, method)
+        self.assertIn("dbo.uspRemediationUpdateScoped", method)
+        self.assertIn("CommandType.StoredProcedure", method)
+        self.assertNotIn("UPDATE dbo.RemediationInstances", method)
+        migration = (ROOT / "ArchLucid.Persistence/Migrations/427_RemediationProcedureOnlyUpdates.sql").read_text()
+        scoped = migration.split("CREATE OR ALTER PROCEDURE dbo.uspRemediationUpdateScoped", 1)[1].split("GO", 1)[0]
+        for token in ("TenantId = @TenantId", "WorkspaceId = @WorkspaceId", "ProjectId = @ProjectId", "InstanceId = @InstanceId", "RowVersion = @ExpectedRowVersion"):
+            self.assertIn(token, scoped)
 
 if __name__ == "__main__":
     unittest.main()
