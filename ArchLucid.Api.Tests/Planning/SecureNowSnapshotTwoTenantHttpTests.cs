@@ -33,6 +33,6 @@ public sealed class SecureNowSnapshotTwoTenantHttpTests(GreenfieldSqlApiFactory 
                 using HttpResponseMessage b = await clientB.GetAsync(url);
                 a.StatusCode.Should().Be(HttpStatusCode.NotFound);
                 b.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            });
+            }, includePostCreateRunWarmup: false);
     }
 }
