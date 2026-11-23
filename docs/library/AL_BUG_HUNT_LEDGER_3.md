@@ -4847,14 +4847,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-11-23 thorough hunt (dry): no rotation (shouldRotate false). Cheap-disproof closed the four discovery and keepalive candidates. The authority query is omitted on purpose: ignores hash fragments when building the discovery URL, and the B2C policy lives on the authority path (accepts B2C-style authorization and token endpoints that include required query parameters). The discovery issuer is not read by sign-in, callback, refresh, or RP logout; those paths use authorization_endpoint, token_endpoint, and end_session_endpoint, which already require http(s). A soft hyphen in discoveryUrlForAuthority only remains when a caller skips the env getter; initiate, the supplemental Google redirect, callback, refresh, and RP logout all pass getOidcAuthority or getGoogleOidcAuthority, which now strip it. A missing CSRF cookie stays ignored because the activity route returns 403 for an empty CSRF header and pulse treats 403 as unauthorized, which would clear a still-valid session. No failing repro was established. Private beta: n/a.
+
+- [x] (valid-no-repro) discoveryUrlForAuthority — the discovery URL drops the authority query string — cheap-disproof 2026-11-23 thorough hunt: ignores hash fragments when building the discovery URL; B2C policy is on the authority path.
+- [x] (valid-no-repro) parseDiscoveryDocument — issuer is stored without the http(s) check used for authorize and token endpoints — cheap-disproof 2026-11-23 thorough hunt: no sign-in, callback, refresh, or RP logout caller reads the discovery issuer.
+- [x] (valid-no-repro) discoveryUrlForAuthority — a raw authority passed to loadDiscoveryDocument still uses configuration trimming — cheap-disproof 2026-11-23 thorough hunt: every caller passes getOidcAuthority or getGoogleOidcAuthority.
+- [x] (valid-no-repro) pulseBffSessionActivity — a missing readable CSRF cookie returns ignored before the activity POST — cheap-disproof 2026-11-23 thorough hunt: activity route 403 on an empty CSRF header would otherwise clear the session.
+
 2026-11-23 seed hunt (seed to hit): no rotation (shouldRotate false). Reread discovery, token-client, jwt payload, config, and BFF sync. Authority env still used configuration trimming while client id, redirect, scope, and post-logout already use OAuth form trimming, so a soft hyphen copied into NEXT_PUBLIC_OIDC_AUTHORITY or NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY survived into the discovery host. Both getters now use normalizeOidcOAuthFormString. Config vitest 7/7. Private beta: a copied soft hyphen in the OIDC or Google authority no longer sends discovery to a different host, so sign-in still reaches the identity provider the operator configured.
 
 - [x] (proven) getOidcAuthority / getGoogleOidcAuthority — soft hyphen in the authority env survives into the discovery host — hit 2026-11-23 seed hunt: strips soft hyphens from OIDC and Google authority env overrides before discovery.
 
-- [ ] (candidate) discoveryUrlForAuthority — the discovery URL drops the authority query string — locus: parsed.origin plus pathname; input: authority https://tenant.b2clogin.com/tenant.onmicrosoft.com/v2.0?p=B2C_1_signup; wrong outcome: the well-known fetch omits the policy query; reachability: NEXT_PUBLIC_OIDC_AUTHORITY.
-- [ ] (candidate) parseDiscoveryDocument — issuer is stored without the http(s) check used for authorize and token endpoints — locus: issuer assignment after normalizeOidcConfigurationString; input: issuer javascript:alert(1) with valid https endpoints; wrong outcome: the discovery document keeps the unsafe issuer; reachability: loadDiscoveryDocument.
-- [ ] (candidate) discoveryUrlForAuthority — a raw authority passed to loadDiscoveryDocument still uses configuration trimming — locus: normalizeOidcConfigurationString inside discoveryUrlForAuthority; input: authority host containing U+00AD; wrong outcome: the well-known fetch keeps the soft hyphen when the caller skips the env getter; reachability: loadDiscoveryDocument.
-- [ ] (candidate) pulseBffSessionActivity — a missing readable CSRF cookie returns ignored before the activity POST — locus: readBffCsrfTokenFromDocument undefined branch; input: document.cookie has no BFF CSRF cookie during presenter keepalive; wrong outcome: the server idle clock is not extended; reachability: useOidcSessionKeepalive.
 
 2026-11-23 thorough hunt (hit): no rotation (shouldRotate false). Cheap-disproof: token-expiry and keepalive clear local hints only after an unauthorized activity pulse (401 or 403). That rejection already ended the server session, and the expiry-warning test clears the OIDC session when the pulse is unauthorized. Holding client hints after 401 would leave a signed-in shell. Promoted invite, bootstrap, and access-denied sign-in exits: they called clearOidcSession, which removed client hints and navigated before DELETE /api/auth/bff-session returned. A 500 left the HttpOnly cookie in place. Those exits now use endOidcBrowserSession and stay on the page when the cookie is not cleared. Invite cookie, invite exit, session, access-denied, bootstrap client, and access-denied buyer-polished vitest passed 117/117. Private beta: if sign-in again cannot clear the session cookie, the operator stays signed in on the invite, bootstrap, or access-denied page and can retry, instead of landing on sign-in while API calls still carry the cookie.
 
@@ -8168,9 +8171,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 4
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
 - **related-pd-tb:** none
