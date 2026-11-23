@@ -42,39 +42,12 @@ public sealed partial class SqlRemediationInstanceRepository
                 "Scoped approval requires a matching actor, evidence and expected rowversion.");
         }
 
-        const string updateSql = """
-            UPDATE dbo.RemediationInstances
-            SET Status = @ApprovedStatus,
-                ApprovedByActorKey = @ApprovedByActorKey,
-                ApprovedUtc = @ApprovedUtc,
-                UpdatedUtc = @UpdatedUtc
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId
-              AND InstanceId = @InstanceId
-              AND Status = @PreflightPassedStatus
-              AND RowVersion = @ExpectedRowVersion
-              AND PreflightSnapshotId IS NOT NULL
-              AND PreflightResultJson IS NOT NULL
-              AND LEN(LTRIM(RTRIM(PreflightResultJson))) > 0
-              AND LOWER(LTRIM(RTRIM(CreatedByActorKey))) <> LOWER(@ApprovedByActorKey);
-            """;
-        const string insertEvidenceSql = """
-            INSERT INTO dbo.RemediationEvidence
-                (EvidenceId, InstanceId, TenantId, Phase, PayloadJson,
-                 ActorKey, CorrelationId, CreatedUtc)
-            VALUES
-                (@EvidenceId, @InstanceId, @TenantId, @Phase, @PayloadJson,
-                 @ActorKey, @CorrelationId, @CreatedUtc);
-            """;
-
+        // The stored procedure owns the approval UPDATE and evidence INSERT in
+        // one transaction. The app identity cannot UPDATE the table directly.
         await using SqlConnection connection =
             await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        await using SqlTransaction transaction =
-            (SqlTransaction)await connection.BeginTransactionAsync(cancellationToken);
-
-        int updated = await connection.ExecuteAsync(new CommandDefinition(
-            updateSql,
+        int updated = await connection.QuerySingleAsync<int>(new CommandDefinition(
+            "dbo.uspRemediationCommitApproval",
             new
             {
                 scope.TenantId,
@@ -82,36 +55,20 @@ public sealed partial class SqlRemediationInstanceRepository
                 scope.ProjectId,
                 mutation.InstanceId,
                 mutation.ExpectedRowVersion,
-                ApprovedStatus = (int)RemediationInstanceStatus.Approved,
-                PreflightPassedStatus = (int)RemediationInstanceStatus.PreflightPassed,
                 mutation.ApprovedByActorKey,
                 mutation.ApprovedUtc,
                 mutation.UpdatedUtc,
-            },
-            transaction: transaction,
-            cancellationToken: cancellationToken));
-        if (updated != 1)
-        {
-            throw new InvalidOperationException(
-                "Scoped remediation approval was stale, foreign or no longer preflight-passed.");
-        }
-
-        await connection.ExecuteAsync(new CommandDefinition(
-            insertEvidenceSql,
-            new
-            {
                 evidence.EvidenceId,
-                evidence.InstanceId,
-                evidence.TenantId,
-                Phase = (int)evidence.Phase,
                 evidence.PayloadJson,
                 evidence.ActorKey,
                 evidence.CorrelationId,
                 evidence.CreatedUtc,
             },
-            transaction: transaction,
+            commandType: System.Data.CommandType.StoredProcedure,
             cancellationToken: cancellationToken));
+        if (updated != 1)
+            throw new InvalidOperationException(
+                "Scoped remediation approval was stale, foreign or no longer preflight-passed.");
 
-        await transaction.CommitAsync(cancellationToken);
     }
 }
