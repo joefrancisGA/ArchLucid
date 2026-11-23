@@ -338,7 +338,11 @@ export function useReviewDetailWorkspaceTabs(
       workbenchFocusColumnRef.current = nextWorkbenchFocus;
       writeReviewDetailTabToUrl(tab, {
         hash: null,
-        findingId: options?.findingId,
+        findingId: options?.findingId !== undefined
+          ? options.findingId
+          : tab === "findings" || isWorkbenchTab(tab)
+            ? undefined
+            : null,
         workbenchFocus: nextWorkbenchFocus,
         presenter: presenterModeRef.current ? true : null,
         runId: props.runId,

@@ -256,6 +256,27 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
     expect(result.current.workbenchFocusColumn).toBeNull();
     expect(window.location.search).not.toContain("workbenchFocus");
   });
+  it("clears findingId from the URL when navigating to overview from findings", () => {
+    searchParamsHarness.applyQuery("reviewTab=findings&findingId=finding-queue-1");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=finding-queue-1",
+    );
+
+    const { result } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    expect(result.current.activeTab).toBe("findings");
+
+    act(() => {
+      result.current.navigateTab("overview");
+    });
+
+    expect(result.current.activeTab).toBe("overview");
+    expect(window.location.search).not.toContain("findingId=");
+  });
   it("clears workbench focus when a section hash moves to a non-workbench tab", () => {
     searchParamsHarness.applyQuery("reviewTab=findings&workbenchFocus=findings");
     window.history.replaceState(
