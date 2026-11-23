@@ -12,7 +12,7 @@ from collections import defaultdict
 import json
 from pathlib import Path
 
-from aspects_reconcile_historical_corpus import verify_recent
+from aspects_reconcile_historical_corpus import verify_recent, load_corpus
 from aspects_reconcile_recovered_candidates import intervals
 from aspects_review_evidence import read_records
 from aspects_validate_historical_pins import VERIFIED, audited_rows_sha256, git
@@ -38,8 +38,8 @@ def checked_historical_chain(repo: Path, checkpoint: dict) -> list[str]:
 
 
 def reconcile(pins: list[dict], report: dict, recent: list[dict],
-              historical_commits: list[str], expected_rows: int = 5741,
-              first_excel_row: int = 7) -> dict:
+              historical_commits: list[str], original_rows: list[dict],
+              expected_rows: int = 5741, first_excel_row: int = 7) -> dict:
     """Exact identity intersection; out-of-window follow-ons never enter it."""
     anchor = report.get("first_parent_checkpoint", {})
     if (len(pins) != expected_rows
@@ -54,6 +54,28 @@ def reconcile(pins: list[dict], report: dict, recent: list[dict],
             or historical_commits[-1] != anchor.get("oldest_sha")
             or anchor.get("status") != "verified_first_parent_sha_membership"):
         raise ValueError("historical source-pin and cohort anchors differ")
+    # Audit output intentionally excludes workbook defect labels. Join to
+    # the immutable, corpus-verified original events by Excel row; never
+    # interpret a missing field as a clean review with zero defects.
+    if (not isinstance(original_rows, list) or len(original_rows) != expected_rows
+            or any(type(row.get("excel_row")) is not int for row in original_rows)):
+        raise ValueError("missing or malformed immutable historical review rows")
+    original_by_excel = {row["excel_row"]: row for row in original_rows}
+    if (len(original_by_excel) != expected_rows
+            or set(original_by_excel) !=
+            set(range(first_excel_row, first_excel_row + expected_rows))):
+        raise ValueError("immutable historical review Excel IDs missing or duplicated")
+    original_clean = 0
+    for audit_row in pins:
+        original = original_by_excel[audit_row["excel_row"]]
+        if (original.get("reviewed_master_sha") != audit_row.get("reviewed_master_sha")
+                or original.get("review_id") != audit_row.get("review_id")
+                or type(original.get("defects_recorded")) is not int
+                or original["defects_recorded"] < 0):
+            raise ValueError("immutable historical review identity/defect count disagrees with audit")
+        original_clean += original["defects_recorded"] == 0
+    if expected_rows == 5741 and original_clean != 4864:
+        raise ValueError("immutable 5741-row corpus missing expected 4864 clean reviews")
     members = set(historical_commits)
     historical: dict[tuple[str, str], set[int]] = defaultdict(set)
     original_review_rows = original_clean_rows = 0
@@ -74,7 +96,7 @@ def reconcile(pins: list[dict], report: dict, recent: list[dict],
                 raise ValueError("original-pinned source identity unavailable")
             historical[(path, blob)].update(intervals(source, "spans"))
         original_review_rows += 1
-        if row.get("defects_recorded") == 0:
+        if original_by_excel[row["excel_row"]]["defects_recorded"] == 0:
             original_clean_rows += 1
 
     narrowed = defaultdict(set)
@@ -113,6 +135,9 @@ def reconcile(pins: list[dict], report: dict, recent: list[dict],
             "first_parent_commits": len(historical_commits),
         },
         "historical_rows_imported": len(pins),
+        "historical_clean_reviews_all_history": original_clean,
+        "historical_positive_reviews_all_history_not_distinct_defects":
+            len(original_rows) - original_clean,
         "original_pinned_review_rows_in_historical_cohort": original_review_rows,
         "original_pinned_clean_review_rows_in_historical_cohort": original_clean_rows,
         "original_pinned_unique_exact_path_blob_lines": original_unique,
@@ -141,6 +166,8 @@ def reconcile(pins: list[dict], report: dict, recent: list[dict],
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", type=Path, default=Path("."))
+    parser.add_argument("--historical-root", type=Path,
+                        default=Path("docs/engineering/aspects-historical"))
     parser.add_argument("--pin-rows", type=Path, required=True)
     parser.add_argument("--pin-report", type=Path, required=True)
     parser.add_argument("--ledger", type=Path, required=True)
@@ -148,9 +175,10 @@ def main() -> None:
     args = parser.parse_args()
     pins = read_records(args.pin_rows)
     report = json.loads(args.pin_report.read_text(encoding="utf-8"))
+    original_rows = load_corpus(args.historical_root)
     history = checked_historical_chain(args.repo, report)
     recent = verify_recent(args.repo, read_records(args.ledger))
-    outcome = reconcile(pins, report, recent, history)
+    outcome = reconcile(pins, report, recent, history, original_rows)
     args.json_out.parent.mkdir(parents=True, exist_ok=True)
     args.json_out.write_text(json.dumps(outcome, sort_keys=True, indent=2) + "\n",
                              encoding="utf-8")
