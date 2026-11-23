@@ -36,6 +36,8 @@ jobs:
           --health-start-period 60s
     steps:
       - uses: actions/checkout@v4
+      - name: Verify canonical SentEmails bootstrap migration parity
+        run: python3 scripts/ci/verify_sentemails_bootstrap_parity.py
       - name: Wait for SQL Server to be ready
         uses: ./.github/actions/wait-for-sqlserver
       - uses: actions/setup-dotnet@v4
