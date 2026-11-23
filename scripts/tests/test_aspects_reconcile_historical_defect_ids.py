@@ -72,6 +72,53 @@ class HistoricalDefectIdTests(unittest.TestCase):
         self.assertIsNone(report["historical_463_distinct_defects_recomputed"])
         self.assertIsNone(report["fresh_comparable_900_density"])
 
+    def test_exact_linked_numeric_review_id_is_candidate_key_not_distinct_defect(self):
+        # Original workbook has defect-positive '#7269' style review IDs.
+        self.rows[0]["review_id"] = "#123"
+        report, rows = self.calculate()
+        self.assertEqual(report["positive_rows_with_matching_pr_reference_review_key"], 1)
+        self.assertEqual(report["unique_pr_reference_review_key_candidates"], 1)
+        self.assertEqual(report["positive_rows_in_900_with_matching_pr_reference_review_key"], 1)
+        self.assertEqual(rows[0]["fix_pr_reference_review_key_candidate"], "workbook_fix_pr:123")
+        self.assertEqual(rows[0]["fix_pr_reference_review_key_confidence"],
+                         "matching_workbook_review_id_and_source_pr_url")
+        self.assertFalse(rows[0]["fix_pr_key_is_distinct_defect_proof"])
+        self.assertIsNone(rows[0]["named_discovery_id_candidate"])
+        self.assertIsNone(report["pr_reference_keys_proven_distinct_defects"])
+        self.assertIsNone(report["historical_463_distinct_defects_recomputed"])
+
+    def test_replayed_pr_number_review_key_never_double_counts_a_discovery(self):
+        self.rows[0]["review_id"] = "#123"
+        self.rows[2]["review_id"] = "#123"
+        self.rows[2]["source_reference"] = self.rows[0]["source_reference"]
+        self.rows[2]["historical_status"] = "Confirmed · PR #123 open"
+        report, positive = self.calculate()
+        self.assertEqual(report["positive_rows_with_matching_pr_reference_review_key"], 2)
+        self.assertEqual(report["unique_pr_reference_review_key_candidates"], 1)
+        self.assertEqual(report["repeated_pr_reference_review_key_candidates"], 1)
+        self.assertEqual(report["unique_named_discovery_id_candidates"], 0)
+        self.assertEqual(len(positive), 2)
+        self.assertIsNone(report["fresh_comparable_900_density"])
+
+    def test_discordant_numeric_id_and_original_pr_url_is_quarantined(self):
+        self.rows[0]["review_id"] = "#999"
+        report, rows = self.calculate()
+        self.assertEqual(rows[0]["fix_pr_reference_review_key_candidate"], None)
+        self.assertEqual(rows[0]["fix_pr_reference_review_key_confidence"],
+                         "review_id_pr_number_not_confirmed_by_matching_source_link")
+        self.assertEqual(report["pr_number_id_link_disagreement_or_missing_source_url_rows"], 1)
+        self.assertEqual(report["unique_pr_reference_review_key_candidates"], 0)
+
+    def test_status_text_only_is_insufficient_for_numeric_review_join_key(self):
+        self.rows[0]["review_id"] = "#123"
+        self.rows[0]["source_reference"] = "unrelated documentation"
+        report, rows = self.calculate()
+        self.assertEqual(rows[0]["fix_pr_number"], 123)
+        self.assertEqual(rows[0]["fix_pr_reference_confidence"],
+                         "historical_status_text_only")
+        self.assertIsNone(rows[0]["fix_pr_reference_review_key_candidate"])
+        self.assertEqual(report["unique_pr_reference_review_key_candidates"], 0)
+
     def test_merged_pr_overrides_stale_open_label_without_new_defect(self):
         report, rows = self.calculate()
         self.assertEqual(report["github_fix_pr_state_verified_rows"], 1)
