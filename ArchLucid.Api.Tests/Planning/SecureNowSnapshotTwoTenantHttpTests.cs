@@ -24,15 +24,25 @@ public sealed class SecureNowSnapshotTwoTenantHttpTests(GreenfieldSqlApiFactory 
         Guid projectA = Guid.Parse("aaaaaaaa-3333-4333-8333-aaaaaaaaaaaa");
         Guid projectB = Guid.Parse("bbbbbbbb-4444-4444-8444-bbbbbbbbbbbb");
         Guid unknownRun = HarnessWellKnownGuids.UnknownRunForStoredEvidenceFiles;
-        await TenantIsolationScenario.WithTwoScopedClientsAsync(factory,
-            tenantA, workspaceA, projectA, tenantB, workspaceB, projectB,
-            async (clientA, clientB) =>
-            {
-                string url = $"/v1/evidence-graph/snapshot?runId={unknownRun:D}&asOf=2026-11-22T09%3A00%3A00Z";
-                using HttpResponseMessage a = await clientA.GetAsync(url);
-                using HttpResponseMessage b = await clientB.GetAsync(url);
-                a.StatusCode.Should().Be(HttpStatusCode.NotFound);
-                b.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            });
+        // This GET-only negative-isolation test must not depend on an
+        // unrelated POST /v1/architecture/request warmup returning 2xx.
+        // CreateClient starts/migrates the greenfield host; explicitly insert
+        // both real SQL tenant scopes before issuing authenticated HTTP GETs.
+        using HttpClient clientA = factory.CreateClient();
+        using HttpClient clientB = factory.CreateClient();
+        await GreenfieldIntegrationTenantScope.EnsureScopeAsync(
+            factory.SqlConnectionString,
+            new GreenfieldIntegrationTenantScope.Scope(tenantA, workspaceA, projectA));
+        await GreenfieldIntegrationTenantScope.EnsureScopeAsync(
+            factory.SqlConnectionString,
+            new GreenfieldIntegrationTenantScope.Scope(tenantB, workspaceB, projectB));
+        GreenfieldIntegrationTenantScope.WireScope(clientA, tenantA, workspaceA, projectA);
+        GreenfieldIntegrationTenantScope.WireScope(clientB, tenantB, workspaceB, projectB);
+
+        string url = $"/v1/evidence-graph/snapshot?runId={unknownRun:D}&asOf=2026-11-22T09%3A00%3A00Z";
+        using HttpResponseMessage a = await clientA.GetAsync(url);
+        using HttpResponseMessage b = await clientB.GetAsync(url);
+        a.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        b.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }
