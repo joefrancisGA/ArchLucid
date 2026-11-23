@@ -472,7 +472,8 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             .ReturnsAsync((RunRecord?)null);
 
         runs
-            .Setup(r => r.ArchiveRunsByIdsAsync(
+            .Setup(r => r.ArchiveRunsByIdsForScopeAsync(
+                scope,
                 It.Is<IReadOnlyList<Guid>>(ids => ids.SequenceEqual(new[] { inScopeRunId })),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunArchiveByIdsResult
@@ -497,10 +498,14 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         Assert.Equal(inScopeRunId, result.SucceededRunIds[0]);
         Assert.Contains(result.Failed, failure => failure.RunId == outOfScopeRunId);
         runs.Verify(
-            r => r.ArchiveRunsByIdsAsync(
+            r => r.ArchiveRunsByIdsForScopeAsync(
+                scope,
                 It.Is<IReadOnlyList<Guid>>(ids => ids.SequenceEqual(new[] { inScopeRunId })),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+        runs.Verify(r => r.ArchiveRunsByIdsAsync(
+                It.IsAny<IReadOnlyList<Guid>>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
