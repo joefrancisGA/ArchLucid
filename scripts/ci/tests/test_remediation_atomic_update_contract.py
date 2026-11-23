@@ -57,7 +57,7 @@ class RemediationAtomicUpdateContractTests(unittest.TestCase):
         self.assertIn('("dbo.RemediationInstances", "UPDATE")', probe)
         self.assertIn('("dbo.RemediationEvidence", "INSERT")', probe)
         self.assertIn("RemediationRequiredPermissions", probe)
-        self.assertIn("migration 426", probe)
+        self.assertIn("migrations 426/427", probe)
         helpers = (ROOT / "ArchLucid.Host.Core/Startup/Validation/Rules/"
                    "SqlDatabaseImmutabilityProbeHelpers.cs").read_text()
         self.assertIn("IS_ROLEMEMBER(@RoleName)", helpers)
