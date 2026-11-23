@@ -95,5 +95,6 @@ export async function openScopedProxyFileGetInNewTab(
   const blob = await response.blob();
   const objectUrl = URL.createObjectURL(blob);
   window.open(objectUrl, "_blank", "noopener,noreferrer");
-  URL.revokeObjectURL(objectUrl);
+  // noopener navigation is another agent; revoking in this turn drops the blob first.
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 10_000);
 }

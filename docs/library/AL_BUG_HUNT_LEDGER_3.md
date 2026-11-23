@@ -162,6 +162,19 @@
 
 ## Zone: ui-lib-api
 
+2026-11-23 thorough hunt #5 (hit): cheap-disproof closed four monitors. Manifest markdown HTML is already rejected, and that export is `text/markdown`, not CSV. Sponsor review packet markdown is `text/markdown`, so the plain-text guard does not block it. Range and file results quote `filename=` before any `filename*`, so the disposition parser returns the unencoded name. The value-report 202 branch is the intended large-window message. Promoted new-tab preview: `openScopedProxyFileGetInNewTab` called `URL.revokeObjectURL` in the same turn as `window.open(..., "noopener,noreferrer")`, which drops the blob before the other agent can load a product-learning or planning report. Revoke now waits 10 seconds. Scoped-proxy vitest **5/5**. Private beta: Open JSON in a new tab for the pilot feedback report and the improvement-planning report keeps the preview available instead of a blank tab.
+
+- [x] (proven) `openScopedProxyFileGetInNewTab` — immediate blob revoke with noopener — **hit 2026-11-23 thorough hunt #5:** delay `revokeObjectURL` by 10 seconds; regression above.
+- [x] (valid-no-repro) `downloadManifestMarkdownExport` — HTML or CSV saved as markdown — **cheap-disproof 2026-11-23 thorough hunt #5:** HTML is rejected; API markdown is `text/markdown`.
+- [x] (valid-no-repro) `downloadSponsorReviewPacketMarkdown` — `text/plain` blocks the packet — **cheap-disproof 2026-11-23 thorough hunt #5:** API sends `text/markdown`.
+- [x] (valid-no-repro) `parseFilenameFromContentDisposition` — percent-encoded `filename*` — **cheap-disproof 2026-11-23 thorough hunt #5:** API quotes `filename=` first.
+- [x] (valid-no-repro) `downloadValueReportDocx` — 202 async window — **cheap-disproof 2026-11-23 thorough hunt #5:** 202 throws the large-window message on purpose.
+
+- [ ] (candidate) `parseFilenameFromContentDisposition` — `filename*` only, percent-encoded — locus: disposition regex; input: `filename*=UTF-8''report%20name.pdf` with no quoted filename; wrong outcome: saved name stays encoded; reachability: a caller that emits RFC 5987 only.
+- [ ] (candidate) `triggerBrowserBlobDownload` — revoke immediately after `a.click()` — locus: blob URL lifetime; input: large file download; wrong outcome: browser cancels the save; reachability: every scoped file download. Anchor click is usually synchronous, so monitor.
+- [ ] (candidate) `downloadManifestMarkdownExport` — omitted prefixes allow `application/octet-stream` — locus: unguarded content-type path; input: 200 `application/octet-stream`; wrong outcome: unnamed binary saved as `.md`; reachability: sealed manifest markdown export.
+- [ ] (candidate) `openScopedProxyFileGetInNewTab` — 10 second blob lifetime too short on a slow tab — locus: `setTimeout` delay; input: delayed navigation; wrong outcome: tab fails if it loads after revoke; reachability: product learning JSON preview.
+- [ ] (candidate) `downloadSponsorReviewPacketMarkdown` — charset-only `text/markdown` vs unguarded path — locus: omitted prefixes; input: `text/markdown; charset=utf-8`; wrong outcome: none if includes-check is absent and type is allowed; reachability: sponsor packet. Confirm it still saves.
 2026-11-23 thorough hunt #4 (hit): cheap-disproof closed the reseed monitors that were already guarded — valid-no-repro value-report JSON 200 is rejected by `assertBinaryDownloadContentType`; valid-no-repro whitespace-only comparison ids throw before replay; valid-no-repro non-ok scoped downloads build the blocked reason from the response body; valid-no-repro padded replay ids are trimmed by `trimRequiredPathSegment`; valid-no-repro declared `application/json` bodies are saved as JSON rather than sniffed for HTML. Promoted the compare-summary PDF handoff: `createAndDownloadComparisonPdf` read `x-archlucid-comparison-record-id`, but the API sets `X-ArchLucid-ComparisonRecordId`, and the proxy passthrough dropped that header, so a successful persist never started the PDF replay. The client and proxy now use the API header name. Regression vitest **5/5**. Private beta: creating a comparison and downloading its PDF replay now continues after the summary is saved, instead of stopping with a missing comparison id.
 
 - [x] (proven) `createAndDownloadComparisonPdf` — summary header name does not match `X-ArchLucid-ComparisonRecordId` — **hit 2026-11-23 thorough hunt #4:** shared header constant plus proxy passthrough; regressions above.
@@ -171,11 +184,11 @@
 - [x] (valid-no-repro) `downloadComparisonReplayPdf` — padded comparison id — **cheap-disproof 2026-11-23 thorough hunt #4:** `trimRequiredPathSegment`.
 - [x] (valid-no-repro) `rejectUnguardedHtmlOrProblemDownload` — HTML inside `application/json` — **cheap-disproof 2026-11-23 thorough hunt #4:** declared JSON stays a JSON download.
 
-- [ ] (candidate) `downloadManifestMarkdownExport` — omitted content-type prefixes on markdown — locus: `downloadScopedProxyFileGet` options; input: 200 `text/html`; wrong outcome: HTML rejected, but `text/csv` would still save; reachability: sealed manifest markdown export.
-- [ ] (candidate) `downloadSponsorReviewPacketMarkdown` — omitted prefixes — locus: pilots collateral GET; input: 200 `text/plain`; wrong outcome: markdown packet blocked after the plain-text guard; reachability: sponsor review packet download. API sends `text/markdown`, so monitor only.
-- [ ] (candidate) `parseFilenameFromContentDisposition` — percent-encoded `filename*` — locus: filename regex; input: `filename*=UTF-8''report%20name.pdf` with no quoted filename; wrong outcome: saved name stays percent-encoded; reachability: ASP.NET file results with spaces.
-- [ ] (candidate) `openScopedProxyFileGetInNewTab` — immediate `revokeObjectURL` — locus: blob URL lifetime; input: successful JSON open; wrong outcome: new tab fails to load the blob; reachability: product learning report preview.
-- [ ] (candidate) `downloadValueReportDocx` — 202 async window — locus: status 202 branch; input: 202 with JSON job body; wrong outcome: operator sees the large-window error and no download; reachability: Enterprise value report over a large date range. Confirm this is intended before treating it as a defect.
+- [x] (valid-no-repro) `downloadManifestMarkdownExport` — omitted content-type prefixes on markdown — locus: `downloadScopedProxyFileGet` options; input: 200 `text/html`; wrong outcome: HTML rejected, but `text/csv` would still save; reachability: sealed manifest markdown export.
+- [x] (valid-no-repro) `downloadSponsorReviewPacketMarkdown` — omitted prefixes — locus: pilots collateral GET; input: 200 `text/plain`; wrong outcome: markdown packet blocked after the plain-text guard; reachability: sponsor review packet download. API sends `text/markdown`, so monitor only.
+- [x] (valid-no-repro) `parseFilenameFromContentDisposition` — percent-encoded `filename*` — locus: filename regex; input: `filename*=UTF-8''report%20name.pdf` with no quoted filename; wrong outcome: saved name stays percent-encoded; reachability: ASP.NET file results with spaces.
+- [x] (proven) `openScopedProxyFileGetInNewTab` — immediate `revokeObjectURL` — locus: blob URL lifetime; input: successful JSON open; wrong outcome: new tab fails to load the blob; reachability: product learning report preview.
+- [x] (valid-no-repro) `downloadValueReportDocx` — 202 async window — locus: status 202 branch; input: 202 with JSON job body; wrong outcome: operator sees the large-window error and no download; reachability: Enterprise value report over a large date range. Confirm this is intended before treating it as a defect.
 2026-11-23 thorough hunt #3 (hit): cheap-disproof closed four reseed monitors — valid-no-repro `createAndDownloadComparisonPdf` throws before any PDF download when `x-archlucid-comparison-record-id` is absent; valid-no-repro `openScopedProxyFileGetInNewTab` uses the same `fetchScopedProxyFileGet` HTML guard as file download; valid-no-repro `assertBinaryDownloadContentType` matches DOCX MIME types with `startsWith` so charset parameters still pass; valid-no-repro `downloadComparisonReplayPdf` already rejects `application/json` bodies via the binary guard. Promoted omitted-prefix scoped JSON export: `rejectUnguardedHtmlOrProblemDownload` blocked HTML but still saved a 200 `text/plain` proxy error as a `.json` artifact. The guard now rejects `text/plain` on the omitted-prefix path; scoped-proxy vitest **4/4**. Private beta: decision-receipt and other scoped JSON downloads fail fast instead of saving plain-text error pages as JSON files.
 
 - [x] (proven) `downloadScopedProxyFileGet` — 200 `text/plain` saved when prefixes omitted — **hit 2026-11-23 thorough hunt #3:** reject `text/plain` beside HTML/problem JSON; regression above.
@@ -223,8 +236,8 @@
 - **aliases:** UI API client; fetch boundaries
 - **paths:** archlucid-ui/src/lib/api/
 - **test-filter:** lib/api
-- **hunts:** 6
-- **bugs-found:** 5
+- **hunts:** 7
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

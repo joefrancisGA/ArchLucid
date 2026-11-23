@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { downloadScopedProxyFileGet } from "./downloads-blob-trigger-scoped-proxy";
+import { downloadScopedProxyFileGet, openScopedProxyFileGetInNewTab } from "./downloads-blob-trigger-scoped-proxy";
 
 describe("downloadScopedProxyFileGet", () => {
   it("does not save a 200 HTML page when the caller omitted content-type prefixes", async () => {
@@ -94,5 +94,34 @@ describe("downloadScopedProxyFileGet", () => {
     expect(createObjectUrl).toHaveBeenCalledTimes(1);
     vi.unstubAllGlobals();
     createObjectUrl.mockRestore();
+  });
+});
+
+describe("openScopedProxyFileGetInNewTab", () => {
+  it("keeps the blob URL alive after opening a new tab so noopener navigation can load it", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response("{}", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+    const createObjectUrl = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:report");
+    const revokeObjectUrl = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    const open = vi.spyOn(window, "open").mockReturnValue(null);
+
+    await openScopedProxyFileGetInNewTab("/api/proxy/v1/product-learning/report?format=json", {
+      accept: "application/json",
+    });
+
+    expect(open).toHaveBeenCalledWith("blob:report", "_blank", "noopener,noreferrer");
+    expect(revokeObjectUrl).not.toHaveBeenCalled();
+
+    vi.unstubAllGlobals();
+    createObjectUrl.mockRestore();
+    revokeObjectUrl.mockRestore();
+    open.mockRestore();
   });
 });
