@@ -102,12 +102,55 @@ class CandidateLineageTests(unittest.TestCase):
         self.assertEqual(row["excel_row"], 8)
         self.assertEqual(row["reviewed_master_sha"], self.new_sha)
         self.assertEqual(row["candidate_source_line_occurrences"], 5)
+        self.assertEqual(row["source_paths_reported"], ["a.cs"])
+        self.assertEqual(row["source_paths_with_original_pinned_review"], ["a.cs"])
+        self.assertEqual(row["source_paths_without_original_pinned_review"], [])
+        self.assertEqual(row["candidate_line_occurrences_on_paths_with_original_pins"], 5)
+        self.assertEqual(row["candidate_line_occurrences_on_paths_without_original_pins"], 0)
         self.assertEqual(row["exact_repeat_with_original_pin_same_path_blob_line"], 0)
         self.assertEqual(row["different_blob_full_first_parent_proven_repeat_with_original_pin"], 2)
         self.assertEqual(row["different_blob_provisional_equal_hunk_only"], 0)
         self.assertEqual(row["without_proven_original_pin_identity"], 3)
         self.assertEqual(row["newly_independently_verified_reviewed_loc"], 0)
         self.assertTrue(r["candidate_row_lineage_proof_not_reviewed_loc"])
+
+    def test_candidate_source_with_no_same_path_original_pin_is_not_assumed_new_review(self):
+        (self.repo / "unreviewed.cs").write_text(
+            "extra-a\\nextra-b\\n", encoding="utf-8")
+        git(self.repo, "add", "unreviewed.cs")
+        git(self.repo, "commit", "-qm", "extra explicit candidate-only source")
+        current = git(self.repo, "rev-parse", "HEAD")
+        extra_blob = git(self.repo, "rev-parse", "HEAD:unreviewed.cs")
+        def add_path(pins, pin_report, candidates, candidate_report):
+            pins[1]["reviewed_master_sha"] = current
+            row = candidates[0]
+            row["reviewed_master_sha"] = current
+            row["candidate_nonblank_loc"] = 7
+            row["sources"].append({
+                "path": "unreviewed.cs",
+                "blob_derived_at_reviewed_commit": extra_blob,
+                "original_blob_pinned": False,
+                "nonblank_loc": 2,
+                "nonblank_intervals_at_reviewed_commit": [[1, 2]],
+            })
+            self.anchor["head_sha"] = current
+            self.anchor["first_parent_commits"] = 3
+            pin_report["audited_rows_sha256"] = audited_rows_sha256(pins)
+            candidate_report["candidate_rows_sha256"] = audited_rows_sha256(candidates)
+            candidate_report["candidate_line_occurrences"] = 7
+            candidate_report["in_window_candidate_line_occurrences"] = 7
+        result = self.case(add_path)
+        self.assertEqual(result["status"], "provisional_cross_revision_candidate_lineage")
+        review = result["candidate_review_source_lineage_by_excel_row"][0]
+        self.assertEqual(review["source_paths_reported"], ["a.cs", "unreviewed.cs"])
+        self.assertEqual(review["source_paths_with_original_pinned_review"], ["a.cs"])
+        self.assertEqual(review["source_paths_without_original_pinned_review"],
+                         ["unreviewed.cs"])
+        self.assertEqual(review["candidate_source_line_occurrences"], 7)
+        self.assertEqual(review["candidate_line_occurrences_on_paths_with_original_pins"], 5)
+        self.assertEqual(review["candidate_line_occurrences_on_paths_without_original_pins"], 2)
+        self.assertEqual(review["newly_independently_verified_reviewed_loc"], 0)
+        self.assertIsNone(result["new_comparable_900_density"])
 
     def test_edit_revert_row_proof_does_not_count_unstable_text(self):
         self.commit("alpha\\nmutated\\nrepeat\\nrepeat\\nnovel\\n", "middle mutation")
