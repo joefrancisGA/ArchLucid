@@ -263,11 +263,11 @@ class UnpinnedRecoveryTests(unittest.TestCase):
         factory_root = self.repo / "ArchLucid.Persistence" / "Connections"
         factory_root.mkdir(parents=True)
         names = [
-            ("SqlConnectionFactory.cs", "one\\n\\ntwo\\n", 2),
-            ("ScopedRoutingSqlConnectionFactory.cs", "three\\n", 1),
-            ("DedicatedSystemSqlConnectionFactory.cs", "four\\n\\nfive\\n", 2),
-            ("ReadReplicaRoutedConnectionFactory.cs", "six\\n", 1),
-            ("ReadOnlyDbConnectionFactory.cs", "seven\\neight\\n", 2),
+            ("SqlConnectionFactory.cs", "one\n\ntwo\n", 2),
+            ("ScopedRoutingSqlConnectionFactory.cs", "three\n", 1),
+            ("DedicatedSystemSqlConnectionFactory.cs", "four\n\nfive\n", 2),
+            ("ReadReplicaRoutedConnectionFactory.cs", "six\n", 1),
+            ("ReadOnlyDbConnectionFactory.cs", "seven\neight\n", 2),
         ]
         for file, payload, _ in names:
             (factory_root / file).write_text(payload, encoding="utf-8")
