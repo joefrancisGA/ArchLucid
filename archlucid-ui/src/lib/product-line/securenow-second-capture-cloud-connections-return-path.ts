@@ -1,4 +1,4 @@
-import { EXTRACT_UPLOAD_PATH } from "@/lib/administration/extract-upload-demo-scenario-url";
+import { infrastructureExtractUploadPathForProductLine } from "@/lib/product-line/securenow-infrastructure-routes";
 
 import { canonicalSafeReturnPath } from "@/lib/navigation/safe-return-path";
 
@@ -41,7 +41,11 @@ export function buildSecureNowSecondCaptureCloudConnectionsHref(returnPath: stri
 }
 
 export function buildSecureNowSecondCaptureExtractUploadHref(returnPath: string | null | undefined): string {
-  return buildSecureNowSecondCaptureHrefWithReturnPath(EXTRACT_UPLOAD_PATH, returnPath);
+  // SecureNow partial-capture recovery. The administration extract-upload page is architecture-only.
+  return buildSecureNowSecondCaptureHrefWithReturnPath(
+    infrastructureExtractUploadPathForProductLine("security"),
+    returnPath,
+  );
 }
 
 export function resolveSecureNowReturnPathFromSearch(searchParams: URLSearchParams): string | null {

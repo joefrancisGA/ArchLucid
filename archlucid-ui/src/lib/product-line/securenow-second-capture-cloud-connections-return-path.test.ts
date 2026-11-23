@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import { isPathAllowedForProductLine } from "@/lib/product-line/product-line-path-access";
 import {
   buildSecureNowSecondCaptureCloudConnectionsHref,
+  buildSecureNowSecondCaptureExtractUploadHref,
   resolveSecureNowReturnPathFromSearch,
   SECURENOW_RETURN_PATH_QUERY_PARAM,
 } from "./securenow-second-capture-cloud-connections-return-path";
@@ -25,6 +27,13 @@ describe("securenow second capture cloud connections return path", () => {
     params.set(SECURENOW_RETURN_PATH_QUERY_PARAM, "//evil.example");
 
     expect(resolveSecureNowReturnPathFromSearch(params)).toBeNull();
+  });
+
+  it("sends extract upload to the SecureNow intake path the security shell allows", () => {
+    const href = buildSecureNowSecondCaptureExtractUploadHref("/security/home");
+
+    expect(href.startsWith("/infrastructure/manual-upload?")).toBe(true);
+    expect(isPathAllowedForProductLine(href, "security")).toBe(true);
   });
 
   it("reads return path from search", () => {
