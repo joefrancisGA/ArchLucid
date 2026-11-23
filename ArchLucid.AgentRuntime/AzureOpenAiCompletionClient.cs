@@ -35,6 +35,10 @@ public sealed partial class AzureOpenAiCompletionClient : IAgentStreamingComplet
     /// <summary>Used when <c>AzureOpenAI:MaxCompletionTokens</c> is omitted or zero.</summary>
     public const int DefaultMaxCompletionTokens = AzureOpenAiOptions.DefaultMaxCompletionTokens;
 
+    /// <summary>SDK network timeout for each chat completion transport operation when no override is provided.</summary>
+    public static readonly TimeSpan DefaultNetworkTimeout =
+        TimeSpan.FromSeconds(AzureOpenAiOptions.DefaultCompletionNetworkTimeoutSeconds);
+
     private static readonly AsyncLocal<(string DeploymentName, string? ModelId)?> LastModelMetadata = new();
 
     /// <summary>
@@ -69,7 +73,8 @@ public sealed partial class AzureOpenAiCompletionClient : IAgentStreamingComplet
         BinaryData? structuredOutputAgentResultSchema = null,
         ILogger<AzureOpenAiCompletionClient>? logger = null,
         IOptionsMonitor<LlmTelemetryOptions>? llmTelemetryOptions = null,
-        ILlmCompletionOutputTruncationReporter? truncationReporter = null)
+        ILlmCompletionOutputTruncationReporter? truncationReporter = null,
+        TimeSpan? networkTimeout = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(endpoint);
         ArgumentException.ThrowIfNullOrWhiteSpace(deploymentName);
@@ -79,7 +84,7 @@ public sealed partial class AzureOpenAiCompletionClient : IAgentStreamingComplet
                 "Must be at least 1.");
 
         Uri endpointUri = new(AzureOpenAiEndpointNormalizer.NormalizeForChatCompletions(endpoint));
-        AzureOpenAIClient azureClient = new(endpointUri, new DefaultAzureCredential());
+        AzureOpenAIClient azureClient = new(endpointUri, new DefaultAzureCredential(), CreateClientOptions(networkTimeout));
 
         AzureOpenAiCompletionClient client = new(
             azureClient,
@@ -118,7 +123,8 @@ public sealed partial class AzureOpenAiCompletionClient : IAgentStreamingComplet
         BinaryData? structuredOutputAgentResultSchema = null,
         ILogger<AzureOpenAiCompletionClient>? logger = null,
         IOptionsMonitor<LlmTelemetryOptions>? llmTelemetryOptions = null,
-        ILlmCompletionOutputTruncationReporter? truncationReporter = null)
+        ILlmCompletionOutputTruncationReporter? truncationReporter = null,
+        TimeSpan? networkTimeout = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(endpoint);
         ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
@@ -131,7 +137,8 @@ public sealed partial class AzureOpenAiCompletionClient : IAgentStreamingComplet
         Uri endpointUri = new(AzureOpenAiEndpointNormalizer.NormalizeForChatCompletions(endpoint));
         AzureOpenAIClient azureClient = new(
             endpointUri,
-            new ApiKeyCredential(apiKey));
+            new ApiKeyCredential(apiKey),
+            CreateClientOptions(networkTimeout));
 
         _azureOpenAiClient = azureClient;
         _deploymentName = deploymentName.Trim();
@@ -163,6 +170,17 @@ public sealed partial class AzureOpenAiCompletionClient : IAgentStreamingComplet
         _llmTelemetryOptions = llmTelemetryOptions;
         _truncationReporter = truncationReporter;
         Descriptor = LlmProviderDescriptor.ForAzureOpenAi(endpointUri, deploymentName);
+    }
+
+    /// <summary>Apply the same SDK network limit for API-key and managed-identity clients.</summary>
+    internal static AzureOpenAIClientOptions CreateClientOptions(TimeSpan? networkTimeout = null)
+    {
+        TimeSpan effective = networkTimeout ?? DefaultNetworkTimeout;
+        if (effective < TimeSpan.FromSeconds(5) || effective > TimeSpan.FromSeconds(180))
+            throw new ArgumentOutOfRangeException(nameof(networkTimeout), effective,
+                "Azure OpenAI completion network timeout must be between 5 and 180 seconds.");
+
+        return new AzureOpenAIClientOptions { NetworkTimeout = effective };
     }
 
     /// <remarks>Truncates opt-in span payloads so exporters stay predictable.</remarks>

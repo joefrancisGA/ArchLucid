@@ -20,6 +20,17 @@ Operators can tune retry and circuit-breaker behavior without recompiling. This 
 | Embedding open duration (seconds) | `AzureOpenAI:CircuitBreaker:Embedding:DurationOfBreakSeconds` | `30` | ≥ 1 |
 | Embedding half-open success streak | `AzureOpenAI:CircuitBreaker:Embedding:HalfOpenSuccessThreshold` | `1` | ≥ 1 |
 
+### Azure OpenAI SDK network timeouts
+
+| Setting | Config path | Default | Valid range |
+|---------|-------------|---------|-------------|
+| Chat completion network timeout (seconds) | `AzureOpenAI:CompletionNetworkTimeoutSeconds` | `60` | 5–180; rejected by `AzureOpenAiOptionsValidator` outside range |
+| Embedding network timeout (seconds) | `Retrieval:QueryBudget:EmbeddingNetworkTimeoutSeconds` | `15` | 3–45 (existing clamped embedding policy) |
+
+`AzureOpenAiCompletionClient` now always constructs `AzureOpenAIClientOptions` with `NetworkTimeout` for **both** API-key and managed-identity authentication. Cached deployments, regional fallbacks, judge-only completions and tenant BYO clients use the configured timeout; direct standalone clients use the 60-second default.
+
+This setting limits **an individual SDK network operation**; it is **not** the overall time budget across Polly retries, HTTP 429 Retry-After delays, or provider fallback attempts. Keep higher-level cancellation/deadline policies in place. It also cannot guarantee that a server stops processing a request it has already accepted. SDK client configuration is captured when each client is constructed; changing the key requires replacing existing client instances (e.g. host restart), unlike monitored breaker thresholds.
+
 **Fallback hierarchy**
 
 1. Per-gate section: `AzureOpenAI:CircuitBreaker:Completion` or `AzureOpenAI:CircuitBreaker:Embedding` when the corresponding JSON key is present for each property.
