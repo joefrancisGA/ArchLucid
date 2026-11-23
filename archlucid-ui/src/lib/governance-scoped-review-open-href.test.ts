@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
-const deskFixture = vi.hoisted(() => ({ id: null as string | null }));
 import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-review-open-href";
+
+const deskFixture = vi.hoisted(() => ({ id: null as string | null }));
 
 vi.mock("@/lib/desk-continuity-preference", () => ({
   readCachedLastOpenArchitectureId: () => deskFixture.id,
