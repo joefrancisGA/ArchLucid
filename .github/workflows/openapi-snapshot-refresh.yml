@@ -30,6 +30,8 @@ on:
   push:
     branches: [main, master, RC35]
     paths: &openapi-contract-paths
+      # Changes to this generator's own workflow must also exercise generation.
+      - '.github/workflows/openapi-snapshot-refresh.yml'
       - 'ArchLucid.Api/**'
       - 'ArchLucid.Api.Tests/**'
       - 'ArchLucid.Application/**'
@@ -116,7 +118,7 @@ jobs:
           github.event_name != 'workflow_dispatch'
           || inputs.regenerate_ui_api_types
         working-directory: archlucid-ui
-        run: npm ci --ignore-scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
 
       - name: Regenerate OpenAPI snapshot (+ UI api-types)
         env:

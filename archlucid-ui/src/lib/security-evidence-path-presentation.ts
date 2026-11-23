@@ -159,6 +159,7 @@ export function formatSecurityEvidenceProvenanceKindLabel(kind: string | null | 
 }
 
 const PATH_RELATIONSHIP_LABELS: Readonly<Record<string, string>> = {
+  RoleAssignment: "Relationship type RoleAssignment has no reviewer label.",
   CAN_READ: "Role allows read. This is not observed use.",
   CAN_WRITE: "Role allows write. This is not observed use.",
   USES_IDENTITY: "Identity is assigned. Use of that identity was not stored.",

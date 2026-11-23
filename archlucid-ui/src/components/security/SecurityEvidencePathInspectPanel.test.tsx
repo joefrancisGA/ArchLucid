@@ -45,7 +45,8 @@ vi.mock("@/lib/product-line/securenow-pilot-disposition-sync", () => ({
     const { readSecureNowPilotDisposition } = await import(
       "@/lib/product-line/securenow-pilot-disposition-storage"
     );
-    return readSecureNowPilotDisposition(pathId);
+    const record = readSecureNowPilotDisposition(pathId);
+    return record === null ? null : { record, recordedUtc: null };
   }),
   persistSecureNowPilotDispositionForPath: vi.fn(async () => ({
     status: "saved",

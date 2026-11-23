@@ -73,7 +73,9 @@ public sealed partial class CachingTenantRepository(ITenantRepository inner, IHo
             ct,
             enterpriseScimSeatsLimit);
 
-        await InvalidateAsync(tenantId, ct);
+        // The insert can commit before request cancellation is observed. Evict
+        // any cached miss using an independent token after the write succeeds.
+        await InvalidateAsync(tenantId, CancellationToken.None);
     }
 
     /// <inheritdoc />

@@ -11,6 +11,7 @@ import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { resolveHelpDocsStaticEntries } from "@/lib/help/help-docs-static-entries";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_TOC } from "@/lib/help/help-page-layout";
+import { PATH_CHOOSER_HELP_PATH } from "@/lib/path-chooser-help-route";
 import {
   helpHubClearSearchHrefFromSearch,
   helpHubSearchHrefFromSearch,
@@ -299,6 +300,13 @@ export function HelpDocsClient() {
       <p className={OPERATOR_TYPOGRAPHY.helper}>
         <strong>Shortcuts</strong> — Use the command palette or search in the shell header where available; shortcut hints appear
         on nav items when configured.
+      </p>
+      <p className={OPERATOR_TYPOGRAPHY.body}>
+        Not sure where to begin?{" "}
+        <Link href={PATH_CHOOSER_HELP_PATH} className={OPERATOR_LINK.inline}>
+          Choose your next step
+        </Link>
+        .
       </p>
       {indexRefreshWarning !== null ? (
         <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-amber-800 dark:text-amber-200")} role="status">

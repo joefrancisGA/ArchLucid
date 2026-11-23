@@ -35,6 +35,7 @@ name: CI
 # PR (main/master): Tier 0–0.9 + trimmed `dotnet-fast-core` (no Tier 1.0 artifacts, no coverlet, no finding-engine template).
 # merge_group (main/master): same trimmed corset as PR, but path lanes never skip .NET (semantic conflict guard).
 # Full CI: explicit workflow_dispatch includes full post-corset regression gates.
+# RC49 remains dispatch-only; ordinary RC49 fix commits must not trigger full CI.
 # Full CI: Actions â†’ CI â†’ Run workflow (pick branch/ref).
 # Retired RC branches do not trigger full CI on push. No production deployment.
 on:
@@ -50,11 +51,11 @@ on:
         default: false
         type: boolean
 
-# PR and workflow_dispatch runs retain existing per-ref concurrency behavior.
-# Merge queue runs are never cancelled in progress.
+# RC49 manual dispatch runs share one branch-scoped concurrency group and complete without cancellation.
+# PR and non-RC49 dispatch runs retain their per-ref concurrency behavior; merge queue runs never cancel.
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: ${{ github.event_name != 'merge_group' }}
+  group: ci-${{ github.workflow }}-${{ ((github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/RC49') && 'rc49-dispatch') || (github.event.pull_request.number || github.ref) }}
+  cancel-in-progress: ${{ github.event_name != 'merge_group' && !(github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/RC49') }}
 
 # PR path lanes (ci-path-lanes): soft-skip OpenAPI / .NET corset / Terraform validate steps when the
 # diff does not touch those surfaces (docs/UI-only PRs). Jobs still report success so required checks
@@ -531,6 +532,14 @@ jobs:
       - name: Score lift round 115 batch drift guard
         continue-on-error: true
         run: python scripts/ci/assert-score-lift-round115-batch.py
+
+      - name: Score lift round 116 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round116-batch.py
+
+      - name: Score lift round 117 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round117-batch.py
 
       - name: CD BUILD_ID / OCI label contract (unit tests)
         run: python -m unittest discover -s scripts/ci/tests -p "test_oci_build_identity.py"
@@ -2822,11 +2831,11 @@ jobs:
 
   guards-pre-corset:
     name: "CI: guards pre-corset (text)"
-    # RC43/RC44/RC45/RC46/RC47 diagnostic branches: blocking — guard failure fails the workflow; jobs that
+    # RC43/RC44/RC45/RC46/RC47/RC49 diagnostic branches: blocking — guard failure fails the workflow; jobs that
     # need guards-pre-corset are skipped. Other refs: warn-only (deploy gate exclusion).
     # Critical path: start after gitleaks only so this runs in parallel with OpenAPI + Terraform validate
     # (warn-only docs/IaC/demo jobs must not delay text guards or the corset build).
-    continue-on-error: ${{ github.ref != 'refs/heads/RC43' && github.ref != 'refs/heads/RC44' && github.ref != 'refs/heads/RC45' && github.ref != 'refs/heads/RC46' && github.ref != 'refs/heads/RC47' }}
+    continue-on-error: ${{ github.ref != 'refs/heads/RC43' && github.ref != 'refs/heads/RC44' && github.ref != 'refs/heads/RC45' && github.ref != 'refs/heads/RC46' && github.ref != 'refs/heads/RC47' && github.ref != 'refs/heads/RC49' }}
     needs:
       - gitleaks
     runs-on: ubuntu-latest
@@ -2905,8 +2914,8 @@ jobs:
         && needs.ci-path-lanes.result == 'success'
         && needs.terraform-validate-private.result == 'success'
         && needs.guards-pre-corset.result == 'success'
-        && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44' || github.ref == 'refs/heads/RC46' || github.ref == 'refs/heads/RC47' || needs.terraform-validate-public-stacks.result == 'success')
-        && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44' || github.ref == 'refs/heads/RC46' || github.ref == 'refs/heads/RC47' || needs.openapi-contract-snapshot.result == 'success')
+        && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44' || github.ref == 'refs/heads/RC46' || github.ref == 'refs/heads/RC47' || github.ref == 'refs/heads/RC49' || needs.terraform-validate-public-stacks.result == 'success')
+        && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44' || github.ref == 'refs/heads/RC46' || github.ref == 'refs/heads/RC47' || github.ref == 'refs/heads/RC49' || needs.openapi-contract-snapshot.result == 'success')
       }}
     runs-on: ubuntu-latest
     timeout-minutes: 50
@@ -2968,7 +2977,7 @@ jobs:
         !cancelled()
         && needs.ci-path-lanes.result == 'success'
         && needs.dotnet-fast-core-build.result == 'success'
-        && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44' || github.ref == 'refs/heads/RC46' || github.ref == 'refs/heads/RC47' || needs.openapi-contract-snapshot.result == 'success')
+        && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44' || github.ref == 'refs/heads/RC46' || github.ref == 'refs/heads/RC47' || github.ref == 'refs/heads/RC49' || needs.openapi-contract-snapshot.result == 'success')
       }}
     runs-on: ubuntu-latest
     # Three nested ceilings, innermost first: blame-hang (5m/test) → per-project cap in
@@ -4226,7 +4235,7 @@ jobs:
       - chaos-tests
       - real-mode-ci-flags
     # Fork PR workflows do not receive repository secrets â€” full CI only (`workflow_dispatch`).
-    if: ${{ needs.real-mode-ci-flags.outputs.aoai_live_opted_in == 'true' && github.ref != 'refs/heads/RC43' && github.ref != 'refs/heads/RC44' && github.ref != 'refs/heads/RC45' && github.ref != 'refs/heads/RC46' && github.ref != 'refs/heads/RC47' }}
+    if: ${{ needs.real-mode-ci-flags.outputs.aoai_live_opted_in == 'true' && github.ref != 'refs/heads/RC43' && github.ref != 'refs/heads/RC44' && github.ref != 'refs/heads/RC45' && github.ref != 'refs/heads/RC46' && github.ref != 'refs/heads/RC47' && github.ref != 'refs/heads/RC49' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     environment: dev
