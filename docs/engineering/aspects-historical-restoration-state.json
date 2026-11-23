@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "5741_imported_4514_verified_900_exact_overlap_and_672_numeric_review_link_candidates_pending_CI",
-  "next_priority": "Run required PR #7822 Aspects regression with 672 matching legacy '#PR' workbook review-link candidates; inspect any row-level mismatches. Keep 1 conflicting #6701 vs /pull/6702 and narrative 'Operational drain' quarantined. Preserve separate reviewed-source evidence gate and full history gitleaks failures; do not bypass controls. Next map candidate fixing-PR keys to actual defect identities only with independent evidence; finish 900-first-parent cross-revision source union and current narrow ledger overlap. No master full build. Do not merge until required checks pass.",
+  "state": "historical_5741_imported_source_pins_reconciled_explicit_duplicate_6702_identity_CI_pending",
+  "next_priority": "Check current #7822 head Aspects, evidence gate and CI tests including new explicit duplicate review PR #6702 of #6701; repair failures while retaining security controls. Expand accurate lifecycle evidence for remaining historical fixing PR references and resolve unlinked Excel row 27 without guessing. Only recompute comparable 900-first-parent density after independently proving distinct discovery IDs and cross-revision reviewed LOC.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -258,6 +258,34 @@
       "new_comparable_density_this_stage": null,
       "test_golden_status": "committed_in_PR_pending_current_head_CI",
       "reporting_rule": "Do not add 672 to the 203 ASPECTS-named candidates as proven unique defects; PRs may resolve multiple discoveries or be repeated in workbook."
+    },
+    "explicit_duplicate_fix_identity": {
+      "source_snapshot": "docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-22-duplicate-6702-of-6701.json",
+      "reconciliation_script": "scripts/aspects_verify_duplicate_fix_relationship.py",
+      "golden_tests": "scripts/tests/test_aspects_verify_duplicate_fix_relationship.py",
+      "ci_artifact": "artifacts/aspects/historical-explicit-duplicate-review-relations.json",
+      "original_excel_rows": [
+        36,
+        37
+      ],
+      "original_review_ids": [
+        "#6701",
+        "#6701"
+      ],
+      "original_fix_pr_links": [
+        6701,
+        6702
+      ],
+      "identical_reviewed_master_sha": "c21b578f95fa131db853346d0911a45621098067",
+      "independent_GitHub_check": "PR 6702 explicitly states it duplicated PR 6701 same defect; 6701 merged and 6702 closed-unmerged as checked 2026-11-23T00:59:51Z",
+      "status": "source_checked_and_committed_on_PR_7822_CI_pending",
+      "source_review_events_preserved": 2,
+      "known_duplicate_relationships": 1,
+      "new_source_verified_loc_this_iteration": 0,
+      "new_distinct_defects_discovered": 0,
+      "full_900_distinct_defect_recomputed": false,
+      "provenance": "one explicit self-reported duplicate fix PR association; not a global one-to-one mapping between fixing PR and defect identity",
+      "new_or_repeated_loc_to_global_900_window": null
     }
   }
 }
