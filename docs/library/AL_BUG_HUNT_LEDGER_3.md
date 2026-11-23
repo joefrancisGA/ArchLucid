@@ -1213,6 +1213,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-11-23 seed hunt (hit): no open rows remained. A repeated `--run-id` kept the first value, so the run named last was never checked. `GetOptionValue` now keeps the last repeated value and still rejects a blank or flag-like token. Regressions `Parse_UsesTheLastRunIdWhenTheFlagIsRepeated` and `Parse_RejectsALaterBlankRunIdAfterAValidOne`. Scoped TenantIsolationNegativeTestRunnerTests **65/65**. Private beta: An invited operator who passes the tenant-isolation run id twice is checked against the last run id. An earlier id no longer hides the run they named last.
+
+- [x] (proven) `TenantIsolationNegativeTestOptions.GetOptionValue` — first repeated `--run-id` hid the run named last — **hit 2026-11-23 seed hunt:** last value wins; regressions above. Private beta: An invited operator who passes the tenant-isolation run id twice is checked against the last run id. An earlier id no longer hides the run they named last.
+
 2026-11-23 seed hunt (hit): no open rows remained. A blank `--run-id` token was accepted, and a whitespace run id selects offline fixture mode, which can pass. `GetOptionValue` now trims every value option and rejects a blank token. Regressions `Parse_RejectsBlankValueForRunId` and `Parse_TrimsRunIdValue`. Scoped TenantIsolationNegativeTestRunnerTests **63/63**. Private beta: An invited operator who runs the tenant-isolation check with an empty run id gets a usage error instead of an offline fixture pass. A padded run id is used as the live run id.
 
 - [x] (proven) `TenantIsolationNegativeTestOptions.GetOptionValue` — blank `--run-id` falls through to offline fixture mode — **hit 2026-11-23 seed hunt:** trim the value and reject a blank token; regressions above. Private beta: An invited operator who runs the tenant-isolation check with an empty run id gets a usage error instead of an offline fixture pass. A padded run id is used as the live run id.
@@ -1413,8 +1417,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
