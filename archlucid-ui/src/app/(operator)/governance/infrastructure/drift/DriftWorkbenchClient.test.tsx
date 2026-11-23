@@ -5,6 +5,17 @@ import { DriftWorkbenchClient } from "@/app/(operator)/governance/infrastructure
 import { IANA_TIME_ZONE_PREFERENCE_STORAGE_KEY } from "@/lib/iana-time-zone-preference";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
 
+// A handoff URL is an exact scoped contract, but query serialization order is immaterial.
+function expectExactScopedHref(actualHref: string | null, expectedHref: string): void {
+  expect(actualHref).not.toBeNull();
+  const actual = new URL(actualHref ?? "", "https://archlucid.example");
+  const expected = new URL(expectedHref, "https://archlucid.example");
+  expect(actual.pathname).toBe(expected.pathname);
+  expect(actual.origin).toBe(expected.origin);
+  expect(actual.hash).toBe(expected.hash);
+  expect([...actual.searchParams.entries()].sort()).toEqual([...expected.searchParams.entries()].sort());
+}
+
 let searchParams = new URLSearchParams(
   "snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-2222-2222-2222-222222222222",
 );
@@ -533,8 +544,8 @@ describe("DriftWorkbenchClient", () => {
     render(<DriftWorkbenchClient />);
 
     const askLink = await screen.findByTestId("infra-drift-open-ask");
-    expect(askLink).toHaveAttribute(
-      "href",
+    expectExactScopedHref(
+      askLink.getAttribute("href"),
       "/governance/infrastructure/drift?snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-2222-2222-2222-222222222222&diffId=diff-1&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc&tab=drift&infrastructureAskOpen=1",
     );
   });
