@@ -1,7 +1,6 @@
 import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
 import {
   coerceAcceptedOidcEpochMsHint,
-  normalizeOidcConfigurationString,
   normalizeOidcOAuthFormString,
   normalizeOptionalOidcOAuthFormToken,
   normalizeRequiredOidcOAuthFormToken,

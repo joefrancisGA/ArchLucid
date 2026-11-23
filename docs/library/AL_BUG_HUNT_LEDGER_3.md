@@ -236,8 +236,8 @@
 - **aliases:** UI API client; fetch boundaries
 - **paths:** archlucid-ui/src/lib/api/
 - **test-filter:** lib/api
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -1485,8 +1485,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -4893,6 +4893,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`). Follow-up to BFF logout soft-hyphen hit. `parseDiscoveryDocument` still normalized `authorization_endpoint`, `token_endpoint`, and `end_session_endpoint` with configuration trimming only, so U+00AD inside discovery JSON hostnames survived into authorize and token POST targets. Endpoints now use `normalizeOidcOAuthFormString`. Regression `strips soft hyphens from discovery authorization and token endpoints`; discovery + config vitest 27/27. Private beta: sign-in and token exchange still target the identity-provider hosts advertised in discovery when those URLs contain invisible soft hyphens.
+
+- [x] (proven) `parseDiscoveryDocument` — soft hyphens in discovery endpoint URLs — **proven 2026-11-23 seed hunt:** authorization/token endpoints kept U+00AD; OAuth-form normalization now strips them like env authority getters.
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue after the 2026-11-23 thorough dry pass. `resolveRpLogoutUrlFromBffSession` normalized the BFF logout URL with `normalizeOidcConfigurationString`, which does not strip soft hyphens, so an IdP hostname pasted with U+00AD survived into `signOutAndRedirectHome` navigation. Logout URLs now use `normalizeOidcOAuthFormString`. Regression `strips soft hyphens from BFF logout URLs before safety checks` failed first; `bff-session-sync` vitest 157/157. Private beta: sign-out still reaches the configured identity-provider logout endpoint when the BFF URL was copied with invisible soft hyphens.
 
 - [x] (proven) `resolveRpLogoutUrlFromBffSession` — soft hyphen in BFF logout URL host — **proven 2026-11-23 seed hunt:** U+00AD in hostname survived configuration-only normalization; OAuth-form normalization now strips it before RP-initiated logout.
@@ -8220,8 +8223,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -12384,8 +12387,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -12927,8 +12930,8 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -19379,8 +19382,8 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

@@ -67,3 +67,4 @@
 {"at":"2026-11-23T19:48:36.0473404Z","zoneId":"ui-architecture-diagram","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: edge overrides mis-applied when positional edge ids shifted"}
 {"at":"2026-11-23T19:52:10.2582813Z","zoneId":"ui-architecture-diagram","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: family filter hid bundled edges without data-from attributes"}
 {"at":"2026-11-23T19:55:25.7451798Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: BFF logout URL kept soft hyphens in hostname"}
+{"at":"2026-11-23T19:59:55.3728466Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: discovery endpoints kept soft hyphens in hostnames"}
