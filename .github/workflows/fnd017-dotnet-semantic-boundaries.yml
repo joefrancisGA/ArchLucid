@@ -25,6 +25,7 @@ jobs:
             --results-directory fnd017-testresults
       # Only FND017001 is enforcement-ready. The remaining FND017 rules are advisory.
       - name: Enforce FND017001 against checked-in ArchLucid.Core
+        if: always()
         run: >-
           dotnet build ArchLucid.Core/ArchLucid.Core.csproj
           --configuration Release
