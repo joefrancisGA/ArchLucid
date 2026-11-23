@@ -2,6 +2,7 @@ using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.InfraEvidence;
 
+using Dapper;
 using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
@@ -86,6 +87,51 @@ public sealed class SqlRemediationPatternCurrentApprovedReadTests(SqlServerPersi
             .Status.Should().Be(RemediationPatternStatus.Approved);
         (await repository.TryGetCurrentApprovedVersionAsync(foreignTenant, patternId))
             .Should().BeNull();
+
+        // Directly corrupted SQL approval metadata must never be promoted to
+        // independent approval just because Status remains Approved.
+        await using (SqlConnection sql = new(fixture.ConnectionString))
+        {
+            await sql.OpenAsync();
+            const string modify = """
+                UPDATE dbo.RemediationPatternVersions
+                SET ApprovedByActorKey = @Actor,
+                    ApprovedUtc = @ApprovalUtc
+                WHERE TenantId = @TenantId AND PatternId = @PatternId
+                  AND VersionId = @VersionId;
+                """;
+            object scope = new
+            {
+                TenantId = tenantId, PatternId = patternId,
+                VersionId = version2.VersionId,
+                Actor = "TEST-AUTHOR",
+                ApprovalUtc = (DateTime?)now,
+            };
+            await sql.ExecuteAsync(modify, scope);
+            (await repository.TryGetCurrentApprovedVersionAsync(tenantId, patternId))
+                .Should().BeNull("self-approved pattern metadata cannot establish independent authority");
+
+            await sql.ExecuteAsync(modify, new
+            {
+                TenantId = tenantId, PatternId = patternId,
+                VersionId = version2.VersionId,
+                Actor = "independent-test-approver",
+                ApprovalUtc = (DateTime?)null,
+            });
+            (await repository.TryGetCurrentApprovedVersionAsync(tenantId, patternId))
+                .Should().BeNull("missing approval timestamp cannot establish current approval");
+
+            await sql.ExecuteAsync(modify, new
+            {
+                TenantId = tenantId, PatternId = patternId,
+                VersionId = version2.VersionId,
+                Actor = "independent-test-approver",
+                ApprovalUtc = (DateTime?)now,
+            });
+        }
+
+        (await repository.TryGetCurrentApprovedVersionAsync(tenantId, patternId))
+            .Should().NotBeNull("repaired independent approval metadata is admissible");
 
         await repository.UpdateVersionAsync(new RemediationPatternVersionRecord
         {
