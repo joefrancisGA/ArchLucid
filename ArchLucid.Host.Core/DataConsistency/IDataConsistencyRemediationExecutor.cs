@@ -1,7 +1,7 @@
 namespace ArchLucid.Host.Core.DataConsistency;
 
 /// <summary>
-///     Shared guard → clamp → SELECT → dry-run → transactional DELETE → audit pipeline for data-consistency remediation.
+///     Shared guard → clamp → SELECT → dry-run → transactional DELETE + durable audit co-commit pipeline.\n///     A failed audit append rolls back the SQL deletion rather than leaving an unaudited mutation.
 /// </summary>
 public interface IDataConsistencyRemediationExecutor
 {

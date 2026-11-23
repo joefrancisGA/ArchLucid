@@ -54,8 +54,12 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
     chronological_commits = list(reversed(commits))
     original: dict[tuple[str, str], set[int]] = defaultdict(set)
     derived: dict[tuple[str, str], set[int]] = defaultdict(set)
-    first_original: dict[tuple[str, str], int] = {}
+    # A blob can be reviewed in different commits with DIFFERENT line spans.
+    # Cross-revision proof must terminate at a real pinned review event that
+    # included the line, not at the earliest occurrence of that blob.
+    original_review_anchors: dict[tuple[int, str, str], set[int]] = defaultdict(set)
     first_derived: dict[tuple[str, str], int] = {}
+    first_derived_reviewed_lines: dict[tuple[str, str], set[int]] = {}
     # An artifact digest detects cross-run changes, but cannot authenticate the
     # blob chosen by a candidate. Recheck every in-window derived source
     # against the tree of its own *reported review commit* before comparison.
@@ -72,8 +76,10 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
                 raise ValueError("Original source row absent from independently checked window")
             for s in row.get("pinned_sources") or [row]:
                 key = (s["path"], s["blob"])
-                original[key].update(intervals(s, "spans"))
-                first_original[key] = min(first_original.get(key, order[sha]), order[sha])
+                reviewed_lines = intervals(s, "spans")
+                original[key].update(reviewed_lines)
+                original_review_anchors[(order[sha], s["path"], s["blob"])].update(
+                    reviewed_lines)
         for row in candidates:
             if (row.get("status") != "git_source_at_review_commit_candidate_only"
                     or row.get("window_membership") != "in_900_first_parent_window"):
@@ -101,7 +107,15 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
                 derived_components_attested += 1
                 derived_nonblank_occurrences_attested += len(selected)
                 derived[key].update(selected)
-                first_derived[key] = min(first_derived.get(key, order[sha]), order[sha])
+                # The earliest candidate review of a path/blob may have
+                # selected only a subset of its lines. Do not attach later
+                # source spans to an earlier review event on a matching blob.
+                candidate_order = order[sha]
+                if key not in first_derived or candidate_order < first_derived[key]:
+                    first_derived[key] = candidate_order
+                    first_derived_reviewed_lines[key] = set(selected)
+                elif candidate_order == first_derived[key]:
+                    first_derived_reviewed_lines[key].update(selected)
     except (KeyError, TypeError, ValueError) as exc:
         result["blocking_reason"] = f"Malformed source identity: {exc}"
         return result
@@ -115,8 +129,8 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
         return result
 
     path_sources: dict[str, list[tuple[int, str, set[int]]]] = defaultdict(list)
-    for (path, blob), lines in original.items():
-        path_sources[path].append((first_original[(path, blob)], blob, lines))
+    for (review_order, path, blob), reviewed_lines in original_review_anchors.items():
+        path_sources[path].append((review_order, blob, reviewed_lines))
     matches = set()
     cache = blob_cache
     adjacent_matches = set()
@@ -142,7 +156,9 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
     # Compare at most the two closest original-pinned blob identities to each
     # derived candidate. Transitive historical source lineage is NOT asserted.
     for (path, candidate_blob), selected in sorted(only.items()):
-        if not selected or not path_sources.get(path):
+        anchor_reviewed = selected & first_derived_reviewed_lines[
+            (path, candidate_blob)]
+        if not anchor_reviewed or not path_sources.get(path):
             continue
         neighbors = sorted(path_sources[path],
                            key=lambda p: (abs(p[0] - first_derived[(path, candidate_blob)]),
@@ -175,7 +191,7 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
                 pairs = ((b, a) for a, b in line_map.items())
             comparable_pairs = []
             for candidate_line, original_line in pairs:
-                if candidate_line in selected and original_line in original_lines:
+                if candidate_line in anchor_reviewed and original_line in original_lines:
                     identity = (path, candidate_blob, candidate_line)
                     matches.add(identity)
                     comparable_pairs.append((candidate_line, original_line))
@@ -224,21 +240,46 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
                 or row.get("window_membership") != "in_900_first_parent_window"):
             continue
         raw_occurrences = exact_repeats = cross_proven = provisional = 0
+        cohort_proof_not_retraced_at_row_review_commit = 0
+        source_paths = set()
+        comparable_paths = set()
+        lines_on_comparable_paths = 0
+        lines_without_original_pin_path = 0
         for src in row.get("sources", []):
             key = (src["path"], src["blob_derived_at_reviewed_commit"])
             observed = intervals(src, "nonblank_intervals_at_reviewed_commit")
             raw_occurrences += len(observed)
+            source_paths.add(src["path"])
+            if src["path"] in path_sources:
+                comparable_paths.add(src["path"])
+                lines_on_comparable_paths += len(observed)
+            else:
+                lines_without_original_pin_path += len(observed)
             exact_repeats += len(observed & original.get(key, set()))
             unmatched = observed - original.get(key, set())
-            cross_proven += sum(
-                (src["path"], src["blob_derived_at_reviewed_commit"], n)
-                in first_parent_proven_matches for n in unmatched)
+            # A Git blob can occur at multiple review commits even across
+            # edit-and-revert history. The cohort-level lineage proof is
+            # anchored at first_derived[key]; it must NEVER be re-attributed
+            # as proof for another Excel row at a later commit merely because
+            # that row has an identical path/blob/line triple.
+            at_traced_candidate_commit = (
+                order[row["reviewed_master_sha"]] == first_derived[key])
+            cohort_proven_here = {
+                n for n in unmatched
+                if (src["path"], src["blob_derived_at_reviewed_commit"], n)
+                in first_parent_proven_matches
+            }
+            if at_traced_candidate_commit:
+                cross_proven += len(cohort_proven_here)
+            else:
+                cohort_proof_not_retraced_at_row_review_commit += len(cohort_proven_here)
             provisional += sum(
                 (src["path"], src["blob_derived_at_reviewed_commit"], n)
                 in matches and
-                (src["path"], src["blob_derived_at_reviewed_commit"], n)
-                not in first_parent_proven_matches for n in unmatched)
-        if raw_occurrences != row.get("candidate_nonblank_loc"):
+                (not at_traced_candidate_commit or n not in cohort_proven_here)
+                for n in unmatched)
+        if (raw_occurrences != row.get("candidate_nonblank_loc")
+                or lines_without_original_pin_path + lines_on_comparable_paths != raw_occurrences):
             raise ValueError(f"Candidate Excel row {row.get('excel_row')} source LOC drift")
         if exact_repeats + cross_proven + provisional > raw_occurrences:
             raise ValueError("Per-row source identity proof exceeds candidate coverage")
@@ -247,8 +288,17 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
             "review_id": row.get("review_id"),
             "reviewed_master_sha": row.get("reviewed_master_sha"),
             "candidate_source_line_occurrences": raw_occurrences,
+            "source_paths_reported": sorted(source_paths),
+            "source_paths_with_original_pinned_review": sorted(comparable_paths),
+            "source_paths_without_original_pinned_review": sorted(source_paths - comparable_paths),
+            "candidate_line_occurrences_on_paths_with_original_pins":
+                lines_on_comparable_paths,
+            "candidate_line_occurrences_on_paths_without_original_pins":
+                lines_without_original_pin_path,
             "exact_repeat_with_original_pin_same_path_blob_line": exact_repeats,
             "different_blob_full_first_parent_proven_repeat_with_original_pin": cross_proven,
+            "cohort_lineage_proof_not_retraced_at_this_review_commit":
+                cohort_proof_not_retraced_at_row_review_commit,
             "different_blob_provisional_equal_hunk_only": provisional,
             "without_proven_original_pin_identity": (
                 raw_occurrences - exact_repeats - cross_proven),
@@ -267,6 +317,12 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
         "oldest_sha": anchor["oldest_sha"],
         "first_parent_commits": length,
         "candidate_exact_only_line_identities": expected_only,
+        "original_source_pin_review_commit_anchors": len(original_review_anchors),
+        "candidate_only_exact_lines_selected_at_first_candidate_commit": sum(
+            len(only[key] & first_derived_reviewed_lines[key]) for key in only),
+        "candidate_only_exact_lines_selected_only_at_later_candidate_commits": (
+            expected_only - sum(
+                len(only[key] & first_derived_reviewed_lines[key]) for key in only)),
         "derived_git_tree_source_components_attested": derived_components_attested,
         "derived_git_tree_nonblank_occurrences_attested": derived_nonblank_occurrences_attested,
         "bounded_unique_prefix_suffix_revision_pairs_examined": bounded_pair_count,

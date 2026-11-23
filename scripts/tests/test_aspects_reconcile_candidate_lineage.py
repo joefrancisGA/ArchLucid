@@ -102,12 +102,178 @@ class CandidateLineageTests(unittest.TestCase):
         self.assertEqual(row["excel_row"], 8)
         self.assertEqual(row["reviewed_master_sha"], self.new_sha)
         self.assertEqual(row["candidate_source_line_occurrences"], 5)
+        self.assertEqual(row["source_paths_reported"], ["a.cs"])
+        self.assertEqual(row["source_paths_with_original_pinned_review"], ["a.cs"])
+        self.assertEqual(row["source_paths_without_original_pinned_review"], [])
+        self.assertEqual(row["candidate_line_occurrences_on_paths_with_original_pins"], 5)
+        self.assertEqual(row["candidate_line_occurrences_on_paths_without_original_pins"], 0)
         self.assertEqual(row["exact_repeat_with_original_pin_same_path_blob_line"], 0)
         self.assertEqual(row["different_blob_full_first_parent_proven_repeat_with_original_pin"], 2)
         self.assertEqual(row["different_blob_provisional_equal_hunk_only"], 0)
         self.assertEqual(row["without_proven_original_pin_identity"], 3)
         self.assertEqual(row["newly_independently_verified_reviewed_loc"], 0)
         self.assertTrue(r["candidate_row_lineage_proof_not_reviewed_loc"])
+
+    def test_candidate_source_with_no_same_path_original_pin_is_not_assumed_new_review(self):
+        (self.repo / "unreviewed.cs").write_text(
+            "extra-a\nextra-b\n", encoding="utf-8")
+        git(self.repo, "add", "unreviewed.cs")
+        git(self.repo, "commit", "-qm", "extra explicit candidate-only source")
+        current = git(self.repo, "rev-parse", "HEAD")
+        extra_blob = git(self.repo, "rev-parse", "HEAD:unreviewed.cs")
+        def add_path(pins, pin_report, candidates, candidate_report):
+            pins[1]["reviewed_master_sha"] = current
+            row = candidates[0]
+            row["reviewed_master_sha"] = current
+            row["candidate_nonblank_loc"] = 7
+            row["sources"].append({
+                "path": "unreviewed.cs",
+                "blob_derived_at_reviewed_commit": extra_blob,
+                "original_blob_pinned": False,
+                "nonblank_loc": 2,
+                "nonblank_intervals_at_reviewed_commit": [[1, 2]],
+            })
+            self.anchor["head_sha"] = current
+            self.anchor["first_parent_commits"] = 3
+            pin_report["audited_rows_sha256"] = audited_rows_sha256(pins)
+            candidate_report["candidate_rows_sha256"] = audited_rows_sha256(candidates)
+            candidate_report["candidate_line_occurrences"] = 7
+            candidate_report["in_window_candidate_line_occurrences"] = 7
+        result = self.case(add_path)
+        self.assertEqual(result["status"], "provisional_cross_revision_candidate_lineage")
+        review = result["candidate_review_source_lineage_by_excel_row"][0]
+        self.assertEqual(review["source_paths_reported"], ["a.cs", "unreviewed.cs"])
+        self.assertEqual(review["source_paths_with_original_pinned_review"], ["a.cs"])
+        self.assertEqual(review["source_paths_without_original_pinned_review"],
+                         ["unreviewed.cs"])
+        self.assertEqual(review["candidate_source_line_occurrences"], 7)
+        self.assertEqual(review["candidate_line_occurrences_on_paths_with_original_pins"], 5)
+        self.assertEqual(review["candidate_line_occurrences_on_paths_without_original_pins"], 2)
+        self.assertEqual(review["newly_independently_verified_reviewed_loc"], 0)
+        self.assertIsNone(result["new_comparable_900_density"])
+
+    def test_later_candidate_review_spans_do_not_inherit_earlier_blob_anchor(self):
+        # Same path/blob at two source-review commits, but disjoint reviewed
+        # intervals. The later selected line cannot be lineage-proven by
+        # walking to the first commit where that blob was observed.
+        self.commit("alpha\nmutated\nrepeat\nrepeat\nnovel\n",
+                    "change a line between same-blob candidate reviews")
+        self.commit("alpha\nunique\nrepeat\nrepeat\nnovel\n",
+                    "restore the original candidate blob")
+        restored_sha = git(self.repo, "rev-parse", "HEAD")
+        self.assertEqual(git(self.repo, "rev-parse", "HEAD:a.cs"), self.new_blob)
+        pinned, pin_report, candidates, candidate_report = self.fixture()
+        first = candidates[0]
+        first["candidate_nonblank_loc"] = 1
+        first["sources"][0]["nonblank_loc"] = 1
+        first["sources"][0]["nonblank_intervals_at_reviewed_commit"] = [[1, 1]]
+        pinned.append({
+            "excel_row": 9, "reviewed_master_sha": restored_sha,
+            "pin_status": "unparseable", "window_membership": "in_window",
+        })
+        later = dict(first)
+        later["excel_row"] = 9
+        later["reviewed_master_sha"] = restored_sha
+        later["sources"] = [dict(first["sources"][0])]
+        later["sources"][0]["nonblank_intervals_at_reviewed_commit"] = [[2, 2]]
+        candidates.append(later)
+        self.anchor["head_sha"] = restored_sha
+        self.anchor["first_parent_commits"] = 4
+        pin_report["audited_rows_sha256"] = audited_rows_sha256(pinned)
+        pin_report["review_events_present"] = 3
+        candidate_report["candidate_rows_sha256"] = audited_rows_sha256(candidates)
+        candidate_report["unparsed_historical_rows_examined"] = 2
+        candidate_report["candidate_rows"] = 2
+        candidate_report["in_window_candidate_rows"] = 2
+        candidate_report["candidate_line_occurrences"] = 2
+        candidate_report["in_window_candidate_line_occurrences"] = 2
+        result = sut.candidate_lineage(self.repo, pinned, pin_report, candidates,
+                                       candidate_report, expected_records=3)
+        self.assertEqual(result["status"], "provisional_cross_revision_candidate_lineage")
+        self.assertEqual(result["candidate_exact_only_line_identities"], 2)
+        self.assertEqual(result["candidate_only_exact_lines_selected_at_first_candidate_commit"], 1)
+        self.assertEqual(result["candidate_only_exact_lines_selected_only_at_later_candidate_commits"], 1)
+        self.assertEqual(result["candidate_only_proven_same_path_first_parent_lineage_to_original_pin"], 1)
+        reviews = {row["excel_row"]: row for row in
+                   result["candidate_review_source_lineage_by_excel_row"]}
+        self.assertEqual(reviews[8]["different_blob_full_first_parent_proven_repeat_with_original_pin"], 1)
+        self.assertEqual(reviews[9]["different_blob_full_first_parent_proven_repeat_with_original_pin"], 0)
+        self.assertEqual(reviews[9]["without_proven_original_pin_identity"], 1)
+
+    def test_original_blob_pin_only_proves_lines_reviewed_at_its_own_commit(self):
+        # At the old commit only alpha was reviewed. The later review of
+        # "unique" references the SAME blob after an intervening mutation
+        # and reversion. A candidate line at the middle SHA must not inherit
+        # the early source blob's uninterrupted history for the later review.
+        self.commit("alpha\nmutated\nrepeat\nrepeat\nnovel\n",
+                    "mutate before later reviewed pin")
+        self.commit("alpha\nunique\nrepeat\nrepeat\n",
+                    "restore old blob for later original pin")
+        restored_sha = git(self.repo, "rev-parse", "HEAD")
+        self.assertEqual(git(self.repo, "rev-parse", "HEAD:a.cs"), self.old_blob)
+        pinned, pin_report, candidates, candidate_report = self.fixture()
+        pinned[0]["spans"] = [[1, 1]]
+        pinned[0]["nonblank_reviewed_loc"] = 1
+        pinned.append({
+            "excel_row": 9, "reviewed_master_sha": restored_sha,
+            "pin_status": VERIFIED, "window_membership": "in_window",
+            "path": "a.cs", "blob": self.old_blob,
+            "spans": [[2, 2]], "nonblank_reviewed_loc": 1,
+        })
+        self.anchor["head_sha"] = restored_sha
+        self.anchor["first_parent_commits"] = 4
+        pin_report["audited_rows_sha256"] = audited_rows_sha256(pinned)
+        pin_report["review_events_present"] = 3
+        result = sut.candidate_lineage(self.repo, pinned, pin_report, candidates,
+                                       candidate_report, expected_records=3)
+        self.assertEqual(result["status"], "provisional_cross_revision_candidate_lineage")
+        self.assertEqual(result["original_source_pin_review_commit_anchors"], 2)
+        self.assertEqual(result["candidate_only_proven_same_path_first_parent_lineage_to_original_pin"], 1)
+        review = result["candidate_review_source_lineage_by_excel_row"][0]
+        self.assertEqual(review["different_blob_full_first_parent_proven_repeat_with_original_pin"], 1)
+        self.assertEqual(review["different_blob_provisional_equal_hunk_only"], 1)
+        self.assertEqual(review["without_proven_original_pin_identity"], 4)
+        self.assertEqual(review["newly_independently_verified_reviewed_loc"], 0)
+
+    def test_cohort_proof_is_not_reused_for_later_review_of_reverted_same_blob(self):
+        self.commit("alpha\nmutated\nrepeat\nrepeat\nnovel\n",
+                    "intermediate changed line")
+        self.commit("alpha\nunique\nrepeat\nrepeat\nnovel\n",
+                    "restore identical candidate blob")
+        reverted_sha = git(self.repo, "rev-parse", "HEAD")
+        self.assertEqual(git(self.repo, "rev-parse", "HEAD:a.cs"), self.new_blob)
+        pinned, pin_report, candidates, candidate_report = self.fixture()
+        pinned.append({
+            "excel_row": 9, "reviewed_master_sha": reverted_sha,
+            "pin_status": "unparseable", "window_membership": "in_window",
+        })
+        later = dict(candidates[0])
+        later["excel_row"] = 9
+        later["reviewed_master_sha"] = reverted_sha
+        later["sources"] = [dict(source) for source in candidates[0]["sources"]]
+        candidates.append(later)
+        self.anchor["head_sha"] = reverted_sha
+        self.anchor["first_parent_commits"] = 4
+        pin_report["audited_rows_sha256"] = audited_rows_sha256(pinned)
+        pin_report["review_events_present"] = 3
+        candidate_report["candidate_rows_sha256"] = audited_rows_sha256(candidates)
+        candidate_report["unparsed_historical_rows_examined"] = 2
+        candidate_report["candidate_rows"] = 2
+        candidate_report["in_window_candidate_rows"] = 2
+        candidate_report["candidate_line_occurrences"] = 10
+        candidate_report["in_window_candidate_line_occurrences"] = 10
+        result = sut.candidate_lineage(self.repo, pinned, pin_report, candidates,
+                                       candidate_report, expected_records=3)
+        self.assertEqual(result["status"], "provisional_cross_revision_candidate_lineage")
+        reviews = {r["excel_row"]: r for r in
+                   result["candidate_review_source_lineage_by_excel_row"]}
+        self.assertEqual(reviews[8]["different_blob_full_first_parent_proven_repeat_with_original_pin"], 2)
+        self.assertEqual(reviews[8]["cohort_lineage_proof_not_retraced_at_this_review_commit"], 0)
+        self.assertEqual(reviews[9]["different_blob_full_first_parent_proven_repeat_with_original_pin"], 0)
+        self.assertEqual(reviews[9]["cohort_lineage_proof_not_retraced_at_this_review_commit"], 2)
+        self.assertEqual(reviews[9]["different_blob_provisional_equal_hunk_only"], 2)
+        self.assertEqual(reviews[9]["without_proven_original_pin_identity"], 5)
+        self.assertEqual(reviews[9]["newly_independently_verified_reviewed_loc"], 0)
 
     def test_edit_revert_row_proof_does_not_count_unstable_text(self):
         self.commit("alpha\\nmutated\\nrepeat\\nrepeat\\nnovel\\n", "middle mutation")
