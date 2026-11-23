@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { deriveArchitectureGapBaselineFromSubmittedText } from "@/lib/derive-architecture-gap-baseline";
+import { deriveArchitectureGapBaselineFromSubmittedText, formatParsedSubmittedArchitectureName } from "@/lib/derive-architecture-gap-baseline";
 
 describe("deriveArchitectureGapBaselineFromSubmittedText", () => {
   it("suppresses gap assertion when submitted architecture text is absent", () => {
@@ -36,4 +36,20 @@ Payment gateway, CRM sync, and legacy batch feed`);
       "Payment gateway, CRM sync, and legacy batch feed",
     ]);
   });
+  it("is idempotent when an imported actor already carries submitted-text provenance", () => {
+    const label = "Payment gateway";
+    const once = formatParsedSubmittedArchitectureName(label);
+    const twice = formatParsedSubmittedArchitectureName(once);
+
+    expect(once).toBe("Payment gateway (submitted text, not operator-asserted)");
+    expect(twice).toBe(once);
+    expect(twice.match(/\\(submitted text, not operator-asserted\\)/gu)?.length).toBe(1);
+  });
+
+  it("does not mistake partial provenance text for an already completed marker", () => {
+    expect(formatParsedSubmittedArchitectureName("Payment gateway (submitted text")).toBe(
+      "Payment gateway (submitted text (submitted text, not operator-asserted)",
+    );
+  });
+
 });
