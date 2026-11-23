@@ -59,7 +59,8 @@ partial class AgentAzureOpenAiExecutorRegistrar
                         schema,
                         completionLogger,
                         llmTelemetryOptions,
-                        truncationReporter));
+                        truncationReporter,
+                        ao.GetEffectiveCompletionNetworkTimeout()));
                 }
 
                 return new FallbackAzureOpenAiInnerClientsRegistry { Clients = clients };
@@ -73,7 +74,8 @@ partial class AgentAzureOpenAiExecutorRegistrar
         BinaryData? schema,
         ILogger<AzureOpenAiCompletionClient> completionLogger,
         IOptionsMonitor<LlmTelemetryOptions> llmTelemetryOptions,
-        ILlmCompletionOutputTruncationReporter truncationReporter)
+        ILlmCompletionOutputTruncationReporter truncationReporter,
+        TimeSpan networkTimeout)
     {
         ArgumentNullException.ThrowIfNull(row);
 
@@ -86,7 +88,8 @@ partial class AgentAzureOpenAiExecutorRegistrar
                 schema,
                 completionLogger,
                 llmTelemetryOptions,
-                truncationReporter);
+                truncationReporter,
+                networkTimeout);
         }
 
         return new AzureOpenAiCompletionClient(
@@ -97,6 +100,7 @@ partial class AgentAzureOpenAiExecutorRegistrar
             schema,
             completionLogger,
             llmTelemetryOptions,
-            truncationReporter);
+            truncationReporter,
+            networkTimeout);
     }
 }
