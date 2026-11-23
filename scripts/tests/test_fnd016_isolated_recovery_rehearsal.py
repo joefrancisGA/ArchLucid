@@ -43,7 +43,51 @@ class IsolatedRecoveryRehearsalTests(unittest.TestCase):
     def test_tampered_inverse_rejected(self):
         bad = replace(self.rollback, inverse_steps=(
             RemediationStep("set-property", "r1", "public", "false", "incorrect"),))
-        self.assertEqual(self.run_rehearsal(rollback=bad).reasons, ("rollback_replay_mismatch",))
+        self.assertEqual(self.run_rehearsal(rollback=bad).reasons, ("inverse_steps_mismatch",))
+
+    def test_same_final_digest_cannot_hide_substituted_intermediate_inverse(self):
+        # A two-step change is deliberately inverted through an unauthorized
+        # intermediate value. That forged path restores the same final model,
+        # but it is not the inverse sequence reviewed by the FND-015 planner.
+        source = {"r1": {"public": "true", "owner": "team"}}
+        steps = [
+            RemediationStep("set-property", "r1", "public", "true", "middle"),
+            RemediationStep("set-property", "r1", "public", "middle", "false"),
+        ]
+        forward = simulate_remediation(
+            source, steps, principal_id="operator", tenant_id="t",
+            project_id="p", proposal_id="proposal",
+            decision=DryRunAuthorization("operator", "t", "p", "proposal",
+                                         "remediation.simulate", True, "d1"))
+        original_plan = plan_rollout_and_rollback(
+            forward, tenant_id="t", proposal_id="proposal",
+            evidence_refs=["e1"], deployment_policy_ref="policy",
+            decision=RollbackPlanningDecision(True, "remediation.plan",
+                                               "t", "proposal", "d2"))
+        self.assertEqual(original_plan.status, "planned")
+        good = rehearse_recovery(
+            source, steps, tenant_id="t", project_id="p",
+            proposal_id="proposal", dry_run=forward, rollback=original_plan)
+        self.assertEqual(good.status, "passed")
+
+        injected = replace(original_plan, inverse_steps=(
+            RemediationStep("set-property", "r1", "public", "false", "unsafe"),
+            RemediationStep("set-property", "r1", "public", "unsafe", "true"),
+        ))
+        outcome = rehearse_recovery(
+            source, steps, tenant_id="t", project_id="p",
+            proposal_id="proposal", dry_run=forward, rollback=injected)
+        self.assertEqual(outcome.status, "rejected")
+        self.assertEqual(outcome.reasons, ("inverse_steps_mismatch",))
+        self.assertIsNone(outcome.evidence)
+        self.assertEqual(source["r1"]["public"], "true")
+
+    def test_misbound_inverse_operation_rejected_before_replay(self):
+        bad = replace(self.rollback, inverse_steps=(
+            RemediationStep("remove-property", "r1", "public", "false", None),))
+        outcome = self.run_rehearsal(rollback=bad)
+        self.assertEqual(outcome.reasons, ("inverse_steps_mismatch",))
+        self.assertIsNone(outcome.evidence)
 
     def test_missing_inverse_rejected(self):
         bad = replace(self.rollback, inverse_steps=())
