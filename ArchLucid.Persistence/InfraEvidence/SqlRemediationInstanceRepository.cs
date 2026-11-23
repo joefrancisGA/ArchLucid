@@ -72,6 +72,11 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
 
     public async Task UpdateInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(instance);
+        if (instance.Status == RemediationInstanceStatus.Approved)
+            throw new InvalidOperationException(
+                "Approving a remediation instance requires an atomic provenance commit.");
+
         const string sql = """
                            UPDATE dbo.RemediationInstances
                            SET Status = @Status,
@@ -109,6 +114,9 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(mutation);
+        if (mutation.Status == RemediationInstanceStatus.Approved)
+            throw new InvalidOperationException(
+                "Approving a remediation instance requires an atomic provenance commit.");
 
         const string sql = """
                            UPDATE dbo.RemediationInstances
