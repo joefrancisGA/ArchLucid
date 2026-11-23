@@ -30,6 +30,8 @@ on:
       - scripts/tests/test_aspects_reconcile_historical_lineage.py
       - scripts/aspects_verify_original_pinned_first_parent.py
       - scripts/tests/test_aspects_verify_original_pinned_first_parent.py
+      - scripts/aspects_verify_followon_historical_lineage.py
+      - scripts/tests/test_aspects_verify_followon_historical_lineage.py
       - scripts/tests/test_aspects_validate_historical_pins.py
       - scripts/aspects_reconcile_historical_corpus.py
       - scripts/tests/test_aspects_reconcile_historical_corpus.py
@@ -459,6 +461,46 @@ jobs:
               )
           PY
 
+      - name: Verify follow-on cross-blob line matches against original pinned Git source
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_verify_followon_historical_lineage.py' -v
+          python scripts/aspects_verify_followon_historical_lineage.py \
+            --repo . \
+            --pin-rows artifacts/aspects/historical-git-pin-rows.jsonl \
+            --pin-report artifacts/aspects/historical-git-pin-audit.json \
+            --ledger docs/engineering/aspects-review-ledger.jsonl \
+            --json-out artifacts/aspects/historical-followon-cross-blob-first-parent.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          report = json.loads(Path(
+              "artifacts/aspects/historical-followon-cross-blob-first-parent.json"
+          ).read_text())
+          exact = json.loads(Path(
+              "artifacts/aspects/historical-900-followon-pinned-overlap.json"
+          ).read_text())
+          assert report["status"] == "partial_historical_followon_cross_blob_first_parent_proof"
+          assert report["original_rows_audited"] == exact["historical_rows_imported"] == 5741
+          assert report["cohort"]["head_sha"] == exact["historical_cohort"]["head_sha"]
+          assert report["cohort"]["oldest_included_sha"] == exact["historical_cohort"]["oldest_included_sha"]
+          assert report["followon_records_in_historical_cohort"] == exact["followon_records_with_baseline_inside_historical_cohort"]
+          assert report["followon_records_outside_historical_cohort"] == exact["followon_records_with_baseline_outside_historical_cohort"]
+          assert report["followon_exact_overlap_line_identities"] == exact["followon_exact_repeat_with_original_pins"]
+          assert report["followon_exact_unmatched_line_identities"] == exact["followon_exact_identities_not_in_original_pins"]
+          assert report["new_independently_reviewed_loc"] == 0
+          assert report["new_comparable_900_density"] is None
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as output:
+              output.write(
+                  f"Follow-on cross-blob first-parent proof: "
+                  f"**{report['followon_cross_blob_proven_repeat_identities']:,}** "
+                  f"source identities matching original pins through checked history, "
+                  f"**{report['cross_blob_revision_pairs_checked']:,}** revision pairs checked; "
+                  f"**{report['followon_exact_unmatched_without_proven_lineage']:,}** "
+                  "exact-unmatched identities without such proof. Candidate-only, "
+                  "not new reviewed LOC or comparable density.\\n\\n"
+              )
+          PY
+
       - name: Locate latest comparable master snapshot
         if: github.event_name != 'pull_request'
         env:
@@ -510,6 +552,7 @@ jobs:
             artifacts/aspects/historical-original-pin-proven-first-parent.json
             artifacts/aspects/aspects-historical-exact-overlap.json
             artifacts/aspects/historical-900-followon-pinned-overlap.json
+            artifacts/aspects/historical-followon-cross-blob-first-parent.json
           if-no-files-found: error
 
       - name: Require anchored, nonempty historical lineage cohort
