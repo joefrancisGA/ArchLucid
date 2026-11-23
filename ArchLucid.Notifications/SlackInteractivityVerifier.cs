@@ -46,8 +46,10 @@ public sealed class SlackInteractivityVerifier(
 
         long nowEpoch = _timeProvider.GetUtcNow().ToUnixTimeSeconds();
 
-        // Reject replayed requests outside the 5-minute window.
-        if (Math.Abs(nowEpoch - requestEpoch) > MaxRequestAgeSeconds)
+        // Compare against the window bounds rather than subtracting untrusted timestamps.
+        // A crafted long request timestamp can overflow Math.Abs(nowEpoch - requestEpoch).
+        if (requestEpoch < nowEpoch - MaxRequestAgeSeconds
+            || requestEpoch > nowEpoch + MaxRequestAgeSeconds)
             return false;
 
         string baseString = $"{SignatureVersion}:{timestamp}:{rawBody}";

@@ -7,7 +7,7 @@ SOURCE = Path(__file__).resolve().parents[3] / "ArchLucid.Core/Persistence/Appli
 class ScopedRemediationFallbackTests(unittest.TestCase):
     def test_default_instance_insert_checks_project_scope(self):
         code = SOURCE.read_text()
-        method = code.split("Task InsertInstanceInScopeAsync(", 1)[1].split("Task UpdateInstanceAsync(", 1)[0]
+        method = code.split("Task InsertInstanceInScopeAsync(", 1)[1].split("Task UpdateInstanceInScopeAsync(", 1)[0]
         self.assertIn("scope.Matches(instance.TenantId, instance.WorkspaceId, instance.ProjectId)", method)
         self.assertLess(method.index("scope.Matches("), method.index("InsertInstanceAsync(instance"))
 

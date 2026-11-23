@@ -89,6 +89,74 @@ public sealed class SlackInteractivityVerifierTests
     }
 
     [Fact]
+    public void Verify_rejects_timestamp_that_would_overflow_signed_replay_delta()
+    {
+        const string signingSecret = "secret";
+        const string body = "{}";
+        const long now = 1_700_000_000;
+        // In unchecked long arithmetic, now - timestamp wraps to long.MinValue
+        // and Math.Abs(long.MinValue) throws before validating the signature.
+        long timestamp = long.MinValue + now;
+
+        FakeTimeProvider fakeClock = new();
+        fakeClock.SetUtcNow(DateTimeOffset.FromUnixTimeSeconds(now));
+
+        Mock<IOptionsMonitor<ChatOpsIncomingWebhooksOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(
+            new ChatOpsIncomingWebhooksOptions { SlackSigningSecret = signingSecret });
+
+        SlackInteractivityVerifier sut = new(options.Object, fakeClock);
+        string signature = ComputeSlackSignature(signingSecret, timestamp.ToString(), body);
+
+        sut.Verify(body, timestamp.ToString(), signature).Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(long.MinValue)]
+    [InlineData(long.MaxValue)]
+    public void Verify_rejects_extreme_unix_timestamps_without_throwing(long timestamp)
+    {
+        const string signingSecret = "secret";
+        const string body = "{}";
+        FakeTimeProvider fakeClock = new();
+        fakeClock.SetUtcNow(DateTimeOffset.FromUnixTimeSeconds(1_700_000_000));
+
+        Mock<IOptionsMonitor<ChatOpsIncomingWebhooksOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(
+            new ChatOpsIncomingWebhooksOptions { SlackSigningSecret = signingSecret });
+
+        SlackInteractivityVerifier sut = new(options.Object, fakeClock);
+        string signature = ComputeSlackSignature(signingSecret, timestamp.ToString(), body);
+
+        sut.Verify(body, timestamp.ToString(), signature).Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(-300, true)]
+    [InlineData(300, true)]
+    [InlineData(-301, false)]
+    [InlineData(301, false)]
+    public void Verify_enforces_inclusive_replay_window_without_changing_valid_signatures(
+        int secondsFromNow, bool expected)
+    {
+        const string signingSecret = "secret";
+        const string body = "{}";
+        const long now = 1_700_000_000;
+        long timestamp = now + secondsFromNow;
+        FakeTimeProvider fakeClock = new();
+        fakeClock.SetUtcNow(DateTimeOffset.FromUnixTimeSeconds(now));
+
+        Mock<IOptionsMonitor<ChatOpsIncomingWebhooksOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(
+            new ChatOpsIncomingWebhooksOptions { SlackSigningSecret = signingSecret });
+
+        SlackInteractivityVerifier sut = new(options.Object, fakeClock);
+        string signature = ComputeSlackSignature(signingSecret, timestamp.ToString(), body);
+
+        sut.Verify(body, timestamp.ToString(), signature).Should().Be(expected);
+    }
+
+    [Fact]
     public void Verify_rejects_signature_mismatch()
     {
         const string signingSecret = "secret";
