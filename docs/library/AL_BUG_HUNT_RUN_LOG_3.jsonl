@@ -31,3 +31,4 @@
 {"at":"2026-11-23T15:14:55.1414995Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: artifact directory accepted a parent-segment run id"}
 {"at":"2026-11-23T15:23:31.5178629Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: run id path segment retargeted the visibility probe"}
 {"at":"2026-11-23T15:30:03.3307991Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: 204 list capture passed on an HTTP 200 absent sentence"}
+{"at":"2026-11-23T15:40:32.3421294Z","zoneId":"cli-tenant-isolation","outcome":"seed-only","productLine":"archlucid-shared","set":3,"note":"seed hunt: no failing repro after status-mismatch probes"}
