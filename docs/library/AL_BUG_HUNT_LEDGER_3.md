@@ -43,6 +43,10 @@
 
 ## Zone: ui-lib-product-line
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted the decision cycle log fragment: `securenowInternalDocHref("DECISION_CYCLE_LOG.md")` and `resolveInAppDocHref` used `#securenow-decision-cycle`, which is the section `data-testid`. The section id is `decision-cycle`. Close and Decision cycle log on the pilot decision page, and the in-app doc link, now use that id. Regression `maps known internal docs to unique operator routes` and `maps the decision cycle log to the decision-cycle section`; internal-doc and in-app doc vitest **16/16**. Private beta: an invited SecureNow operator who opens Decision cycle log or Close on pilot decision reaches the Decision cycle section. That link no longer stops at the top of the page.
+
+- [x] (proven) `securenowInternalDocHref` — decision cycle log fragment was the data-testid — **hit 2026-11-23 seed hunt:** fragment is `#decision-cycle`; regression above.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted the sponsor Trust Center link: `SECURENOW_SPONSOR_HOME_ROWS` pointed at `/trust#self-assessment`, and `resolveSecureNowEvidenceHref` only rewrote the exact `/trust` path. The security marketing shell sends `/trust` home. The sponsor row now uses the resolver, and the resolver matches the path without the hash, so the link is `/administration/security-trust`. Regression `rewrites marketing hrefs for the security product line` and sponsor home copy; evidence navigation, sponsor home, and internal-doc vitest **9/9**. Private beta: an invited SecureNow operator who opens Trust Center from the sponsor section on home reaches Security and trust. That link no longer sends them back to the workspace home.
 
 - [x] (proven) `resolveSecureNowEvidenceHref` — `/trust#self-assessment` stayed on the public trust page — **hit 2026-11-23 seed hunt:** match `navHrefPathPart` before the marketing rewrite; regression above.
@@ -110,8 +114,8 @@
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 10
-- **bugs-found:** 10
+- **hunts:** 11
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

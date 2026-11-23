@@ -21,6 +21,9 @@ describe("securenowInternalDocHref", () => {
     expect(securenowInternalDocHref("SPONSOR_READOUT_OUTLINE.md")).toBe(
       "/administration/securenow-sponsor-path#sponsor-readout-outline",
     );
+    expect(securenowInternalDocHref("DECISION_CYCLE_LOG.md")).toBe(
+      "/administration/securenow-pilot-decision#decision-cycle",
+    );
   });
 
   it("keeps consumer row and list href sets unique", () => {

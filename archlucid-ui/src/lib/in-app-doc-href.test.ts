@@ -101,4 +101,10 @@ describe("resolveInAppDocHref", () => {
       "/help/findings#where-findings-come-from",
     );
   });
+
+  it("maps the decision cycle log to the decision-cycle section", () => {
+    expect(resolveInAppDocHref("docs/securenow/decision_cycle_log.md")).toBe(
+      "/administration/securenow-pilot-decision#decision-cycle",
+    );
+  });
 });
