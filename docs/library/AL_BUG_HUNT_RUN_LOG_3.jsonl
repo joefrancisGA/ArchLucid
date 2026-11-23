@@ -35,3 +35,4 @@
 {"at":"2026-11-23T15:47:41.4180847Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: workbenchFocus stuck on overview tab"}
 {"at":"2026-11-23T15:53:12.1080442Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: popstate left workbenchFocus on overview"}
 {"at":"2026-11-23T15:55:46.2049871Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: navigateTab left findingId on overview"}
+{"at":"2026-11-23T16:00:54.6395363Z","zoneId":"ui-lib-api","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: value report DOCX saved HTML without content-type guard"}

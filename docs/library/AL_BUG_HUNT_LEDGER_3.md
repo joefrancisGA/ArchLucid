@@ -162,9 +162,9 @@
 
 ## Zone: ui-lib-api
 
-2026-11-23 seed hunt (hit): promoted downloadValueReportDocx — downloadComparisonReplayPdf in the same module already rejected non-PDF 200 responses via ssertBinaryDownloadContentType, but the sponsor value report DOCX export skipped that guard, so a 200 HTML login or error page could save as ArchLucid-value-report.docx. Added the DOCX prefix check before 	riggerBrowserBlobDownload; regression vitest **3/3**. Private beta: Enterprise Controls value report download now fails fast with a clear error instead of saving a bogus .docx when the proxy returns HTML.
+2026-11-23 seed hunt (hit): promoted `downloadValueReportDocx` — `downloadComparisonReplayPdf` in the same module already rejected non-PDF 200 responses via `assertBinaryDownloadContentType`, but the sponsor value report DOCX export skipped that guard, so a 200 HTML login or error page could save as `ArchLucid-value-report.docx`. Added the DOCX prefix check before `triggerBrowserBlobDownload`; regression vitest **3/3**. Private beta: Enterprise Controls value report download now fails fast with a clear error instead of saving a bogus `.docx` when the proxy returns HTML.
 
-- [x] (proven) `downloadValueReportDocx` — 200 HTML saved as DOCX — **hit 2026-11-23 seed hunt:** ssertBinaryDownloadContentType with DOCX MIME prefix; regression above.
+- [x] (proven) `downloadValueReportDocx` — 200 HTML saved as DOCX — **hit 2026-11-23 seed hunt:** `assertBinaryDownloadContentType` with DOCX MIME prefix; regression above.
 
 - [ ] (candidate) `createAndDownloadComparisonPdf` — 200 JSON missing `x-archlucid-comparison-record-id` — locus: header read after ok; input: 200 `application/json` without header; wrong outcome: generic header error after apparent success; reachability: compare end-to-end summary download.
 - [ ] (candidate) `openScopedProxyFileGetInNewTab` — omitted-prefix JSON download opened in tab — locus: shared `fetchScopedProxyFileGet`; input: 200 `text/html`; wrong outcome: new tab shows login page; reachability: learning/product report preview actions.
