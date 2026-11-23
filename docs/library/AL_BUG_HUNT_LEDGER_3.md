@@ -4206,6 +4206,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-proxy
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. `resolveEmailOtpPostAuthPath` treated an explicit `"/"` as a chosen destination, so a desk path already stored by idle expiry or an OIDC retry was consumed and dropped. The sign-in page passes `"/"` whenever the query has no `returnUrl`. `"/"` is now only the default: a stored non-auth desk path wins, and a stored `/auth/signin` path still loses to home. Regression `uses a stored desk path when the explicit return is only the default root` failed first (received `"/"`), then the file passed 15/15. Private beta: after signing in from a page that has no return query, an invited operator returns to the desk saved before idle expiry or an OIDC retry instead of the home page.
+
+- [x] (proven) `resolvePostAuthReturnPath` — default `"/"` discards a stored desk path — **proven 2026-11-23 seed hunt:** Complete with `returnUrl` `"/"` and stored `/architecture/reviews/run-1` returned `"/"`; the stored desk path is now used.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. `replayLivelihoodPendingMutation` treated `policy_pack_save` with `autoReplay: false` as a finished no-op. That flag only makes `requiresConfirmBeforeLivelihoodReplay` ask before retry; `confirmReplay` then calls replay. A saved policy-pack publish therefore showed "Retry saved action" and, on confirm, never called `publishPolicyPackVersion`. Replay now publishes after that confirm. Regression `publishes a saved policy pack when replay runs after confirm` failed first (`publishPolicyPackVersion` was not called), then the replay and policy files passed 16/16. Private beta: after signing back in, confirming a saved policy-pack publish sends that publish instead of marking it finished without contacting the API.
 
 - [x] (proven) `replayLivelihoodPendingMutation` — confirmed policy-pack publish is a no-op when `autoReplay` is false — **proven 2026-11-23 seed hunt:** `publishPolicyPackVersion` was not called for `pack-1`; confirm replay now publishes the stored pack and body.
@@ -4673,8 +4677,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 10
-- **bugs-found:** 9
+- **hunts:** 11
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
