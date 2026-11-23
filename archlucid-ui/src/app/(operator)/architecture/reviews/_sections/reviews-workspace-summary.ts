@@ -32,7 +32,8 @@ export function deriveReviewsWorkspaceSummary(runs: readonly RunSummary[]): Revi
   let openRisksTotalOmitted = false;
 
   for (const run of tenantRuns) {
-    if (run.hasGoldenManifest === true) {
+    // Governance warnings keep the review Active, so it must not use the finalized chip.
+    if (run.hasGoldenManifest === true && run.hasGovernanceWarnings !== true) {
       committed += 1;
       const decision = run.operatorGovernanceDecision?.trim() ?? "";
 

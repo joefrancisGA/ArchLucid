@@ -109,4 +109,19 @@ describe("deriveReviewsWorkspaceSummary", () => {
     expect(summary.committed).toBe(2);
     expect(summary.readyForGovernance).toBe(1);
   });
+  it("counts a golden manifest with governance warnings as an active review", () => {
+    const summary = deriveReviewsWorkspaceSummary([
+      run({
+        runId: "warnings",
+        hasGoldenManifest: true,
+        hasGovernanceWarnings: true,
+        findingCount: 1,
+        warningCount: 1,
+      }),
+    ]);
+
+    expect(summary.committed).toBe(0);
+    expect(summary.inProgress).toBe(1);
+    expect(summary.readyForGovernance).toBe(0);
+  });
 });
