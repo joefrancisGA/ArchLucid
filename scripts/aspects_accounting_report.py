@@ -143,7 +143,7 @@ def verify_600_suffix(provisional: list[dict], historical600: list[dict]) -> Non
             raise ValueError(f"700 provisional tail differs from 600 workbook row {i+1}")
 
 
-def verified_subset(snapshot: dict | None) -> dict:
+def verified_subset(snapshot: dict | None, *, expected_head: str | None = None) -> dict:
     result = {
         "status": "unavailable_no_current_verified_snapshot",
         "scope": "narrow_incremental_review_ledger_subset",
@@ -164,6 +164,15 @@ def verified_subset(snapshot: dict | None) -> dict:
             or snapshot.get("cohort", {}).get("actual_commits") != 900
             or snapshot.get("status") not in ("source_verified_subset", "unavailable")):
         raise ValueError("current Git-verified snapshot not a complete anchored 900 window")
+    # Tie every published live number to the SAME exact as-of master-base Git
+    # SHA used by the source-verified snapshot. A copied, older snapshot cannot
+    # masquerade as today's update merely because its arithmetic is correct.
+    observed_head = snapshot.get("head")
+    cohort_head = snapshot["cohort"].get("head_sha")
+    if (not isinstance(observed_head, str) or SHA.fullmatch(observed_head) is None
+            or cohort_head != observed_head
+            or (expected_head is not None and observed_head != expected_head)):
+        raise ValueError("current verified snapshot Git head differs from exact expected master-base cohort")
     d = snapshot["density"]
     reviewed = snapshot["review"]
     loc = numeric(d["unique_path_blob_reviewed_lines"], "verified LOC", integer=True)
@@ -213,7 +222,8 @@ def verified_subset(snapshot: dict | None) -> dict:
 
 def build_report(historical: list[dict], provisional: list[dict],
                  workbook600: list[dict], verified: dict | None,
-                 *, inputs: dict[str, str] | None = None) -> tuple[dict, list[dict], list[dict]]:
+                 *, inputs: dict[str, str] | None = None,
+                 expected_head: str | None = None) -> tuple[dict, list[dict], list[dict]]:
     if len(historical) != 79:
         raise ValueError("expected 79 actual historical 900-window snapshots")
     historical_points = calculated_points(historical, mode="historical_900")
@@ -251,7 +261,7 @@ def build_report(historical: list[dict], provisional: list[dict],
             "reviewed_loc_independently_verified": None,
             "not_comparable_to_historical_900": True,
         },
-        "current_verified_subset": verified_subset(verified),
+        "current_verified_subset": verified_subset(verified, expected_head=expected_head),
         "limits": [
             "79 historical 900-commit capture points are not 700 distinct 900-commit snapshots.",
             "The 700-point series has 100 backprojected and 600 workbook observations, not Git-verified independent reviewed LOC.",
@@ -384,6 +394,8 @@ def main() -> None:
     p.add_argument("--historical-600", type=Path,
                    default=ROOT/"aspects-provisional-600-series.jsonl")
     p.add_argument("--verified-snapshot", type=Path, default=None)
+    p.add_argument("--expected-head", default=None,
+                   help="Exact master-base head expected in source-verified snapshot")
     p.add_argument("--json-out", required=True, type=Path)
     p.add_argument("--markdown-out", required=True, type=Path)
     p.add_argument("--700-csv-out", required=True, type=Path)
@@ -401,7 +413,8 @@ def main() -> None:
     report, rows79, rows700 = build_report(
         historical, provisional, workbook600, verified,
         inputs={"historical_900_sha256":sha79, "provisional_700_sha256":sha700,
-                "historical_600_sha256":sha600})
+                "historical_600_sha256":sha600},
+        expected_head=args.expected_head)
     outputs = {
         args.json_out:json.dumps(report,sort_keys=True,indent=2)+"\n",
         args.markdown_out:markdown(report),
