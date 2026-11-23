@@ -89,8 +89,8 @@ public sealed class InMemoryRunRepositoryAtomicArchiveTests
                 repo.ArchiveUnsealedRunAsync(scope, input.RunId, CancellationToken.None));
 
             await Task.WhenAll(sealing, archival);
-            bool sealedRun = sealing.Result;
-            bool archivedRun = archival.Result.SucceededRunIds.Contains(input.RunId);
+            bool sealedRun = await sealing;
+            bool archivedRun = (await archival).SucceededRunIds.Contains(input.RunId);
             (sealedRun ^ archivedRun).Should().BeTrue(
                 "a run must never be both archived as unsealed and sealed in the current row");
 
