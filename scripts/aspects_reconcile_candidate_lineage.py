@@ -52,6 +52,13 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
     derived: dict[tuple[str, str], set[int]] = defaultdict(set)
     first_original: dict[tuple[str, str], int] = {}
     first_derived: dict[tuple[str, str], int] = {}
+    # An artifact digest detects cross-run changes, but cannot authenticate the
+    # blob chosen by a candidate. Recheck every in-window derived source
+    # against the tree of its own *reported review commit* before comparison.
+    derived_tree_cache: dict[tuple[str, str], str | None] = {}
+    blob_cache: dict[str, list[str] | None] = {}
+    derived_components_attested = 0
+    derived_nonblank_occurrences_attested = 0
     try:
         for row in pinned:
             if row.get("pin_status") != VERIFIED or row.get("window_membership") != "in_window":
@@ -71,8 +78,25 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
             if sha not in order:
                 raise ValueError("Candidate row absent from independently checked window")
             for s in row["sources"]:
-                key = (s["path"], s["blob_derived_at_reviewed_commit"])
-                derived[key].update(intervals(s, "nonblank_intervals_at_reviewed_commit"))
+                path, blob = s["path"], s["blob_derived_at_reviewed_commit"]
+                key = (path, blob)
+                selected = intervals(s, "nonblank_intervals_at_reviewed_commit")
+                commit_path = (sha, path)
+                if commit_path not in derived_tree_cache:
+                    ok, raw_blob = git(repo, "rev-parse", "--verify", f"{sha}:{path}")
+                    derived_tree_cache[commit_path] = (
+                        raw_blob.decode("ascii", "replace").strip() if ok else None
+                    )
+                if derived_tree_cache[commit_path] != blob:
+                    raise ValueError("Derived path/blob differs from Git tree at reported review commit")
+                source_lines = blob_lines(repo, blob, blob_cache)
+                if (source_lines is None or not selected or max(selected) > len(source_lines)
+                        or any(not source_lines[n - 1].lstrip("\\ufeff").strip()
+                               for n in selected)):
+                    raise ValueError("Derived nonblank intervals do not match Git source bytes")
+                derived_components_attested += 1
+                derived_nonblank_occurrences_attested += len(selected)
+                derived[key].update(selected)
                 first_derived[key] = min(first_derived.get(key, order[sha]), order[sha])
     except (KeyError, TypeError, ValueError) as exc:
         result["blocking_reason"] = f"Malformed source identity: {exc}"
@@ -90,7 +114,8 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
     for (path, blob), lines in original.items():
         path_sources[path].append((first_original[(path, blob)], blob, lines))
     matches = set()
-    cache = {}
+    cache = blob_cache
+    adjacent_matches = set()
     compared = skipped = 0
     skipped_reasons = defaultdict(int)
     # Compare at most the two closest original-pinned blob identities to each
@@ -122,7 +147,12 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
                 pairs = ((b, a) for a, b in unique_unchanged_pairs(source, candidate_source))
             for candidate_line, original_line in pairs:
                 if candidate_line in selected and original_line in original_lines:
-                    matches.add((path, candidate_blob, candidate_line))
+                    identity = (path, candidate_blob, candidate_line)
+                    matches.add(identity)
+                    # Exactly one first-parent edge between the two attested
+                    # review SHAs needs no intervening-commit lineage guess.
+                    if abs(first_derived[(path, candidate_blob)] - original_order) == 1:
+                        adjacent_matches.add(identity)
     if len(matches) > expected_only:
         raise RuntimeError("Provisional lineage exceeded candidate-only cohort")
     result.update({
@@ -132,6 +162,9 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
         "oldest_sha": anchor["oldest_sha"],
         "first_parent_commits": length,
         "candidate_exact_only_line_identities": expected_only,
+        "derived_git_tree_source_components_attested": derived_components_attested,
+        "derived_git_tree_nonblank_occurrences_attested": derived_nonblank_occurrences_attested,
+        "candidate_only_matching_adjacent_first_parent_unchanged_unique_lines": len(adjacent_matches),
         "candidate_only_matching_unique_unchanged_text_in_nearby_original_pins": len(matches),
         "candidate_only_remaining_without_such_match": expected_only - len(matches),
         "candidate_original_revision_pairs_compared": compared,
@@ -140,7 +173,8 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
         "interpretation": (
             "Unique unchanged equal-hunk text is a provisional SAME-PATH comparison "
             "against at most two neighboring pinned revisions. It is not a source "
-            "lineage proof across intervening commits or renames, and cannot update "
+            "lineage proof across intervening commits or renames (the adjacent "
+            "first-parent subset needs no intervening-commit inference), and cannot update "
             "the independent verified LOC, legacy denominator or defect numerator."
         ),
     })

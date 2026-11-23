@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "historical_import_complete_nine_row_source_golden_passed_candidate_cross_revision_lineage_work_submitted",
-  "next_priority": "Validate candidate-to-original same-path SHA-anchored provisional comparison and CI test; repair real required gate failures. Continue genuine cross-revision lineage, historical distinct-discovery and incremental ledger reconciliation before any comparable 900-rate; no master full builds.",
+  "state": "historical_import_complete_derived_git_review_commit_reattest_and_adjacent_lineage_validation_submitted",
+  "next_priority": "Verify exact-head CI and new Git-at-reviewed-SHA candidate-blob attestations; use adjacent-first-parent lineage partition as stronger proof without promoting candidate reviewed LOC. Continue complete cross-commit/rename source lineage, distinct discovery IDs, newer ledger reconciliation, and 600/700 SMA25. No full master builds.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -174,8 +174,8 @@
         "code": "scripts/aspects_reconcile_candidate_lineage.py",
         "tests": "scripts/tests/test_aspects_reconcile_candidate_lineage.py",
         "workflow_artifact": "artifacts/aspects/historical-candidate-cross-revision-lineage.json",
-        "status": "new_work_submitted_to_PR_CI_not_yet_validated",
-        "interpretation": "Compare at most two nearby original-pinned Git blob versions for each derived candidate; unique unchanged equal-hunk line matches are provisional and never promoted to denominator or defects",
+        "status": "strict_git_review_commit_blob_reattest_and_adjacent_first_parent_partition_submitted_to_PR_CI",
+        "interpretation": "Every in-window derived path/blob must re-match its reviewed Git commit tree and its nonblank intervals before comparison; separate adjacent-first-parent identical unique lines from nonadjacent provisional equal-hunk matches; neither updates denominator or defects.",
         "newly_original_pin_verified_loc": 0,
         "newly_discovered_defect_ids": 0,
         "comparable_rate_computed": false
