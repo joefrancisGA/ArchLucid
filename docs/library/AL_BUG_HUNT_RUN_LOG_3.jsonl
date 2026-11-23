@@ -11,3 +11,4 @@
 {"at":"2026-11-23T01:18:54.8052980Z","zoneId":"ui-lib-product-line","outcome":"hit","productLine":"securenow","set":3,"note":"seed hunt: second-capture extract upload uses the SecureNow manual-upload path"}
 {"at":"2026-11-23T01:23:43.3998160Z","zoneId":"ui-lib-product-line","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: architecture extract upload follows the administration settings path"}
 {"at":"2026-11-23T01:29:47.0309630Z","zoneId":"ui-lib-product-line","outcome":"hit","productLine":"securenow","set":3,"note":"seed hunt: pilot disposition path id is encoded before the request URL"}
+{"at":"2026-11-23T01:36:33.6357905Z","zoneId":"ui-lib-product-line","outcome":"hit","productLine":"securenow","set":3,"note":"seed hunt: pilot disposition browser cache key includes tenant and workspace"}

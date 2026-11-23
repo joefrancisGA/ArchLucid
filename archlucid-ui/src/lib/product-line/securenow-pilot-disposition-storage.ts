@@ -1,3 +1,5 @@
+import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
+
 export const SECURENOW_PILOT_DISPOSITION_STORAGE_PREFIX = "securenow-pilot-disposition:" as const;
 
 export const SECURENOW_PILOT_DISPOSITION_STORAGE_DISCIPLINE =
@@ -11,8 +13,26 @@ export type SecureNowPilotDispositionRecord = {
   readonly rationale: string;
 };
 
+function dispositionScopeSegment(): string {
+  const scope = readOperatorScopeFromStorage();
+
+  if (scope === null) {
+    return "";
+  }
+
+  const tenantId = scope.tenantId.trim();
+  const workspaceId = scope.workspaceId.trim();
+
+  if (tenantId.length === 0 || workspaceId.length === 0) {
+    return "";
+  }
+
+  return `${tenantId}:${workspaceId}:`;
+}
+
 export function secureNowPilotDispositionStorageKey(pathId: string): string {
-  return `${SECURENOW_PILOT_DISPOSITION_STORAGE_PREFIX}${pathId.trim()}`;
+  // The audit request is workspace-scoped. A path-only key shows another workspace's cache after a 404.
+  return `${SECURENOW_PILOT_DISPOSITION_STORAGE_PREFIX}${dispositionScopeSegment()}${pathId.trim()}`;
 }
 
 export function readSecureNowPilotDisposition(pathId: string): SecureNowPilotDispositionRecord | null {

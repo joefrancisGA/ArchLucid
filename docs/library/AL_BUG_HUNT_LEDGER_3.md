@@ -43,6 +43,10 @@
 
 ## Zone: ui-lib-product-line
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted the pilot-disposition browser cache: `secureNowPilotDispositionStorageKey` used only the path id, and `loadSecureNowPilotDispositionForPath` falls back to that cache when the workspace audit returns nothing. A saved Extend in workspace A was still readable after switching to workspace B for `fixture-path-01`. When operator scope has a tenant and workspace, the key now includes both. Regression `does not return another workspace cache for the same path id`; disposition storage, sync, and stickiness vitest **16/16**. Private beta: an invited operator who switches workspace no longer sees another workspace's saved pilot disposition for the same path id when this workspace has no saved copy.
+
+- [x] (proven) `secureNowPilotDispositionStorageKey` — path-only browser cache reused another workspace's disposition — **hit 2026-11-23 seed hunt:** tenant and workspace prefix when operator scope is present; regression above.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted pilot disposition URLs: `fetchSecureNowPilotPathDisposition` and `saveSecureNowPilotPathDisposition` interpolated `pathId` into the path, so `a/b` from the pilot-decision `pathId` query became two segments. Path inspect already encodes that id. Both requests now use `pilotDispositionPath`. Regression `encodes a slash in the path id before the disposition request`; disposition api vitest **1/1**. Private beta: an invited operator who opens pilot decision for a path id that contains a slash loads and saves that path's disposition. The id stays one URL segment instead of being split into a different request.
 
 - [x] (proven) `fetchSecureNowPilotPathDisposition` — slash in `pathId` split the disposition URL — **hit 2026-11-23 seed hunt:** `encodeURIComponent` in `pilotDispositionPath`; regression above.
@@ -94,8 +98,8 @@
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
