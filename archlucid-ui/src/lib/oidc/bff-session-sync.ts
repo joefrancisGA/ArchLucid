@@ -63,8 +63,10 @@ export async function syncBffSessionCookieFromTokenResponse(tokens: OidcTokenRes
   const refreshToken = normalizeOptionalOidcOAuthFormToken(tokens.refresh_token);
   const idToken = normalizeOptionalOidcOAuthFormToken(tokens.id_token);
 
+  let response: Response;
+
   try {
-    await fetch(BFF_SESSION_SYNC_PATH, {
+    response = await fetch(BFF_SESSION_SYNC_PATH, {
       method: "POST",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
@@ -78,6 +80,16 @@ export async function syncBffSessionCookieFromTokenResponse(tokens: OidcTokenRes
     });
   } catch {
     // Proxy session requires BFF signing secret on the host.
+    return;
+  }
+
+  // 503 means this host has no BFF signing secret, so client hints can stand alone.
+  if (response.status === 503) {
+    return;
+  }
+
+  if (!response.ok) {
+    throw new Error("BFF session cookie was not issued");
   }
 }
 

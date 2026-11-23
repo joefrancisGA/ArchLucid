@@ -171,7 +171,16 @@ async function syncTokenToBff(request: TokenSyncRequest): Promise<void> {
     return;
   }
 
-  await syncBffSessionCookieFromTokenResponse(request.tokens);
+  try {
+    await syncBffSessionCookieFromTokenResponse(request.tokens);
+  } catch {
+    // The cookie was not set, so API calls would have no bearer. Drop the client hints.
+    if (request.generation === refreshSessionGeneration) {
+      clearOidcSession();
+    }
+
+    return;
+  }
 
   if (request.generation !== refreshSessionGeneration) {
     const latestRequest = latestTokenSyncRequest;

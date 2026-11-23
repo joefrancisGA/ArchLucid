@@ -44,3 +44,4 @@
 {"at":"2026-11-23T17:06:28.0341780Z","zoneId":"ui-review-intake-wizards","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: starter preset stayed blocked after example template left"}
 {"at":"2026-11-23T17:11:03.8312687Z","zoneId":"ui-review-intake-wizards","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: second accelerator pack id ignored on the same wizard"}
 {"at":"2026-11-23T17:15:07.2593382Z","zoneId":"ui-review-intake-wizards","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: second preset deeplink id ignored on the same wizard"}
+{"at":"2026-11-23T17:23:42.1331270Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: BFF session POST 500 left the operator signed in without a cookie"}

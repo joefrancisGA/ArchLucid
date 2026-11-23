@@ -408,6 +408,23 @@ describe("persistTokenResponse", () => {
     expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBeNull();
   });
 
+  it("drops client sign-in hints when the BFF session cookie POST returns 500", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: false,
+        status: 500,
+      })),
+    );
+
+    persistTokenResponse({ access_token: accessTokenWithSubjectClaim(), expires_in: 3600 });
+
+    await vi.waitUntil(() => !isLikelySignedIn());
+
+    expect(isLikelySignedIn()).toBe(false);
+    vi.unstubAllGlobals();
+  });
+
   it("truncates fractional expires_in to whole seconds (parity with bff-session-sync)", () => {
     const before = Date.now();
     persistTokenResponse({ access_token: accessTokenWithSubjectClaim(), expires_in: 10.9 });
