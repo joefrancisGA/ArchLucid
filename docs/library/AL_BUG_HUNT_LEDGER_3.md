@@ -43,6 +43,10 @@
 
 ## Zone: ui-lib-product-line
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted the tenant audit clock: `formatSecureNowPilotDispositionTenantAuditRecordedLine` appended UTC after `formatIsoUtcForDisplay`, which already ends with UTC. Pilot decision and sponsor path showed the recorded time twice. The line now uses the clock label as returned. Regression `states UTC once when the clock label already includes UTC`; tenant-audit copy vitest **1/1**. Private beta: an invited SecureNow operator who saves a pilot disposition sees the tenant audit time with UTC stated once. The recorded line no longer says UTC twice.
+
+- [x] (proven) `formatSecureNowPilotDispositionTenantAuditRecordedLine` — recorded time said UTC twice — **hit 2026-11-23 seed hunt:** drop the extra UTC suffix; regression above.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted zero after-product hours: the Investigation effort hour inputs allow 0, but the positive-number parser treated 0 as missing. A blank field also becomes numeric 0, so the blank check has to run first. Zero after-hours now stays an entered value, and the ROI uses the full baseline reduction. Regression `calculates ROI when after-product hours are zero`; result-state and input-storage vitest **6/6**. Private beta: an invited SecureNow operator who enters zero after-product hours on Investigation effort sees the ROI for that full reduction. The page no longer says those hours are still needed.
 
 - [x] (proven) `resolveSecureNowInvestigationEffortResultState` — zero after-product hours was reported as still needed — **hit 2026-11-23 seed hunt:** non-negative hour parser; regression above.
@@ -122,8 +126,8 @@
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 13
-- **bugs-found:** 13
+- **hunts:** 14
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

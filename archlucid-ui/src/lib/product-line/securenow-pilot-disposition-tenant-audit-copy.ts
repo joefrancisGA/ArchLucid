@@ -13,5 +13,6 @@ export function formatSecureNowPilotDispositionTenantAuditRecordedLine(recordedU
     return "Tenant audit record id: time was not stored.";
   }
 
-  return `Tenant audit recorded at ${display} UTC.`;
+  // formatIsoUtcForDisplay already ends with UTC. A second suffix reads as UTC UTC.
+  return `Tenant audit recorded at ${display}.`;
 }
