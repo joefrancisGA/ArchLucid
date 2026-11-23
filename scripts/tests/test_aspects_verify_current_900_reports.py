@@ -127,6 +127,28 @@ class SameCohortPartialReportsTests(unittest.TestCase):
             self.audit(lambda a, b, c, d:
                        c.update(followon_reviews_in_current_window=1))
 
+    def test_original_pin_verified_multifile_deferred_candidate_is_not_double_counted(self):
+        # A multi-blob original-pin row is represented in both audit sets,
+        # but its deferred candidate record is not a newly recovered review.
+        def overlapping(source, discovery, lineage, candidate):
+            source["original_git_pinned_rows_eligible_in_current_900"] = 9
+            lineage["original_pinned_review_rows_in_current_window"] = 9
+            candidate["candidate_source_rows_reverified_git_in_current_cohort"] = 1
+            candidate["candidate_rows_unresolved_in_current_cohort"] = 2
+            candidate["candidate_clean_review_rows_in_current_cohort"] = 1
+            candidate["candidate_positive_review_rows_in_current_cohort"] = 0
+        r = self.audit(overlapping)
+        self.assertEqual(r["candidate_source_rows_in_window"], 3)
+        self.assertEqual(r["candidate_verified_source_rows_in_window_provisional_only"], 1)
+        self.assertIsNone(r["new_comparable_density"])
+
+    def test_true_candidate_plus_original_pin_overcount_rejected(self):
+        def overcount(source, discovery, lineage, candidate):
+            source["original_git_pinned_rows_eligible_in_current_900"] = 9
+            lineage["original_pinned_review_rows_in_current_window"] = 9
+        with self.assertRaisesRegex(ValueError, "candidate partition"):
+            self.audit(overcount)
+
     def test_derived_candidate_cannot_exceed_original_reviews(self):
         with self.assertRaisesRegex(ValueError, "candidate partition"):
             self.audit(lambda a, b, c, d:
