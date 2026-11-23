@@ -199,6 +199,30 @@ jobs:
           print("Clean Excel row 908: 673 nonblank source lines; UTF-8 markers excluded, candidate provenance retained")
           PY
           python - <<'PY'
+          import json
+          from pathlib import Path
+          golden = json.loads(Path("docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row22-prefixed-paths.json").read_text())
+          audit = [json.loads(line) for line in Path("artifacts/aspects/historical-unpinned-source-candidates.jsonl").read_text().splitlines()]
+          selected = [row for row in audit if row["excel_row"] == golden["workbook_excel_row"]]
+          assert len(selected) == 1, "Missing or duplicated original Excel row22"
+          row = selected[0]
+          assert row["status"] == "git_source_at_review_commit_candidate_only"
+          assert row["window_membership"] == "in_900_first_parent_window"
+          assert row["original_blob_pinned"] is False
+          assert row["review_id"] == golden["review_id"] == "#6634"
+          assert row["reviewed_master_sha"] == golden["reviewed_master_sha"]
+          assert row["candidate_nonblank_loc"] == row["reviewed_loc_workbook_reported"] == golden["reported_nonblank_loc"] == 195
+          keys = ("path", "blob_derived_at_reviewed_commit", "reported_inclusive_intervals", "nonblank_loc")
+          actual = [{key: source[key] for key in keys} for source in row["sources"]]
+          expected = [{key: source[key] for key in keys} for source in golden["sources"]]
+          assert actual == expected, "Row22 six-file source-at-commit evidence drift"
+          assert len(actual) == 6 and sum(s["nonblank_loc"] for s in actual) == 195
+          assert not any(s["original_blob_pinned"] for s in row["sources"])
+          assert golden["newly_original_pinned_verified_loc"] == 0
+          assert golden["candidate_cross_revision_denominator_increment"] == 0
+          print("Excel row22: six explicitly scoped paths, 195 Git-attested candidate-only LOC; no original-pin promotion")
+          PY
+          python - <<'PY'
           import json, os
           from pathlib import Path
           data = json.loads(Path("artifacts/aspects/historical-unpinned-source-candidates.json").read_text())
