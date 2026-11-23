@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "historical_restoration_PR7822_merged_current_master_base_cohort_followup_tests_submitted",
-  "next_priority": "PR #7822 was merged by a concurrent process before its newly committed current-cohort script regression tests existed. This follow-on branch adds those tests and a PR-based master-base (not synthetic merge) 900-first-parent source eligibility CI artifact. First validate current master 900 source subset, repair any failures and obtain exact-head FND-011/security results; then finish complete cross-revision reviewed LOC, distinct discovery identities, current comparable rate and 600/700 SMA25. Never interpret exact blob subset as cross-revision verified full density.",
+  "state": "current_master_900_discovery_candidate_census_committed_pending_PR_validation",
+  "next_priority": "On next run inspect exact-head Aspects PR CI for current master-base 900 discovery candidate census and source eligibility. Resolve actual failures without bypassing security gates. Independently establish typed distinct discovery identities, candidate-only review source coverage and full cross-revision dedup in a single as-of current 900-first-parent cohort before a fresh rate or 600/700 SMA25. The past fixing-PR checkpoint timestamp must never be presented as current.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -675,6 +675,28 @@
       "newly_reconciled_distinct_defects_this_step": 0,
       "new_comparable_density": null,
       "master_full_build_initiated": false
+    },
+    "current_master_900_discovery_candidate_census": {
+      "status": "code_11_regression_tests_workflow_committed_new_branch_before_PR_checks",
+      "implementation": "scripts/aspects_current_900_discovery_candidates.py",
+      "tests": "scripts/tests/test_aspects_current_900_discovery_candidates.py",
+      "workflow": ".github/workflows/aspects-density-snapshot.yml",
+      "artifact": "artifacts/aspects/aspects-current-master-base-900-discovery-candidates.json",
+      "source_cohort": "same current master-base 900-first-parent SHAs and ordered SHA-256 digest as aspects-current-master-base-900-exact-subset.json",
+      "source_review_population": "immutable 5741 workbook events including clean records; relevant positive original rows; narrow verified Git review events restricted to current cohort",
+      "fix_pr_evidence": "docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-23-all-referenced.json",
+      "fix_pr_as_of_utc": "2026-11-23T00:51:07Z",
+      "classification": "workbook ASPECTS labels, numeric #labels and opaque raw labels remain distinct namespaces; exact matching ASPECTS string with narrow ledger is candidate overlap not verified discovery; fix PR statuses not discovery identities",
+      "newly_independently_reviewed_LOC_this_run": 0,
+      "newly_verified_new_LOC_this_run": 0,
+      "newly_verified_repeated_LOC_this_run": 0,
+      "newly_reconciled_verified_distinct_defects_this_run": 0,
+      "new_comparable_rate": null,
+      "new_measurement_produced": false,
+      "prior_original_pinned_historical_900_exact_LOC": 232219,
+      "prior_original_pinned_historical_900_exact_repeats": 6020,
+      "current_candidate_counts": "not measured until source CI artifact is available",
+      "safeguards": "No current density or signed delta; no merging without required checks; no intentional master full CI dispatch; no changes to PR #7702"
     }
   },
   "latest_restoration_run": {
