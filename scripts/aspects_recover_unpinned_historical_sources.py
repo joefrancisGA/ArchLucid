@@ -150,7 +150,11 @@ def recover(repo: Path, rows: list[dict], checkpoint: dict) -> tuple[dict, list[
                     blobs[blob] = None
                 else:
                     try:
-                        blobs[blob] = payload.decode("utf-8").splitlines()
+                        # A leading UTF-8 BOM is an encoding marker, not source
+                        # LOC. Remove only that marker while preserving line
+                        # coordinates and interior U+FEFF; the Git blob ID still
+                        # identifies the original bytes, never normalized text.
+                        blobs[blob] = payload.decode("utf-8-sig").splitlines()
                     except UnicodeDecodeError:
                         blobs[blob] = None
             lines = blobs[blob]
@@ -174,6 +178,10 @@ def recover(repo: Path, rows: list[dict], checkpoint: dict) -> tuple[dict, list[
         if failure:
             # All-or-nothing even when earlier file segments were resolvable.
             record["status"] = failure
+            if failure == "workbook_nonblank_loc_mismatch":
+                # Diagnostic only: candidate coverage remains zero for the
+                # complete quarantined review, including its valid fragments.
+                record["diagnostic_nonblank_loc_at_reviewed_commit"] = actual_loc
             statuses[failure] += 1
             audit.append(record)
             continue

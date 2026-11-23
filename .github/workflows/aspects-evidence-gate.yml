@@ -44,42 +44,52 @@ jobs:
               'scripts/aspects_reconcile_historical_corpus.py',
               'scripts/aspects_validate_historical_pins.py',
               'scripts/aspects_reconcile_historical_lineage.py',
-              'scripts/aspects_reconcile_recovered_candidates.py',
               'scripts/aspects_recover_unpinned_historical_sources.py',
+              'scripts/aspects_reconcile_recovered_candidates.py',
               'scripts/aspects_reconcile_historical_defect_ids.py',
               'scripts/aspects_verify_duplicate_fix_relationship.py',
-              'scripts/tests/test_aspects_validate_historical_pins.py',
-              'scripts/tests/test_aspects_reconcile_historical_lineage.py',
-              'scripts/tests/test_aspects_reconcile_recovered_candidates.py',
-              'scripts/tests/test_aspects_recover_unpinned_historical_sources.py',
-              'scripts/tests/test_aspects_reconcile_historical_defect_ids.py',
-              'scripts/tests/test_aspects_verify_duplicate_fix_relationship.py',
-              'scripts/tests/test_aspects_historical_multisource_checkpoint.py',
-              'docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-git-pin-45074611128.json',
-              'docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-github-multisource-34.json',
-              'docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-900-pin-partition.json',
-              'docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-22-nine-merged.json',
-              'docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-22-duplicate-6702-of-6701.json',
               'scripts/tests/test_aspects_import_historical_workbook.py',
               'scripts/tests/test_aspects_density_snapshot.py',
               'scripts/tests/test_aspects_validate_historical_corpus.py',
               'scripts/tests/test_aspects_reconcile_historical_corpus.py',
+              'scripts/tests/test_aspects_validate_historical_pins.py',
+              'scripts/tests/test_aspects_reconcile_historical_lineage.py',
+              'scripts/tests/test_aspects_recover_unpinned_historical_sources.py',
+              'scripts/tests/test_aspects_reconcile_recovered_candidates.py',
+              'scripts/tests/test_aspects_reconcile_historical_defect_ids.py',
+              'scripts/tests/test_aspects_verify_duplicate_fix_relationship.py',
+              'scripts/tests/test_aspects_historical_multisource_checkpoint.py',
+              'scripts/tests/test_aspects_evidence_gate.cjs',
               'docs/engineering/aspects-historical-restoration-state.json',
+              'docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-900-pin-partition.json',
+              'docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row908-utf8-bom.json',
+              'docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-git-pin-45074611128.json',
+              'docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-github-multisource-34.json',
+              'docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-22-nine-merged.json',
+              'docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-22-duplicate-6702-of-6701.json',
+              'docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-23-all-referenced.json',
               '.github/workflows/aspects-density-snapshot.yml',
               '.github/workflows/aspects-evidence-gate.yml',
             ]);
-            // This is an exact-path data/measurement allowlist, NOT an exception\n            // for product source. Keep every unrelated file under the source-evidence\n            // requirement, including when it is mixed into an accounting PR.\n            // Only the specifically named historical review data and accounting
+            // Only the specifically named historical review data and accounting
             // scripts qualify. Product code remains subject to the normal source
             // evidence gate; this is not a broad bypass for arbitrary files.
             const historicalData = /^docs\/engineering\/aspects-historical\/(?:review-events\/[0-9]{4}-[0-9]{4}\.jsonl|aspects-historical-900-snapshots\.jsonl|aspects-provisional-(?:600|700)-series\.jsonl|aspects-historical-import-manifest\.json)$/;
-            if (changed.length && changed.every(file =>
-              accountingOnly.has(file.filename) || historicalData.test(file.filename))) {
+            const isAccountingPath = path => typeof path === 'string' &&
+              (accountingOnly.has(path) || historicalData.test(path));
+            // A rename out of product source is still a product-source change.
+            // Unknown or malformed file records must not earn the exception.
+            const isAccountingChange = file => file && isAccountingPath(file.filename) &&
+              (['added', 'modified', 'removed'].includes(file.status) ||
+               (file.status === 'renamed' && isAccountingPath(file.previous_filename)));
+            if (changed.length && changed.every(isAccountingChange)) {
               core.info('Accounting-only migration: no application source review to record. CI/unit tests still required.');
               return;
             }
             const evidence = changed.find(file =>
               file.filename === 'docs/engineering/aspects-review-ledger.jsonl');
-            if (!evidence || evidence.status === 'removed' || evidence.additions < 1) {
+            if (!evidence || !['added', 'modified'].includes(evidence.status) ||
+                !Number.isInteger(evidence.additions) || evidence.additions < 1) {
               core.setFailed('Every application-source Aspects sweep must add verified source spans (including zero-defect reviews) to the canonical review ledger. A code fix without reviewed-source evidence cannot advance the density report.');
               return;
             }

@@ -33,7 +33,9 @@ on:
       - scripts/aspects_density_snapshot.py
       - scripts/tests/test_aspects_review_evidence.py
       - scripts/tests/test_aspects_density_snapshot.py
+      - scripts/tests/test_aspects_evidence_gate.cjs
       - .github/workflows/aspects-density-snapshot.yml
+      - .github/workflows/aspects-evidence-gate.yml
   workflow_dispatch:
 
 permissions:
@@ -55,6 +57,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Verify accounting classification preserves product-source evidence requirements
+        run: node --test scripts/tests/test_aspects_evidence_gate.cjs
 
       - name: Verify evidence recorder regressions
         run: python -m unittest discover -s scripts/tests -p 'test_aspects_review_evidence.py' -v
@@ -106,7 +115,7 @@ jobs:
               f.write("Cross-revision line identity and historical distinct-defect reconciliation remain unresolved.\n\n")
           PY
 
-      - name: Reconcile historical discovery identifiers and current sampled fixing-PR states
+      - name: Reconcile historical discovery identifiers with timestamped fixing-PR states
         run: |
           python -m unittest discover -s scripts/tests -p 'test_aspects_reconcile_historical_defect_ids.py' -v
           python scripts/aspects_reconcile_historical_defect_ids.py \
@@ -114,7 +123,7 @@ jobs:
             --audited-rows artifacts/aspects/historical-git-pin-rows.jsonl \
             --pin-report artifacts/aspects/historical-git-pin-audit.json \
             --new-ledger docs/engineering/aspects-review-ledger.jsonl \
-            --pr-states docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-22-nine-merged.json \
+            --pr-states docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-23-all-referenced.json \
             --json-out artifacts/aspects/historical-discovery-fix-reconciliation.json \
             --rows-out artifacts/aspects/historical-discovery-fix-reconciliation.jsonl
           python - <<'PY'
@@ -123,12 +132,15 @@ jobs:
           item = json.loads(Path("artifacts/aspects/historical-discovery-fix-reconciliation.json").read_text())
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
               out.write(
-                  f"Historical candidate discovery IDs **{item['unique_named_discovery_id_candidates']:,}** "
+                  f"All-history workbook candidate IDs **{item['candidate_discovery_id_scopes']['all_history']['unique_candidate_ids']:,}** "
                   f"across **{item['positive_rows']:,}** positive workbook rows; "
-                  f"fix PR statuses independently checked in GitHub "
-                  f"**{item['github_fix_pr_state_verified_rows']:,}**. "
+                  f"anchored historical 900-window candidates "
+                  f"**{item['candidate_discovery_id_scopes']['anchored_900_first_parent']['unique_candidate_ids']:,}**. "
+                  f"Fix PR statuses independently checked in GitHub "
+                  f"**{item['github_fix_pr_state_verified_rows']:,}** at "
+                  f"**{item['github_fix_pr_checkpoint_checked_at_utc']}**. "
                   "Fix merges never change discovery counts; the 463-defect "
-                  "historical numerator remains unverified.\\n\\n"
+                  "historical numerator remains unverified.\n\n"
               )
           PY
 
@@ -163,6 +175,24 @@ jobs:
             --state docs/engineering/aspects-historical-restoration-state.json \
             --json-out artifacts/aspects/historical-unpinned-source-candidates.json \
             --rows-out artifacts/aspects/historical-unpinned-source-candidates.jsonl
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          golden = json.loads(Path("docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row908-utf8-bom.json").read_text())
+          rows = [json.loads(line) for line in Path("artifacts/aspects/historical-unpinned-source-candidates.jsonl").read_text().splitlines()]
+          matches = [row for row in rows if row["excel_row"] == golden["excel_row"]]
+          assert len(matches) == 1, "Missing/repeated original clean-review Excel row 908"
+          row = matches[0]
+          assert row["status"] == "git_source_at_review_commit_candidate_only"
+          assert row["original_blob_pinned"] is False
+          assert row["reviewed_master_sha"] == golden["reviewed_master_sha"]
+          assert row["review_id"] == golden["review_id"]
+          assert row["candidate_nonblank_loc"] == golden["reported_nonblank_loc"] == 673
+          keys = ("path", "blob_derived_at_reviewed_commit", "reported_inclusive_intervals", "nonblank_intervals_at_reviewed_commit", "nonblank_loc", "original_blob_pinned")
+          expected = [{key: source[key] for key in keys} for source in golden["sources"]]
+          assert row["sources"] == expected, "Original fifteen-blob candidate source evidence drift"
+          print("Clean Excel row 908: 673 nonblank source lines; UTF-8 markers excluded, candidate provenance retained")
+          PY
           python - <<'PY'
           import json, os
           from pathlib import Path
@@ -340,3 +370,4 @@ jobs:
               docs/engineering/aspects-review-ledger.jsonl | grep -q 'aspects-review-ledger.jsonl'; then
             echo '::warning::This Aspects PR has no source-verified review evidence. New code findings will not move defect density until exact reviewed spans are recorded.'
           fi
+

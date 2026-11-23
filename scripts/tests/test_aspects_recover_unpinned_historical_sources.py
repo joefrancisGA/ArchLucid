@@ -39,6 +39,13 @@ class UnpinnedRecoveryTests(unittest.TestCase):
                 "parsed_pin": None, "reviewed_file_spans_raw": raw,
                 "reviewed_loc_reported": loc, "defects_recorded": 0}
 
+    def commit_source_bytes(self, payload):
+        (self.repo / "src/a.cs").write_bytes(payload)
+        git(self.repo, "add", "src/a.cs")
+        git(self.repo, "commit", "-qm", "source encoding fixture")
+        self.head = git(self.repo, "rev-parse", "HEAD")
+        self.checkpoint.update(head_sha=self.head, oldest_included_sha=self.head)
+
     def test_commit_derived_single_source_preserves_original_provenance(self):
         report, rows = sut.recover(self.repo, [
             self.row(247, "src/a.cs 1–3.", 2)], self.checkpoint)
@@ -135,6 +142,57 @@ class UnpinnedRecoveryTests(unittest.TestCase):
                          "outside_900_first_parent_window")
         self.assertEqual(rows[1]["window_membership"],
                          "in_900_first_parent_window")
+
+    def test_bom_only_first_line_is_not_code_and_original_blob_identity_is_preserved(self):
+        payload = b"\xef\xbb\xbf\ncode\n\n"
+        self.commit_source_bytes(payload)
+        report, rows = sut.recover(self.repo, [
+            self.row(908, "src/a.cs 1–3", 1)], self.checkpoint)
+        source = rows[0]["sources"][0]
+        self.assertEqual(rows[0]["status"], "git_source_at_review_commit_candidate_only")
+        self.assertEqual(source["nonblank_intervals_at_reviewed_commit"], [[2, 2]])
+        self.assertEqual(source["reported_inclusive_intervals"], [[1, 3]])
+        self.assertEqual(source["nonblank_loc"], 1)
+        blob = source["blob_derived_at_reviewed_commit"]
+        self.assertEqual(blob, git(self.repo, "rev-parse", "HEAD:src/a.cs"))
+        self.assertEqual(subprocess.check_output(
+            ["git", "-C", str(self.repo), "cat-file", "blob", blob]), payload)
+        self.assertFalse(source["original_blob_pinned"])
+        self.assertFalse(report["included_in_verified_pin_denominator"])
+        self.assertIsNone(report["historical_900_density_recomputed"])
+
+    def test_bom_before_actual_first_line_code_preserves_code_and_coordinates(self):
+        self.commit_source_bytes(b"\xef\xbb\xbfcode\n\nmore code\n")
+        _, rows = sut.recover(self.repo, [
+            self.row(908, "src/a.cs 1–3", 2)], self.checkpoint)
+        self.assertEqual(rows[0]["candidate_nonblank_loc"], 2)
+        self.assertEqual(rows[0]["sources"][0]["nonblank_intervals_at_reviewed_commit"],
+                         [[1, 1], [3, 3]])
+
+    def test_interior_feff_is_not_globally_removed(self):
+        self.commit_source_bytes(b"\xef\xbb\xbf\ncode\n\xef\xbb\xbf\n")
+        _, rows = sut.recover(self.repo, [
+            self.row(908, "src/a.cs 1–3", 2)], self.checkpoint)
+        self.assertEqual(rows[0]["candidate_nonblank_loc"], 2)
+        self.assertEqual(rows[0]["sources"][0]["nonblank_intervals_at_reviewed_commit"],
+                         [[2, 3]])
+
+    def test_true_bom_adjusted_count_mismatch_still_quarantines_the_entire_review(self):
+        self.commit_source_bytes(b"\xef\xbb\xbf\ncode\n")
+        raw = "src/a.cs 1–2; src/b.cs 1–1"
+        report, rows = sut.recover(self.repo, [
+            self.row(908, raw, 3), self.row(909, raw, 2)], self.checkpoint)
+        bad, valid = rows
+        self.assertEqual(bad["status"], "workbook_nonblank_loc_mismatch")
+        self.assertEqual(bad["diagnostic_nonblank_loc_at_reviewed_commit"], 2)
+        self.assertEqual(bad["candidate_nonblank_loc"], 0)
+        self.assertEqual(bad["candidate_new_exact_path_blob_loc"], 0)
+        self.assertEqual(bad["candidate_repeated_exact_path_blob_loc"], 0)
+        self.assertEqual(bad["sources"], [])
+        self.assertEqual(report["candidate_rows"], 1)
+        self.assertEqual(valid["candidate_new_exact_path_blob_loc"], 2)
+        self.assertEqual(valid["candidate_repeated_exact_path_blob_loc"], 0)
+        self.assertNotIn("diagnostic_nonblank_loc_at_reviewed_commit", valid)
 
 
 if __name__ == "__main__":

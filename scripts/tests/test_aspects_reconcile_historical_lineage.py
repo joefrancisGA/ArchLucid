@@ -102,8 +102,8 @@ class HistoricalLineageTests(unittest.TestCase):
                       "window_first_parent_commits": 3}
         report = {"first_parent_checkpoint": {
             "status": "verified_first_parent_sha_membership", "head_sha": third_head},
-            "review_events_present": 2, "audited_rows_sha256": audited_rows_sha256(rows)}
-        outcome = sut.reconcile(self.repo, rows, checkpoint, report, expected_records=2)
+            "review_events_present": 3, "audited_rows_sha256": audited_rows_sha256(rows)}
+        outcome = sut.reconcile(self.repo, rows, checkpoint, report, expected_records=3)
         self.assertEqual(outcome["status"], "provisional_same_path_unique_unchanged_lineage")
         self.assertEqual(outcome["eligible_verified_review_rows"], 3)
         self.assertEqual(outcome["path_blob_identities"], 3)
@@ -118,8 +118,24 @@ class HistoricalLineageTests(unittest.TestCase):
         # The aggregate row size must exactly equal all of its pinned segments.
         multi["nonblank_reviewed_loc"] = 1
         report["audited_rows_sha256"] = audited_rows_sha256(rows)
-        outcome = sut.reconcile(self.repo, rows, checkpoint, report, expected_records=2)
+        outcome = sut.reconcile(self.repo, rows, checkpoint, report, expected_records=3)
         self.assertIn("Audited LOC disagrees", outcome["blocking_reason"])
+
+    def test_population_count_mismatch_remains_blocked_with_valid_digest(self):
+        rows = [self.event(7, self.old_head, self.old_blob, [[1, 1]]),
+                self.event(8, self.new_head, self.new_blob, [[5, 5]])]
+        # A correct row digest alone does not authorize partial populations.
+        # Both the independent expected count and aggregate audit must agree.
+        for reported_count, expected_count in [(1, 2), (2, 1)]:
+            with self.subTest(reported_count=reported_count, expected_count=expected_count):
+                report = self.pin_report(rows)
+                report["review_events_present"] = reported_count
+                outcome = sut.reconcile(self.repo, rows, self.checkpoint(), report,
+                                        expected_records=expected_count)
+                self.assertEqual(outcome["status"], "blocked_on_pin_window_validation")
+                self.assertIn("Full pin-audit rows", outcome["blocking_reason"])
+                self.assertNotIn("verified_unique_exact_path_blob_lines_in_window", outcome)
+                self.assertNotIn("multi_file_original_pin_new_exact_loc_vs_single_file_loc_in_window", outcome)
 
     def test_ambiguous_repeated_text_does_not_map(self):
         self.assertEqual(list(sut.unique_unchanged_pairs(

@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "historical_5741_imported_source_pins_reconciled_explicit_duplicate_6702_identity_CI_pending",
-  "next_priority": "Check current #7822 head Aspects, evidence gate and CI tests including new explicit duplicate review PR #6702 of #6701; repair failures while retaining security controls. Expand accurate lifecycle evidence for remaining historical fixing PR references and resolve unlinked Excel row 27 without guessing. Only recompute comparable 900-first-parent density after independently proving distinct discovery IDs and cross-revision reviewed LOC.",
+  "state": "historical_import_complete_all_positive_fix_states_reconciled_cohort_v2_and_CI_corrections_pending_required_checks",
+  "next_priority": "Validate the exact new PR #7822 head: Aspects snapshot, evidence gate, Merge Protection and CI. Keep required security/FND failures blocking merge; do not dispatch full master CI. Inspect the new row-908 golden (673 derived nonblank LOC after UTF-8 BOM handling) and 877 fixing-PR state reconciliation, then resolve the remaining 40 unparseable historical-window source rows. Prove cross-revision lineage across original pins, derived candidates and the incremental ledger before publishing a new comparable full900 rate.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -53,9 +53,9 @@
     "cross_revision_lineage_script": "scripts/aspects_reconcile_historical_lineage.py",
     "cross_revision_lineage_artifact": "artifacts/aspects/historical-900-cross-revision-lineage.json",
     "cross_revision_lineage_confidence": "provisional_same_path_unique_unchanged_lines_not_verified_historical_review_or_window_density",
-    "cross_revision_lineage_status": "merged_to_master; successful source-pin artifact arrived; lineage recomputation pending updated workflow run",
+    "cross_revision_lineage_status": "Successful45088019526 original-pin provisional mapping; exactpartition golden preserved from concurrent99934bad; source lineage still provisional",
     "audit_row_digest_contract": "SHA-256 over canonical sorted-key UTF-8 JSONL; aggregate audit and 5741 row artifact must match; missing/altered rows block lineage; not an authentication of workbook origin",
-    "audit_row_integrity_status": "merged_to_master; runtime proof pending updated workflow run",
+    "audit_row_integrity_status": "5741-row digest verified in successful45088019526 artifact and independently replayed locally; current implementation CI pending",
     "audit_row_expected_complete_excel_range": [
       7,
       5747
@@ -81,22 +81,22 @@
         "excel_row": 1250,
         "file_pins": 8,
         "workbook_nonblank_loc": 822,
-        "confidence": "workbook_blob_pinned_atomic_git_verification_pending_CI"
+        "confidence": "original_workbook_blob_pins_source_verified_required_CI_golden_passed_45088019526"
       },
       {
         "excel_row": 1252,
         "file_pins": 14,
         "workbook_nonblank_loc": 528,
-        "confidence": "workbook_blob_pinned_atomic_git_verification_pending_CI"
+        "confidence": "original_workbook_blob_pins_source_verified_required_CI_golden_passed_45088019526"
       },
       {
         "excel_row": 1255,
         "file_pins": 12,
         "workbook_nonblank_loc": 2343,
-        "confidence": "workbook_blob_pinned_atomic_git_verification_pending_CI"
+        "confidence": "original_workbook_blob_pins_source_verified_required_CI_golden_passed_45088019526"
       }
     ],
-    "multi_file_source_integrity_status": "independent_GitHub_commit_path_blob_and_nonblank_spans_34_of_34_verified_2026-11-22; CI golden_required_pending",
+    "multi_file_source_integrity_status": "34 components verified earlier and required multisource golden passed in45088019526; no new source-review LOC this run",
     "unpinned_backfill": {
       "script": "scripts/aspects_recover_unpinned_historical_sources.py",
       "tests": "scripts/tests/test_aspects_recover_unpinned_historical_sources.py",
@@ -114,8 +114,20 @@
         "derived_blob": "40eeeaeec78f47861e703932a29701ca6f1d96fd",
         "scope": "one all-history candidate, 900-window membership not yet established"
       },
-      "coverage_count_status": "pending_GitHub_CI_on_new_head_not_in_verified_density",
-      "counting_contract": "Do not add candidate lines to independently pinned exact path/blob union or to workbook 463/343492. Missing/conflicting full paths and nonblank mismatches get zero candidate coverage; all rows remain in immutable corpus."
+      "coverage_count_status": "Prior successful CI had1182 all-history candidates and438 in the historical900 window. Encoding correction recovers clean row908 (673LOC) locally; expected1183/439 requires new CI confirmation. Candidates remain excluded from verified density.",
+      "counting_contract": "Do not add candidate lines to independently pinned exact path/blob union or to workbook 463/343492. Missing/conflicting full paths and nonblank mismatches get zero candidate coverage; all rows remain in immutable corpus.",
+      "row908_encoding_recovery": {
+        "original_excel_row": 908,
+        "original_defects": 0,
+        "source_blobs_independently_matched": 15,
+        "nonblank_loc": 673,
+        "new_exact_identities_vs_original_pins_and_other_candidates": 132,
+        "repeated_exact_identities_against_original_pins": 541,
+        "existing_other_candidate_overlap": 0,
+        "confidence": "Derived source at original reviewed commit, not original workbook blob pin or verified cross-revision denominator",
+        "verified_denominator_increment": 0,
+        "checkpoint": "docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row908-utf8-bom.json"
+      }
     },
     "cross_population_reconciliation": {
       "source_pin_audit": "artifacts/aspects/historical-git-pin-rows.jsonl",
@@ -165,8 +177,31 @@
     "discovery_fix_reconciliation": {
       "implementation": "scripts/aspects_reconcile_historical_defect_ids.py",
       "unit_tests": "scripts/tests/test_aspects_reconcile_historical_defect_ids.py",
-      "independent_pr_checkpoint": "docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-22-nine-merged.json",
-      "snapshot_reviewed_prs": [
+      "independent_pr_checkpoint": "docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-23-all-referenced.json",
+      "github_checked_fix_pr_merges": 875,
+      "source_row_identity": "Every historical row, including 4,864 clean events, is bound to its audit Excel row, original review ID and reviewed SHA. Typed candidate IDs and exact-linked numeric review keys remain separate.",
+      "historical_status_caveat": "Workbook 'open' is a point-in-time label and cannot overrule GitHub; all unchecked PRs remain unknown.",
+      "separate_discovery_and_fix_contract": "a fix PR merge is not a newly discovered defect; do not promote unique workbook IDs or row counts to 463 numerator without full distinct-ID lineage",
+      "ci_summary": "artifacts/aspects/historical-discovery-fix-reconciliation.json",
+      "ci_row_evidence": "artifacts/aspects/historical-discovery-fix-reconciliation.jsonl",
+      "current_status": "Full 5,741-row local reconciliation passed against successful run 45088019526. All 877 positive rows have checked fix lifecycle evidence: 876 original references and one source-backed resolution. Current-head CI is pending.",
+      "new_distinct_defects_reconciled_against_463": 0,
+      "new_comparable_rate_computed": false,
+      "unique_named_candidate_ids_all_history": 203,
+      "original_positive_rows_in_900_window": 464,
+      "original_pin_verified_positive_rows_in_900_window": 200,
+      "missing_or_noncanonical_discovery_id_rows_all_history": 0,
+      "exact_candidate_id_also_in_narrow_git_ledger_rows": 8,
+      "positive_reviews_in_anchored_900_window": 464,
+      "unique_fix_pr_numbers_in_anchored_900_window": 463,
+      "unlinked_positive_excel_rows_in_window": [
+        27
+      ],
+      "unlinked_excel_row_27_provenance": "Original workbook row 27 retains its blank PR reference. PR #6639 separately corroborates the same earlier review, period, baseline and retry failure and is merged. Source spans remain unparseable.",
+      "fix_PR_numbers_cannot_be_used_as_distinct_defect_IDs": true,
+      "next_priority": "Validate newrequiredCI artifacts; validate candidate discovery identities across historical/narrow ledger before any fullrate. 463typedwindow labels remainprovisional despite source-backed duplicate and missingfix resolution.",
+      "previous_sampled_pr_checkpoint": "docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-22-nine-merged.json",
+      "previous_snapshot_reviewed_prs": [
         7474,
         7558,
         7601,
@@ -177,28 +212,24 @@
         7704,
         7709
       ],
-      "github_checked_fix_pr_merges": 9,
-      "source_row_identity": "original Excel row and review_id preserved, positive workbook row IDs deduped only as candidate exact-string IDs",
-      "historical_status_caveat": "Workbook 'open' is a point-in-time label and cannot overrule GitHub; all unchecked PRs remain unknown.",
-      "separate_discovery_and_fix_contract": "a fix PR merge is not a newly discovered defect; do not promote unique workbook IDs or row counts to 463 numerator without full distinct-ID lineage",
-      "ci_summary": "artifacts/aspects/historical-discovery-fix-reconciliation.json",
-      "ci_row_evidence": "artifacts/aspects/historical-discovery-fix-reconciliation.jsonl",
-      "current_status": "GitHub Actions 45088019526 success; 9 PR states verified; historical ID gap still prevents new distinct-count numerator",
-      "new_distinct_defects_reconciled_against_463": 0,
-      "new_comparable_rate_computed": false,
-      "unique_named_candidate_ids_all_history": 203,
-      "original_positive_rows_in_900_window": 464,
-      "original_pin_verified_positive_rows_in_900_window": 200,
-      "missing_or_noncanonical_discovery_id_rows_all_history": 674,
-      "exact_candidate_id_also_in_narrow_git_ledger_rows": 8,
-      "positive_reviews_in_anchored_900_window": 464,
-      "unique_fix_pr_numbers_in_anchored_900_window": 463,
-      "unlinked_positive_excel_rows_in_window": [
+      "github_checked_fix_pr_entries": 877,
+      "github_checked_fix_pr_closed_unmerged": 2,
+      "github_fix_pr_checked_at_utc": "2026-11-23T00:51:07Z",
+      "unique_candidate_ids_all_history": 876,
+      "unique_candidate_ids_in_historical_900_window": 463,
+      "candidate_identity_confidence": "Original workbook candidates, not verified distinct defects; no numerator promotion",
+      "original_identity_rows_sha256": "4fb1dae2a458385d72abfd25d50a5e79634748264f7947aabdafb5584e24bbe6",
+      "reconciliation_rows_sha256": "0e38409d79b143486feeedc6fe1694c0a87e62b9376836f70dae7a8b478db6bc",
+      "opaque_original_discovery_labels": 1,
+      "source_backed_duplicate_fix_pr_relations": 1,
+      "source_backed_missing_fix_pr_references": 1,
+      "original_unlinked_excel_rows_in_window": [
         27
       ],
-      "unlinked_excel_row_27_provenance": "Original repaired workbook, Review evidence row 27, defect ID 'Operational drain', defects 1, source reference empty, reported fix PR pending at confirmation; do not silently exclude to force 463.",
-      "fix_PR_numbers_cannot_be_used_as_distinct_defect_IDs": true,
-      "next_priority": "Reconcile Excel 27 to a uniquely evidenced discovery/fixing PR without assuming it duplicates any of the other 463 PR-linked observations. Independently prove 900-window discovery ID counts before computing density."
+      "unlinked_excel_rows_in_window": [],
+      "duplicate_6701_6702": "PR #6702 explicitly identifies #6701 as the same defect and active fix. Both original review events remain. PR #6701 is merged; #6702 is closed without merging. The checkpoint retains the source body, excerpt and SHA-256.",
+      "historical_open_labels_now_verified_merged": 179,
+      "full_checkpoint_sha256": "e690d0315496a7e803e8c2714e3454143dc3fb59b536502fee5d9ddb9686a643"
     },
     "source_pin_audit_20261123": {
       "evidence_run_id": 45088019526,
@@ -256,8 +287,24 @@
       "newly_repeated_LOC_this_stage": 0,
       "distinct_defects_promoted_to_900_numerator": 0,
       "new_comparable_density_this_stage": null,
-      "test_golden_status": "committed_in_PR_pending_current_head_CI",
-      "reporting_rule": "Do not add 672 to the 203 ASPECTS-named candidates as proven unique defects; PRs may resolve multiple discoveries or be repeated in workbook."
+      "test_golden_status": "Concurrent672original-linkgolden preserved; full localreconciler passes with separately resolved row27 and duplicate6702 evidence; newheadCI pending",
+      "reporting_rule": "Do not add 672 to the 203 ASPECTS-named candidates as proven unique defects; PRs may resolve multiple discoveries or be repeated in workbook.",
+      "supplemental_evidence_checkpoint": "docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-23-all-referenced.json"
+    },
+    "snapshot_cohort_contract": {
+      "schema_version": 2,
+      "method": "first_parent_verified_path_blob_span_union_v2",
+      "scope": "narrow_incremental_review_ledger_subset",
+      "required_identity": [
+        "captured_utc",
+        "head_sha",
+        "oldest_included_sha",
+        "actual_commits",
+        "ordered_shas",
+        "ordered_shas_sha256"
+      ],
+      "comparison": "Requires complete cohorts of the same size, consistent ordered shared history, matching method and population, and internally consistent prior evidence. Legacy v1, incomplete or inconsistent snapshots cannot yield signed deltas.",
+      "does_not_restore_historical_density": true
     },
     "explicit_duplicate_fix_identity": {
       "source_snapshot": "docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-22-duplicate-6702-of-6701.json",
@@ -287,5 +334,88 @@
       "provenance": "one explicit self-reported duplicate fix PR association; not a global one-to-one mapping between fixing PR and defect identity",
       "new_or_repeated_loc_to_global_900_window": null
     }
+  },
+  "latest_restoration_run": {
+    "recorded_at_utc": "2026-11-23T01:05:57.667286+00:00",
+    "base_head_integrated": "a57876b4bb4569ffe4ff09c14418eaea09ade2fe",
+    "source_workbook_file_version": "66",
+    "source_workbook_sha256": "9fab94e0cd7d642f84d37ae9b8988e72b34367a479ebdba65fb893349ade0787",
+    "source_sheet": "Review evidence",
+    "original_excel_rows": [
+      7,
+      5747
+    ],
+    "historical_rows_migrated": 5741,
+    "new_rows_imported": 0,
+    "clean_rows_preserved": 4864,
+    "genuinely_newly_verified_source_loc": 0,
+    "new_reviewed_loc": 0,
+    "repeated_reviewed_loc": 0,
+    "new_measurement_produced": false,
+    "new_comparable_rate": null,
+    "existing_exact_pin_subset_loc": 232219,
+    "existing_exact_pin_subset_repeat_occurrences": 6020,
+    "existing_subset_window": {
+      "definition": "historical900first-parentSHAcohort includinghead; originalpinnedsource subset only",
+      "head_sha": "15ac3b9abeff23e4fa8cb7a16027bf9b17211251",
+      "oldest_sha": "6252805a908f5bf0413bb40c68cb546013ff1843"
+    },
+    "existing_overlap_partition_unchanged_this_run": {
+      "new_vs_prior_single_pins": 3535,
+      "repeated_vs_prior_single_pins": 158,
+      "evidence": "2026-11-22-900-pin-partition.json already committed concurrently; independently replayed without crediting another advance"
+    },
+    "new_fix_pr_states_checked_beyond_prior_nine": 868,
+    "total_checked_fix_prs": 877,
+    "fix_state_counts": {
+      "merged": 875,
+      "closed_unmerged": 2
+    },
+    "new_source_backed_duplicate_relations": 0,
+    "new_source_backed_missing_fix_links": 1,
+    "new_distinct_defects_discovered": 0,
+    "new_distinct_defects_promoted_to_verified_900_numerator": 0,
+    "remaining_in_window_source_recovery": {
+      "unparseable_rows": 40,
+      "previously_mismatched_excel_row_908": "Recovered locally as candidate with exact original count673; required CI golden pending",
+      "derived_candidate_rows_after_fix_expected_pending_CI": 439
+    },
+    "new_rate_blockers": [
+      "40 in-window source references remain unparseable",
+      "Cross-revision lineage for original pins, derived candidates and incremental ledger remains provisional",
+      "Historical/narrow distinct-defect identity validation remains incomplete; candidate IDs are not a verified numerator",
+      "Current-head CI must pass before merge"
+    ],
+    "test_status": "161 focused Python tests and 11 Node evidence-gate cases passed; nine workflow Python blocks parsed; full 5741-row reconciliation and 15-blob row908 recovery replay passed. Full repository history execution is required in CI.",
+    "ci_evidence_input": {
+      "run_id": 45088019526,
+      "head_sha": "7461284c7d5f48c1ef4f710a6aec98b4ca6a4f5f",
+      "artifact_id": 14780233682,
+      "artifact_sha256": "568bc2c187bc1de4e137e1d433bab18faaaeccc5a6bd6487e1337812500588a3"
+    },
+    "ci_before_changes": {
+      "evidence_snapshot": "success",
+      "merge_protection": "success",
+      "evidence_gate": "failure_classification_corrected_with_tests",
+      "security": "gitleaks historicalfixture findings remain required failures",
+      "FND": "application/analyzer failures remain separate merge blockers"
+    },
+    "merge_status": "open_unmerged_required_checks_not_all_passed",
+    "rc49_7702_changed": false,
+    "full_master_build_dispatched": false,
+    "duplicate_relation_also_preserved_from_concurrent_run": true,
+    "newly_recovered_candidate_review": {
+      "original_excel_row": 908,
+      "original_defects": 0,
+      "source_blobs_independently_matched": 15,
+      "nonblank_loc": 673,
+      "new_exact_identities_vs_original_pins_and_other_candidates": 132,
+      "repeated_exact_identities_against_original_pins": 541,
+      "existing_other_candidate_overlap": 0,
+      "confidence": "Derived source at original reviewed commit, not original workbook blob pin or verified cross-revision denominator",
+      "verified_denominator_increment": 0,
+      "checkpoint": "docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row908-utf8-bom.json"
+    },
+    "source_backed_duplicate_relations_preserved_from_concurrent_run": 1
   }
 }
