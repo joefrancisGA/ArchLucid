@@ -1,14 +1,17 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
-import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
+const deskFixture = vi.hoisted(() => ({ id: null as string | null }));
 import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-review-open-href";
 
 vi.mock("@/lib/desk-continuity-preference", () => ({
-  readCachedLastOpenArchitectureId: vi.fn(() => null),
+  readCachedLastOpenArchitectureId: () => deskFixture.id,
 }));
 
 describe("resolveGovernanceScopedReviewOpenHref", () => {
+  beforeEach(() => {
+    deskFixture.id = null;
+  });
   it("opens nested review when architecture id is on the schedule", () => {
     expect(
       resolveGovernanceScopedReviewOpenHref({
@@ -19,7 +22,7 @@ describe("resolveGovernanceScopedReviewOpenHref", () => {
   });
 
   it("uses desk cache when locator has no architecture parent", () => {
-    vi.mocked(readCachedLastOpenArchitectureId).mockReturnValue("architecture-cached-002");
+    deskFixture.id = "architecture-cached-002";
 
     expect(
       resolveGovernanceScopedReviewOpenHref({
