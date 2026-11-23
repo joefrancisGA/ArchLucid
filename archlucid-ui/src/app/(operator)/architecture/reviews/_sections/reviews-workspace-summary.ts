@@ -43,7 +43,8 @@ export function deriveReviewsWorkspaceSummary(runs: readonly RunSummary[]): Revi
 
     if (findingCount !== null) {
       findings += findingCount;
-    } else {
+    } else if (run.hasFindingsSnapshot === true || run.hasGoldenManifest === true) {
+      // A draft that has not reached findings yet has no count to omit.
       findingsTotalOmitted = true;
     }
 

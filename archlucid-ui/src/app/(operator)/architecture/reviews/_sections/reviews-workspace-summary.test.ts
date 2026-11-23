@@ -67,4 +67,26 @@ describe("deriveReviewsWorkspaceSummary", () => {
     expect(summary.openRisks).toBe(0);
     expect(summary.openRisksTotalOmitted).toBe(true);
   });
+  it("does not mark findings omitted for a draft that has not stored a findings snapshot", () => {
+    const summary = deriveReviewsWorkspaceSummary([
+      run({
+        runId: "draft",
+        hasGoldenManifest: false,
+        hasFindingsSnapshot: false,
+      }),
+    ]);
+
+    expect(summary.findings).toBe(0);
+    expect(summary.findingsTotalOmitted).toBe(false);
+    expect(summary.inProgress).toBe(1);
+  });
+
+  it("marks findings omitted when a finalized review has no stored finding count", () => {
+    const summary = deriveReviewsWorkspaceSummary([
+      run({ runId: "finalized", hasGoldenManifest: true }),
+    ]);
+
+    expect(summary.findings).toBe(0);
+    expect(summary.findingsTotalOmitted).toBe(true);
+  });
 });
