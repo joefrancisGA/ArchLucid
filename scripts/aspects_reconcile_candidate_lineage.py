@@ -224,6 +224,7 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
                 or row.get("window_membership") != "in_900_first_parent_window"):
             continue
         raw_occurrences = exact_repeats = cross_proven = provisional = 0
+        cohort_proof_not_retraced_at_row_review_commit = 0
         source_paths = set()
         comparable_paths = set()
         lines_on_comparable_paths = 0
@@ -240,14 +241,27 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
                 lines_without_original_pin_path += len(observed)
             exact_repeats += len(observed & original.get(key, set()))
             unmatched = observed - original.get(key, set())
-            cross_proven += sum(
-                (src["path"], src["blob_derived_at_reviewed_commit"], n)
-                in first_parent_proven_matches for n in unmatched)
+            # A Git blob can occur at multiple review commits even across
+            # edit-and-revert history. The cohort-level lineage proof is
+            # anchored at first_derived[key]; it must NEVER be re-attributed
+            # as proof for another Excel row at a later commit merely because
+            # that row has an identical path/blob/line triple.
+            at_traced_candidate_commit = (
+                order[row["reviewed_master_sha"]] == first_derived[key])
+            cohort_proven_here = {
+                n for n in unmatched
+                if (src["path"], src["blob_derived_at_reviewed_commit"], n)
+                in first_parent_proven_matches
+            }
+            if at_traced_candidate_commit:
+                cross_proven += len(cohort_proven_here)
+            else:
+                cohort_proof_not_retraced_at_row_review_commit += len(cohort_proven_here)
             provisional += sum(
                 (src["path"], src["blob_derived_at_reviewed_commit"], n)
                 in matches and
-                (src["path"], src["blob_derived_at_reviewed_commit"], n)
-                not in first_parent_proven_matches for n in unmatched)
+                (not at_traced_candidate_commit or n not in cohort_proven_here)
+                for n in unmatched)
         if (raw_occurrences != row.get("candidate_nonblank_loc")
                 or lines_without_original_pin_path + lines_on_comparable_paths != raw_occurrences):
             raise ValueError(f"Candidate Excel row {row.get('excel_row')} source LOC drift")
@@ -267,6 +281,8 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
                 lines_without_original_pin_path,
             "exact_repeat_with_original_pin_same_path_blob_line": exact_repeats,
             "different_blob_full_first_parent_proven_repeat_with_original_pin": cross_proven,
+            "cohort_lineage_proof_not_retraced_at_this_review_commit":
+                cohort_proof_not_retraced_at_row_review_commit,
             "different_blob_provisional_equal_hunk_only": provisional,
             "without_proven_original_pin_identity": (
                 raw_occurrences - exact_repeats - cross_proven),
