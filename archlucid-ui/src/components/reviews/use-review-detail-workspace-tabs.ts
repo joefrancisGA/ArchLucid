@@ -58,6 +58,11 @@ function isWorkbenchTab(tabId: ReviewDetailTabId): tabId is ReviewWorkbenchColum
   return (WORKBENCH_TAB_IDS as readonly string[]).includes(tabId);
 }
 
+function findingIdClearedWhenLeavingFindings(tabId: ReviewDetailTabId): null | undefined {
+  // undefined keeps the current query. null deletes it. Findings and workbench tabs still own the selection.
+  return tabId === "findings" || isWorkbenchTab(tabId) ? undefined : null;
+}
+
 export type UseReviewDetailWorkspaceTabsResult = {
   readonly activeTab: ReviewDetailTabId;
   readonly navigateTab: (
@@ -340,9 +345,7 @@ export function useReviewDetailWorkspaceTabs(
         hash: null,
         findingId: options?.findingId !== undefined
           ? options.findingId
-          : tab === "findings" || isWorkbenchTab(tab)
-            ? undefined
-            : null,
+          : findingIdClearedWhenLeavingFindings(tab),
         workbenchFocus: nextWorkbenchFocus,
         presenter: presenterModeRef.current ? true : null,
         runId: props.runId,
@@ -379,6 +382,7 @@ export function useReviewDetailWorkspaceTabs(
 
     writeReviewDetailTabToUrl(tabFromHash, {
       hash,
+      findingId: findingIdClearedWhenLeavingFindings(tabFromHash),
       workbenchFocus: normalizedFocus,
       presenter: presenterModeRef.current ? true : null,
       runId: props.runId,
@@ -440,6 +444,7 @@ export function useReviewDetailWorkspaceTabs(
       if (tabFromHash !== null) {
         writeReviewDetailTabToUrl(nextTab, {
           hash: hash.length > 0 ? hash : null,
+          findingId: findingIdClearedWhenLeavingFindings(nextTab),
           workbenchFocus: normalizedFocus,
           presenter: presenterModeRef.current ? true : null,
           runId: props.runId,

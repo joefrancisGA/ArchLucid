@@ -306,4 +306,72 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
     expect(window.location.search).not.toContain("workbenchFocus");
     expect(window.location.hash).toBe("#review-summary");
   });
+  it("clears findingId when a section hash moves to a non-findings tab", () => {
+    searchParamsHarness.applyQuery("reviewTab=findings&findingId=finding-queue-1");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=finding-queue-1",
+    );
+
+    const { result } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    expect(result.current.activeTab).toBe("findings");
+
+    act(() => {
+      window.history.replaceState(
+        {},
+        "",
+        "/architecture/reviews/run-abc?reviewTab=findings&findingId=finding-queue-1#review-summary",
+      );
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    });
+
+    expect(result.current.activeTab).toBe("overview");
+    expect(window.location.search).not.toContain("findingId=");
+    expect(window.location.hash).toBe("#review-summary");
+  });
+  it("keeps findingId when a section hash stays on findings", () => {
+    searchParamsHarness.applyQuery("reviewTab=findings&findingId=finding-queue-1");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=finding-queue-1",
+    );
+
+    const { result } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    act(() => {
+      window.history.replaceState(
+        {},
+        "",
+        "/architecture/reviews/run-abc?reviewTab=findings&findingId=finding-queue-1#run-explanation",
+      );
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    });
+
+    expect(result.current.activeTab).toBe("findings");
+    expect(window.location.search).toContain("findingId=finding-queue-1");
+  });
+
+  it("clears findingId on first paint when a section hash selects overview", () => {
+    searchParamsHarness.applyQuery("reviewTab=findings&findingId=finding-queue-1");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&findingId=finding-queue-1#review-summary",
+    );
+
+    const { result } = renderHook(() => useReviewDetailWorkspaceTabs(baseProps), {
+      wrapper: SearchParamsRerenderHost,
+    });
+
+    expect(result.current.activeTab).toBe("overview");
+    expect(window.location.search).not.toContain("findingId=");
+    expect(window.location.hash).toBe("#review-summary");
+  });
 });
