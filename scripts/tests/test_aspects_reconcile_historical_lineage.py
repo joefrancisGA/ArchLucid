@@ -69,6 +69,10 @@ class HistoricalLineageTests(unittest.TestCase):
         self.assertEqual(report["verified_pin_line_occurrences_in_window"], 6)
         self.assertEqual(report["verified_unique_exact_path_blob_lines_in_window"], 5)
         self.assertEqual(report["verified_repeated_exact_path_blob_lines_in_window"], 1)
+        self.assertEqual(report["single_file_original_pin_unique_exact_loc_in_window"], 5)
+        self.assertEqual(report["multi_file_original_pin_unique_exact_loc_in_window"], 0)
+        self.assertEqual(report["multi_file_original_pin_exact_overlap_with_single_file_loc_in_window"], 0)
+        self.assertEqual(report["multi_file_original_pin_new_exact_loc_vs_single_file_loc_in_window"], 0)
         self.assertEqual(report["provisionally_mapped_unique_loc"], 3)
         self.assertEqual(report["provisionally_mapped_additional_repeated_loc"], 2)
         self.assertIsNone(report["historical_900_density_recomputed"])
@@ -82,6 +86,9 @@ class HistoricalLineageTests(unittest.TestCase):
         b_blob = run(self.repo, "rev-parse", "HEAD:b.cs")
         latest_a_blob = run(self.repo, "rev-parse", "HEAD:a.cs")
         old = self.event(7, self.old_head, self.old_blob, [[1, 1]])
+        # A separate already-reviewed single-file row shares EXACTLY the
+        # newer a.cs path/blob/line with the multi-source observation.
+        same_blob_single = self.event(9, third_head, latest_a_blob, [[1, 1]])
         multi = {
             **self.event(8, third_head, latest_a_blob, [[1, 1]]),
             "pinned_sources": [
@@ -90,7 +97,7 @@ class HistoricalLineageTests(unittest.TestCase):
             ],
             "nonblank_reviewed_loc": 2,
         }
-        rows = [old, multi]
+        rows = [old, same_blob_single, multi]
         checkpoint = {"head_sha": third_head, "oldest_included_sha": self.old_head,
                       "window_first_parent_commits": 3}
         report = {"first_parent_checkpoint": {
@@ -98,9 +105,15 @@ class HistoricalLineageTests(unittest.TestCase):
             "review_events_present": 2, "audited_rows_sha256": audited_rows_sha256(rows)}
         outcome = sut.reconcile(self.repo, rows, checkpoint, report, expected_records=2)
         self.assertEqual(outcome["status"], "provisional_same_path_unique_unchanged_lineage")
-        self.assertEqual(outcome["eligible_verified_review_rows"], 2)
+        self.assertEqual(outcome["eligible_verified_review_rows"], 3)
         self.assertEqual(outcome["path_blob_identities"], 3)
-        self.assertEqual(outcome["verified_pin_line_occurrences_in_window"], 3)
+        self.assertEqual(outcome["verified_pin_line_occurrences_in_window"], 4)
+        self.assertEqual(outcome["verified_repeated_exact_path_blob_lines_in_window"], 1)
+        self.assertEqual(outcome["single_file_original_pin_unique_exact_loc_in_window"], 2)
+        self.assertEqual(outcome["multi_file_original_pin_unique_exact_loc_in_window"], 2)
+        self.assertEqual(outcome["multi_file_original_pin_exact_overlap_with_single_file_loc_in_window"], 1)
+        self.assertEqual(outcome["multi_file_original_pin_new_exact_loc_vs_single_file_loc_in_window"], 1)
+        self.assertEqual(outcome["verified_unique_exact_path_blob_lines_in_window"], 3)
         self.assertEqual(outcome["provisionally_mapped_unique_loc"], 2)
         # The aggregate row size must exactly equal all of its pinned segments.
         multi["nonblank_reviewed_loc"] = 1
