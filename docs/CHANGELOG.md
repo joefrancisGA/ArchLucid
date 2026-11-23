@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-23 - Score lift round 123 (batch 88): Graph edge partial, type combinations
+
+**Outcome.** Evidence graph edge-focus empty mounts partial-capture recovery when inventory capture is thin. Type-filter empties combined with a narrowed graph scope, a path-only slice, or a pinned edge name a filter miss versus a failed graph read, and those bands stay exclusive of the type-only line.
+
+**Surfaces.** Evidence graph loaded experience, honesty and mounted contract tests.
+
 ## 2026-11-23 - Score lift round 122 (batch 87): Explorer work-queue quadruple, graph partial capture
 
 **Outcome.** Infrastructure explorer names work queue with resource type, name prefix, and resource group together versus a failed catalog read, exclusive of the type-prefix-group band when the work queue is All. Evidence graph node-focus and path-only empty bands mount partial-capture recovery when inventory capture is thin.
