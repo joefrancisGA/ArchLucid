@@ -335,7 +335,7 @@ function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resour
 }
 
 const INFRA_DIAGRAM_DATA_FLOW_READING_CARD_CAPTION_REST =
-  "The first line is the name. The next line is the type. When a store has no diagram neighbor on this view, the status line says No diagram neighbor on this view.; when it does, the line names how many diagram neighbors this view drew. Factory, host, and runtime lines describe a Data Factory link. A title that is a count, such as 6 storage accounts, opens the list of names. Click that card again to close the list.";
+  "The first line is the name. The next line is the type. When a store has no diagram neighbor on this view, the status line says No diagram neighbor on this view.; when it does, the line names how many diagram neighbors this view drew. Factory, host, and runtime lines describe a Data Factory link. A title that is a count, such as 6 storage accounts, opens the list of names. Click that card again to close the list. A drawn diagram edge is evidence of a modeled relationship, not network isolation.";
 
 const EVIDENCE_FAMILY_FILTER_MODES = new Set(["dataFlow", "executive", "identity", "data"]);
 
@@ -2861,7 +2861,7 @@ export function DiagramsWorkbenchClient() {
                 }
                 onClick={runMermaidExport}
               >
-                Export Mermaid
+                Download Mermaid source
               </Button>
             </div>
             {pngExportDisabledReason != null ? (
@@ -3034,7 +3034,7 @@ export function DiagramsWorkbenchClient() {
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="infra-diagrams-one-resource-group-caption"
             >
-              This diagram shows one resource group.
+              This diagram shows resources in {selectedResourceGroupName}. Other resource groups in this snapshot are not on this canvas.
             </p>
           ) : null}
           {isBackboneKeepDiagram ? (
