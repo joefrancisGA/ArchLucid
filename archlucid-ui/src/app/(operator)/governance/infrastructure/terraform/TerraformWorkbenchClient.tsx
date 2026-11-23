@@ -613,7 +613,7 @@ export function TerraformWorkbenchClient() {
           </div>
         ) : null}
 
-        {loadError != null ? (
+        {urlCloudResourceId.length > 0 && loadError != null ? (
           <div className="space-y-2" data-testid="infra-terraform-load-error">
             <EnterpriseCompactEmptyState
               role="alert"
