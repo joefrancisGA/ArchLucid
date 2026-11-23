@@ -1,0 +1,81 @@
+name: Aspects row12 first-parent pinned-source proof
+
+# Focused, branch-only evidence validation. No full master build is dispatched.
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'scripts/aspects_verify_row12_pinned_lineage.py'
+      - 'scripts/tests/test_aspects_verify_row12_pinned_lineage.py'
+      - 'scripts/aspects_verify_first_parent_lineage.py'
+      - 'scripts/aspects_reconcile_historical_lineage.py'
+      - 'docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row12-*.json'
+      - '.github/workflows/aspects-row12-first-parent.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aspects-row12-first-parent-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  row12-first-parent:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test first-parent path lineage with real Git edits and reversions
+        run: python -m unittest discover -s scripts/tests -p 'test_aspects_verify_row12_pinned_lineage.py' -v
+      - name: Reverify row12 five source Git blobs and three pinned reviews
+        run: |
+          python scripts/aspects_verify_row12_pinned_lineage.py \
+            --repo . \
+            --candidate-golden docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row12-complete-connection-factories.json \
+            --original-pin-comparators docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row12-three-original-pinned-comparators.json \
+            --json-out artifacts/aspects/row12-first-parent-pinned-links.json
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          result = json.loads(Path("artifacts/aspects/row12-first-parent-pinned-links.json").read_text())
+          assert result["status"] == "row12_candidate_to_original_pins_first_parent_path_proof"
+          assert result["candidate_excel_row"] == 12
+          assert result["candidate_git_derived_total_nonblank_line_occurrences"] == 282
+          assert result["candidate_source_files_count"] == 5
+          assert result["candidate_lines_on_path_with_original_pin"] == 79
+          assert result["candidate_lines_on_paths_without_original_pin"] == 203
+          assert result["original_pinned_review_rows_reverified"] == 3
+          assert result["unique_original_pinned_review_commits"] == 2
+          assert result["exact_same_blob_candidate_line_identities"] == 0
+          proven = result["all_first_parent_proven_repeat_candidate_lines"]
+          different = result["different_revision_all_first_parent_proven_repeat_candidate_lines"]
+          assert 0 <= proven == different <= 79
+          assert proven + result["candidate_lines_on_shared_path_without_full_proof"] == 79
+          assert proven == len(result["candidate_line_numbers_with_proven_continuity"])
+          assert result["candidate_lines_without_original_pinned_path"] == 203
+          assert result["new_independently_verified_reviewed_loc"] == 0
+          assert result["new_distinct_defects"] == 0
+          assert result["new_comparable_900_density"] is None
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
+              out.write(
+                  f"Excel row12 #6624: **{proven:,}** of 79 candidate source lines "
+                  "have Git-proven unchanged first-parent continuity to at least "
+                  "one of 3 original-blob-pinned review spans across 2 SHAs. "
+                  f"**{result['candidate_lines_on_shared_path_without_full_proof']:,}** "
+                  "same-path candidates remain unproven and **203** candidate "
+                  "lines have no original pinned review on their paths. "
+                  "Proven source-line repeat is NOT a new independently reviewed "
+                  "LOC, full denominator or confirmed defect.\\n\\n"
+              )
+          PY
+      - name: Upload bounded row12 lineage evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: aspects-row12-pinned-first-parent
+          path: artifacts/aspects/row12-first-parent-pinned-links.json
+          if-no-files-found: error
