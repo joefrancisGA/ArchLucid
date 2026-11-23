@@ -39,8 +39,11 @@ class RemediationAtomicUpdateContractTests(unittest.TestCase):
         self.assertNotIn("DENY UPDATE ON dbo.RemediationInstances", migration)
         self.assertIn("DATABASE_PRINCIPAL_ID(N'ArchLucidApp') IS NOT NULL", migration)
         self.assertIn("NOT EXISTS (", migration)
-        self.assertTrue(consolidated.rstrip().endswith(migration.rstrip()),
-                        "greenfield bootstrap must mirror the migration without drift")
+        self.assertIn(migration.rstrip(), consolidated,
+                      "greenfield bootstrap must retain the migration without drift")
+        procedure_migration = (ROOT / "ArchLucid.Persistence/Migrations/427_RemediationProcedureOnlyUpdates.sql").read_text()
+        self.assertTrue(consolidated.rstrip().endswith(procedure_migration.rstrip()),
+                        "greenfield bootstrap must mirror the newest procedure migration")
 
     def test_production_like_startup_reuses_existing_sql_immutability_probe(self):
         probe = (ROOT / "ArchLucid.Host.Core/Startup/Validation/Rules/"
