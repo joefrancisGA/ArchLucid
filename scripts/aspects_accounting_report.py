@@ -235,6 +235,14 @@ def verified_subset(snapshot: dict | None, *, expected_head: str | None = None) 
             and result["new_observations_since_prior"] >
                 result["distinct_review_observations"]):
         raise ValueError("new review observation delta exceeds current observations")
+    if comparable and result["freshness"] == "stale_no_new_verified_evidence":
+        # A repeat of identical source evidence MUST never be presented as a
+        # fresh measurement, even if the Git HEAD or commit window changed.
+        if any(result[k] not in (None, 0) for k in (
+            "new_observations_since_prior", "new_reviewed_loc",
+            "new_line_occurrences", "repeated_reviewed_loc",
+            "new_distinct_defect_ids", "signed_rate_delta")):
+            raise ValueError("stale verified evidence cannot report new reviews, defects or density change")
     new = result["new_reviewed_loc"]
     repetitions = result["repeated_reviewed_loc"]
     occurrences = result["new_line_occurrences"]
