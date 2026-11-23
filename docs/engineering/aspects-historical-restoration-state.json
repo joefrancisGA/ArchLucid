@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "historical_900_followon_candidate_identity_reconciliation_and_sql_runner_submitted",
-  "next_priority": "Validate latest PR-head Aspects overlap, immutable workbook clean-row audit, exact verbatim historical/follow-on discovery candidate label matching, FND-011 SQL-backed persisted HTTP tests, and full PR CI; repair concrete failures without weakening gates. The historical 463/343492 snapshot remains unchanged partial provenance until as-of 900-first-parent distinct discovery and cross-revision reviewed LOC are recomputed. Then integrate current follow-on cohort and 600/700 SMA25, without inventing points.",
+  "state": "historical_original_pinned_full_first_parent_lineage_proof_submitted",
+  "next_priority": "Validate exact PR-head historical-original-pin-proven-first-parent.json artifact and new 7 regression tests, including changed-and-reverted source lines, plus existing Aspects/FND-011/CI gates. Record source-line identity proof counts only from an actual successful run, not as new reviewed LOC. Then reconcile other unpinned derived review coverage and contemporaneous typed distinct discovery IDs on a fresh as-of 900-first-parent cohort before any rate or 600/700-SMA25 publication.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -438,6 +438,29 @@
         "reason": "Previously missing SQL Server caused persisted tenant HTTP test to fail before security assertions. Reused existing CI SQL Server service pattern and explicit catalog readiness; no skipped test or weakened auth.",
         "master_full_build_dispatched": false
       }
+    },
+    "original_pinned_full_first_parent_lineage_proof": {
+      "status": "new_code_tests_and_CI_committed_pending_exact_head_run",
+      "implementation": "scripts/aspects_verify_original_pinned_first_parent.py",
+      "tests": "scripts/tests/test_aspects_verify_original_pinned_first_parent.py",
+      "workflow": ".github/workflows/aspects-density-snapshot.yml",
+      "output": "artifacts/aspects/historical-original-pin-proven-first-parent.json",
+      "population": "original_workbook_pinned_verified_git_source_reviews_in_original_historical_900_first_parent_SHA_window_only",
+      "reference_checkpoint": "docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-900-pin-partition.json",
+      "method": "path+blob exact line union followed by Git first-parent full-history changed-path edge index and unique unchanged source lines across every changed edge; changes/reverts and source deletion cannot be inferred identical",
+      "scope_limits": "only adjacent reviewed blob versions of same path in earliest reviewed order; skip unresolved first-parent paths; no rename inference; source line identity not proof of review or defect identity",
+      "original_pinned_exact_unique_loc_previous": 232219,
+      "original_pinned_exact_repeated_occurrences_previous": 6020,
+      "proven_cross_revision_repeated_source_lines_from_current_head": "not measured until CI artifact passes",
+      "newly_reviewed_loc_in_this_step": 0,
+      "new_or_repeated_reviewed_loc_in_this_step": [
+        0,
+        0
+      ],
+      "newly_reconciled_verified_distinct_discoveries": 0,
+      "full_900_comparable_density": null,
+      "PR_merge_allowed_only_after_all_required_checks_pass": true,
+      "full_master_build_dispatched": false
     }
   },
   "latest_restoration_run": {
