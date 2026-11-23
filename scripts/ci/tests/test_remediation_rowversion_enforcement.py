@@ -21,9 +21,13 @@ class RowVersionEnforcementTests(unittest.TestCase):
     def test_update_and_atomic_verification_require_nonnullable_token(self):
         for path in (SQL, ATOMIC):
             s = path.read_text()
-            self.assertIn("RowVersion = @ExpectedRowVersion", s)
             self.assertIn("mutation.ExpectedRowVersion is not { Length: 8 }", s)
-            self.assertNotIn("(@ExpectedRowVersion IS NULL OR RowVersion = @ExpectedRowVersion)", s)
+            self.assertIn("CommandType.StoredProcedure", s)
+            self.assertNotIn("UPDATE dbo.RemediationInstances", s)
+        migration = (ROOT / "ArchLucid.Persistence/Migrations/427_RemediationProcedureOnlyUpdates.sql").read_text()
+        self.assertEqual(3, migration.count("RowVersion = @ExpectedRowVersion"))
+        self.assertEqual(3, migration.count("DATALENGTH(@ExpectedRowVersion) <> 8"))
+        self.assertNotIn("(@ExpectedRowVersion IS NULL OR RowVersion = @ExpectedRowVersion)", migration)
         self.assertIn("if (updated != 1)", ATOMIC.read_text())
 
     def test_verification_restore_rereads_and_cas_protects_concurrent_state(self):

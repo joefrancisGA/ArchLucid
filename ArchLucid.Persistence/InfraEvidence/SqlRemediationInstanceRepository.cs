@@ -85,37 +85,12 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
             throw new InvalidOperationException(
                 "Approving a remediation instance requires an atomic provenance commit.");
 
-        const string sql = """
-                           UPDATE dbo.RemediationInstances
-                           SET Status = @Status,
-                               CloudResourceId = @CloudResourceId,
-                               PathId = @PathId,
-                               PathNarrativeJson = @PathNarrativeJson,
-                               AssessmentId = @AssessmentId,
-                               ControlId = @ControlId,
-                               PreflightSnapshotId = @PreflightSnapshotId,
-                               ExecutionSnapshotId = @ExecutionSnapshotId,
-                               VerificationSnapshotId = @VerificationSnapshotId,
-                               WaveId = @WaveId,
-                               PreflightResultJson = @PreflightResultJson,
-                               VerificationResultJson = @VerificationResultJson,
-                               ApprovedByActorKey = @ApprovedByActorKey,
-                               UpdatedUtc = @UpdatedUtc,
-                               ApprovedUtc = @ApprovedUtc,
-                               ExecutedUtc = @ExecutedUtc,
-                               ChangeImplementedUtc = @ChangeImplementedUtc,
-                               VerifiedUtc = @VerifiedUtc,
-                               ClosedUtc = @ClosedUtc
-                           WHERE TenantId = @TenantId
-                             AND WorkspaceId = @WorkspaceId
-                             AND ProjectId = @ProjectId
-                             AND InstanceId = @InstanceId
-                             AND RowVersion = @ExpectedRowVersion;
-                           """;
+        // Database-enforced scoped CAS; the app role cannot issue raw instance UPDATE.
+        const string sql = "dbo.uspRemediationUpdateScoped";
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        int affected = await conn.ExecuteAsync(
+        int affected = await conn.QuerySingleAsync<int>(
             new CommandDefinition(
                 sql,
                 new
@@ -145,6 +120,7 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
                     mutation.VerifiedUtc,
                     mutation.ClosedUtc,
                 },
+                commandType: System.Data.CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
 
         if (affected != 1)

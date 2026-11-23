@@ -25,31 +25,12 @@ public sealed partial class SqlRemediationInstanceRepository
         if (mutation.InstanceId != evidence.InstanceId || scope.TenantId != evidence.TenantId)
             throw new InvalidOperationException("Verification evidence and mutation must refer to the same scoped instance.");
 
-        const string updateSql = """
-            UPDATE dbo.RemediationInstances
-            SET Status = @Status,
-                VerificationSnapshotId = @VerificationSnapshotId,
-                VerificationResultJson = @VerificationResultJson,
-                VerifiedUtc = @VerifiedUtc,
-                UpdatedUtc = @UpdatedUtc
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId
-              AND InstanceId = @InstanceId
-              AND RowVersion = @ExpectedRowVersion;
-            """;
-        const string evidenceSql = """
-            INSERT INTO dbo.RemediationEvidence
-                (EvidenceId, InstanceId, TenantId, Phase, PayloadJson, ActorKey, CorrelationId, CreatedUtc)
-            VALUES
-                (@EvidenceId, @InstanceId, @TenantId, @Phase, @PayloadJson, @ActorKey, @CorrelationId, @CreatedUtc);
-            """;
-
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        await using SqlTransaction transaction =
-            (SqlTransaction)await connection.BeginTransactionAsync(cancellationToken);
-        int updated = await connection.ExecuteAsync(new CommandDefinition(
-            updateSql,
+        // The procedure atomically verifies state and appends the paired evidence.
+        // The runtime principal has no direct UPDATE permission on instances.
+        await using SqlConnection connection =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        int updated = await connection.QuerySingleAsync<int>(new CommandDefinition(
+            "dbo.uspRemediationCommitVerification",
             new
             {
                 scope.TenantId,
@@ -62,27 +43,17 @@ public sealed partial class SqlRemediationInstanceRepository
                 mutation.VerificationResultJson,
                 mutation.VerifiedUtc,
                 mutation.UpdatedUtc,
-            },
-            transaction: transaction,
-            cancellationToken: cancellationToken));
-        if (updated != 1)
-            throw new InvalidOperationException("Scoped remediation verification must update exactly one instance.");
-
-        await connection.ExecuteAsync(new CommandDefinition(
-            evidenceSql,
-            new
-            {
                 evidence.EvidenceId,
-                evidence.InstanceId,
-                evidence.TenantId,
-                Phase = (int)evidence.Phase,
                 evidence.PayloadJson,
                 evidence.ActorKey,
                 evidence.CorrelationId,
                 evidence.CreatedUtc,
             },
-            transaction: transaction,
+            commandType: System.Data.CommandType.StoredProcedure,
             cancellationToken: cancellationToken));
-        await transaction.CommitAsync(cancellationToken);
+        if (updated != 1)
+            throw new InvalidOperationException(
+                "Scoped remediation verification must update exactly one instance.");
+
     }
 }

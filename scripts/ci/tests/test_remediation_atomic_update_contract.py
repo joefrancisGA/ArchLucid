@@ -25,7 +25,7 @@ class RemediationAtomicUpdateContractTests(unittest.TestCase):
         self.assertNotIn("UpdateInstanceAsync(", method)
         self.assertNotIn("TryGetByIdInScopeAsync(", method)
 
-    def test_role_migration_is_mirrored_and_does_not_disable_instance_updates(self):
+    def test_role_migrations_are_mirrored_and_enforce_procedure_only_updates(self):
         migration_path = ROOT / "ArchLucid.Persistence/Migrations/426_RemediationRoleWritePermissions.sql"
         migration = migration_path.read_text()
         consolidated = (ROOT / "ArchLucid.Persistence/Scripts/ArchLucid.sql").read_text()
@@ -39,8 +39,11 @@ class RemediationAtomicUpdateContractTests(unittest.TestCase):
         self.assertNotIn("DENY UPDATE ON dbo.RemediationInstances", migration)
         self.assertIn("DATABASE_PRINCIPAL_ID(N'ArchLucidApp') IS NOT NULL", migration)
         self.assertIn("NOT EXISTS (", migration)
-        self.assertTrue(consolidated.rstrip().endswith(migration.rstrip()),
-                        "greenfield bootstrap must mirror the migration without drift")
+        self.assertIn(migration.rstrip(), consolidated,
+                      "greenfield bootstrap must retain the migration without drift")
+        procedure_migration = (ROOT / "ArchLucid.Persistence/Migrations/427_RemediationProcedureOnlyUpdates.sql").read_text()
+        self.assertTrue(consolidated.rstrip().endswith(procedure_migration.rstrip()),
+                        "greenfield bootstrap must mirror the newest procedure migration")
 
     def test_production_like_startup_reuses_existing_sql_immutability_probe(self):
         probe = (ROOT / "ArchLucid.Host.Core/Startup/Validation/Rules/"
@@ -54,7 +57,7 @@ class RemediationAtomicUpdateContractTests(unittest.TestCase):
         self.assertIn('("dbo.RemediationInstances", "UPDATE")', probe)
         self.assertIn('("dbo.RemediationEvidence", "INSERT")', probe)
         self.assertIn("RemediationRequiredPermissions", probe)
-        self.assertIn("migration 426", probe)
+        self.assertIn("migrations 426/427", probe)
         helpers = (ROOT / "ArchLucid.Host.Core/Startup/Validation/Rules/"
                    "SqlDatabaseImmutabilityProbeHelpers.cs").read_text()
         self.assertIn("IS_ROLEMEMBER(@RoleName)", helpers)
@@ -64,9 +67,10 @@ class RemediationAtomicUpdateContractTests(unittest.TestCase):
                 "RemediationSqlRolePrivilegesTests.cs").read_text()
         self.assertIn("SqlServerPersistenceFixture", test)
         self.assertIn('InitialCatalog.Should().Contain("Test"', test)
-        self.assertIn("426_RemediationRoleWritePermissions.sql", test)
+        self.assertIn("foreach (int migrationNumber in new[] { 426, 427 })", test)
         self.assertIn("EXECUTE AS USER =", test)
-        self.assertIn("the existing rowversion-protected repository still requires UPDATE", test)
+        self.assertIn("forbiddenDirectUpdate", test)
+        self.assertIn("uspRemediationUpdateScoped", test)
         self.assertIn("approval and verification evidence remains appendable", test)
         self.assertIn("ThrowAsync<SqlException>", test)
         self.assertIn("Enumerable.Range(0, 2)", test)
@@ -75,8 +79,13 @@ class RemediationAtomicUpdateContractTests(unittest.TestCase):
     def test_sql_implements_scoped_update(self):
         source = (ROOT / "ArchLucid.Persistence/InfraEvidence/SqlRemediationInstanceRepository.cs").read_text()
         method = source.split("public async Task UpdateInstanceInScopeAsync(", 1)[1].split("public async Task<RemediationInstanceRecord?>", 1)[0]
-        for token in ("WHERE TenantId = @TenantId", "AND WorkspaceId = @WorkspaceId", "AND ProjectId = @ProjectId", "AND InstanceId = @InstanceId"):
-            self.assertIn(token, method)
+        self.assertIn("dbo.uspRemediationUpdateScoped", method)
+        self.assertIn("CommandType.StoredProcedure", method)
+        self.assertNotIn("UPDATE dbo.RemediationInstances", method)
+        migration = (ROOT / "ArchLucid.Persistence/Migrations/427_RemediationProcedureOnlyUpdates.sql").read_text()
+        scoped = migration.split("CREATE OR ALTER PROCEDURE dbo.uspRemediationUpdateScoped", 1)[1].split("GO", 1)[0]
+        for token in ("TenantId = @TenantId", "WorkspaceId = @WorkspaceId", "ProjectId = @ProjectId", "InstanceId = @InstanceId", "RowVersion = @ExpectedRowVersion"):
+            self.assertIn(token, scoped)
 
 if __name__ == "__main__":
     unittest.main()
