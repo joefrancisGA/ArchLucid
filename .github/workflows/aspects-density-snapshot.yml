@@ -17,6 +17,8 @@ on:
       - scripts/tests/test_aspects_recover_unpinned_historical_sources.py
       - scripts/aspects_reconcile_recovered_candidates.py
       - scripts/aspects_reconcile_historical_defect_ids.py
+      - scripts/aspects_verify_duplicate_fix_relationship.py
+      - scripts/tests/test_aspects_verify_duplicate_fix_relationship.py
       - scripts/tests/test_aspects_reconcile_historical_defect_ids.py
       - scripts/tests/test_aspects_reconcile_recovered_candidates.py
       - scripts/aspects_reconcile_historical_lineage.py
@@ -127,6 +129,28 @@ jobs:
                   f"**{item['github_fix_pr_state_verified_rows']:,}**. "
                   "Fix merges never change discovery counts; the 463-defect "
                   "historical numerator remains unverified.\\n\\n"
+              )
+          PY
+
+      - name: Verify source-attested duplicate fixing-PR identities without dropping review events
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_verify_duplicate_fix_relationship.py' -v
+          python scripts/aspects_verify_duplicate_fix_relationship.py \
+            --historical-root docs/engineering/aspects-historical \
+            --audit-rows artifacts/aspects/historical-git-pin-rows.jsonl \
+            --audit-report artifacts/aspects/historical-git-pin-audit.json \
+            --evidence docs/engineering/aspects-historical/fix-pr-state-checkpoints/2026-11-22-duplicate-6702-of-6701.json \
+            --json-out artifacts/aspects/historical-explicit-duplicate-review-relations.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          result = json.loads(Path("artifacts/aspects/historical-explicit-duplicate-review-relations.json").read_text())
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
+              out.write(
+                  f"Explicit duplicate fix-review relationships verified: "
+                  f"**{result['explicit_duplicate_review_relationships']}**; "
+                  f"original review events retained: **{result['review_events_preserved_without_recount']}**. "
+                  "No new LOC or global distinct-defect count inferred.\\n\\n"
               )
           PY
 
@@ -287,6 +311,7 @@ jobs:
             artifacts/aspects/historical-git-pin-rows.jsonl
             artifacts/aspects/historical-discovery-fix-reconciliation.json
             artifacts/aspects/historical-discovery-fix-reconciliation.jsonl
+            artifacts/aspects/historical-explicit-duplicate-review-relations.json
             artifacts/aspects/historical-unpinned-source-candidates.json
             artifacts/aspects/historical-unpinned-source-candidates.jsonl
             artifacts/aspects/historical-recovered-vs-pinned-overlap.json
