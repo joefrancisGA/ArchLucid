@@ -148,6 +148,7 @@ def verified_subset(snapshot: dict | None, *, expected_head: str | None = None) 
         "status": "unavailable_no_current_verified_snapshot",
         "scope": "narrow_incremental_review_ledger_subset",
         "current_head": None, "captured_utc": None,
+        "oldest_900_first_parent_sha": None,
         "defects_per_kloc": None, "distinct_defect_ids": None,
         "exact_path_blob_unique_reviewed_loc": None,
         "verified_review_rows": None,
@@ -177,6 +178,16 @@ def verified_subset(snapshot: dict | None, *, expected_head: str | None = None) 
             or cohort_head != observed_head
             or (expected_head is not None and observed_head != expected_head)):
         raise ValueError("current verified snapshot Git head differs from exact expected master-base cohort")
+    oldest = snapshot["cohort"].get("oldest_included_sha")
+    if (not isinstance(oldest, str) or SHA.fullmatch(oldest) is None):
+        raise ValueError("current verified snapshot oldest 900 first-parent SHA missing or invalid")
+    captured = snapshot.get("captured_utc")
+    try:
+        captured_at = datetime.fromisoformat(captured.replace("Z", "+00:00"))
+    except (AttributeError, ValueError) as exc:
+        raise ValueError("current verified snapshot as-of UTC missing or invalid") from exc
+    if captured_at.tzinfo is None or captured_at.utcoffset() != timezone.utc.utcoffset(captured_at):
+        raise ValueError("current verified snapshot as-of must be UTC")
     d = snapshot["density"]
     reviewed = snapshot["review"]
     loc = numeric(d["unique_path_blob_reviewed_lines"], "verified LOC", integer=True)
@@ -194,7 +205,8 @@ def verified_subset(snapshot: dict | None, *, expected_head: str | None = None) 
     result.update({
         "status": "source_verified_subset" if rate is not None else "unavailable",
         "current_head": snapshot.get("head"),
-        "captured_utc": snapshot.get("captured_utc"),
+        "captured_utc": captured_at.isoformat(),
+        "oldest_900_first_parent_sha": oldest,
         "defects_per_kloc": rate,
         "distinct_defect_ids": defect_ids,
         "exact_path_blob_unique_reviewed_loc": loc,
@@ -320,6 +332,8 @@ def markdown(report: dict) -> str:
         "## Current Git-verified subset (not full codebase)",
         f"- Status: **{v['status']}**; freshness: **{v['freshness']}**",
         f"- Verified Git head: \`{v['current_head'] or 'unavailable'}\`",
+        f"- Source-verified as-of UTC: **{v['captured_utc'] or 'unknown'}**",
+        f"- Oldest included 900 first-parent SHA: \`{v['oldest_900_first_parent_sha'] or 'unavailable'}\`",
         f"- Verified distinct defect IDs: **{integer(v['distinct_defect_ids'])}**",
         f"- Verified exact path/blob reviewed LOC: **{integer(v['exact_path_blob_unique_reviewed_loc'])}**",
         f"- Source-verified review rows / distinct observations: **{integer(v['verified_review_rows'])} / {integer(v['distinct_review_observations'])}**",
