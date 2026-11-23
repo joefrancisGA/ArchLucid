@@ -22,7 +22,7 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
                                 PathNarrativeJson, AssessmentId,
                                 ControlId, PreflightSnapshotId, ExecutionSnapshotId, VerificationSnapshotId, WaveId,
                                 PreflightResultJson, VerificationResultJson, CreatedByActorKey, ApprovedByActorKey,
-                                CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, ChangeImplementedUtc, VerifiedUtc, ClosedUtc, RowVersion)
+                                CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, ChangeImplementedUtc, VerifiedUtc, ClosedUtc)
                            VALUES
                                (@InstanceId, @TenantId, @WorkspaceId, @ProjectId, @FindingId, @PatternId, @PatternVersionId,
                                 @PatternKey, @FrozenPatternVersion, @AutomationLevel, @Status, @CloudResourceId, @PathId,
@@ -56,7 +56,7 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
                                 PathNarrativeJson, AssessmentId,
                                 ControlId, PreflightSnapshotId, ExecutionSnapshotId, VerificationSnapshotId, WaveId,
                                 PreflightResultJson, VerificationResultJson, CreatedByActorKey, ApprovedByActorKey,
-                                CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, ChangeImplementedUtc, VerifiedUtc, ClosedUtc, RowVersion)
+                                CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, ChangeImplementedUtc, VerifiedUtc, ClosedUtc)
                            VALUES
                                (@InstanceId, @TenantId, @WorkspaceId, @ProjectId, @FindingId, @PatternId, @PatternVersionId,
                                 @PatternKey, @FrozenPatternVersion, @AutomationLevel, @Status, @CloudResourceId, @PathId,
