@@ -9,3 +9,4 @@
 {"at":"2026-11-23T01:05:46.6180135Z","zoneId":"ui-lib-product-line","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"thorough hunt: product-line cookie reader now trims and lowercases like the server"}
 {"at":"2026-11-23T01:11:46.7464520Z","zoneId":"ui-lib-product-line","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: second-capture return path rejects protocol-relative URLs via canonicalSafeReturnPath"}
 {"at":"2026-11-23T01:18:54.8052980Z","zoneId":"ui-lib-product-line","outcome":"hit","productLine":"securenow","set":3,"note":"seed hunt: second-capture extract upload uses the SecureNow manual-upload path"}
+{"at":"2026-11-23T01:23:43.3998160Z","zoneId":"ui-lib-product-line","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: architecture extract upload follows the administration settings path"}

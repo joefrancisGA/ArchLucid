@@ -43,6 +43,10 @@
 
 ## Zone: ui-lib-product-line
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted architecture extract upload: `infrastructureExtractUploadPathForProductLine("architecture")` returned `/governance/infrastructure/extract-upload`, which the architecture shell blocks, while `extractUploadSettingsPathForProductLine` returns `/administration/extract-upload`. Resource-explorer help uses the infrastructure helper. The helper now delegates to the settings path. Regression `sends architecture extract upload to the administration page the architecture shell allows`; infrastructure-routes vitest **2/2**. Private beta: an invited architecture operator who follows Extract and upload from resource-explorer help opens the administration extract-upload page. The governance extract-upload page, which the architecture shell blocks, is no longer that link.
+
+- [x] (proven) `infrastructureExtractUploadPathForProductLine` — architecture link targeted the security-only governance extract-upload path — **hit 2026-11-23 seed hunt:** delegates to `extractUploadSettingsPathForProductLine`; regression above.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted second-capture extract upload: `buildSecureNowSecondCaptureExtractUploadHref` always used `/administration/extract-upload`, which `isPathAllowedForProductLine` denies for the security shell, while `infrastructureExtractUploadPathForProductLine("security")` is `/infrastructure/manual-upload`. The builder now uses that SecureNow intake path, and the CTA href constant matches it. Regression `sends extract upload to the SecureNow intake path the security shell allows`; return-path vitest **5/5**. Private beta: an invited SecureNow operator who chooses Extract and upload after a partial capture opens the SecureNow manual upload page. The architecture-only administration page, which the security shell blocks, is no longer that link.
 
 - [x] (proven) `buildSecureNowSecondCaptureExtractUploadHref` — architecture-only extract upload on the SecureNow recovery link — **hit 2026-11-23 seed hunt:** `infrastructureExtractUploadPathForProductLine("security")`; regression above.
@@ -86,8 +90,8 @@
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 4
-- **bugs-found:** 4
+- **hunts:** 5
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

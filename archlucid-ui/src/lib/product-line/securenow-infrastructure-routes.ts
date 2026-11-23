@@ -3,17 +3,16 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
-  GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
   GOVERNANCE_INFRASTRUCTURE_PATH,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
   SECURENOW_INFRASTRUCTURE_ASK_PATH,
   SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
   SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
-  SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
   SECURENOW_INFRASTRUCTURE_PATH,
   SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
+import { extractUploadSettingsPathForProductLine } from "@/lib/extract-upload-settings-route";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 function infrastructurePathForProductLine(
@@ -75,11 +74,8 @@ export function infrastructureAskPathForProductLine(productLine: ProductLineId):
 
 /** Product-line canonical operator route for extract and upload intake. */
 export function infrastructureExtractUploadPathForProductLine(productLine: ProductLineId): string {
-  return infrastructurePathForProductLine(
-    productLine,
-    GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
-    SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
-  );
+  // Architecture intake is the administration page. The governance extract-upload path is security-only.
+  return extractUploadSettingsPathForProductLine(productLine);
 }
 
 /** Product-line canonical operator route for declared human connections. */
