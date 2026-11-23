@@ -100,6 +100,10 @@ describe("ReviewsHubDisclosuresClient URL sync", () => {
     );
 
     const moreWays = screen.getByTestId("reviews-hub-more-ways") as HTMLDetailsElement;
+    expect(moreWays.open).toBe(false);
+    // Native <details> dispatches toggle only after its open property changes.
+    // A synthetic event on a still-closed element is correctly ignored.
+    moreWays.open = true;
     fireEvent(
       moreWays,
       new Event("toggle", {

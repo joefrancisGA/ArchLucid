@@ -1,0 +1,32 @@
+# Focused URL-sync unit test, no full release build.
+name: RC49 reviews disclosure URL sync
+
+on:
+  pull_request:
+    branches: [RC49]
+    paths:
+      - "archlucid-ui/src/app/(operator)/architecture/reviews/_sections/ReviewsHubDisclosuresClient.url-sync.test.tsx"
+      - ".github/workflows/rc49-ci19968-disclosure-url-sync.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  disclosure-sync:
+    name: "RC49: Reviews Hub disclosure URL sync"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+      - name: Validate reviews disclosure URL sync
+        working-directory: archlucid-ui
+        env:
+          CI: "true"
+        run: |
+          npm ci
+          npm run test:vitest-single-worker -- 'src/app/(operator)/architecture/reviews/_sections/ReviewsHubDisclosuresClient.url-sync.test.tsx'
