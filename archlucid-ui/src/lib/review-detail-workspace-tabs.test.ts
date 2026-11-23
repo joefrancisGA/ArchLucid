@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   REVIEW_DETAIL_DEFAULT_TAB,
   buildReviewDetailTabHref,
+  readReviewDetailFindingIdFromWindowLocation,
   readReviewDetailTabFromHref,
   readReviewDetailTabFromWindowLocation,
   resolveReviewDetailTab,
@@ -135,6 +136,17 @@ describe("review-detail-workspace-tabs", () => {
     window.history.replaceState({}, "", "/architecture/reviews/run-1?reviewTab=overview#run-explanation");
 
     expect(readReviewDetailTabFromWindowLocation()).toBe("findings");
+  });
+
+
+  it("hydrates finding selection from legacy diagramFindingId when findingId is absent", () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-1?reviewTab=findings&diagramFindingId=finding-legacy",
+    );
+
+    expect(readReviewDetailFindingIdFromWindowLocation()).toBe("finding-legacy");
   });
 
   it("maps legacy archTab params when reviewTab is absent", () => {

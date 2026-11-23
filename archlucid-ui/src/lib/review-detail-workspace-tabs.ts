@@ -58,10 +58,16 @@ export function readReviewDetailFindingIdFromWindowLocation(): string | null {
     return null;
   }
 
-  const trimmed =
-    new URL(window.location.href).searchParams.get(REVIEW_DETAIL_FINDING_PARAM)?.trim() ?? "";
+  const params = new URL(window.location.href).searchParams;
+  const trimmed = params.get(REVIEW_DETAIL_FINDING_PARAM)?.trim() ?? "";
 
-  return trimmed.length > 0 ? trimmed : null;
+  if (trimmed.length > 0) {
+    return trimmed;
+  }
+
+  const legacyAlias = params.get(ARCHITECTURE_DIAGRAM_FINDING_PARAM)?.trim() ?? "";
+
+  return legacyAlias.length > 0 ? legacyAlias : null;
 }
 
 export const REVIEW_DETAIL_TAB_IDS = [
