@@ -1,3 +1,7 @@
+> **Scope:** Contributor-reference — internal bug hunt picker reset procedure.
+
+> **Spine doc:** [START_HERE.md](../START_HERE.md).
+
 # Bug hunt picker reset (option A)
 
 When trunk has moved on and `/al-bug1`–`/al-bug4` show **exhaustedAll** or all zones parked, reset picker state while keeping hunt diaries.

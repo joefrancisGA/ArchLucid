@@ -40,8 +40,22 @@ export function normalizeResumeHrefForMatch(href: string): string {
  * Same path with different SN-012 `highlightReviewId` values stays distinct.
  */
 export function resumeHrefsEquivalentForDedupe(left: string, right: string): boolean {
-  if (normalizeResumeHrefForMatch(left) !== normalizeResumeHrefForMatch(right)) {
+  const leftPath = normalizeResumeHrefForMatch(left);
+  if (leftPath !== normalizeResumeHrefForMatch(right)) {
     return false;
+  }
+
+  // Terraform mapping recents all share a route; their cloudResourceId query
+  // parameter is part of the mapping identity. Without this exception, a
+  // different cloud resource silently displaces an earlier Continue target.
+  // Other operator routes keep their existing path-based deduplication.
+  if (leftPath === "/infrastructure/terraform" ||
+      leftPath === "/governance/infrastructure/terraform") {
+    const resourceId = (href: string): string =>
+      new URLSearchParams((href.split("?")[1] ?? "").split("#")[0]).get("cloudResourceId")?.trim() ?? "";
+    if (resourceId(left) !== resourceId(right)) {
+      return false;
+    }
   }
 
   const leftRunId = resolveRunIdFromWorkingReviewHref(left);
