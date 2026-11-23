@@ -95,7 +95,7 @@ public sealed class ContentSafetyEnforcingAgentCompletionClientTests
         ContentSafetyResult allowed = new(true, null, null, null);
         Mock<IContentSafetyGuard> guard = new();
         guard.Setup(g => g.CheckInputAsync("sys", It.IsAny<CancellationToken>()))
-            .Returns((string _, CancellationToken _) =>
+            .Returns((string value, CancellationToken token) =>
             {
                 caller.Cancel();
                 return Task.FromResult(allowed);
@@ -142,7 +142,7 @@ public sealed class ContentSafetyEnforcingAgentCompletionClientTests
         guard.Setup(g => g.CheckInputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(allowed);
         guard.Setup(g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Returns((string _, CancellationToken _) =>
+            .Returns((string value, CancellationToken token) =>
             {
                 caller.Cancel();
                 return Task.FromResult(allowed);
@@ -163,7 +163,7 @@ public sealed class ContentSafetyEnforcingAgentCompletionClientTests
         ContentSafetyResult allowed = new(true, null, null, null);
         Mock<IContentSafetyGuard> guard = new();
         guard.Setup(g => g.CheckInputAsync("sys", It.IsAny<CancellationToken>()))
-            .Returns((string _, CancellationToken _) =>
+            .Returns((string value, CancellationToken token) =>
             {
                 caller.Cancel();
                 return Task.FromResult(allowed);
