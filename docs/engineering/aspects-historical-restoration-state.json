@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "exact_sql_temporal_resolver_fnd011_regression_submitted_awaiting_PR_CI",
-  "next_priority": "Verify latest exact PR #7822 head FND-011 owner 200/foreign 404 with real SQL: test now asserts seeded Runs.GraphSnapshotId is present and GetLatestWithGraphAtOrBeforeAsync returns seeded run before HTTP. If it fails, inspect exact-head test logs, SQL resolver schema/query, run write update, or sealed manifest guards; never bypass owner 200, foreign 404 or required gates. Then validate Aspects first-parent and defect identity CI, reconcile complete 900-first-parent population and current follow-on reviews before any current rate/SMA25.",
+  "state": "historical_followon_cross_blob_first_parent_proof_submitted",
+  "next_priority": "Validate PR #7822 exact-head Aspects source snapshot including new historical-followon-cross-blob-first-parent.json and seven regression tests, and FND-011 owner 200/foreign 404 SQL-backed test after master merge. Resolve exact logged failures without weakening gates. Do not reuse this candidate-only source proof as freshly reviewed LOC. Next reconcile all 900-first-parent original+candidate+follow-on path lineage and independently distinct discovery identities; only then publish timestamped rate and 600/700 observation SMA25.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -626,6 +626,30 @@
       "comparable_900_rate": null,
       "do_not_merge_until_required_CI_green": true,
       "full_master_build_dispatched": false
+    },
+    "followon_cross_blob_first_parent_proof": {
+      "status": "feature_branch_implementation_and_7_tests_committed_exact_head_CI_pending",
+      "implementation": "scripts/aspects_verify_followon_historical_lineage.py",
+      "tests": "scripts/tests/test_aspects_verify_followon_historical_lineage.py",
+      "workflow": ".github/workflows/aspects-density-snapshot.yml",
+      "artifact": "artifacts/aspects/historical-followon-cross-blob-first-parent.json",
+      "cohort_definition": "historical_original_900_first_parent_SHAs_only; narrow follow-on reviewed baseline must belong to same window",
+      "historical_cohort_head": "15ac3b9abeff23e4fa8cb7a16027bf9b17211251",
+      "historical_cohort_oldest": "6252805a908f5bf0413bb40c68cb546013ff1843",
+      "old_exact_overlap_last_successful_run": {
+        "followon_in_window_records": 27,
+        "followon_out_of_window_records": 32,
+        "exact_repeated_line_identities": 538,
+        "unmatched_exact_line_identities": 215
+      },
+      "unverified_current_cross_blob_proven_count": null,
+      "comparison_method": "At most two nearest original reviewed path/blob revisions per follow-on review, exact source blob at reviewed Git commit; every intervening changed first-parent path edge verified via git full-history path change index; source lines unique and unchanged; edit+revert cannot be treated identical",
+      "limitations": "Not exhaustive for all original versions, no rename/copy proof, not evidence that candidate-only reviews occurred, may not produce any matches; no denominator or numerator change permitted",
+      "independently_newly_reviewed_loc_this_step": 0,
+      "newly_reconciled_distinct_discoveries_this_step": 0,
+      "new_comparable_rate": null,
+      "no_master_full_build": true,
+      "PR_merge_only_after_required_checks_pass": true
     }
   },
   "latest_restoration_run": {
