@@ -55,16 +55,19 @@ def assess_recovery_and_stop(
         return deny("preliminary_safety_not_verified")
     if now.tzinfo is None or now.utcoffset() is None:
         return deny("untrusted_clock")
-    if (stop is None or not stop.authority_verified or stop.generation < 1
+    # Only strict Boolean proofs are admissible; caller-supplied truthy strings
+    # or integers do not establish independent stop authority.
+    if (stop is None or stop.authority_verified is not True or stop.generation < 1
             or stop.tenant_id != tenant_id or stop.project_id != project_id):
         return deny("stop_state_unavailable")
-    if stop.active:
-        return deny("emergency_stop")
+    if stop.active is not False:
+        return deny("emergency_stop" if stop.active is True
+                    else "stop_state_unavailable")
     if (stop.observed_at.tzinfo is None or
             not timedelta(0) <= now - stop.observed_at <= max_age):
         return deny("stop_state_stale")
-    if (attestation is None or not attestation.signed_by_independent_authority
-            or not attestation.rehearsal_passed):
+    if (attestation is None or attestation.signed_by_independent_authority is not True
+            or attestation.rehearsal_passed is not True):
         return deny("recovery_not_independently_verified")
     if (attestation.tenant_id != tenant_id or attestation.project_id != project_id
             or attestation.proposal_id != proposal_id
