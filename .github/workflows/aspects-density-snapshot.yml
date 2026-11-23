@@ -37,6 +37,8 @@ on:
       - scripts/tests/test_aspects_reconcile_historical_corpus.py
       - scripts/aspects_reconcile_followon_900.py
       - scripts/tests/test_aspects_reconcile_followon_900.py
+      - scripts/aspects_current_master_900_eligibility.py
+      - scripts/tests/test_aspects_current_master_900_eligibility.py
       - docs/engineering/aspects-historical/**
       - scripts/tests/test_aspects_validate_historical_corpus.py
       - scripts/tests/test_aspects_import_historical_workbook.py
@@ -501,6 +503,50 @@ jobs:
               )
           PY
 
+      - name: Reconstruct eligible source-pinned reviews in the CURRENT master-base 900 first-parent cohort
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/master')
+        env:
+          MASTER_900_HEAD: ${{ github.event.pull_request.base.sha || github.sha }}
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_current_master_900_eligibility.py' -v
+          python scripts/aspects_current_master_900_eligibility.py \
+            --repo . \
+            --master-base-head "$MASTER_900_HEAD" \
+            --window 900 \
+            --historical-root docs/engineering/aspects-historical \
+            --audit-rows artifacts/aspects/historical-git-pin-rows.jsonl \
+            --audit-report artifacts/aspects/historical-git-pin-audit.json \
+            --ledger docs/engineering/aspects-review-ledger.jsonl \
+            --json-out artifacts/aspects/aspects-current-master-base-900-exact-subset.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          evidence = json.loads(Path(
+              "artifacts/aspects/aspects-current-master-base-900-exact-subset.json"
+          ).read_text())
+          assert evidence["status"] == "partial_current_master_base_900_exact_pin_and_followon_reconciliation"
+          assert evidence["original_historical_events_total"] == 5741
+          assert evidence["original_clean_events_all_history"] == 4864
+          assert evidence["cohort"]["actual_commits"] == evidence["cohort"]["requested_commits"] == 900
+          assert evidence["cohort"]["head_sha"] == os.environ["MASTER_900_HEAD"]
+          assert evidence["new_comparable_900_density"] is None
+          assert evidence["full_cross_revision_unique_reviewed_loc"] is None
+          assert evidence["distinct_defect_discoveries_verified"] is None
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as output:
+              output.write(
+                  f"Current master-base 900 first-parent cohort head "
+                  f"`{evidence['cohort']['head_sha']}`, oldest "
+                  f"`{evidence['cohort']['oldest_included_sha']}`: "
+                  f"**{evidence['original_git_pinned_unique_exact_path_blob_lines_current_900']:,}** "
+                  "original-pin exact lines; "
+                  f"**{evidence['followon_unique_exact_path_blob_lines_current_900']:,}** "
+                  "follow-on exact lines; "
+                  f"**{evidence['followon_exact_path_blob_line_overlap_with_original_pins']:,}** "
+                  "exact overlaps. Current membership is source-backed; "
+                  "cross-revision dedup and distinct discovery denominator NOT established.\\n\\n"
+              )
+          PY
+
       - name: Locate latest comparable master snapshot
         if: github.event_name != 'pull_request'
         env:
@@ -553,6 +599,7 @@ jobs:
             artifacts/aspects/aspects-historical-exact-overlap.json
             artifacts/aspects/historical-900-followon-pinned-overlap.json
             artifacts/aspects/historical-followon-cross-blob-first-parent.json
+            artifacts/aspects/aspects-current-master-base-900-exact-subset.json
           if-no-files-found: error
 
       - name: Require anchored, nonempty historical lineage cohort
