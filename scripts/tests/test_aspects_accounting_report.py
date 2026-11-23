@@ -73,7 +73,7 @@ class AccountingReportTests(unittest.TestCase):
                                sum(x["defects_per_kloc"] for x in points700[:25])/25)
         self.assertIsNone(result["current_verified_subset"]["new_reviewed_loc"])
         self.assertIsNone(result["current_verified_subset"]["new_distinct_defect_ids"])
-        self.assertIn("700-point series",sut.markdown(result))
+        self.assertIn("Historical 700-observation chart",sut.markdown(result))
 
     def test_full_historical_900_series_requires_actual_snapshot_count(self):
         h,p,w=fixture()
