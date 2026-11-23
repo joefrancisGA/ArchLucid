@@ -22,6 +22,14 @@ export type ScopedProxyFileGetOptions = {
   readonly resolveBlockedReason?: (failure: ApiLoadFailureState) => string | null;
 };
 
+function rejectUnguardedHtmlOrProblemDownload(response: Response): void {
+  const contentType = response.headers.get("Content-Type")?.toLowerCase() ?? "";
+
+  if (contentType.includes("text/html") || contentType.includes("application/problem+json")) {
+    throw new Error(`Download blocked: unexpected content type '${contentType || "unknown"}'.`);
+  }
+}
+
 async function fetchScopedProxyFileGet(
   proxyUrl: string,
   options: ScopedProxyFileGetOptions,
@@ -51,8 +59,14 @@ async function fetchScopedProxyFileGet(
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
 
-  if (options.expectedContentTypePrefixes && options.expectedContentTypePrefixes.length > 0) {
-    assertBinaryDownloadContentType(response, [...options.expectedContentTypePrefixes]);
+  const expectedPrefixes = options.expectedContentTypePrefixes ?? [];
+
+  if (expectedPrefixes.length > 0) {
+    assertBinaryDownloadContentType(response, [...expectedPrefixes]);
+  } else {
+    // JSON downloads omit prefixes because the binary guard rejects application/json.
+    // A 200 HTML or problem document must still not be saved as the file.
+    rejectUnguardedHtmlOrProblemDownload(response);
   }
 
   return response;

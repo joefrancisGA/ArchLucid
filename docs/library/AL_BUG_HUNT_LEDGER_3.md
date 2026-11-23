@@ -160,6 +160,15 @@
 
 ## Zone: ui-lib-api
 
+2026-11-23 thorough hunt #2 (hit): the reseed note is not a defect claim — **(invalid)**. Cheap-disproof: 402 trial modal stays behind `isBrowser()`; a non-JSON 200 from `apiGet` throws and does not return the body; review inventory cursors are trimmed inside both list calls, including the 404 fallback; an invalid session traceparent is dropped rather than sent. Promoted the unguarded download: `downloadScopedProxyFileGet` skipped the content-type check when prefixes were omitted, so a 200 `text/html` body was saved for decision receipt, architecture request, retrieval grounding, and the other JSON downloads. Those callers cannot pass `application/json` into the binary guard because that guard rejects JSON. The omitted-prefix path now rejects HTML and problem JSON; a declared `text/html` prefix still saves the run-package HTML export. Regression vitest **3/3**.
+
+- [x] (proven) `downloadScopedProxyFileGet` — 200 `text/html` saved when content-type prefixes are omitted — **hit 2026-11-23 thorough hunt #2:** `rejectUnguardedHtmlOrProblemDownload` on the omitted-prefix path; regressions above.
+- [x] (invalid) reseed after hunt #1 — process note, no locus, input, or wrong outcome.
+- [x] (valid-no-repro) `throwApiRequestError` — 402 trial-limit bridge on non-browser runtimes — **cheap-disproof 2026-11-23:** `isBrowser()` guards `notifyTrialLimitFromApiError`.
+- [x] (valid-no-repro) `apiGet` malformed JSON body — **cheap-disproof 2026-11-23:** null parse calls `throwApiRequestError`; the body is not returned. Toast stays opt-in for HTTP 5xx.
+- [x] (valid-no-repro) `reviews-paged-inventory` padded cursor on 404 fallback — **cheap-disproof 2026-11-23:** both list calls pass the cursor through `runListCursor`.
+- [x] (valid-no-repro) `applyCorrelationHeaders` invalid session traceparent — **cheap-disproof 2026-11-23:** `readSessionTraceParent` returns null and `storeSessionTraceParent` deletes the invalid value.
+
 2026-11-20 thorough hunt #1 (hit): cheap-disproved four (hunt-ready) monitors — **valid-no-repro** `throwApiRequestError` 5xx toast requires `isBrowser()` and explicit `showErrorToast`; **valid-no-repro** `http.warmup-retry` reuses one `fetchOnce` closure so correlation headers apply once per request; **valid-no-repro** governance stickiness boundary suites already trim POST bodies and null drops (no product-line header merge path in zone); **valid-no-repro** run package export sealed-manifest handling lives on `downloadRunPackageExport` response via `runPackageExportMutationBlockedReason`, not the URL builder. Promoted list cursor boundary: `listRunsByProjectPaged` / `listRunsInScopePaged` forwarded padded or whitespace-only cursor query values while the reviews hub loader trims URL cursors — normalize with `runListCursor` (parity with `alerts-inbox-api`); regressions trim padding and whitespace-only first page; list-cursor vitest **5/5**.
 
 - [x] (valid-no-repro) `throwApiRequestError` — 5xx toast on server render — **cheap-disproof 2026-11-20 thorough hunt #1:** browser + opt-in gate.
@@ -168,17 +177,11 @@
 - [x] (valid-no-repro) `downloads-api.run-package-export` — missing sealed-manifest guard on URL-only export — **cheap-disproof 2026-11-20 thorough hunt #1:** blocked reason on scoped proxy GET.
 - [x] (proven) `architecture-runs.list-cursor` — padded or whitespace-only cursor forwarded literally — **hit 2026-11-20 thorough hunt #1:** `runListCursor` trim at API boundary; regressions above.
 
-- [ ] (candidate) `throwApiRequestError` — 402 trial-limit bridge may fire on non-browser runtimes when cookie present — locus: `isBrowser` guard; input: SSR with trial problem; wrong outcome: trial modal side effect; reachability: server actions (monitor; hunt #1 reseed).
-- [ ] (candidate) `apiGet` malformed JSON body — may throw using error path without `showErrorToast` on 200 — locus: parse fallback; input: HTML 200 body; wrong outcome: generic error without toast policy; reachability: misconfigured proxy (monitor; hunt #1 reseed).
-- [ ] (candidate) `reviews-paged-inventory` — scope-wide 404 fallback may send untrimmed cursor when hub passes padded token — locus: pass-through cursor; input: padded cursor via inventory helper; wrong outcome: stale page after fallback — **partially addressed** by list cursor trim; monitor fallback ordering (hunt #1 reseed).
-- [ ] (candidate) `downloadScopedProxyFileGet` — binary content-type guard may accept `text/html` error page as success — locus: content-type assert; input: HTML error masquerading as export; wrong outcome: corrupt download; reachability: run package export CTA (monitor; hunt #1 reseed).
-- [ ] (candidate) `applyCorrelationHeaders` — session traceparent replay may skip refresh when stored value invalid — locus: traceparent validation; input: malformed session value; wrong outcome: missing distributed trace; reachability: outbound API GET (monitor; hunt #1 reseed).
-
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/api`. Seeded five `(hunt-ready)` rows; no production change.
 
 ### Hypotheses
 
-- [ ] (hunt-ready) reseed after hunt #1; prior queue closed in zone header diary.
+- [x] (invalid) reseed after hunt #1; prior queue closed in zone header diary.
 
 - **id:** ui-lib-api
 - **status:** open
@@ -186,11 +189,11 @@
 - **aliases:** UI API client; fetch boundaries
 - **paths:** archlucid-ui/src/lib/api/
 - **test-filter:** lib/api
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 3
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-23
+- **last-bug:** 2026-11-23
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
