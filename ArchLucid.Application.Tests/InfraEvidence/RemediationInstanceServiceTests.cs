@@ -951,7 +951,8 @@ public sealed class RemediationInstanceServiceTests
             changeImplementedUtc: new DateTime(2026, 9, 27, 12, 0, 30, DateTimeKind.Utc),
             cloudResourceId: CloudResourceId,
             controlId: controlId,
-            assessmentId: assessmentId));
+            assessmentId: assessmentId,
+            rowVersion: new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }));
 
         InMemoryRemediationPatternRepository patternRepository = new();
         patternRepository.Versions.Add(CreateVersion(
@@ -1050,6 +1051,7 @@ public sealed class RemediationInstanceServiceTests
             {
                 InstanceId = current.InstanceId,
                 Status = RemediationInstanceStatus.ChangeImplemented,
+                ExpectedRowVersion = current.RowVersion,
                 CloudResourceId = current.CloudResourceId,
                 PathId = current.PathId,
                 PathNarrativeJson = current.PathNarrativeJson,
@@ -1309,7 +1311,15 @@ public sealed class RemediationInstanceServiceTests
                 && scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId));
             if (index < 0)
                 throw new InvalidOperationException("Scoped remediation instance was not found.");
-            Instances[index] = mutation.ApplyTo(Instances[index]);
+            RemediationInstanceRecord current = Instances[index];
+            // Existing legacy fixtures with no persisted token still model
+            // non-SQL behavior. SQL-mode fixtures enforce CAS and advance it.
+            if (current.RowVersion is { Length: 8 }
+                && (mutation.ExpectedRowVersion is not { Length: 8 }
+                    || !current.RowVersion.SequenceEqual(mutation.ExpectedRowVersion)))
+                throw new InvalidOperationException("Stale scoped remediation rowversion.");
+            Instances[index] = mutation.ApplyTo(
+                current, current.RowVersion is { Length: 8 } ? NextRowVersion(current.RowVersion) : null);
             return Task.CompletedTask;
         }
 
@@ -1364,10 +1374,27 @@ public sealed class RemediationInstanceServiceTests
             if (index < 0 || evidence.InstanceId != mutation.InstanceId || evidence.TenantId != scope.TenantId)
                 throw new InvalidOperationException("Scoped verification mismatch.");
 
-            RemediationInstanceRecord updated = mutation.ApplyTo(Instances[index]);
+            RemediationInstanceRecord current = Instances[index];
+            if (current.RowVersion is { Length: 8 }
+                && (mutation.ExpectedRowVersion is not { Length: 8 }
+                    || !current.RowVersion.SequenceEqual(mutation.ExpectedRowVersion)))
+                throw new InvalidOperationException("Stale scoped verification rowversion.");
+            RemediationInstanceRecord updated = mutation.ApplyTo(
+                current, current.RowVersion is { Length: 8 } ? NextRowVersion(current.RowVersion) : null);
             Instances[index] = updated;
             Evidence.Add(evidence);
             return Task.CompletedTask;
+        }
+
+        private static byte[] NextRowVersion(byte[] token)
+        {
+            byte[] next = token.ToArray();
+            for (int index = next.Length - 1; index >= 0; index--)
+            {
+                if (++next[index] != 0)
+                    break;
+            }
+            return next;
         }
 
         public Task<RemediationInstanceRecord?> TryGetByIdAsync(
