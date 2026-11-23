@@ -3,7 +3,7 @@ namespace ArchLucid.Api.Tests.Security;
 /// <summary>Shared greenfield primer warmup before tenant-isolation exercises.</summary>
 public static class TenantIsolationScenario
 {
-    public static async Task WithGreenfieldPrimerAsync(GreenfieldSqlApiFactory factory, Func<Task> exercise)
+    public static async Task WithGreenfieldPrimerAsync(GreenfieldSqlApiFactory factory, Func<Task> exercise, bool includePostCreateRunWarmup = true)
     {
         ArgumentNullException.ThrowIfNull(factory);
         ArgumentNullException.ThrowIfNull(exercise);
@@ -11,12 +11,9 @@ public static class TenantIsolationScenario
         using HttpClient primer = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
 
-        // This scenario verifies HTTP tenant isolation for an unknown run. Warming
-        // SQL host readiness and list-runs is necessary, but POST create-run is not
-        // part of the assertion and can fail due to unrelated request validation.
-        // Keep the actual tenant-scoped HTTP checks intact.
+        // Callers may skip POST create-run warmup when the assertion is read-only unknown-run denial.
         await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
-                primer, includePostCreateRunWarmup: false)
+            primer, includePostCreateRunWarmup: includePostCreateRunWarmup)
             .ConfigureAwait(false);
 
         await exercise().ConfigureAwait(false);
@@ -31,7 +28,8 @@ public static class TenantIsolationScenario
         Guid tenantB,
         Guid workspaceB,
         Guid projectB,
-        Func<HttpClient, HttpClient, Task> exercise)
+        Func<HttpClient, HttpClient, Task> exercise,
+        bool includePostCreateRunWarmup = true)
     {
         ArgumentNullException.ThrowIfNull(factory);
         ArgumentNullException.ThrowIfNull(exercise);
@@ -55,6 +53,6 @@ public static class TenantIsolationScenario
                     clientA.Dispose();
                     clientB.Dispose();
                 }
-            }).ConfigureAwait(false);
+            }, includePostCreateRunWarmup).ConfigureAwait(false);
     }
 }

@@ -1,3 +1,5 @@
+> **Scope:** Engineering audit of Azure OpenAI chat completion SDK transport timeout configuration and reuse; not a guarantee of end-to-end request deadlines.
+
 # Completion transport timeout reuse audit — 2026-11-23
 
 ## Confirmed gap

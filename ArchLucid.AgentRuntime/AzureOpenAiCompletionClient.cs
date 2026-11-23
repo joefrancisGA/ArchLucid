@@ -176,6 +176,7 @@ public sealed partial class AzureOpenAiCompletionClient : IAgentStreamingComplet
     internal static AzureOpenAIClientOptions CreateClientOptions(TimeSpan? networkTimeout = null)
     {
         TimeSpan effective = networkTimeout ?? DefaultNetworkTimeout;
+
         if (effective < TimeSpan.FromSeconds(5) || effective > TimeSpan.FromSeconds(180))
             throw new ArgumentOutOfRangeException(nameof(networkTimeout), effective,
                 "Azure OpenAI completion network timeout must be between 5 and 180 seconds.");
