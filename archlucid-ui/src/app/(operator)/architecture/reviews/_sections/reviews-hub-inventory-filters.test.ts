@@ -1,14 +1,27 @@
 import { describe, expect, it } from "vitest";
 
+import type { RunSummary } from "@/types/authority";
+
 import {
+  matchesFilter,
   parseReviewsHubInventoryFilter,
   parseReviewsHubInventorySearchQuery,
   reviewsHubInventoryFilterHref,
   reviewsHubInventoryHrefFromSearch,
   reviewsHubInventoryClearFiltersHrefFromSearch,
   reviewsHubInventorySearchHrefFromSearch,
-  countRunsMatchingInventoryFilter,
 } from "./reviews-hub-inventory-filters";
+
+function run(overrides: Partial<RunSummary> = {}): RunSummary {
+  return {
+    runId: "run-default",
+    projectId: "default",
+    createdUtc: "2026-01-01T00:00:00Z",
+    hasGoldenManifest: true,
+    hasFindingsSnapshot: true,
+    ...overrides,
+  } as RunSummary;
+}
 
 describe("reviews hub inventory filter URL", () => {
   it("parses known filter ids and falls back to all", () => {
@@ -50,3 +63,17 @@ describe("reviews hub inventory filter URL", () => {
     );
   });
 });
+  it("counts a review updated in the last 14 days even when it was created earlier", () => {
+    const now = Date.now();
+    const createdUtc = new Date(now - 40 * 24 * 60 * 60 * 1000).toISOString();
+    const lastModifiedUtc = new Date(now - 2 * 24 * 60 * 60 * 1000).toISOString();
+
+    expect(
+      matchesFilter(
+        run({ createdUtc, lastModifiedUtc }),
+        "updated-recently",
+        {},
+        [],
+      ),
+    ).toBe(true);
+  });

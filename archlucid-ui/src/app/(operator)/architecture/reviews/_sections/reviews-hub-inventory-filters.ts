@@ -194,7 +194,11 @@ export function matchesFilter(
   }
 
   if (filter === "updated-recently") {
-    const updatedAt = new Date(run.createdUtc).getTime();
+    // The chip is "updated recently". createdUtc is only the fallback when the list row has no lastModifiedUtc.
+    const modifiedRaw = run.lastModifiedUtc?.trim() ?? "";
+    const createdRaw = run.createdUtc?.trim() ?? "";
+    const stamp = modifiedRaw.length > 0 ? modifiedRaw : createdRaw;
+    const updatedAt = new Date(stamp).getTime();
 
     if (Number.isNaN(updatedAt)) {
       return false;

@@ -10257,10 +10257,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-routes
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof: `filterCounts` already depends on `visibilityFilteredRuns` (line dependency array includes it), and `findingOrder` is assigned by `order++` in the run-detail parser so a non-finite order is not produced. Promoted `matchesFilter` updated-recently: the chip compared `createdUtc` while list rows carry `lastModifiedUtc`, so a review edited this week but created earlier stayed out of Updated recently. The stamp now prefers `lastModifiedUtc` and falls back to `createdUtc`. Regression `counts a review updated in the last 14 days even when it was created earlier` failed first (false), then inventory filter tests 8/8. Private beta: the reviews hub Updated recently filter includes packages changed in the last 14 days, including ones created earlier.
+
+- [x] (valid-no-repro) `ReviewsHubReviewInventory` — `filterCounts` memo omits `visibilityFilteredRuns` — **cheap-disproof 2026-11-23 seed hunt:** the memo dependency array includes `visibilityFilteredRuns`.
+- [x] (valid-no-repro) `RunDetailSponsorModeExplanationCard` — non-finite `findingOrder` — **cheap-disproof 2026-11-23 seed hunt:** `quick-decision-finding-from-detail` assigns `findingOrder` with `order++`.
+- [x] (proven) `matchesFilter` — Updated recently uses `createdUtc` and ignores `lastModifiedUtc` — **proven 2026-11-23 seed hunt:** a review created 40 days ago and modified 2 days ago was excluded; the filter now uses `lastModifiedUtc` when stored.
 2026-10-30 seed hunt #45 (seed-only): cheap-disproof confirmed the empty-evidence-scope candidate is already covered by `RunDetailEvidenceTabPanel.test.tsx` (`uses not-stored intro when findings snapshot was omitted`); retained the two untested candidates below for later repro.
 
-- [ ] (candidate) `ReviewsHubReviewInventory` — `filterCounts` memo omits `visibilityFilteredRuns`; input: operator selects the Archived filter after the reviews hub has rendered the active-only pool; wrong outcome: non-Archived filter-chip counts can remain based on the prior visibility pool; mechanism: count calculation explicitly consumes `visibilityFilteredRuns` but the memo dependencies exclude it; reachability: reviews hub filter chips plus archived review cache.
-- [ ] (candidate) `RunDetailSponsorModeExplanationCard` — equal-severity findings sort by `findingOrder - findingOrder`; input: a review-detail finding payload has a missing or non-finite `findingOrder` for two equal-severity open findings; wrong outcome: sponsor talking points retain API/input order instead of deterministic finding order; mechanism: `NaN` comparator result is treated as no ordering; reachability: persisted quick-decision finding payload rendered in sponsor mode.
+- [x] (valid-no-repro) `ReviewsHubReviewInventory` — `filterCounts` memo omits `visibilityFilteredRuns`; input: operator selects the Archived filter after the reviews hub has rendered the active-only pool; wrong outcome: non-Archived filter-chip counts can remain based on the prior visibility pool; mechanism: count calculation explicitly consumes `visibilityFilteredRuns` but the memo dependencies exclude it; reachability: reviews hub filter chips plus archived review cache.
+- [x] (valid-no-repro) `RunDetailSponsorModeExplanationCard` — equal-severity findings sort by `findingOrder - findingOrder`; input: a review-detail finding payload has a missing or non-finite `findingOrder` for two equal-severity open findings; wrong outcome: sponsor talking points retain API/input order instead of deterministic finding order; mechanism: `NaN` comparator result is treated as no ordering; reachability: persisted quick-decision finding payload rendered in sponsor mode.
 
 2026-10-30 seed hunt #44 (seed-only): reread reviews inventory counts, run-detail evidence scope, and sponsor explanation ordering; no candidate was promoted to hunt-ready or reproven in this pass. Seeded three bounded candidates below.
 
@@ -10319,11 +10324,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 0
-- **last-hunt:** never
-- **bugs-found:** 0
+- **hunts:** 1
+- **last-hunt:** 2026-11-23
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-23
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
