@@ -109,6 +109,8 @@ public sealed class CircuitBreakingAgentCompletionClient(
             }
             else
             {
+                // Neutral errors must release a half-open recovery probe without ticking the breaker.
+                _gate.RecordCallCancelled();
                 _logger.LogWarning(ex, "LLM completion call failed with semantic-terminal error; circuit breaker not ticked.");
             }
 
@@ -123,6 +125,23 @@ public sealed class CircuitBreakingAgentCompletionClient(
         int? maxTokens = null,
         float? temperature = null,
         CancellationToken cancellationToken = default)
+    {
+        // Reserve a half-open recovery probe only when the stream is actually enumerated.
+        // An IAsyncEnumerable that is created but never consumed has no disposal callback.
+        return StreamJsonWithBreakerAsync(
+            systemPrompt,
+            userPrompt,
+            maxTokens,
+            temperature,
+            cancellationToken);
+    }
+
+    private async IAsyncEnumerable<string> StreamJsonWithBreakerAsync(
+        string systemPrompt,
+        string userPrompt,
+        int? maxTokens,
+        float? temperature,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         try
         {
@@ -141,21 +160,6 @@ public sealed class CircuitBreakingAgentCompletionClient(
             throw;
         }
 
-        return StreamJsonWithBreakerAsync(
-            systemPrompt,
-            userPrompt,
-            maxTokens,
-            temperature,
-            cancellationToken);
-    }
-
-    private async IAsyncEnumerable<string> StreamJsonWithBreakerAsync(
-        string systemPrompt,
-        string userPrompt,
-        int? maxTokens,
-        float? temperature,
-        [EnumeratorCancellation] CancellationToken cancellationToken)
-    {
         string stateBeforeOutcome = _gate.CurrentState;
         bool completed = false;
         Exception? streamFailure = null;

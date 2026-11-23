@@ -108,7 +108,7 @@ Configured via **`ArchLucid:FallbackLlm`** (see **`docs/RESILIENCE_CONFIGURATION
 | `ArgumentException` | No | Invalid request shape — semantic-terminal (TB-944). |
 | `CircuitBreakerOpenException` | No | Circuit already open. |
 
-Canonical classifier: `LlmCompletionFailureClassifier` in `ArchLucid.AgentRuntime` (TB-944). **Semantic-terminal** failures do not Polly-retry and do not tick `RecordFailure` on the circuit breaker decorator.
+Canonical provider fault policy: `ProviderHttpFailurePolicy.ShouldRecordProviderFailure` in `ArchLucid.Core`; `LlmCompletionFailureClassifier` in `ArchLucid.AgentRuntime` maps the shared policy into retry/cancel/semantic-terminal kinds (TB-944). Both completion and embedding decorators use that shared provider policy. **Semantic-terminal** failures do not Polly-retry or tick `RecordFailure`. A semantic-terminal error during a half-open recovery probe releases the probe via `RecordCallCancelled`, so the gate can admit another probe without falsely counting a transport failure.
 
 ### Circuit breaker interaction
 
