@@ -34,7 +34,7 @@ export function GovernanceWorkflowApprovalsStatusFilterBar(): React.JSX.Element 
     <div className="flex flex-wrap items-center gap-2" data-testid="governance-approval-status-filter-bar">
       <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Status filter</span>
       <Link
-        className={buyerFilterChipClass(activeFilter === null, false)}
+        className={cn(buyerFilterChipClass(activeFilter === null, false), "underline")}
         href={governanceApprovalQueueFilterHrefFromSearch(searchParams, { approvalStatus: null })}
         aria-current={activeFilter === null ? "page" : undefined}
         data-testid="governance-approval-status-filter-all"
@@ -44,7 +44,7 @@ export function GovernanceWorkflowApprovalsStatusFilterBar(): React.JSX.Element 
       {GOVERNANCE_APPROVAL_STATUS_FILTER_OPTIONS.map((filter) => (
         <Link
           key={filter}
-          className={buyerFilterChipClass(activeFilter === filter, false)}
+          className={cn(buyerFilterChipClass(activeFilter === filter, false), "underline")}
           href={governanceApprovalQueueFilterHrefFromSearch(searchParams, { approvalStatus: filter })}
           aria-current={activeFilter === filter ? "page" : undefined}
           data-testid={`governance-approval-status-filter-${filter}`}

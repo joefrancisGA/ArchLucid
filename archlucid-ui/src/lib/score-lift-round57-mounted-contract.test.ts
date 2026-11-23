@@ -18,10 +18,13 @@ describe("score-lift round57 mounted contract", () => {
       "components/product-line/SecureNowCollectionSetupStatusSection.tsx",
     ];
 
+    const sharedLinks = readUiSource("components/product-line/SecureNowPartialCaptureRecoveryLinks.tsx");
+    expect(sharedLinks).toContain("buildSecureNowSecondCaptureCloudConnectionsHref");
+
     for (const relativePath of surfaces) {
       const source = readUiSource(relativePath);
 
-      expect(source).toContain("buildSecureNowSecondCaptureCloudConnectionsHref");
+      expect(source).toMatch(/SecureNowPartialCaptureRecovery(?:Links|Paragraph)/);
       expect(source).toContain("useSecureNowPartialCaptureReturnPath");
     }
   });
