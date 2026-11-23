@@ -72,3 +72,49 @@ the real signing service and authenticated plan store. The arbitrary
 hardware-backed key or signing authority. The downstream verifier
 still checks the pinned Ed25519 public key and signature. The recovery
 stop gate continues to return review-required, never execution eligibility.
+
+
+## Existing production persistence review — current approved pattern version (2026-11-23)
+
+The FND-016 v3 reference signing adapter now expects a separately trusted,
+current, approved FND-015 *plan*. The current ArchLucid .NET codebase **does
+not yet contain an identified persisted, immutable FND-015 plan record**
+with the ordered forward/inverse steps, approval validity, independent actor
+and revision watermark required by that contract. Do not cast a signed
+in-memory rehearsal, an architecture-intelligence source artifact, or a
+governance manifest approval into an approved remediation plan.
+
+The real `IRemediationPatternRepository` already persists *remediation
+patterns* and version states in `dbo.RemediationPatterns` and
+`dbo.RemediationPatternVersions` (migration 357). Pattern approval
+atomically updates a version and the parent `CurrentApprovedVersion`
+pointer. A generic `TryGetVersionAsync` can still retrieve an older
+approved version after the pointer advances, while the bulk
+`ListApprovedVersionsForTenantAsync` deliberately includes every approved
+version for matcher version-skew/conflict analysis. Neither is safe to
+silently substitute for a **current** approval lookup.
+
+This reuse increment adds the narrow, fail-closed
+`IRemediationPatternRepository.TryGetCurrentApprovedVersionAsync(tenantId,
+patternId)`. Its SQL implementation joins the parent and pointed version
+**in one statement** while checking the exact tenant/pattern, current
+version, `Approved` status and recorded independent approval metadata.
+Draft, noncurrent, retired, deleted or out-of-tenant versions return no
+record. Unsupported repository implementations default to no result.
+Existing pattern matcher, frozen-version instance workflows, and global
+retention/repair semantics are **unchanged**.
+
+This is a **production-oriented read primitive for approved patterns**, not
+a production integration from FND-016 to FND-015. Pattern content does not
+establish the proposal's scoped forward/inverse steps or independent plan
+signing policy. The SQL read uses the current persisted pointer; an actor
+must still supply independently authenticated tenant scope and signing
+authority. The pattern's `ApprovedUtc` and status do not provide
+remediation-plan expiration, revision revocation, immutable plan-content
+attestation, or approval of cloud mutations.
+
+SQL integration coverage is intentionally contained in a disposable test
+catalog; it tests old approved versions remaining in SQL while the current
+pointer moves, foreign tenants, drafts, and retirement. The existing SQL
+fixture may skip if unavailable; a skip is not a passing SQL proof.
+No production signing service or Azure mutation was enabled.
