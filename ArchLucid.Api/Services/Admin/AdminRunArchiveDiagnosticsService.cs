@@ -97,7 +97,10 @@ public async Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(
     }
 
     RunArchiveByIdsResult result = await _runRepository
-        .ArchiveRunsByIdsAsync(scopedRunIds, cancellationToken)
+        // The repository rechecks scope inside the mutation transaction:
+        // this read-only preflight remains useful for per-id feedback, but it
+        // must not be the only tenant isolation guard.
+        .ArchiveRunsByIdsForScopeAsync(scope, scopedRunIds, cancellationToken)
         .ConfigureAwait(false);
 
     if (outOfScopeFailures.Count > 0)
