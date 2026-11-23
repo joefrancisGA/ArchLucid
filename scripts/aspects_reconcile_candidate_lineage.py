@@ -230,10 +230,7 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
         lines_without_original_pin_path = 0
         for src in row.get("sources", []):
             key = (src["path"], src["blob_derived_at_reviewed_commit"])
-            observed = intervals(src, "nonblank_intervals_at_review_commit")
-            # Immutable recovered-source schemas use "reviewed_commit" in the
-            # field name; a missing field must fail closed rather than silently
-            # yielding zero lines.
+            observed = intervals(src, "nonblank_intervals_at_reviewed_commit")
             raw_occurrences += len(observed)
             source_paths.add(src["path"])
             if src["path"] in path_sources:
