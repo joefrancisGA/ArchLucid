@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "historical_import_complete_nine_range_candidates_source_verified_CI_golden_submitted",
-  "next_priority": "Validate exact-head #7822 nine-row recovered candidate golden tests and security/FND checks. Continue 34 unparseable in-window unpinned source rows, reconcile current ledger and cross-revision source identities plus distinct discovery IDs before publishing 900-window density; never dispatch full master build.",
+  "state": "historical_import_complete_nine_row_source_golden_passed_candidate_cross_revision_lineage_work_submitted",
+  "next_priority": "Validate candidate-to-original same-path SHA-anchored provisional comparison and CI test; repair real required gate failures. Continue genuine cross-revision lineage, historical distinct-discovery and incremental ledger reconciliation before any comparable 900-rate; no master full builds.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -169,7 +169,17 @@
       "candidate_exact_overlap_with_original_pins_in_900_window": 10303,
       "candidate_exact_only_not_verified_history": 95925,
       "in_window_derived_candidate_rows": 448,
-      "in_window_derived_candidate_line_occurrences": 111425
+      "in_window_derived_candidate_line_occurrences": 111425,
+      "candidate_cross_revision_lineage": {
+        "code": "scripts/aspects_reconcile_candidate_lineage.py",
+        "tests": "scripts/tests/test_aspects_reconcile_candidate_lineage.py",
+        "workflow_artifact": "artifacts/aspects/historical-candidate-cross-revision-lineage.json",
+        "status": "new_work_submitted_to_PR_CI_not_yet_validated",
+        "interpretation": "Compare at most two nearby original-pinned Git blob versions for each derived candidate; unique unchanged equal-hunk line matches are provisional and never promoted to denominator or defects",
+        "newly_original_pin_verified_loc": 0,
+        "newly_discovered_defect_ids": 0,
+        "comparable_rate_computed": false
+      }
     },
     "multifile_34_source_checkpoint": {
       "path": "docs/engineering/aspects-historical/audit-checkpoints/2026-11-22-github-multisource-34.json",
