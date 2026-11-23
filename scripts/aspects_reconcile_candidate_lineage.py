@@ -224,10 +224,23 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
                 or row.get("window_membership") != "in_900_first_parent_window"):
             continue
         raw_occurrences = exact_repeats = cross_proven = provisional = 0
+        source_paths = set()
+        comparable_paths = set()
+        lines_on_comparable_paths = 0
+        lines_without_original_pin_path = 0
         for src in row.get("sources", []):
             key = (src["path"], src["blob_derived_at_reviewed_commit"])
-            observed = intervals(src, "nonblank_intervals_at_reviewed_commit")
+            observed = intervals(src, "nonblank_intervals_at_review_commit")
+            # Immutable recovered-source schemas use "reviewed_commit" in the
+            # field name; a missing field must fail closed rather than silently
+            # yielding zero lines.
             raw_occurrences += len(observed)
+            source_paths.add(src["path"])
+            if src["path"] in path_sources:
+                comparable_paths.add(src["path"])
+                lines_on_comparable_paths += len(observed)
+            else:
+                lines_without_original_pin_path += len(observed)
             exact_repeats += len(observed & original.get(key, set()))
             unmatched = observed - original.get(key, set())
             cross_proven += sum(
@@ -238,7 +251,8 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
                 in matches and
                 (src["path"], src["blob_derived_at_reviewed_commit"], n)
                 not in first_parent_proven_matches for n in unmatched)
-        if raw_occurrences != row.get("candidate_nonblank_loc"):
+        if (raw_occurrences != row.get("candidate_nonblank_loc")
+                or lines_without_original_pin_path + lines_on_comparable_paths != raw_occurrences):
             raise ValueError(f"Candidate Excel row {row.get('excel_row')} source LOC drift")
         if exact_repeats + cross_proven + provisional > raw_occurrences:
             raise ValueError("Per-row source identity proof exceeds candidate coverage")
@@ -247,6 +261,13 @@ def candidate_lineage(repo: Path, pinned: list[dict], pin_report: dict,
             "review_id": row.get("review_id"),
             "reviewed_master_sha": row.get("reviewed_master_sha"),
             "candidate_source_line_occurrences": raw_occurrences,
+            "source_paths_reported": sorted(source_paths),
+            "source_paths_with_original_pinned_review": sorted(comparable_paths),
+            "source_paths_without_original_pinned_review": sorted(source_paths - comparable_paths),
+            "candidate_line_occurrences_on_paths_with_original_pins":
+                lines_on_comparable_paths,
+            "candidate_line_occurrences_on_paths_without_original_pins":
+                lines_without_original_pin_path,
             "exact_repeat_with_original_pin_same_path_blob_line": exact_repeats,
             "different_blob_full_first_parent_proven_repeat_with_original_pin": cross_proven,
             "different_blob_provisional_equal_hunk_only": provisional,
