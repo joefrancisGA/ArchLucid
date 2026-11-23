@@ -116,6 +116,7 @@ import { buildInfraMermaidExportLegendCommentLines } from "@/lib/infra-evidence/
 import { formatInfraEvidenceMermaidPngExportError } from "@/lib/infra-evidence/infra-evidence-mermaid-png-export-error";
 import { isInfraEvidenceMermaidServerPngUnavailableError } from "@/lib/infra-evidence/infra-evidence-mermaid-png-unavailable";
 import { DIAGRAM_PNG_SERVER_UNAVAILABLE_LINE } from "@/lib/infra-evidence/diagram-png-server-unavailable-copy";
+import { DIAGRAMS_EVIDENCE_FAMILY_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/infra-evidence/diagrams-evidence-family-empty-not-load-failure-copy";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
 import {
@@ -3101,12 +3102,20 @@ export function DiagramsWorkbenchClient() {
           {evidenceFamilyFilterEnabled
             && effectiveEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
             && familyFilteredOutline?.edges.length === 0 ? (
-            <p
-              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="infra-diagrams-evidence-family-empty"
-            >
-              No relationships in this family on this diagram. Relationships in other families are still listed under All.
-            </p>
+            <>
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="infra-diagrams-evidence-family-empty"
+              >
+                No relationships in this family on this diagram. Relationships in other families are still listed under All.
+              </p>
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="infra-diagrams-evidence-family-empty-not-load-failure"
+              >
+                {DIAGRAMS_EVIDENCE_FAMILY_EMPTY_NOT_LOAD_FAILURE_LINE}
+              </p>
+            </>
           ) : null}
           <InfraEvidenceDiagramReadingLegend mode={selectedMode} />
           <DiagramsWorkbenchSecureNowAwareDiagramViewer
