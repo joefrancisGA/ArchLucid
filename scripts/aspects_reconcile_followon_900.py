@@ -77,6 +77,16 @@ def reconcile(pins: list[dict], report: dict, recent: list[dict],
     if expected_rows == 5741 and original_clean != 4864:
         raise ValueError("immutable 5741-row corpus missing expected 4864 clean reviews")
     members = set(historical_commits)
+    # Raw discovery labels are candidate identifiers only. A same-spelling
+    # label is useful corroboration; a fixing PR number, matching suffix, or
+    # merged fix is never treated as an independent defect discovery.
+    historical_positive_labels: dict[str, list[int]] = defaultdict(list)
+    for original in original_rows:
+        if (original["reviewed_master_sha"] in members
+                and original["defects_recorded"] > 0):
+            label = original.get("review_id")
+            if isinstance(label, str) and label.strip():
+                historical_positive_labels[label].append(original["excel_row"])
     historical: dict[tuple[str, str], set[int]] = defaultdict(set)
     original_review_rows = original_clean_rows = 0
     for row in pins:
@@ -123,6 +133,9 @@ def reconcile(pins: list[dict], report: dict, recent: list[dict],
     exact_overlap = sum(len(lines & historical.get(key, set()))
                         for key, lines in narrowed.items())
     original_unique = sum(map(len, historical.values()))
+    shared_labels = sorted(in_window_defect_ids & set(historical_positive_labels))
+    followon_labels_without_verbatim_match = sorted(
+        in_window_defect_ids - set(historical_positive_labels))
     if exact_overlap > recent_unique:
         raise ValueError("exact source-line overlap exceeds follow-on coverage")
     return {
@@ -146,6 +159,18 @@ def reconcile(pins: list[dict], report: dict, recent: list[dict],
         "followon_records_with_baseline_inside_historical_cohort": in_window_records,
         "followon_clean_records_in_historical_cohort": in_window_clean_records,
         "followon_candidate_defect_ids_in_historical_cohort": sorted(in_window_defect_ids),
+        "historical_positive_candidate_labels_in_historical_cohort": len(historical_positive_labels),
+        "followon_verbatim_candidate_labels_also_in_historical_window": shared_labels,
+        "followon_verbatim_label_source_excel_rows": {
+            label: historical_positive_labels[label] for label in shared_labels
+        },
+        "followon_candidate_labels_without_verbatim_historical_match":
+            followon_labels_without_verbatim_match,
+        "discovery_label_provenance": (
+            "Case-sensitive exact original review_id string only; match means "
+            "candidate label repeat, NOT independently verified same defect. "
+            "No mapping through fixing PRs, numeric suffixes or fuzzy names."
+        ),
         "followon_unique_exact_path_blob_lines_in_historical_cohort": recent_unique,
         "followon_exact_repeat_with_original_pins": exact_overlap,
         "followon_exact_identities_not_in_original_pins": recent_unique - exact_overlap,
