@@ -27,6 +27,30 @@ describe("downloadScopedProxyFileGet", () => {
     createObjectUrl.mockRestore();
   });
 
+  it("does not save a 200 text/plain error body when the caller omitted content-type prefixes", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response("Not found", {
+          status: 200,
+          headers: { "Content-Type": "text/plain; charset=utf-8" },
+        }),
+      ),
+    );
+    const createObjectUrl = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:test");
+
+    await expect(
+      downloadScopedProxyFileGet("/api/proxy/v1/authority/reviews/run-1/decision-receipt", {
+        accept: "application/json",
+        defaultFileName: "decision-receipt-run-1.json",
+      }),
+    ).rejects.toThrow(/text\/plain/);
+
+    expect(createObjectUrl).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+    createObjectUrl.mockRestore();
+  });
+
   it("still saves a 200 JSON body when content-type prefixes are omitted", async () => {
     vi.stubGlobal(
       "fetch",

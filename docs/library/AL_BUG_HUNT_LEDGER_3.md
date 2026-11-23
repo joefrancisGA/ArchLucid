@@ -162,15 +162,24 @@
 
 ## Zone: ui-lib-api
 
+2026-11-23 thorough hunt #3 (hit): cheap-disproof closed four reseed monitors — valid-no-repro `createAndDownloadComparisonPdf` throws before any PDF download when `x-archlucid-comparison-record-id` is absent; valid-no-repro `openScopedProxyFileGetInNewTab` uses the same `fetchScopedProxyFileGet` HTML guard as file download; valid-no-repro `assertBinaryDownloadContentType` matches DOCX MIME types with `startsWith` so charset parameters still pass; valid-no-repro `downloadComparisonReplayPdf` already rejects `application/json` bodies via the binary guard. Promoted omitted-prefix scoped JSON export: `rejectUnguardedHtmlOrProblemDownload` blocked HTML but still saved a 200 `text/plain` proxy error as a `.json` artifact. The guard now rejects `text/plain` on the omitted-prefix path; scoped-proxy vitest **4/4**. Private beta: decision-receipt and other scoped JSON downloads fail fast instead of saving plain-text error pages as JSON files.
+
+- [x] (proven) `downloadScopedProxyFileGet` — 200 `text/plain` saved when prefixes omitted — **hit 2026-11-23 thorough hunt #3:** reject `text/plain` beside HTML/problem JSON; regression above.
+- [x] (valid-no-repro) `createAndDownloadComparisonPdf` — missing comparison-record header — **cheap-disproof 2026-11-23 thorough hunt #3:** explicit throw before `downloadComparisonReplayPdf`.
+- [x] (valid-no-repro) `openScopedProxyFileGetInNewTab` — HTML tab open — **cheap-disproof 2026-11-23 thorough hunt #3:** shared `fetchScopedProxyFileGet` guard; HTML regression covers.
+- [x] (valid-no-repro) `assertBinaryDownloadContentType` — DOCX charset suffix — **cheap-disproof 2026-11-23 thorough hunt #3:** `startsWith` prefix match.
+- [x] (valid-no-repro) `downloadComparisonReplayPdf` — 200 `application/json` body — **cheap-disproof 2026-11-23 thorough hunt #3:** existing binary guard regression.
+
+- [ ] (candidate) `downloadValueReportDocx` — 200 `application/json` envelope without DOCX body — locus: post-ok guard; input: JSON problem with 200; wrong outcome: misleading error text vs blocked reason; reachability: Enterprise value report export.
+- [ ] (candidate) `createAndDownloadComparisonPdf` — 200 JSON with header but empty comparison id — locus: header trim; input: header whitespace only; wrong outcome: download replay with blank id; reachability: compare summary PDF flow.
+- [ ] (candidate) `fetchScopedProxyFileGet` — non-ok body text consumed before blocked reason — locus: error path; input: 403 HTML; wrong outcome: correlation-only message; reachability: sealed manifest exports.
+- [ ] (candidate) `downloadComparisonReplayPdf` — padded comparisonRecordId in path — locus: encode vs trim; input: leading spaces in id; wrong outcome: 404 on replay POST; reachability: comparison history replay download.
+- [ ] (candidate) `rejectUnguardedHtmlOrProblemDownload` — `application/json` with HTML payload — locus: trust content-type header; input: JSON type with `<html` body; wrong outcome: invalid JSON file saved; reachability: scoped JSON downloads (monitor).
 2026-11-23 seed hunt (hit): promoted `downloadValueReportDocx` — `downloadComparisonReplayPdf` in the same module already rejected non-PDF 200 responses via `assertBinaryDownloadContentType`, but the sponsor value report DOCX export skipped that guard, so a 200 HTML login or error page could save as `ArchLucid-value-report.docx`. Added the DOCX prefix check before `triggerBrowserBlobDownload`; regression vitest **3/3**. Private beta: Enterprise Controls value report download now fails fast with a clear error instead of saving a bogus `.docx` when the proxy returns HTML.
 
 - [x] (proven) `downloadValueReportDocx` — 200 HTML saved as DOCX — **hit 2026-11-23 seed hunt:** `assertBinaryDownloadContentType` with DOCX MIME prefix; regression above.
 
-- [ ] (candidate) `createAndDownloadComparisonPdf` — 200 JSON missing `x-archlucid-comparison-record-id` — locus: header read after ok; input: 200 `application/json` without header; wrong outcome: generic header error after apparent success; reachability: compare end-to-end summary download.
-- [ ] (candidate) `openScopedProxyFileGetInNewTab` — omitted-prefix JSON download opened in tab — locus: shared `fetchScopedProxyFileGet`; input: 200 `text/html`; wrong outcome: new tab shows login page; reachability: learning/product report preview actions.
-- [ ] (candidate) `downloadScopedProxyFileGet` — 200 `text/plain` mislabeled export — locus: `rejectUnguardedHtmlOrProblemDownload`; input: 200 `text/plain` body; wrong outcome: corrupt `.json` file saved; reachability: scoped JSON artifact downloads.
-- [ ] (candidate) `assertBinaryDownloadContentType` — DOCX content-type with parameters only — locus: `startsWith` prefix match; input: `application/vnd...document; charset=binary`; wrong outcome: false reject of valid DOCX; reachability: value report and package exports.
-- [ ] (candidate) `downloadComparisonReplayPdf` — 200 `application/json` problem body with PDF Accept — locus: binary guard; input: 200 `application/json` error envelope; wrong outcome: file not saved but message differs from sealed-manifest path; reachability: comparison replay PDF export.
+ — omitted-prefix JSON download opened in tab — locus: shared `fetchScopedProxyFileGet`; input: 200 `text/html`; wrong outcome: new tab shows login page; reachability: learning/product report preview actions.
 2026-11-23 thorough hunt #2 (hit): the reseed note is not a defect claim — **(invalid)**. Cheap-disproof: 402 trial modal stays behind `isBrowser()`; a non-JSON 200 from `apiGet` throws and does not return the body; review inventory cursors are trimmed inside both list calls, including the 404 fallback; an invalid session traceparent is dropped rather than sent. Promoted the unguarded download: `downloadScopedProxyFileGet` skipped the content-type check when prefixes were omitted, so a 200 `text/html` body was saved for decision receipt, architecture request, retrieval grounding, and the other JSON downloads. Those callers cannot pass `application/json` into the binary guard because that guard rejects JSON. The omitted-prefix path now rejects HTML and problem JSON; a declared `text/html` prefix still saves the run-package HTML export. Regression vitest **3/3**.
 
 - [x] (proven) `downloadScopedProxyFileGet` — 200 `text/html` saved when content-type prefixes are omitted — **hit 2026-11-23 thorough hunt #2:** `rejectUnguardedHtmlOrProblemDownload` on the omitted-prefix path; regressions above.
@@ -200,8 +209,8 @@
 - **aliases:** UI API client; fetch boundaries
 - **paths:** archlucid-ui/src/lib/api/
 - **test-filter:** lib/api
-- **hunts:** 4
-- **bugs-found:** 3
+- **hunts:** 5
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

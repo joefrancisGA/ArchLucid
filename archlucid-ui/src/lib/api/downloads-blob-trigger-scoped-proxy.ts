@@ -25,7 +25,7 @@ export type ScopedProxyFileGetOptions = {
 function rejectUnguardedHtmlOrProblemDownload(response: Response): void {
   const contentType = response.headers.get("Content-Type")?.toLowerCase() ?? "";
 
-  if (contentType.includes("text/html") || contentType.includes("application/problem+json")) {
+  if (contentType.includes("text/html") || contentType.includes("text/plain") || contentType.includes("application/problem+json")) {
     throw new Error(`Download blocked: unexpected content type '${contentType || "unknown"}'.`);
   }
 }
@@ -65,7 +65,7 @@ async function fetchScopedProxyFileGet(
     assertBinaryDownloadContentType(response, [...expectedPrefixes]);
   } else {
     // JSON downloads omit prefixes because the binary guard rejects application/json.
-    // A 200 HTML or problem document must still not be saved as the file.
+    // A 200 HTML, plain-text, or problem document must still not be saved as the file.
     rejectUnguardedHtmlOrProblemDownload(response);
   }
 
