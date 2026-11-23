@@ -29,8 +29,8 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
-  "state": "5741_imported_4514_original_git_pins_900_window_exact_multifile_overlap_reconciled_new_CI_pending",
-  "next_priority": "Validate refreshed #7822 Aspects/CI after explicit accounting-only evidence-gate fix and new 900 pinned source partition golden; inspect historical gitleaks findings in test fixtures without weakening security. Then reconcile Excel row 27 (separately positive but unlinked) and 463 distinct fixing-PR references to independent discovery IDs; do not assume matching count proves 463 distinct. Derive a new comparable rate only when 900-window numerator and cross-revision LOC denominator both verifiable.",
+  "state": "5741_imported_4514_verified_900_exact_overlap_and_672_numeric_review_link_candidates_pending_CI",
+  "next_priority": "Run required PR #7822 Aspects regression with 672 matching legacy '#PR' workbook review-link candidates; inspect any row-level mismatches. Keep 1 conflicting #6701 vs /pull/6702 and narrative 'Operational drain' quarantined. Preserve separate reviewed-source evidence gate and full history gitleaks failures; do not bypass controls. Next map candidate fixing-PR keys to actual defect identities only with independent evidence; finish 900-first-parent cross-revision source union and current narrow ledger overlap. No master full build. Do not merge until required checks pass.",
   "corpus_import": {
     "status": "all_24_shards_merged_into_master_integrity_guard_on_CI",
     "review_events_jsonl_sha256": "e8b2b60694dbe401b391de60cf09c3312c27d8dc9d17d47f10ea330e9dd74509",
@@ -232,6 +232,32 @@
       "successful_merge_protection_run": 45088019231,
       "merge_allowed": false,
       "new_comparable_rate_produced": false
+    },
+    "numeric_pr_review_identity_recovery": {
+      "implementation": "scripts/aspects_reconcile_historical_defect_ids.py",
+      "tests": "scripts/tests/test_aspects_reconcile_historical_defect_ids.py",
+      "source": "immutable 24 Git shards / Review evidence original workbook rows 7-5747",
+      "positive_rows_inspected": 877,
+      "matching_exact_numeric_review_id_and_original_same_repository_pr_url_rows": 672,
+      "discordant_numeric_review_id_rows": 1,
+      "discordant_row": {
+        "excel_row": 37,
+        "review_id": "#6701",
+        "original_source_reference": "https://github.com/joefrancisGA/ArchLucid/pull/6702"
+      },
+      "other_nonnamed_noncanonical_review_id_rows": 1,
+      "other_example": {
+        "excel_row": 27,
+        "review_id": "Operational drain"
+      },
+      "confidence": "workbook_exact_link_candidate_review_join_keys_only; not verified unique discovered defects and not verified fixing PR status",
+      "original_rows_changed": 0,
+      "newly_verified_LOC_this_stage": 0,
+      "newly_repeated_LOC_this_stage": 0,
+      "distinct_defects_promoted_to_900_numerator": 0,
+      "new_comparable_density_this_stage": null,
+      "test_golden_status": "committed_in_PR_pending_current_head_CI",
+      "reporting_rule": "Do not add 672 to the 203 ASPECTS-named candidates as proven unique defects; PRs may resolve multiple discoveries or be repeated in workbook."
     }
   }
 }
