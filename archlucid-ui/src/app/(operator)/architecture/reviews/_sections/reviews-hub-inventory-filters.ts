@@ -1,3 +1,4 @@
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import type { RunSummary } from "@/types/authority";
 import type { ReviewPackageOwnerResolutionContext } from "@/lib/review-package-validation-picker";
 
@@ -289,8 +290,8 @@ function compareRunsForInventory(
   }
 
   // Row labels use completed time for a finalized package and created time otherwise.
-  const leftUpdated = new Date(resolveReviewsHubRecencyInstant(left).instantUtc).getTime();
-  const rightUpdated = new Date(resolveReviewsHubRecencyInstant(right).instantUtc).getTime();
+  const leftUpdated = parseIsoUtcMs(resolveReviewsHubRecencyInstant(left).instantUtc);
+  const rightUpdated = parseIsoUtcMs(resolveReviewsHubRecencyInstant(right).instantUtc);
 
   if (!Number.isNaN(leftUpdated) && !Number.isNaN(rightUpdated) && leftUpdated !== rightUpdated) {
     return rightUpdated - leftUpdated;

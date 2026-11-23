@@ -10257,6 +10257,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-routes
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reseeded reviews hub inventory order after the completion-time sort. `compareRunsForInventory` parsed the row instant with `new Date`, which rejects a leading space, while the row label uses `parseIsoUtcMs`, which trims. A review created in June with a leading space on `createdUtc` sorted below a January review. Created time is trimmed in `resolveReviewsHubRecencyInstant`, and inventory order uses `parseIsoUtcMs`. Regression `orders a review by created time when that timestamp has surrounding whitespace` failed first, then inventory sort and package-display tests 26/26. Private beta: a review whose created time has extra spaces sorts with the other reviews by that time, matching the date on the row, instead of dropping below older reviews.
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reseeded reviews hub inventory order after the Updated recently filter fix. `compareRunsForInventory` sorted by `createdUtc` while the row label uses completion time for a finalized package. A package created in January and completed in May sorted below a March draft. Sort now uses `resolveReviewsHubRecencyInstant` (completed time when a golden manifest stores `completedUtc`, otherwise created time). Regression `orders a finalized package by its completed time ahead of a later-created draft` failed first, then inventory sort and package-display tests 25/25. Private beta: a finalized review package sorts by when it was completed, matching the date on the row, so a package finished this week appears above a draft created later.
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof: `filterCounts` already depends on `visibilityFilteredRuns` (line dependency array includes it), and `findingOrder` is assigned by `order++` in the run-detail parser so a non-finite order is not produced. Promoted `matchesFilter` updated-recently: the chip compared `createdUtc` while list rows carry `lastModifiedUtc`, so a review edited this week but created earlier stayed out of Updated recently. The stamp now prefers `lastModifiedUtc` and falls back to `createdUtc`. Regression `counts a review updated in the last 14 days even when it was created earlier` failed first (false), then inventory filter tests 8/8. Private beta: the reviews hub Updated recently filter includes packages changed in the last 14 days, including ones created earlier.
 
@@ -10264,6 +10265,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `RunDetailSponsorModeExplanationCard` — non-finite `findingOrder` — **cheap-disproof 2026-11-23 seed hunt:** `quick-decision-finding-from-detail` assigns `findingOrder` with `order++`.
 - [x] (proven) `matchesFilter` — Updated recently uses `createdUtc` and ignores `lastModifiedUtc` — **proven 2026-11-23 seed hunt:** a review created 40 days ago and modified 2 days ago was excluded; the filter now uses `lastModifiedUtc` when stored.
 - [x] (proven) `compareRunsForInventory` — finalized packages sorted by `createdUtc` while the row shows `completedUtc` — **proven 2026-11-23 seed hunt:** January-created May-completed package sorted below a March draft; sort now uses `resolveReviewsHubRecencyInstant`.
+- [x] (proven) `compareRunsForInventory` — leading space on `createdUtc` dropped the review out of time order — **proven 2026-11-23 seed hunt:** June timestamp with a leading space sorted below January; order now uses `parseIsoUtcMs`.
 2026-10-30 seed hunt #45 (seed-only): cheap-disproof confirmed the empty-evidence-scope candidate is already covered by `RunDetailEvidenceTabPanel.test.tsx` (`uses not-stored intro when findings snapshot was omitted`); retained the two untested candidates below for later repro.
 
 - [x] (valid-no-repro) `ReviewsHubReviewInventory` — `filterCounts` memo omits `visibilityFilteredRuns`; input: operator selects the Archived filter after the reviews hub has rendered the active-only pool; wrong outcome: non-Archived filter-chip counts can remain based on the prior visibility pool; mechanism: count calculation explicitly consumes `visibilityFilteredRuns` but the memo dependencies exclude it; reachability: reviews hub filter chips plus archived review cache.
@@ -10326,9 +10328,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 2
+- **hunts:** 3
 - **last-hunt:** 2026-11-23
-- **bugs-found:** 2
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-11-23
 - **related-pd-tb:** none

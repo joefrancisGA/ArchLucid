@@ -73,3 +73,4 @@
 {"at":"2026-11-23T20:57:28.3613973Z","zoneId":"ui-lib-governance","outcome":"seed-only","productLine":"archlucid-shared","set":3,"note":"seed hunt: approval status and severity-rank monitors only"}
 {"at":"2026-11-23T21:03:37.0732492Z","zoneId":"ui-operator-routes","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: updated-recently filter ignored lastModifiedUtc"}
 {"at":"2026-11-23T21:07:19.4992746Z","zoneId":"ui-operator-routes","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: inventory sort ignored completedUtc for finalized packages"}
+{"at":"2026-11-23T21:14:35.3326985Z","zoneId":"ui-operator-routes","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: inventory sort rejected leading space on createdUtc"}

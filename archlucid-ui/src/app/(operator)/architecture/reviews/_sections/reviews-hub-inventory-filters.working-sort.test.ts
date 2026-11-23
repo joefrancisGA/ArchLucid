@@ -76,4 +76,16 @@ describe("sortRunsForWorkingReviewsHubInventory (LI-08)", () => {
       "created-later",
     ]);
   });
+
+  it("orders a review by created time when that timestamp has surrounding whitespace", () => {
+    const runs = [
+      run({ runId: "a-earlier", createdUtc: "2026-01-01T00:00:00Z" }),
+      run({ runId: "b-later", createdUtc: " 2026-06-01T00:00:00Z" }),
+    ];
+
+    expect(sortRunsForInventory(runs, () => false).map((item) => item.runId)).toEqual([
+      "b-later",
+      "a-earlier",
+    ]);
+  });
 });
