@@ -5,6 +5,11 @@
 
 # ArchLucid changelog
 
+## 2026-11-23 - Score lift round 125 (batch 90): Attack-path vulnerable empty, digest failure
+
+**Outcome.** Attack-path vulnerable empty names a successful report read with zero vulnerable rows versus a failed report load. The retry panel and the table empty stay in separate branches. Digest browse names a hard failure apart from empty filter bands, and the scoped-plus-subscription empty uses the not-load-failure test id.
+
+**Surfaces.** Remediation factory attack-path report, digests browse, honesty and mounted contract tests.
 ## 2026-11-23 - Score lift round 124 (batch 89): Graph focus combinations
 
 **Outcome.** Evidence graph names path-only plus node focus, node focus plus edge focus, and path-only plus edge focus as combined empties versus a failed graph read. A type filter with node focus and path-only is a separate triple. Those bands stay exclusive of the matching single-filter lines.

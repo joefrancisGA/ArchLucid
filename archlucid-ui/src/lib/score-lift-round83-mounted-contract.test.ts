@@ -11,7 +11,7 @@ function readUiSource(relativePath: string): string {
 describe("score-lift round83 mounted contract", () => {
   it("digest scoped versus subscription, golden disabled and finalize, compare partial inventory", () => {
     expect(readUiSource("components/digests/DigestsBrowseContent.tsx")).toContain(
-      'data-testid="digests-browse-scoped-and-subscription-filter-empty"',
+      'data-testid="digests-browse-scoped-and-subscription-filter-empty-not-load-failure"',
     );
     expect(readUiSource("components/GoldenManifestExportMenu.tsx")).toContain(
       'data-testid="golden-manifest-export-disabled-and-finalize"',
