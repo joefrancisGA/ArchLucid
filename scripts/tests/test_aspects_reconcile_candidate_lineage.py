@@ -94,6 +94,39 @@ class CandidateLineageTests(unittest.TestCase):
         self.assertEqual(r["new_original_pin_verified_loc"], 0)
         self.assertIsNone(r["new_comparable_900_density"])
 
+    def test_source_proof_keeps_original_excel_identity_and_zero_reviewed_loc(self):
+        r = self.case()
+        entries = r["candidate_review_source_lineage_by_excel_row"]
+        self.assertEqual(len(entries), 1)
+        row = entries[0]
+        self.assertEqual(row["excel_row"], 8)
+        self.assertEqual(row["reviewed_master_sha"], self.new_sha)
+        self.assertEqual(row["candidate_source_line_occurrences"], 5)
+        self.assertEqual(row["exact_repeat_with_original_pin_same_path_blob_line"], 0)
+        self.assertEqual(row["different_blob_full_first_parent_proven_repeat_with_original_pin"], 2)
+        self.assertEqual(row["different_blob_provisional_equal_hunk_only"], 0)
+        self.assertEqual(row["without_proven_original_pin_identity"], 3)
+        self.assertEqual(row["newly_independently_verified_reviewed_loc"], 0)
+        self.assertTrue(r["candidate_row_lineage_proof_not_reviewed_loc"])
+
+    def test_edit_revert_row_proof_does_not_count_unstable_text(self):
+        self.commit("alpha\\nmutated\\nrepeat\\nrepeat\\nnovel\\n", "middle mutation")
+        self.commit("alpha\\nunique\\nrepeat\\nrepeat\\nnovel\\n", "text restored")
+        current = git(self.repo, "rev-parse", "HEAD")
+        def relocate(pins, pin_report, candidates, candidate_report):
+            pins[1]["reviewed_master_sha"] = current
+            candidates[0]["reviewed_master_sha"] = current
+            self.anchor["head_sha"] = current
+            self.anchor["first_parent_commits"] = 4
+            pin_report["audited_rows_sha256"] = audited_rows_sha256(pins)
+            candidate_report["candidate_rows_sha256"] = audited_rows_sha256(candidates)
+        r = self.case(relocate)
+        row = r["candidate_review_source_lineage_by_excel_row"][0]
+        self.assertEqual(row["candidate_source_line_occurrences"], 5)
+        self.assertEqual(row["different_blob_full_first_parent_proven_repeat_with_original_pin"], 1)
+        self.assertEqual(row["different_blob_provisional_equal_hunk_only"], 1)
+        self.assertEqual(row["newly_independently_verified_reviewed_loc"], 0)
+
     def test_derived_blob_at_wrong_review_commit_fails_even_with_matching_digest(self):
         def mutate(pin, pr, cand, cr):
             cand[0]["sources"][0]["path"] = "other.cs"
