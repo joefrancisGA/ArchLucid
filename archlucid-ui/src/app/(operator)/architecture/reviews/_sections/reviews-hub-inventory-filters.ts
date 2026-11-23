@@ -225,7 +225,10 @@ export function mergeRunsWithArchivedCache(
   }
 
   for (const archivedRun of archivedRuns) {
-    if (!byId.has(archivedRun.runId)) {
+    const existing = byId.get(archivedRun.runId);
+
+    // The list can still hold the pre-archive row until refresh. The cache is the archived snapshot.
+    if (existing === undefined || existing.isArchived !== true) {
       byId.set(archivedRun.runId, archivedRun);
     }
   }

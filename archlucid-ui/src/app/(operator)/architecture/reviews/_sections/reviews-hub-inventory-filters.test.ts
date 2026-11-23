@@ -6,6 +6,7 @@ import {
   countRunsMatchingInventoryFilter,
   matchesFilter,
   parseReviewsHubInventoryFilter,
+  mergeRunsWithArchivedCache,
   resolveInventoryFilterCountRuns,
   parseReviewsHubInventorySearchQuery,
   reviewsHubInventoryFilterHref,
@@ -89,5 +90,15 @@ describe("resolveInventoryFilterCountRuns", () => {
 
     expect(countRunsMatchingInventoryFilter(allPool, "all", {}, merged)).toBe(1);
     expect(countRunsMatchingInventoryFilter(archivedPool, "Archived", {}, merged)).toBe(1);
+  });
+});
+describe("mergeRunsWithArchivedCache", () => {
+  it("replaces a still-listed active row with the cached archived snapshot", () => {
+    const active = run({ runId: "run-1", isArchived: false });
+    const archived = run({ runId: "run-1", isArchived: true });
+    const merged = mergeRunsWithArchivedCache([active], [archived]);
+
+    expect(merged).toHaveLength(1);
+    expect(merged[0]?.isArchived).toBe(true);
   });
 });

@@ -79,3 +79,4 @@
 {"at":"2026-11-23T21:37:26.7343429Z","zoneId":"ui-operator-routes","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: awaiting approval counted a package that already had a decision"}
 {"at":"2026-11-23T21:41:29.4173026Z","zoneId":"ui-operator-routes","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: governance warnings counted as a finalized package"}
 {"at":"2026-11-23T21:45:08.6245211Z","zoneId":"ui-operator-routes","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: Archived view inflated the All filter count"}
+{"at":"2026-11-23T21:49:09.2978655Z","zoneId":"ui-operator-routes","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: archived cache lost to the still-listed active row"}
