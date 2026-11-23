@@ -61,23 +61,24 @@ public sealed class RemediationSqlRolePrivilegesTests(SqlServerPersistenceFixtur
         // Reapply the *actual embedded* DbUp migration after creating the
         // disposable role. Its idempotent DENY statements must support both
         // existing roles and newly provisioned app identities.
-        string resource = typeof(SqlRemediationInstanceRepository).Assembly
-            .GetManifestResourceNames()
-            .Single(name => name.EndsWith(
-                ".Migrations.426_RemediationRoleWritePermissions.sql",
-                StringComparison.Ordinal));
-        await using Stream migrationStream = typeof(SqlRemediationInstanceRepository).Assembly
-            .GetManifestResourceStream(resource)!;
-        using StreamReader reader = new(migrationStream);
-        string migrationSql = await reader.ReadToEndAsync();
-        // The role may be provisioned after a journaled DbUp migration.
-        // A privileged operator must be able to replay this script safely.
-        foreach (int replay in Enumerable.Range(0, 2))
+        foreach (int migrationNumber in new[] { 426, 427 })
         {
-            foreach (string batch in Regex.Split(migrationSql, @"(?im)^\s*GO\s*$"))
+            string resource = typeof(SqlRemediationInstanceRepository).Assembly
+                .GetManifestResourceNames()
+                .Single(name => name.Contains($".Migrations.{migrationNumber}_", StringComparison.Ordinal)
+                    && name.EndsWith(".sql", StringComparison.Ordinal));
+            await using Stream migrationStream = typeof(SqlRemediationInstanceRepository).Assembly
+                .GetManifestResourceStream(resource)!;
+            using StreamReader reader = new(migrationStream);
+            string migrationSql = await reader.ReadToEndAsync();
+            // Repeat both real migrations after role provisioning to verify idempotence.
+            foreach (int replay in Enumerable.Range(0, 2))
             {
-                if (!string.IsNullOrWhiteSpace(batch))
-                    await connection.ExecuteAsync(batch);
+                foreach (string batch in Regex.Split(migrationSql, @"(?im)^\\s*GO\\s*$"))
+                {
+                    if (!string.IsNullOrWhiteSpace(batch))
+                        await connection.ExecuteAsync(batch);
+                }
             }
         }
 
@@ -86,6 +87,7 @@ public sealed class RemediationSqlRolePrivilegesTests(SqlServerPersistenceFixtur
                      ("dbo.RemediationEvidence", "UPDATE"),
                      ("dbo.RemediationEvidence", "DELETE"),
                      ("dbo.RemediationInstances", "DELETE"),
+                     ("dbo.RemediationInstances", "UPDATE"),
                  })
         {
             int deny = await connection.QuerySingleAsync<int>(
@@ -112,6 +114,7 @@ public sealed class RemediationSqlRolePrivilegesTests(SqlServerPersistenceFixtur
                          ("dbo.RemediationEvidence", "UPDATE"),
                          ("dbo.RemediationEvidence", "DELETE"),
                          ("dbo.RemediationInstances", "DELETE"),
+                         ("dbo.RemediationInstances", "UPDATE"),
                      })
             {
                 int effective = await connection.QuerySingleAsync<int>(
@@ -137,13 +140,18 @@ public sealed class RemediationSqlRolePrivilegesTests(SqlServerPersistenceFixtur
             (await deleteInstance.Should().ThrowAsync<SqlException>()).Which
                 .Number.Should().Be(229);
 
-            int instanceUpdate = await connection.QuerySingleAsync<int>(
-                """
-                SELECT ISNULL(HAS_PERMS_BY_NAME(
-                    N'dbo.RemediationInstances', N'OBJECT', N'UPDATE'), 0);
-                """);
-            instanceUpdate.Should().Be(1,
-                "the existing rowversion-protected repository still requires UPDATE");
+            foreach (string procedure in new[]
+                     {
+                         "dbo.uspRemediationUpdateScoped",
+                         "dbo.uspRemediationCommitApproval",
+                         "dbo.uspRemediationCommitVerification",
+                     })
+            {
+                int mayExecute = await connection.QuerySingleAsync<int>(
+                    "SELECT ISNULL(HAS_PERMS_BY_NAME(@Procedure, N'OBJECT', N'EXECUTE'), 0);",
+                    new { Procedure = procedure });
+                mayExecute.Should().Be(1, $"app identity must EXECUTE guarded procedure {procedure}");
+            }
             int evidenceInsert = await connection.QuerySingleAsync<int>(
                 """
                 SELECT ISNULL(HAS_PERMS_BY_NAME(
@@ -152,11 +160,11 @@ public sealed class RemediationSqlRolePrivilegesTests(SqlServerPersistenceFixtur
             evidenceInsert.Should().Be(1,
                 "approval and verification evidence remains appendable");
 
-            // Permission checks are against a zero-row predicate. This
-            // establishes access posture without mutating fixture records.
-            (await connection.ExecuteAsync(
-                "UPDATE dbo.RemediationInstances SET UpdatedUtc = UpdatedUtc WHERE 1 = 0;"))
-                .Should().Be(0);
+            // Even zero-row ad-hoc instance UPDATE must now fail for the runtime role.
+            Func<Task> forbiddenDirectUpdate = () => connection.ExecuteAsync(
+                "UPDATE dbo.RemediationInstances SET UpdatedUtc = UpdatedUtc WHERE 1 = 0;");
+            (await forbiddenDirectUpdate.Should().ThrowAsync<SqlException>()).Which
+                .Number.Should().Be(229);
         }
         finally
         {
