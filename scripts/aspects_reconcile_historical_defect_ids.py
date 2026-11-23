@@ -86,6 +86,8 @@ def reconcile(rows: list[dict], audit: list[dict], audit_report: dict,
     candidate_ids = defaultdict(list)
     totals = Counter()
     unresolved = Counter()
+    window_fix_pr_references: dict[int, list[int]] = defaultdict(list)
+    window_no_fix_pr_reference: list[int] = []
 
     for row in rows:
         if row.get("defects_recorded", 0) == 0:
@@ -134,6 +136,13 @@ def reconcile(rows: list[dict], audit: list[dict], audit_report: dict,
         totals["positive_observation_sum_not_distinct"] += row["defects_recorded"]
         if pin.get("window_membership") == "in_window":
             totals["positive_rows_on_900_first_parent"] += 1
+            if number is None:
+                window_no_fix_pr_reference.append(excel)
+            else:
+                # A fixing PR is an independently identifiable reference, NOT
+                # necessarily one defect. Keep repeated PR refs and unlinked
+                # discoveries explicit rather than forcing the 463 numerator.
+                window_fix_pr_references[number].append(excel)
             if pin.get("pin_status") == VERIFIED:
                 totals["positive_rows_original_git_pin_verified"] += 1
         if identifier is not None:
@@ -145,6 +154,15 @@ def reconcile(rows: list[dict], audit: list[dict], audit_report: dict,
 
     repeat_identifiers = {key: locations for key, locations in candidate_ids.items()
                           if len(locations) > 1}
+    repeated_pr_references = {str(number): locations
+                              for number, locations in window_fix_pr_references.items()
+                              if len(locations) > 1}
+    # Coverage is auditability, not defect identity. The workbook can contain
+    # a separately confirmed defect with no PR yet; excluding that row just
+    # because other rows name a PR would silently undercount discoveries.
+    if (sum(map(len, window_fix_pr_references.values())) +
+            len(window_no_fix_pr_reference) != totals["positive_rows_on_900_first_parent"]):
+        raise RuntimeError("First-parent positive review / fixing-PR partition mismatch")
     summary = {
         "schema_version": 1,
         "status": "historical_candidate_defect_ids_and_sampled_fix_states_reconciled",
@@ -155,6 +173,12 @@ def reconcile(rows: list[dict], audit: list[dict], audit_report: dict,
         "repeated_named_discovery_id_candidates": len(repeat_identifiers),
         "repeated_named_ids_sample": dict(list(sorted(repeat_identifiers.items()))[:25]),
         "positive_rows_in_anchored_900_first_parent": totals["positive_rows_on_900_first_parent"],
+        "unique_fix_pr_reference_candidates_in_anchored_window": len(window_fix_pr_references),
+        "positive_rows_without_fix_pr_reference_in_anchored_window": len(window_no_fix_pr_reference),
+        "positive_unlinked_excel_rows_sample_in_anchored_window": window_no_fix_pr_reference[:30],
+        "repeated_fix_pr_numbers_in_anchored_window": len(repeated_pr_references),
+        "repeated_fix_pr_reference_rows_sample": dict(list(sorted(repeated_pr_references.items()))[:30]),
+        "fix_pr_is_not_defect_identity": True,
         "original_git_pin_verified_positive_rows_in_900_window": totals["positive_rows_original_git_pin_verified"],
         "exact_candidate_id_also_in_narrow_ledger_rows": totals["exact_candidate_id_also_in_narrow_ledger_rows"],
         "github_fix_pr_state_verified_rows": totals["fix_pr_state_from_github"],
