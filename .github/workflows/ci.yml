@@ -567,7 +567,12 @@ jobs:
 
       - name: Score lift round 124 batch drift guard
         continue-on-error: true
-        run: python scripts/ci/assert-score-lift-round124-batch.py
+        run: python scripts/ci/assert-score-lift-round124-batch.py
+
+      - name: Score lift round 125 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round125-batch.py
+
 
 
       - name: CD BUILD_ID / OCI label contract (unit tests)
