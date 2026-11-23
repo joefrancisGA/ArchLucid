@@ -45,6 +45,8 @@ on:
       - scripts/tests/test_aspects_current_900_proven_source_lineage.py
       - scripts/aspects_current_900_candidate_provenance.py
       - scripts/tests/test_aspects_current_900_candidate_provenance.py
+      - scripts/aspects_verify_current_900_reports.py
+      - scripts/tests/test_aspects_verify_current_900_reports.py
       - docs/engineering/aspects-historical/**
       - scripts/tests/test_aspects_validate_historical_corpus.py
       - scripts/tests/test_aspects_import_historical_workbook.py
@@ -742,6 +744,32 @@ jobs:
               )
           PY
 
+      - name: Fail closed on mixed current-900 source, candidate, discovery, or lineage cohorts
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/master')
+        run: |
+          python -m unittest discover -s scripts/tests -p 'test_aspects_verify_current_900_reports.py' -v
+          python scripts/aspects_verify_current_900_reports.py \
+            --source artifacts/aspects/aspects-current-master-base-900-exact-subset.json \
+            --discovery artifacts/aspects/aspects-current-master-base-900-discovery-candidates.json \
+            --lineage artifacts/aspects/aspects-current-master-base-900-proven-continuity.json \
+            --candidate artifacts/aspects/aspects-current-master-base-900-candidate-provenance.json \
+            --json-out artifacts/aspects/aspects-current-master-base-900-report-integrity.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          result = json.loads(Path("artifacts/aspects/aspects-current-master-base-900-report-integrity.json").read_text())
+          assert result["status"] == "verified_same_cohort_partial_reports_no_comparable_density"
+          assert result["new_comparable_density"] is None
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
+              out.write(
+                  "Current-900 cross-artifact evidence agreement: **passed** for "
+                  f"{result['historical_observations']:,} historical observations, "
+                  f"{result['original_reviews_in_window']:,} in-window original reviews, "
+                  f"{result['candidate_source_rows_in_window']:,} separate candidate rows. "
+                  "No new verified reviewed LOC or comparable density published.\\n\\n"
+              )
+          PY
+
       - name: Locate latest comparable master snapshot
         if: github.event_name != 'pull_request'
         env:
@@ -798,6 +826,7 @@ jobs:
             artifacts/aspects/aspects-current-master-base-900-discovery-candidates.json
             artifacts/aspects/aspects-current-master-base-900-proven-continuity.json
             artifacts/aspects/aspects-current-master-base-900-candidate-provenance.json
+            artifacts/aspects/aspects-current-master-base-900-report-integrity.json
           if-no-files-found: error
 
       - name: Require anchored, nonempty historical lineage cohort

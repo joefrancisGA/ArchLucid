@@ -29,6 +29,24 @@
     "verification": "historical workbook partial"
   },
   "published_rate_contract": "The historical 900-commit 463/343492 is a workbook-provenanced partial snapshot, not a verified union of 5741 reviewed spans. The new source-verified GitHub ledger is a separate narrow subset until identity and window membership are reconciled. Never replace historical denominator with GitHub-ledger LOC or sum them blindly.",
+  "cross_artifact_900_integrity_submitted_20261123": {
+    "stage": "repair_PR_submitted_pending_exact_head_test_results",
+    "population": "current_master_base_900_first_parent",
+    "inputs": [
+      "aspects-current-master-base-900-exact-subset.json",
+      "aspects-current-master-base-900-discovery-candidates.json",
+      "aspects-current-master-base-900-proven-continuity.json",
+      "aspects-current-master-base-900-candidate-provenance.json"
+    ],
+    "test_file": "scripts/tests/test_aspects_verify_current_900_reports.py",
+    "unit_tests_submitted": 13,
+    "new_original_review_rows_imported": 0,
+    "new_independently_reviewed_LOC": 0,
+    "new_distinct_defects_reconciled": 0,
+    "new_comparable_rate_computed": false,
+    "goal": "Reject mixed head/oldest/ordered SHA digests, clean review loss, candidate overcount and premature rate promotion",
+    "no_master_full_build_requested": true
+  },
   "state": "row12_candidate_source_282_exact_no_repeat_and_test_fixture_fixed_pending_CI",
   "next_priority": "Validate PR #7884 exact-head Aspects run including row12 five Git blobs and 282 nonblank whole-file candidate lines, 0 exact path/blob repeats against all original-pinned and other derived candidate source identities. Confirm fixed test strings contain real Python newlines, examine logs if any test or evidence fails; do not merge until all required checks are green. After CI, continue verified cross-revision original/derived source attribution, distinct defect discoveries, current 900-master-base comparable rate and 600/700 SMA25 only with complete population.",
   "corpus_import": {
