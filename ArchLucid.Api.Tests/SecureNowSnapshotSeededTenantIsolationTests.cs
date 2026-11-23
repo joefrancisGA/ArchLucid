@@ -1,4 +1,8 @@
 using ArchLucid.Api.Controllers.Planning;
+using ArchLucid.Api.Security;
+using ArchLucid.Core.Authorization;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -72,14 +76,43 @@ public sealed class SecureNowSnapshotSeededTenantIsolationTests
             Mock<IFeatureFlags> flags = new();
             flags.Setup(f => f.IsEnabledAsync("SecureNow.ReadOnlySnapshotExchange",
                 It.IsAny<CancellationToken>())).ReturnsAsync(true);
-            ServiceProvider services = new ServiceCollection().AddSingleton(flags.Object).BuildServiceProvider();
+            Mock<IAuthorizationService> authorization = new();
+            authorization.Setup(a => a.AuthorizeAsync(
+                It.IsAny<ClaimsPrincipal>(), It.IsAny<object>(), ArchLucidPolicies.ReadAuthority))
+                .ReturnsAsync(AuthorizationResult.Success());
+            Mock<IEvidenceEntitlementAuthority> entitlements = new();
+            entitlements.Setup(e => e.HasCurrentReadEntitlementAsync(
+                It.IsAny<ClaimsPrincipal>(), It.IsAny<EvidenceReadResource>(),
+                It.IsAny<CancellationToken>())).ReturnsAsync(true);
+            ServiceProvider services = new ServiceCollection()
+                .AddSingleton(flags.Object)
+                .AddSingleton(scopeProvider.Object)
+                .AddSingleton(authorization.Object)
+                .AddSingleton(entitlements.Object)
+                .AddSingleton(TimeProvider.System)
+                .AddSingleton<ICentralAuthorizationAudit>(Mock.Of<ICentralAuthorizationAudit>(
+                    a => a.WriteAsync(It.IsAny<CentralAuthorizationAuditRecord>(),
+                        It.IsAny<CancellationToken>()) == Task.CompletedTask))
+                .AddSingleton<IRemediationApprovalAuthority, DenyUnconfiguredRemediationApproval>()
+                .AddScoped<ICentralAuthorizationDecisions, CentralAuthorizationDecisions>()
+                .AddScoped<EvidenceReadAuthorizationGate>()
+                .BuildServiceProvider();
             return new GraphController(authority.Object, runs.Object, scopeProvider.Object,
                 Mock.Of<IManifestHashService>(),
                 Options.Create(new KnowledgeGraphLimitsOptions { FullGraphResponseMaxNodes = 500 }))
             {
                 ControllerContext = new ControllerContext
                 {
-                    HttpContext = new DefaultHttpContext { RequestServices = services }
+                    HttpContext = new DefaultHttpContext
+                    {
+                        RequestServices = services,
+                        User = new ClaimsPrincipal(new ClaimsIdentity(
+                            [
+                                new Claim(ClaimTypes.NameIdentifier, "test-user"),
+                                new Claim("archlucid.resource_entitlement",
+                                    $"evidence.read:{scope.TenantId:D}:{scope.WorkspaceId:D}:{scope.ProjectId:D}:{Run:D}")
+                            ], "test"))
+                    }
                 }
             };
         }
