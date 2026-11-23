@@ -25,6 +25,17 @@ public static class AzureRmAndRetailPricesHttpRetryPolicy
     public static IAsyncPolicy<HttpResponseMessage> Create(ILogger logger) =>
         Create(logger, ProductionSleepDurationProvider);
 
+    /// <summary>
+    ///     Use canonical production backoff and retry classification with caller-supplied telemetry.
+    /// </summary>
+    public static IAsyncPolicy<HttpResponseMessage> Create(
+        ILogger logger,
+        Action<OnRetryArguments<HttpResponseMessage>> onRetry)
+    {
+        ArgumentNullException.ThrowIfNull(onRetry);
+        return Create(logger, ProductionSleepDurationProvider, onRetry);
+    }
+
     /// <summary>Identical transient handling as the single-parameter overload; inject zero-delay backoff for deterministic tests.</summary>
     public static IAsyncPolicy<HttpResponseMessage> Create(ILogger logger, Func<int, TimeSpan> sleepDurationProvider) =>
         Create(logger, sleepDurationProvider, onRetry: null);
