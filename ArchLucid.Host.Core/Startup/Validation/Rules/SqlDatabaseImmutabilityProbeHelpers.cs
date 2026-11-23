@@ -43,6 +43,15 @@ internal static class SqlDatabaseImmutabilityProbeHelpers
         return Convert.ToInt32(command.ExecuteScalar()) == 1;
     }
 
+    internal static bool IsCurrentPrincipalRoleMember(SqlConnection connection, string roleName)
+    {
+        const string sql = "SELECT ISNULL(IS_ROLEMEMBER(@RoleName), 0);";
+
+        using SqlCommand command = new(sql, connection);
+        command.Parameters.Add(new SqlParameter("@RoleName", SqlDbType.NVarChar, 128) { Value = roleName });
+        return Convert.ToInt32(command.ExecuteScalar()) == 1;
+    }
+
     internal static bool HasDenyPermission(SqlConnection connection, string tableTwoPartName, string granteeName, string permissionName)
     {
         const string sql = """
