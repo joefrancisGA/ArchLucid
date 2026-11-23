@@ -820,11 +820,13 @@ jobs:
           fi
 
       - name: Revalidate pinned source blobs and generate the 900-commit snapshot
+        env:
+          MASTER_900_HEAD: ${{ github.event.pull_request.base.sha || github.sha }}
         run: |
           python scripts/aspects_density_snapshot.py \
             --repo . \
             --ledger docs/engineering/aspects-review-ledger.jsonl \
-            --head "$(git rev-parse HEAD)" \
+            --head "$MASTER_900_HEAD" \
             --window 900 \
             --previous .aspects-previous/previous.json \
             --json-out artifacts/aspects/aspects-density-snapshot.json \
@@ -832,6 +834,8 @@ jobs:
           cat artifacts/aspects/aspects-density-snapshot.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Publish one Aspects accounting report with separate historical and live source scopes
+        env:
+          MASTER_900_HEAD: ${{ github.event.pull_request.base.sha || github.sha }}
         run: |
           python -m unittest discover -s scripts/tests -p 'test_aspects_accounting_report.py' -v
           python scripts/aspects_accounting_report.py \
@@ -846,7 +850,7 @@ jobs:
             --700-svg-out artifacts/aspects/aspects-provisional-700-sma25.svg
           cat artifacts/aspects/aspects-accounting-report.md >> "$GITHUB_STEP_SUMMARY"
           python - <<'PY'
-          import json
+          import json, os
           from pathlib import Path
           r=json.loads(Path("artifacts/aspects/aspects-accounting-report.json").read_text())
           assert r["publication_contract"] == "three_disjoint_accounting_populations_no_splicing"
@@ -855,6 +859,7 @@ jobs:
           assert r["provisional_700"]["backprojected_observations"] == 100
           assert r["provisional_700"]["workbook_observations"] == 600
           assert r["current_verified_subset"]["scope"] == "narrow_incremental_review_ledger_subset"
+          assert r["current_verified_subset"]["current_head"] == os.environ["MASTER_900_HEAD"]
           assert r["current_verified_subset"]["cross_revision_dedup_complete"] is False
           assert Path("artifacts/aspects/aspects-provisional-700-sma25.svg").stat().st_size > 1000
           PY
