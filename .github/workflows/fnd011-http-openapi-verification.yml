@@ -18,18 +18,42 @@ jobs:
   http-and-contract:
     runs-on: ubuntu-latest
     timeout-minutes: 35
+    # The persisted-tenant HTTP tests construct a SQL-backed API factory.
+    # Provision an actual SQL Server rather than silently skipping those tests.
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 30
+          --health-start-period 60s
     steps:
       - uses: actions/checkout@v4
+      - name: Wait for SQL Server to be ready
+        uses: ./.github/actions/wait-for-sqlserver
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
+      - name: Ensure SQL persistence test catalog
+        run: bash scripts/ci/ensure-ci-sql-catalog.sh ArchLucidPersistenceTests
       - name: Compile API and test host
         run: dotnet build ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release
       - name: Run FND-011 controller and projection tests
         run: dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release --no-build --filter "FullyQualifiedName~SecureNowSnapshotProjectionTests|FullyQualifiedName~SecureNowSnapshotHttpBoundaryTests|FullyQualifiedName~SecureNowSnapshotExchangeContractTests|FullyQualifiedName~SecureNowSnapshotSeededTenantIsolationTests"
       - name: Run persisted tenant HTTP test
+        env:
+          ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
         run: dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release --no-build --filter "FullyQualifiedName~SecureNowPersistedTenantHttpTests"
       - name: Require owner 200 and foreign tenant 404 with exchange enabled
+        env:
+          ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
         run: dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release --no-build --filter "FullyQualifiedName~SecureNowEnabledPersistedHttpTests"
       - name: Verify official OpenAPI v1 snapshot
         run: bash scripts/ci/check_openapi_contract_snapshot.sh
