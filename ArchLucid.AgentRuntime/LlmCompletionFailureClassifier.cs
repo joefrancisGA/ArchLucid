@@ -1,6 +1,3 @@
-using System.ClientModel;
-using System.Text.Json;
-
 using ArchLucid.Core.Resilience;
 
 namespace ArchLucid.AgentRuntime;
@@ -30,52 +27,13 @@ public static class LlmCompletionFailureClassifier
     {
         ArgumentNullException.ThrowIfNull(ex);
 
-        if (ex is OperationCanceledException cancellation &&
-            (cancellation.CancellationToken.IsCancellationRequested || ex is not TaskCanceledException))
-        {
+        // Core owns provider fault policy so Retrieval and AgentRuntime cannot drift.
+        if (ProviderHttpFailurePolicy.IsCallerCancellation(ex))
             return LlmCompletionFailureKind.Cancel;
-        }
 
-        if (ex is CircuitBreakerOpenException)
-        {
-            return LlmCompletionFailureKind.SemanticTerminal;
-        }
-
-        if (ex is InvalidOperationException or JsonException or ArgumentException)
-        {
-            return LlmCompletionFailureKind.SemanticTerminal;
-        }
-
-        if (ex is HttpRequestException httpRequestException)
-        {
-            if (httpRequestException.StatusCode is not { } statusCode)
-            {
-                return LlmCompletionFailureKind.TransportRetryable;
-            }
-
-            return ProviderHttpFailurePolicy.IsRetryableStatus((int)statusCode)
-                ? LlmCompletionFailureKind.TransportRetryable
-                : LlmCompletionFailureKind.SemanticTerminal;
-        }
-
-        if (ex is ClientResultException clientResultException)
-        {
-            return ProviderHttpFailurePolicy.IsRetryableStatus(clientResultException.Status)
-                ? LlmCompletionFailureKind.TransportRetryable
-                : LlmCompletionFailureKind.SemanticTerminal;
-        }
-
-        if (ex is TaskCanceledException { CancellationToken.IsCancellationRequested: false })
-        {
-            return LlmCompletionFailureKind.TransportRetryable;
-        }
-
-        if (ex is IOException)
-        {
-            return LlmCompletionFailureKind.TransportRetryable;
-        }
-
-        return LlmCompletionFailureKind.TransportRetryable;
+        return ProviderHttpFailurePolicy.ShouldRecordProviderFailure(ex)
+            ? LlmCompletionFailureKind.TransportRetryable
+            : LlmCompletionFailureKind.SemanticTerminal;
     }
 
     /// <summary>Whether Polly should retry the call.</summary>

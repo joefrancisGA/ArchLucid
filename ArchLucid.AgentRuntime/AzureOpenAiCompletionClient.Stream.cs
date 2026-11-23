@@ -65,6 +65,7 @@ public sealed partial class AzureOpenAiCompletionClient
                 yield return chunk;
             }
 
+            cancellationToken.ThrowIfCancellationRequested();
             ArchLucidInstrumentation.RecordLlmCompletionCallForCurrentRunBatch();
             llmActivity?.SetStatus(ActivityStatusCode.Ok);
             completionSucceededForTelemetry = true;
@@ -109,6 +110,7 @@ public sealed partial class AzureOpenAiCompletionClient
                            options,
                            cancellationToken).ConfigureAwait(false))
         {
+            cancellationToken.ThrowIfCancellationRequested();
             IReadOnlyList<ChatMessageContentPart> parts = update.ContentUpdate;
 
             if (parts is null || parts.Count < 1)
@@ -119,6 +121,7 @@ public sealed partial class AzureOpenAiCompletionClient
                 if (part.Kind != ChatMessageContentPartKind.Text || string.IsNullOrEmpty(part.Text))
                     continue;
 
+                cancellationToken.ThrowIfCancellationRequested();
                 fullText.Append(part.Text);
                 yield return part.Text;
             }
@@ -150,6 +153,7 @@ public sealed partial class AzureOpenAiCompletionClient
                 LastModelMetadata.Value = (_deploymentName, update.Model.Trim());
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
         AzureOpenAiCompletionTruncationDiagnostics.ReportIfOutputTruncated(
             finishReason,
             resolvedMaxOutputTokens,
@@ -183,18 +187,22 @@ public sealed partial class AzureOpenAiCompletionClient
 
         for (int requestAttempt = 0; requestAttempt < 4; requestAttempt++)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             AzureOpenAiMaxOutputTokenParameterPolicy.Apply(options, useMaxCompletionTokensProperty);
 
             for (int tooManyRequestsAttempt = 0; ; tooManyRequestsAttempt++)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 IAsyncEnumerable<StreamingChatCompletionUpdate> stream;
 
                 try
                 {
                     stream = _chatClient.CompleteChatStreamingAsync(messages, options, cancellationToken);
+                    cancellationToken.ThrowIfCancellationRequested();
                 }
                 catch (ClientResultException ex) when (ex.Status == 429)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     await HandleTooManyRequestsAsync(ex, tooManyRequestsAttempt, cancellationToken)
                         .ConfigureAwait(false);
 
@@ -202,6 +210,7 @@ public sealed partial class AzureOpenAiCompletionClient
                 }
                 catch (ClientResultException ex) when (ex.Status == 400)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     if (!temperatureOmitted && AzureOpenAiTemperatureParameterPolicy.TryOmitTemperature(ex))
                     {
                         AzureOpenAiTemperatureParameterPolicy.Omit(options);
@@ -226,8 +235,13 @@ public sealed partial class AzureOpenAiCompletionClient
                 }
 
                 await foreach (StreamingChatCompletionUpdate update in stream.ConfigureAwait(false))
+                {
+                    // A non-cooperative streaming SDK must not continue output after cancellation.
+                    cancellationToken.ThrowIfCancellationRequested();
                     yield return update;
+                }
 
+                cancellationToken.ThrowIfCancellationRequested();
                 yield break;
             }
         }

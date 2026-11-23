@@ -43,15 +43,21 @@ public sealed class ContentSafetyEnforcingAgentCompletionClient(
         float? temperature = null,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         ContentSafetyOptions opts = _optionsMonitor.CurrentValue;
 
         if (!opts.EvaluateCompletionPromptAndResponse)
-
-            return await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken)
+        {
+            string uncheckedCompletion = await _inner.CompleteJsonAsync(
+                    systemPrompt, userPrompt, maxTokens, temperature, cancellationToken)
                 .ConfigureAwait(false);
+            cancellationToken.ThrowIfCancellationRequested();
+            return uncheckedCompletion;
+        }
 
         ContentSafetyResult systemSafety =
             await _guard.CheckInputAsync(systemPrompt, cancellationToken).ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (!systemSafety.IsAllowed)
 
@@ -59,6 +65,7 @@ public sealed class ContentSafetyEnforcingAgentCompletionClient(
 
         ContentSafetyResult userSafety =
             await _guard.CheckInputAsync(userPrompt, cancellationToken).ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (!userSafety.IsAllowed)
 
@@ -67,9 +74,13 @@ public sealed class ContentSafetyEnforcingAgentCompletionClient(
         string completionJson =
             await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, cancellationToken)
                 .ConfigureAwait(false);
+        // A non-cooperative completion may return after cancellation. Never begin a
+        // second provider call for output safety or return that late completion.
+        cancellationToken.ThrowIfCancellationRequested();
 
         ContentSafetyResult outputSafety =
             await _guard.CheckOutputAsync(completionJson, cancellationToken).ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (!outputSafety.IsAllowed)
 
@@ -86,6 +97,7 @@ public sealed class ContentSafetyEnforcingAgentCompletionClient(
         float? temperature = null,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         ContentSafetyOptions opts = _optionsMonitor.CurrentValue;
 
         if (!opts.EvaluateCompletionPromptAndResponse)
@@ -106,6 +118,7 @@ public sealed class ContentSafetyEnforcingAgentCompletionClient(
 
         ContentSafetyResult systemSafety =
             await _guard.CheckInputAsync(systemPrompt, cancellationToken).ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (!systemSafety.IsAllowed)
 
@@ -113,6 +126,7 @@ public sealed class ContentSafetyEnforcingAgentCompletionClient(
 
         ContentSafetyResult userSafety =
             await _guard.CheckInputAsync(userPrompt, cancellationToken).ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (!userSafety.IsAllowed)
 
@@ -133,15 +147,22 @@ public sealed class ContentSafetyEnforcingAgentCompletionClient(
             bufferedChunks.Add(chunk);
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
         ContentSafetyResult outputSafety =
             await _guard.CheckOutputAsync(completionJson.ToString(), cancellationToken).ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (!outputSafety.IsAllowed)
 
             ThrowBlocked(outputSafety, "completion_json");
 
+        // The output scan may complete after a consumer abandons the stream.
+        // Never emit buffered content after cancellation, even if the guard ignored its token.
         foreach (string chunk in bufferedChunks)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
             yield return chunk;
+        }
     }
 
     private void ThrowBlocked(ContentSafetyResult result, string stageKey)

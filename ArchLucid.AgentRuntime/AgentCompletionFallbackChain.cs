@@ -38,6 +38,8 @@ internal sealed class AgentCompletionFallbackChain
 
         for (int i = 0; i < _fallbacks.Count; i++)
         {
+            // An exhausted request deadline forbids sending another provider request.
+            cancellationToken.ThrowIfCancellationRequested();
             IAgentCompletionClient client = _fallbacks[i];
 
             try
@@ -48,6 +50,7 @@ internal sealed class AgentCompletionFallbackChain
                     maxTokens,
                     temperature,
                     cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
                 RecordFallbackEngaged(i, streaming: false);
 
                 return result;
@@ -58,6 +61,7 @@ internal sealed class AgentCompletionFallbackChain
             }
             catch (Exception ex) when (i < _fallbacks.Count - 1 && AgentCompletionFallbackEligibility.IsFallbackEligible(ex))
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 last = ex;
 
                 if (_logger.IsEnabled(LogLevel.Warning))
@@ -70,6 +74,7 @@ internal sealed class AgentCompletionFallbackChain
             }
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
         throw last ?? primaryFailure;
     }
 
@@ -85,6 +90,7 @@ internal sealed class AgentCompletionFallbackChain
 
         for (int i = 0; i < _fallbacks.Count; i++)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             IAgentCompletionClient client = _fallbacks[i];
 
             Exception? iterationFailure = null;
@@ -96,11 +102,13 @@ internal sealed class AgentCompletionFallbackChain
 
             while (true)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 bool moved;
 
                 try
                 {
                     moved = await fallbackEnumerator.MoveNextAsync().ConfigureAwait(false);
+                    cancellationToken.ThrowIfCancellationRequested();
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
@@ -108,6 +116,7 @@ internal sealed class AgentCompletionFallbackChain
                 }
                 catch (Exception ex) when (i < _fallbacks.Count - 1 && AgentCompletionFallbackEligibility.IsFallbackEligible(ex))
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     iterationFailure = ex;
 
                     if (_logger.IsEnabled(LogLevel.Warning))
@@ -132,6 +141,7 @@ internal sealed class AgentCompletionFallbackChain
 
             if (completed)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 RecordFallbackEngaged(i, streaming: true);
                 yield break;
             }
@@ -139,6 +149,7 @@ internal sealed class AgentCompletionFallbackChain
             last = iterationFailure ?? last;
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
         throw last ?? primaryFailure;
     }
 
