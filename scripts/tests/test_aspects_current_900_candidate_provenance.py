@@ -40,7 +40,9 @@ class CandidateProvenanceTests(unittest.TestCase):
         events = [
             {"excel_row": 7, "reviewed_master_sha": self.head,
              "review_id": "clean", "reviewed_loc_reported": 2,
-             "defects_recorded": 0},
+             "defects_recorded": 0,
+             "parsed_pin": {"path": "src/a.cs", "blob": self.blob,
+                            "spans": [[1, 2]]}},
             {"excel_row": 8, "reviewed_master_sha": self.head,
              "review_id": "fix", "reviewed_loc_reported": 2,
              "defects_recorded": 1,
@@ -191,6 +193,46 @@ class CandidateProvenanceTests(unittest.TestCase):
             "Reviewed spans (inclusive): src/a.cs 1-2")
         with self.assertRaisesRegex(ValueError, "source paths/intervals differ"):
             self.run_audit(args)
+
+    def test_candidate_record_missing_even_with_resigned_digest_fails(self):
+        args = self.data()
+        args[3].clear()
+        args[4]["unparsed_historical_rows_examined"] = 0
+        args[4]["candidate_rows_sha256"] = audited_rows_sha256(args[3])
+        with self.assertRaisesRegex(ValueError, "original-unparsed Excel row coverage"):
+            self.run_audit(args)
+
+    def test_candidate_extra_for_already_original_pinned_row_fails(self):
+        args = self.data()
+        extra = deepcopy(args[3][0])
+        extra.update({
+            "excel_row": 7,
+            "review_id": "clean",
+            "reviewed_loc_workbook_reported": 2,
+        })
+        args[3].append(extra)
+        args[4]["unparsed_historical_rows_examined"] = 2
+        args[4]["candidate_rows_sha256"] = audited_rows_sha256(args[3])
+        with self.assertRaisesRegex(ValueError, "original-unparsed Excel row coverage"):
+            self.run_audit(args)
+
+    def test_original_pinned_candidate_collision_refused_even_with_matching_audit_digest(self):
+        args = self.data()
+        args[1][1]["pin_status"] = VERIFIED
+        args[2]["audited_rows_sha256"] = audited_rows_sha256(args[1])
+        with self.assertRaisesRegex(ValueError, "collides with independently original-pinned"):
+            self.run_audit(args)
+
+    def test_verified_original_multisource_deferred_row_remains_quarantined(self):
+        args = self.data()
+        args[1][1]["pin_status"] = VERIFIED
+        args[2]["audited_rows_sha256"] = audited_rows_sha256(args[1])
+        args[3][0]["status"] = "original_multi_blob_pins_deferred_to_main_audit"
+        args[4]["candidate_rows_sha256"] = audited_rows_sha256(args[3])
+        result = self.run_audit(args)
+        self.assertEqual(result["candidate_rows_unresolved_in_current_cohort"], 1)
+        self.assertEqual(result["candidate_source_rows_reverified_git_in_current_cohort"], 0)
+        self.assertEqual(result["newly_independently_verified_reviewed_loc"], 0)
 
     def test_current_cohort_digest_tamper_fails(self):
         args = self.data()
