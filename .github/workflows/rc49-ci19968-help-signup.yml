@@ -1,0 +1,31 @@
+# Focused RC49 CI #19968 regressions. No comprehensive build or master dispatch.
+name: RC49 CI 19968 Help and Signup smoke
+on:
+  pull_request:
+    branches: [RC49]
+    paths:
+      - "archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx"
+      - "archlucid-ui/src/components/marketing/SignupForm.test.tsx"
+      - "archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.test.tsx"
+      - ".github/workflows/rc49-ci19968-help-signup.yml"
+permissions:
+  contents: read
+jobs:
+  focused-help-signup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+      - name: Verify Help docs dedupe and Unicode signup attribution
+        working-directory: archlucid-ui
+        env:
+          CI: "true"
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: |
+          npm ci
+          npm run test:vitest-single-worker -- 'src/app/(operator)/help/HelpDocsClient.test.tsx' 'src/components/marketing/SignupForm.test.tsx' 'src/lib/marketing-first-touch.test.ts' 'src/components/infra-evidence/SecureNowQuestionQueue.test.tsx'
