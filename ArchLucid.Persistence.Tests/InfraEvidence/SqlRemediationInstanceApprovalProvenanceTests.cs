@@ -143,6 +143,72 @@ public sealed class SqlRemediationInstanceApprovalProvenanceTests(SqlServerPersi
         (await repository.ListEvidenceByInstanceInScopeAsync(scope, secondId))
             .Should().BeEmpty();
 
+        // Every protected update must reject a missing or stale token.
+        // The previous SQL condition treated NULL as a wildcard.
+        RemediationInstanceMutation scopedChange = new()
+        {
+            InstanceId = secondId,
+            Status = RemediationInstanceStatus.PreflightBlocked,
+            UpdatedUtc = now,
+        };
+        Func<Task> missingUpdate = () => repository.UpdateInstanceInScopeAsync(scope, scopedChange);
+        await missingUpdate.Should().ThrowAsync<InvalidOperationException>();
+        Func<Task> staleUpdate = () => repository.UpdateInstanceInScopeAsync(
+            scope, scopedChange with { ExpectedRowVersion = new byte[8] });
+        await staleUpdate.Should().ThrowAsync<InvalidOperationException>();
+        Func<Task> foreignUpdate = () => repository.UpdateInstanceInScopeAsync(
+            foreign, scopedChange with { ExpectedRowVersion = secondAfter.RowVersion });
+        await foreignUpdate.Should().ThrowAsync<InvalidOperationException>();
+
+        RemediationInstanceMutation verification = new()
+        {
+            InstanceId = secondId,
+            Status = RemediationInstanceStatus.VerificationFailed,
+            VerificationSnapshotId = Guid.NewGuid(),
+            VerificationResultJson = "{\\"passed\\":false}",
+            VerifiedUtc = now,
+            UpdatedUtc = now,
+        };
+        RemediationEvidenceRecord verificationProof = new()
+        {
+            EvidenceId = Guid.NewGuid(),
+            InstanceId = secondId,
+            TenantId = scope.TenantId,
+            Phase = RemediationEvidencePhase.Verify,
+            PayloadJson = "{\\"passed\\":false}",
+            ActorKey = "verifier",
+            CorrelationId = "sql-rowversion-check",
+            CreatedUtc = now,
+        };
+        Func<Task> missingVerification = () => repository.CommitVerificationInScopeAsync(
+            scope, verification, verificationProof);
+        await missingVerification.Should().ThrowAsync<InvalidOperationException>();
+        Func<Task> staleVerification = () => repository.CommitVerificationInScopeAsync(
+            scope, verification with { ExpectedRowVersion = new byte[8] },
+            verificationProof);
+        await staleVerification.Should().ThrowAsync<InvalidOperationException>();
+        Func<Task> foreignVerification = () => repository.CommitVerificationInScopeAsync(
+            foreign, verification with { ExpectedRowVersion = secondAfter.RowVersion },
+            verificationProof);
+        await foreignVerification.Should().ThrowAsync<InvalidOperationException>();
+
+        (await repository.TryGetByIdInScopeAsync(scope, secondId))!.Status.Should()
+            .Be(RemediationInstanceStatus.PreflightPassed);
+        (await repository.ListEvidenceByInstanceInScopeAsync(scope, secondId))
+            .Should().BeEmpty("failed verification must never insert evidence");
+
+        // A legitimate current-row CAS still works, and its old token
+        // becomes stale after the database-generated rowversion advances.
+        await repository.UpdateInstanceInScopeAsync(
+            scope, scopedChange with { ExpectedRowVersion = secondAfter.RowVersion });
+        RemediationInstanceRecord changed = (await repository
+            .TryGetByIdInScopeAsync(scope, secondId))!;
+        changed.Status.Should().Be(RemediationInstanceStatus.PreflightBlocked);
+        changed.RowVersion.Should().NotEqual(secondAfter.RowVersion);
+        Func<Task> repeatedWithStaleToken = () => repository.UpdateInstanceInScopeAsync(
+            scope, scopedChange with { ExpectedRowVersion = secondAfter.RowVersion });
+        await repeatedWithStaleToken.Should().ThrowAsync<InvalidOperationException>();
+
         async Task InsertPreflightPassedAsync(Guid id)
         {
             await repository.InsertInstanceInScopeAsync(scope, new RemediationInstanceRecord
