@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "excel_row": 12,
+  "review_id": "#6624",
+  "reviewed_master_sha": "a50d94ad912a10009f47b1d2699f9a6ee998eaf5",
+  "source_workbook_name": "ArchLucid_Defect_Density_Trend_repaired.xlsx",
+  "source_workbook_sha256": "9fab94e0cd7d642f84d37ae9b8988e72b34367a479ebdba65fb893349ade0787",
+  "original_workbook_text": "Reviewed the complete baseline SQL connection factories in ArchLucid.Persistence/Connections: SqlConnectionFactory.cs (27), ScopedRoutingSqlConnectionFactory.cs (69), DedicatedSystemSqlConnectionFactory.cs (44), ReadReplicaRoutedConnectionFactory.cs (63), and ReadOnlyDbConnectionFactory.cs (79).",
+  "workbook_reported_nonblank_loc": 282,
+  "workbook_reported_new_unique_loc_unchanged_unverified": 219,
+  "source_kind": "explicit directory and whole-file nonblank counts; Git blob derived at original reported commit, NOT an original workbook blob pin",
+  "sources": [
+    {
+      "path": "ArchLucid.Persistence/Connections/SqlConnectionFactory.cs",
+      "blob_derived_at_reviewed_commit": "66215ee3615e943522b8a2e74441506c52ed3a3f",
+      "reported_full_file_nonblank_loc": 27
+    },
+    {
+      "path": "ArchLucid.Persistence/Connections/ScopedRoutingSqlConnectionFactory.cs",
+      "blob_derived_at_reviewed_commit": "449ba2547d357f9f617a7f6ad887e75cdd6c64a5",
+      "reported_full_file_nonblank_loc": 69
+    },
+    {
+      "path": "ArchLucid.Persistence/Connections/DedicatedSystemSqlConnectionFactory.cs",
+      "blob_derived_at_reviewed_commit": "059caa5779af59ee3d5469e2e3c8e3529c445338",
+      "reported_full_file_nonblank_loc": 44
+    },
+    {
+      "path": "ArchLucid.Persistence/Connections/ReadReplicaRoutedConnectionFactory.cs",
+      "blob_derived_at_reviewed_commit": "27ac45df1059d8739d17b558e94c6feb1f87fcd4",
+      "reported_full_file_nonblank_loc": 63
+    },
+    {
+      "path": "ArchLucid.Persistence/Connections/ReadOnlyDbConnectionFactory.cs",
+      "blob_derived_at_reviewed_commit": "9cf5abf404047e947af53a9a760cd1794fb75436",
+      "reported_full_file_nonblank_loc": 79
+    }
+  ],
+  "candidate_nonblank_loc_expected": 282,
+  "historical_review_candidate_status": "git_source_at_review_commit_candidate_only",
+  "reviewed_source_original_blob_pinned": false,
+  "new_independently_verified_reviewed_loc": 0,
+  "no_new_comparable_rate": true,
+  "interpretation": "The original workbook explicitly names every file under the declared repository folder and reports whole-file nonblank line counts. All five Git blobs and the 282 nonblank lines were checked at the original SHA. These derived source identities are candidate-only, not a second independently verified original review or a newly deduplicated 900-commit denominator. Workbook-reported 219 'new unique' lines are not independently cross-revision verified.",
+  "prior_completed_aspects_evidence": {
+    "successful_run_id": 45160219395,
+    "artifact_id": 14812729056,
+    "population": "historical pinned source rows and derived candidate rows before row12 source recovery",
+    "original_verified_pinned_path_blob_keys": 2906,
+    "other_derived_candidate_path_blob_keys": 2690,
+    "matching_row12_path_blob_keys_with_old_pins": 0,
+    "matching_row12_path_blob_keys_with_other_derived_candidates": 0,
+    "first_parent_anchor": "15ac3b9abeff23e4fa8cb7a16027bf9b17211251"
+  },
+  "exact_path_blob_overlap_golden": {
+    "candidate_exact_new_path_blob_lines_vs_old_pins_and_candidates": 282,
+    "candidate_exact_repeated_path_blob_lines": 0,
+    "denominator_increment": 0,
+    "confidence": "exact path/blob mismatch against prior proven source corpus; NOT unique source lines across different revisions"
+  },
+  "original_workbook_new_unique_not_promoted": 219
+}

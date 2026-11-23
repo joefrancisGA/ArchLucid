@@ -10,6 +10,12 @@
 **Outcome.** Evidence graph edge-focus empty mounts partial-capture recovery when inventory capture is thin. Type-filter empties combined with a narrowed graph scope, a path-only slice, or a pinned edge name a filter miss versus a failed graph read, and those bands stay exclusive of the type-only line.
 
 **Surfaces.** Evidence graph loaded experience, honesty and mounted contract tests.
+
+## 2026-11-23 - Score lift round 122 (batch 87): Explorer work-queue quadruple, graph partial capture
+
+**Outcome.** Infrastructure explorer names work queue with resource type, name prefix, and resource group together versus a failed catalog read, exclusive of the type-prefix-group band when the work queue is All. Evidence graph node-focus and path-only empty bands mount partial-capture recovery when inventory capture is thin.
+
+**Surfaces.** Resources explorer, evidence graph loaded experience, honesty and mounted contract tests.
 ## 2026-11-23 - Score lift round 121 (batch 86): Explorer work-queue triples, attack-path diagram filter
 
 **Outcome.** Infrastructure explorer names work-queue empties combined with resource type and name prefix, type and resource group, or name prefix and resource group versus a failed catalog read. Triple bands stay exclusive of work-queue pair and category-plus-prefix bands. Attack-path diagram filter empty names a successful report read with no diagram nodes versus a failed attack-path read.

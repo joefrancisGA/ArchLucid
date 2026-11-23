@@ -241,6 +241,60 @@ jobs:
           print("Excel row22: six explicitly scoped paths, 195 Git-attested candidate-only LOC; no original-pin promotion")
           PY
           python - <<'PY'
+          import json
+          from pathlib import Path
+          golden = json.loads(Path(
+              "docs/engineering/aspects-historical/audit-checkpoints/"
+              "2026-11-23-row12-complete-connection-factories.json"
+          ).read_text())
+          rows = [json.loads(line) for line in Path(
+              "artifacts/aspects/historical-unpinned-source-candidates.jsonl"
+          ).read_text().splitlines()]
+          matching = [row for row in rows if row["excel_row"] == golden["excel_row"]]
+          assert len(matching) == 1, "Missing/duplicate original Excel row12"
+          row = matching[0]
+          assert row["status"] == golden["historical_review_candidate_status"]
+          assert row["review_id"] == golden["review_id"] == "#6624"
+          assert row["reviewed_master_sha"] == golden["reviewed_master_sha"]
+          assert row["original_blob_pinned"] is False
+          assert row["candidate_nonblank_loc"] == row["reviewed_loc_workbook_reported"] == golden["candidate_nonblank_loc_expected"] == 282
+          assert row["candidate_new_exact_path_blob_loc"] == golden["exact_path_blob_overlap_golden"]["candidate_exact_new_path_blob_lines_vs_old_pins_and_candidates"] == 282
+          assert row["candidate_repeated_exact_path_blob_loc"] == golden["exact_path_blob_overlap_golden"]["candidate_exact_repeated_path_blob_lines"] == 0
+          assert len(row["sources"]) == len(golden["sources"]) == 5
+          for actual, expected in zip(row["sources"], golden["sources"]):
+              for field in ("path", "blob_derived_at_reviewed_commit", "reported_full_file_nonblank_loc"):
+                  assert actual[field] == expected[field], f"Excel row12 Git source evidence drift: {field}"
+              assert actual["nonblank_loc"] == expected["reported_full_file_nonblank_loc"]
+              assert actual["reported_inclusive_intervals"] == [], "Whole-file workbook review must not invent numerical intervals"
+              assert actual["original_blob_pinned"] is False
+          # An independently source-audited old PR run (45160219395)
+          # had no equal path/blob identity among original pins or other
+          # Git-derived candidates. Verify this again against *current* row
+          # populations, not merely the saved numerical golden.
+          source_keys = {(x["path"], x["blob_derived_at_reviewed_commit"])
+                         for x in row["sources"]}
+          other_candidates = [r for r in rows if r["excel_row"] != row["excel_row"]]
+          old_candidate_keys = {
+              (x["path"], x["blob_derived_at_reviewed_commit"])
+              for r in other_candidates for x in r.get("sources", [])
+          }
+          pins = [json.loads(line) for line in Path(
+              "artifacts/aspects/historical-git-pin-rows.jsonl"
+          ).read_text().splitlines()]
+          pinned_keys = {
+              (x["path"], x["blob"])
+              for r in pins if r.get("pin_status") == "git_blob_and_nonblank_intervals_verified"
+              for x in (r.get("pinned_sources") or [r])
+          }
+          assert len(source_keys) == 5
+          assert len(source_keys & old_candidate_keys) == golden["prior_completed_aspects_evidence"]["matching_row12_path_blob_keys_with_other_derived_candidates"] == 0
+          assert len(source_keys & pinned_keys) == golden["prior_completed_aspects_evidence"]["matching_row12_path_blob_keys_with_old_pins"] == 0
+          assert golden["exact_path_blob_overlap_golden"]["denominator_increment"] == 0
+          assert golden["new_independently_verified_reviewed_loc"] == 0
+          assert golden["no_new_comparable_rate"] is True
+          print("Excel row12: 282 Git-derived exact candidate identities, 0 repeats in original-pin/prior-candidate path/blob population; NOT new independently reviewed LOC")
+          PY
+          python - <<'PY'
           import json, os
           from pathlib import Path
           data = json.loads(Path("artifacts/aspects/historical-unpinned-source-candidates.json").read_text())
@@ -292,6 +346,28 @@ jobs:
           import json, os
           from pathlib import Path
           data=json.loads(Path('artifacts/aspects/historical-candidate-cross-revision-lineage.json').read_text())
+          golden=json.loads(Path('docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-row12-complete-connection-factories.json').read_text())
+          review=[r for r in data["candidate_review_source_lineage_by_excel_row"]
+                  if r["excel_row"] == golden["excel_row"]]
+          assert len(review) == 1, "Missing/duplicate row12 per-review lineage evidence"
+          review=review[0]
+          assert review["review_id"] == golden["review_id"] == "#6624"
+          assert review["reviewed_master_sha"] == golden["reviewed_master_sha"]
+          assert review["candidate_source_line_occurrences"] == golden["candidate_nonblank_loc_expected"] == 282
+          assert review["exact_repeat_with_original_pin_same_path_blob_line"] == 0
+          assert 0 <= review["different_blob_full_first_parent_proven_repeat_with_original_pin"] <= 282
+          assert (review["different_blob_full_first_parent_proven_repeat_with_original_pin"]
+                  + review["without_proven_original_pin_identity"] == 282)
+          assert review["newly_independently_verified_reviewed_loc"] == 0
+          assert data["new_comparable_900_density"] is None
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
+              out.write(
+                  f"Excel row12 original #6624 282 Git-derived candidate lines: "
+                  f"**{review['different_blob_full_first_parent_proven_repeat_with_original_pin']:,}** "
+                  f"verified unchanged across first-parent revisions to an original pin, "
+                  f"**{review['without_proven_original_pin_identity']:,}** without such proof. "
+                  "This is candidate-only source ancestry, not fresh reviewed LOC or a density denominator.\\n\\n"
+              )
           with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
               out.write(
                   f"Derived candidate-only exact identities: **{data['candidate_exact_only_line_identities']:,}**; "

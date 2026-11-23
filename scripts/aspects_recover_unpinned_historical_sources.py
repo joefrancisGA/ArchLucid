@@ -47,6 +47,18 @@ PREFIXED_ITEM = re.compile(
     rf"^- (?P<rel>[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)+) lines "
     rf"(?P<ranges>{SPAN_TOKEN}(?:{RANGE_SEPARATOR}{SPAN_TOKEN})*)$"
 )
+# Explicit workbook Excel row 12 describes *complete* factory files and
+# reports NONBLANK line counts rather than source line ranges. This narrow
+# grammar preserves that original meaning, never manufactures inclusive spans,
+# and requires every Git blob's actual nonblank count to agree.
+FACTORY_FULL_FILES = re.compile(
+    r"^Reviewed the complete baseline SQL connection factories in "
+    r"(?P<directory>ArchLucid[.]Persistence/Connections): (?P<files>.+)[.]$"
+)
+FACTORY_ITEM = re.compile(
+    r"^(?P<filename>[A-Za-z0-9_.-]+[.]cs) [(](?P<nonblank>[1-9][0-9]*)[)]$"
+)
+
 
 
 def parse_explicit_unpinned(raw: object) -> list[dict] | None:
@@ -54,6 +66,30 @@ def parse_explicit_unpinned(raw: object) -> list[dict] | None:
     if not isinstance(raw, str) or "[blob " in raw:
         return None
     raw = raw.strip()
+    # Only the workbook's explicitly scoped, fully enumerated whole-factory
+    # review can use this branch. Basename-only reviews with no declared
+    # directory (or narrative suffixes) remain unparseable and quarantined.
+    factory = FACTORY_FULL_FILES.fullmatch(raw)
+    if factory is not None:
+        parts = factory.group("files").split(", ")
+        if (len(parts) < 2 or not parts[-1].startswith("and ")
+                or any(part.startswith("and ") for part in parts[:-1])):
+            return None
+        parts[-1] = parts[-1][4:]
+        result = []
+        seen = set()
+        for item in parts:
+            full = FACTORY_ITEM.fullmatch(item)
+            if full is None or full.group("filename") in seen:
+                return None
+            filename = full.group("filename")
+            seen.add(filename)
+            result.append({
+                "path": factory.group("directory") + "/" + filename,
+                "reported_inclusive_intervals": [],
+                "reported_full_file_nonblank_loc": int(full.group("nonblank")),
+            })
+        return result
     if raw.startswith("Reviewed spans under "):
         pieces = raw.splitlines()
         header = PREFIXED_HEADER.fullmatch(pieces[0])
@@ -205,15 +241,28 @@ def recover(repo: Path, rows: list[dict], checkpoint: dict) -> tuple[dict, list[
                 failure = "unreadable_source_blob"
                 break
             selected = set()
-            for start, end in source["reported_inclusive_intervals"]:
-                if end > len(lines):
-                    failure = "source_interval_out_of_bounds"
+            full_file_count = source.get("reported_full_file_nonblank_loc")
+            if full_file_count is not None:
+                if (type(full_file_count) is not int or full_file_count < 1
+                        or source["reported_inclusive_intervals"]):
+                    failure = "malformed_full_file_source_reference"
                     break
-                selected.update(i for i in range(start, end + 1) if lines[i - 1].strip())
+                selected = {i for i, line in enumerate(lines, start=1) if line.strip()}
+                if len(selected) != full_file_count:
+                    failure = "full_file_nonblank_loc_mismatch"
+                    break
+            else:
+                for start, end in source["reported_inclusive_intervals"]:
+                    if end > len(lines):
+                        failure = "source_interval_out_of_bounds"
+                        break
+                    selected.update(i for i in range(start, end + 1) if lines[i - 1].strip())
             if failure:
                 break
-            validated.append((path, blob, source["reported_inclusive_intervals"], selected))
-        actual_loc = sum(len(selected) for _, _, _, selected in validated)
+            validated.append((
+                path, blob, source["reported_inclusive_intervals"], selected, full_file_count
+            ))
+        actual_loc = sum(len(selected) for _, _, _, selected, _ in validated)
         reported_loc = row.get("reviewed_loc_reported")
         if failure is None and (type(reported_loc) is not int or
                                 actual_loc != reported_loc):
@@ -229,18 +278,21 @@ def recover(repo: Path, rows: list[dict], checkpoint: dict) -> tuple[dict, list[
             audit.append(record)
             continue
         new = repeat = 0
-        for path, blob, original_intervals, selected in validated:
+        for path, blob, original_intervals, selected, full_file_count in validated:
             key = (path, blob)
             new += len(selected - prior[key])
             repeat += len(selected & prior[key])
             prior[key].update(selected)
-            record["sources"].append({
+            verified_source = {
                 "path": path, "blob_derived_at_reviewed_commit": blob,
                 "reported_inclusive_intervals": original_intervals,
                 "nonblank_intervals_at_reviewed_commit": contiguous_intervals(selected),
                 "nonblank_loc": len(selected),
                 "original_blob_pinned": False,
-            })
+            }
+            if full_file_count is not None:
+                verified_source["reported_full_file_nonblank_loc"] = full_file_count
+            record["sources"].append(verified_source)
         record.update({
             "status": "git_source_at_review_commit_candidate_only",
             "candidate_nonblank_loc": actual_loc,
