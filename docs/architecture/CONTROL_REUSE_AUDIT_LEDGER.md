@@ -1,3 +1,5 @@
+> **Scope:** For architecture maintainers, record the verified adoption status of existing controls; this ledger is not proof that reference-only controls are enforced in production.
+
 # Architectural control reuse audit ledger
 
 **Initiated:** 2026-11-22. **Scope:** existing architecture controls, audited one at a time. Do not introduce new control families until this audit establishes usage and duplication evidence.

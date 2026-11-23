@@ -1,3 +1,5 @@
+> **Scope:** For Core and CI maintainers, document the focused FND017001 dependency-boundary enforcement and its validation; this does not certify other analyzer rules or runtime authorization.
+
 # FND-017 Core dependency boundary — first staged enforcement increment
 
 **Date:** 2026-11-23  
