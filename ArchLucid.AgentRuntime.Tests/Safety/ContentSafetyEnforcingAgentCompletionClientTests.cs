@@ -62,6 +62,129 @@ public sealed class ContentSafetyEnforcingAgentCompletionClientTests
     }
 
     [Fact]
+    public async Task StreamJsonAsync_canceled_during_output_safety_scan_does_not_replay_buffered_chunks()
+    {
+        using CancellationTokenSource caller = new();
+        ContentSafetyResult allowed = new(true, null, null, null);
+        Mock<IContentSafetyGuard> guard = new();
+        guard.Setup(g => g.CheckInputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(allowed);
+        guard.Setup(g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((string output, CancellationToken token) =>
+            {
+                // Simulate a safety provider which returns a successful decision after cancellation.
+                caller.Cancel();
+                return Task.FromResult(allowed);
+            });
+
+        FakeAgentCompletionClient inner = new((_, _) => new string('x', 120));
+        ContentSafetyEnforcingAgentCompletionClient sut = CreateSut(inner, guard.Object);
+
+        await using IAsyncEnumerator<string> enumerator = sut
+            .StreamJsonAsync("sys", "user", cancellationToken: caller.Token)
+            .GetAsyncEnumerator();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(
+            async () => { await enumerator.MoveNextAsync(); });
+    }
+
+    [Fact]
+    public async Task CompleteJsonAsync_when_input_safety_scan_cancels_does_not_start_other_providers()
+    {
+        using CancellationTokenSource caller = new();
+        ContentSafetyResult allowed = new(true, null, null, null);
+        Mock<IContentSafetyGuard> guard = new();
+        guard.Setup(g => g.CheckInputAsync("sys", It.IsAny<CancellationToken>()))
+            .Returns((string value, CancellationToken token) =>
+            {
+                caller.Cancel();
+                return Task.FromResult(allowed);
+            });
+        Mock<IAgentCompletionClient> inner = new();
+        ContentSafetyEnforcingAgentCompletionClient sut = CreateSut(inner.Object, guard.Object);
+
+        Func<Task> invoke = () => sut.CompleteJsonAsync("sys", "user", cancellationToken: caller.Token);
+
+        await invoke.Should().ThrowAsync<OperationCanceledException>();
+        guard.Verify(g => g.CheckInputAsync("user", It.IsAny<CancellationToken>()), Times.Never);
+        guard.Verify(g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        inner.Verify(g => g.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task CompleteJsonAsync_when_inner_completes_late_does_not_start_output_safety_scan()
+    {
+        using CancellationTokenSource caller = new();
+        ContentSafetyResult allowed = new(true, null, null, null);
+        Mock<IContentSafetyGuard> guard = new();
+        guard.Setup(g => g.CheckInputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(allowed);
+        FakeAgentCompletionClient inner = new((_, _) =>
+        {
+            caller.Cancel();
+            return "{\"late\":true}";
+        });
+        ContentSafetyEnforcingAgentCompletionClient sut = CreateSut(inner, guard.Object);
+
+        Func<Task> invoke = () => sut.CompleteJsonAsync("sys", "user", cancellationToken: caller.Token);
+
+        await invoke.Should().ThrowAsync<OperationCanceledException>();
+        guard.Verify(g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task CompleteJsonAsync_when_output_safety_scan_returns_after_cancellation_rejects_late_approval()
+    {
+        using CancellationTokenSource caller = new();
+        ContentSafetyResult allowed = new(true, null, null, null);
+        Mock<IContentSafetyGuard> guard = new();
+        guard.Setup(g => g.CheckInputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(allowed);
+        guard.Setup(g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((string value, CancellationToken token) =>
+            {
+                caller.Cancel();
+                return Task.FromResult(allowed);
+            });
+        FakeAgentCompletionClient inner = new((_, _) => "{\"allowed\":true}");
+        ContentSafetyEnforcingAgentCompletionClient sut = CreateSut(inner, guard.Object);
+
+        Func<Task> invoke = () => sut.CompleteJsonAsync("sys", "user", cancellationToken: caller.Token);
+
+        await invoke.Should().ThrowAsync<OperationCanceledException>();
+        guard.Verify(g => g.CheckOutputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task StreamJsonAsync_when_input_safety_scan_cancels_never_starts_completion()
+    {
+        using CancellationTokenSource caller = new();
+        ContentSafetyResult allowed = new(true, null, null, null);
+        Mock<IContentSafetyGuard> guard = new();
+        guard.Setup(g => g.CheckInputAsync("sys", It.IsAny<CancellationToken>()))
+            .Returns((string value, CancellationToken token) =>
+            {
+                caller.Cancel();
+                return Task.FromResult(allowed);
+            });
+        Mock<IAgentCompletionClient> inner = new();
+        ContentSafetyEnforcingAgentCompletionClient sut = CreateSut(inner.Object, guard.Object);
+
+        Func<Task> invoke = async () =>
+        {
+            await foreach (string _ in sut.StreamJsonAsync("sys", "user", cancellationToken: caller.Token))
+            {
+            }
+        };
+
+        await invoke.Should().ThrowAsync<OperationCanceledException>();
+        guard.Verify(g => g.CheckInputAsync("user", It.IsAny<CancellationToken>()), Times.Never);
+        inner.Verify(g => g.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task CompleteJsonAsync_when_system_prompt_blocked_does_not_invoke_inner()
     {
         Mock<IContentSafetyGuard> guard = new();

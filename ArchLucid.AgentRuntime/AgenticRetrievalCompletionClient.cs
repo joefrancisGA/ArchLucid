@@ -148,6 +148,11 @@ public sealed class AgenticRetrievalCompletionClient(
 
             string result = await completeAsync(completionClient, budgetSource.Token).ConfigureAwait(false);
 
+            // A provider may ignore a cancellation request and return a late result.
+            // The caller's cancellation and expansion deadline remain authoritative.
+            cancellationToken.ThrowIfCancellationRequested();
+            budgetSource.Token.ThrowIfCancellationRequested();
+
             if (string.IsNullOrWhiteSpace(result))
                 return null;
 
@@ -157,7 +162,7 @@ public sealed class AgenticRetrievalCompletionClient(
         {
             throw;
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (budgetSource.IsCancellationRequested)
         {
             _logger.LogWarning(
                 "Single-pass query expansion {Operation} exceeded {BudgetSeconds:N0}s; falling back to heuristics.",
@@ -166,10 +171,23 @@ public sealed class AgenticRetrievalCompletionClient(
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(
-                ex,
-                "Single-pass query expansion {Operation} failed; falling back to heuristics.",
-                operationLabel);
+            // Even a non-cancellation exception returned late must not hide caller cancellation.
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (budgetSource.IsCancellationRequested)
+            {
+                _logger.LogWarning(
+                    "Single-pass query expansion {Operation} exceeded {BudgetSeconds:N0}s; falling back to heuristics.",
+                    operationLabel,
+                    budget.TotalSeconds);
+            }
+            else
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Single-pass query expansion {Operation} failed; falling back to heuristics.",
+                    operationLabel);
+            }
         }
 
         return null;

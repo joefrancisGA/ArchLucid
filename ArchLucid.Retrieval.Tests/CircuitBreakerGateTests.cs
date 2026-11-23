@@ -102,6 +102,35 @@ public sealed class CircuitBreakerGateTests
     }
 
     [Fact]
+    public void Half_open_success_streak_reserves_each_subsequent_probe_slot()
+    {
+        MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+        CircuitBreakerGate gate = new("half-open-success-streak",
+            new CircuitBreakerOptions
+            {
+                FailureThreshold = 1,
+                DurationOfBreakSeconds = 30,
+                HalfOpenSuccessThreshold = 2
+            }, clock.ToFunc());
+
+        gate.RecordFailure();
+        clock.Advance(TimeSpan.FromSeconds(31));
+        gate.ThrowIfBroken();
+        gate.RecordSuccess();
+        gate.CurrentState.Should().Be("HalfOpen");
+
+        // One next probe may enter; a concurrent request must still be rejected.
+        gate.ThrowIfBroken();
+        Action concurrentRequest = () => gate.ThrowIfBroken();
+        concurrentRequest.Should().Throw<CircuitBreakerOpenException>();
+        gate.CurrentState.Should().Be("HalfOpen");
+
+        gate.RecordSuccess();
+        gate.CurrentState.Should().Be("Closed");
+        gate.ThrowIfBroken();
+    }
+
+    [Fact]
     public void Latency_brownout_recovers_after_break_without_manual_reset()
     {
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));

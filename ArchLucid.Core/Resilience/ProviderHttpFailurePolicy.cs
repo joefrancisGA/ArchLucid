@@ -8,12 +8,21 @@ public static class ProviderHttpFailurePolicy
     public static bool IsRetryableStatus(int statusCode) =>
         statusCode is 429 or 500 or 502 or 503 or 504;
 
-    public static bool ShouldRecordEmbeddingFailure(Exception exception)
+    /// <summary>Cancellation signaled by the caller or an explicit operation cancellation is not a provider fault.</summary>
+    public static bool IsCallerCancellation(Exception exception)
     {
         ArgumentNullException.ThrowIfNull(exception);
 
-        if (exception is OperationCanceledException cancellation &&
-            (cancellation.CancellationToken.IsCancellationRequested || exception is not TaskCanceledException))
+        return exception is OperationCanceledException cancellation &&
+               (cancellation.CancellationToken.IsCancellationRequested || exception is not TaskCanceledException);
+    }
+
+    /// <summary>Shared retryable provider-failure predicate for completion and embedding circuit breakers.</summary>
+    public static bool ShouldRecordProviderFailure(Exception exception)
+    {
+        ArgumentNullException.ThrowIfNull(exception);
+
+        if (IsCallerCancellation(exception))
             return false;
 
         if (exception is CircuitBreakerOpenException or InvalidOperationException or
@@ -28,4 +37,8 @@ public static class ProviderHttpFailurePolicy
 
         return true;
     }
+
+    /// <summary>Compatibility alias for embedding callers; use the shared provider predicate for new code.</summary>
+    public static bool ShouldRecordEmbeddingFailure(Exception exception) =>
+        ShouldRecordProviderFailure(exception);
 }
