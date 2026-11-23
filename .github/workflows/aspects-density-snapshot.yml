@@ -385,6 +385,7 @@ jobs:
           python -m unittest discover -s scripts/tests -p 'test_aspects_reconcile_followon_900.py' -v
           python scripts/aspects_reconcile_followon_900.py \
             --repo . \
+            --historical-root docs/engineering/aspects-historical \
             --pin-rows artifacts/aspects/historical-git-pin-rows.jsonl \
             --pin-report artifacts/aspects/historical-git-pin-audit.json \
             --ledger docs/engineering/aspects-review-ledger.jsonl \
@@ -395,11 +396,16 @@ jobs:
           data = json.loads(Path("artifacts/aspects/historical-900-followon-pinned-overlap.json").read_text())
           assert data["status"] == "source_audited_original_pins_vs_git_verified_followon_exact_only"
           assert data["historical_rows_imported"] == 5741
+          assert data["historical_clean_reviews_all_history"] == 4864
+          assert data["historical_positive_reviews_all_history_not_distinct_defects"] == 877
+          assert data["original_pinned_clean_review_rows_in_historical_cohort"] > 0
           assert data["new_comparable_900_density"] is None
           assert data["merged_historical_and_followon_denominator"] is None
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
               out.write(
                   f"Historical 900 first-parent original-pin/follow-on comparison: "
+                  f"**{data['original_pinned_clean_review_rows_in_historical_cohort']}** "
+                  "original pinned clean reviews (linked to immutable workbook), "
                   f"**{data['followon_records_with_baseline_inside_historical_cohort']}** "
                   f"verified follow-on records inside historical cohort, "
                   f"**{data['followon_records_with_baseline_outside_historical_cohort']}** "
