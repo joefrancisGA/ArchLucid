@@ -41,7 +41,9 @@ public sealed partial class SqlRemediationPatternRepository
                              AND v.Status = @ApprovedStatus
                              AND v.ApprovedUtc IS NOT NULL
                              AND v.ApprovedByActorKey IS NOT NULL
-                             AND LTRIM(RTRIM(v.ApprovedByActorKey)) <> N'';
+                             AND LTRIM(RTRIM(v.ApprovedByActorKey)) <> N''
+                             AND LOWER(LTRIM(RTRIM(v.AuthorActorKey))) <>
+                                 LOWER(LTRIM(RTRIM(v.ApprovedByActorKey)));
                            """;
 
         using System.Data.IDbConnection conn =
