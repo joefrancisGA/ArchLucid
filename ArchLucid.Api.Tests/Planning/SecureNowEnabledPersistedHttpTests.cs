@@ -35,11 +35,17 @@ public sealed class SecureNowEnabledPersistedHttpTests(SecureNowExchangeEnabledA
         featureEnabled.Should().BeTrue(
             because: "the exchange is enabled only for this isolated integration host");
 
+        // Separate the ordinary persisted graph/temporal resolver from the
+        // opt-in exchange authorization. Both are read-only operations.
+        string ordinaryUrl = url.Replace("&secureNowExchange=true", "", StringComparison.Ordinal);
+        using HttpResponseMessage ordinary = await owner.GetAsync(ordinaryUrl);
+        string ordinaryBody = await ordinary.Content.ReadAsStringAsync();
+
         using HttpResponseMessage allowed = await owner.GetAsync(url);
         string responseBody = await allowed.Content.ReadAsStringAsync();
         allowed.StatusCode.Should().Be(HttpStatusCode.OK,
-            because: "a seeded, authorized run must support an owner snapshot read; server response: {0}",
-            responseBody);
+            because: "a seeded, authorized run must support an owner snapshot read; ordinary GET status/body: {0}/{1}; exchange response: {2}; test-host ACL: {3}",
+            ordinary.StatusCode, ordinaryBody, responseBody, factory.TestEntitlementDiagnosticCounts);
         SecureNowSnapshotEnvelope? envelope =
             await allowed.Content.ReadFromJsonAsync<SecureNowSnapshotEnvelope>();
         envelope.Should().NotBeNull();
