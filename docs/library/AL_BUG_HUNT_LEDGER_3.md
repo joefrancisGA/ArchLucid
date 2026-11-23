@@ -8218,7 +8218,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **hunts:** 6
-- **bugs-found:** 4
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -19329,6 +19329,9 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-architecture-diagram
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `applyArchitectureDiagramOverrides` `(candidate)`. Device-local edge overrides keyed only `edge_0`; inserting a data-flow row before restore removed the wrong connector after positional ids shifted. Overrides now match endpoints when stored ids no longer align. Regression `applies edge removal by stable endpoints when positional edge ids shift` failed first (`edge_0` removal dropped `Gamma -> Alpha`), then model suites passed 12/12. Private beta: operators who hid a diagram connector keep that same flow hidden after the brief gains new flows, instead of losing a different line.
+
+- [x] (proven) `applyArchitectureDiagramOverrides` — persisted edge overrides keyed only by generated positional ids — **proven 2026-11-23 seed hunt:**`edge_0` removal after reorder deleted `Gamma -> Alpha`; endpoint-keyed overrides now apply safely.
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. After the dom-id mapping hit, `resolveInventoryDiagramClickFocusId` still compared the full accessibility `<title>` (for example `vm-app (Virtual machine)`) only to outline `node.id`, so forest inventory clicks kept the Mermaid slug and neighbor dimming failed. Mapping now matches flowchart dom slugs, stripped title resource names, and outline labels. Regression `maps forest accessibility titles to outline ids for neighbor dimming` failed first (focus stayed `flowchart-vm-app-0`), then click-focus passed 5/5. Private beta: clicking a resource on a forest inventory diagram keeps its linked neighbors visible instead of dimming the entire canvas.
 
 - [x] (proven) `resolveInventoryDiagramClickFocusId` — accessibility title only matched outline id, not resource label — **proven 2026-11-23 seed hunt:** title `vm-app (Virtual machine)` did not resolve to outline `vm-app`; title tokens and dom slug now align with label and resource name.
@@ -19370,8 +19373,8 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 4
-- **bugs-found:** 4
+- **hunts:** 5
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -19392,7 +19395,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `FLOW_SPLIT_PATTERN` / `parseFlowEndpoints` in `architecture-diagram-model.ts` — generated-content data-flow endpoints containing the word `to`, including `Order to Cash -> Billing`, were split before the explicit arrow and dropped; known node-label fragments are now merged before endpoint resolution; regressions cover both `Token: API` and `Order to Cash -> Billing`.
 - [x] (proven) `findNodeIdByLabel` / `parseFlowEndpoints` in `architecture-diagram-model.ts` — duplicate case-insensitive labels across stakeholder and system entities made `Gateway -> API` attach to the first `API` node (stakeholder) instead of the system service; ambiguous targets now prefer the same node kind as the resolved source; regression `resolves duplicate labels to the endpoint in the same node kind as the source`.
 - [x] (proven) `addFlowEdges` / `resolveEntityFlowParseText` in `architecture-diagram-model.ts` — pipe-delimited data-flow entities with a description column joined ` · ` in `detail` were parsed as `label -> full detail`, so the target never matched a live node; now treats the first ` · ` segment as the target endpoint and keeps later segments as the edge label; regression `materializes pipe-delimited data flows when detail includes a description column`.
-- (candidate) `applyArchitectureDiagramOverrides` in `architecture-diagram-model.ts` — persisted edge overrides are keyed only by generated positional ids such as `edge_0`; reordering or inserting parsed flow rows before restoring a saved version can apply a prior remove/edit override to a different flow; input originates from device-local diagram version restoration.
+- [x] (proven) `applyArchitectureDiagramOverrides` in `architecture-diagram-model.ts` — persisted edge overrides keyed only by generated positional ids — **proven 2026-11-23 seed hunt:** reordering flows mis-applied `edge_0` removal; endpoint keys now win when ids shift.
 - (candidate) `parseDiagramNeighborhoodMap` in `architecture-diagram-neighborhood-map.ts` — malformed or negative `resource-count`/link `count` attributes are silently converted to zero, so a reachable inventory SVG with invalid numeric metadata can undercount neighborhood size and suppress the auto-open threshold; input originates from sanitized inventory diagram SVG metadata.
 - [x] (proven) `readArchitectureDiagramCache` / `getActiveArchitectureDiagramVersion` — valid JSON in device-local storage with missing cache arrays was accepted as a typed record, then `.versions.find` threw during diagram restoration; now malformed cache records are rejected; regression `ignores valid JSON cache records with an invalid shape`.
 - [x] (proven) `architectureDiagramModelToTextAlternative` — an edge whose source or target node was removed remained in the accessible text alternative while Mermaid omitted it; now only edges with active endpoints are rendered; regression `omits edges connected to removed nodes from the text alternative`.
