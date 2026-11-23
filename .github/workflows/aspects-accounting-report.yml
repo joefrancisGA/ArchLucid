@@ -1,0 +1,75 @@
+name: Aspects unified density reporting contract
+
+# Lightweight, PR-only accounting and SMA25 smoke tests; no full master build.
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'scripts/aspects_historical_pinned_coverage.py'
+      - 'docs/engineering/aspects-historical/audit-checkpoints/2026-11-23-original-900-source-pin-coverage.json'
+      - 'scripts/aspects_accounting_report.py'
+      - 'scripts/tests/test_aspects_accounting_report.py'
+      - 'docs/engineering/aspects-historical/aspects-provisional-700-series.jsonl'
+      - 'docs/engineering/aspects-historical/aspects-provisional-600-series.jsonl'
+      - 'docs/engineering/aspects-historical/aspects-historical-900-snapshots.jsonl'
+      - '.github/workflows/aspects-accounting-report.yml'
+      - '.github/workflows/aspects-density-snapshot.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aspects-accounting-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  report-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate reporting contract and arithmetic regressions
+        run: python -m unittest discover -s scripts/tests -p 'test_aspects_accounting_report.py' -v
+      - name: Materialize three populations without splicing
+        run: |
+          python scripts/aspects_accounting_report.py \
+            --json-out artifacts/aspects/aspects-accounting-report.json \
+            --markdown-out artifacts/aspects/aspects-accounting-report.md \
+            --700-csv-out artifacts/aspects/aspects-provisional-700-sma25.csv \
+            --900-csv-out artifacts/aspects/aspects-historical-900-sma25.csv \
+            --700-svg-out artifacts/aspects/aspects-provisional-700-sma25.svg
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('artifacts/aspects/aspects-accounting-report.json').read_text())
+          a=d['historical_original_source_pin_coverage']
+          assert a['unique_exact_path_blob_source_loc']==232219
+          assert a['pinned_source_line_occurrences']==238239
+          assert a['repeated_exact_path_blob_line_occurrences']==6020
+          assert a['defects_per_kloc_for_this_population'] is None
+          assert a['not_additive_to_incremental_live_ledger'] is True
+          assert d['historical_900']['actual_snapshots']==79
+          assert d['provisional_700']['observations']==700
+          assert d['provisional_700']['backprojected_observations']==100
+          assert d['provisional_700']['workbook_observations']==600
+          assert d['current_verified_subset']['new_reviewed_loc'] is None
+          assert d['current_verified_subset']['new_distinct_defect_ids'] is None
+          assert d['publication_contract']=='three_disjoint_accounting_populations_no_splicing'
+          assert Path('artifacts/aspects/aspects-provisional-700-sma25.csv').read_text().count('\n')==701
+          assert Path('artifacts/aspects/aspects-historical-900-sma25.csv').read_text().count('\n')==80
+          PY
+      - name: Upload exact historical/provisional validation results
+        uses: actions/upload-artifact@v4
+        with:
+          name: aspects-accounting-contract-pr
+          path: |
+            artifacts/aspects/aspects-accounting-report.json
+            artifacts/aspects/aspects-accounting-report.md
+            artifacts/aspects/aspects-provisional-700-sma25.csv
+            artifacts/aspects/aspects-historical-900-sma25.csv
+            artifacts/aspects/aspects-provisional-700-sma25.svg
+          if-no-files-found: error
