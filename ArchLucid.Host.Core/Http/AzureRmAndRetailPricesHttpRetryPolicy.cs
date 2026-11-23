@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 
 using Polly;
 using Polly.Retry;
+using CanonicalAzureHttpRetryPolicy = ArchLucid.Core.Http.AzureRmAndRetailPricesHttpRetryPolicy;
 
 namespace ArchLucid.Host.Core.Http;
 
@@ -18,58 +19,31 @@ namespace ArchLucid.Host.Core.Http;
 public static class AzureRmAndRetailPricesHttpRetryPolicy
 {
     /// <summary>Retries after the first attempt (four total executions when transient failures occupy the first three responses).</summary>
-    public const int MaxRetryAttempts = 3;
+    public const int MaxRetryAttempts = CanonicalAzureHttpRetryPolicy.MaxRetryAttempts;
 
     /// <summary>Uses exponential backoff (~2<sup>n</sup> seconds) between attempts.</summary>
-    public static IAsyncPolicy<HttpResponseMessage> Create(ILogger logger) => Create(logger, ProductionSleepDurationProvider);
+    public static IAsyncPolicy<HttpResponseMessage> Create(ILogger logger)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+        return CanonicalAzureHttpRetryPolicy.Create(logger, args => TryLogRetry(logger, args));
+    }
 
     /// <summary>
-    ///     Identical transient handling as the single-parameter overload; inject zero-delay backoff for deterministic tests.
+    ///     Use the Core retry pipeline and classification with injectable delay.
+    ///     The Host.Core adapter retains its enhanced HTTP 429 / Retry-After telemetry.
     /// </summary>
-    public static IAsyncPolicy<HttpResponseMessage> Create(ILogger logger, Func<int, TimeSpan> sleepDurationProvider)
+    public static IAsyncPolicy<HttpResponseMessage> Create(
+        ILogger logger,
+        Func<int, TimeSpan> sleepDurationProvider)
     {
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(sleepDurationProvider);
-
-        ResiliencePipeline<HttpResponseMessage> pipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
-            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
-            {
-                MaxRetryAttempts = MaxRetryAttempts,
-                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
-                    .Handle<HttpRequestException>()
-                    .HandleResult(ShouldRetryHttpResponse),
-                DelayGenerator = args =>
-                {
-                    TimeSpan delay = sleepDurationProvider(args.AttemptNumber);
-
-                    return new ValueTask<TimeSpan?>(delay);
-                },
-                OnRetry = args =>
-                {
-                    TryLogRetry(logger, args);
-
-                    return ValueTask.CompletedTask;
-                },
-            })
-            .Build();
-
-        return pipeline.AsAsyncPolicy();
+        return CanonicalAzureHttpRetryPolicy.Create(
+            logger, sleepDurationProvider, args => TryLogRetry(logger, args));
     }
 
-    private static TimeSpan ProductionSleepDurationProvider(int attemptNumber) => TimeSpan.FromSeconds(Math.Pow(2, attemptNumber));
-
-    internal static bool ShouldRetryHttpResponse(HttpResponseMessage response)
-    {
-        HttpStatusCode code = response.StatusCode;
-
-        if (code == HttpStatusCode.RequestTimeout)
-            return true;
-
-        if (code == HttpStatusCode.TooManyRequests)
-            return true;
-
-        return (int)code >= 500 && (int)code <= 599;
-    }
+    internal static bool ShouldRetryHttpResponse(HttpResponseMessage response) =>
+        CanonicalAzureHttpRetryPolicy.ShouldRetryHttpResponse(response);
 
     internal static void TryLogRetry(ILogger logger, OnRetryArguments<HttpResponseMessage> args)
     {
