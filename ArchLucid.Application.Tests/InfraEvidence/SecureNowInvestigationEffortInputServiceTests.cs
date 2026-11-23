@@ -143,6 +143,43 @@ public sealed class SecureNowInvestigationEffortInputServiceTests
         await act.Should().ThrowAsync<DurableAuditWriteFailedException>();
     }
 
+    [Fact]
+    public async Task SaveAsync_accepts_zero_after_product_hours()
+    {
+        SecureNowInvestigationEffortInputService sut = CreateSut(new InMemoryAuditRepository());
+
+        SecureNowInvestigationEffortInputsSaveResult saved = await sut.SaveAsync(
+            CreateScope(),
+            new SecureNowInvestigationEffortInputsWriteRequest
+            {
+                BaselineHours = "3",
+                AfterHours = "0",
+                AnnualInvestigations = "10",
+                HourlyRate = "80",
+                AnnualCost = "5000",
+            },
+            "operator-actor",
+            CancellationToken.None);
+
+        saved.Succeeded.Should().BeTrue();
+        saved.Inputs!.AfterHours.Should().Be("0");
+
+        SecureNowInvestigationEffortInputsSaveResult zeroCost = await sut.SaveAsync(
+            CreateScope(),
+            new SecureNowInvestigationEffortInputsWriteRequest
+            {
+                BaselineHours = "3",
+                AfterHours = "0",
+                AnnualInvestigations = "10",
+                HourlyRate = "80",
+                AnnualCost = "0",
+            },
+            "operator-actor",
+            CancellationToken.None);
+
+        zeroCost.Succeeded.Should().BeFalse();
+    }
+
     private static SecureNowInvestigationEffortInputsWriteRequest ValidRequest() =>
         new()
         {

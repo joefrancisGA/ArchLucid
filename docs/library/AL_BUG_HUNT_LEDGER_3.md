@@ -43,6 +43,10 @@
 
 ## Zone: ui-lib-product-line
 
+2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted the Investigation effort save: the page accepts zero after-product hours, but `TryNormalize` still required every field to be greater than zero, so the audit save rejected that worksheet. Baseline and after-product hours now accept zero. Investigations, rate, and cost stay greater than zero. Regression `SaveAsync_accepts_zero_after_product_hours`; input-service tests **6/6**. Private beta: an invited SecureNow operator who enters zero after-product hours can save that worksheet. The audit save no longer rejects those hours as not positive.
+
+- [x] (proven) `SecureNowInvestigationEffortInputService.TryNormalize` — audit save rejected zero after-product hours — **hit 2026-11-23 seed hunt:** accept zero baseline and after-product hours; regression above.
+
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown was waived because the hypothesis list was empty. Promoted the Investigation effort unit: the lead, partial-capture line, and no-capture line said minutes, while the inputs are hours and ROI multiplies that hour delta by the hourly rate. Those lines now say hours. Regression `asks for hours because ROI multiplies the hour delta by the hourly rate`; copy and page-view vitest **7/7**. Private beta: an invited SecureNow operator entering Investigation effort is asked for hours, the unit the ROI multiplies by the hourly rate. The page no longer asks for minutes on that worksheet.
 
 - [x] (proven) `SECURENOW_INVESTIGATION_EFFORT_LEAD` — worksheet asked for minutes while ROI uses hours — **hit 2026-11-23 seed hunt:** say hours on the lead, partial-capture line, and no-capture line; regression above.
@@ -134,8 +138,8 @@
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 16
-- **bugs-found:** 16
+- **hunts:** 17
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
