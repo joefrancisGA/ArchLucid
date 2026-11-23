@@ -20,11 +20,11 @@ def fixture():
     pins = [
         {"excel_row": 7, "reviewed_master_sha": OLDEST,
          "window_membership": "in_window", "pin_status": VERIFIED,
-         "defects_recorded": 0, "path": "src/a.cs", "blob": BLOB,
+         "defects_recorded": 0, "review_id": "clean-D1", "path": "src/a.cs", "blob": BLOB,
          "spans": [[1, 5]]},
         {"excel_row": 8, "reviewed_master_sha": NEWEST,
          "window_membership": "in_window", "pin_status": VERIFIED,
-         "defects_recorded": 1, "path": "src/a.cs", "blob": BLOB,
+         "defects_recorded": 1, "review_id": "D1", "path": "src/a.cs", "blob": BLOB,
          "spans": [[4, 6]]},
         {"excel_row": 9, "reviewed_master_sha": OUTSIDE,
          "window_membership": "not_on_first_parent_window",
@@ -67,9 +67,36 @@ class FollowOn900Tests(unittest.TestCase):
         self.assertEqual(r["followon_exact_repeat_with_original_pins"], 3)
         self.assertEqual(r["followon_exact_identities_not_in_original_pins"], 2)
         self.assertEqual(r["followon_candidate_defect_ids_in_historical_cohort"], ["D1"])
+        self.assertEqual(r["followon_verbatim_candidate_labels_also_in_historical_window"], ["D1"])
+        self.assertEqual(r["followon_verbatim_label_source_excel_rows"], {"D1": [8]})
+        self.assertEqual(r["followon_candidate_labels_without_verbatim_historical_match"], [])
         self.assertEqual(r["newly_verified_reviewed_loc_from_this_reconciliation"], 0)
         self.assertIsNone(r["merged_historical_and_followon_denominator"])
         self.assertIsNone(r["new_comparable_900_density"])
+
+    def test_numeric_suffix_or_fix_pr_name_never_proves_discovery_alias(self):
+        pins, report, recent = fixture()
+        pins[1]["review_id"] = "#7430"
+        recent[1]["defect_id"] = "ASPECTS-7430"
+        report["audited_rows_sha256"] = audited_rows_sha256(pins)
+        r = sut.reconcile(pins, report, recent, [NEWEST, OLDEST],
+                          pins, expected_rows=3)
+        self.assertEqual(r["followon_verbatim_candidate_labels_also_in_historical_window"], [])
+        self.assertEqual(r["followon_candidate_labels_without_verbatim_historical_match"],
+                         ["ASPECTS-7430"])
+        self.assertIsNone(r["new_verified_distinct_defects"])
+
+    def test_clean_or_out_of_window_matching_label_is_not_discovery(self):
+        pins, report, recent = fixture()
+        pins[0]["review_id"] = "D1"  # clean review is not defect discovery
+        pins[1]["review_id"] = "#777"
+        pins[2]["review_id"] = "D1"  # same label but outside window
+        pins[2]["defects_recorded"] = 1
+        report["audited_rows_sha256"] = audited_rows_sha256(pins)
+        r = sut.reconcile(pins, report, recent, [NEWEST, OLDEST],
+                          pins, expected_rows=3)
+        self.assertEqual(r["followon_verbatim_candidate_labels_also_in_historical_window"], [])
+        self.assertEqual(r["historical_positive_candidate_labels_in_historical_cohort"], 1)
 
     def test_change_of_blob_is_not_treated_as_exact_overlap(self):
         pins, report, recent = fixture()
