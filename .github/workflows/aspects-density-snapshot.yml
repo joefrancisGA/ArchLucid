@@ -218,6 +218,8 @@ jobs:
           assert actual == expected, "Row22 six-file source-at-commit evidence drift"
           assert len(actual) == 6 and sum(s["nonblank_loc"] for s in actual) == 195
           assert not any(s["original_blob_pinned"] for s in row["sources"])
+          assert row["candidate_new_exact_path_blob_loc"] == golden["exact_overlap_reconciliation"]["candidate_exact_new_vs_preexisting_pins_and_candidates"] == 195
+          assert row["candidate_repeated_exact_path_blob_loc"] == golden["exact_overlap_reconciliation"]["exact_repeated_line_occurrences"] == 0
           assert golden["newly_original_pinned_verified_loc"] == 0
           assert golden["candidate_cross_revision_denominator_increment"] == 0
           print("Excel row22: six explicitly scoped paths, 195 Git-attested candidate-only LOC; no original-pin promotion")
