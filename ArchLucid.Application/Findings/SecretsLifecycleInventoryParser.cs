@@ -348,15 +348,27 @@ public static class SecretsLifecycleInventoryParser
 
             if (long.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out long unixSeconds))
             {
-                return DateTimeOffset.FromUnixTimeSeconds(unixSeconds);
+                return TryFromUnixSeconds(unixSeconds);
             }
         }
 
         if (element.ValueKind is JsonValueKind.Number && element.TryGetInt64(out long numericUnix))
         {
-            return DateTimeOffset.FromUnixTimeSeconds(numericUnix);
+            return TryFromUnixSeconds(numericUnix);
         }
 
         return null;
+    }
+
+    // Invalid extractor timestamps must not abort parsing other secret inventory rows.
+    private static DateTimeOffset? TryFromUnixSeconds(long seconds)
+    {
+        if (seconds < DateTimeOffset.MinValue.ToUnixTimeSeconds()
+            || seconds > DateTimeOffset.MaxValue.ToUnixTimeSeconds())
+        {
+            return null;
+        }
+
+        return DateTimeOffset.FromUnixTimeSeconds(seconds);
     }
 }
