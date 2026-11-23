@@ -11,6 +11,7 @@ on:
       - 'docs/engineering/aspects-historical/**'
       - 'scripts/aspects_review_evidence.py'
       - 'scripts/aspects_density_snapshot.py'
+      - 'scripts/aspects_historical_pinned_coverage.py'
       - 'scripts/aspects_accounting_report.py'
       - 'scripts/tests/test_aspects_review_evidence.py'
       - 'scripts/tests/test_aspects_density_snapshot.py'
@@ -23,6 +24,7 @@ on:
       - 'docs/engineering/aspects-historical/**'
       - 'scripts/aspects_review_evidence.py'
       - 'scripts/aspects_density_snapshot.py'
+      - 'scripts/aspects_historical_pinned_coverage.py'
       - 'scripts/aspects_accounting_report.py'
       - 'scripts/tests/test_aspects_review_evidence.py'
       - 'scripts/tests/test_aspects_density_snapshot.py'
@@ -188,6 +190,8 @@ jobs:
           assert live["current_head"] == first["head"]
           assert live["distinct_defect_ids"] == first["density"]["distinct_confirmed_defects"]
           assert live["exact_path_blob_unique_reviewed_loc"] == first["density"]["unique_path_blob_reviewed_lines"]
+          assert report["historical_original_source_pin_coverage"]["unique_exact_path_blob_source_loc"] == 232219
+          assert report["historical_original_source_pin_coverage"]["defects_per_kloc_for_this_population"] is None
           assert report["historical_900"]["actual_snapshots"] == 79
           assert report["provisional_700"]["observations"] == 700
           if live["comparison"] != "comparable":
