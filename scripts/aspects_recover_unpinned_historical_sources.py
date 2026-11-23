@@ -21,11 +21,20 @@ from aspects_validate_historical_pins import SHA, first_parent_checkpoint, git, 
 
 # Strict syntax on purpose: unknown narratives, bare filenames, comments,
 # renames, glob patterns, and inferred basename-to-path matches are excluded.
+# The workbook uses "and" between *numeric intervals on the same full path*.
+# A period may also separate two full-path source references (Excel row 32).
+# Requiring an explicit path for every segment keeps narratives and basenames
+# out; no source path or intervals are inferred from prose.
+SPAN_TOKEN = r"[1-9][0-9]*(?:[-–—][1-9][0-9]*)?"
+RANGE_SEPARATOR = r"(?:\s*,\s*|\s+and\s+)"
 SEGMENT = re.compile(
     r"^(?P<path>\S+/\S+?)\s+"
-    r"(?P<ranges>[1-9][0-9]*(?:[-–—][1-9][0-9]*)?"
-    r"(?:\s*,\s*[1-9][0-9]*(?:[-–—][1-9][0-9]*)?)*)\.?$"
+    rf"(?P<ranges>{SPAN_TOKEN}(?:{RANGE_SEPARATOR}{SPAN_TOKEN})*)\.?$"
 )
+INTERVAL_SPLIT = re.compile(RANGE_SEPARATOR)
+# A sentence terminator is accepted as a source separator ONLY when the next
+# fragment starts with an explicit slash-qualified repo-relative path.
+SOURCE_SENTENCE_SPLIT = re.compile(r"(?<=\d)\.\s+(?=[A-Za-z0-9_.-]+/)")
 PREFIX = "Reviewed spans (inclusive):"
 
 
@@ -39,25 +48,26 @@ def parse_explicit_unpinned(raw: object) -> list[dict] | None:
     if not raw:
         return None
     sources = []
-    for part in raw.split(";"):
-        match = SEGMENT.fullmatch(part.strip())
-        if not match:
-            return None
-        path = match.group("path")
-        if (path.startswith("/") or "\\" in path or ".." in path.split("/")
-                or "//" in path or ":" in path or path.startswith("./")):
-            return None
-        intervals = []
-        for token in match.group("ranges").split(","):
-            range_match = RANGE.fullmatch(token.strip())
-            if range_match is None:
+    for semicolon_segment in raw.split(";"):
+        for part in SOURCE_SENTENCE_SPLIT.split(semicolon_segment):
+            match = SEGMENT.fullmatch(part.strip())
+            if not match:
                 return None
-            lo = int(range_match.group(1))
-            hi = int(range_match.group(2) or range_match.group(1))
-            if hi < lo:
+            path = match.group("path")
+            if (path.startswith("/") or "\\" in path or ".." in path.split("/")
+                    or "//" in path or ":" in path or path.startswith("./")):
                 return None
-            intervals.append([lo, hi])
-        sources.append({"path": path, "reported_inclusive_intervals": intervals})
+            intervals = []
+            for token in INTERVAL_SPLIT.split(match.group("ranges")):
+                range_match = RANGE.fullmatch(token.strip())
+                if range_match is None:
+                    return None
+                lo = int(range_match.group(1))
+                hi = int(range_match.group(2) or range_match.group(1))
+                if hi < lo:
+                    return None
+                intervals.append([lo, hi])
+            sources.append({"path": path, "reported_inclusive_intervals": intervals})
     # A single workbook observation may list the SAME full path in several
     # disjoint interval fragments. Consolidate only identical, explicit paths
     # at the same reviewed commit. Do not count a repeated interval twice.

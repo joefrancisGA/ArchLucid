@@ -195,5 +195,78 @@ class UnpinnedRecoveryTests(unittest.TestCase):
         self.assertNotIn("diagnostic_nonblank_loc_at_reviewed_commit", valid)
 
 
+    def test_numeric_and_interval_recovery_is_exact_and_atomic(self):
+        raw = "src/a.cs 1–1 and 3–3; src/b.cs 1–1"
+        parsed = sut.parse_explicit_unpinned(raw)
+        self.assertEqual(parsed, [
+            {"path": "src/a.cs", "reported_inclusive_intervals": [[1, 1], [3, 3]]},
+            {"path": "src/b.cs", "reported_inclusive_intervals": [[1, 1]]},
+        ])
+        _, audited = sut.recover(self.repo, [self.row(33, raw, 3)], self.checkpoint)
+        self.assertEqual(audited[0]["status"], "git_source_at_review_commit_candidate_only")
+        self.assertEqual(audited[0]["candidate_nonblank_loc"], 3)
+        self.assertEqual(audited[0]["candidate_new_exact_path_blob_loc"], 3)
+        self.assertFalse(audited[0]["original_blob_pinned"])
+        # When any path or reported nonblank count is false, reject the
+        # *entire* observation: never partially import its valid fragments.
+        _, failed = sut.recover(self.repo, [
+            self.row(34, "src/a.cs 1–1 and 3–3; src/missing.cs 1–1", 3),
+            self.row(35, raw, 4)], self.checkpoint)
+        self.assertEqual([r["candidate_nonblank_loc"] for r in failed], [0, 0])
+        self.assertEqual([r["status"] for r in failed],
+                         ["commit_path_unavailable", "workbook_nonblank_loc_mismatch"])
+
+    def test_workbook_numeric_and_references_preserve_raw_and_path_count(self):
+        # Original Review evidence sheet (Excel rows 33/34/35/38/40/46/47/49).
+        # These are source-at-commit CANDIDATES, not original blob pins.
+        cases = {
+            33: ("ArchLucid.Application/InfraEvidence/SecureNowArchitect/PathRankingEngine.cs 20–55 and 123–153.", 1, 2),
+            34: ("ArchLucid.Application/InfraEvidence/SecureNowArchitect/CutPointAnalysisEngine.cs 17–106 and 136–142; ArchLucid.Application/InfraEvidence/SecureNowArchitect/ICutPointAnalysisEngine.cs 6–34.", 2, 3),
+            35: ("ArchLucid.Persistence/InfraEvidence/SqlSecurityEvidenceCutPointRepository.cs 137–158 and 217–319; ArchLucid.Persistence/Migrations/383_SecurityEvidenceCutPoints.sql 10–39; ArchLucid.Persistence/Migrations/347_InfraEvidenceFoundation.sql 11–17; ArchLucid.Persistence/Migrations/381_SecurityEvidencePaths.sql 10–35; ArchLucid.Application/InfraEvidence/SecureNowArchitect/CutPointAnalysisEngine.cs 35–42 and 80–109.", 5, 7),
+            38: ("ArchLucid.Application/InfraEvidence/SecureNowArchitect/SecurityEvidencePathRoutingMaterializer.cs 43–121; ArchLucid.Core/InfraEvidence/SecurityEvidencePathRoutingRole.cs 14–36; ArchLucid.Persistence/Migrations/347_InfraEvidenceFoundation.sql 49–63 and 154–163; ArchLucid.Persistence/Migrations/385_SecurityEvidencePathRouting.sql 8–33; ArchLucid.Persistence/InfraEvidence/SqlSecurityEvidencePathRoutingRepository.cs 194–224; ArchLucid.Persistence/Scripts/ArchLucid.sql 13454–13489.", 6, 7),
+            40: ("ArchLucid.Persistence/InfraEvidence/SqlSecurityEvidencePathRankRepository.cs 106–128 and 188–275; ArchLucid.Persistence/Migrations/382_SecurityEvidencePathRanks.sql 20–47; ArchLucid.Persistence/Migrations/347_InfraEvidenceFoundation.sql 11–17; ArchLucid.Application/InfraEvidence/SecureNowArchitect/PathRankingEngine.cs 34–44 and 119–148; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecurityEvidencePathRankRepository.cs 22–33.", 5, 7),
+            46: ("ArchLucid.Persistence/InfraEvidence/SqlRemediationPatternRepository.TryGetVersions.cs 1–48; ArchLucid.Persistence/Migrations/357_RemediationPatterns.sql 29–55; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/IRemediationPatternRepository.cs 25–57; ArchLucid.Core/InfraEvidence/RemediationPatternVersionKey.cs 1–3; ArchLucid.Application/InfraEvidence/RemediationPrioritization/RemediationPrioritizationService.cs 140–179 and 368–415; ArchLucid.Application/InfraEvidence/RemediationPrioritization/RemediationRiskScoreEvaluator.cs 182–202.", 6, 7),
+            47: ("ArchLucid.Application/InfraEvidence/RemediationPatterns/RemediationPatternService.cs 109–157 and 419–434; ArchLucid.Application/InfraEvidence/RemediationPatterns/RemediationPatternGuard.cs 43–83; ArchLucid.Persistence/InfraEvidence/SqlRemediationPatternRepository.cs 59–113; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/IRemediationPatternRepository.cs 1–31; ArchLucid.Persistence/Migrations/357_RemediationPatterns.sql 9–26 and 29–55; ArchLucid.Persistence/InfraEvidence/NoOpRemediationPatternRepository.cs 1–33.", 6, 8),
+            49: ("ArchLucid.Application/InfraEvidence/RemediationPatterns/RemediationPatternMatcherService.cs 20–58 and 60–152 and 154–260; ArchLucid.Persistence/InfraEvidence/SqlRemediationPatternMatchRepository.cs 30–54 and 98–145 and 180–217; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/IRemediationPatternMatchRepository.cs 1–48; ArchLucid.Persistence/Migrations/358_RemediationPatternMatches.sql 8–45; ArchLucid.Persistence/InfraEvidence/NoOpRemediationPatternMatchRepository.cs 1–38.", 5, 9),
+        }
+        for excel_row, (raw, expected_files, expected_spans) in cases.items():
+            with self.subTest(excel_row=excel_row):
+                event = self.row(excel_row, raw, 999)
+                parsed = sut.parse_explicit_unpinned(event["reviewed_file_spans_raw"])
+                self.assertIsNotNone(parsed)
+                self.assertEqual(len(parsed), expected_files)
+                self.assertEqual(sum(len(s["reported_inclusive_intervals"]) for s in parsed),
+                                 expected_spans)
+                self.assertEqual(event["reviewed_file_spans_raw"], raw)
+
+    def test_workbook_row32_period_between_two_full_paths_only(self):
+        raw = ("ArchLucid.Persistence/InfraEvidence/SqlSecurityEvidencePathRankRepository.cs 188–274 and 277–344. "
+               "ArchLucid.Application/InfraEvidence/SecurityEvidencePathRankQueryService.cs 15–102.")
+        parsed = sut.parse_explicit_unpinned(raw)
+        self.assertEqual([s["path"] for s in parsed], [
+            "ArchLucid.Persistence/InfraEvidence/SqlSecurityEvidencePathRankRepository.cs",
+            "ArchLucid.Application/InfraEvidence/SecurityEvidencePathRankQueryService.cs"])
+        self.assertEqual(parsed[0]["reported_inclusive_intervals"], [[188, 274], [277, 344]])
+        self.assertEqual(parsed[1]["reported_inclusive_intervals"], [[15, 102]])
+
+    def test_reject_narrative_missing_paths_and_ambiguous_interval_connectors(self):
+        bad = [
+            "src/a.cs 1–3 and narrative",
+            "src/a.cs 1–3 and 4-foo",
+            "src/a.cs 1–3. Follow-up was to inspect src/b.cs 1–1.",
+            "src/a.cs 1–3, src/b.cs 1–1",
+            "src/a.cs 1–3 and src/b.cs 1–1",
+            "a.cs 1–3 and 4–5",
+            "src/../src/a.cs 1–3 and 4–5",
+            "src/a.cs 1–3 and 999-900",
+            "src/a.cs 1–3 and1–4",
+            "src/a.cs 1–3and 4–5",
+        ]
+        for raw in bad:
+            with self.subTest(raw=raw):
+                self.assertIsNone(sut.parse_explicit_unpinned(raw))
+
+
+
 if __name__ == "__main__":
     unittest.main()
