@@ -38,6 +38,7 @@ import { REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_ONLY_PARTIAL_LINE } from "@
 import { REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_ONLY_NOT_LOAD_FAILURE_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-unevaluated-only-not-load-failure-copy";
 import { REMEDIATION_FACTORY_ATTACK_PATH_REPORT_LOAD_FAILURE_PARTIAL_CAPTURE_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-report-load-failure-partial-capture-copy";
 import { REMEDIATION_FACTORY_ATTACK_PATH_DIAGRAM_FILTER_EMPTY_PARTIAL_CAPTURE_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-diagram-filter-empty-partial-capture-copy";
+import { ATTACK_PATH_REPORT_DIAGRAM_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/remediation-factory/attack-path-report-diagram-filter-empty-not-load-failure-copy";
 import {
   attackPathReportPathChipOverflowLine,
   formatAttackPathReportPathChipLabel,
@@ -193,6 +194,12 @@ export function RemediationFactoryAttackPathReportSection(props: {
           && props.reportQuery.data.unevaluatedGroups.length === 0 ? (
             <div className="space-y-1" data-testid="attack-path-report-diagram-filter-empty">
               <p className={OPERATOR_TYPOGRAPHY.helper}>{ATTACK_PATH_REPORT_DIAGRAM_FILTER_EMPTY}</p>
+              <p
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="attack-path-report-diagram-filter-empty-not-load-failure"
+              >
+                {ATTACK_PATH_REPORT_DIAGRAM_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE}
+              </p>
               {props.partialCapture === true ? (
                 <SecureNowPartialCaptureRecoveryParagraph
                   testId="attack-path-report-diagram-filter-empty-partial-capture"
