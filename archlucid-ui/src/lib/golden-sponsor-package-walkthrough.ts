@@ -1,5 +1,9 @@
 import { resolveScopedInsightOpenReviewHrefWithDeskContinuity } from "@/lib/insights/scoped-insight-open-review-href";
-import { SHOWCASE_SAMPLE_REVIEW_REGISTRY } from "@/lib/showcase-sample-review-registry";
+import {
+  SHOWCASE_SAMPLE_REVIEW_REGISTRY,
+  showcaseSpecimenFindingsHref,
+  showcaseSpecimenSealedReviewRecordHref,
+} from "@/lib/showcase-sample-review-registry";
 
 export const GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_QUERY = "walkthrough" as const;
 
@@ -92,4 +96,31 @@ export function isGoldenSponsorPackageWalkthroughIntent(
   walkthroughParam: string | null | undefined,
 ): boolean {
   return walkthroughParam?.trim() === GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_VALUE;
+}
+
+
+function withGoldenWalkthroughQuery(href: string, hash?: string): string {
+  const url = new URL(href, "https://archlucid.local");
+  url.searchParams.set(GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_QUERY, GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_VALUE);
+  const hashSuffix = hash !== undefined && hash.length > 0 ? `#${hash}` : "";
+
+  return `${url.pathname}?${url.searchParams.toString()}${hashSuffix}`;
+}
+
+/** Deep link for one labeled golden sponsor-package walkthrough step. */
+export function buildGoldenSponsorPackageWalkthroughStepHref(stepId: GoldenSponsorPackageWalkthroughStepId): string {
+  switch (stepId) {
+    case "open-package":
+      return withGoldenWalkthroughQuery(showcaseSpecimenSealedReviewRecordHref());
+    case "review-findings":
+      return withGoldenWalkthroughQuery(showcaseSpecimenFindingsHref());
+    case "signed-record":
+      return withGoldenWalkthroughQuery(showcaseSpecimenSealedReviewRecordHref());
+    case "sponsor-export":
+      return buildGoldenSponsorPackageWalkthroughHref();
+    default: {
+      const exhaustive: never = stepId;
+      return exhaustive;
+    }
+  }
 }
