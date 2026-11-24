@@ -1,4 +1,7 @@
 ﻿using ArchLucid.Api.Controllers.Planning;
+using ArchLucid.Api.Support;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Retrieval;
@@ -26,7 +29,9 @@ public sealed class RetrievalControllerTests
             retrieval.Object,
             scopeProvider.Object,
             Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>())
+            Mock.Of<IManifestHashService>(),
+            Mock.Of<IArchitectureShareAccessGate>(),
+            CreateRunRepository())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -55,7 +60,9 @@ public sealed class RetrievalControllerTests
             retrieval.Object,
             scopeProvider.Object,
             Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>())
+            Mock.Of<IManifestHashService>(),
+            Mock.Of<IArchitectureShareAccessGate>(),
+            CreateRunRepository())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -87,7 +94,9 @@ public sealed class RetrievalControllerTests
             retrieval.Object,
             scopeProvider.Object,
             Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>())
+            Mock.Of<IManifestHashService>(),
+            Mock.Of<IArchitectureShareAccessGate>(),
+            CreateRunRepository())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -98,5 +107,14 @@ public sealed class RetrievalControllerTests
         retrieval.Verify(
             r => r.SearchAsync(It.Is<RetrievalQuery>(q => q.TopK == 50), It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    private static IRunRepository CreateRunRepository()
+    {
+        Mock<IRunRepository> runs = new();
+        runs.Setup(r => r.ListRecentInScopeKeysetAsync(
+                It.IsAny<ScopeContext>(), null, null, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunListPage([new RunRecord { RunId = Guid.NewGuid() }], false));
+        return runs.Object;
     }
 }
