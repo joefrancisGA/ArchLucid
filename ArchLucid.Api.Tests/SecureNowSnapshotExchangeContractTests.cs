@@ -174,9 +174,11 @@ public sealed class SecureNowSnapshotExchangeContractTests
             anchorAllowed ? Times.Once() : Times.Never());
         if (anchorAllowed && historyAllowed)
         {
-            result.Should().BeOfType<OkObjectResult>().Which.Value
-                .Should().BeOfType<ArchLucid.Provenance.ArchitectureGraphTemporalSnapshotResponse>()
-                .Which.ResolvedRunId.Should().Be(historical.RunId);
+            authority.Verify(a => a.GetRunDetailAsync(Scope, historical.RunId, ct), Times.Once);
+            authority.Verify(a => a.GetRunDetailForManifestCompareAsync(Scope, Run, ct), Times.Once);
+            // These distinct runs have no create-time pins. Sharing permits the reads and
+            // the independent integrity guard then rejects the incomplete comparison.
+            result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
         }
         else
         {
