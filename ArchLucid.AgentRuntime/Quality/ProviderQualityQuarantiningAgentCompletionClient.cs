@@ -30,7 +30,7 @@ public sealed class ProviderQualityQuarantiningAgentCompletionClient(
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        ProviderQualityAdmission admission = Admit();
+        ProviderQualityAdmission admission = await AdmitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             return await _inner.CompleteJsonAsync(
@@ -39,7 +39,8 @@ public sealed class ProviderQualityQuarantiningAgentCompletionClient(
         catch
         {
             if (admission.RecoveryProbe)
-                _monitor.RecordRecoveryProbeFailure(admission.Key ?? CurrentKey());
+                await _monitor.RecordRecoveryProbeFailureAsync(admission.Key ?? CurrentKey(), CancellationToken.None)
+                    .ConfigureAwait(false);
             throw;
         }
     }
@@ -60,7 +61,7 @@ public sealed class ProviderQualityQuarantiningAgentCompletionClient(
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        ProviderQualityAdmission admission = Admit();
+        ProviderQualityAdmission admission = await AdmitAsync(cancellationToken).ConfigureAwait(false);
         bool completed = false;
         try
         {
@@ -77,13 +78,15 @@ public sealed class ProviderQualityQuarantiningAgentCompletionClient(
         finally
         {
             if (!completed && admission.RecoveryProbe)
-                _monitor.RecordRecoveryProbeFailure(CurrentKey());
+                await _monitor.RecordRecoveryProbeFailureAsync(admission.Key ?? CurrentKey(), CancellationToken.None)
+                    .ConfigureAwait(false);
         }
     }
 
-    private ProviderQualityAdmission Admit()
+    private async Task<ProviderQualityAdmission> AdmitAsync(CancellationToken cancellationToken)
     {
-        ProviderQualityAdmission admission = _monitor.Admit(Descriptor.ProviderKind, Descriptor.ModelId);
+        ProviderQualityAdmission admission = await _monitor.AdmitAsync(
+            Descriptor.ProviderKind, Descriptor.ModelId, cancellationToken).ConfigureAwait(false);
         if (!admission.Allowed)
             throw new ProviderQualityQuarantinedException(CurrentKey(), admission.RetryAfterUtc, admission.Reason);
         return admission;

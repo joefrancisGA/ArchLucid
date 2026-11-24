@@ -1,4 +1,5 @@
 using ArchLucid.AgentRuntime.Quality;
+using ArchLucid.Core.Resilience;
 
 using FluentAssertions;
 
@@ -150,6 +151,81 @@ public sealed class ProviderQualityMonitorTests
             It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()), Times.Never);
         secondaryInner.Verify(x => x.CompleteJsonAsync(
             It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Durable_state_aggregates_replicas_deduplicates_and_survives_monitor_recreation()
+    {
+        SharedTestStore store = new();
+        ManualTimeProvider clock = new();
+        DurableProviderQualityMonitor a = CreateDurableMonitor(store, clock);
+        DurableProviderQualityMonitor b = CreateDurableMonitor(store, clock);
+        CancellationToken ct = CancellationToken.None;
+
+        await a.RecordAsync(Sample("first", ProviderQualityLabel.Unsupported, true), ct);
+        ProviderQualityRecordResult duplicate = await b.RecordAsync(
+            Sample("first", ProviderQualityLabel.Unsupported, true), ct);
+        duplicate.Snapshot.KnownSampleCount.Should().Be(1);
+        for (int i = 1; i < 5; i++)
+            await (i % 2 == 0 ? a : b).RecordAsync(Sample($"bad-{i}", ProviderQualityLabel.Unsupported, true), ct);
+
+        DurableProviderQualityMonitor restarted = CreateDurableMonitor(store, clock);
+        (await restarted.AdmitAsync("AZURE-OPENAI", "PRIMARY", ct)).Allowed.Should().BeFalse();
+        (await restarted.AdmitAsync("azure-openai", "other", ct)).Allowed.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Durable_recovery_admits_only_one_replica_and_rejects_unrelated_recovery_evidence()
+    {
+        SharedTestStore store = new();
+        ManualTimeProvider clock = new();
+        DurableProviderQualityMonitor a = CreateDurableMonitor(store, clock);
+        DurableProviderQualityMonitor b = CreateDurableMonitor(store, clock);
+        CancellationToken ct = CancellationToken.None;
+
+        for (int i = 0; i < 5; i++)
+            await a.RecordAsync(Sample($"bad-{i}", ProviderQualityLabel.Contradicted, true), ct);
+
+        clock.Advance(TimeSpan.FromSeconds(31));
+        ProviderQualityAdmission[] admissions = await Task.WhenAll(
+            Task.Run(() => a.AdmitAsync("azure-openai", "primary", ct), ct),
+            Task.Run(() => b.AdmitAsync("azure-openai", "primary", ct), ct));
+        admissions.Count(static admission => admission.RecoveryProbe).Should().Be(1);
+        admissions.Count(static admission => admission.Allowed).Should().Be(1);
+
+        ProviderQualityRecordResult unrelated = await b.RecordAsync(
+            Sample("ordinary-response", ProviderQualityLabel.Supported, true), ct);
+        unrelated.Snapshot.Quarantined.Should().BeTrue();
+        unrelated.Snapshot.RecoveryProbeInFlight.Should().BeTrue();
+        clock.Advance(TimeSpan.FromSeconds(11));
+        (await b.AdmitAsync("azure-openai", "primary", ct)).Allowed.Should().BeFalse();
+    }
+
+    private static DurableProviderQualityMonitor CreateDurableMonitor(SharedTestStore store, TimeProvider clock) =>
+        new(Options.Create(new ProviderQualityOptions
+        {
+            MinimumIndependentKnownSamples = 5,
+            QuarantineSeconds = 30,
+            RecoveryProbeLeaseSeconds = 10,
+        }), store, clock);
+
+    private sealed class SharedTestStore : IProviderQualityStateStore
+    {
+        private readonly Dictionary<string, string> _states = new(StringComparer.Ordinal);
+        private readonly Lock _sync = new();
+
+        public Task<TResult> UpdateAsync<TResult>(string deploymentKey,
+            Func<string?, (string? Replacement, TResult Result)> update, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            lock (_sync)
+            {
+                (string? replacement, TResult result) = update(_states.GetValueOrDefault(deploymentKey));
+                if (replacement is not null)
+                    _states[deploymentKey] = replacement;
+                return Task.FromResult(result);
+            }
+        }
     }
 
     private static ProviderQualityMonitor CreateMonitor(int minimumSamples, TimeProvider? clock = null)

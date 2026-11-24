@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Quality;
@@ -14,6 +16,9 @@ public enum ProviderQualityLabel
 public sealed class ProviderQualityOptions
 {
     public const string SectionPath = "ArchLucid:Agents:ProviderQuality";
+
+    // Enable only after the system-catalog migration is deployed and verified.
+    public bool UseDurableState { get; set; }
 
     public bool Enabled { get; set; } = true;
     public bool EnforceQuarantine { get; set; } = true;
@@ -78,11 +83,9 @@ public sealed record ProviderQualityAdmission(
 
 public interface IProviderQualityMonitor
 {
-    ProviderQualityRecordResult Record(ProviderQualityAdjudication adjudication);
-    ProviderQualitySnapshot GetSnapshot(ProviderQualityKey key);
-    ProviderQualityAdmission Admit(string? providerId, string? modelId);
-    void RecordRecoveryProbeFailure(ProviderQualityKey key);
-    ProviderQualityRecordResult SetHumanOverride(ProviderQualityKey key, bool allow);
+    Task<ProviderQualityAdmission> AdmitAsync(string? providerId, string? modelId, CancellationToken cancellationToken);
+    Task<ProviderQualityRecordResult> RecordAsync(ProviderQualityAdjudication sample, CancellationToken cancellationToken);
+    Task RecordRecoveryProbeFailureAsync(ProviderQualityKey key, CancellationToken cancellationToken);
 }
 
 /// <summary>
@@ -101,6 +104,28 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
         _options = (options ?? throw new ArgumentNullException(nameof(options))).Value;
         _options.Normalize();
         _clock = clock ?? TimeProvider.System;
+    }
+
+    // Durable mode cannot trust a later, uncorrelated trace to resolve a shared lease.
+    internal bool AllowUncorrelatedRecovery { get; init; } = true;
+
+    public Task<ProviderQualityAdmission> AdmitAsync(string? providerId, string? modelId, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult(Admit(providerId, modelId));
+    }
+
+    public Task<ProviderQualityRecordResult> RecordAsync(ProviderQualityAdjudication sample, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult(Record(sample));
+    }
+
+    public Task RecordRecoveryProbeFailureAsync(ProviderQualityKey key, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        RecordRecoveryProbeFailure(key);
+        return Task.CompletedTask;
     }
 
     public ProviderQualityRecordResult Record(ProviderQualityAdjudication adjudication)
@@ -122,7 +147,7 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
             if (effective == ProviderQualityLabel.Unknown)
             {
                 entry.UnknownSamples++;
-                if (entry.RecoveryProbeInFlight)
+                if (entry.RecoveryProbeInFlight && AllowUncorrelatedRecovery)
                 {
                     ReopenAfterProbe(entry, "Recovery probe was not independently adjudicated.");
                     return new ProviderQualityRecordResult(Snapshot(adjudication.Key, entry), true, "reopened");
@@ -141,7 +166,7 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
                 entry.BadWeight += weight * (effective == ProviderQualityLabel.Contradicted ? 1.5 : 1.0);
             }
 
-            if (entry.RecoveryProbeInFlight)
+            if (entry.RecoveryProbeInFlight && AllowUncorrelatedRecovery)
             {
                 if (effective == ProviderQualityLabel.Supported)
                 {
@@ -312,19 +337,39 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
             entry.RecoveryProbeInFlight,
             entry.LastReason);
 
+    internal string ExportState() => JsonSerializer.Serialize(_entries.Select(static pair =>
+        new PersistedEntry(pair.Key, pair.Value)).ToArray());
+
+    internal void ImportState(string? payload)
+    {
+        if (payload is null)
+            return;
+
+        PersistedEntry[] entries = JsonSerializer.Deserialize<PersistedEntry[]>(payload)
+            ?? throw new JsonException("Provider quality state must contain an array.");
+        foreach (PersistedEntry row in entries)
+            _entries.Add(row.Key, row.State);
+    }
+
+    private sealed record PersistedEntry(ProviderQualityKey Key, Entry State);
+
     private sealed class Entry
     {
-        internal HashSet<string> SampleIds { get; } = new(StringComparer.Ordinal);
-        internal int KnownSamples;
-        internal int UnknownSamples;
-        internal int BadSamples;
-        internal double TotalWeight;
-        internal double BadWeight;
-        internal bool Quarantined;
-        internal DateTimeOffset? QuarantinedUntilUtc;
-        internal bool HumanOverride;
-        internal bool RecoveryProbeInFlight;
-        internal DateTimeOffset? RecoveryProbeStartedUtc;
-        internal string? LastReason;
+        public Entry()
+        {
+        }
+
+        public HashSet<string> SampleIds { get; set; } = new(StringComparer.Ordinal);
+        public int KnownSamples { get; set; }
+        public int UnknownSamples { get; set; }
+        public int BadSamples { get; set; }
+        public double TotalWeight { get; set; }
+        public double BadWeight { get; set; }
+        public bool Quarantined { get; set; }
+        public DateTimeOffset? QuarantinedUntilUtc { get; set; }
+        public bool HumanOverride { get; set; }
+        public bool RecoveryProbeInFlight { get; set; }
+        public DateTimeOffset? RecoveryProbeStartedUtc { get; set; }
+        public string? LastReason { get; set; }
     }
 }

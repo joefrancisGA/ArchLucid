@@ -20,7 +20,8 @@ public sealed partial class AgentOutputEvaluationRecorder
         AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult evaluated,
         CancellationToken cancellationToken)
     {
-        if (_providerQualityMonitor is null)
+        // Tenant-selected providers are not samples of the shared hosted deployment.
+        if (_providerQualityMonitor is null || !string.IsNullOrWhiteSpace(trace.ProviderConnectionId))
             return;
 
         string? providerId = _llmTelemetryLabels?.CurrentValue.ProviderId;
@@ -57,7 +58,7 @@ public sealed partial class AgentOutputEvaluationRecorder
                 : "independent_adjudication_unavailable";
 
         ProviderQualityKey key = ProviderQualityKey.Create(providerId, modelId, modelVersion);
-        ProviderQualityRecordResult recorded = _providerQualityMonitor.Record(
+        ProviderQualityRecordResult recorded = await _providerQualityMonitor.RecordAsync(
             new ProviderQualityAdjudication(
                 BuildSampleId(key, trace),
                 key,
@@ -65,7 +66,8 @@ public sealed partial class AgentOutputEvaluationRecorder
                 severityWeight,
                 independentlyChecked,
                 method,
-                new DateTimeOffset(DateTime.SpecifyKind(trace.CreatedUtc, DateTimeKind.Utc))));
+                new DateTimeOffset(DateTime.SpecifyKind(trace.CreatedUtc, DateTimeKind.Utc))),
+            cancellationToken).ConfigureAwait(false);
 
         if (!recorded.StateChanged)
             return;
