@@ -301,6 +301,55 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         cost.Verify(e => e.EstimateUsd(10, 70, 30, null, null), Times.Once);
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task RecordUsageAndMaybeWarnAsync_without_billable_cost_releases_in_flight_reservation(
+        bool zeroUsage)
+    {
+        LlmMonthlyTenantDollarBudgetOptions opts = new()
+        {
+            Enabled = true,
+            IncludedUsdPerUtcMonth = 50m,
+            HardCutoffUsdPerUtcMonth = 75m,
+            MaxConcurrentInFlightMonthlyReservations = 1,
+            AssumedMaxPromptTokensPerRequest = 1,
+            AssumedMaxCompletionTokensPerRequest = 1,
+        };
+
+        Mock<IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>> monitor = new();
+        monitor.Setup(m => m.CurrentValue).Returns(opts);
+        Mock<ILlmCostEstimator> cost = new();
+        cost.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(1m);
+        cost.Setup(e => e.EstimateUsd(
+                It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), null, null))
+            .Returns((decimal?)null);
+
+        InMemoryLlmTenantBudgetRepository repo = new();
+        LlmMonthlyTenantDollarBudgetTracker tracker = CreateTracker(monitor.Object, cost.Object, repo);
+        Guid tenant = Guid.NewGuid();
+
+        (decimal? reserved, bool overage) =
+            await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
+
+        reserved.Should().BePositive();
+        overage.Should().BeFalse();
+
+        await tracker.RecordUsageAndMaybeWarnAsync(
+            tenant, "azure-openai", CreateScopeProvider(tenant), null,
+            zeroUsage ? 0 : 10, zeroUsage ? 0 : 10, 0,
+            reserved, overage, CancellationToken.None);
+
+        // The prior call must no longer hold the tenant's only in-flight slot.
+        (decimal? nextReserved, bool nextOverage) =
+            await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
+
+        nextReserved.Should().BePositive();
+        nextOverage.Should().BeFalse();
+        await tracker.ReleasePendingReservationIfAnyAsync(
+            tenant, "azure-openai", nextReserved, nextOverage, CancellationToken.None);
+    }
+
     [SkippableFact]
     public async Task RecordUsageAndMaybeWarnAsync_zero_usage_does_not_settle()
     {

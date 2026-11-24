@@ -64,12 +64,25 @@ public sealed partial class LlmMonthlyTenantDollarBudgetTracker
             return;
 
         if (!LlmCompletionUsageBillingNormalization.HasMeasurableUsage(billable))
+        {
+            // A provider may return measured zero usage after a successful reservation.
+            // This is a completion, but no settlement can consume the reservation.
+            await ReleasePendingReservationIfAnyAsync(
+                    tenantId, providerKind, pendingReservedUsd, overageActive, CancellationToken.None)
+                .ConfigureAwait(false);
             return;
+        }
 
         decimal? addUsd = _costEstimator.EstimateUsd(billable.Prompt, billable.Output, billable.Reasoning);
 
         if (addUsd is null or <= 0m)
+        {
+            // Missing or zero pricing must also release an in-flight monthly reservation.
+            await ReleasePendingReservationIfAnyAsync(
+                    tenantId, providerKind, pendingReservedUsd, overageActive, CancellationToken.None)
+                .ConfigureAwait(false);
             return;
+        }
 
         decimal warnAt = decimal.Round(
             opts.IncludedUsdPerUtcMonth * decimal.Clamp(opts.WarnFraction, 0.01m, 0.99m),
