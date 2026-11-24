@@ -270,7 +270,11 @@ export function secureNowQuestionDispositionResponseResourceIdMatchesRequest(
   dispositionResourceId: string,
   requestResourceId: string,
 ): boolean {
-  return dispositionResourceId.trim() === requestResourceId.trim();
+  const responseResourceId = dispositionResourceId.trim();
+  const requestResourceIdNormalized = requestResourceId.trim();
+
+  // Application identity + disposition writes normalize resource ids with ToLowerInvariant.
+  return responseResourceId.toLowerCase() === requestResourceIdNormalized.toLowerCase();
 }
 
 function secureNowQuestionDispositionResponseTrimmedStringMatchesRequest(

@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 thorough hunt #501 (dry): `ui-claim-discipline-policy` pass-44 monitors. Scoped vitest **44/44**. Private beta: n/a.
+> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (seed→hit): `securenow-question-queue` ARM resource id POST matcher casing. Scoped vitest **151/151**. Private beta: SecureNow save no longer drops successful answer POSTs when the API returns a lowercased ARM resource id.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -17242,6 +17242,20 @@ ABQ-09 churn hotspot.
 2026-10-03 thorough hunt (dry): `securenow-question-queue` — cheap-disproved the empty-`AzureResourceId` candidate because inventory resource identifiers are non-nullable at the model and database boundary; the scoped test project could not compile because of unrelated pre-existing ARCH006/ARCH006a analyzer errors across Persistence.
 
 ## Zone: securenow-question-queue
+2026-11-24 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted pass-47 `secureNowQuestionDispositionResponseResourceIdMatchesRequest` ARM resource id casing drift — POST validator used ordinal equality while Application `NormalizeResourceId` uses `ToLowerInvariant`; case-insensitive match after trim; regressions `treats case-only resource id differences as matching the submitted request` and `accepts POST answer when response resource id differs only by case from the submitted write`. Cheap-disproof closed four sibling pass-47 monitors (**invalid** MERGE, **invalid** optimistic merge, **valid-no-repro** fingerprint case, **valid-no-repro** list envelope). Reseeded five pass-48 `(candidate)` monitors below. Scoped vitest **151/151**. Private beta: SecureNow resource-scope saves no longer fail silently on lowercased ARM resource ids from the API.
+
+- [x] (proven) `secureNowQuestionDispositionResponseResourceIdMatchesRequest` — ARM resource id case drift — **hit 2026-11-24 seed hunt.**
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — MERGE collision — **cheap-disproof 2026-11-24 seed hunt.**
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge — **cheap-disproof 2026-11-24 seed hunt.**
+- [x] (valid-no-repro) `secureNowQuestionDispositionResponseEvidenceFingerprintMatchesRequest` — fingerprint case — **cheap-disproof 2026-11-24 seed hunt.**
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — `{ items }` envelope — **cheap-disproof 2026-11-24 seed hunt.**
+
+- [ ] (candidate) `reopenSecureNowQuestion` — reopen POST resource id casing — monitor.
+- [ ] (candidate) `secureNowQuestionDispositionResponseSourceMatchesRequest` — source casing on POST — monitor.
+- [ ] (candidate) `secureNowQuestionDispositionResponseScopeKindMatchesRequest` — scope kind casing — monitor.
+- [ ] (candidate) `ignoreSecureNowQuestion` — dismiss POST resource id casing — monitor.
+- [ ] (candidate) `SecureNowQuestionCompiler` — list resourceId vs normalized join — monitor.
+
 2026-11-24 thorough hunt #496 (hit): no rotation (shouldRotate: false; reason: No low-yield streak; keep default picker choice.; streak zone ui-infra-resource-hub at run-log tail is 1/3 dry before this record). Promoted pass-46 secureNowQuestionDispositionResponseSubscriptionIdMatchesRequest casing drift — POST disposition validator compared subscription ids with ordinal equality while Application identity and disposition writes normalize with ToLowerInvariant; successful answers could return undefined when the API returned lowercase subscription GUIDs. Case-insensitive match after trim; regressions treats case-only subscription id differences as matching the submitted request and accepts POST answer when response subscription id differs only by case from the submitted write. Cheap-disproof closed four sibling pass-46 monitors — valid-no-repro reopen snapshot trim (secureNowQuestionListedSnapshotMatchesContext + POST trim regression family), valid-no-repro list status casing (secureNowQuestionDispositionStatusCanonical lowercases), valid-no-repro reopen QuestionKey echo (shared POST key matcher family from seed hunt), valid-no-repro provider mutation focus after POST (reload-only identity; key matcher parity). Reseeded five pass-47 (candidate) rows. Scoped vitest 148/148 securenow-question-queue-api.test.ts. Private beta: SecureNow answer save no longer fails silently when the disposition API returns a normalized lowercase subscription id while the operator submitted mixed-case ARM subscription scope.
 
 2026-11-24 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone **`securenow-question-queue`** was **1/3** seed-only at tail). Promoted pass-45 compiler/UI **`NormalizeQuestionKey`** casing drift — POST disposition validator compared question keys with ordinal equality while Application persists **`ToLowerInvariant`**; successful answers could return `undefined` when list JSON carried mixed case. Case-insensitive match in `secureNowQuestionDispositionResponseQuestionKeyMatchesRequest`; regressions on matcher + answer POST path. Cheap-disproof closed four sibling pass-45 monitors — **valid-no-repro** reopen source/scope gate (reopen write omits `source`; `isUsable` still validates stored fields), **valid-no-repro** inferred fingerprint preflight vs answer write (intentional list exemption), **invalid** NoOp repository on InMemory host, **valid-no-repro** whitespace `expectedListedDispositionId` skip (regression family). Reseeded five pass-46 `(candidate)` rows. Scoped vitest **146/146** `securenow-question-queue-api.test.ts`. Product commit **`18261c6f69`**. Private beta: SecureNow save after answer no longer fails silently when the API returns a normalized lowercase question key.
@@ -17261,11 +17275,8 @@ ABQ-09 churn hotspot.
 
 - [x] (superseded) pass-46 `(candidate)` queue — **superseded 2026-11-24 thorough hunt #496 (hit):** closed at zone header; see pass-47 reseed.
 
-- [ ] (candidate) `secureNowQuestionDispositionResponseResourceIdMatchesRequest` — ARM resource id case drift vs server Normalize — locus: POST match; monitor; pass-47 reseed.
-- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent MERGE identity hash collision — locus: SQL repository; input: integration repro when SQL host available; monitor; pass-47 reseed.
-- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only; monitor; pass-47 reseed.
-- [ ] (candidate) `secureNowQuestionDispositionResponseEvidenceFingerprintMatchesRequest` — fingerprint case drift on POST answer path — locus: evidence match; monitor; pass-47 reseed.
-- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — proxy wraps list in `{ items }` envelope — locus: contract drift; input: only if API shape changes; monitor; pass-47 reseed.
+- [x] (superseded) pass-47 `(candidate)` queue — **superseded 2026-11-24 seed hunt (seed→hit):** closed at zone header; see pass-48 reseed.
+
 
 - [x] (superseded) pass-45 `(candidate)` queue — **superseded 2026-11-24 seed hunt (seed→hit):** closed at zone header; see pass-46 reseed.
 2026-11-24 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone **`ui-lib-api`** at run-log tail). Reread queue API, provider, compiler, and disposition service paths; closed five pass-44 `(candidate)` monitors from hunt **#494** reseed via cheap-disproof (MERGE integration **invalid**; subscription list/compiler drift **valid-no-repro**; inferred-connection reload **valid-no-repro**; open keyed preflight drop **valid-no-repro**; optimistic JSON merge **invalid**). No row met hunt-ready; reseeded five pass-45 `(candidate)` monitors below. Scoped vitest **145/145** (`securenow-question-queue-api.test.ts`, `securenow-question-queue-provider.test.ts`). Private beta: n/a.
@@ -19690,8 +19701,8 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 3
-- **bugs-found:** 2
+- **hunts:** 4
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
