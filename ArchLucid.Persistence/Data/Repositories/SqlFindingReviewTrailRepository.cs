@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Serialization;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -139,12 +140,11 @@ public sealed class SqlFindingReviewTrailRepository(ISqlConnectionFactory connec
 
     private static FindingReviewEventRecord Map(FindingReviewEventRow row)
     {
-        Enum.TryParse(row.Action, true, out FindingReviewAction action);
+        FindingReviewAction action = DefinedEnum.Parse<FindingReviewAction>(row.Action, ignoreCase: true);
         FindingDisposition? disposition = null;
 
-        if (!string.IsNullOrWhiteSpace(row.Disposition)
-            && Enum.TryParse(row.Disposition, true, out FindingDisposition parsed))
-            disposition = parsed;
+        if (!string.IsNullOrWhiteSpace(row.Disposition))
+            disposition = DefinedEnum.Parse<FindingDisposition>(row.Disposition, ignoreCase: true);
 
         return new FindingReviewEventRecord
         {
