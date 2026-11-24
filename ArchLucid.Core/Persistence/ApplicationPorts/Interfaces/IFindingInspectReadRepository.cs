@@ -9,6 +9,13 @@ namespace ArchLucid.Persistence.Interfaces;
 public interface IFindingInspectReadRepository
 {
     /// <summary>
+    /// Resolves the scoped candidate run identity without hydrating finding evidence.
+    /// Implementations without an ownership projection deny by default.
+    /// </summary>
+    Task<Guid?> GetRunIdByFindingIdAsync(ScopeContext scope, string findingId, CancellationToken ct) =>
+        Task.FromResult<Guid?>(null);
+
+    /// <summary>
     ///     Returns the inspector payload when a <see cref="Finding" /> exists in scope; otherwise
     ///     <see langword="null" />.
     /// </summary>
