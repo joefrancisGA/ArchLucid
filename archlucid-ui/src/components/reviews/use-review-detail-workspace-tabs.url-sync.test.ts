@@ -376,6 +376,25 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
     expect(window.location.search).not.toContain("visit-default-finding");
     expect(window.location.search).not.toContain("findingId=");
   });
+
+  it("does not apply visit-default navigation when the URL only carries workbenchFocus", () => {
+    searchParamsHarness.applyQuery("workbenchFocus=evidence");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?workbenchFocus=evidence");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?workbenchFocus=evidence");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
   it("clears findingId on first paint when a section hash selects overview", () => {
     searchParamsHarness.applyQuery("reviewTab=findings&findingId=finding-queue-1");
     window.history.replaceState(

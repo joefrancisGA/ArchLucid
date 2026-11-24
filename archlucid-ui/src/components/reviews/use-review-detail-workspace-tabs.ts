@@ -176,9 +176,11 @@ export function useReviewDetailWorkspaceTabs(
         params.get(REVIEW_DETAIL_FINDING_PARAM),
         params.get(ARCHITECTURE_DIAGRAM_FINDING_PARAM),
       ).length > 0;
+    const workbenchFocusPresent =
+      (params.get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM)?.trim() ?? "").length > 0;
     const hashPresent = window.location.hash.replace(/^#/, "").trim().length > 0;
 
-    if (reviewTabPresent || findingPresent || hashPresent) {
+    if (reviewTabPresent || findingPresent || workbenchFocusPresent || hashPresent) {
       visitDefaultAppliedRef.current = true;
 
       return;
