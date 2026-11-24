@@ -14,6 +14,7 @@ on:
       - 'ArchLucid.Host.Core/Startup/Validation/Rules/SqlDatabaseImmutabilityProbeHelpers.cs'
       - 'ArchLucid.Persistence/InfraEvidence/SqlAzureInventorySnapshotRepository.Delete.cs'
       - 'ArchLucid.Persistence.Tests/Sql/RemediationSqlRolePrivilegesTests.cs'
+      - 'ArchLucid.Persistence.Tests/InfraEvidence/SqlRemediationInstanceApprovalProvenanceTests.cs'
       - 'scripts/ci/tests/test_remediation_sql_role_permissions.py'
       - 'scripts/ci/tests/test_remediation_atomic_update_contract.py'
       - '.github/workflows/remediation-sql-role-permissions.yml'
@@ -89,10 +90,24 @@ jobs:
           if counters is None:
               raise SystemExit("FAIL: SQL permission test counters missing")
           values = {k: int(v) for k, v in counters.attrib.items() if v.isdigit()}
-          if (values.get("passed", 0) < 1
+          if (values.get("passed", 0) < 3
                   or values.get("failed", 0) != 0
                   or values.get("notExecuted", 0) != 0
                   or values.get("total", 0) != values.get("passed", 0)):
               raise SystemExit(f"FAIL: SQL permissions tests did not all execute and pass: {values}")
+          required_tests = {
+              "Role_denies_direct_dml_but_allows_guarded_procedure_and_rejects_stale_rowversion",
+              "Approval_writes_evidence_atomically_and_rejects_stale_foreign_and_failed_evidence_inserts",
+              "Verification_commits_evidence_atomically_and_rolls_back_when_receipt_insert_fails",
+          }
+          results = root.findall(".//t:UnitTestResult", ns)
+          for test in required_tests:
+              matches = [entry for entry in results
+                         if entry.attrib.get("testName", "").endswith(test)]
+              if len(matches) != 1 or matches[0].attrib.get("outcome") != "Passed":
+                  raise SystemExit(
+                      f"FAIL: required real SQL test {test} not executed and passed: "
+                      f"{[(entry.attrib.get('testName'), entry.attrib.get('outcome')) for entry in matches]}"
+                  )
           print(f"Verified disposable SQL permissions: {values['passed']} test(s) passed, none skipped")
           PY
