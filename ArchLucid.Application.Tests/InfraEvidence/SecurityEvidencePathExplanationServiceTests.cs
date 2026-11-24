@@ -1,4 +1,7 @@
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.InfraEvidence;
+using ArchLucid.Core;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Llm.Redaction;
@@ -8,6 +11,8 @@ using ArchLucid.Persistence.InfraEvidence;
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Time.Testing;
 
 using Moq;
 
@@ -131,6 +136,63 @@ public sealed class SecurityEvidencePathExplanationServiceTests
                 It.IsAny<float?>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Theory]
+    [InlineData("tokens", "token budget")]
+    [InlineData("cost", "cost budget")]
+    [InlineData("tenant", "tenant AI")]
+    [InlineData("deadline", "deadline elapsed")]
+    public async Task Verification_budget_falls_back_to_stored_evidence_and_leaves_claim_unverified(
+        string limit, string expectedReason)
+    {
+        Guid pathId = Guid.NewGuid();
+        InMemoryPathRepository paths = new();
+        paths.StoredPaths.Add(CreatePath(pathId, PathConfidenceBand.Probable));
+        paths.StoredHops.Add(CreateHop(pathId, 1, "evidence-1"));
+
+        Mock<IAgentCompletionClient> llm = new(MockBehavior.Strict);
+        ArchitectureIntelligencePipelineOptions options = new()
+        {
+            SemanticVerificationTokenAllowance = limit == "tokens" ? 0 : 16_384,
+            SemanticVerificationEstimatedUsdAllowance = limit == "cost" ? 0m : 0.25m,
+        };
+        FakeTimeProvider clock = new();
+        TaskCompletionSource<string> lateReply = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        if (limit == "deadline")
+        {
+            llm.Setup(client => client.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(),
+                    SecurityEvidencePathExplanationService.PathExplanationMaxOutputTokens, null, It.IsAny<CancellationToken>()))
+                .Returns(lateReply.Task);
+        }
+        else if (limit == "tenant")
+        {
+            llm.Setup(client => client.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(),
+                    SecurityEvidencePathExplanationService.PathExplanationMaxOutputTokens, null, It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new LlmTokenQuotaExceededException("Budget exhausted."));
+        }
+
+        CapturingExplanationRepository persisted = new();
+        var service = CreateSut(paths, persisted, llm.Object, CreatePassthroughRedactor(),
+            verificationOptions: options, timeProvider: clock);
+        var pending = service.TryBuildExplanationAsync(CreateScope(), pathId, useSimulator: false, allowInsufficientEvidence: false);
+        if (limit == "deadline")
+            clock.Advance(TimeSpan.FromSeconds(11));
+
+        var result = await pending.WaitAsync(TimeSpan.FromSeconds(2));
+        if (limit == "deadline")
+            lateReply.SetResult(ReadFixture("path-explanation-cited.json", pathId));
+
+        result.Succeeded.Should().BeTrue();
+        var explanation = persisted.LastInserted!;
+        explanation.ProvenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
+        explanation.CitedEvidenceRefs.Should().Contain("evidence-1");
+        explanation.ModelOutputRejection.Should().Contain(expectedReason).And.Contain("remains unverified");
+        if (limit is "tokens" or "cost")
+            llm.VerifyNoOtherCalls();
+        else
+            llm.Verify(client => client.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(),
+                SecurityEvidencePathExplanationService.PathExplanationMaxOutputTokens, null, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Theory]
@@ -482,7 +544,9 @@ public sealed class SecurityEvidencePathExplanationServiceTests
         IAgentCompletionClient llm,
         IPromptRedactor promptRedactor,
         ISecurityEvidenceCutPointRepository? cutPointRepository = null,
-        IAzureInventorySnapshotRepository? snapshots = null) =>
+        IAzureInventorySnapshotRepository? snapshots = null,
+        ArchitectureIntelligencePipelineOptions? verificationOptions = null,
+        TimeProvider? timeProvider = null) =>
         new(
             pathRepository,
             cutPointRepository ?? new NoOpCutPointRepository(),
@@ -490,7 +554,11 @@ public sealed class SecurityEvidencePathExplanationServiceTests
             llm,
             promptRedactor,
             NullLogger<SecurityEvidencePathExplanationService>.Instance,
-            snapshotRepository: snapshots);
+            snapshotRepository: snapshots,
+            timeProvider: timeProvider,
+            verificationOptions: Options.Create(verificationOptions ?? new()),
+            costEstimator: Mock.Of<ILlmCostEstimator>(value =>
+                value.EstimateUsd(It.IsAny<int>(), It.IsAny<int>(), 0, null, null) == 0.01m));
 
     private static string BuildPathExplanationLlmJson(
         Guid pathId,

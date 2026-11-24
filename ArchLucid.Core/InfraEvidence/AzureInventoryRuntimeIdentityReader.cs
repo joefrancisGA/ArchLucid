@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Core.Json;
+
 namespace ArchLucid.Core.InfraEvidence;
 
 /// <summary>
@@ -33,7 +35,7 @@ public static class AzureInventoryRuntimeIdentityReader
         {
             using JsonDocument document = JsonDocument.Parse(identityJson);
 
-            if (!TryGetPropertyIgnoreCase(document.RootElement, "principalId", out JsonElement principal)
+            if (!JsonObjectPropertyLookup.TryGetIgnoreCase(document.RootElement, "principalId", out JsonElement principal)
                 || principal.ValueKind is not JsonValueKind.String)
             {
                 return false;
@@ -92,7 +94,7 @@ public static class AzureInventoryRuntimeIdentityReader
         {
             using JsonDocument document = JsonDocument.Parse(identityJson);
 
-            if (!TryGetPropertyIgnoreCase(document.RootElement, "userAssignedIdentities", out JsonElement assigned)
+            if (!JsonObjectPropertyLookup.TryGetIgnoreCase(document.RootElement, "userAssignedIdentities", out JsonElement assigned)
                 || assigned.ValueKind is not JsonValueKind.Object)
             {
                 return false;
@@ -104,28 +106,5 @@ public static class AzureInventoryRuntimeIdentityReader
         {
             return false;
         }
-    }
-
-    private static bool TryGetPropertyIgnoreCase(
-        JsonElement element,
-        string propertyName,
-        out JsonElement value)
-    {
-        foreach (JsonProperty property in element.EnumerateObject())
-        {
-
-            if (!property.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            value = property.Value;
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
     }
 }

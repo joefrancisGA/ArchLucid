@@ -224,20 +224,11 @@ public sealed class ArchitectureIntelligenceLlmGateway : IArchitectureIntelligen
 
         cancellationToken.ThrowIfCancellationRequested();
         var (outputTokens, timeout) = _verificationBudget.Reserve(claimedConclusion, systemPrompt, userPrompt);
-        using CancellationTokenSource deadline = new(timeout, _clock);
-        using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, deadline.Token);
-
-        string? responseJson;
-        try
-        {
-            responseJson = await TryCompleteJsonAsync(_completionClient, systemPrompt, userPrompt, linked.Token, outputTokens)
-                .WaitAsync(linked.Token).ConfigureAwait(false);
-            linked.Token.ThrowIfCancellationRequested();
-        }
-        catch (OperationCanceledException) when (deadline.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
-        {
-            throw new SemanticVerificationDeferredException("The semantic verification deadline elapsed.");
-        }
+        string? responseJson = await SemanticVerificationBudget.RunWithDeadlineAsync(
+            timeout, _clock,
+            token => TryCompleteJsonAsync(_completionClient, systemPrompt, userPrompt, token,
+                outputTokens, propagateQuotaDenial: true),
+            cancellationToken).ConfigureAwait(false);
 
         if (string.IsNullOrWhiteSpace(responseJson))
         {

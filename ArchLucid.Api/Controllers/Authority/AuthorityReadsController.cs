@@ -42,7 +42,6 @@ public sealed partial class AuthorityReadsController(
     IManifestHashService manifestHashService,
     IScopeContextProvider scopeContextProvider,
     IAuthorityQueryService authorityQueryService,
-    IRunDetailQueryService runDetailQueryService,
     IArchitectureShareAccessGate architectureShareAccessGate) : ControllerBase
 {
     private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
@@ -53,9 +52,6 @@ public sealed partial class AuthorityReadsController(
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
-
-    private readonly IRunDetailQueryService _runDetailQueryService =
-        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -98,30 +94,7 @@ public sealed partial class AuthorityReadsController(
         try
         {
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-            IActionResult? sealedGuardResult = await EnsureRunInventorySealedManifestReadAllowedAsync(scope, ct);
-
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
-
-            (IReadOnlyList<RunSummaryDto> Items, bool HasMore) keysetPage =
-                await readHandlers.ListRunsInScopeKeysetAsync(createdUtc, runId, effectiveTake, ct);
-
-            string? nextCursor =
-                keysetPage is { HasMore: true, Items.Count: > 0 }
-                    ? RunCursorCodec.Encode(keysetPage.Items[^1].CreatedUtc, keysetPage.Items[^1].RunId)
-                    : null;
-
-            IReadOnlyList<RunSummaryResponse> mapped =
-                keysetPage.Items.Select(AuthorityRunReadHandlers.ToRunSummaryResponse).ToList();
-
-            return Ok(
-                new CursorPagedResponse<RunSummaryResponse>
-                {
-                    Items = mapped,
-                    NextCursor = nextCursor,
-                    HasMore = keysetPage.HasMore,
-                    RequestedTake = effectiveTake
-                });
+            return Ok(await readHandlers.ReadInventoryAsync(User, scope, null, createdUtc, runId, effectiveTake, ct));
         }
         catch (ConflictException ex)
         {

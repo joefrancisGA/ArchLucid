@@ -68,7 +68,10 @@ public sealed class AuthorityQueryControllerDispositionTests
             Mock.Of<IActorContext>(),
             Mock.Of<IEffectiveAgentExecutionModeAccessor>(),
             Mock.Of<IManifestHashService>(),
-            Mock.Of<ILogger<AuthorityRunReadHandlers>>());
+            Mock.Of<ILogger<AuthorityRunReadHandlers>>(),
+            new AuthorityRunInventoryQuery(Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+                Mock.Of<IAgentExecutionTraceRepository>()),
+            _shareAccessGate.Object);
 
         return new(
             _queryService.Object,
@@ -79,7 +82,6 @@ public sealed class AuthorityQueryControllerDispositionTests
             Mock.Of<IActorContext>(),
             _dispositionService.Object,
             Mock.Of<IManifestHashService>(),
-            Mock.Of<IRunDetailQueryService>(),
             Mock.Of<IConfiguration>(),
             Mock.Of<IEffectiveAgentExecutionModeAccessor>(),
             _shareAccessGate.Object,

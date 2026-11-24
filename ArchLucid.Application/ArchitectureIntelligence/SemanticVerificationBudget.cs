@@ -21,6 +21,11 @@ internal sealed class SemanticVerificationBudget(
 
         int outputTokens = material ? 256 : 128;
         int maxInputTokens = material ? 8_192 : 2_048;
+        return (outputTokens, Reserve(systemPrompt, userPrompt, material, maxInputTokens, outputTokens));
+    }
+
+    internal TimeSpan Reserve(string systemPrompt, string userPrompt, bool material, int maxInputTokens, int outputTokens)
+    {
         // UTF-8 bytes conservatively size byte-tokenized text. Keep a separate protocol allowance.
         long inputTokens = (long)Encoding.UTF8.GetByteCount(systemPrompt) +
             Encoding.UTF8.GetByteCount(userPrompt) + PromptProtocolTokenAllowance;
@@ -59,7 +64,28 @@ internal sealed class SemanticVerificationBudget(
             _reservedEstimatedUsd += cost.Value;
         }
 
-        return (outputTokens, timeout);
+        return timeout;
+    }
+
+    internal static async Task<T> RunWithDeadlineAsync<T>(
+        TimeSpan timeout,
+        TimeProvider clock,
+        Func<CancellationToken, Task<T>> complete,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using CancellationTokenSource deadline = new(timeout, clock);
+        using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, deadline.Token);
+        try
+        {
+            T result = await complete(linked.Token).WaitAsync(linked.Token).ConfigureAwait(false);
+            linked.Token.ThrowIfCancellationRequested();
+            return result;
+        }
+        catch (OperationCanceledException) when (deadline.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+        {
+            throw new SemanticVerificationDeferredException("The semantic verification deadline elapsed.");
+        }
     }
 }
 

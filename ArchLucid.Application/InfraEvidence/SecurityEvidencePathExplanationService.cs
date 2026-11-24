@@ -1,6 +1,9 @@
 using ArchLucid.Application;
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.InfraEvidence;
+using ArchLucid.Core;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Llm.Redaction;
@@ -8,6 +11,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.InfraEvidence;
 
@@ -20,9 +24,14 @@ public sealed class SecurityEvidencePathExplanationService(
     ILogger<SecurityEvidencePathExplanationService> logger,
     ISecurityEvidencePathRankRepository? rankRepository = null,
     IAzureInventorySnapshotRepository? snapshotRepository = null,
-    TimeProvider? timeProvider = null) : ISecurityEvidencePathExplanationService
+    TimeProvider? timeProvider = null,
+    IOptions<ArchitectureIntelligencePipelineOptions>? verificationOptions = null,
+    ILlmCostEstimator? costEstimator = null) : ISecurityEvidencePathExplanationService
 {
     public const int PathExplanationMaxOutputTokens = 800;
+
+    private readonly SemanticVerificationBudget _verificationBudget = new(
+        verificationOptions?.Value ?? new(), costEstimator);
 
     private const string ExplanationSystemPrompt =
         "You are an enterprise cloud security architect summarizing a cited SecureNow architect path. "
@@ -123,11 +132,20 @@ public sealed class SecurityEvidencePathExplanationService(
 
                 try
                 {
-                    string llmJson = await llm.CompleteJsonAsync(
-                        ExplanationSystemPrompt,
-                        redactedPrompt.Text,
-                        maxTokens: PathExplanationMaxOutputTokens,
-                        cancellationToken: cancellationToken);
+                    cancellationToken.ThrowIfCancellationRequested();
+                    // A stored crown-jewel assertion identifies a material path without trusting model output.
+                    bool material = path.CrownJewelAssertionId.HasValue;
+                    TimeSpan timeout = _verificationBudget.Reserve(
+                        ExplanationSystemPrompt, redactedPrompt.Text, material,
+                        maxInputTokens: material ? 16_384 : 8_192, outputTokens: PathExplanationMaxOutputTokens);
+                    string llmJson = await SemanticVerificationBudget.RunWithDeadlineAsync(
+                        timeout, timeProvider ?? TimeProvider.System,
+                        token => llm.CompleteJsonAsync(
+                            ExplanationSystemPrompt,
+                            redactedPrompt.Text,
+                            maxTokens: PathExplanationMaxOutputTokens,
+                            cancellationToken: token),
+                        cancellationToken);
 
                     if (!SecurityEvidencePathExplanationBuilder.TryParseLlmResponse(
                             llmJson,
@@ -158,10 +176,20 @@ public sealed class SecurityEvidencePathExplanationService(
                 }
                 catch (Exception ex)
                 {
-                    logger.LogWarning(
-                        ex,
-                        "Model path explanation failed; using stored-path summary for PathId={PathId}.",
-                        pathId);
+                    string? budgetReason = ex switch
+                    {
+                        SemanticVerificationDeferredException deferred => deferred.Message,
+                        LlmTokenQuotaExceededException => "The tenant AI spending or token allowance denied verification.",
+                        CostLimitExceededException => "The run AI spending or token allowance was exhausted.",
+                        _ => null,
+                    };
+                    if (budgetReason is null)
+                    {
+                        logger.LogWarning(
+                            ex,
+                            "Model path explanation failed; using stored-path summary for PathId={PathId}.",
+                            pathId);
+                    }
                     content = SecurityEvidencePathExplanationBuilder.BuildSimulatorExplanation(
                         path,
                         hops,
@@ -170,8 +198,9 @@ public sealed class SecurityEvidencePathExplanationService(
                         rankContext);
                     provenanceKind = ProvenanceKind.DeterministicInference;
                     simulatorLabel = SecurityEvidencePathExplanationBuilder.SimulatorLabel;
-                    modelOutputRejection =
-                        "Model completion failed; showing the stored-path summary.";
+                    modelOutputRejection = budgetReason is null
+                        ? "Model completion failed; showing the stored-path summary."
+                        : $"{budgetReason} The model claim remains unverified. Showing the stored-path summary.";
                 }
             }
 

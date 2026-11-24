@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.AgentRuntime.Prompts.Variants;
+using ArchLucid.AgentRuntime.Quality;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Audit;
@@ -42,7 +43,9 @@ public sealed partial class AgentOutputEvaluationRecorder(
     IAuditService auditService,
     IAgentOutputEvaluationRepository agentOutputEvaluationRepository,
     IOptionsMonitor<AgentExecutionOptions> agentExecutionOptions,
-    ILogger<AgentOutputEvaluationRecorder> logger)
+    ILogger<AgentOutputEvaluationRecorder> logger,
+    IProviderQualityMonitor? providerQualityMonitor = null,
+    IOptionsMonitor<LlmTelemetryLabelOptions>? llmTelemetryLabels = null)
 {
     private const double LowStructuralScoreThreshold = 0.5;
 
@@ -51,6 +54,9 @@ public sealed partial class AgentOutputEvaluationRecorder(
     ///     <see cref="AgentOutputQualityGateOptions" />).
     /// </summary>
     private const double LowSemanticScoreThreshold = 0.3;
+
+    private readonly IProviderQualityMonitor? _providerQualityMonitor = providerQualityMonitor;
+    private readonly IOptionsMonitor<LlmTelemetryLabelOptions>? _llmTelemetryLabels = llmTelemetryLabels;
 
     private readonly IAgentOutputQualityGateOptionsResolver _gateOptionsResolver =
         gateOptionsResolver ?? throw new ArgumentNullException(nameof(gateOptionsResolver));

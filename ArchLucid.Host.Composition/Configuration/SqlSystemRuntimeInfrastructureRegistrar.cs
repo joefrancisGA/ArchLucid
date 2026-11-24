@@ -1,6 +1,8 @@
 using Polly;
 
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Resilience;
+using ArchLucid.Persistence.Resilience;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Tenancy;
@@ -34,6 +36,7 @@ internal static class SqlSystemRuntimeInfrastructureRegistrar
                 enforceServerCertificateTrust);
         });
 
+        services.AddSingleton<IProviderQualityStateStore, SqlProviderQualityStateStore>();
         services.AddScoped<ITenantDatabaseBindingRepository, DapperTenantDatabaseBindingRepository>();
         services.AddScoped<ITenantCatalogMigrationRepository, DapperTenantCatalogMigrationRepository>();
         services.AddScoped<IWarmTenantCatalogStandbyRepository, DapperWarmTenantCatalogStandbyRepository>();

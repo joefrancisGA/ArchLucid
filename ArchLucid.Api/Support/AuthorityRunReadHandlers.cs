@@ -37,7 +37,9 @@ public sealed partial class AuthorityRunReadHandlers(
     IActorContext actorContext,
     IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor,
     IManifestHashService manifestHashService,
-    ILogger<AuthorityRunReadHandlers> logger)
+    ILogger<AuthorityRunReadHandlers> logger,
+    AuthorityRunInventoryQuery inventoryQuery,
+    IArchitectureShareAccessGate architectureShareAccessGate)
 {
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
@@ -143,16 +145,6 @@ public sealed partial class AuthorityRunReadHandlers(
             new KeyValuePair<string, object?>("surface", "authority_query"));
 
         return (graph, detail, null);
-    }
-
-    public async Task<(IReadOnlyList<RunSummaryDto> Items, bool HasMore)> ListRunsInScopeKeysetAsync(
-        DateTime? createdUtc,
-        Guid? runId,
-        int take,
-        CancellationToken ct)
-    {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        return await queryService.ListRunsInScopeKeysetAsync(scope, createdUtc, runId, take, ct);
     }
 
     public Task LogRunScopedAuditAsync(string eventType, Guid runId, Guid? manifestId, CancellationToken ct)

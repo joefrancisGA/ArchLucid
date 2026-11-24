@@ -112,7 +112,10 @@ public sealed class AuthorityReadsControllerShareAccessTests
             new Mock<IActorContext>(MockBehavior.Strict).Object,
             new Mock<IEffectiveAgentExecutionModeAccessor>(MockBehavior.Strict).Object,
             manifestHash,
-            NullLogger<AuthorityRunReadHandlers>.Instance);
+            NullLogger<AuthorityRunReadHandlers>.Instance,
+            new AuthorityRunInventoryQuery(Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+                Mock.Of<IAgentExecutionTraceRepository>()),
+            _gate.Object);
 
         return new(
             readHandlers,
@@ -120,7 +123,6 @@ public sealed class AuthorityReadsControllerShareAccessTests
             manifestHash,
             scopeProvider.Object,
             _query.Object,
-            new Mock<IRunDetailQueryService>(MockBehavior.Strict).Object,
             _gate.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext { User = _principal } },

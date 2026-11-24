@@ -91,14 +91,21 @@ public static class SamlIdpMetadataFileDiagnostics
                 ex.Message));
         }
 
-        DateTimeOffset? validUntilUtc = SamlMetadataValidUntilParser.TryExtractValidUntilUtc(metadataXml);
+        if (!SamlMetadataValidUntilParser.TryReadValidUntilUtc(metadataXml, out DateTimeOffset? validUntilUtc))
+        {
+            results.Add(new SamlTestConfigComponentResult(
+                "metadata.validUntil",
+                SamlTestConfigComponentStatus.Fail,
+                "Metadata document or validUntil attribute is invalid."));
+            return;
+        }
 
         if (validUntilUtc is null)
         {
             results.Add(new SamlTestConfigComponentResult(
                 "metadata.validUntil",
                 SamlTestConfigComponentStatus.Pass,
-                "No root validUntil attribute (normal for many IdPs)."));
+                "No validUntil attribute on metadata descriptors (normal for many IdPs)."));
 
             return;
         }

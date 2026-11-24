@@ -37,6 +37,12 @@ public interface IArchitectureShareAccessGate
         Guid architectureId,
         CancellationToken cancellationToken = default);
 
+    Task<(bool Found, bool CanRead)> EvaluateRunReadAsync(
+        ClaimsPrincipal user,
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken cancellationToken = default);
+
     Task<IActionResult?> EnsureRunReadAllowedAsync(
         ControllerBase controller,
         ClaimsPrincipal user,

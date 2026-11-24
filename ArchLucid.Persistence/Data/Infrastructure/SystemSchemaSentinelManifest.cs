@@ -35,5 +35,15 @@ public static class SystemSchemaSentinelManifest
             ],
             IndexNames = ["UQ_WarmTenantCatalogStandby_DbName", "IX_WarmTenantCatalogStandby_Unclaimed"],
         },
+        new SchemaSentinelExpectation
+        {
+            TableName = "ProviderQualityState",
+            Columns =
+            [
+                new SchemaSentinelColumn { ColumnName = "DeploymentKey", SqlDataType = "char" },
+                new SchemaSentinelColumn { ColumnName = "StateJson", SqlDataType = "nvarchar" },
+            ],
+            IndexNames = ["PK_ProviderQualityState"],
+        },
     ];
 }
