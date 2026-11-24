@@ -1,0 +1,31 @@
+name: FND-010 Conversation Share Authorization
+on:
+  pull_request:
+    branches: [master, main, audit/fnd010-ask-evidence-share-20261124]
+    paths:
+      - 'ArchLucid.Api/Controllers/Planning/ConversationController.cs'
+      - 'ArchLucid.Api.Tests/ConversationControllerShareAccessTests.cs'
+      - 'ArchLucid.Host.Core/Services/Ask/AskHistoryEvidenceScope.cs'
+      - 'ArchLucid.Host.Core/Services/Ask/IAskEvidenceAccess.cs'
+      - 'ArchLucid.Api/Support/AskEvidenceAccess.cs'
+      - 'ArchLucid.Application/Architecture/AuthorizedEvidenceRunResolver.cs'
+      - 'ArchLucid.Persistence/Conversation/**'
+      - '.github/workflows/fnd010-conversation-share-authorization.yml'
+permissions:
+  contents: read
+concurrency:
+  group: fnd010-conversation-share-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  conversation-read:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Verify direct conversation and existing share authorization contracts
+        run: >-
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj
+          --filter "FullyQualifiedName~ConversationControllerShareAccessTests|FullyQualifiedName~ConversationServiceTests|FullyQualifiedName~ArchitectureShareAccessGateNotFoundPolicyTests|FullyQualifiedName~RetrievalControllerShareAccessTests"
