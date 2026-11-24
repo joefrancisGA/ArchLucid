@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `shareLinkOpen=1` deep links via `parseReviewShareLinkOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries shareLinkOpen=1`. URL-sync vitest **28/28**. Private beta: shared review links that only open the shareable-link panel are no longer overwritten with visit-default tab or finding query keys on first load.
+> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `meetingPacketOpen=1` deep links via `parseReviewMeetingPacketOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries meetingPacketOpen=1`. URL-sync vitest **29/29**. Private beta: shared review links that only open the meeting-packet panel are no longer overwritten with visit-default tab or finding query keys on first load.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -11706,6 +11706,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `meetingPacketOpen` monitor: a bare meeting-packet disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `meetingPacketOpen` via `parseReviewMeetingPacketOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries meetingPacketOpen=1`. URL-sync vitest **29/29**. Private beta: when an invited operator opens a shared review link that only opens the meeting-packet panel in the query, visit-default tab navigation no longer replaces that query on first load.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `shareLinkOpen` monitor: a bare shareable-link disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `shareLinkOpen` via `parseReviewShareLinkOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries shareLinkOpen=1`. URL-sync vitest **28/28**. Private beta: when an invited operator opens a shared review link that only opens the shareable-link panel in the query, visit-default tab navigation no longer replaces that query on first load.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `presenterQuestionId` monitor: a bare presenter-elicitation question deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats non-empty `presenterQuestionId` via `parseReviewPresenterQuestionIdFromSearch`. Regression `does not apply visit-default navigation when the URL only carries presenterQuestionId`. URL-sync vitest **27/27**. Private beta: when an invited operator opens a shared review link that only names a presenter question, visit-default tab navigation no longer replaces that query on first load.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `askThread` monitor: a bare ask-dock thread deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats non-empty `askThread` via `parseReviewAskDockThreadIdFromSearch`. Regression `does not apply visit-default navigation when the URL only carries askThread`. URL-sync vitest **26/26**. Private beta: when an invited operator opens a shared review link that only names an ask-dock thread, visit-default tab navigation no longer replaces that query on first load.
@@ -11746,6 +11747,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `shareMenuOpen` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored share-menu disclosure deep links; regression above. Private beta: shared links that only set `shareMenuOpen=1` are no longer replaced with visit-default query keys on first load.
 - [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `shareLinkOpen` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored shareable-link disclosure deep links; regression above. Private beta: shared links that only set `shareLinkOpen=1` are no longer replaced with visit-default query keys on first load.
+- [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `meetingPacketOpen` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored meeting-packet disclosure deep links; regression above. Private beta: shared links that only set `meetingPacketOpen=1` are no longer replaced with visit-default query keys on first load.
 
 - [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `runRecordMetaOpen` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored record-metadata disclosure deep links; regression above. Private beta: shared links that only set `runRecordMetaOpen=1` are no longer replaced with visit-default query keys on first load.
 
@@ -12476,8 +12478,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 30
-- **bugs-found:** 29
+- **hunts:** 31
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
