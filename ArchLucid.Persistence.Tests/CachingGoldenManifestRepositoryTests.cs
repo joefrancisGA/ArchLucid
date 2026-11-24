@@ -37,6 +37,25 @@ public sealed class CachingGoldenManifestRepositoryTests
     }
 
     [Fact]
+    public async Task GetRunIdByManifestIdAsync_does_not_read_cached_manifest_payload()
+    {
+        Mock<IGoldenManifestRepository> inner = new(MockBehavior.Strict);
+        Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
+        ScopeContext scope = NewScope();
+        Guid manifestId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        inner.Setup(i => i.GetRunIdByManifestIdAsync(scope, manifestId, CancellationToken.None))
+            .ReturnsAsync((Guid?)runId);
+
+        CachingGoldenManifestRepository sut = new(inner.Object, cache.Object);
+
+        (await sut.GetRunIdByManifestIdAsync(scope, manifestId, CancellationToken.None)).Should().Be(runId);
+        inner.Verify(i => i.GetRunIdByManifestIdAsync(scope, manifestId, CancellationToken.None), Times.Once);
+        inner.VerifyNoOtherCalls();
+        cache.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task SaveAsync_document_evicts_manifest_cache_entry()
     {
         Mock<IGoldenManifestRepository> inner = new();

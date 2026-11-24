@@ -118,22 +118,27 @@ public sealed partial class AuthorityQueryController
             if (manifestId == Guid.Empty)
                 return this.NotFoundProblem($"Manifest '{manifestId}' was not found.", ProblemTypes.ManifestNotFound);
 
-            // The requested manifest is the only input identifier. Resolve its
-            // trusted scoped run association before using the existing run
-            // sharing policy: a manifest GUID is never a run GUID.
-            ManifestSummaryDto? result = await queryService.GetManifestSummaryAsync(scope, manifestId, ct);
+            // Resolve only the trusted scoped run identity before the sharing gate.
+            // No summary, manifest payload, blob overlay or run detail is read yet.
+            Guid? authorizedRunId = await queryService.GetRunIdByManifestIdAsync(scope, manifestId, ct);
 
-            if (result is null || result.ManifestId != manifestId || result.RunId == Guid.Empty)
+            if (authorizedRunId is not Guid runId || runId == Guid.Empty)
                 return this.NotFoundProblem($"Manifest '{manifestId}' was not found.", ProblemTypes.ManifestNotFound);
 
             IActionResult? sharingDenied = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
-                this, User, scope, result.RunId, ct);
+                this, User, scope, runId, ct);
 
             if (sharingDenied is not null)
                 return this.NotFoundProblem($"Manifest '{manifestId}' was not found.", ProblemTypes.ManifestNotFound);
 
+            ManifestSummaryDto? result = await queryService.GetManifestSummaryAsync(scope, manifestId, ct);
+
+            // Never follow a changed association to a run that was not authorized.
+            if (result is null || result.ManifestId != manifestId || result.RunId != runId)
+                return this.NotFoundProblem($"Manifest '{manifestId}' was not found.", ProblemTypes.ManifestNotFound);
+
             RunDetailDto? manifestDetail =
-                await queryService.GetRunDetailForManifestCompareAsync(scope, result.RunId, ct);
+                await queryService.GetRunDetailForManifestCompareAsync(scope, runId, ct);
 
             // The common current-manifest case already has the exact document;
             // avoid an unnecessary second repository read. For a historical

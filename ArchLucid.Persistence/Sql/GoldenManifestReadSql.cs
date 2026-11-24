@@ -5,6 +5,16 @@ namespace ArchLucid.Persistence.Sql;
 /// </summary>
 internal static class GoldenManifestReadSql
 {
+    // Authorization lookup: no payload columns, blob references or child reads.
+    public const string SelectRunIdByManifestId = """
+        SELECT RunId
+        FROM dbo.GoldenManifests
+        WHERE TenantId = @TenantId
+          AND WorkspaceId = @WorkspaceId
+          AND ProjectId = @ProjectId
+          AND ManifestId = @ManifestId;
+        """;
+
     public const string SelectById = """
                                      SELECT
                                          TenantId, WorkspaceId, ProjectId,

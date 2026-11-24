@@ -52,14 +52,14 @@ public sealed class AuthorityManifestSummaryShareAccessTests
     public async Task Missing_scoped_manifest_returns_not_found_without_share_or_run_lookup()
     {
         Harness h = new();
-        h.Query.Setup(x => x.GetManifestSummaryAsync(
+        h.Query.Setup(x => x.GetRunIdByManifestIdAsync(
                 Scope, ManifestId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((ManifestSummaryDto?)null);
+            .ReturnsAsync((Guid?)null);
 
         IActionResult response = await h.Controller().GetManifestSummary(ManifestId, CancellationToken.None);
 
         AssertManifestNotFound(response);
-        h.Query.Verify(x => x.GetManifestSummaryAsync(
+        h.Query.Verify(x => x.GetRunIdByManifestIdAsync(
             Scope, ManifestId, It.IsAny<CancellationToken>()), Times.Once);
         h.Query.VerifyNoOtherCalls();
         h.Gate.VerifyNoOtherCalls();
@@ -75,33 +75,62 @@ public sealed class AuthorityManifestSummaryShareAccessTests
         h.Gate.VerifyNoOtherCalls();
     }
 
-    [Theory]
-    [InlineData("wrong-manifest-id")]
-    [InlineData("missing-run-id")]
-    public async Task Untrusted_manifest_run_mapping_is_denied_before_share_or_detail(string kind)
+    [Fact]
+    public async Task Empty_run_mapping_is_denied_before_share_or_payload()
     {
         Harness h = new();
+        h.Query.Setup(x => x.GetRunIdByManifestIdAsync(Scope, ManifestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid?)Guid.Empty);
+
+        AssertManifestNotFound(await h.Controller().GetManifestSummary(ManifestId, CancellationToken.None));
+        h.Query.Verify(x => x.GetRunIdByManifestIdAsync(
+            Scope, ManifestId, It.IsAny<CancellationToken>()), Times.Once);
+        h.Query.VerifyNoOtherCalls();
+        h.Gate.VerifyNoOtherCalls();
+    }
+
+    [Theory]
+    [InlineData("wrong-manifest-id")]
+    [InlineData("changed-run-id")]
+    [InlineData("missing-run-id")]
+    [InlineData("missing-summary")]
+    public async Task Summary_must_match_authorized_identity_before_run_detail(string kind)
+    {
+        Harness h = new();
+        h.SetupIdentity();
+        h.AllowRun();
         ManifestSummaryDto summary = Summary();
         if (kind == "wrong-manifest-id")
             summary.ManifestId = Guid.NewGuid();
-        else
+        else if (kind == "changed-run-id")
+            summary.RunId = Guid.NewGuid();
+        else if (kind == "missing-run-id")
             summary.RunId = Guid.Empty;
 
         h.Query.Setup(x => x.GetManifestSummaryAsync(Scope, ManifestId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(summary);
+            .ReturnsAsync(() =>
+            {
+                h.Gate.Verify(x => x.EnsureRunReadAllowedAsync(
+                    It.IsAny<ControllerBase>(), It.IsAny<ClaimsPrincipal>(),
+                    Scope, RunId, It.IsAny<CancellationToken>()), Times.Once);
+                return kind == "missing-summary" ? null : summary;
+            });
 
         AssertManifestNotFound(await h.Controller().GetManifestSummary(ManifestId, CancellationToken.None));
+        h.Query.Verify(x => x.GetRunIdByManifestIdAsync(
+            Scope, ManifestId, It.IsAny<CancellationToken>()), Times.Once);
         h.Query.Verify(x => x.GetManifestSummaryAsync(
             Scope, ManifestId, It.IsAny<CancellationToken>()), Times.Once);
         h.Query.VerifyNoOtherCalls();
         h.Gate.VerifyNoOtherCalls();
+        h.Hash.VerifyNoOtherCalls();
     }
 
     [Fact]
     public async Task Unshared_run_is_not_disclosed_and_never_reads_manifest_payload_or_run_detail()
     {
         Harness h = new();
-        h.SetupSummary();
+        h.SetupIdentity();
         h.DenyRun();
 
         IActionResult response = await h.Controller().GetManifestSummary(ManifestId, CancellationToken.None);
@@ -110,8 +139,10 @@ public sealed class AuthorityManifestSummaryShareAccessTests
         h.Gate.Verify(x => x.EnsureRunReadAllowedAsync(
             It.IsAny<ControllerBase>(), It.IsAny<ClaimsPrincipal>(),
             Scope, RunId, It.IsAny<CancellationToken>()), Times.Once);
-        h.Query.Verify(x => x.GetManifestSummaryAsync(
+        h.Query.Verify(x => x.GetRunIdByManifestIdAsync(
             Scope, ManifestId, It.IsAny<CancellationToken>()), Times.Once);
+        h.Query.Verify(x => x.GetManifestSummaryAsync(
+            It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
         h.Query.VerifyNoOtherCalls();
         h.Hash.VerifyNoOtherCalls();
     }
@@ -283,11 +314,22 @@ public sealed class AuthorityManifestSummaryShareAccessTests
                 .Returns((ManifestDocument m) => m.ManifestHash);
         }
 
+        internal void SetupIdentity() => Query.Setup(x => x.GetRunIdByManifestIdAsync(
+                Scope, ManifestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid?)RunId);
+
         internal void SetupSummary()
         {
+            SetupIdentity();
             Query.Setup(x => x.GetManifestSummaryAsync(
                     Scope, ManifestId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Summary());
+                .ReturnsAsync(() =>
+                {
+                    Gate.Verify(x => x.EnsureRunReadAllowedAsync(
+                        It.IsAny<ControllerBase>(), It.IsAny<ClaimsPrincipal>(),
+                        Scope, RunId, It.IsAny<CancellationToken>()), Times.Once);
+                    return Summary();
+                });
         }
 
         internal void AllowRun() => Gate.Setup(x => x.EnsureRunReadAllowedAsync(

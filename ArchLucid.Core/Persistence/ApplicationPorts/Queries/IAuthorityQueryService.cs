@@ -180,6 +180,9 @@ public interface IAuthorityQueryService
         Guid manifestId,
         CancellationToken ct);
 
+    /// <summary>Resolves the run identity for share authorization without hydrating the manifest.</summary>
+    Task<Guid?> GetRunIdByManifestIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct);
+
     /// <summary>
     ///     Loads the exact requested manifest within the same trusted scope for
     ///     sealed-hash verification. Unlike run-header manifest comparison,

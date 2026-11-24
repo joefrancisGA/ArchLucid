@@ -33,6 +33,21 @@ public sealed partial class SqlGoldenManifestRepository
         ORDER BY CreatedUtc DESC;
         """;
 
+    /// <inheritdoc />
+    public async Task<Guid?> GetRunIdByManifestIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
+
+        await using SqlConnection connection =
+            await manifestLookupReadConnectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        return await connection.QuerySingleOrDefaultAsync<Guid?>(
+            new CommandDefinition(
+                GoldenManifestReadSql.SelectRunIdByManifestId,
+                GoldenManifestInsertParameters.ForManifest(scope, manifestId),
+                cancellationToken: ct)).ConfigureAwait(false);
+    }
+
     public async Task<ManifestDocument?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);

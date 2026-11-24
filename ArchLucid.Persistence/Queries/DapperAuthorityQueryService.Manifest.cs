@@ -21,6 +21,10 @@ public sealed partial class DapperAuthorityQueryService
     }
 
     /// <inheritdoc />
+    public Task<Guid?> GetRunIdByManifestIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct) =>
+        goldenManifestRepository.GetRunIdByManifestIdAsync(scope, manifestId, ct);
+
+    /// <inheritdoc />
     public async Task<ManifestSummaryDto?> GetManifestSummaryAsync(ScopeContext scope, Guid manifestId,
         CancellationToken ct)
     {

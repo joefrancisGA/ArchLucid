@@ -8,6 +8,10 @@ namespace ArchLucid.Persistence.Queries;
 public sealed partial class InMemoryAuthorityQueryService
 {
     /// <inheritdoc />
+    public Task<Guid?> GetRunIdByManifestIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct) =>
+        goldenManifestRepository.GetRunIdByManifestIdAsync(scope, manifestId, ct);
+
+    /// <inheritdoc />
     public async Task<ManifestSummaryDto?> GetManifestSummaryAsync(ScopeContext scope, Guid manifestId,
         CancellationToken ct)
     {
