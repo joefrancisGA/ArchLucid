@@ -271,7 +271,7 @@ public sealed class AskContextPreparer(
             scope,
             findingBandIndex)
         {
-            HistoryEvidenceScope = CreateHistoryEvidenceScope(actorId, authorizedRuns, question),
+            HistoryEvidenceScope = CreateHistoryEvidenceScope(thread.ThreadId, actorId, authorizedRuns, question),
         };
     }
 
@@ -307,7 +307,7 @@ public sealed class AskContextPreparer(
             scope,
             [])
         {
-            HistoryEvidenceScope = CreateHistoryEvidenceScope(actorId, authorizedRuns, question),
+            HistoryEvidenceScope = CreateHistoryEvidenceScope(thread.ThreadId, actorId, authorizedRuns, question),
         };
     }
 
@@ -366,8 +366,8 @@ public sealed class AskContextPreparer(
     }
 
     private static AskHistoryEvidenceScope? CreateHistoryEvidenceScope(
-        string actorId, IReadOnlySet<Guid> authorizedRuns, string question) =>
-        AskHistoryEvidenceScope.Create(actorId, authorizedRuns, question,
+        Guid threadId, string actorId, IReadOnlySet<Guid> authorizedRuns, string question) =>
+        AskHistoryEvidenceScope.Create(threadId, actorId, authorizedRuns, question,
             AskRetrievalIntentDetector.DetectPolicyPackIntent(question) ||
             AskRetrievalIntentDetector.DetectPlatformDocIntent(question));
 
