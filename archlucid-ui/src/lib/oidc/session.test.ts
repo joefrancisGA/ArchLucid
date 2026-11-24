@@ -598,6 +598,18 @@ describe("persistTokenResponse", () => {
     expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBeNull();
   });
 
+  it("strips soft hyphens from JWT name claims before storing display name hints", () => {
+    const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
+    const payload = Buffer.from(
+      JSON.stringify({ sub: "user-123", name: "Jane\u00ad Operator", exp: Math.floor(Date.now() / 1000) + 3600 }),
+    ).toString("base64url");
+    const accessToken = `${header}.${payload}.sig`;
+
+    persistTokenResponse({ access_token: accessToken, expires_in: 3600 });
+
+    expect(sessionStorage.getItem(OIDC_DISPLAY_NAME_KEY)).toBe("Jane Operator");
+  });
+
   it("strips soft hyphens from JWT sub claims before storing subject hints", () => {
     const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
     const payload = Buffer.from(
@@ -1127,3 +1139,4 @@ describe("signOutAndRedirectHome", () => {
     expect(assign).not.toHaveBeenCalled();
   });
 });
+
