@@ -15,6 +15,14 @@ public static class ArchitectureDiagramModelValidator
             return false;
         }
 
+        if (model.Nodes.Any(static node => node is null)
+            || model.Edges.Any(static edge => edge is null)
+            || model.Subgraphs.Any(static subgraph => subgraph is null))
+        {
+            failureReason = "Structured diagram arrays must not contain null entries.";
+            return false;
+        }
+
         HashSet<string> subgraphIds = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (ArchitectureDiagramSubgraphRecord subgraph in model.Subgraphs)

@@ -43,4 +43,20 @@ public sealed class PolicyPackCloudTargetMismatchEvaluatorTests
             .Should()
             .Contain("cloud-neutral");
     }
+
+    [Fact]
+    public void Evaluate_rejects_null_policy_reference()
+    {
+        PolicyPackCloudTargetMismatchEvaluator
+            .Evaluate(CloudProvider.Aws, [null!])
+            .Should().Contain("null entries");
+    }
+
+    [Fact]
+    public void Evaluate_rejects_null_reference_even_with_valid_matching_pack()
+    {
+        PolicyPackCloudTargetMismatchEvaluator
+            .Evaluate(CloudProvider.Aws, ["aws-foundational-security", null!])
+            .Should().Contain("null entries");
+    }
 }

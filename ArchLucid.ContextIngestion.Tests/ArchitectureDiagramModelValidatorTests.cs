@@ -84,4 +84,22 @@ public sealed class ArchitectureDiagramModelValidatorTests
         valid.Should().BeTrue();
         failureReason.Should().BeNull();
     }
+
+    [Theory]
+    [InlineData("{\"nodes\":[null]}")]
+    [InlineData("{\"edges\":[null]}")]
+    [InlineData("{\"subgraphs\":[null]}")]
+    public void ArchLucidDiagramJsonParser_rejects_null_array_entries(string json)
+    {
+        ArchLucidDiagramJsonParser parser = new();
+        DiagramParseResult result = parser.Parse(new DiagramSourceReference
+        {
+            Name = "diagram.json",
+            Format = DiagramSourceFormats.ArchLucidDiagramJson,
+            Content = json,
+        });
+
+        result.Warnings.Should().ContainSingle()
+            .Which.Should().Contain("null entries");
+    }
 }

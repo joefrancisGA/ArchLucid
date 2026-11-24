@@ -13,6 +13,9 @@ public static class PolicyPackCloudTargetMismatchEvaluator
         if (policyReferences is null || policyReferences.Count == 0)
             return null;
 
+        if (policyReferences.Any(static reference => reference is null))
+            return "Selected policy references must not contain null entries.";
+
         string cloud = cloudProvider.ToString().Trim().ToLowerInvariant();
         List<string> refs = policyReferences
             .Select(static reference => reference.Trim().ToLowerInvariant())
