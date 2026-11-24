@@ -54,6 +54,7 @@ public sealed partial class DapperFindingInspectReadRepository
         ScopeContext scope,
         string findingId,
         MainRow row,
+        bool requireExactRun,
         CancellationToken ct)
     {
         object queryParams = new
@@ -63,6 +64,7 @@ public sealed partial class DapperFindingInspectReadRepository
             scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
             row.RunId,
+            RequireExactRun = requireExactRun,
             EventType = AuditEventTypes.AuthorityCommittedChainPersisted,
             ActiveStatus = "Active",
         };
