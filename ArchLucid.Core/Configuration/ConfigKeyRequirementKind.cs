@@ -26,5 +26,8 @@ public enum ConfigKeyRequirementKind
     WhenAcsEmail,
 
     /// <summary>When <c>Hosting:Role</c> is <c>Worker</c> for worker-only hosts.</summary>
-    WhenWorkerRole
+    WhenWorkerRole,
+
+    /// <summary>Real, non-Echo completion using an API key rather than managed identity.</summary>
+    WhenRealLlmNotEchoWithApiKey
 }
