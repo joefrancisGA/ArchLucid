@@ -10,6 +10,7 @@ using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Ask;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Conversation;
 
 using Microsoft.Extensions.Logging;
 
@@ -20,9 +21,17 @@ public sealed class DraftIntakeReasoningService(
     IDraftRequestRepository draftRepository,
     IConversationService conversationService,
     IAgentCompletionClient completionClient,
-    ILogger<DraftIntakeReasoningService> logger) : IDraftIntakeReasoningService
+    ILogger<DraftIntakeReasoningService> logger,
+    IAskEvidenceAccess evidenceAccess,
+    IConversationThreadRepository threadRepository) : IDraftIntakeReasoningService
 {
     private const int HistoryTake = 20;
+
+    private readonly IAskEvidenceAccess _evidenceAccess =
+        evidenceAccess ?? throw new ArgumentNullException(nameof(evidenceAccess));
+
+    private readonly IConversationThreadRepository _threadRepository =
+        threadRepository ?? throw new ArgumentNullException(nameof(threadRepository));
 
     private const string IntakeUserPromptStaticPrefix =
         "Use ONLY the draft context JSON, conversation history, and latest message sections below.\n\n";
@@ -69,6 +78,13 @@ public sealed class DraftIntakeReasoningService(
         if (string.IsNullOrWhiteSpace(request.Message))
             throw new InvalidOperationException("Message is required.");
 
+        string? actorId = _evidenceAccess.GetAuthorizedDraftActorId();
+        if (string.IsNullOrWhiteSpace(actorId) ||
+            string.Equals(actorId, "api-user", StringComparison.OrdinalIgnoreCase) ||
+            draftId == Guid.Empty || scope.TenantId == Guid.Empty ||
+            scope.WorkspaceId == Guid.Empty || scope.ProjectId == Guid.Empty)
+            return null;
+
         DraftRequestResponse? draft = await _draftRepository.GetAsync(
             scope.TenantId,
             scope.WorkspaceId,
@@ -79,6 +95,10 @@ public sealed class DraftIntakeReasoningService(
         if (draft is null)
             return null;
 
+        HashSet<Guid>? authorizedRuns = await AuthorizeDraftAsync(draft, draftId, scope, actorId, cancellationToken);
+        if (authorizedRuns is null)
+            return null;
+
         if (!DraftRequestStateMachine.AllowsReasoning(draft.Status))
         {
             throw new InvalidOperationException(
@@ -87,39 +107,52 @@ public sealed class DraftIntakeReasoningService(
 
         string message = request.Message.Trim();
 
-        ConversationThread thread = await _conversationService.GetOrCreateThreadAsync(
-            draft.Document.ConversationThreadId,
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            runId: null,
-            baseRunId: null,
-            targetRunId: null,
-            cancellationToken);
+        ConversationThread? thread = null;
+        IReadOnlyList<ConversationMessage> verifiedHistory = [];
 
-        if (!draft.Document.ConversationThreadId.HasValue)
+        // The stored document pointer is not proof of thread ownership. Never read an
+        // anchored review/comparison thread or append to an unproven draft conversation.
+        if (draft.Document.ConversationThreadId is Guid linkedThreadId && linkedThreadId != Guid.Empty)
         {
-            draft.Document.ConversationThreadId = thread.ThreadId;
+            ConversationThread? candidate = await _threadRepository.GetByIdAsync(linkedThreadId, cancellationToken);
+            if (candidate is not null && candidate.ThreadId == linkedThreadId &&
+                IsUnanchoredInScope(candidate, scope))
+            {
+                IReadOnlyList<ConversationMessage> history = await _conversationService.GetHistoryAsync(
+                    candidate.ThreadId, HistoryTake, cancellationToken);
+                verifiedHistory = AskHistoryEvidenceScope.SelectVerifiedDraftTurns(
+                    history, candidate.ThreadId, draftId, draft.ArchitectureId, actorId, authorizedRuns);
+                if (verifiedHistory.Count > 0)
+                    thread = candidate;
+            }
+        }
 
-            draft = await _draftRepository.UpdateAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                draftId,
-                draft.Status,
-                draft.Document,
-                draft.RedirectReason,
-                draft.SpawnedRunId,
-                cancellationToken)
-                ?? throw new InvalidOperationException($"Draft '{draftId}' could not persist conversation thread.");
+        if (thread is null)
+        {
+            // Legacy/missing/foreign pointers are detached, not deleted or modified.
+            thread = await _conversationService.GetOrCreateThreadAsync(
+                null, scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+                runId: null, baseRunId: null, targetRunId: null, cancellationToken);
+            if (!IsUnanchoredInScope(thread, scope) || thread.ThreadId == draft.Document.ConversationThreadId)
+                return null;
+
+            Guid? previousArchitectureId = draft.ArchitectureId;
+
+            draft = await _draftRepository.TryBindConversationThreadAsync(draft, thread.ThreadId, cancellationToken)
+                ?? throw new ArchLucid.Application.ConflictException(
+                    "Draft changed while establishing the intake conversation. Retry the request.");
+            if (draft.Document.ConversationThreadId != thread.ThreadId ||
+                draft.ArchitectureId != previousArchitectureId || !DraftRequestStateMachine.AllowsReasoning(draft.Status))
+                return null;
+
+            authorizedRuns = await AuthorizeDraftAsync(draft, draftId, scope, actorId, cancellationToken);
+            if (authorizedRuns is null)
+                return null;
         }
 
         await _conversationService.AppendUserMessageAsync(thread.ThreadId, message, cancellationToken);
 
-        IReadOnlyList<ConversationMessage> history =
-            await _conversationService.GetHistoryAsync(thread.ThreadId, HistoryTake, cancellationToken);
-
-        string historyText = BuildHistoryText(history);
+        string historyText = BuildHistoryText(verifiedHistory);
         string contextJson = DraftIntakeReasoningContextBuilder.BuildContextJson(draft.Document);
         string userPrompt =
             IntakeUserPromptStaticPrefix +
@@ -127,10 +160,13 @@ public sealed class DraftIntakeReasoningService(
 
         string answer = await TryCompleteAnswerAsync(thread.ThreadId, userPrompt, cancellationToken);
 
+        AskHistoryEvidenceScope? proof = AskHistoryEvidenceScope.CreateForDraft(
+            thread.ThreadId, draftId, draft.ArchitectureId, actorId, authorizedRuns, message);
         await _conversationService.AppendAssistantMessageAsync(
             thread.ThreadId,
             answer,
-            metadataJson: "{}",
+            JsonSerializer.Serialize(new { draftIntakeEvidenceScopeV1 = proof },
+                new JsonSerializerOptions(JsonSerializerDefaults.Web)),
             cancellationToken);
 
         return new DraftIntakeReasonResponse
@@ -141,6 +177,46 @@ public sealed class DraftIntakeReasoningService(
             Answer = answer,
         };
     }
+
+    private async Task<HashSet<Guid>?> AuthorizeDraftAsync(
+        DraftRequestResponse draft, Guid draftId, ScopeContext scope, string actorId, CancellationToken ct)
+    {
+        if (draft.DraftId != draftId || draft.TenantId != scope.TenantId ||
+            draft.WorkspaceId != scope.WorkspaceId || draft.ProjectId != scope.ProjectId)
+            return null;
+
+        if (draft.ArchitectureId is Guid architectureId)
+        {
+            if (architectureId == Guid.Empty ||
+                !await _evidenceAccess.CanDecideArchitectureAsync(scope, architectureId, ct))
+                return null;
+        }
+        else if (!string.Equals(draft.CreatedByUserId, actorId, StringComparison.Ordinal))
+        {
+            // A legacy draft without a linked architecture has no share record.
+            // Do not treat that absence as project-wide ownership.
+            return null;
+        }
+
+        HashSet<Guid> runs = [];
+        foreach (string? anchor in new[] { draft.Document.PriorRunId, draft.SpawnedRunId })
+        {
+            if (string.IsNullOrWhiteSpace(anchor))
+                continue;
+            if (!Guid.TryParse(anchor, out Guid runId) || runId == Guid.Empty)
+                return null;
+            if (runs.Add(runId) && !await _evidenceAccess.CanReadRunAsync(scope, runId, ct))
+                return null;
+        }
+
+        return runs;
+    }
+
+    private static bool IsUnanchoredInScope(ConversationThread thread, ScopeContext scope) =>
+        thread.ThreadId != Guid.Empty && !thread.ArchivedUtc.HasValue &&
+        thread.TenantId == scope.TenantId && thread.WorkspaceId == scope.WorkspaceId &&
+        thread.ProjectId == scope.ProjectId && !thread.RunId.HasValue &&
+        !thread.BaseRunId.HasValue && !thread.TargetRunId.HasValue;
 
     private async Task<string> TryCompleteAnswerAsync(
         Guid threadId,

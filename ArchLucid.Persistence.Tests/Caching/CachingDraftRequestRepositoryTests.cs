@@ -13,6 +13,35 @@ namespace ArchLucid.Persistence.Tests.Caching;
 [Trait("Suite", "Core")]
 public sealed class CachingDraftRequestRepositoryTests
 {
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Conditional_thread_binding_evicts_cache_after_success_or_stale_rejection(bool succeeds)
+    {
+        DraftRequestResponse expected = new()
+        {
+            DraftId = Guid.NewGuid(), TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(), Status = DraftRequestStatus.Drafting,
+        };
+        ScopeContext scope = new()
+        {
+            TenantId = expected.TenantId, WorkspaceId = expected.WorkspaceId, ProjectId = expected.ProjectId,
+        };
+        Guid thread = Guid.NewGuid();
+        Mock<IDraftRequestRepository> inner = new(MockBehavior.Strict);
+        inner.Setup(r => r.TryBindConversationThreadAsync(expected, thread, CancellationToken.None))
+            .ReturnsAsync(succeeds ? expected : null);
+        string key = HotPathCacheKeys.DraftRequest(scope, expected.DraftId);
+        Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
+        cache.Setup(c => c.RemoveAsync(key, CancellationToken.None)).Returns(Task.CompletedTask);
+        CachingDraftRequestRepository repository = new(inner.Object, cache.Object);
+
+        DraftRequestResponse? result = await repository.TryBindConversationThreadAsync(expected, thread, CancellationToken.None);
+
+        result.Should().BeSameAs(succeeds ? expected : null);
+        cache.Verify(c => c.RemoveAsync(key, CancellationToken.None), Times.Once);
+    }
+
     [Fact]
     public async Task UpdateAsync_evicts_the_draft_when_the_caller_cancels_after_a_successful_write()
     {

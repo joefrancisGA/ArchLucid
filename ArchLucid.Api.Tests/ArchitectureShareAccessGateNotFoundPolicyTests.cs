@@ -175,6 +175,41 @@ public sealed class ArchitectureShareAccessGateNotFoundPolicyTests
         _runRepository.VerifyNoOtherCalls();
     }
 
+    [Theory]
+    [InlineData("Reader", true, true, false)]
+    [InlineData("Operator", true, false, false)]
+    [InlineData("Operator", false, true, false)]
+    [InlineData("Operator", true, true, true)]
+    public async Task Draft_adapter_requires_execute_and_both_existing_share_capabilities(
+        string role, bool canRead, bool canDecide, bool expected)
+    {
+        _shareAccessService.Setup(s => s.EvaluateAsync(Scope, ArchitectureId, "jwt:tenant:unshared",
+                true, true, false, CancellationToken.None))
+            .ReturnsAsync(new ArchitectureShareAccessEvaluation
+            {
+                ArchitectureFound = true, CanRead = canRead, CanDecide = canDecide,
+            });
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim(ClaimTypes.Role, role)], "test")),
+        };
+        AskEvidenceAccess adapter = new(BuildSut(), new HttpContextAccessor { HttpContext = http }, _actorContext.Object);
+
+        (await adapter.CanDecideArchitectureAsync(Scope, ArchitectureId, CancellationToken.None)).Should().Be(expected);
+        if (role == "Reader")
+        {
+            adapter.GetAuthorizedDraftActorId().Should().BeNull();
+            _shareAccessService.VerifyNoOtherCalls();
+        }
+        else
+        {
+            adapter.GetAuthorizedDraftActorId().Should().Be("jwt:tenant:unshared");
+            _shareAccessService.Verify(s => s.EvaluateAsync(Scope, ArchitectureId, "jwt:tenant:unshared",
+                true, true, false, CancellationToken.None), Times.Once);
+        }
+    }
+
     private ArchitectureShareAccessGate BuildSut() =>
         new(_shareAccessService.Object, _actorContext.Object, _runRepository.Object);
 

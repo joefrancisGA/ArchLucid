@@ -5,6 +5,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Ask;
 using ArchLucid.Host.Core.Services.Ask;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Conversation;
 
 using FluentAssertions;
 
@@ -34,6 +35,10 @@ public sealed class DraftIntakeReasoningServiceTests
         DraftRequestResponse draft = new()
         {
             DraftId = draftId,
+            TenantId = _scope.TenantId,
+            WorkspaceId = _scope.WorkspaceId,
+            ProjectId = _scope.ProjectId,
+            CreatedByUserId = "operator@test",
             Status = DraftRequestStatus.Drafting,
             Document = new DraftRequestDocument
             {
@@ -51,24 +56,12 @@ public sealed class DraftIntakeReasoningServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(draft);
         repository
-            .Setup(r => r.UpdateAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                draftId,
-                DraftRequestStatus.Drafting,
-                It.IsAny<DraftRequestDocument>(),
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Guid _, Guid _, Guid _, Guid _, DraftRequestStatus status, DraftRequestDocument document,
-                string? _, string? _, CancellationToken _, Guid? _, byte[]? _) =>
-                new DraftRequestResponse
-                {
-                    DraftId = draftId,
-                    Status = status,
-                    Document = document,
-                });
+            .Setup(r => r.TryBindConversationThreadAsync(draft, threadId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((DraftRequestResponse expected, Guid id, CancellationToken _) =>
+            {
+                expected.Document.ConversationThreadId = id;
+                return expected;
+            });
 
         Mock<IConversationService> conversation = new();
         conversation
@@ -116,7 +109,9 @@ public sealed class DraftIntakeReasoningServiceTests
             repository.Object,
             conversation.Object,
             llm.Object,
-            NullLogger<DraftIntakeReasoningService>.Instance);
+            NullLogger<DraftIntakeReasoningService>.Instance,
+            CreateAccess(),
+            Mock.Of<IConversationThreadRepository>());
 
         DraftIntakeReasonResponse? result = await sut.ReasonAsync(
             draftId,
@@ -128,18 +123,8 @@ public sealed class DraftIntakeReasoningServiceTests
         result!.ConversationThreadId.Should().Be(threadId);
         result.Answer.Should().Contain("actors");
 
-        repository.Verify(
-            r => r.UpdateAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                draftId,
-                DraftRequestStatus.Drafting,
-                It.Is<DraftRequestDocument>(document => document.ConversationThreadId == threadId),
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
-                It.IsAny<CancellationToken>()),
-            Times.Once);
+        repository.Verify(r => r.TryBindConversationThreadAsync(draft, threadId,
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -158,6 +143,10 @@ public sealed class DraftIntakeReasoningServiceTests
             .ReturnsAsync(new DraftRequestResponse
             {
                 DraftId = draftId,
+                TenantId = _scope.TenantId,
+                WorkspaceId = _scope.WorkspaceId,
+                ProjectId = _scope.ProjectId,
+                CreatedByUserId = "operator@test",
                 Status = DraftRequestStatus.RunSpawned,
                 Document = new DraftRequestDocument(),
             });
@@ -166,7 +155,9 @@ public sealed class DraftIntakeReasoningServiceTests
             repository.Object,
             Mock.Of<IConversationService>(),
             Mock.Of<IAgentCompletionClient>(),
-            NullLogger<DraftIntakeReasoningService>.Instance);
+            NullLogger<DraftIntakeReasoningService>.Instance,
+            CreateAccess(),
+            Mock.Of<IConversationThreadRepository>());
 
         Func<Task> act = () => sut.ReasonAsync(
             draftId,
@@ -187,6 +178,10 @@ public sealed class DraftIntakeReasoningServiceTests
         DraftRequestResponse draft = new()
         {
             DraftId = draftId,
+            TenantId = _scope.TenantId,
+            WorkspaceId = _scope.WorkspaceId,
+            ProjectId = _scope.ProjectId,
+            CreatedByUserId = "operator@test",
             Status = DraftRequestStatus.Drafting,
             Document = new DraftRequestDocument
             {
@@ -204,24 +199,12 @@ public sealed class DraftIntakeReasoningServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(draft);
         repository
-            .Setup(r => r.UpdateAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                draftId,
-                DraftRequestStatus.Drafting,
-                It.IsAny<DraftRequestDocument>(),
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Guid _, Guid _, Guid _, Guid _, DraftRequestStatus status, DraftRequestDocument document,
-                string? _, string? _, CancellationToken _, Guid? _, byte[]? _) =>
-                new DraftRequestResponse
-                {
-                    DraftId = draftId,
-                    Status = status,
-                    Document = document,
-                });
+            .Setup(r => r.TryBindConversationThreadAsync(draft, threadId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((DraftRequestResponse expected, Guid id, CancellationToken _) =>
+            {
+                expected.Document.ConversationThreadId = id;
+                return expected;
+            });
 
         Mock<IConversationService> conversation = new();
         conversation
@@ -269,7 +252,9 @@ public sealed class DraftIntakeReasoningServiceTests
             repository.Object,
             conversation.Object,
             llm.Object,
-            NullLogger<DraftIntakeReasoningService>.Instance);
+            NullLogger<DraftIntakeReasoningService>.Instance,
+            CreateAccess(),
+            Mock.Of<IConversationThreadRepository>());
 
         DraftIntakeReasonResponse? result = await sut.ReasonAsync(
             draftId,
@@ -290,6 +275,10 @@ public sealed class DraftIntakeReasoningServiceTests
         DraftRequestResponse draft = new()
         {
             DraftId = draftId,
+            TenantId = _scope.TenantId,
+            WorkspaceId = _scope.WorkspaceId,
+            ProjectId = _scope.ProjectId,
+            CreatedByUserId = "operator@test",
             Status = DraftRequestStatus.Drafting,
             Document = new DraftRequestDocument(),
         };
@@ -304,24 +293,12 @@ public sealed class DraftIntakeReasoningServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(draft);
         repository
-            .Setup(r => r.UpdateAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                draftId,
-                DraftRequestStatus.Drafting,
-                It.IsAny<DraftRequestDocument>(),
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Guid _, Guid _, Guid _, Guid _, DraftRequestStatus status, DraftRequestDocument document,
-                string? _, string? _, CancellationToken _, Guid? _, byte[]? _) =>
-                new DraftRequestResponse
-                {
-                    DraftId = draftId,
-                    Status = status,
-                    Document = document,
-                });
+            .Setup(r => r.TryBindConversationThreadAsync(draft, threadId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((DraftRequestResponse expected, Guid id, CancellationToken _) =>
+            {
+                expected.Document.ConversationThreadId = id;
+                return expected;
+            });
 
         Mock<IConversationService> conversation = new();
         conversation
@@ -369,7 +346,9 @@ public sealed class DraftIntakeReasoningServiceTests
             repository.Object,
             conversation.Object,
             llm.Object,
-            NullLogger<DraftIntakeReasoningService>.Instance);
+            NullLogger<DraftIntakeReasoningService>.Instance,
+            CreateAccess(),
+            Mock.Of<IConversationThreadRepository>());
 
         DraftIntakeReasonResponse? result = await sut.ReasonAsync(
             draftId,
@@ -390,6 +369,10 @@ public sealed class DraftIntakeReasoningServiceTests
         DraftRequestResponse draft = new()
         {
             DraftId = draftId,
+            TenantId = _scope.TenantId,
+            WorkspaceId = _scope.WorkspaceId,
+            ProjectId = _scope.ProjectId,
+            CreatedByUserId = "operator@test",
             Status = DraftRequestStatus.Drafting,
             Document = new DraftRequestDocument(),
         };
@@ -404,24 +387,12 @@ public sealed class DraftIntakeReasoningServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(draft);
         repository
-            .Setup(r => r.UpdateAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                draftId,
-                DraftRequestStatus.Drafting,
-                It.IsAny<DraftRequestDocument>(),
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Guid _, Guid _, Guid _, Guid _, DraftRequestStatus status, DraftRequestDocument document,
-                string? _, string? _, CancellationToken _, Guid? _, byte[]? _) =>
-                new DraftRequestResponse
-                {
-                    DraftId = draftId,
-                    Status = status,
-                    Document = document,
-                });
+            .Setup(r => r.TryBindConversationThreadAsync(draft, threadId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((DraftRequestResponse expected, Guid id, CancellationToken _) =>
+            {
+                expected.Document.ConversationThreadId = id;
+                return expected;
+            });
 
         Mock<IConversationService> conversation = new();
         conversation
@@ -469,7 +440,9 @@ public sealed class DraftIntakeReasoningServiceTests
             repository.Object,
             conversation.Object,
             llm.Object,
-            NullLogger<DraftIntakeReasoningService>.Instance);
+            NullLogger<DraftIntakeReasoningService>.Instance,
+            CreateAccess(),
+            Mock.Of<IConversationThreadRepository>());
 
         DraftIntakeReasonResponse? result = await sut.ReasonAsync(
             draftId,
@@ -480,4 +453,12 @@ public sealed class DraftIntakeReasoningServiceTests
         result.Should().NotBeNull();
         result!.Answer.Should().Be(DevSwitchableAgentCompletionClient.LiveCompletionUnavailableMessage);
     }
+
+    private static IAskEvidenceAccess CreateAccess()
+    {
+        Mock<IAskEvidenceAccess> access = new();
+        access.Setup(a => a.GetAuthorizedDraftActorId()).Returns("operator@test");
+        return access.Object;
+    }
+
 }

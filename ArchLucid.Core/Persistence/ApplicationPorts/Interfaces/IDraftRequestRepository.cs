@@ -21,6 +21,11 @@ public interface IDraftRequestRepository
         DraftRequestDocument document,
         CancellationToken cancellationToken);
 
+    /// <summary>Conditionally binds a fresh intake conversation without overwriting a changed draft revision.</summary>
+    Task<DraftRequestResponse?> TryBindConversationThreadAsync(
+        DraftRequestResponse expected, Guid threadId, CancellationToken ct) =>
+        Task.FromResult<DraftRequestResponse?>(null);
+
     Task<DraftRequestResponse?> UpdateAsync(
         Guid tenantId,
         Guid workspaceId,
