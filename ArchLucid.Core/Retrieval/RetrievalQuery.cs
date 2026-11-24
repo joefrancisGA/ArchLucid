@@ -43,6 +43,9 @@ public class RetrievalQuery
     /// </summary>
     public IReadOnlySet<Guid>? AuthorizedEvidenceRunIds { get; set; }
 
+    /// <summary>Optional exact corpus constraint, applied before ranking on both tenant and platform branches.</summary>
+    public CorpusKind? CorpusKindFilter { get; set; }
+
     /// <summary>Optional manifest facet.</summary>
     public Guid? ManifestId
     {
