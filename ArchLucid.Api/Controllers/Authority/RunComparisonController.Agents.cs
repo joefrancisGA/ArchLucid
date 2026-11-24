@@ -97,6 +97,12 @@ public sealed partial class RunComparisonController
         if (queryError is not null)
             return (queryError, null, null, null);
 
+        IActionResult? shareDenial = await EnsureRunPairShareReadAllowedAsync(
+            query.LeftRunId, query.RightRunId, cancellationToken);
+
+        if (shareDenial is not null)
+            return (shareDenial, null, null, null);
+
         IActionResult? leftGuardResult =
             await EnsureSealedManifestReadAllowedAsync(query.LeftRunId, cancellationToken);
 

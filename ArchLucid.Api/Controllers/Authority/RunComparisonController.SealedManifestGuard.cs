@@ -10,6 +10,29 @@ namespace ArchLucid.Api.Controllers.Authority;
 
 public sealed partial class RunComparisonController
 {
+    // Both resources must be authorized before either sealed-manifest payload is read.
+    private async Task<IActionResult?> EnsureRunPairShareReadAllowedAsync(
+        string leftRunId,
+        string rightRunId,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(leftRunId, out Guid leftGuid) || leftGuid == Guid.Empty)
+            return this.NotFoundProblem($"Run '{leftRunId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (!Guid.TryParse(rightRunId, out Guid rightGuid) || rightGuid == Guid.Empty)
+            return this.NotFoundProblem($"Run '{rightRunId}' was not found.", ProblemTypes.RunNotFound);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IActionResult? leftDenial = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this, User, scope, leftGuid, cancellationToken);
+
+        if (leftDenial is not null)
+            return leftDenial;
+
+        return await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this, User, scope, rightGuid, cancellationToken);
+    }
+
     private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
         string runId,
         CancellationToken cancellationToken)
