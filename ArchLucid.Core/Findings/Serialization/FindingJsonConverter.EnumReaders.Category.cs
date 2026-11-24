@@ -21,7 +21,7 @@ public sealed partial class FindingJsonConverter
             return (FindingEnforcementTier)numeric;
         }
 
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingEnforcementTier parsed) && Enum.IsDefined(parsed))
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(raw, ignoreCase: true, out FindingEnforcementTier parsed) && Enum.IsDefined(parsed))
             return parsed;
 
         throw new JsonException($"Unknown finding enforcement tier value '{raw}'.");
@@ -75,7 +75,7 @@ public sealed partial class FindingJsonConverter
             return (FindingClassification)numericFromString;
         }
 
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingClassification parsed) && Enum.IsDefined(parsed))
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(raw, ignoreCase: true, out FindingClassification parsed) && Enum.IsDefined(parsed))
             return parsed;
 
         throw new JsonException($"Unknown finding classification value '{raw}'.");

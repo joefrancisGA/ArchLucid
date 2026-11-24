@@ -167,7 +167,7 @@ public sealed class AgentEvaluationConfidencePipeline(
                     return trace;
             }
 
-        if (Enum.TryParse(finding.EngineType, ignoreCase: true, out AgentType engineType) &&
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(finding.EngineType, ignoreCase: true, out AgentType engineType) &&
             context.TraceByAgentType.TryGetValue(engineType, out AgentExecutionTrace? byEngine))
             return byEngine;
 

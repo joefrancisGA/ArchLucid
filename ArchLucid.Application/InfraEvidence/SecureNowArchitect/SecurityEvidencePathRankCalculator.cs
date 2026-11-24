@@ -229,7 +229,7 @@ public static class SecurityEvidencePathRankCalculator
             foreach (KeyValuePair<string, decimal> entry in parsed)
             {
 
-                if (Enum.TryParse(entry.Key, ignoreCase: true, out SecurityEvidencePathRankDimension dimension)
+                if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(entry.Key, ignoreCase: true, out SecurityEvidencePathRankDimension dimension)
                     && defaults.ContainsKey(dimension))
                 {
                     resolved[dimension] = entry.Value;

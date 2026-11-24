@@ -37,7 +37,7 @@ public sealed partial class FindingJsonConverter
             return (FindingSeverity)numericFromString;
         }
 
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingSeverity parsed) && Enum.IsDefined(parsed))
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(raw, ignoreCase: true, out FindingSeverity parsed) && Enum.IsDefined(parsed))
             return parsed;
 
         return raw.Trim().ToLowerInvariant() switch
