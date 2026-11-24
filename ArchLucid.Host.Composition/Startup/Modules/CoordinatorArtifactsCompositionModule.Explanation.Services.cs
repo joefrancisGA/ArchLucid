@@ -46,6 +46,7 @@ using ArchLucid.Persistence.Repositories;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -87,6 +88,7 @@ partial class CoordinatorArtifactsCompositionModule
             configuration.GetSection(AskRetrievalOptions.SectionPath));
         services.AddScoped<IConversationContextCompressor, ConversationContextCompressor>();
         services.AddScoped<AskConversationHistoryBuilder>();
+        services.TryAddScoped<IAskEvidenceAccess, DenyUnconfiguredAskEvidenceAccess>();
         services.AddScoped<AskContextPreparer>();
         services.AddScoped<AskComparisonNarrativeBuilder>();
         services.AddScoped<AskResponseComposer>();
