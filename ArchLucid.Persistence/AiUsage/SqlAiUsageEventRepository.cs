@@ -1,4 +1,5 @@
 using System.Data;
+using ArchLucid.Contracts.Serialization;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.AiUsage;
@@ -104,7 +105,7 @@ public sealed class SqlAiUsageEventRepository(IDbConnectionFactory connectionFac
                 new CommandDefinition(sql, new { TenantId = tenantId, FromUtc = fromUtc }, cancellationToken: cancellationToken))
             .ConfigureAwait(false);
 
-        return rows.ToDictionary(r => Enum.Parse<AiUsageFeature>(r.Feature), r => r.TotalUsd);
+        return rows.ToDictionary(r => DefinedEnum.Parse<AiUsageFeature>(r.Feature), r => r.TotalUsd);
     }
 
     private static AiUsageEventRecord MapRow(AiUsageEventRow row) =>
@@ -113,7 +114,7 @@ public sealed class SqlAiUsageEventRepository(IDbConnectionFactory connectionFac
             Id = row.Id,
             TenantId = row.TenantId,
             UserId = row.UserId,
-            Feature = Enum.Parse<AiUsageFeature>(row.Feature),
+            Feature = DefinedEnum.Parse<AiUsageFeature>(row.Feature),
             ProviderKind = row.ProviderKind,
             InputTokens = row.InputTokens,
             OutputTokens = row.OutputTokens,
