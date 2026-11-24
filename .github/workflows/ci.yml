@@ -3030,7 +3030,19 @@ jobs:
 
       - name: Restore, audit, build, CLI config lint
         if: needs.ci-path-lanes.outputs.run_dotnet == 'true'
+        env:
+          ENUM_AUDIT_OUTPUT: ${{ runner.temp }}/enum-boundary-audit
+          ENUM_AUDIT_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || '' }}
         run: bash scripts/ci/run_dotnet_fast_core_build.sh
+
+      - name: Upload enum boundary audit evidence
+        if: always() && needs.ci-path-lanes.outputs.run_dotnet == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: enum-boundary-audit-${{ github.sha }}
+          path: ${{ runner.temp }}/enum-boundary-audit/
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Pack bin/obj for test shards
         if: needs.ci-path-lanes.outputs.run_dotnet == 'true'

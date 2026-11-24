@@ -6,15 +6,13 @@ using Microsoft.CodeAnalysis.Operations;
 
 namespace ArchLucid.Analyzers;
 
-/// <summary>
-/// Advisory inventory for raw enum conversions. A diagnostic requests review; it does not prove
-/// the absence of a later guard. Move boundary parsing to the validated contract helper.
-/// </summary>
+/// <summary>Enforces shared enum parsing and inventories explicit enum conversions.</summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class EnumBoundaryReviewAnalyzer : DiagnosticAnalyzer
 {
     public const string DiagnosticId = "ENUM001";
     public const string BlockingDiagnosticId = "ENUM002";
+    public const string CoverageDiagnosticId = "ENUM000";
 
     internal static readonly DiagnosticDescriptor Rule = new(
         DiagnosticId,
@@ -22,7 +20,8 @@ public sealed class EnumBoundaryReviewAnalyzer : DiagnosticAnalyzer
         "Raw enum conversion '{0}' requires declared-value or flags-mask validation",
         "Architecture",
         DiagnosticSeverity.Info,
-        isEnabledByDefault: true);
+        isEnabledByDefault: true,
+        customTags: new[] { WellKnownDiagnosticTags.NotConfigurable });
 
     internal static readonly DiagnosticDescriptor BlockingRule = new(
         BlockingDiagnosticId,
@@ -30,9 +29,20 @@ public sealed class EnumBoundaryReviewAnalyzer : DiagnosticAnalyzer
         "Raw enum conversion '{0}' must use an explicitly validated boundary parser",
         "Architecture",
         DiagnosticSeverity.Error,
-        isEnabledByDefault: true);
+        isEnabledByDefault: true,
+        customTags: new[] { WellKnownDiagnosticTags.NotConfigurable });
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule, BlockingRule);
+    internal static readonly DiagnosticDescriptor CoverageRule = new(
+        CoverageDiagnosticId,
+        "Enum audit coverage",
+        "Enum boundary analyzer executed for '{0}'",
+        "Architecture",
+        DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        customTags: new[] { WellKnownDiagnosticTags.CompilationEnd, WellKnownDiagnosticTags.NotConfigurable });
+
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+        ImmutableArray.Create(Rule, BlockingRule, CoverageRule);
 
     public override void Initialize(AnalysisContext context)
     {
@@ -47,49 +57,84 @@ public sealed class EnumBoundaryReviewAnalyzer : DiagnosticAnalyzer
                 return;
 
             start.RegisterOperationAction(AnalyzeInvocation, OperationKind.Invocation);
+            start.RegisterOperationAction(AnalyzeMethodReference, OperationKind.MethodReference);
             start.RegisterOperationAction(AnalyzeConversion, OperationKind.Conversion);
+
+            if (start.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue(
+                    "build_property.EnumAuditInventory", out string? enabled)
+                && string.Equals(enabled, "true", StringComparison.OrdinalIgnoreCase))
+            {
+                start.RegisterCompilationEndAction(end =>
+                    end.ReportDiagnostic(Diagnostic.Create(CoverageRule, Location.None, assembly)));
+            }
         });
     }
+
+    private static bool IsRawEnumMethod(IMethodSymbol method) =>
+        method.ContainingType.SpecialType == SpecialType.System_Enum
+        && method.Name is "Parse" or "TryParse" or "ToObject";
 
     private static void AnalyzeInvocation(OperationAnalysisContext context)
     {
         if (IsValidationImplementation(context.ContainingSymbol)
-            || context.Operation is not IInvocationOperation invocation)
+            || context.Operation is not IInvocationOperation invocation
+            || !IsRawEnumMethod(invocation.TargetMethod))
             return;
 
-        IMethodSymbol method = invocation.TargetMethod;
-        if (method.ContainingType.SpecialType == SpecialType.System_Enum
-            && method.Name is "Parse" or "TryParse" or "ToObject")
-        {
-            // Direct Parse/ToObject and discarded TryParse are not permitted at product boundaries.
-            // TryParse with an observed result remains an inventory finding until reviewed.
-            bool blocking = method.Name is "Parse" or "ToObject"
-                || (method.Name == "TryParse" && invocation.Parent is IExpressionStatementOperation);
-            context.ReportDiagnostic(Diagnostic.Create(blocking ? BlockingRule : Rule,
-                invocation.Syntax.GetLocation(), method.Name));
-        }
+        context.ReportDiagnostic(Diagnostic.Create(BlockingRule, invocation.Syntax.GetLocation(),
+            invocation.TargetMethod.Name));
     }
+
+    private static void AnalyzeMethodReference(OperationAnalysisContext context)
+    {
+        if (IsValidationImplementation(context.ContainingSymbol)
+            || context.Operation is not IMethodReferenceOperation reference
+            || !IsRawEnumMethod(reference.Method))
+            return;
+
+        context.ReportDiagnostic(Diagnostic.Create(BlockingRule, reference.Syntax.GetLocation(),
+            reference.Method.Name));
+    }
+
+    private static ITypeSymbol UnwrapNullable(ITypeSymbol symbol) =>
+        symbol is INamedTypeSymbol named && named.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T
+            ? named.TypeArguments[0]
+            : symbol;
+
+    private static bool IsEnumTarget(ITypeSymbol symbol) =>
+        symbol.TypeKind == TypeKind.Enum
+        || symbol is ITypeParameterSymbol parameter
+            && parameter.ConstraintTypes.Any(static constraint => constraint.SpecialType == SpecialType.System_Enum);
 
     private static void AnalyzeConversion(OperationAnalysisContext context)
     {
         if (IsValidationImplementation(context.ContainingSymbol)
             || context.Operation is not IConversionOperation conversion
-            || conversion.IsImplicit
-            || conversion.Type is not INamedTypeSymbol { TypeKind: TypeKind.Enum } target
-            || conversion.Operand.Type is not { } source
-            || SymbolEqualityComparer.Default.Equals(source, target))
+            || conversion.Type is not { } targetType
+            || conversion.Operand.Type is not { } sourceType)
             return;
 
-        if (source.TypeKind != TypeKind.Enum && source.SpecialType is not
-            (SpecialType.System_SByte or SpecialType.System_Byte or
-             SpecialType.System_Int16 or SpecialType.System_UInt16 or
-             SpecialType.System_Int32 or SpecialType.System_UInt32 or
-             SpecialType.System_Int64 or SpecialType.System_UInt64))
+        ITypeSymbol target = UnwrapNullable(targetType);
+        ITypeSymbol source = UnwrapNullable(sourceType);
+        if (!IsEnumTarget(target) || SymbolEqualityComparer.Default.Equals(source, target))
             return;
 
-        // A compile-time value equal to a declared enum member is already known-valid.
+        // Explicit conversions (including object unboxing and enum-constrained generics) and
+        // the implicit numeric zero conversion can introduce undeclared values.
+        if (conversion.Conversion.IsUserDefined)
+        {
+            context.ReportDiagnostic(Diagnostic.Create(Rule, conversion.Syntax.GetLocation(), "user-defined conversion"));
+            return;
+        }
+
         if (conversion.ConstantValue.HasValue && target.GetMembers().OfType<IFieldSymbol>()
             .Any(field => field.HasConstantValue && Equals(field.ConstantValue, conversion.ConstantValue.Value)))
+            return;
+
+        // A lifted null literal is legitimate absence, not an invented enum member.
+        if (conversion.Operand.ConstantValue.HasValue && conversion.Operand.ConstantValue.Value is null
+            && targetType is INamedTypeSymbol nullable
+            && nullable.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
             return;
 
         context.ReportDiagnostic(Diagnostic.Create(Rule, conversion.Syntax.GetLocation(), "cast"));
@@ -99,6 +144,7 @@ public sealed class EnumBoundaryReviewAnalyzer : DiagnosticAnalyzer
     {
         INamedTypeSymbol? type = containingSymbol.ContainingType;
         return type is not null
+            && type.ContainingAssembly.Name == "ArchLucid.Contracts"
             && type.ContainingNamespace.ToDisplayString() == "ArchLucid.Contracts.Serialization"
             && type.Name is "DefinedEnum" or "DefinedEnumStringReader";
     }
