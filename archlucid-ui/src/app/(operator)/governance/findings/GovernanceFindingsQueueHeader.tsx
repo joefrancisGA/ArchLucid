@@ -50,6 +50,9 @@ import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-c
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
 import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
 import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { useSecureNowNeedsSecondCapturePathDelta } from "@/hooks/use-securenow-needs-second-capture-path-delta";
+import { SecureNowSecondCapturePathDeltaHonestyStrip } from "@/components/product-line/SecureNowSecondCapturePathDeltaHonestyStrip";
+import { GOVERNANCE_FINDINGS_QUEUE_SECOND_CAPTURE_PATH_DELTA_LINE } from "@/lib/governance/governance-findings-queue-second-capture-path-delta-copy";
 import {
   isPositiveFiniteCount,
   resolveSecureNowFindingsQueueOpenGate,
@@ -139,6 +142,9 @@ export function GovernanceFindingsQueueHeader({
   const partialCapture = useLatestSnapshotCaptureIsPartial(secureNowProductLine && !isAssignedToMe);
   const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(secureNowProductLine && !isAssignedToMe && partialCapture);
   const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
+  const needsSecondCapturePathDelta = useSecureNowNeedsSecondCapturePathDelta(
+    secureNowProductLine && !isAssignedToMe && !partialCapture,
+  );
   const secureNowFindingsOpenGates = useMemo(
     () =>
       secureNowProductLine
@@ -333,6 +339,15 @@ export function GovernanceFindingsQueueHeader({
               returnPath={partialCaptureReturnPath}
               cloudConnectionsTestId="governance-findings-header-partial-capture-cloud-connections"
               extractUploadTestId="governance-findings-header-partial-capture-extract-upload"
+            />
+          ) : null}
+          {needsSecondCapturePathDelta ? (
+            <SecureNowSecondCapturePathDeltaHonestyStrip
+              testId="governance-findings-header-second-capture-path-delta"
+              returnPath={partialCaptureReturnPath}
+              middleLine={GOVERNANCE_FINDINGS_QUEUE_SECOND_CAPTURE_PATH_DELTA_LINE}
+              cloudConnectionsTestId="governance-findings-header-second-capture-cloud-connections"
+              extractUploadTestId="governance-findings-header-second-capture-extract-upload"
             />
           ) : null}
         </div>

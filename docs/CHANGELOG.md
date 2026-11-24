@@ -5,6 +5,13 @@
 
 # ArchLucid changelog
 
+
+## 2026-11-24 - SecureNow stickiness second capture (batch)
+
+**Outcome.** Findings queue header and snapshots drift name that path id added, gone, and unchanged lists need a second successful capture, with securenowReturnPath recovery links. Not a usage claim.
+
+**Surfaces.** Governance findings header, infrastructure snapshots drift.
+
 ## 2026-11-24 - SecureNow template and packaging richness (batch)
 
 **Outcome.** Specialty template cards carry illustrative-only disclosure on the grid. Execute-denied is distinct from authority load failure. The pilot accelerator catalog links the remediation-factory empty fixture beat. Home collection setup mounts the accelerator index while capture is incomplete. Why SecureNow shows the beta SKU card. Quote packet list prices repeat the commerce limit. Pilot decision always links the SN-EVAL quote packet. Self-serve billing tiers state they are not SecureNow SKUs.
