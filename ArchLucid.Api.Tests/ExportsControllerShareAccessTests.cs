@@ -11,6 +11,8 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
 
+using ApiReplayExportRequest = ArchLucid.Api.Models.ReplayExportRequest;
+
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
@@ -100,9 +102,9 @@ public sealed class ExportsControllerShareAccessTests
                 leftId, rightId, new PersistComparisonRequest { Persist = true },
                 records.Object, CancellationToken.None),
             "replay" => await controller.ReplayExportRecord(
-                leftId, new ReplayExportRequest(), records.Object, CancellationToken.None),
+                leftId, new ApiReplayExportRequest(), records.Object, CancellationToken.None),
             "replay-metadata" => await controller.ReplayExportRecordMetadata(
-                leftId, new ReplayExportRequest(), records.Object, CancellationToken.None),
+                leftId, new ApiReplayExportRequest(), records.Object, CancellationToken.None),
             _ => throw new InvalidOperationException(operation),
         };
 
