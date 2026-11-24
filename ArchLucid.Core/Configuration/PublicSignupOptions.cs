@@ -20,5 +20,6 @@ public sealed class PublicSignupOptions
 
     public bool IsPublicSelfServiceEnabled() => Mode == PublicSignupMode.PublicSelfService;
 
-    public bool IsInviteOnly() => Mode == PublicSignupMode.InviteOnly;
+    /// <summary>Only an explicit public-self-service mode opens signup; unknown values fail closed.</summary>
+    public bool IsInviteOnly() => !IsPublicSelfServiceEnabled();
 }
