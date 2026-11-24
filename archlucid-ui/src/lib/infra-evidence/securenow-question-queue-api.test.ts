@@ -541,6 +541,15 @@ describe("secureNowQuestionDispositionResponseSubscriptionIdMatchesRequest", () 
     ).toBe(true);
   });
 
+  it("treats case-only subscription id differences as matching the submitted request", () => {
+    expect(
+      secureNowQuestionDispositionResponseSubscriptionIdMatchesRequest(
+        "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+        "AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE",
+      ),
+    ).toBe(true);
+  });
+
   it("rejects a different subscription id after trim", () => {
     expect(
       secureNowQuestionDispositionResponseSubscriptionIdMatchesRequest(
@@ -2532,6 +2541,44 @@ describe("securenow-question-queue-api", () => {
     expect(disposition).toBeDefined();
     expect(disposition?.questionKey).toBe("subscription-ownership@v1");
   });
+
+  it("accepts POST answer when response subscription id differs only by case from the submitted write", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      resourceId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      expirationUtc: "2026-12-01T00:00:00.000Z",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: [],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE",
+      resourceId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeDefined();
+    expect(disposition?.subscriptionId).toBe("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+  });
+
   it("returns undefined when POST answer response question key differs from the submitted request", async () => {
     vi.mocked(proxyJsonPost).mockResolvedValueOnce({
       dispositionId: "00000000-0000-0000-0000-000000000001",

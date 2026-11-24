@@ -261,7 +261,8 @@ export function secureNowQuestionDispositionResponseSubscriptionIdMatchesRequest
     return false;
   }
 
-  return responseId === requestId;
+  // Application identity + disposition writes normalize subscription ids with ToLowerInvariant.
+  return responseId.toLowerCase() === requestId.toLowerCase();
 }
 
 /** Whether a POST disposition's resource id matches the submitted mutation request after trim. */
