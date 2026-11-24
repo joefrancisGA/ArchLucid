@@ -7,6 +7,7 @@ import { useEffect, useMemo } from "react";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { writeArchLucidOpenGateReturnRecord } from "@/lib/architecture/archlucid-open-gate-return-storage";
 
+import { ReviewCognitiveLoadGuidance } from "@/components/reviews/ReviewCognitiveLoadGuidance";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
@@ -28,6 +29,11 @@ import {
 } from "@/lib/reviews/first-review-spine-band";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 import { SEMANTIC_SUPPORT_BAND_ASYNC_MAY_LAG_COPY } from "@/lib/semantic-support-band-async-honesty";
+import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
+import {
+  resolveReviewCognitiveLoadEmptyLine,
+  resolveReviewCognitiveLoadNextAction,
+} from "@/lib/reviews/review-cognitive-load-copy";
 import { cn } from "@/lib/utils";
 
 export type RunDetailFirstReviewSpineBandProps = {
@@ -132,6 +138,21 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
     && hasOpenGateNavigationInput
     && props.openGateNavigationInput?.hasFindingsSnapshot !== false;
   const trimmedManifestVersion = props.manifestVersion?.trim() ?? "";
+  const cognitiveNextAction = resolveReviewCognitiveLoadNextAction({
+    openGateReviewTab: summary.openGateReviewTab,
+    openGateLabel: summary.openGateLabel,
+    evidenceReferenceCountNotStored: summary.evidenceReferenceCountNotStored,
+  });
+  const cognitiveEmptyLine = resolveReviewCognitiveLoadEmptyLine({
+    openGateReviewTab: summary.openGateReviewTab,
+    evidenceReferenceCountNotStored: summary.evidenceReferenceCountNotStored,
+  });
+  const sponsorPacketHref =
+    summary.openGateLabel === null
+    && !summary.evidenceReferenceCountNotStored
+    && trimmedRunId.length > 0
+      ? buildReviewDetailTabHref(trimmedRunId, "review-package", { architectureId: props.architectureId })
+      : null;
 
   useEffect(() => {
     const trimmedRunId = props.runId?.trim() ?? "";
@@ -218,6 +239,12 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
         ) : null}
       </div>
 
+      <ReviewCognitiveLoadGuidance
+        nextAction={cognitiveNextAction}
+        emptyLine={cognitiveEmptyLine}
+        sponsorHref={sponsorPacketHref}
+      />
+
       {summary.gateOutcomeDetail !== null ? (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           {summary.gateOutcomeDetail}
@@ -268,9 +295,13 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
             </Link>
           </Button>
           {summary.showDispositionNextAction && recordDispositionHref !== null ? (
-            <Button asChild size="sm" variant="outline" data-testid="run-detail-first-review-spine-record-disposition-primary">
-              <Link href={recordDispositionHref}>Record disposition</Link>
-            </Button>
+            <Link
+              href={recordDispositionHref}
+              className={OPERATOR_LINK.inline}
+              data-testid="run-detail-first-review-spine-record-disposition-primary"
+            >
+              Record disposition
+            </Link>
           ) : null}
         </div>
       ) : null}
