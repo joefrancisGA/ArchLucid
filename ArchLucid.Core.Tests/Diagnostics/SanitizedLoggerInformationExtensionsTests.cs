@@ -14,6 +14,29 @@ namespace ArchLucid.Core.Tests.Diagnostics;
 public sealed class SanitizedLoggerInformationExtensionsTests
 {
     [Fact]
+    public void AsyncCreateAdmissionAndSupportAcknowledgementHaveDistinctEventIds()
+    {
+        Mock<ILogger> mock = new();
+        mock.Setup(l => l.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
+        List<int> eventIds = [];
+
+        mock.Setup(m => m.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback(new InvocationAction(invocation =>
+                eventIds.Add(((EventId)invocation.Arguments[1]).Id)));
+
+        mock.Object.LogInformationAsyncCreateAdmitted("run", "request", "system");
+        SanitizedLoggerSupportProblemReportExtensions.LogInformationProblemReportAckWouldSend(
+            mock.Object, Guid.NewGuid(), "reporter@example.com", "Noop");
+
+        eventIds.Should().Equal(3020, 3017);
+    }
+
+    [Fact]
     public void LogInformationArchitectureRunCommitted_strips_control_chars_in_user_strings()
     {
         Mock<ILogger> mock = new();
