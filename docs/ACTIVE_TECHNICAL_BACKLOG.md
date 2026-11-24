@@ -32,7 +32,7 @@
 | Priority | QA & stabilization | Release readiness | 2.0 foundations | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Immediate | 0 | 0 | 0 | 0 |
-| Critical | 40 | 5 | 0 | 45 |
+| Critical | 44 | 5 | 0 | 49 |
 | High | 262 | 141 | 0 | 403 |
 | Medium | 10 | 2 | 15 | 27 |
 | Low | 0 | 0 | 63 | 63 |
@@ -45,7 +45,7 @@ Each section is ordered **QA → release readiness → 2.0 foundations**. Within
 
 ### Critical
 
-#### QA & stabilization (40)
+#### QA & stabilization (44)
 
 | ID | Technical item | Origin / qualification |
 | --- | --- | --- |
@@ -89,6 +89,10 @@ Each section is ordered **QA → release readiness → 2.0 foundations**. Within
 | FND-091 | Pareto optimization of security risk, cost and business disruption | Critical implementation slice of FND-046/TB-2415 after FND-089; [Portfolio optimization proposal](architecture/REMEDIATION_PORTFOLIO_OPTIMIZATION.md). Generate bounded feasible nondominated portfolio alternatives using approved tenant objectives and hard constraints; disclose approximation limits, uncertainty and binding constraints. Test nondominance against exhaustive small-case reference; never sacrifice mandatory obligations through weight changes. |
 | FND-092 | Explainable portfolio recommendations and sensitivity analysis | Critical extension of IE-15/FND-071/FND-089/FND-091; [Portfolio optimization proposal](architecture/REMEDIATION_PORTFOLIO_OPTIMIZATION.md). Expose reproducible selected/excluded actions, marginal modeled benefit, dependencies, score breakdowns, cost assumptions, constraint usage, residual exposure and sensitivity to approved weights and budgets. Pin model/evidence/solver versions, preserve review and approval workflow, distinguish uncalibrated risk proxy from probability or financial loss; LLM explanations cannot override computed results. |
 | FND-093 | Independent optimization verification and post-remediation effectiveness measurement | Critical assurance slice of FND-038/FND-059/FND-069/FND-078/FND-079/FND-081/FND-086; [Portfolio optimization proposal](architecture/REMEDIATION_PORTFOLIO_OPTIMIZATION.md). Develop exact independent small-case oracle, differential top-N/greedy comparisons, constraint and metamorphic tests alongside FND-089; measure solver quality, runtime and cost on representative estates. Verify actual approved remediation on later evidence through existing verification loops, retain unknowns and calibrate estimates, enforce rollout gates; never treat predicted or approved actions as observed remediation. |
+| FND-094 | Historical replay descriptor and sealed artifact completeness | Critical extension of FND-005/008/009/019/071/075/076/083–085 and TB-2106; [Historical analytical reproducibility](architecture/HISTORICAL_ANALYTICAL_REPRODUCIBILITY.md). Reuse existing manifest, policy/evidence pins, trace and checkpoint infrastructure to bind scoped original evidence, effective policy, accepted AI outputs, stage lineage, executable/configuration versions and content digests. Record required artifact availability and fidelity explicitly; preserve legacy identities and sealed history; test missing/tampered artifacts, scope isolation and version compatibility. |
+| FND-095 | Provider-independent recorded-input replay and historical execution isolation | Critical extension of existing authority/agent replay and SecureNow offline replay after FND-094/096; [Historical analytical reproducibility](architecture/HISTORICAL_ANALYTICAL_REPRODUCIBILITY.md). Reuse authorized recorded-result adapters, pinned compatible deterministic components and isolated resource-bounded workers; distinguish raw-response from typed-result replay, prohibit live provider calls, current-input substitution, customer mutation and original-chain overwrite. Test model retirement, changed current configuration, missing inputs, incompatible executables, network denial, authorization and semantic output comparison. |
+| FND-096 | Governed reproducibility retention and artifact availability | Critical extension of FND-052/075/085/094 and existing forensic/evidence persistence; [Historical analytical reproducibility](architecture/HISTORICAL_ANALYTICAL_REPRODUCIBILITY.md). Define tenant-approved retention and fidelity requirements for each replay mode, purpose-limited encrypted storage, scoped access, redaction, deletion and legal-hold rules, versioned artifact integrity and restoration. Distinguish exact, derived, truncated, missing, expired, erased and incompatible artifacts; never bypass privacy controls or claim reproducibility beyond retained authorized inputs. Test restoration, tampering, expiration, erasure and optional-cache eviction. |
+| FND-097 | Cross-product historical replay equivalence and independent revalidation | Critical assurance extension of FND-059/069–071/078–079/084/086/094–096; [Historical analytical reproducibility](architecture/HISTORICAL_ANALYTICAL_REPRODUCIBILITY.md). Develop independent historical fixtures for ArchLucid and SecureNow; validate sealed reconstruction, provider-disabled recorded-input replay and separate independent claim revalidation on pinned evidence. Compare stage/final semantic results, detect drift and counterexamples, distinguish integrity from truth and report partial/unavailable outcomes explicitly. Test model retirement, current policy/engine changes, missing coverage and historical chain immutability; no customer mutation or unqualified reproducibility claims. |
 
 #### Release readiness (5)
 
