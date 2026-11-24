@@ -378,6 +378,17 @@ public sealed class SqlRemediationInstanceApprovalProvenanceTests(SqlServerPersi
         (await repository.ListEvidenceByInstanceInScopeAsync(scope, firstId))
             .Should().ContainSingle("stale verification cannot append evidence");
 
+        // The second row remains eligible for verification. A valid eight-byte
+        // token from the first row must not pass its compare-and-swap guard.
+        RemediationInstanceMutation staleOther = firstVerification with
+        {
+            InstanceId = secondId,
+            ExpectedRowVersion = firstBefore.RowVersion,
+        };
+        Func<Task> foreignRowVersion = () => repository.CommitVerificationInScopeAsync(
+            scope, staleOther, CopyEvidence(secondId, Guid.NewGuid()));
+        await foreignRowVersion.Should().ThrowAsync<InvalidOperationException>();
+
         // The scope predicate must reject a valid token from another project.
         ProjectScopeKey foreign = ProjectScopeKey.Create(
             scope.TenantId, scope.WorkspaceId, Guid.NewGuid());
