@@ -7,6 +7,7 @@ using ArchLucid.Persistence.Tests.Support;
 using ArchLucid.TestSupport;
 
 using Dapper;
+using DbUp;
 
 using FluentAssertions;
 
@@ -219,6 +220,93 @@ public sealed class TenantSchemaBootstrapParityIntegrationTests
             Assert.Equal(0, tenant.TrialArchitecturePreseedAttemptCount);
             Assert.Null(tenant.LegalHoldUntilUtc);
             Assert.Null(await repository.GetByIdFromControlPlaneCatalogAsync(Guid.NewGuid(), CancellationToken.None));
+        }
+        finally
+        {
+            SqlServerTestCatalogCommands.DropCatalogIfExists(connectionString);
+        }
+    }
+
+    [SkippableFact]
+    public Task Migration_006_backfills_only_offboarded_tenants_when_request_column_is_missing() =>
+        AssertPopulatedDirectoryUpgradeAsync(hasRequestColumn: false);
+
+    [SkippableFact]
+    public Task Migration_006_preserves_recorded_erasure_request_and_legal_hold() =>
+        AssertPopulatedDirectoryUpgradeAsync(hasRequestColumn: true);
+
+    private static async Task AssertPopulatedDirectoryUpgradeAsync(bool hasRequestColumn)
+    {
+        var assembly = typeof(DatabaseMigrator).Assembly;
+        string migration006 = assembly.GetManifestResourceNames().Single(
+            n => n.EndsWith(".Migrations.System.006_TenantDirectoryProjection.sql", StringComparison.Ordinal));
+        string connectionString = CreateEphemeralCatalogConnectionStringOrSkip("SystemDirectoryUpgrade");
+        SqlServerTestCatalogCommands.EnsureCatalogExists(connectionString);
+        try
+        {
+            // Journal 001 through 005 as an existing deployment would.
+            var baseline = DeployChanges.To.SqlDatabase(connectionString)
+                .WithScriptsEmbeddedInAssembly(assembly,
+                    name => SqlMigrationPlanes.IsSystemPlaneScript(name) && string.CompareOrdinal(name, migration006) < 0)
+                .WithTransactionPerScript().Build().PerformUpgrade();
+            Assert.True(baseline.Successful, baseline.Error?.ToString());
+
+            Guid offboardedId = Guid.NewGuid();
+            Guid activeId = Guid.NewGuid();
+            DateTimeOffset offboarded = new DateTimeOffset(2026, 3, 9, 10, 15, 48, TimeSpan.FromHours(-4)).AddTicks(1234567);
+            DateTimeOffset requested = offboarded.AddDays(-2);
+            DateTimeOffset holdUntil = offboarded.AddMonths(3);
+            await using (SqlConnection connection = new(connectionString))
+            {
+                await connection.OpenAsync();
+                await connection.ExecuteAsync("""
+                    ALTER TABLE dbo.Tenants ADD OffboardedUtc DATETIMEOFFSET(7) NULL,
+                        LegalHoldUntilUtc DATETIMEOFFSET(7) NULL, LegalHoldReason NVARCHAR(500) NULL,
+                        DataRegion NVARCHAR(64) NOT NULL DEFAULT N'default';
+                    """);
+                await connection.ExecuteAsync("""
+                    INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, OffboardedUtc, LegalHoldUntilUtc, LegalHoldReason, DataRegion)
+                    VALUES (@offboardedId, N'Former tenant', N'former', N'Standard', @offboarded, @holdUntil, N'Retain records', N'westeurope'),
+                           (@activeId, N'Active tenant', N'active', N'Standard', NULL, NULL, NULL, N'eastus');
+                    """, new { offboardedId, activeId, offboarded, holdUntil });
+                if (hasRequestColumn)
+                {
+                    await connection.ExecuteAsync("ALTER TABLE dbo.Tenants ADD TenantErasureRequestedUtc DATETIMEOFFSET(7) NULL;");
+                    await connection.ExecuteAsync("UPDATE dbo.Tenants SET TenantErasureRequestedUtc = @requested WHERE Id = @offboardedId;",
+                        new { requested, offboardedId });
+                }
+            }
+
+            var repository = DapperTenantRepositoryTestFactory.CreateForPerTenantCatalogSameDatabaseIntegration(
+                new TestSqlConnectionFactory(connectionString));
+            async Task AssertDirectoryValuesAsync()
+            {
+                TenantRecord former = Assert.IsType<TenantRecord>(
+                    await repository.GetByIdFromControlPlaneCatalogAsync(offboardedId, CancellationToken.None));
+                Assert.True(former.OffboardedUtc?.EqualsExact(offboarded) == true);
+                Assert.True(former.TenantErasureRequestedUtc?.EqualsExact(hasRequestColumn ? requested : offboarded) == true);
+                Assert.True(former.LegalHoldUntilUtc?.EqualsExact(holdUntil) == true);
+                Assert.Equal("Retain records", former.LegalHoldReason);
+                Assert.Equal("westeurope", former.DataRegion);
+
+                TenantRecord active = Assert.IsType<TenantRecord>(
+                    await repository.GetByIdFromControlPlaneCatalogAsync(activeId, CancellationToken.None));
+                Assert.Null(active.OffboardedUtc);
+                Assert.Null(active.TenantErasureRequestedUtc);
+                Assert.Null(active.LegalHoldUntilUtc);
+                Assert.Equal("eastus", active.DataRegion);
+            }
+
+            DatabaseMigrator.RunSystem(connectionString);
+            await AssertDirectoryValuesAsync();
+
+            // DbUp would normally skip a journaled script. Replay only 006 against the same populated catalog.
+            var replay = DeployChanges.To.SqlDatabase(connectionString)
+                .WithScriptsEmbeddedInAssembly(assembly, name => name == migration006)
+                .WithTransactionPerScript().JournalTo(new DbUp.Helpers.NullJournal())
+                .Build().PerformUpgrade();
+            Assert.True(replay.Successful, replay.Error?.ToString());
+            await AssertDirectoryValuesAsync();
         }
         finally
         {

@@ -55,7 +55,7 @@ jobs:
         run: |
           dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj \
             --configuration Release \
-            --filter 'FullyQualifiedName~TenantDatabaseBindingConcurrencySqlIntegrationTests|FullyQualifiedName~System_migrations_alone_support_tenant_directory_lookup' \
+            --filter 'FullyQualifiedName~TenantDatabaseBindingConcurrencySqlIntegrationTests|FullyQualifiedName~System_migrations_alone_support_tenant_directory_lookup|FullyQualifiedName~TenantSchemaBootstrapParityIntegrationTests.Migration_006_' \
             --logger 'trx;LogFileName=tenant-binding-concurrency.trx' \
             --results-directory TestResults/tenant-binding
       - name: Require actual execution of all focused SQL tests
@@ -72,6 +72,8 @@ jobs:
               "Concurrent_first_writes_for_same_tenant_leave_one_pending_binding",
               "Concurrent_updates_of_failed_binding_clear_error_and_preserve_creation_time",
               "System_migrations_alone_support_tenant_directory_lookup",
+              "Migration_006_backfills_only_offboarded_tenants_when_request_column_is_missing",
+              "Migration_006_preserves_recorded_erasure_request_and_legal_hold",
           }
           actual = {r.attrib["testName"].rsplit(".", 1)[-1] for r in results}
           if len(results) != len(expected) or actual != expected or any(r.attrib.get("outcome") != "Passed" for r in results):
