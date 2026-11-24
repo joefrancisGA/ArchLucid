@@ -147,6 +147,10 @@ import {
   RUN_ENGINE_PROVENANCE_OPEN_PARAM,
 } from "@/lib/runs/run-engine-provenance-disclosure-url";
 import {
+  parseRunExplanationProvenanceOpenFromSearch,
+  RUN_EXPLANATION_PROVENANCE_OPEN_PARAM,
+} from "@/lib/runs/run-explanation-provenance-disclosure-url";
+import {
   parseTrustEvidenceFieldsOpenFromSearch,
   parseTrustEvidenceTechOpenFromSearch,
   TRUST_EVIDENCE_FIELDS_OPEN_PARAM,
@@ -425,6 +429,9 @@ export function useReviewDetailWorkspaceTabs(
     const runEngineProvenanceOpenPresent = parseRunEngineProvenanceOpenFromSearch(
       params.get(RUN_ENGINE_PROVENANCE_OPEN_PARAM),
     );
+    const runExplanationProvenanceOpenPresent = parseRunExplanationProvenanceOpenFromSearch(
+      params.get(RUN_EXPLANATION_PROVENANCE_OPEN_PARAM),
+    );
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -526,6 +533,7 @@ export function useReviewDetailWorkspaceTabs(
       || runAgentForensicsOpenPresent
       || runAgentExecutionLogOpenPresent
       || runEngineProvenanceOpenPresent
+      || runExplanationProvenanceOpenPresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent
