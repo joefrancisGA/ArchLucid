@@ -800,6 +800,36 @@ public sealed class RetrievalQueryServiceTests
         }
     }
 
+    [Fact]
+    public async Task SearchAsync_authorized_evidence_filter_survives_candidate_clone_and_skips_unverified_graph_expansion()
+    {
+        Guid allowed = Guid.NewGuid();
+        RecordingGraphRagNeighborExpander recordingExpander = new();
+        Mock<IEmbeddingService> embeddings = new();
+        embeddings.Setup(e => e.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new float[] { 1f, 0f });
+        RetrievalChunk visible = Chunk("visible", [0.5f, 0.5f], "visible");
+        visible.RunId = allowed;
+        visible.CorpusKind = CorpusKind.KnowledgeGraphNode;
+        RetrievalChunk restricted = Chunk("restricted", [1f, 0f], "restricted");
+        restricted.RunId = Guid.NewGuid();
+        restricted.CorpusKind = CorpusKind.KnowledgeGraphNode;
+        InMemoryVectorIndex index = new();
+        await index.UpsertChunksAsync([restricted, visible], CancellationToken.None);
+
+        RetrievalQueryService sut = CreateServiceWithGraphExpander(
+            embeddings.Object, index, recordingExpander,
+            new AdvancedRetrievalOptions { Enabled = true, EnableGraphRag = true },
+            new RetrievalRerankingOptions { Enabled = true, MaxCandidates = 10 });
+        RetrievalQuery query = ScopedQuery("visible", topK: 1);
+        query.AuthorizedEvidenceRunIds = new HashSet<Guid> { allowed };
+
+        IReadOnlyList<RetrievalHit> hits = await sut.SearchAsync(query, CancellationToken.None);
+
+        hits.Should().ContainSingle().Which.ChunkId.Should().Be("visible");
+        recordingExpander.LastInputHitCount.Should().Be(0);
+    }
+
     private static RetrievalQuery ScopedQuery(string queryText, int topK)
     {
         return new RetrievalQuery
