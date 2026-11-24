@@ -1,0 +1,96 @@
+name: FND-010 Manifest Identity Persistence
+on:
+  pull_request:
+    branches: [master, main, RC49]
+    paths:
+      - 'ArchLucid.Core/Manifest/IGoldenManifestRepository.cs'
+      - 'ArchLucid.Persistence/Sql/GoldenManifestReadSql.cs'
+      - 'ArchLucid.Persistence/Repositories/*GoldenManifestRepository*.cs'
+      - 'ArchLucid.Decisioning/Repositories/InMemoryGoldenManifestRepository.cs'
+      - 'ArchLucid.Persistence.Tests/Contracts/*GoldenManifestRepositoryContractTests.cs'
+      - 'ArchLucid.Persistence.Tests/CachingGoldenManifestRepositoryTests.cs'
+      - '.github/workflows/fnd010-manifest-identity-persistence.yml'
+permissions:
+  contents: read
+concurrency:
+  group: fnd010-manifest-identity-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  manifest-identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 30
+          --health-start-period 60s
+    env:
+      ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Wait for disposable SQL Server
+        uses: ./.github/actions/wait-for-sqlserver
+      - name: Prepare isolated SQL test catalog
+        run: bash scripts/ci/ensure-ci-sql-catalog.sh ArchLucidPersistenceTests
+      - name: Execute scoped manifest identity and cache regressions
+        run: |
+          mkdir -p "$RUNNER_TEMP/fnd010-manifest-identity"
+          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj \
+            --configuration Release \
+            --filter "(FullyQualifiedName~GoldenManifestRepositoryContractTests&(FullyQualifiedName~Save_then_GetById_round_trips_core_fields|FullyQualifiedName~GetById_wrong_scope_returns_null))|FullyQualifiedName~CachingGoldenManifestRepositoryTests.GetRunIdByManifestIdAsync_does_not_read_cached_manifest_payload" \
+            --logger "console;verbosity=normal" \
+            --logger "trx;LogFileName=manifest-identity.trx" \
+            --results-directory "$RUNNER_TEMP/fnd010-manifest-identity"
+      - name: Require all five concrete regression cases to execute and pass
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          report = Path(os.environ["RUNNER_TEMP"]) / "fnd010-manifest-identity/manifest-identity.trx"
+          if not report.is_file():
+              raise SystemExit("FAIL: missing TRX; no verified persistence pass")
+          root = ET.parse(report).getroot()
+          ns = {"t": "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}
+          counters = root.find(".//t:Counters", ns)
+          if counters is None:
+              raise SystemExit("FAIL: missing TRX counters")
+          values = {k: int(v) for k, v in counters.attrib.items() if v.isdigit()}
+          if (values.get("total") != 5 or values.get("executed") != 5
+                  or values.get("passed") != 5 or values.get("failed", 0) != 0
+                  or values.get("notExecuted", 0) != 0):
+              raise SystemExit(f"FAIL: expected five executed and passed regressions: {values}")
+          required = {
+              (cls, method)
+              for cls in ("SqlGoldenManifestRepositoryContractTests",
+                          "InMemoryGoldenManifestRepositoryContractTests")
+              for method in ("Save_then_GetById_round_trips_core_fields",
+                             "GetById_wrong_scope_returns_null")
+          }
+          required.add(("CachingGoldenManifestRepositoryTests",
+                        "GetRunIdByManifestIdAsync_does_not_read_cached_manifest_payload"))
+          results = root.findall(".//t:UnitTestResult", ns)
+          for cls, method in sorted(required):
+              matches = [r for r in results
+                         if r.attrib.get("testName", "").endswith(f"{cls}.{method}")]
+              if len(matches) != 1 or matches[0].attrib.get("outcome") != "Passed":
+                  raise SystemExit(f"FAIL: missing executed passing case {cls}.{method}")
+              print(f"Verified PASS: {cls}.{method}")
+          print("Verified five persistence cases, including two real SQL cases; none skipped")
+          PY
