@@ -340,6 +340,24 @@ public sealed class InMemoryVectorIndexTests
         (await index.SearchAsync(query, [1f, 0f], CancellationToken.None)).Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task Authorized_ask_never_ranks_legacy_platform_sentinel_conversations()
+    {
+        RetrievalChunk legacy = MakeChunk("legacy-conversation", Guid.Empty, Guid.Empty, Guid.Empty, [1f, 0f]);
+        legacy.CorpusKind = CorpusKind.Conversation;
+        RetrievalChunk platform = MakeChunk("public-doc", Guid.Empty, Guid.Empty, Guid.Empty, [0.5f, 0.5f]);
+        platform.CorpusKind = CorpusKind.PlatformDoc;
+        InMemoryVectorIndex index = new();
+        await index.UpsertChunksAsync([legacy, platform], CancellationToken.None);
+        RetrievalQuery query = BaseQuery();
+        query.TopK = 1;
+        query.IncludePlatformCorpora = true;
+        query.AuthorizedEvidenceRunIds = new HashSet<Guid>();
+
+        (await index.SearchAsync(query, [1f, 0f], CancellationToken.None))
+            .Should().ContainSingle().Which.ChunkId.Should().Be("public-doc");
+    }
+
     private static RetrievalChunk MakePlatformPolicyPackChunk(string chunkId, string rulePackId, float[] embedding)
     {
         RetrievalChunk chunk = MakeChunk(
