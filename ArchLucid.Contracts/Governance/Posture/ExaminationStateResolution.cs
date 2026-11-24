@@ -8,7 +8,7 @@ public sealed class ExaminationStateResolution
     {
         get;
         init;
-    }
+    } = PillarExaminationState.Unavailable;
 
     private string reasonText = string.Empty;
 

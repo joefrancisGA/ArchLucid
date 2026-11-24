@@ -98,4 +98,17 @@ public sealed class PillarPostureDeserializationTests
         result.Should().NotBeNull();
         result!.FindingCounts.Should().NotBeNull();
     }
+
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("{\"examination\":null}")]
+    [InlineData("{\"examination\":{}}")]
+    public void Deserialize_missing_examination_does_not_claim_coverage(string json)
+    {
+        PillarPosture? result =
+            JsonSerializer.Deserialize<PillarPosture>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.Examination.State.Should().Be(PillarExaminationState.Unavailable);
+    }
 }
