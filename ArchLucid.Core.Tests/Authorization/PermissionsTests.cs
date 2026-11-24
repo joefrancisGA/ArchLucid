@@ -9,6 +9,16 @@ namespace ArchLucid.Core.Tests.Authorization;
 public sealed class PermissionsTests
 {
     [Fact]
+    public void Platform_only_permission_is_not_tenant_assignable_or_seeded()
+    {
+        Permissions.IsKnown(Permissions.TenantsManageAny).Should().BeTrue();
+        Permissions.IsTenantAssignable(Permissions.TenantsManageAny).Should().BeFalse();
+        Permissions.BuiltInAdmin.Should().NotContain(Permissions.TenantsManageAny);
+        Action act = () => Permissions.ValidateAndNormalize([Permissions.TenantsManageAny]);
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
     public void IsKnown_returns_true_for_canonical_permission()
     {
         Permissions.IsKnown(Permissions.RunsRead).Should().BeTrue();

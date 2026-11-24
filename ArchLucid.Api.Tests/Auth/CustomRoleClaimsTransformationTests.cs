@@ -72,6 +72,28 @@ public sealed class CustomRoleClaimsTransformationTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task TransformAsync_does_not_project_platform_only_permission_from_legacy_tenant_role()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(new ScopeContext { TenantId = TenantId });
+
+        Mock<IScimUserRepository> scimUsers = new();
+        scimUsers.Setup(r => r.GetByExternalIdAsync(TenantId, DirectoryOid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateScimUser(ScimUserAId, DirectoryOid));
+
+        Mock<ICustomRolePermissionEvaluator> evaluator = new();
+        evaluator.Setup(e => e.GetEffectivePermissionsAsync(TenantId, ScimUserAId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([Permissions.TenantsManageAny, Permissions.RunsRead]);
+
+        CustomRoleClaimsTransformation transformation = new(scopeProvider.Object, scimUsers.Object, evaluator.Object);
+        ClaimsPrincipal principal = new(new ClaimsIdentity([new Claim("oid", DirectoryOid)], "Bearer"));
+
+        ClaimsPrincipal transformed = await transformation.TransformAsync(principal);
+        transformed.HasClaim(Permissions.ClaimType, Permissions.TenantsManageAny).Should().BeFalse();
+        transformed.HasClaim(Permissions.ClaimType, Permissions.RunsRead).Should().BeTrue();
+    }
+
     private static ScimUserRecord CreateScimUser(Guid id, string externalId) =>
         new()
         {
