@@ -272,6 +272,17 @@ public sealed class RemediationSqlRolePrivilegesTests(SqlServerPersistenceFixtur
                 EvidenceId = Guid.NewGuid(), InstanceId = waveInstanceId, Phase = 0,
                 PayloadJson = "{}", ActorKey = "actor", CorrelationId = "append-test", CreatedUtc = now,
             };
+            // The procedure must not accept a request/result before the
+            // corresponding ordinary evidence predecessor exists.
+            foreach (int prematurePhase in new[] { 1, 2 })
+            {
+                DynamicParameters premature = new(append);
+                premature.Add("Phase", prematurePhase);
+                Func<Task> rejected = () => connection.ExecuteAsync(
+                    "dbo.uspRemediationAppendEvidenceScoped", premature,
+                    commandType: System.Data.CommandType.StoredProcedure);
+                (await rejected.Should().ThrowAsync<SqlException>()).Which.Number.Should().Be(50428);
+            }
             foreach (int phase in new[] { 0, 1, 2 })
             {
                 DynamicParameters ordinary = new(append);
@@ -279,6 +290,33 @@ public sealed class RemediationSqlRolePrivilegesTests(SqlServerPersistenceFixtur
                 ordinary.Add("Phase", phase);
                 await connection.ExecuteAsync("dbo.uspRemediationAppendEvidenceScoped", ordinary,
                     commandType: System.Data.CommandType.StoredProcedure);
+                if (phase == 0)
+                {
+                    // Before evidence alone does not authorize a result.
+                    DynamicParameters prematureResult = new(append);
+                    prematureResult.Add("EvidenceId", Guid.NewGuid());
+                    prematureResult.Add("Phase", 2);
+                    Func<Task> noRequest = () => connection.ExecuteAsync(
+                        "dbo.uspRemediationAppendEvidenceScoped", prematureResult,
+                        commandType: System.Data.CommandType.StoredProcedure);
+                    (await noRequest.Should().ThrowAsync<SqlException>()).Which.Number.Should().Be(50428);
+                }
+            }
+
+            // Even after a valid chain exists, evidence must keep the same
+            // actor/correlation and cannot claim a timestamp before its predecessor.
+            foreach (string changedField in new[] { "ActorKey", "CorrelationId", "CreatedUtc" })
+            {
+                DynamicParameters forgedSequence = new(append);
+                forgedSequence.Add("EvidenceId", Guid.NewGuid());
+                forgedSequence.Add("Phase", 2);
+                if (changedField == "ActorKey") forgedSequence.Add("ActorKey", "different-actor");
+                if (changedField == "CorrelationId") forgedSequence.Add("CorrelationId", "other-correlation");
+                if (changedField == "CreatedUtc") forgedSequence.Add("CreatedUtc", now.AddSeconds(-1));
+                Func<Task> unordered = () => connection.ExecuteAsync(
+                    "dbo.uspRemediationAppendEvidenceScoped", forgedSequence,
+                    commandType: System.Data.CommandType.StoredProcedure);
+                (await unordered.Should().ThrowAsync<SqlException>()).Which.Number.Should().Be(50428);
             }
             foreach (int phase in new[] { 3, 4, 99 })
             {
