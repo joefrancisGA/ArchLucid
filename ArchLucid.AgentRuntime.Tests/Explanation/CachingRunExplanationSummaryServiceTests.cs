@@ -162,6 +162,41 @@ public sealed class CachingRunExplanationSummaryServiceTests
             Times.Exactly(2));
     }
 
+    [Theory]
+    [InlineData("tenant")]
+    [InlineData("workspace")]
+    [InlineData("project")]
+    public async Task Identical_run_and_row_version_do_not_share_cache_across_scope(string dimension)
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext firstScope = CreateScope();
+        ScopeContext secondScope = new()
+        {
+            TenantId = dimension == "tenant" ? Guid.NewGuid() : firstScope.TenantId,
+            WorkspaceId = dimension == "workspace" ? Guid.NewGuid() : firstScope.WorkspaceId,
+            ProjectId = dimension == "project" ? Guid.NewGuid() : firstScope.ProjectId,
+        };
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        authority.Setup(a => a.GetRunDetailAsync(firstScope, runId, CancellationToken.None))
+            .ReturnsAsync(CreateDetail(runId, [0x01]));
+        authority.Setup(a => a.GetRunDetailAsync(secondScope, runId, CancellationToken.None))
+            .ReturnsAsync(CreateDetail(runId, [0x01]));
+        Mock<IRunExplanationSummaryService> inner = new(MockBehavior.Strict);
+        RunExplanationSummary first = CreateSummary();
+        RunExplanationSummary second = CreateSummary();
+        inner.Setup(i => i.GetSummaryAsync(firstScope, runId, CancellationToken.None)).ReturnsAsync(first);
+        inner.Setup(i => i.GetSummaryAsync(secondScope, runId, CancellationToken.None)).ReturnsAsync(second);
+        CachingRunExplanationSummaryService service = new(inner.Object,
+            new DictionaryHotPathReadCache(), authority.Object,
+            NullLogger<CachingRunExplanationSummaryService>.Instance);
+
+        (await service.GetSummaryAsync(firstScope, runId, CancellationToken.None)).Should().BeSameAs(first);
+        (await service.GetSummaryAsync(secondScope, runId, CancellationToken.None)).Should().BeSameAs(second);
+        (await service.GetSummaryAsync(firstScope, runId, CancellationToken.None)).Should().BeSameAs(first);
+        inner.Verify(i => i.GetSummaryAsync(firstScope, runId, CancellationToken.None), Times.Once);
+        inner.Verify(i => i.GetSummaryAsync(secondScope, runId, CancellationToken.None), Times.Once);
+    }
+
     private static ScopeContext CreateScope()
     {
         return new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };

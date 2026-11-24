@@ -58,7 +58,8 @@ public sealed class FindingLlmAuditServiceTests
         (Mock<IRunRepository> runs, Mock<IFindingsSnapshotRepository> snapshots) = SetupRunWithFindings(finding);
 
         Mock<IAgentExecutionTraceRepository> traces = new();
-        traces.Setup(t => t.GetByTraceIdAsync("abc123", It.IsAny<CancellationToken>())).ReturnsAsync(trace);
+        traces.Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), RunGuid.ToString("N"),
+            It.IsAny<CancellationToken>())).ReturnsAsync(new[] { trace });
 
         Mock<IPromptRedactor> redactor = new();
         redactor.Setup(r => r.Redact(It.IsAny<string?>())).Returns((string? s) => new PromptRedactionOutcome(s ?? "", new Dictionary<string, int>()));
@@ -76,7 +77,7 @@ public sealed class FindingLlmAuditServiceTests
         result.Should().NotBeNull();
         result.TraceId.Should().Be("abc123");
         result.UserPromptRedacted.Should().Be("user@test.com");
-        traces.Verify(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        traces.Verify(t => t.GetByTraceIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [SkippableFact]
@@ -87,6 +88,7 @@ public sealed class FindingLlmAuditServiceTests
         AgentExecutionTrace wrong = new()
         {
             TraceId = "w1",
+            RunId = RunGuid.ToString("N"),
             AgentType = AgentType.Topology,
             SystemPrompt = "a",
             UserPrompt = "b",
@@ -96,6 +98,7 @@ public sealed class FindingLlmAuditServiceTests
         AgentExecutionTrace match = new()
         {
             TraceId = "m1",
+            RunId = RunGuid.ToString("N"),
             AgentType = AgentType.Cost,
             SystemPrompt = "s",
             UserPrompt = "u",
@@ -123,6 +126,47 @@ public sealed class FindingLlmAuditServiceTests
 
         result.Should().NotBeNull();
         result.TraceId.Should().Be("m1");
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Preferred_trace_from_another_run_is_never_redacted_or_returned(bool hasValidFallback)
+    {
+        Finding finding = new()
+        {
+            FindingId = "f1", EngineType = nameof(AgentType.Cost),
+            Trace = new ExplainabilityTrace { SourceAgentExecutionTraceId = "foreign" },
+        };
+        var (runs, snapshots) = SetupRunWithFindings(finding);
+        ScopeContext scope = new();
+        Mock<IAgentExecutionTraceRepository> traces = new(MockBehavior.Strict);
+        AgentExecutionTrace foreign = new()
+        {
+            TraceId = "foreign", RunId = Guid.NewGuid().ToString("N"), UserPrompt = "private foreign prompt",
+            AgentType = AgentType.Cost,
+        };
+        AgentExecutionTrace valid = new()
+        {
+            TraceId = "valid", RunId = RunGuid.ToString("D"), UserPrompt = "authorized prompt",
+            AgentType = AgentType.Cost,
+        };
+        traces.Setup(t => t.GetByRunIdAsync(scope, RunGuid.ToString("N"), CancellationToken.None))
+            .ReturnsAsync(hasValidFallback ? new[] { foreign, valid } : new[] { foreign });
+        Mock<IPromptRedactor> redactor = new();
+        redactor.Setup(x => x.Redact(It.IsAny<string?>()))
+            .Returns((string? value) => new PromptRedactionOutcome(value ?? "", new Dictionary<string, int>()));
+        FindingLlmAuditService service = new(runs.Object, snapshots.Object,
+            Mock.Of<IScopeContextProvider>(p => p.GetCurrentScope() == scope), traces.Object, redactor.Object);
+
+        FindingLlmAuditResult? result = await service.BuildAsync(RunGuid, "f1", CancellationToken.None);
+
+        if (hasValidFallback)
+            result!.TraceId.Should().Be("valid");
+        else
+            result.Should().BeNull();
+        redactor.Verify(x => x.Redact("private foreign prompt"), Times.Never);
+        traces.Verify(t => t.GetByTraceIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]

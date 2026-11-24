@@ -10,11 +10,18 @@ namespace ArchLucid.Api.Controllers.Planning;
 
 public sealed partial class ExplanationController
 {
+    private Task<IActionResult?> EnsureExplanationRunReadAllowedAsync(
+        ScopeContext scope, Guid runId, CancellationToken ct) =>
+        runId == Guid.Empty
+            ? Task.FromResult<IActionResult?>(this.NotFoundProblem(
+                $"Run '{runId}' was not found.", ProblemTypes.RunNotFound))
+            : _architectureShareAccessGate.EnsureRunReadAllowedAsync(this, User, scope, runId, ct);
+
     private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
+        ScopeContext scope,
         Guid runId,
         CancellationToken cancellationToken)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, cancellationToken);
 
         if (detail?.GoldenManifest is null)
@@ -36,16 +43,17 @@ public sealed partial class ExplanationController
     }
 
     private async Task<IActionResult?> EnsureCompareRunsSealedManifestReadAllowedAsync(
+        ScopeContext scope,
         Guid baseRunId,
         Guid targetRunId,
         CancellationToken cancellationToken)
     {
-        IActionResult? baseGuardResult = await EnsureSealedManifestReadAllowedAsync(baseRunId, cancellationToken);
+        IActionResult? baseGuardResult = await EnsureSealedManifestReadAllowedAsync(scope, baseRunId, cancellationToken);
 
         if (baseGuardResult is not null)
             return baseGuardResult;
 
-        return await EnsureSealedManifestReadAllowedAsync(targetRunId, cancellationToken);
+        return await EnsureSealedManifestReadAllowedAsync(scope, targetRunId, cancellationToken);
     }
 
     private IActionResult? EnsureGoldenManifestSealedReadAllowed(RunDetailDto detail, Guid runId)

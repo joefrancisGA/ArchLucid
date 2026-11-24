@@ -75,21 +75,28 @@ public sealed class FindingLlmAuditService(
 
     private async Task<AgentExecutionTrace?> ResolveTraceAsync(ScopeContext scope, string runId, Finding finding, CancellationToken cancellationToken)
     {
-        string? preferredId = finding.Trace.SourceAgentExecutionTraceId;
-        if (!string.IsNullOrWhiteSpace(preferredId))
-        {
-            AgentExecutionTrace? direct = await _agentExecutionTraceRepository.GetByTraceIdAsync(preferredId.Trim(), cancellationToken);
-            if (direct is not null)
-                return direct;
-        }
-
-        IReadOnlyList<AgentExecutionTrace> traces = await AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync(
+        // A finding's preferred trace ID is not proof of resource ownership.
+        // Resolve it only within the same authorized scoped run's trace collection.
+        IReadOnlyList<AgentExecutionTrace> loaded = await AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync(
             _agentExecutionTraceRepository,
             scope,
             runId,
             cancellationToken).ConfigureAwait(false);
+        List<AgentExecutionTrace> traces = loaded
+            .Where(trace => !string.IsNullOrWhiteSpace(trace.RunId) &&
+                AnalysisRunIdCanonicalization.RunIdsReferToSameRun(trace.RunId, runId))
+            .ToList();
         if (traces.Count == 0)
             return null;
+        string? preferredId = finding.Trace.SourceAgentExecutionTraceId;
+        if (!string.IsNullOrWhiteSpace(preferredId))
+        {
+            AgentExecutionTrace? preferred = traces.FirstOrDefault(trace =>
+                string.Equals(trace.TraceId, preferredId.Trim(), StringComparison.OrdinalIgnoreCase));
+            if (preferred is not null)
+                return preferred;
+        }
+
         if (!ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(finding.EngineType, true, out AgentType engineAgent))
             return traces[0];
         AgentExecutionTrace? typed = traces.FirstOrDefault(t => t.AgentType == engineAgent);

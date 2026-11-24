@@ -1,4 +1,5 @@
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Support;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Explanation.Models;
 using ArchLucid.Application.Analysis;
@@ -43,9 +44,13 @@ public sealed partial class ExplanationController(
     IScopeContextProvider scopeProvider,
     IHolisticCriticService holisticCriticService,
     IManifestHashService manifestHashService,
-    ILogger<ExplanationController> logger)
+    ILogger<ExplanationController> logger,
+    IArchitectureShareAccessGate architectureShareAccessGate)
     : ControllerBase
 {
+    private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
+        architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
+
     private readonly ILogger<ExplanationController> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 }

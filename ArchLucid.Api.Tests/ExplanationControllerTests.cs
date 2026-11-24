@@ -1,4 +1,5 @@
 using ArchLucid.Api.Controllers.Planning;
+using ArchLucid.Api.Support;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Explanation.Models;
@@ -117,7 +118,8 @@ public sealed class ExplanationControllerTests
             scopeProvider.Object,
             holisticCritic ?? Mock.Of<IHolisticCriticService>(),
             Mock.Of<IManifestHashService>(),
-            NullLogger<ExplanationController>.Instance)
+            NullLogger<ExplanationController>.Instance,
+            Mock.Of<IArchitectureShareAccessGate>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };

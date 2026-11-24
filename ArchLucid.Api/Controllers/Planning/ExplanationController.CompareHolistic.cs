@@ -35,8 +35,18 @@ public sealed partial class ExplanationController
     {
         try
         {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            // Authorize both inputs before reading either manifest or invoking the comparison facade.
+            IActionResult? baseDenied = await EnsureExplanationRunReadAllowedAsync(scope, baseRunId, ct);
+            if (baseDenied is not null)
+                return baseDenied;
+
+            IActionResult? targetDenied = await EnsureExplanationRunReadAllowedAsync(scope, targetRunId, ct);
+            if (targetDenied is not null)
+                return targetDenied;
+
             IActionResult? sealedGuardResult =
-                await EnsureCompareRunsSealedManifestReadAllowedAsync(baseRunId, targetRunId, ct);
+                await EnsureCompareRunsSealedManifestReadAllowedAsync(scope, baseRunId, targetRunId, ct);
 
             if (sealedGuardResult is not null)
                 return sealedGuardResult;
@@ -97,23 +107,23 @@ public sealed partial class ExplanationController
         [FromBody] HolisticCriticRequest? request,
         CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
-
-        if (detail?.GoldenManifest is null)
-        {
-            return this.NotFoundProblem(
-                $"Run '{runId}' was not found or has no committed manifest in the current scope.",
-                ProblemTypes.RunNotFound);
-        }
-
-        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
         try
         {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            IActionResult? shareDenied = await EnsureExplanationRunReadAllowedAsync(scope, runId, ct);
+            if (shareDenied is not null)
+                return shareDenied;
+
+            RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
+            if (detail?.GoldenManifest is null)
+                return this.NotFoundProblem(
+                    $"Run '{runId}' was not found or has no committed manifest in the current scope.",
+                    ProblemTypes.RunNotFound);
+
+            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
             HolisticCriticResponse response = await holisticCriticService.GenerateAsync(scope, runId, request, ct);
             return Ok(response);
         }
