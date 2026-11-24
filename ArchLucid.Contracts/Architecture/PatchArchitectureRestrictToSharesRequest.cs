@@ -1,7 +1,10 @@
+using System.Text.Json.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 public sealed class PatchArchitectureRestrictToSharesRequest
 {
+    [JsonRequired]
     public bool RestrictToShares
     {
         get;
