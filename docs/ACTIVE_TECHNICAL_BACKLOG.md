@@ -32,7 +32,7 @@
 | Priority | QA & stabilization | Release readiness | 2.0 foundations | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Immediate | 0 | 0 | 0 | 0 |
-| Critical | 7 | 5 | 0 | 12 |
+| Critical | 15 | 5 | 0 | 20 |
 | High | 262 | 141 | 0 | 403 |
 | Medium | 10 | 2 | 15 | 27 |
 | Low | 0 | 0 | 63 | 63 |
@@ -45,7 +45,7 @@ Each section is ordered **QA → release readiness → 2.0 foundations**. Within
 
 ### Critical
 
-#### QA & stabilization (7)
+#### QA & stabilization (15)
 
 | ID | Technical item | Origin / qualification |
 | --- | --- | --- |
@@ -56,6 +56,14 @@ Each section is ordered **QA → release readiness → 2.0 foundations**. Within
 | TB-1163 | ServiceNow — never show raw API/problem titles as connection status | TECH_BACKLOG_OPEN.md; Trustworthiness P0 **V1** — with **TB-1162**; cf. **TB-1153** |
 | TB-1175 | Teams draft vs saved honesty (prefilled recommended + example fields) | TECH_BACKLOG_OPEN.md; Trustworthiness P0 **V1** — with **TB-1174** |
 | TB-1418 | Tenant isolation DiD structural vs convention vs too-strong map (ADR 0037 / RLS non-control) | TECH_BACKLOG_OPEN.md; Trustworthiness P1 **V1** — PA DiD class map; GTM **M-255**/**M-256** |
+| FND-061 | Mandatory authorization before evidence and cache access | Critical hardening of existing EvidenceReadAuthorizationGate/FND017002; extends FND-010. Verify successful tenant/workspace/project authorization on every path before reads or cache hits; add control-flow and HTTP cross-tenant regression tests; ratchet to merge-blocking after validation. |
+| FND-062 | Shared versioned finding identity normalization | Critical production integration slice of FND-006. Reconcile policy-rule casing in NormalizedFindingFingerprintNormalizer and FindingSnapshotMergeKey through shared versioned logic; preserve historical IDs, provenance and compatibility; test case variants, scope and collisions. |
+| FND-063 | SecureNow snapshot cache oversized-entry retention | Critical candidate from static review of SecureNowAnalysisRun; confirm completed oversized entries remain strongly referenced outside LRU accounting; correct retention without breaking single-flight, cancellation isolation or concurrency limits; add retention-pressure regression. |
+| FND-064 | Consumer-specific authorized evidence freshness policy | Critical extension of FND-005/FND-011/FND-024. Reuse canonical IE collector and snapshot cache; support live/no-cache, bounded-age and pinned historical reads; verify scope and capture timestamps, fail explicitly on unmet freshness, never silently refresh historical evidence. |
+| FND-065 | Outbound resilience policy hardening and adoption | Critical audit of OutboundExternalHttpResiliencePolicy and provider integrations; validate retry/breaker ordering, jitter, Retry-After, operation deadlines, retry budgets, idempotency and bulkhead isolation; measure adoption and test outage behavior; reuse existing policy rather than fork. |
+| FND-066 | Evidence-bound AI-assisted finding deduplication | Critical distinct semantic-matching slice of FND-006; deterministic equivalence first, AI proposes evidence-backed matches, uncertain matches require human review; preserve originals and tenant/asset scope; no automatic transfer of dispositions or unsupported destructive merging; gate rollout. |
+| FND-067 | Canonical finding severity and remediation conflict resolution | Critical extension of FND-005/FND-007 and existing finding engines; shared typed severity/evidence standards, explicit conflict adjudication, source provenance and human review where necessary; preserve specialized analysis and separate finding streams; test contradictory recommendations. |
+| FND-068 | Persistence tenant and scope boundary enforcement audit | Critical targeted implementation slice of FND-047/TB-1418/TB-1232. Preserve ADR 0037 database-per-tenant topology; validate authorized connection resolution, workspace/project predicates, trusted background scopes and direct SQL bypasses; fail closed and add cross-scope tests; do not reinstate retired RLS. |
 
 #### Release readiness (5)
 
