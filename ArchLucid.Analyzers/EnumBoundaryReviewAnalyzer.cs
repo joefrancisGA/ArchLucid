@@ -14,6 +14,7 @@ namespace ArchLucid.Analyzers;
 public sealed class EnumBoundaryReviewAnalyzer : DiagnosticAnalyzer
 {
     public const string DiagnosticId = "ENUM001";
+    public const string BlockingDiagnosticId = "ENUM002";
 
     internal static readonly DiagnosticDescriptor Rule = new(
         DiagnosticId,
@@ -23,7 +24,15 @@ public sealed class EnumBoundaryReviewAnalyzer : DiagnosticAnalyzer
         DiagnosticSeverity.Info,
         isEnabledByDefault: true);
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+    internal static readonly DiagnosticDescriptor BlockingRule = new(
+        BlockingDiagnosticId,
+        "Use validated enum boundary conversion",
+        "Raw enum conversion '{0}' must use an explicitly validated boundary parser",
+        "Architecture",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule, BlockingRule);
 
     public override void Initialize(AnalysisContext context)
     {
@@ -52,7 +61,12 @@ public sealed class EnumBoundaryReviewAnalyzer : DiagnosticAnalyzer
         if (method.ContainingType.SpecialType == SpecialType.System_Enum
             && method.Name is "Parse" or "TryParse" or "ToObject")
         {
-            context.ReportDiagnostic(Diagnostic.Create(Rule, invocation.Syntax.GetLocation(), method.Name));
+            // Direct Parse/ToObject and discarded TryParse are not permitted at product boundaries.
+            // TryParse with an observed result remains an inventory finding until reviewed.
+            bool blocking = method.Name is "Parse" or "ToObject"
+                || (method.Name == "TryParse" && invocation.Parent is IExpressionStatementOperation);
+            context.ReportDiagnostic(Diagnostic.Create(blocking ? BlockingRule : Rule,
+                invocation.Syntax.GetLocation(), method.Name));
         }
     }
 

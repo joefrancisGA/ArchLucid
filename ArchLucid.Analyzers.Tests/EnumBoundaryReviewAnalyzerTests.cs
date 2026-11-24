@@ -21,10 +21,11 @@ class C
 {
     void M(string text, int number)
     {
-        var a = {|ENUM001:Enum.Parse<Choice>(text)|};
+        var a = {|ENUM002:Enum.Parse<Choice>(text)|};
         var b = {|ENUM001:Enum.TryParse<Choice>(text, out _)|};
         var c = {|ENUM001:(Choice)number|};
-        var d = {|ENUM001:Enum.ToObject(typeof(Choice), number)|};
+        var d = {|ENUM002:Enum.ToObject(typeof(Choice), number)|};
+        {|ENUM002:Enum.TryParse<Choice>(text, out _)|};
     }
 }
 """;

@@ -13,7 +13,8 @@ public sealed class ValidatedEnumJsonConverterFactory(JsonConverterFactory inner
 
     public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
     {
-        JsonConverter converter = _inner.CreateConverter(typeToConvert, options);
+        JsonConverter converter = _inner.CreateConverter(typeToConvert, options)
+            ?? throw new InvalidOperationException($"No enum converter for {typeToConvert}.");
         return (JsonConverter)Activator.CreateInstance(
             typeof(ValidatedEnumConverter<>).MakeGenericType(typeToConvert), converter)!;
     }
