@@ -12,6 +12,8 @@ public sealed class InMemoryRunFindingExternalTrackingReadRepository(
     private readonly IItsmFindingCorrelationRepository _correlations =
         correlations ?? throw new ArgumentNullException(nameof(correlations));
 
+    // The authorized-run interface method intentionally uses its empty default: this store
+    // has no relational finding-record ownership join and must not infer it from a logical ID.
     /// <inheritdoc />
     public async Task<IReadOnlyDictionary<string, RunFindingExternalTrackingReadRow>> ListForFindingsAsync(
         Guid tenantId,
