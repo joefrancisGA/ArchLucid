@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `runDetailOutcomeDecisionKeyOpen=1` deep links via `parseRunDetailOutcomeDecisionKeyOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries runDetailOutcomeDecisionKeyOpen=1`. URL-sync vitest **93/93**. Private beta: shared review links that only open run detail outcome decision key in the query are no longer overwritten with visit-default tab or finding query keys on first load.
+> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `runDetailOutcomeMonitoredRiskOpen=1` deep links via `parseRunDetailOutcomeMonitoredRiskOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries runDetailOutcomeMonitoredRiskOpen=1`. URL-sync vitest **94/94**. Private beta: shared review links that only open run detail outcome monitored risk in the query are no longer overwritten with visit-default tab or finding query keys on first load.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -11706,6 +11706,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `runDetailOutcomeMonitoredRiskOpen` monitor: a bare outcome monitored-risk disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `runDetailOutcomeMonitoredRiskOpen` via `parseRunDetailOutcomeMonitoredRiskOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries runDetailOutcomeMonitoredRiskOpen=1`. URL-sync vitest **94/94**. Private beta: when an invited operator opens a shared review link that only opens run detail outcome monitored risk in the query, visit-default tab navigation no longer replaces that query on first load.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `runDetailOutcomeDecisionKeyOpen` monitor: a bare outcome decision-key disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `runDetailOutcomeDecisionKeyOpen` via `parseRunDetailOutcomeDecisionKeyOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries runDetailOutcomeDecisionKeyOpen=1`. URL-sync vitest **93/93**. Private beta: when an invited operator opens a shared review link that only opens run detail outcome decision key in the query, visit-default tab navigation no longer replaces that query on first load.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `runDetailOutcomeCardsOpen` monitor: a bare outcome-cards disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `runDetailOutcomeCardsOpen` via `parseRunDetailOutcomeCardsOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries runDetailOutcomeCardsOpen=1`. URL-sync vitest **92/92**. Private beta: when an invited operator opens a shared review link that only opens run detail outcome cards in the query, visit-default tab navigation no longer replaces that query on first load.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `reviewPipelineDevTelemetryOpen` monitor: a bare pipeline dev-telemetry disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `reviewPipelineDevTelemetryOpen` via `parseReviewPipelineDevTelemetryOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries reviewPipelineDevTelemetryOpen=1`. URL-sync vitest **91/91**. Private beta: when an invited operator opens a shared review link that only opens pipeline dev telemetry in the query, visit-default tab navigation no longer replaces that query on first load.
@@ -11842,6 +11843,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 
+
+- [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `runDetailOutcomeMonitoredRiskOpen` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored outcome monitored-risk disclosure deep links; regression above. Private beta: shared links that only set `runDetailOutcomeMonitoredRiskOpen=1` are no longer replaced with visit-default query keys on first load.
 
 - [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `runDetailOutcomeDecisionKeyOpen` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored outcome decision-key disclosure deep links; regression above. Private beta: shared links that only set `runDetailOutcomeDecisionKeyOpen=1` are no longer replaced with visit-default query keys on first load.
 
@@ -12624,8 +12627,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 95
-- **bugs-found:** 94
+- **hunts:** 96
+- **bugs-found:** 95
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24

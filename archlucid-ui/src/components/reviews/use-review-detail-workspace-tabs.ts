@@ -219,6 +219,10 @@ import {
   RUN_DETAIL_OUTCOME_DECISION_KEY_OPEN_PARAM,
 } from "@/lib/runs/run-detail-outcome-decision-key-disclosure-url";
 import {
+  parseRunDetailOutcomeMonitoredRiskOpenFromSearch,
+  RUN_DETAIL_OUTCOME_MONITORED_RISK_OPEN_PARAM,
+} from "@/lib/runs/run-detail-outcome-monitored-risk-disclosure-url";
+import {
   parseTrustEvidenceFieldsOpenFromSearch,
   parseTrustEvidenceTechOpenFromSearch,
   TRUST_EVIDENCE_FIELDS_OPEN_PARAM,
@@ -549,6 +553,9 @@ export function useReviewDetailWorkspaceTabs(
     const runDetailOutcomeDecisionKeyOpenPresent = parseRunDetailOutcomeDecisionKeyOpenFromSearch(
       params.get(RUN_DETAIL_OUTCOME_DECISION_KEY_OPEN_PARAM),
     );
+    const runDetailOutcomeMonitoredRiskOpenPresent = parseRunDetailOutcomeMonitoredRiskOpenFromSearch(
+      params.get(RUN_DETAIL_OUTCOME_MONITORED_RISK_OPEN_PARAM),
+    );
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -668,6 +675,7 @@ export function useReviewDetailWorkspaceTabs(
       || reviewPipelineDevTelemetryOpenPresent
       || runDetailOutcomeCardsOpenPresent
       || runDetailOutcomeDecisionKeyOpenPresent
+      || runDetailOutcomeMonitoredRiskOpenPresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent
