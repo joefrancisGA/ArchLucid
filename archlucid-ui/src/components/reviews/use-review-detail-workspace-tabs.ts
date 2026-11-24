@@ -239,6 +239,8 @@ import {
   FINDING_EVIDENCE_BASIS_OPEN_PARAM,
   parseFindingFullEvidenceTraceOpenFromSearch,
   FINDING_FULL_EVIDENCE_TRACE_OPEN_PARAM,
+  parseFindingWorkWithOpenFromSearch,
+  FINDING_WORK_WITH_OPEN_PARAM,
 } from "@/lib/findings/finding-detail-inspect-disclosure-url";
 import {
   parseTrustEvidenceFieldsOpenFromSearch,
@@ -595,6 +597,9 @@ export function useReviewDetailWorkspaceTabs(
     const findingFullEvidenceTraceOpenPresent = parseFindingFullEvidenceTraceOpenFromSearch(
       params.get(FINDING_FULL_EVIDENCE_TRACE_OPEN_PARAM),
     );
+    const findingWorkWithOpenPresent = parseFindingWorkWithOpenFromSearch(
+      params.get(FINDING_WORK_WITH_OPEN_PARAM),
+    );
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -722,6 +727,7 @@ export function useReviewDetailWorkspaceTabs(
       || findingTechnicalMetadataOpenPresent
       || findingEvidenceBasisOpenPresent
       || findingFullEvidenceTraceOpenPresent
+      || findingWorkWithOpenPresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent
