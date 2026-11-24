@@ -29,6 +29,11 @@ public sealed partial class RunDetailPageBundleController
         {
             ScopeContext scope = _scopeProvider.GetCurrentScope();
 
+            IActionResult? denied = await EnsurePageBundleRunShareReadAllowedAsync(
+                scope, runId, cancellationToken);
+            if (denied is not null)
+                return denied;
+
             RunDetailDto? detail =
                 await _queryService.GetRunDetailAsync(scope, runId, cancellationToken).ConfigureAwait(false);
 

@@ -27,6 +27,11 @@ public sealed partial class RunDetailPageBundleController
         {
             ScopeContext scope = _scopeProvider.GetCurrentScope();
 
+            IActionResult? denied = await EnsurePageBundleRunShareReadAllowedAsync(
+                scope, runId, cancellationToken);
+            if (denied is not null)
+                return denied;
+
             RunDetailDto? currentDetail =
                 await _queryService.GetRunDetailAsync(scope, runId, cancellationToken).ConfigureAwait(false);
 
@@ -61,6 +66,45 @@ public sealed partial class RunDetailPageBundleController
                     cancellationToken)
                 .ConfigureAwait(false);
 
+            // The current run's share decision does not grant access to
+            // unrelated runs in the same project. Check each distinct linked
+            // architecture once (max DeferredProjectRunTake entries), while
+            // legacy runs with no architecture retain their existing policy.
+            Dictionary<Guid, bool> readableArchitectures = new();
+            List<RunSummaryDto> visibleProjectRuns = [];
+            foreach (RunSummaryDto candidate in projectRuns)
+            {
+                if (candidate.RunId == runId || candidate.ArchitectureId is not Guid architectureId)
+                {
+                    visibleProjectRuns.Add(candidate);
+                    continue;
+                }
+
+                if (!readableArchitectures.TryGetValue(architectureId, out bool canRead))
+                {
+                    IActionResult? architectureDenied =
+                        await _architectureShareAccessGate.EnsureArchitectureReadAllowedAsync(
+                            this, User, scope, architectureId, cancellationToken)
+                            .ConfigureAwait(false);
+                    canRead = architectureDenied is null;
+                    readableArchitectures.Add(architectureId, canRead);
+                }
+
+                if (canRead)
+                    visibleProjectRuns.Add(candidate);
+            }
+
+            // The prior comparison can include a run outside the returned
+            // recent-page window. Authorize it independently before loading
+            // its full comparison payload or reporting its identifier.
+            if (priorCommittedRun is not null && priorCommittedRun.RunId != runId)
+            {
+                IActionResult? priorDenied = await EnsurePageBundleRunShareReadAllowedAsync(
+                    scope, priorCommittedRun.RunId, cancellationToken).ConfigureAwait(false);
+                if (priorDenied is not null)
+                    priorCommittedRun = null;
+            }
+
             RunComparisonResponse? priorComparison = null;
             string? priorComparisonBlockedReason = null;
 
@@ -90,7 +134,7 @@ public sealed partial class RunDetailPageBundleController
 
             RunDetailWorkspaceContextBundleResponse body = new()
             {
-                RecentProjectRuns = projectRuns.Select(ToRunSummaryResponse).ToList(),
+                RecentProjectRuns = visibleProjectRuns.Select(ToRunSummaryResponse).ToList(),
                 PriorCommittedRunComparison = priorComparison,
                 PriorCommittedRunId = priorCommittedRun?.RunId,
                 PriorCommittedRunCreatedUtc = priorCommittedRun?.CreatedUtc,
