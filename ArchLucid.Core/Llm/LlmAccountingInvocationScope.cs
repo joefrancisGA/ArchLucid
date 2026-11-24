@@ -19,10 +19,14 @@ public enum LlmInvokeKind
 /// </summary>
 public readonly struct LlmAccountingInvocationScope : IDisposable
 {
-    private static readonly AsyncLocal<LlmAccountingInvocationScope?> Current = new();
+    private sealed record ScopeFrame(LlmAccountingInvocationScope Scope);
+
+    private static readonly AsyncLocal<ScopeFrame?> Current = new();
+    private readonly ScopeFrame? _previous;
 
     public LlmAccountingInvocationScope(AgentType? agentKind, LlmInvokeKind invokeKind)
     {
+        _previous = Current.Value;
         AgentKind = agentKind;
         InvokeKind = invokeKind;
     }
@@ -33,13 +37,13 @@ public readonly struct LlmAccountingInvocationScope : IDisposable
 
     public static LlmAccountingInvocationScope? GetCurrent()
     {
-        return Current.Value;
+        return Current.Value?.Scope;
     }
 
     public static LlmAccountingInvocationScope Begin(AgentType agentKind, LlmInvokeKind invokeKind = LlmInvokeKind.Primary)
     {
         LlmAccountingInvocationScope scope = new(agentKind, invokeKind);
-        Current.Value = scope;
+        Current.Value = new ScopeFrame(scope);
 
         return scope;
     }
@@ -47,14 +51,14 @@ public readonly struct LlmAccountingInvocationScope : IDisposable
     public static LlmAccountingInvocationScope Begin(LlmInvokeKind invokeKind, AgentType? agentKind = null)
     {
         LlmAccountingInvocationScope scope = new(agentKind, invokeKind);
-        Current.Value = scope;
+        Current.Value = new ScopeFrame(scope);
 
         return scope;
     }
 
     public void Dispose()
     {
-        Current.Value = null;
+        Current.Value = _previous;
     }
 
     public string ResolveConsumeRoleLabel()

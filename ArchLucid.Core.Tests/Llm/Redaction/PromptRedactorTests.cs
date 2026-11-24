@@ -66,4 +66,26 @@ public sealed class PromptRedactorTests
         outcome.Text.Should().BeEmpty();
         outcome.CountsByCategory.Should().BeEmpty();
     }
+
+    [Theory]
+    [InlineData("$&")]
+    [InlineData("$0")]
+    [InlineData("[$&]")]
+    public void Redact_uses_literal_replacement_for_builtin_and_custom_patterns(string replacement)
+    {
+        Mock<IOptionsMonitor<LlmPromptRedactionOptions>> monitor = new();
+        monitor.Setup(m => m.CurrentValue).Returns(new LlmPromptRedactionOptions
+        {
+            Enabled = true,
+            ReplacementToken = replacement,
+            DenyListRegexes = ["classified-value"]
+        });
+        PromptRedactor sut = new(monitor.Object, NullLogger<PromptRedactor>.Instance);
+
+        PromptRedactionOutcome outcome = sut.Redact("Contact ops@example.com with classified-value.");
+
+        outcome.Text.Should().Be($"Contact {replacement} with {replacement}.");
+        outcome.CountsByCategory["email"].Should().Be(1);
+        outcome.CountsByCategory["custom"].Should().Be(1);
+    }
 }
