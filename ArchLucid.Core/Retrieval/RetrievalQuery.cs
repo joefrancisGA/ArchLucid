@@ -36,6 +36,13 @@ public class RetrievalQuery
         set;
     }
 
+    /// <summary>
+    /// Server-authorized tenant evidence run IDs. Null preserves internal retrieval behavior;
+    /// empty denies all tenant evidence. When set, only single-run evidence corpora are eligible.
+    /// Never bind this set from an untrusted client.
+    /// </summary>
+    public IReadOnlySet<Guid>? AuthorizedEvidenceRunIds { get; set; }
+
     /// <summary>Optional manifest facet.</summary>
     public Guid? ManifestId
     {
