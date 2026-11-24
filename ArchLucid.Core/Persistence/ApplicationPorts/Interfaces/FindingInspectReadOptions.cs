@@ -13,6 +13,9 @@ public sealed class FindingInspectReadOptions
     /// </summary>
     public bool IncludeTypedPayload { get; init; } = true;
 
+    /// <summary>Optional server-authorized run binding; never trust a client-supplied value.</summary>
+    public Guid? ExpectedRunId { get; init; }
+
     /// <summary>Full typed payload (default).</summary>
     public static FindingInspectReadOptions Full { get; } = new() { IncludeTypedPayload = true };
 
