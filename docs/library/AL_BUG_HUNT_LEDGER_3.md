@@ -170,6 +170,15 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 
 ## Zone: ui-lib-api
 
+2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`). Empty hypothesis list; promoted manifest markdown export omitting content-type prefixes: a 200 `application/octet-stream` body was saved as `.md`. Caller now passes `expectedContentTypePrefixes: ["text/markdown"]`. Regression `does not save application/octet-stream as markdown`. `manifest-markdown-export-api` vitest **1/1**. Private beta: sealed architecture markdown exports fail fast instead of saving a bogus `.md` when the proxy returns an unexpected binary content type.
+
+- [x] (proven) `downloadManifestMarkdownExport` — omitted prefixes allow `application/octet-stream` — hit 2026-11-24 seed hunt: regression above.
+- [ ] (candidate) `downloadPilotFirstValueReportMarkdown` — omitted prefixes allow `application/octet-stream` — locus: scoped proxy GET; input: 200 octet-stream; wrong outcome: saves as `.md`; reachability: pilot collateral markdown.
+- [ ] (candidate) `downloadSponsorReviewPacketMarkdown` — same octet-stream gap — locus: omitted-prefix path; input: 200 octet-stream; wrong outcome: saves as sponsor packet `.md`; reachability: sponsor review packet export.
+- [ ] (candidate) `rejectUnguardedHtmlOrProblemDownload` — should reject `application/octet-stream` on JSON downloads — locus: omitted-prefix guard; input: 200 octet-stream; wrong outcome: saves binary as `.json`; reachability: decision receipt and scoped JSON exports.
+- [ ] (candidate) `parseFilenameFromContentDisposition` — legacy unquoted filename with semicolon — locus: unquoted branch; input: `filename=report.pdf; size=123`; wrong outcome: filename includes `; size=123`; reachability: minimal disposition headers.
+- [ ] (candidate) `triggerBrowserBlobDownload` — revoke before large-blob navigation completes — locus: immediate revoke; input: slow disk write; wrong outcome: cancelled download; reachability: large export blobs (monitor).
+
 2026-11-24 thorough hunt (hit): no rotation (`shouldRotate: false`). Cheap-disproof: `triggerBrowserBlobDownload` revokes after a synchronous anchor click (standard pattern); `openScopedProxyFileGetInNewTab` already delays revoke 10s with regression coverage; `downloadSponsorReviewPacketMarkdown` saves `text/markdown; charset=utf-8` on the omitted-prefix path by design; manifest markdown export still accepts `application/octet-stream` when prefixes are omitted (monitor — API serves `text/markdown` today). Promoted `parseFilenameFromContentDisposition` RFC 5987-only headers: `filename*` values were returned percent-encoded. Parser now decodes `filename*` and prefers a quoted `filename=` when present. `downloads-blob-trigger-browser` vitest **2/2**; full `lib/api` vitest **304/304**. Private beta: exports that only emit a percent-encoded `filename*` header now save with a readable file name.
 
 - [x] (proven) `parseFilenameFromContentDisposition` — `filename*` only, percent-encoded — hit 2026-11-24 thorough hunt: regressions above.
