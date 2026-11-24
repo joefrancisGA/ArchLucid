@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 
@@ -26,4 +27,11 @@ public sealed partial class DapperAuthorityQueryService
         ManifestDocument? manifest = await goldenManifestRepository.GetByIdAsync(scope, manifestId, ct);
         return manifest is null ? null : AuthorityRunMapper.MapManifestSummary(manifest);
     }
+    /// <inheritdoc />
+    public Task<ManifestDocument?> GetManifestForSummaryVerificationAsync(
+        ScopeContext scope,
+        Guid manifestId,
+        CancellationToken ct) =>
+        goldenManifestRepository.GetByIdAsync(scope, manifestId, ct);
+
 }
