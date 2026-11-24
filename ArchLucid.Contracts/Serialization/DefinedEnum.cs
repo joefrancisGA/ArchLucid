@@ -7,7 +7,8 @@ public static class DefinedEnum
     public static bool TryParse<TEnum>(string? raw, bool ignoreCase, out TEnum value)
         where TEnum : struct, Enum
     {
-        if (Enum.TryParse(raw, ignoreCase, out TEnum candidate) && Enum.IsDefined(candidate))
+        if (raw is not null && !raw.Contains(',')
+            && Enum.TryParse(raw, ignoreCase, out TEnum candidate) && Enum.IsDefined(candidate))
         {
             value = candidate;
             return true;
