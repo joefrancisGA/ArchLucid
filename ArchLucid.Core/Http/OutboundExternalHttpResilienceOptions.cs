@@ -12,7 +12,7 @@ public sealed class OutboundExternalHttpResilienceOptions
     public bool CircuitBreakerEnabled { get; set; } = true;
 
     /// <summary>Share of failed outcomes in the sampling window that opens the breaker (0.1–1.0).</summary>
-    public double FailureRatio { get; set; } = 0.5;
+    public double FailureRatio { get; set; } = DefaultFailureRatio;
 
     /// <summary>Sliding window length for failure-ratio sampling.</summary>
     public int SamplingDurationSeconds { get; set; } = 30;
@@ -26,8 +26,13 @@ public sealed class OutboundExternalHttpResilienceOptions
     /// <summary>Retries after the first attempt (same semantics as webhook production policy).</summary>
     public int MaxRetryAttempts { get; set; } = 3;
 
+    private const double DefaultFailureRatio = 0.5;
+
     public void Normalize()
     {
+        if (double.IsNaN(FailureRatio))
+            FailureRatio = DefaultFailureRatio;
+
         if (FailureRatio < 0.1)
             FailureRatio = 0.1;
 
