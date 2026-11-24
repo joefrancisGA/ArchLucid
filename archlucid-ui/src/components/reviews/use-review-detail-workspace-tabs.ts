@@ -62,6 +62,10 @@ import {
   parseReviewPresenterQuestionIdFromSearch,
   REVIEW_PRESENTER_QUESTION_ID_PARAM,
 } from "@/lib/reviews/review-presenter-elicitation-url";
+import {
+  parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch,
+  REVIEW_PACKAGE_SPONSOR_HANDOFF_MORE_EXPORTS_OPEN_PARAM,
+} from "@/lib/reviews/review-package-sponsor-handoff-more-exports-disclosure-url";
 
 const WORKBENCH_TAB_IDS: readonly ReviewDetailTabId[] = ["architecture", "findings", "evidence"];
 
@@ -219,6 +223,9 @@ export function useReviewDetailWorkspaceTabs(
     const deliverableAudiencePresent = parseReviewDeliverableAudienceFromSearch(params.get(REVIEW_DELIVERABLE_AUDIENCE_PARAM)) !== null;
     const archiveConfirmOpenPresent = parseReviewArchiveConfirmOpenFromSearch(params.get(REVIEW_ARCHIVE_CONFIRM_PARAM));
     const archiveRunIdPresent = parseReviewArchiveRunIdFromSearch(params.get(REVIEW_ARCHIVE_RUN_ID_PARAM)).length > 0;
+    const packageSponsorHandoffMoreExportsOpenPresent = parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch(
+      params.get(REVIEW_PACKAGE_SPONSOR_HANDOFF_MORE_EXPORTS_OPEN_PARAM),
+    );
     const runRecordMetaOpenPresent = parseRunDetailRecordMetadataOpenFromSearch(params.get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM));
     const askDockOpenPresent = parseReviewAskDockOpenFromSearch(params.get(REVIEW_ASK_DOCK_OPEN_PARAM));
     const askThreadPresent =
@@ -252,6 +259,7 @@ export function useReviewDetailWorkspaceTabs(
       || deliverableAudiencePresent
       || archiveConfirmOpenPresent
       || archiveRunIdPresent
+      || packageSponsorHandoffMoreExportsOpenPresent
       || runRecordMetaOpenPresent
       || askDockOpenPresent
       || askThreadPresent

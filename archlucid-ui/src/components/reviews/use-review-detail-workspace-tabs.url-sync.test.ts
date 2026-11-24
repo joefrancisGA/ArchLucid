@@ -399,6 +399,28 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
 
 
 
+  it("does not apply visit-default navigation when the URL only carries reviewPackageSponsorHandoffMoreExportsOpen=1", () => {
+    searchParamsHarness.applyQuery("reviewPackageSponsorHandoffMoreExportsOpen=1");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewPackageSponsorHandoffMoreExportsOpen=1",
+    );
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?reviewPackageSponsorHandoffMoreExportsOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
   it("does not apply visit-default navigation when the URL only carries archiveRunId", () => {
     searchParamsHarness.applyQuery("archiveRunId=run-archive-target");
     window.history.replaceState({}, "", "/architecture/reviews/run-abc?archiveRunId=run-archive-target");
