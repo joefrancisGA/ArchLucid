@@ -241,6 +241,11 @@ public sealed class InMemoryVectorIndex : IVectorIndex, IVectorIndexEmbeddingMet
         if (chunk.TenantId != CorpusKindSentinels.PlatformSentinelTenantId)
             return false;
 
+        if (query.AuthorizedEvidenceRunIds is not null &&
+            chunk.CorpusKind is not (CorpusKind.PlatformDoc or CorpusKind.ReferenceArchitecture or
+                CorpusKind.AzureRetailPrice or CorpusKind.PolicyPack))
+            return false;
+
         if (chunk.CorpusKind != CorpusKind.PolicyPack)
             return true;
 
