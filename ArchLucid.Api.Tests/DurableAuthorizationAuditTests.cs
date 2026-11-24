@@ -24,13 +24,22 @@ public sealed class DurableAuthorizationAuditTests
     public void Audit_record_preserves_resource_scope_and_decision_id()
     {
         Guid decision = Guid.NewGuid();
-        Guid tenant = Guid.NewGuid();
+        Guid tenant = Guid.NewGuid(), workspace = Guid.NewGuid(),
+            project = Guid.NewGuid(), resource = Guid.NewGuid();
+        DateTimeOffset occurred = DateTimeOffset.UnixEpoch;
         CentralAuthorizationAuditRecord record = new(
-            decision, "remediation.plan", tenant, Guid.NewGuid(), Guid.NewGuid(),
-            Guid.NewGuid(), false, "remediation_approval_missing",
-            "authenticated-principal", DateTimeOffset.UtcNow);
+            decision, "remediation.plan", tenant, workspace, project,
+            resource, false, "remediation_approval_missing",
+            "authenticated-principal", occurred);
         record.DecisionId.Should().Be(decision);
         record.TenantId.Should().Be(tenant);
+        record.WorkspaceId.Should().Be(workspace);
+        record.ProjectId.Should().Be(project);
+        record.ResourceId.Should().Be(resource);
+        record.Action.Should().Be("remediation.plan");
+        record.Reason.Should().Be("remediation_approval_missing");
+        record.CallerKind.Should().Be("authenticated-principal");
+        record.OccurredUtc.Should().Be(occurred);
         record.Allowed.Should().BeFalse();
     }
 }

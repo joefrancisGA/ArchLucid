@@ -133,22 +133,28 @@ public sealed class CentralAuthorizationAuditWorkerTests
             It.IsAny<CentralAuthorizationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
-    public async Task Worker_uses_central_service_when_trusted_identity_exists()
+    [Theory]
+    [InlineData(true, "authorized")]
+    [InlineData(false, "no_acl")]
+    public async Task Worker_uses_central_service_when_trusted_identity_exists(bool allowed, string reason)
     {
         ClaimsPrincipal principal = new(new ClaimsIdentity(
             [new Claim(ClaimTypes.NameIdentifier, "worker")], "trusted-worker"));
+        using CancellationTokenSource cancellation = new();
+        CentralAuthorizationRequest request = new("evidence.read", Guid.NewGuid(),
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
+        CentralAuthorizationDecision expected = new(allowed, reason);
         Mock<ITrustedWorkerIdentity> identity = new();
-        identity.Setup(x => x.ResolveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(principal);
+        identity.Setup(x => x.ResolveAsync(cancellation.Token)).ReturnsAsync(principal);
         Mock<ICentralAuthorizationDecisions> decisions = new();
-        decisions.Setup(x => x.DecideAsync(principal, It.IsAny<CentralAuthorizationRequest>(),
-            It.IsAny<CancellationToken>())).ReturnsAsync(new CentralAuthorizationDecision(false, "no_acl"));
+        decisions.Setup(x => x.DecideAsync(principal, request, cancellation.Token))
+            .ReturnsAsync(expected);
         WorkerAuthorizationAdapter adapter = new(identity.Object, decisions.Object);
-        CentralAuthorizationDecision decision = await adapter.DecideAsync(
-            new CentralAuthorizationRequest("evidence.read", Guid.NewGuid(),
-                Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()));
-        decision.Allowed.Should().BeFalse();
-        decisions.Verify(x => x.DecideAsync(principal, It.IsAny<CentralAuthorizationRequest>(),
-            It.IsAny<CancellationToken>()), Times.Once);
+        CentralAuthorizationDecision decision = await adapter.DecideAsync(request, cancellation.Token);
+        decision.Should().Be(expected);
+        identity.Verify(x => x.ResolveAsync(cancellation.Token), Times.Once);
+        decisions.Verify(x => x.DecideAsync(principal, request, cancellation.Token), Times.Once);
+        identity.VerifyNoOtherCalls();
+        decisions.VerifyNoOtherCalls();
     }
 }
