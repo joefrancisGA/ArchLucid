@@ -84,6 +84,17 @@ export const REVIEW_DETAIL_TAB_IDS = [
 export type ReviewDetailTabId = (typeof REVIEW_DETAIL_TAB_IDS)[number];
 
 export const REVIEW_DETAIL_DEFAULT_TAB: ReviewDetailTabId = "overview";
+/** Clears finding selection when tab navigation leaves findings unless the destination still owns selection. */
+export function reviewDetailFindingIdClearForTabNavigation(
+  tabId: ReviewDetailTabId,
+): null | undefined {
+  if (tabId === "findings" || isReviewWorkbenchFocusColumnId(tabId)) {
+    return undefined;
+  }
+
+  return null;
+}
+
 
 export const REVIEW_DETAIL_TAB_LABELS: Record<ReviewDetailTabId, string> = {
   overview: "Overview",

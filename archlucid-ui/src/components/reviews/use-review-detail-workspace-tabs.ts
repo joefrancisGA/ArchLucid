@@ -18,6 +18,7 @@ import {
   resolveReviewDetailTabFromLocation,
   resolveReviewWorkbenchFocusColumn,
   writeReviewDetailTabToUrl,
+  reviewDetailFindingIdClearForTabNavigation,
 } from "@/lib/review-detail-workspace-tabs";
 import { type ResolveReviewDetailVisibleTabsInput } from "@/lib/resolve-review-detail-visible-tabs";
 import type { ReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-lifecycle";
@@ -66,11 +67,6 @@ function resolveWorkspaceLifecycle(props: ReviewDetailWorkspaceProps): ReviewWor
 
 function isWorkbenchTab(tabId: ReviewDetailTabId): tabId is ReviewWorkbenchColumnId {
   return (WORKBENCH_TAB_IDS as readonly string[]).includes(tabId);
-}
-
-function findingIdClearedWhenLeavingFindings(tabId: ReviewDetailTabId): null | undefined {
-  // undefined keeps the current query. null deletes it. Findings and workbench tabs still own the selection.
-  return tabId === "findings" || isWorkbenchTab(tabId) ? undefined : null;
 }
 
 export type UseReviewDetailWorkspaceTabsResult = {
@@ -379,7 +375,7 @@ export function useReviewDetailWorkspaceTabs(
         hash: null,
         findingId: options?.findingId !== undefined
           ? options.findingId
-          : findingIdClearedWhenLeavingFindings(tab),
+          : reviewDetailFindingIdClearForTabNavigation(tab),
         workbenchFocus: nextWorkbenchFocus,
         presenter: presenterModeRef.current ? true : null,
         runId: props.runId,
@@ -416,7 +412,7 @@ export function useReviewDetailWorkspaceTabs(
 
     writeReviewDetailTabToUrl(tabFromHash, {
       hash,
-      findingId: findingIdClearedWhenLeavingFindings(tabFromHash),
+      findingId: reviewDetailFindingIdClearForTabNavigation(tabFromHash),
       workbenchFocus: normalizedFocus,
       presenter: presenterModeRef.current ? true : null,
       runId: props.runId,
@@ -478,7 +474,7 @@ export function useReviewDetailWorkspaceTabs(
       if (tabFromHash !== null) {
         writeReviewDetailTabToUrl(nextTab, {
           hash: hash.length > 0 ? hash : null,
-          findingId: findingIdClearedWhenLeavingFindings(nextTab),
+          findingId: reviewDetailFindingIdClearForTabNavigation(nextTab),
           workbenchFocus: normalizedFocus,
           presenter: presenterModeRef.current ? true : null,
           runId: props.runId,
