@@ -34,4 +34,17 @@ public sealed class AgentModelTierEscalationTests
         AgentModelTierRetryDefaults.DefaultTierForAgent(AgentType.Compliance).Should().Be(LlmModelTier.Standard);
         AgentModelTierRetryDefaults.DefaultTierForAgent(AgentType.Critic).Should().Be(LlmModelTier.Premium);
     }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(3)]
+    [InlineData(int.MaxValue)]
+    public void Unknown_tiers_cannot_escalate(int rawTier)
+    {
+        LlmModelTier invalid = (LlmModelTier)rawTier;
+
+        AgentModelTierEscalation.CanEscalate(invalid).Should().BeFalse();
+        Action escalate = () => AgentModelTierEscalation.Escalate(invalid);
+        escalate.Should().Throw<ArgumentOutOfRangeException>();
+    }
 }
