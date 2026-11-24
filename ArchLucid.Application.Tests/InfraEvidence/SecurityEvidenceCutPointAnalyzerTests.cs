@@ -110,6 +110,25 @@ public sealed class SecurityEvidenceCutPointAnalyzerTests
         publicLeverage.Should().BeGreaterThan(roleLeverage);
     }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    [InlineData(317)]
+    [InlineData(46340)]
+    [InlineData(46341)]
+    [InlineData(65536)]
+    [InlineData(int.MaxValue)]
+    public void ComputeLeverageScore_preserves_full_integer_count_range(int pathsCollapsed)
+    {
+        decimal expected = pathsCollapsed <= 0 ? 0m : (decimal)pathsCollapsed * pathsCollapsed;
+        SecurityEvidenceCutPointConstants.ComputeLeverageScore(
+            pathsCollapsed, SecurityEvidenceCutPointOperationalCostClass.PublicAccessProperty)
+            .Should().Be(expected);
+        SecurityEvidenceCutPointConstants.ComputeLeverageScore(
+            pathsCollapsed, SecurityEvidenceCutPointOperationalCostClass.RoleAssignment)
+            .Should().Be(expected / 4m);
+    }
+
     [Fact]
     public void Analyze_empty_ranked_paths_returns_empty_without_throw()
     {
