@@ -97,7 +97,7 @@ public sealed class PromptRedactor(IOptionsMonitor<LlmPromptRedactionOptions> op
 
             try
             {
-                working = pattern.Replace(working, replacement);
+                working = pattern.Replace(working, _ => replacement);
             }
             catch (RegexMatchTimeoutException ex)
             {
@@ -131,7 +131,7 @@ public sealed class PromptRedactor(IOptionsMonitor<LlmPromptRedactionOptions> op
                 if (matchCount <= 0)
                     continue;
 
-                working = rx.Replace(working, replacement);
+                working = rx.Replace(working, _ => replacement);
                 counts["custom"] = counts.GetValueOrDefault("custom", 0) + matchCount;
             }
             catch (ArgumentException ex)
