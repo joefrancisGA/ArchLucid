@@ -118,6 +118,7 @@ public sealed class IterativeRetrievalLoop(
             WorkspaceId = query.WorkspaceId,
             ProjectId = query.ProjectId,
             RunId = query.RunId,
+            AuthorizedEvidenceRunIds = query.AuthorizedEvidenceRunIds,
             ManifestId = query.ManifestId,
             QueryText = queryText,
             TopK = query.TopK,

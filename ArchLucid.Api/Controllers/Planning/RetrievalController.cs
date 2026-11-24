@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -7,6 +8,7 @@ using ArchLucid.Core.Tenancy;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.Persistence.Interfaces;
 
 using Asp.Versioning;
 
@@ -33,7 +35,9 @@ public sealed partial class RetrievalController(
     IRetrievalQueryService retrievalQueryService,
     IScopeContextProvider scopeContextProvider,
     IAuthorityQueryService authorityQueryService,
-    IManifestHashService manifestHashService)
+    IManifestHashService manifestHashService,
+    IArchitectureShareAccessGate architectureShareAccessGate,
+    IRunRepository runRepository)
     : ControllerBase
 {
     /// <summary>Runs a vector search for query string <paramref name="q" />.</summary>
@@ -46,6 +50,7 @@ public sealed partial class RetrievalController(
     [HttpGet("search")]
     [ProducesResponseType(typeof(IReadOnlyList<RetrievalHit>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Search(
         [FromQuery] string q,
@@ -59,14 +64,24 @@ public sealed partial class RetrievalController(
                 "Query parameter 'q' is required.",
                 ProblemTypes.ValidationFailed);
 
-        IActionResult? sealedGuardResult = await EnsureRunScopedRetrievalSealedManifestReadAllowedAsync(runId, ct);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
         try
         {
-            ScopeContext scope = scopeContextProvider.GetCurrentScope();
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            (Guid? resolvedRunId, HashSet<Guid> authorizedRuns, IActionResult? rejection) =
+                await ResolveAuthorizedRetrievalRunsAsync(scope, runId, manifestId, ct);
+
+            if (rejection is not null)
+                return rejection;
+
+            IActionResult? sealedGuardResult = manifestId is Guid exactManifestId
+                ? await EnsureExactRetrievalManifestSealedReadAsync(scope, resolvedRunId!.Value, exactManifestId, ct)
+                : await EnsureRunScopedRetrievalSealedManifestReadAllowedAsync(resolvedRunId, ct);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            if (authorizedRuns.Count == 0)
+                return Ok(Array.Empty<RetrievalHit>());
 
             IReadOnlyList<RetrievalHit> result = await retrievalQueryService.SearchAsync(
                 new RetrievalQuery
@@ -74,7 +89,8 @@ public sealed partial class RetrievalController(
                     TenantId = scope.TenantId,
                     WorkspaceId = scope.WorkspaceId,
                     ProjectId = scope.ProjectId,
-                    RunId = runId,
+                    RunId = resolvedRunId,
+                    AuthorizedEvidenceRunIds = authorizedRuns,
                     ManifestId = manifestId,
                     QueryText = q.Trim(),
                     TopK = topK < 1 ? 8 : Math.Min(topK, 50)

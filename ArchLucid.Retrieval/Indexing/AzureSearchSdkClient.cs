@@ -71,6 +71,9 @@ public sealed class AzureSearchSdkClient(
             Queries = { new VectorizedQuery(queryEmbedding) { KNearestNeighborsCount = query.TopK, Fields = { "embedding" } } }
         };
 
+        if (query.AuthorizedEvidenceRunIds is not null)
+            searchOptions.VectorSearch.FilterMode = VectorFilterMode.PreFilter;
+
         SearchResults<SearchDocument> results = await client.SearchAsync<SearchDocument>(null, searchOptions, ct)
             .ConfigureAwait(false);
 

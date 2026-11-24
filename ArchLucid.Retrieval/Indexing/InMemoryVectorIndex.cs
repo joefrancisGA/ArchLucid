@@ -226,7 +226,11 @@ public sealed class InMemoryVectorIndex : IVectorIndex, IVectorIndexEmbeddingMet
             && chunk.WorkspaceId == query.WorkspaceId
             && chunk.ProjectId == query.ProjectId
             && (!query.RunId.HasValue || chunk.RunId == query.RunId)
-            && (!query.ManifestId.HasValue || chunk.ManifestId == query.ManifestId);
+            && (!query.ManifestId.HasValue || chunk.ManifestId == query.ManifestId)
+            && (query.AuthorizedEvidenceRunIds is null ||
+                (chunk.RunId is Guid evidenceRunId && evidenceRunId != Guid.Empty &&
+                 query.AuthorizedEvidenceRunIds.Contains(evidenceRunId) &&
+                 chunk.CorpusKind is CorpusKind.TenantManifest or CorpusKind.PriorManifest or CorpusKind.KnowledgeGraphNode));
 
         if (!tenantMatch && !query.IncludePlatformCorpora)
             return false;

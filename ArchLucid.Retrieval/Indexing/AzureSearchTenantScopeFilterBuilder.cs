@@ -55,6 +55,18 @@ public static class AzureSearchTenantScopeFilterBuilder
         if (query.ManifestId is Guid manifestId)
             clauses.Add($"manifestId eq '{manifestId:D}'");
 
+        if (query.AuthorizedEvidenceRunIds is { } authorizedRuns)
+        {
+            // Tenant chunks without verified single-run provenance (including conversations)
+            // must not enter candidate selection. An empty allowlist is not unrestricted.
+            string ids = string.Join(",", authorizedRuns.Where(id => id != Guid.Empty)
+                .OrderBy(id => id).Select(id => id.ToString("D")));
+            clauses.Add(ids.Length == 0
+                ? "false"
+                : $"search.in(runId, '{ids}', ',')");
+            clauses.Add("(corpusKind eq 'TenantManifest' or corpusKind eq 'PriorManifest' or corpusKind eq 'KnowledgeGraphNode')");
+        }
+
         if (query.IncludePlatformCorpora)
         {
             HashSet<string>? allowedPacks = query.AllowedPolicyPackRulePackIds;

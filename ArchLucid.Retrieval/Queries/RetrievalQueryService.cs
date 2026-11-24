@@ -210,7 +210,10 @@ public sealed class RetrievalQueryService(
 
         AdvancedRetrievalOptions advancedOptions = _advancedRetrievalOptions.CurrentValue;
 
-        if (advancedOptions.Enabled && advancedOptions.EnableGraphRag && hits.Count > 0)
+        // Graph expansion reads snapshots by document ID, outside the vector-index authorization filter.
+        // Keep it off for authorization-constrained searches until that path verifies ownership.
+        if (query.AuthorizedEvidenceRunIds is null &&
+            advancedOptions.Enabled && advancedOptions.EnableGraphRag && hits.Count > 0)
         {
             hits = await _graphRagNeighborExpander
                 .ExpandAsync(query, hits, budgetCt)
@@ -239,6 +242,7 @@ public sealed class RetrievalQueryService(
             WorkspaceId = query.WorkspaceId,
             ProjectId = query.ProjectId,
             RunId = query.RunId,
+            AuthorizedEvidenceRunIds = query.AuthorizedEvidenceRunIds,
             ManifestId = query.ManifestId,
             QueryText = query.QueryText,
             TopK = topK,

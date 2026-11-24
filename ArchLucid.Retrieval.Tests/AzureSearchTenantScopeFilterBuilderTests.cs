@@ -120,6 +120,37 @@ public sealed class AzureSearchTenantScopeFilterBuilderTests
         filter.Should().Contain($"runId eq '{runId:D}'");
     }
 
+    [Fact]
+    public void Authorized_evidence_runs_intersect_scope_and_existing_facets()
+    {
+        Guid run = Guid.NewGuid();
+        Guid denied = Guid.NewGuid();
+        RetrievalQuery query = BaseQuery(includePlatform: false);
+        query.AuthorizedEvidenceRunIds = new HashSet<Guid> { run };
+        query.ManifestId = Guid.NewGuid();
+        query.RunId = run;
+
+        string filter = AzureSearchTenantScopeFilterBuilder.BuildRequiredScopeFilter(query);
+
+        filter.Should().Contain($"runId eq '{run:D}'");
+        filter.Should().Contain($"search.in(runId, '{run:D}', ',')");
+        filter.Should().Contain($"manifestId eq '{query.ManifestId:D}'");
+        filter.Should().Contain("corpusKind eq 'TenantManifest'");
+        filter.Should().Contain("corpusKind eq 'PriorManifest'");
+        filter.Should().Contain("corpusKind eq 'KnowledgeGraphNode'");
+        filter.Should().NotContain(denied.ToString("D"));
+        filter.Should().NotContain("Conversation");
+    }
+
+    [Fact]
+    public void Empty_authorized_evidence_set_is_not_unrestricted()
+    {
+        RetrievalQuery query = BaseQuery(includePlatform: false);
+        query.AuthorizedEvidenceRunIds = new HashSet<Guid>();
+
+        AzureSearchTenantScopeFilterBuilder.BuildRequiredScopeFilter(query).Should().Contain(" and false");
+    }
+
     private static RetrievalQuery BaseQuery(bool includePlatform) => new()
     {
         TenantId = TenantId,
