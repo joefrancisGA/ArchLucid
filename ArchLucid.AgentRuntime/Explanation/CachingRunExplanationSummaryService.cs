@@ -55,7 +55,9 @@ public sealed class CachingRunExplanationSummaryService(
             return await _inner.GetSummaryAsync(scope, runId, ct);
         }
 
-        string key = $"explanation:aggregate:{runId}:{Convert.ToHexString(rowVersion)}";
+        // A run ID and SQL row version alone are not a tenant-catalog cache boundary.
+        // Authorization remains the caller's responsibility and must precede this lookup.
+        string key = $"explanation:aggregate:v2:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:{runId:N}:{Convert.ToHexString(rowVersion)}";
 
         int factoryInvoked = 0;
 
