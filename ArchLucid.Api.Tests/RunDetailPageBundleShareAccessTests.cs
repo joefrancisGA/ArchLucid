@@ -8,6 +8,7 @@ using ArchLucid.Application.Audit;
 using ArchLucid.Application.Findings.FindingVerification;
 using ArchLucid.Application.Runs;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Contracts.Persistence.Artifacts;
 using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
