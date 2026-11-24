@@ -70,6 +70,10 @@ import {
   parseReviewFailureTechnicalMetadataOpenFromSearch,
   REVIEW_FAILURE_TECHNICAL_METADATA_OPEN_PARAM,
 } from "@/lib/reviews/review-failure-technical-metadata-disclosure-url";
+import {
+  parseReviewChainOfCustodySectionKeyFromSearch,
+  REVIEW_CHAIN_OF_CUSTODY_SECTION_KEY_PARAM,
+} from "@/lib/reviews/review-chain-of-custody-section-disclosure-url";
 
 const WORKBENCH_TAB_IDS: readonly ReviewDetailTabId[] = ["architecture", "findings", "evidence"];
 
@@ -233,6 +237,8 @@ export function useReviewDetailWorkspaceTabs(
     const failureTechnicalMetadataOpenPresent = parseReviewFailureTechnicalMetadataOpenFromSearch(
       params.get(REVIEW_FAILURE_TECHNICAL_METADATA_OPEN_PARAM),
     );
+    const chainOfCustodySectionKeyPresent =
+      parseReviewChainOfCustodySectionKeyFromSearch(params.get(REVIEW_CHAIN_OF_CUSTODY_SECTION_KEY_PARAM)).length > 0;
     const runRecordMetaOpenPresent = parseRunDetailRecordMetadataOpenFromSearch(params.get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM));
     const askDockOpenPresent = parseReviewAskDockOpenFromSearch(params.get(REVIEW_ASK_DOCK_OPEN_PARAM));
     const askThreadPresent =
@@ -268,6 +274,7 @@ export function useReviewDetailWorkspaceTabs(
       || archiveRunIdPresent
       || packageSponsorHandoffMoreExportsOpenPresent
       || failureTechnicalMetadataOpenPresent
+      || chainOfCustodySectionKeyPresent
       || runRecordMetaOpenPresent
       || askDockOpenPresent
       || askThreadPresent
