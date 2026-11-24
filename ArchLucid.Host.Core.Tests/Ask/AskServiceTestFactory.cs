@@ -9,6 +9,7 @@ using ArchLucid.Core.Conversation;
 using ArchLucid.Host.Core.Ask;
 using ArchLucid.Host.Core.Services.Ask;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
@@ -46,7 +47,8 @@ internal static class AskServiceTestFactory
         IRunRepository? runRepository = null,
         IManifestHashService? manifestHashService = null,
         FindingInstrumentationAuditSupport? findingInstrumentationAudit = null,
-        IActorContext? actorContext = null)
+        IActorContext? actorContext = null,
+        IAskEvidenceAccess? evidenceAccess = null)
     {
         IAgentCompletionClient resolvedLlm = llm ?? Mock.Of<IAgentCompletionClient>();
         IConversationService resolvedConversation = conversationService ?? Mock.Of<IConversationService>();
@@ -74,6 +76,7 @@ internal static class AskServiceTestFactory
         IManifestHashService resolvedManifestHash =
             manifestHashService ?? AskSealedManifestTestSupport.CreateManifestHashService();
 
+        IAskEvidenceAccess resolvedAccess = evidenceAccess ?? CreateDefaultEvidenceAccess();
         AskContextPreparer contextPreparer = new(
             resolvedQuery,
             resolvedProvenance,
@@ -84,7 +87,8 @@ internal static class AskServiceTestFactory
             resolvedRetrievalOptions,
             resolvedRunRepository,
             resolvedManifestHash,
-            NullLogger<AskContextPreparer>.Instance);
+            NullLogger<AskContextPreparer>.Instance,
+            resolvedAccess);
         AskComparisonNarrativeBuilder narrativeBuilder = new(
             resolvedLlm,
             resolvedNarrativeOptions,
@@ -111,7 +115,17 @@ internal static class AskServiceTestFactory
             historyBuilder,
             resolvedFindingAudit,
             actorContext ?? CreateDefaultActorContext(),
-            NullLogger<AskService>.Instance);
+            NullLogger<AskService>.Instance,
+            resolvedAccess);
+    }
+
+    private static IAskEvidenceAccess CreateDefaultEvidenceAccess()
+    {
+        Mock<IAskEvidenceAccess> access = new();
+        access.Setup(a => a.GetAuthorizedActorId()).Returns("operator@test");
+        access.Setup(a => a.CanReadRunAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        return access.Object;
     }
 
     public static AskResponseComposer CreateResponseComposer()
