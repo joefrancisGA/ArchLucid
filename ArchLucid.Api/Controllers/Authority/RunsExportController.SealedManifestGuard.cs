@@ -15,9 +15,17 @@ public sealed partial class RunsExportController
         CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(runId, out Guid runGuid))
-            return null;
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        // Reuse the same non-disclosing, scoped architecture-share read gate
+        // as run details. Sealed-manifest integrity alone cannot authorize
+        // a downloadable report for a restricted architecture.
+        IActionResult? denied = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this, User, scope, runGuid, cancellationToken);
+        if (denied is not null)
+            return denied;
+
         RunDetailDto? detail;
 
         try
