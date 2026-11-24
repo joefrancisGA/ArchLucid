@@ -17010,6 +17010,18 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-claim-discipline-policy
 
+2026-11-24 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone **`ui-infra-resource-hub`** at run-log tail after hunt **#494** hit). Reread `claim-discipline-policy.ts`, infrastructure help guide `resolveGuideHeadingsForStrip` call sites, orientation strip registry, and focused tests; cheap-disproof closed three pass-43 `(candidate)` monitors — **valid-no-repro** specialty walkthrough header/TOC parity (`drops specialty walkthrough claim TOC row when help-specialty-walkthroughs omits the orientation band`; `does not list a claim-discipline TOC entry on the specialty walkthrough catalog headings`), **valid-no-repro** empty visible-band claim shell (`still renders an empty claim callout shell when claim prop is an empty string on a visible slug`), **valid-no-repro** legacy alias drift (`omits legacy orientation strip slug aliases that differ from registry help-topic slugs`). No row met hunt-ready; reseeded five pass-44 `(candidate)` monitors below. Scoped **51/51** (`claim-discipline-policy.test.ts`, `EvidenceOrientationClaimAndSourcesStrip.test.tsx`, `administration-settings-claim-discipline-strips.test.tsx`). Private beta: n/a.
+
+- [ ] (candidate) `HelpGovernanceInfrastructureTerraformGuideView` — TOC keeps claim heading id while header paragraph repeats orientation claim — locus: visible `help-governance-infrastructure-terraform` slug; input: guide headings vs orientation strip (monitor).
+- [ ] (candidate) `resolveGuideHeadingsForStrip` — mismatched `claimHeadingId` constant leaves orphan TOC anchor on omitted infra help slug — locus: exact id filter; input: governance infrastructure help family (monitor).
+- [ ] (candidate) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` — newly shipped `help-governance-infrastructure-*` sibling omits drift only while others stay visible — locus: omit set parity; input: infra help registry expansion (monitor).
+- [ ] (candidate) `EvidenceOrientationSourcesAndClaimStrip` — `part="sources"` on visible slug suppresses claim while header fold omits bottom band — locus: split strip parts; input: admin settings sources-only strips (monitor).
+- [ ] (candidate) `shouldOmitClaimDisciplineBand` — whitespace-padded stripSlug misses omit set exact key — locus: Set lookup; input: trimmed vs untrimmed slug (monitor).
+
+- [x] (valid-no-repro) `resolveGuideHeadingsForStrip` — buyer-polished specialty walkthrough header claim lacks anchor id matching filtered TOC — locus: header vs TOC parity; input: HS shell only (monitor). — **cheap-disproof 2026-11-24 seed hunt:** specialty walkthrough TOC + heading filter regressions (hunt **#43** family).
+- [x] (valid-no-repro) `EvidenceOrientationSourcesAndClaimStrip` — `part="both"` with empty claim still renders empty callout — locus: split vs combined parts; input: registry strips using `claim=""` (monitor). — **cheap-disproof 2026-11-24 seed hunt:** intentional empty callout shell regression (hunt **#43** family).
+- [x] (valid-no-repro) `CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES` — alias target removed from omit set leaves legacy slug visible — locus: alias map drift; input: policy edit regression (monitor). — **cheap-disproof 2026-11-24 seed hunt:** legacy alias unit coverage (hunt **#43** family).
+
 2026-10-30 thorough hunt #43 (dry): cheap-disproof closed the three seeded candidates — specialty walkthrough heading/TOC parity is covered by `drops specialty walkthrough claim TOC row`, empty visible claims are explicitly covered by the evidence-orientation regression, and policy alias behavior is covered by the legacy alias tests. Focused claim-discipline and orientation suites passed 40/40; no production code changed.
 
 - [x] (valid-no-repro) `resolveGuideHeadingsForStrip` — buyer-polished specialty walkthrough header claim lacks anchor id matching filtered TOC — **cheap-disproof 2026-10-30 thorough hunt #43:** `drops specialty walkthrough claim TOC row when help-specialty-walkthroughs omits the orientation band` covers the omitted-band heading filter.
@@ -17018,9 +17030,6 @@ ABQ-09 churn hotspot.
 
 2026-10-30 thorough hunt #2 (dry): cheap-disproof closed three open `(candidate)` rows — specialty walkthrough catalog never listed a claim TOC row (`does not list a claim-discipline TOC entry on the specialty walkthrough catalog headings`; `resolveGuideHeadingsForStrip` would drop the heading when omitted); empty-string `claim` on visible slugs still mounts the callout shell by design, while split `part="sources"` strips suppress claim (`still renders an empty claim callout shell when claim prop is an empty string on a visible slug`, `SecurityTrustEvidenceOrientationStrip` regression); help registry slug scan found zero header-claim topics missing from `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS`. Reseeded three follow-on `(candidate)` rows. 33 scoped tests across `claim-discipline-policy`, orientation strip, and specialty walkthrough suites passed; no production code changed.
 
-- [ ] (candidate) `resolveGuideHeadingsForStrip` — buyer-polished specialty walkthrough header claim lacks anchor id matching filtered TOC — locus: header vs TOC parity; input: HS shell only (monitor).
-- [ ] (candidate) `EvidenceOrientationSourcesAndClaimStrip` — `part="both"` with empty claim still renders empty callout — locus: split vs combined parts; input: registry strips using `claim=""` (monitor).
-- [ ] (candidate) `CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES` — alias target removed from omit set leaves legacy slug visible — locus: alias map drift; input: policy edit regression (monitor).
 
 2026-10-30 thorough hunt (dry): re-promoted the three open `(candidate)` rows — repo scan of orientation `slug` props found zero legacy alias gaps (`Legacy alias gaps: []`); specialty infra help guides such as `help-governance-infrastructure-drift` intentionally keep visible bands where the orientation strip owns the sole claim (`passes governance infrastructure drift help claim through for visible-band orientation slug`); undefined claim passthrough on visible slugs remains intentional for sources-only strips (`allows undefined claim passthrough on visible slugs when callers omit copy`). Reseeded three follow-on `(candidate)` rows. 31 scoped `claim-discipline-policy` tests passed; no production code changed.
 
@@ -17036,7 +17045,7 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 3
+- **hunts:** 4
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
