@@ -61,9 +61,10 @@ public sealed class CircuitBreakingContentSafetyGuard(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        CircuitBreakerGate.CallAdmission admission;
         try
         {
-            _contentSafetyCircuit.ThrowIfBroken();
+            admission = _contentSafetyCircuit.Admit();
         }
         catch (CircuitBreakerOpenException)
         {
@@ -76,24 +77,25 @@ public sealed class CircuitBreakingContentSafetyGuard(
 
             if (IsSdkFailure(result))
             {
-                _contentSafetyCircuit.RecordFailure();
+                admission.RecordFailure();
 
                 return result;
             }
 
-            _contentSafetyCircuit.RecordSuccess();
+            admission.RecordSuccess();
 
             return result;
         }
         catch (OperationCanceledException)
         {
-            // Inner client timeouts and caller cancellation both represent an interrupted safety check.
+            // An interrupted safety check is neutral, but must release its own recovery probe.
+            admission.RecordCallCancelled();
             throw;
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Content safety inner threw for kind {Kind}; breaker records failure.", kind);
-            _contentSafetyCircuit.RecordFailure();
+            admission.RecordFailure();
 
             ContentSafetyOptions options = _contentSafetyOptions.CurrentValue;
 
