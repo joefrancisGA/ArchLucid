@@ -34,6 +34,10 @@ public sealed class BillingWebhookTrialActivator(
         string rawWebhookJson,
         CancellationToken cancellationToken)
     {
+        TenantTier commercialTier = ArchLucid.Contracts.Serialization.DefinedEnum.Parse<TenantTier>(tierStorageCode, ignoreCase: true);
+        if (commercialTier is not (TenantTier.Standard or TenantTier.Enterprise))
+            throw new ArgumentException("Subscription activation requires a commercial tier.", nameof(tierStorageCode));
+
         await _ledger.ActivateSubscriptionAsync(
             tenantId,
             workspaceId,
@@ -45,10 +49,6 @@ public sealed class BillingWebhookTrialActivator(
             workspaces,
             rawWebhookJson,
             cancellationToken);
-
-        TenantTier commercialTier = Enum.TryParse(tierStorageCode, true, out TenantTier parsed)
-            ? parsed
-            : TenantTier.Standard;
 
         await _tenantRepository.MarkTrialConvertedAsync(tenantId, commercialTier, cancellationToken);
 
