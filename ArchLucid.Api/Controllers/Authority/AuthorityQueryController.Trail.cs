@@ -114,15 +114,35 @@ public sealed partial class AuthorityQueryController
         try
         {
             ScopeContext scope = scopeProvider.GetCurrentScope();
+
+            if (manifestId == Guid.Empty)
+                return this.NotFoundProblem($"Manifest '{manifestId}' was not found.", ProblemTypes.ManifestNotFound);
+
+            // The requested manifest is the only input identifier. Resolve its
+            // trusted scoped run association before using the existing run
+            // sharing policy: a manifest GUID is never a run GUID.
             ManifestSummaryDto? result = await queryService.GetManifestSummaryAsync(scope, manifestId, ct);
 
-            if (result is null)
+            if (result is null || result.ManifestId != manifestId || result.RunId == Guid.Empty)
                 return this.NotFoundProblem($"Manifest '{manifestId}' was not found.", ProblemTypes.ManifestNotFound);
+
+            IActionResult? sharingDenied = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+                this, User, scope, result.RunId, ct);
+
+            if (sharingDenied is not null)
+                return this.NotFoundProblem($"Manifest '{manifestId}' was not found.", ProblemTypes.ManifestNotFound);
+
+            // Verify the exact requested manifest, not merely the run header's
+            // current golden manifest. Prior sealed manifest IDs remain valid
+            // when they belong to the authorized run and pass integrity.
+            var requestedManifest =
+                await queryService.GetManifestForSummaryVerificationAsync(scope, manifestId, ct);
 
             RunDetailDto? manifestDetail =
                 await queryService.GetRunDetailForManifestCompareAsync(scope, result.RunId, ct);
 
-            IActionResult? sealedGuardResult = EnsureManifestSummarySealedReadAllowed(result, manifestDetail);
+            IActionResult? sealedGuardResult = EnsureManifestSummarySealedReadAllowed(
+                scope, manifestId, result, requestedManifest, manifestDetail);
 
             if (sealedGuardResult is not null)
                 return sealedGuardResult;
