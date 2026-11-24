@@ -47,6 +47,9 @@ jobs:
               --results-directory "$RUNNER_TEMP/pr-results" --logger 'trx;LogFileName=suite.trx'; then
             exit 0
           fi
+          if ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+            git fetch --no-tags --depth=1 origin "$BASE_SHA"
+          fi
           git worktree add --detach "$RUNNER_TEMP/finding-verification-base" "$BASE_SHA"
           (cd "$RUNNER_TEMP/finding-verification-base" && dotnet test "$project" -c Release \
               --filter "$suite" --results-directory "$RUNNER_TEMP/base-results" --logger 'trx;LogFileName=suite.trx') || base_status=$?
