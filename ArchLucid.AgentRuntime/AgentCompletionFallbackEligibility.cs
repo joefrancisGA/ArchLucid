@@ -1,6 +1,7 @@
 using System.ClientModel;
 
 using ArchLucid.Core.Resilience;
+using ArchLucid.AgentRuntime.Quality;
 
 using Azure;
 
@@ -11,13 +12,13 @@ internal static class AgentCompletionFallbackEligibility
 {
     /// <summary>
     ///     True when <paramref name="ex" /> is a same-family failover candidate: 429/5xx, network failure,
-    ///     HTTP timeout, or an open primary circuit breaker. User cancellation is excluded by callers.
+    ///     HTTP timeout, an open primary circuit breaker, or an independently established quality quarantine. User cancellation is excluded by callers.
     /// </summary>
     internal static bool IsFallbackEligible(Exception ex)
     {
         ArgumentNullException.ThrowIfNull(ex);
 
-        if (ex is CircuitBreakerOpenException)
+        if (ex is CircuitBreakerOpenException or ProviderQualityQuarantinedException)
             return true;
 
         if (ex is OperationCanceledException)

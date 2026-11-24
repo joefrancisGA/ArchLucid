@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""RC49-only enum boundary verification; never builds master or approves findings automatically."""
+"""Explicit master/RC49 enum boundary verification; never approves findings automatically."""
 import argparse
 import hashlib
 import json
@@ -19,14 +19,14 @@ def git(*args):
 def run(*args):
     subprocess.run(args, cwd=ROOT, check=True)
 
-def assert_rc49():
+def assert_audit_ref():
     head = git("rev-parse", "--abbrev-ref", "HEAD")
-    if head == "RC49":
+    if head in {"master", "RC49"}:
         return
-    if (head == "HEAD" and os.environ.get("GITHUB_REF") == "refs/heads/RC49"
+    if (head == "HEAD" and os.environ.get("GITHUB_REF") in {"refs/heads/master", "refs/heads/RC49"}
             and os.environ.get("GITHUB_SHA") == git("rev-parse", "HEAD")):
         return
-    raise SystemExit("Full enum inventory is restricted to RC49.")
+    raise SystemExit("Explicit full enum inventory is restricted to master or RC49.")
 
 def findings_from_reports(directory):
     findings = {}
@@ -114,6 +114,19 @@ def check_report_coverage(directory):
     missing = sorted(name for name in expected if not any(directory.glob(name + "-*.sarif")))
     if missing:
         raise SystemExit("Missing compiler reports for: " + ", ".join(missing))
+    product = {name for name in expected if name.startswith("ArchLucid.")
+               and not name.endswith(".Tests") and name != "ArchLucid.Analyzers"}
+    if not product:
+        raise SystemExit("No product C# projects resolved from the solution.")
+    for name in sorted(product):
+        for report in directory.glob(name + "-*.sarif"):
+            data = json.loads(report.read_text(encoding="utf-8-sig"))
+            messages = [item.get("message", {}).get("text", "")
+                        for run_data in data.get("runs", [])
+                        for item in run_data.get("results", [])
+                        if item.get("ruleId") == "ENUM000"]
+            if not any(f"'{name}'" in message for message in messages):
+                raise SystemExit(f"Missing enum analyzer execution marker: {report.name}")
     return len(expected)
 
 def run_focused_tests(directory):
@@ -142,20 +155,16 @@ def main():
     parser.add_argument("--exceptions", type=Path, help="JSON array of reviewed entries with rationale; never generated automatically.")
     parser.add_argument("--output", type=Path, default=ROOT / "artifacts" / "enum-audit")
     args = parser.parse_args()
-    assert_rc49()
+    assert_audit_ref()
     directory = args.output.resolve()
     directory.mkdir(parents=True, exist_ok=True)
     if any(directory.glob("*.sarif")):
         raise SystemExit("Choose a clean output directory; stale compiler reports are not accepted.")
-    run("dotnet", "build", "ArchLucid.Analyzers/ArchLucid.Analyzers.csproj", "-c", "Release")
-    analyzer = ROOT / "ArchLucid.Analyzers/bin/Release/netstandard2.0/ArchLucid.Analyzers.dll"
-    if not analyzer.is_file():
-        raise SystemExit("Analyzer build did not produce expected assembly.")
-    # Capture inventory even if the mandatory analyzer reports errors; build failure is still fatal.
+    # A single solution build resolves the shared analyzer project reference.
     result = subprocess.run([
         "dotnet", "build", "ArchLucid.sln", "-c", "Release", "--no-incremental",
-        "-p:RunAnalyzersDuringBuild=true", "-p:EnumAuditInventory=true",
-        f"-p:EnumAuditLogDirectory={directory}", f"-p:EnumAuditAnalyzerPath={analyzer}"
+        "-p:RunAnalyzers=true", "-p:RunAnalyzersDuringBuild=true", "-p:EnumAuditInventory=true",
+        f"-p:EnumAuditLogDirectory={directory}"
     ], cwd=ROOT)
     findings, count = findings_from_reports(directory)
     (directory / "inventory.json").write_text(json.dumps({

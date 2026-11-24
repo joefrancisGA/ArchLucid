@@ -11393,7 +11393,7 @@ BEGIN
         EdgeType                NVARCHAR(128)     NULL,
         PathsCollapsedCount     INT               NOT NULL,
         OperationalCostClass    INT               NOT NULL,
-        LeverageScore           DECIMAL(8, 3)     NOT NULL,
+        LeverageScore           DECIMAL(22, 3)     NOT NULL,
         CutOrder                INT               NOT NULL,
         EvidenceReferencesJson  NVARCHAR(MAX)     NOT NULL,
         CollapsedPathIdsJson    NVARCHAR(MAX)     NOT NULL,

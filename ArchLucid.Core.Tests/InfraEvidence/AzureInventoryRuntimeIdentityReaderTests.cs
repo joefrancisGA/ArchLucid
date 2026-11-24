@@ -53,4 +53,22 @@ public sealed class AzureInventoryRuntimeIdentityReaderTests
         AzureInventoryRuntimeIdentityReader.HasUserAssignedIdentity(properties).Should().BeTrue();
         AzureInventoryRuntimeIdentityReader.TryReadSystemAssignedPrincipalId(properties, out _).Should().BeFalse();
     }
+
+    [Theory]
+    [InlineData("null")]
+    [InlineData("[]")]
+    [InlineData("42")]
+    [InlineData("true")]
+    [InlineData("\"not-an-object\"")]
+    [InlineData("{")]
+    public void NonObjectOrMalformedIdentity_is_not_runtime_identity(string identityJson)
+    {
+        Dictionary<string, string> properties = new() { ["identity"] = identityJson };
+
+        AzureInventoryRuntimeIdentityReader.TryReadSystemAssignedPrincipalId(properties, out string principalId)
+            .Should().BeFalse();
+        principalId.Should().BeEmpty();
+        AzureInventoryRuntimeIdentityReader.HasUserAssignedIdentity(properties).Should().BeFalse();
+        AzureInventoryRuntimeIdentityReader.HasRuntimeIdentity(properties).Should().BeFalse();
+    }
 }

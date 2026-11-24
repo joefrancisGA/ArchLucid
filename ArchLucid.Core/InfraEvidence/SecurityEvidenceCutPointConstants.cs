@@ -7,7 +7,7 @@ public static class SecurityEvidenceCutPointConstants
 
     /// <summary>
     ///     Operational cost weight (higher = harder to change).
-    ///     LeverageScore = PathsCollapsed / weight — cheaper class wins ties on collapse count.
+    ///     LeverageScore = PathsCollapsed squared / weight — cheaper class wins ties on collapse count.
     /// </summary>
     public static decimal OperationalCostWeight(SecurityEvidenceCutPointOperationalCostClass costClass) =>
         costClass switch
@@ -39,6 +39,6 @@ public static class SecurityEvidenceCutPointConstants
 
         // Squared collapse count lets shared choke points outrank disjoint single-path cuts;
         // equal collapse counts still prefer cheaper operational cost via the divisor.
-        return pathsCollapsed * pathsCollapsed / weight;
+        return (decimal)pathsCollapsed * pathsCollapsed / weight;
     }
 }

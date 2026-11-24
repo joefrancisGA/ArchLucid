@@ -101,4 +101,24 @@ public sealed class SamlSpConfigurationDiagnosticsTests
 
         File.WriteAllBytes(absolutePath, pfxBytes);
     }
+
+    [Theory]
+    [InlineData("<html>not SAML metadata</html>")]
+    [InlineData("<EntityDescriptor xmlns='urn:oasis:names:tc:SAML:2.0:metadata' validUntil='invalid'/>")]
+    [InlineData("<EntitiesDescriptor xmlns='urn:oasis:names:tc:SAML:2.0:metadata' validUntil='2036-01-01T00:00:00Z'><EntitiesDescriptor validUntil='2020-01-01T00:00:00Z'><EntityDescriptor/></EntitiesDescriptor></EntitiesDescriptor>")]
+    public async Task EvaluateAsync_invalid_or_expired_metadata_does_not_pass_expiry_check(string xml)
+    {
+        using HttpClient client = new(new StubHttpMessageHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(xml) }));
+        var results = await SamlSpConfigurationDiagnostics.EvaluateAsync(
+            new SamlSpConfigurationSnapshot
+            {
+                Enabled = true,
+                Issuer = "https://sp.example.invalid/entity",
+                IdPMetadata = "https://metadata.example.invalid/saml",
+            },
+            Directory.GetCurrentDirectory(), client, CancellationToken.None);
+        results.Should().ContainSingle(r => r.Component == "saml2.idpMetadata.validUntil")
+            .Which.Status.Should().Be(SamlTestConfigComponentStatus.Fail);
+    }
 }

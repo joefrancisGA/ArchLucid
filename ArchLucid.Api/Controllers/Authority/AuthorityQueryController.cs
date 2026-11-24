@@ -48,7 +48,6 @@ public sealed partial class AuthorityQueryController(
     IActorContext actorContext,
     IRunOperatorGovernanceDispositionService runOperatorGovernanceDispositionService,
     IManifestHashService manifestHashService,
-    IRunDetailQueryService runDetailQueryService,
     IConfiguration configuration,
     IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor,
     IArchitectureShareAccessGate architectureShareAccessGate,

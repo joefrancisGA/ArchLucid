@@ -33,9 +33,7 @@ public sealed class PersistenceTenantScopeTests
 
         string clause = PersistenceTenantScope.AndTripleWhere(scope);
 
-        clause.Should().Be(RepositoryScopePredicate.AndTripleWhere(scope));
-        clause.Should().Contain("TenantId = @ScopeTenantId");
-        clause.Should().Contain("ProjectId = @ScopeProjectId");
+        clause.Should().Be(" AND TenantId = @ScopeTenantId AND WorkspaceId = @ScopeWorkspaceId AND ProjectId = @ScopeProjectId");
     }
 
     [Fact]
@@ -45,9 +43,7 @@ public sealed class PersistenceTenantScopeTests
 
         string clause = PersistenceTenantScope.AndTripleWhere(scope, "s");
 
-        clause.Should().Contain("s.TenantId = @ScopeTenantId");
-        clause.Should().Contain("s.WorkspaceId = @ScopeWorkspaceId");
-        clause.Should().Contain("s.ProjectId = @ScopeProjectId");
+        clause.Should().Be(" AND s.TenantId = @ScopeTenantId AND s.WorkspaceId = @ScopeWorkspaceId AND s.ProjectId = @ScopeProjectId");
     }
 
     [Fact]
@@ -61,8 +57,7 @@ public sealed class PersistenceTenantScopeTests
     [Fact]
     public void AndTenantIdOrTrustedJob_contains_tenant_predicate()
     {
-        PersistenceTenantScope.AndTenantIdOrTrustedJob.Should().Contain("TenantId = @TenantId");
-        PersistenceTenantScope.AndTenantIdOrTrustedJob.Should().Contain("AND");
+        PersistenceTenantScope.AndTenantIdOrTrustedJob.Should().Be(" AND (@TenantId = @EmptyTenantId OR TenantId = @TenantId)");
     }
 
     [Fact]
@@ -70,7 +65,7 @@ public sealed class PersistenceTenantScopeTests
     {
         string clause = PersistenceTenantScope.AndProjectIdTripleWhere(ScopedContext());
 
-        clause.Should().Contain(" ProjectId = @ScopeProjectId");
+        clause.Should().Be(" AND TenantId = @ScopeTenantId AND WorkspaceId = @ScopeWorkspaceId AND ProjectId = @ScopeProjectId");
     }
 
     [Fact]
@@ -78,18 +73,22 @@ public sealed class PersistenceTenantScopeTests
     {
         string clause = PersistenceTenantScope.AndScopeProjectIdTripleWhere(ScopedContext());
 
-        clause.Should().Contain("ScopeProjectId = @ScopeProjectId");
+        clause.Should().Be(" AND TenantId = @ScopeTenantId AND WorkspaceId = @ScopeWorkspaceId AND ScopeProjectId = @ScopeProjectId");
     }
 
     [Fact]
     public void AddScopeTripleIfNeeded_adds_three_parameters_for_scoped_tenant()
     {
         DynamicParameters parameters = new();
+        ScopeContext scope = ScopedContext();
 
-        PersistenceTenantScope.AddScopeTripleIfNeeded(parameters, ScopedContext());
+        PersistenceTenantScope.AddScopeTripleIfNeeded(parameters, scope);
 
         parameters.ParameterNames.Should().BeEquivalentTo(
             new[] { "ScopeTenantId", "ScopeWorkspaceId", "ScopeProjectId" });
+        parameters.Get<Guid>("ScopeTenantId").Should().Be(scope.TenantId);
+        parameters.Get<Guid>("ScopeWorkspaceId").Should().Be(scope.WorkspaceId);
+        parameters.Get<Guid>("ScopeProjectId").Should().Be(scope.ProjectId);
     }
 
     [Fact]

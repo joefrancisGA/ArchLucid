@@ -104,7 +104,8 @@ public sealed class SamlOperationalDiagnosticsService(
 
             string xml = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
-            DateTimeOffset? validUntilUtc = SamlMetadataValidUntilParser.TryExtractValidUntilUtc(xml);
+            if (!SamlMetadataValidUntilParser.TryReadValidUntilUtc(xml, out DateTimeOffset? validUntilUtc))
+                return (null, "IdP metadata document or validUntil attribute is invalid.");
 
             // Missing validUntil on metadata is normal — not an error.
             return (validUntilUtc, null);

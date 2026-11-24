@@ -1,0 +1,4 @@
+{
+  "mode": "changed-files",
+  "notes": "Fail on unreviewed cast diagnostics in changed files; promote to all only after real solution inventory is classified."
+}

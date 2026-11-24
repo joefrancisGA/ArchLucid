@@ -3,7 +3,7 @@
 **Status:** Proposed architectural note; current implementation only partially assessed.  
 **Date:** 2026-11-24.  
 **Source review:** targeted static inspection of revision `a21b92b90c3daff9ff6cbe034d6d9b88e28e6b6f`, not a runtime or security certification.  
-**Tracking:** [Active technical backlog](../ACTIVE_TECHNICAL_BACKLOG.md). Proposed additional work is listed below; no backlog changes or implementation are authorized by this note alone.
+**Tracking:** [Active technical backlog](../ACTIVE_TECHNICAL_BACKLOG.md). The four Critical entries FND-094–097 accompany this note; implementation remains subject to existing governance and verification gates.
 
 ## 1. Problem and objective
 
@@ -77,18 +77,18 @@ Define a retention/availability matrix for each reproducibility mode and artifac
 - Measure storage, retrieval and isolated execution costs, retention enforcement and replay latency. Run representative restored-artifact tests, not just in-memory fixtures.
 - Expose distinct statuses: reconstructed, reproduced within stated scope, drift detected, independently supported/refuted, partial, unavailable. Never equate missing evidence with no vulnerability or model agreement with proof.
 
-## 8. Recommended backlog disposition (proposals only)
+## 8. Critical backlog disposition
 
-Existing FND-005/008/009/019/052/059/069–071/075–076/078–079/083–086 and TB-2106 already cover related foundations. Do not create duplicate storage, provenance or comparison frameworks. The following narrowly scoped cross-product integration gaps justify Critical candidates, subject to rechecking current implementation and allocating unused IDs at filing time.
+Existing FND-005/008/009/019/052/059/069–071/075–076/078–079/083–086 and TB-2106 already cover related foundations. Do not create duplicate storage, provenance or comparison frameworks. The following narrowly scoped cross-product integration gaps are recorded as Critical backlog items, subject to current implementation revalidation.
 
-| Proposed ID | Proposed critical slice | Exit evidence |
+| ID | Critical slice | Exit evidence |
 | --- | --- | --- |
 | FND-094 | Historical replay descriptor and sealed artifact completeness | Versioned scoped descriptor binds required evidence, effective policies, accepted AI results, engine/configuration and lineage; explicit availability and legacy compatibility tests. |
 | FND-095 | Provider-independent recorded-input replay and historical execution isolation | Replay representative original conclusions with network/provider access disabled and pinned compatible deterministic stages; no live substitution, original-chain mutation or scope bypass. |
 | FND-096 | Governed reproducibility retention and artifact availability | Reuse existing forensic, evidence and checkpoint retention; validate redaction, expiration, deletion, missing/tampered artifacts, access and restoration without overpromising fidelity. |
 | FND-097 | Cross-product historical replay equivalence and independent revalidation | Independent regression corpus spanning ArchLucid and SecureNow, semantic drift checks and explicit reconstruction/reproduction/revalidation outcomes; test historical model retirement and changes to current engines/policies. |
 
-IDs are provisional: FND-087–093 are reserved by open remediation portfolio PR #8063 at note creation. Check all open backlog changes before assigning. FND-094/096 are prerequisites for reliable FND-095; develop FND-097 assurance alongside each slice rather than defer it. Prefer extending existing replay contracts and small verified adoption increments.
+FND-094–097 are assigned in the active backlog following the remediation portfolio entries FND-087–093. FND-094/096 are prerequisites for reliable FND-095; develop FND-097 assurance alongside each slice rather than defer it. Prefer extending existing replay contracts and small verified adoption increments.
 
 ## 9. Decision and open issues
 
