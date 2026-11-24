@@ -21,6 +21,11 @@ import {
   parseFirstReviewGuideLedgerExpandedFromSearch,
 } from "@/lib/first-review-guide/first-review-guide-ledger-url";
 import { OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  FIRST_REVIEW_GUIDE_WALKTHROUGH_EMPTY_NOT_LOAD_FAILURE_LINE,
+  FIRST_REVIEW_GUIDE_WALKTHROUGH_LOAD_FAILURE_LINE,
+} from "@/lib/first-review-guide/first-review-guide-walkthrough-empty-not-load-failure-copy";
+import { SPECIALTY_WALKTHROUGHS_HELP_CANONICAL_PATH } from "@/lib/specialty-walkthroughs-help-evidence-copy";
 import type {
   FirstReviewGuideProgressPhase,
   FirstReviewGuideStepPresentation,
@@ -207,9 +212,22 @@ export function FirstReviewGuideWalkthrough({
 
   if (isError) {
     return (
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="first-review-guide-walkthrough-unavailable">
-        Walkthrough steps appear after review progress loads.
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="first-review-guide-walkthrough-load-failure">
+        {FIRST_REVIEW_GUIDE_WALKTHROUGH_LOAD_FAILURE_LINE}
       </p>
+    );
+  }
+
+  if (steps.length === 0) {
+    return (
+      <div className="space-y-2" data-testid="first-review-guide-walkthrough-empty-not-load-failure">
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+          {FIRST_REVIEW_GUIDE_WALKTHROUGH_EMPTY_NOT_LOAD_FAILURE_LINE}
+        </p>
+        <Link className={OPERATOR_LINK.inline} href={SPECIALTY_WALKTHROUGHS_HELP_CANONICAL_PATH}>
+          Open specialty walkthrough templates
+        </Link>
+      </div>
     );
   }
 

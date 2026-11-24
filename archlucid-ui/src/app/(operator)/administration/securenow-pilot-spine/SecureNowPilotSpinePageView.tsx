@@ -3,6 +3,7 @@ import Link from "next/link";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
+import { SecureNowPilotSpineAcceleratorIndex } from "@/components/product-line/SecureNowPilotSpineAcceleratorIndex";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   SECURENOW_PILOT_SPINE_GUARDRAIL,
@@ -54,6 +55,8 @@ export function SecureNowPilotSpinePageView(): React.JSX.Element {
             </li>
           ))}
         </ol>
+
+        <SecureNowPilotSpineAcceleratorIndex />
 
         <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_PILOT_SPINE_GUARDRAIL}</p>
         <p className={OPERATOR_TYPOGRAPHY.body}>

@@ -11,6 +11,7 @@ import {
   buildGoldenSponsorPackageWalkthroughHref,
 } from "@/lib/golden-sponsor-package-walkthrough";
 import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { GoldenSponsorPackageWalkthroughTenantCollectionStrip } from "@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughTenantCollectionStrip";
 import { cn } from "@/lib/utils";
 
 export type GoldenSponsorPackageWalkthroughPanelProps = {
@@ -77,12 +78,13 @@ export function GoldenSponsorPackageWalkthroughPanel(
         ))}
       </ol>
 
-      <div className={cn(compact ? "mt-3" : "mt-4")}>
+      <div className={cn(compact ? "mt-3" : "mt-4", "space-y-2")}>
         <Button asChild variant="outline" size="sm" className="h-8 w-fit">
           <Link href={entryHref} data-testid="golden-sponsor-package-walkthrough-primary">
             {GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA}
           </Link>
         </Button>
+        <GoldenSponsorPackageWalkthroughTenantCollectionStrip />
       </div>
     </section>
   );
