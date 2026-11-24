@@ -111,7 +111,7 @@ function readNormalizedSubjectFromPayload(payload: Record<string, unknown> | nul
     return null;
   }
 
-  const normalizedSubject = normalizeOidcConfigurationString(payload.sub);
+  const normalizedSubject = normalizeOidcOAuthFormString(payload.sub);
 
   if (normalizedSubject.length === 0) {
     return null;
