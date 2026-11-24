@@ -12,6 +12,48 @@ namespace ArchLucid.Persistence.Tests.Repositories;
 public sealed class DraftRequestRepositoryCoreTests
 {
     [Fact]
+    public async Task Bind_conversation_preserves_document_and_rejects_stale_revision()
+    {
+        InMemoryDraftRequestRepository repository = new();
+        Guid tenant = Guid.NewGuid(), workspace = Guid.NewGuid(), project = Guid.NewGuid();
+        CancellationToken ct = CancellationToken.None;
+        DraftRequestResponse original = await repository.CreateAsync(tenant, workspace, project, "architect",
+            new DraftRequestDocument { FreeTextIntent = "initial" }, ct);
+
+        DraftRequestResponse changed = (await repository.UpdateAsync(tenant, workspace, project, original.DraftId,
+            DraftRequestStatus.Drafting, new DraftRequestDocument { FreeTextIntent = "concurrent edit" },
+            null, null, ct))!;
+
+        (await repository.TryBindConversationThreadAsync(original, Guid.NewGuid(), ct)).Should().BeNull();
+        Guid threadId = Guid.NewGuid();
+        DraftRequestResponse bound = (await repository.TryBindConversationThreadAsync(changed, threadId, ct))!;
+
+        bound.Document.FreeTextIntent.Should().Be("concurrent edit");
+        bound.Document.ConversationThreadId.Should().Be(threadId);
+        bound.Status.Should().Be(DraftRequestStatus.Drafting);
+        bound.DocumentContentHashSha256.Should().Equal(DraftDocumentContentFingerprint.Compute(bound.Document));
+        (await repository.TryBindConversationThreadAsync(changed, Guid.NewGuid(), ct)).Should().BeNull();
+        (await repository.GetAsync(tenant, workspace, project, original.DraftId, ct))!
+            .Document.ConversationThreadId.Should().Be(threadId);
+    }
+
+    [Fact]
+    public async Task Bind_conversation_rejects_changed_architecture_and_terminal_state()
+    {
+        InMemoryDraftRequestRepository repository = new();
+        Guid tenant = Guid.NewGuid(), workspace = Guid.NewGuid(), project = Guid.NewGuid();
+        CancellationToken ct = CancellationToken.None;
+        DraftRequestResponse initial = await repository.CreateAsync(tenant, workspace, project, "architect",
+            new DraftRequestDocument(), ct);
+
+        await repository.SetArchitectureIdAsync(tenant, workspace, project, initial.DraftId, Guid.NewGuid(), ct);
+        (await repository.TryBindConversationThreadAsync(initial, Guid.NewGuid(), ct)).Should().BeNull();
+        DraftRequestResponse terminal = (await repository.UpdateAsync(tenant, workspace, project, initial.DraftId,
+            DraftRequestStatus.Abandoned, new DraftRequestDocument(), null, null, ct))!;
+        (await repository.TryBindConversationThreadAsync(terminal, Guid.NewGuid(), ct)).Should().BeNull();
+    }
+
+    [Fact]
     public async Task InMemoryDraftRead_does_not_expose_stored_hash_buffers()
     {
         InMemoryDraftRequestRepository repository = new();
