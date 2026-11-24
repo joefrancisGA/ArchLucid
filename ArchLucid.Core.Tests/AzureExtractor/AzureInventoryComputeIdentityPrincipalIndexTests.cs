@@ -64,4 +64,16 @@ public sealed class AzureInventoryComputeIdentityPrincipalIndexTests
         index["11111111-1111-1111-1111-111111111111"].Should()
             .Contain(ArmResourceIdNormalizer.Normalize(vmArmId));
     }
+
+    [Theory]
+    [InlineData("null")]
+    [InlineData("[]")]
+    [InlineData("42")]
+    [InlineData("true")]
+    [InlineData("\"not-an-object\"")]
+    [InlineData("{")]
+    public void ReadPrincipalIds_ignores_non_object_or_malformed_identity(string identityJson)
+    {
+        AzureInventoryComputeIdentityPrincipalIndex.ReadPrincipalIds(identityJson).Should().BeEmpty();
+    }
 }
