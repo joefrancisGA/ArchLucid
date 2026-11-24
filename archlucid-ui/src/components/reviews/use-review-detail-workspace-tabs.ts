@@ -277,7 +277,7 @@ import {
 } from "@/lib/findings/review-findings-job-view-url";
 import { REVIEW_FINDINGS_TOOLBAR_FILTER_PARAM } from "@/lib/findings/review-findings-toolbar-filter-url";
 import { REVIEW_FINDINGS_TOOLBAR_SORT_PARAM } from "@/lib/findings/review-findings-toolbar-sort-url";
-import { REVIEW_FINDINGS_OWNER_FILTER_PARAM } from "@/lib/findings/review-findings-toolbar-field-filters-url";
+import { REVIEW_FINDINGS_DOMAIN_FILTER_PARAM, REVIEW_FINDINGS_OWNER_FILTER_PARAM } from "@/lib/findings/review-findings-toolbar-field-filters-url";
 import {
   parseTrustEvidenceFieldsOpenFromSearch,
   parseTrustEvidenceTechOpenFromSearch,
@@ -676,6 +676,8 @@ export function useReviewDetailWorkspaceTabs(
       (params.get(REVIEW_FINDINGS_TOOLBAR_SORT_PARAM)?.trim() ?? "").length > 0;
     const findingsToolbarOwnerFilterPresent =
       (params.get(REVIEW_FINDINGS_OWNER_FILTER_PARAM)?.trim() ?? "").length > 0;
+    const findingsToolbarDomainFilterPresent =
+      (params.get(REVIEW_FINDINGS_DOMAIN_FILTER_PARAM)?.trim() ?? "").length > 0;
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -818,6 +820,7 @@ export function useReviewDetailWorkspaceTabs(
       || findingsToolbarFilterPresent
       || findingsToolbarSortPresent
       || findingsToolbarOwnerFilterPresent
+      || findingsToolbarDomainFilterPresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent

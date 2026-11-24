@@ -1369,6 +1369,24 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
   });
 
 
+  it("does not apply visit-default navigation when the URL only carries domain", () => {
+    searchParamsHarness.applyQuery("domain=security");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?domain=security");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?domain=security");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
   it("does not apply visit-default navigation when the URL only carries owner", () => {
     searchParamsHarness.applyQuery("owner=platform");
     window.history.replaceState({}, "", "/architecture/reviews/run-abc?owner=platform");
