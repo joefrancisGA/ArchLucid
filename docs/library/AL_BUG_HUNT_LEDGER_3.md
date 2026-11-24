@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `findingViewEvidenceOpen=1` deep links via `parseFindingViewEvidenceOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries findingViewEvidenceOpen=1`. URL-sync vitest **107/107**. Private beta: shared review links that only open finding view-evidence disclosure in the query are no longer overwritten with visit-default tab or finding query keys on first load.
+> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `findingInspectTechnicalRuleOpen=1` deep links via `parseFindingInspectTechnicalRuleOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries findingInspectTechnicalRuleOpen=1`. URL-sync vitest **108/108**. Private beta: shared review links that only open finding inspect technical-rule disclosure in the query are no longer overwritten with visit-default tab or finding query keys on first load.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -11705,6 +11705,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-08-28 thorough hunt #191: proved billing paid-tier precedence over stale frictionless flag; cheap-disproved welcome/disclosure scope persistence and AI snapshot disposition crash; seeded frictionless session cleanup and LLM budget cache refresh candidates.
 
 ## Zone: ui-review-detail-workspace
+2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `findingInspectTechnicalRuleOpen` monitor: a bare finding inspect technical-rule disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `findingInspectTechnicalRuleOpen` via `parseFindingInspectTechnicalRuleOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries findingInspectTechnicalRuleOpen=1`. URL-sync vitest **108/108**. Private beta: when an invited operator opens a shared review link that only opens finding inspect technical rule in the query, visit-default tab navigation no longer replaces that query on first load.
+
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `findingViewEvidenceOpen` monitor: a bare finding view-evidence disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `findingViewEvidenceOpen` via `parseFindingViewEvidenceOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries findingViewEvidenceOpen=1`. URL-sync vitest **107/107**. Private beta: when an invited operator opens a shared review link that only opens finding view-evidence in the query, visit-default tab navigation no longer replaces that query on first load.
 
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `shape` (stored evidence preview) monitor: a deep link with only non-empty `shape` was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `shape` via `parseRunStoredEvidencePreviewShapeFromSearch` with non-empty trimmed length. Regression `does not apply visit-default navigation when the URL only carries shape (stored evidence preview)`. URL-sync vitest **106/106**. Private beta: when an invited operator opens a shared review link that only names a stored-evidence preview shape in the query, visit-default tab navigation no longer replaces that query on first load.
@@ -11861,6 +11863,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 
+
+- [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `findingInspectTechnicalRuleOpen` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored finding inspect technical-rule disclosure deep links; regression above. Private beta: shared links that only set `findingInspectTechnicalRuleOpen=1` are no longer replaced with visit-default query keys on first load.
 
 - [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `findingViewEvidenceOpen` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored finding view-evidence disclosure deep links; regression above. Private beta: shared links that only set `findingViewEvidenceOpen=1` are no longer replaced with visit-default query keys on first load.
 
@@ -12671,8 +12675,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 109
-- **bugs-found:** 108
+- **hunts:** 110
+- **bugs-found:** 109
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
