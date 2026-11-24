@@ -5,11 +5,10 @@ internal static class SynthesizedArtifactSliceStatusParser
 {
     internal static SynthesizedArtifactGenerationStatus Parse(string? raw)
     {
-        if (!string.IsNullOrWhiteSpace(raw)
-            && Enum.TryParse(raw.Trim(), true, out SynthesizedArtifactGenerationStatus st))
-            return st;
+        if (string.IsNullOrWhiteSpace(raw))
+            return SynthesizedArtifactGenerationStatus.Generated; // Legacy missing value only.
 
-        return SynthesizedArtifactGenerationStatus.Generated;
+        return ArchLucid.Contracts.Serialization.DefinedEnum.Parse<SynthesizedArtifactGenerationStatus>(raw.Trim(), ignoreCase: true);
     }
 }
 
