@@ -8,7 +8,9 @@ namespace ArchLucid.Application.InfraEvidence;
 /// <summary>Verifies the explicit Azure setting after the caller authorizes a scoped snapshot.</summary>
 internal static class InventoryPublicNetworkAccessVerifier
 {
-    private static readonly TimeSpan MaximumCaptureAge = TimeSpan.FromHours(24);
+    internal const string VerifierVersion = "azure-inventory-public-network-access/1";
+    private const int MaximumCaptureAgeHours = 24;
+    private static readonly TimeSpan MaximumCaptureAge = TimeSpan.FromHours(MaximumCaptureAgeHours);
 
     internal static async Task<PublicNetworkAccessVerification> VerifyAsync(
         IAzureInventorySnapshotRepository snapshots,
@@ -54,6 +56,10 @@ internal static class InventoryPublicNetworkAccessVerifier
             "ENABLED" => PublicNetworkAccessVerificationOutcome.Contradicted,
             _ => PublicNetworkAccessVerificationOutcome.Unverified,
         };
-        return new(resourceId, outcome, snapshotId, DateTime.SpecifyKind(captured, DateTimeKind.Utc));
+        return new(resourceId, outcome, snapshotId, DateTime.SpecifyKind(captured, DateTimeKind.Utc))
+        {
+            Evidence = new(VerifierVersion, scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+                resource.ResourceRowId, setting[0].PropertyKey, MaximumCaptureAgeHours),
+        };
     }
 }

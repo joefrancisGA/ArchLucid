@@ -196,7 +196,9 @@ public sealed class SecurityEvidencePathExplanationServiceTests
             explanation.ModelOutputRejection.Should().BeNull();
             explanation.ExecutiveSummary.Should().Contain("publicNetworkAccess=Disabled")
                 .And.Contain(captured.ToString("O")).And.Contain(path.SnapshotId.ToString("D"))
-                .And.Contain(resourceId.ToString("D"));
+                .And.Contain(resourceId.ToString("D")).And.Contain(rowId.ToString("D"))
+                .And.Contain(InventoryPublicNetworkAccessVerifier.VerifierVersion)
+                .And.Contain("Coverage: the explicit Azure property only.");
         }
         else
         {

@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Persistence.Ports;
@@ -13,6 +15,8 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 /// </summary>
 public sealed class ArchitectureIntelligenceProductPublishService : IArchitectureIntelligenceProductPublishService
 {
+    internal const string InventoryVerificationProperty = "architectureIntelligence.independentInventoryVerification";
+
     private readonly IFindingsSnapshotRepository? _findingsSnapshotRepository;
     private readonly IRecommendationRepository? _recommendationRepository;
     private readonly IRunRepository? _runRepository;
@@ -113,6 +117,7 @@ public sealed class ArchitectureIntelligenceProductPublishService : IArchitectur
         List<Finding> publishable = new(result.ProductFindings.Count);
         foreach (Finding finding in result.ProductFindings)
         {
+            finding.Properties?.Remove(InventoryVerificationProperty);
             if (finding.Properties is null || !finding.Properties.TryGetValue(ScopedPublicNetworkAccessVerifier.ResourceProperty, out string? resource))
             {
                 publishable.Add(finding);
@@ -126,11 +131,13 @@ public sealed class ArchitectureIntelligenceProductPublishService : IArchitectur
             {
                 PublicNetworkAccessVerification current = await _publicNetworkAccessVerifier.VerifyAsync(
                     tenantId, workspaceId, projectId, runId, resourceId, cancellationToken);
-                if (current is { Outcome: PublicNetworkAccessVerificationOutcome.Verified, CapturedUtc: DateTime capturedUtc } &&
+                if (current is { Outcome: PublicNetworkAccessVerificationOutcome.Verified, CapturedUtc: DateTime capturedUtc,
+                    Evidence: not null } &&
                     finding.Properties.TryGetValue(ScopedPublicNetworkAccessVerifier.SnapshotProperty, out string? snapshot) &&
                     Guid.TryParse(snapshot, out Guid expectedSnapshot) && current.SnapshotId == expectedSnapshot)
                 {
                     finding.Properties["architectureIntelligence.publicNetworkAccessCapturedUtc"] = capturedUtc.ToString("O");
+                    finding.Properties[InventoryVerificationProperty] = JsonSerializer.Serialize(current);
                     publishable.Add(finding);
                 }
             }

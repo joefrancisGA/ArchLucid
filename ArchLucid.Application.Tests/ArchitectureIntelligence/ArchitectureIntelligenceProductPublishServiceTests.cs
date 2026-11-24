@@ -1,6 +1,8 @@
+using System.Text.Json;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Contracts.ArchitectureIntelligence;
@@ -184,10 +186,19 @@ public sealed class ArchitectureIntelligenceProductPublishServiceTests
 
         published.Published.Should().Be(shouldPublish);
         if (shouldPublish)
-            findings.Saved.Should().ContainSingle().Which.Findings.Should().ContainSingle()
-                .Which.Title.Should().Be(ScopedPublicNetworkAccessVerifier.Title(assetId));
+        {
+            Finding saved = findings.Saved.Should().ContainSingle().Which.Findings.Should().ContainSingle().Which;
+            saved.Title.Should().Be(ScopedPublicNetworkAccessVerifier.Title(assetId));
+            var proof = JsonSerializer.Deserialize<PublicNetworkAccessVerification>(
+                saved.Properties[ArchitectureIntelligenceProductPublishService.InventoryVerificationProperty])!;
+            proof.Evidence!.VerifierVersion.Should().Be(InventoryPublicNetworkAccessVerifier.VerifierVersion);
+            proof.Evidence.ProjectId.Should().Be(scope.ProjectId);
+            proof.Evidence.ResourceRowId.Should().Be(rowId);
+        }
         else
+        {
             findings.Saved.Should().BeEmpty();
+        }
 
         if (revokeShare || cacheHit)
             snapshots.Verify(x => x.TryGetBySnapshotIdAsync(

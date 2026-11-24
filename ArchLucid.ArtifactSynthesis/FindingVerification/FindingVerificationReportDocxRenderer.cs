@@ -64,6 +64,16 @@ public static class FindingVerificationReportDocxRenderer
                         SanitizeFindingCell(finding.TraceText, "Trace")))
                     .ToList());
 
+            var independent = model.Findings.Where(finding => !string.IsNullOrWhiteSpace(finding.IndependentVerification)).ToList();
+            if (independent.Count > 0)
+            {
+                WordDocumentBuilder.AddSpacer(body);
+                WordDocumentBuilder.AddHeading(body, "Independent evidence from the source findings", DocxStyleIds.Heading2);
+                WordDocumentBuilder.AddSimpleTable(body, independent.Select(finding => (
+                    SanitizeFindingCell(finding.FindingId, "Finding id"),
+                    SanitizeFindingCell(finding.IndependentVerification, "Verification"))).ToList());
+            }
+
             main.Document.Save();
         }
 

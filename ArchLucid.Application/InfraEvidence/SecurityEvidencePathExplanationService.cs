@@ -188,10 +188,13 @@ public sealed class SecurityEvidencePathExplanationService(
 
                 switch (verification)
                 {
-                    case { Outcome: PublicNetworkAccessVerificationOutcome.Verified }:
+                    case { Outcome: PublicNetworkAccessVerificationOutcome.Verified, Evidence: { } evidence }:
                         configurationFact = $" Azure inventory snapshot {verification.SnapshotId:D} "
                             + $"captured at {verification.CapturedUtc:O} records publicNetworkAccess=Disabled "
-                            + $"for resource {verification.CloudResourceId:D}.";
+                            + $"for resource {verification.CloudResourceId:D} (inventory row {evidence.ResourceRowId:D}). "
+                            + $"Deterministic verification: {evidence.VerifierVersion}; "
+                            + $"maximum capture age at verification: {evidence.MaximumCaptureAgeHours} hours. "
+                            + "Coverage: the explicit Azure property only.";
                         break;
                     case { Outcome: PublicNetworkAccessVerificationOutcome.Contradicted }:
                         modelOutputRejection = "The public network access claim was contradicted by the path inventory snapshot.";
