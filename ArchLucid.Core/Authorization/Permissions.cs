@@ -101,7 +101,7 @@ public static class Permissions
     private static readonly HashSet<string> AllSet = new(All, StringComparer.Ordinal);
 
     /// <summary>Built-in Admin effective permission set (mirrors legacy Admin JWT behavior).</summary>
-    public static IReadOnlyList<string> BuiltInAdmin { get; } = All.ToList();
+    public static IReadOnlyList<string> BuiltInAdmin { get; } = All.Where(IsTenantAssignable).ToList();
 
     /// <summary>Built-in Operator effective permission set.</summary>
     public static IReadOnlyList<string> BuiltInOperator { get; } =
@@ -144,6 +144,10 @@ public static class Permissions
     public static bool IsKnown(string? permission) =>
         !string.IsNullOrWhiteSpace(permission) && AllSet.Contains(permission);
 
+    /// <summary>Known permissions that may be assigned by tenant custom roles.</summary>
+    public static bool IsTenantAssignable(string? permission) =>
+        IsKnown(permission) && !string.Equals(permission, TenantsManageAny, StringComparison.Ordinal);
+
     public static IReadOnlyList<string> ValidateAndNormalize(IEnumerable<string>? permissions)
     {
         if (permissions is null)
@@ -161,6 +165,9 @@ public static class Permissions
 
             if (!IsKnown(trimmed))
                 throw new ArgumentException($"Unknown permission '{trimmed}'.", nameof(permissions));
+
+            if (!IsTenantAssignable(trimmed))
+                throw new ArgumentException($"Permission '{trimmed}' is reserved for platform operators.", nameof(permissions));
 
             if (seen.Add(trimmed))
                 normalized.Add(trimmed);
