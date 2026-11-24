@@ -8512,7 +8512,7 @@ export interface components {
             tradeOffAcknowledgment?: null | string;
         };
         RecordFindingInsightSignalRequest: {
-            kind?: components["schemas"]["FindingInsightSignalKind"];
+            kind: components["schemas"]["FindingInsightSignalKind"];
         };
         RecordGovernanceMutationCorrectionRequest: {
             mutationKind?: string;

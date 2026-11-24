@@ -28981,6 +28981,9 @@
             "$ref": "#/components/schemas/FindingInsightSignalKind"
           }
         },
+        "required": [
+          "kind"
+        ],
         "type": "object"
       },
       "RecordGovernanceMutationCorrectionRequest": {
