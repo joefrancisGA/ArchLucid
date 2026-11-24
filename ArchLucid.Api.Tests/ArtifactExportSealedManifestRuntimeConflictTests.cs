@@ -482,7 +482,9 @@ public sealed class ArtifactExportSealedManifestRuntimeConflictTests
         {
             ObjectResult denied = action.Should().BeOfType<ObjectResult>().Subject;
             denied.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-            denied.Value?.ToString().Should().NotContain(RunId.ToString("D"));
+            MvcProblemDetails detail = denied.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+            (detail.Detail ?? string.Empty).Should().NotContain(RunId.ToString("D"),
+                "a denied manifest must not disclose its associated run ID");
             query.Verify(q => q.GetRunIdByManifestIdAsync(
                 Scope, manifestId, It.IsAny<CancellationToken>()), Times.Once);
         }
