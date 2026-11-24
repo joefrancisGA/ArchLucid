@@ -8,6 +8,8 @@ External or persisted values must not become a meaningful domain enum merely bec
 
 ## Changes
 
+See [custom JSON and missing-value hardening](ENUM_JSON_PRESENCE_AUDIT.md) for the companion evidence-presence audit.
+
 - PR #8042: merged ITSM status mapper correction.
 - PR #8044: first cross-boundary TryParse guard wave (open when checked).
 - PR #8045: shared DefinedEnum parser, direct Enum.Parse migration and further TryParse adoption, persisted authority and billing fail-closed corrections (open when checked).
@@ -41,7 +43,3 @@ The first-wave PR #8044 encountered a pre-existing test compilation failure (CS0
 PRs #8042, #8044, #8045 and #8047 are confirmed merged. At the verification checkpoint master was d3aabdd478c97724193c20b29ea1ad189917b6b8 and RC49 was 0dcf4112ca3e560f9e1539b25ab2d8b62144c9d3. RC49 did not yet contain DefinedEnum, the analyzer or the inventory script. The branches were diverged (master 1035 commits ahead, 51 behind); do not force-sync the release branch as part of this audit.
 
 Additional shared-parser migration closes the ordinary-enum composite-name gap: raw Enum.TryParse plus Enum.IsDefined accepts some comma-separated member names that combine into a declared value (e.g. Deferred,NeedsEvidence -> Remediated). Migrate to DefinedEnum.TryParse, retain existing downstream behavior and add explicit composition regressions. The E2E billing harness rejects invalid checkout tiers before subscription activation. No full build or catalog preflight executed; the semantic inventory and RC49 validation remain open.
-
-### Custom JSON and missing-value hardening
-
-The present follow-up is independent of the shared-parser cleanup PR #8057 (both touch the finding converter and audit harness; reconcile on merge). Stored evidence flags can now suppress, but never fabricate, parsed severity, source-agent or enforcement-tier evidence. Actor descriptor JSON requires its independent axes and origin; malformed present actor metadata fails materialization instead of becoming an empty actor set. Feasibility verdict kind, risk waiver status, review action and agent result role require explicit JSON members; defined zero ordinals retain their existing meaning where declared. Missing claim origin uses the existing conservative ModelInferred convention rather than DirectlyExtracted; undefined support and origin are rejected. AgentResult serialization refuses unset roles before the legacy AgentType writer can invent Topology; direct standalone AgentType converter legacy behavior is intentionally not changed in this wave. This is a compatibility-sensitive change; historical documents missing required fields and test fixtures constructing incomplete results must be evaluated on RC49, not silently fabricated or globally backfilled. Focused regression classes are registered in the RC49 harness. No database, full build or C# test execution performed.
