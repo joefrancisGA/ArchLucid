@@ -28,8 +28,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: Validate reporting contract and arithmetic regressions
@@ -63,7 +63,7 @@ jobs:
           assert Path('artifacts/aspects/aspects-historical-900-sma25.csv').read_text().count('\n')==80
           PY
       - name: Upload exact historical/provisional validation results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: aspects-accounting-contract-pr
           path: |
