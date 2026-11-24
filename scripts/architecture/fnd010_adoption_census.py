@@ -39,6 +39,43 @@ def check_order(text: str, start: str, tokens: list[str]) -> bool:
     return True
 
 
+_HTTP_ATTRIBUTE = re.compile(r"^\s*\[(?:Http(?:Get|Post|Put|Patch|Delete|Head|Options|Trace)|AcceptVerbs)\b")
+_PUBLIC_METHOD = re.compile(r"^    public\s+(?:async\s+)?[\w.<>,\[\]? ]+\s+(\w+)\s*\(")
+
+
+def discover_action_candidates(root: Path) -> tuple[list[dict], list[dict]]:
+    """Conservative source discovery, not complete MVC routing or eligibility proof.
+
+    Count method declarations rather than route aliases; report unmapped attributes.
+    All discovered but unreviewed candidates remain explicitly unclassified.
+    """
+    found, unresolved = [], []
+    controllers = root / "ArchLucid.Api/Controllers"
+    for path in sorted(controllers.rglob("*.cs")):
+        relative = path.relative_to(controllers)
+        family = relative.with_name(relative.name.split(".", 1)[0] + ".cs").as_posix()
+        source_path = path.relative_to(root).as_posix()
+        pending = []
+        for number, line in enumerate(path.read_text(encoding="utf-8-sig").splitlines(), 1):
+            if _HTTP_ATTRIBUTE.match(line):
+                pending.append(number)
+                continue
+            if not pending:
+                continue
+            match = _PUBLIC_METHOD.match(line)
+            if match:
+                found.append({"controllerFile": family, "source": source_path,
+                              "action": match.group(1), "line": number,
+                              "httpAttributeLines": pending})
+                pending = []
+            elif line.startswith("    private ") or line.startswith("    protected ") or line == "}":
+                unresolved.append({"source": source_path, "httpAttributeLines": pending})
+                pending = []
+        if pending:
+            unresolved.append({"source": source_path, "httpAttributeLines": pending})
+    return found, unresolved
+
+
 def scan(root: Path, baseline: dict) -> dict:
     if baseline.get("schemaVersion") != 1:
         raise ValueError("Unsupported adoption baseline schema")
@@ -91,6 +128,9 @@ def scan(root: Path, baseline: dict) -> dict:
                      "pendingPr": action.get("pendingPr")})
 
     counts = Counter(row["effective"] for row in rows)
+    discovered, unresolved = discover_action_candidates(root)
+    reviewed_keys = {(a["source"], a["action"]) for a in baseline["actions"]}
+    unclassified = [a for a in discovered if (a["source"], a["action"]) not in reviewed_keys]
     eligible = len(rows) - counts["exempt"]
     return {
         "schemaVersion": 1, "mode": "advisory", "baselineCommit": baseline["baselineCommit"],
@@ -100,6 +140,9 @@ def scan(root: Path, baseline: dict) -> dict:
         "representedControllerFiles": len(reviewed_files & registry_files),
         "unrepresentedRegistryFiles": sorted(registry_files - reviewed_files),
         "registryChanged": source(baseline["registryPath"])[0] != baseline["registryBlob"],
+        "discoveredHttpActionCandidates": len(discovered),
+        "unclassifiedHttpActionCandidates": unclassified,
+        "unresolvedHttpAttributes": unresolved,
         "reviewedActionCount": len(rows), "eligibleOrCandidateActions": eligible,
         "counts": {state: counts[state] for state in STATES},
         "conformantFraction": round(counts["conformant"] / eligible, 6) if eligible else None,
