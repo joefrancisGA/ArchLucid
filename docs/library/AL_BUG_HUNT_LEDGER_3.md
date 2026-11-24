@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `findingEvidenceOpen=1` deep links via `parseFindingEvidenceOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries findingEvidenceOpen=1`. URL-sync vitest **96/96**. Private beta: shared review links that only open finding evidence inspect in the query are no longer overwritten with visit-default tab or finding query keys on first load.
+> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `findingAuditOpen=1` deep links via `parseFindingAuditOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries findingAuditOpen=1`. URL-sync vitest **97/97**. Private beta: shared review links that only open finding audit inspect in the query are no longer overwritten with visit-default tab or finding query keys on first load.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -11706,6 +11706,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `findingAuditOpen` monitor: a bare finding-audit inspect disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `findingAuditOpen` via `parseFindingAuditOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries findingAuditOpen=1`. URL-sync vitest **97/97**. Private beta: when an invited operator opens a shared review link that only opens finding audit inspect in the query, visit-default tab navigation no longer replaces that query on first load.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `findingEvidenceOpen` monitor: a bare finding-evidence inspect disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `findingEvidenceOpen` via `parseFindingEvidenceOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries findingEvidenceOpen=1`. URL-sync vitest **96/96**. Private beta: when an invited operator opens a shared review link that only opens finding evidence inspect in the query, visit-default tab navigation no longer replaces that query on first load.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `runLastFailureTechOpen` monitor: a bare last-failure technical-details disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `runLastFailureTechOpen` via `parseRunLastFailureTechOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries runLastFailureTechOpen=1`. URL-sync vitest **95/95**. Private beta: when an invited operator opens a shared review link that only opens last-failure technical details in the query, visit-default tab navigation no longer replaces that query on first load.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `runDetailOutcomeMonitoredRiskOpen` monitor: a bare outcome monitored-risk disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `runDetailOutcomeMonitoredRiskOpen` via `parseRunDetailOutcomeMonitoredRiskOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries runDetailOutcomeMonitoredRiskOpen=1`. URL-sync vitest **94/94**. Private beta: when an invited operator opens a shared review link that only opens run detail outcome monitored risk in the query, visit-default tab navigation no longer replaces that query on first load.
@@ -11845,6 +11846,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 
+
+- [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `findingAuditOpen` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored finding-audit inspect disclosure deep links; regression above. Private beta: shared links that only set `findingAuditOpen=1` are no longer replaced with visit-default query keys on first load.
 
 - [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `findingEvidenceOpen` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored finding-evidence inspect disclosure deep links; regression above. Private beta: shared links that only set `findingEvidenceOpen=1` are no longer replaced with visit-default query keys on first load.
 
@@ -12633,8 +12636,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 98
-- **bugs-found:** 97
+- **hunts:** 99
+- **bugs-found:** 98
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24

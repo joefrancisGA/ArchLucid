@@ -229,6 +229,8 @@ import {
 import {
   parseFindingEvidenceOpenFromSearch,
   FINDING_EVIDENCE_OPEN_PARAM,
+  parseFindingAuditOpenFromSearch,
+  FINDING_AUDIT_OPEN_PARAM,
 } from "@/lib/findings/finding-detail-inspect-disclosure-url";
 import {
   parseTrustEvidenceFieldsOpenFromSearch,
@@ -570,6 +572,9 @@ export function useReviewDetailWorkspaceTabs(
     const findingEvidenceOpenPresent = parseFindingEvidenceOpenFromSearch(
       params.get(FINDING_EVIDENCE_OPEN_PARAM),
     );
+    const findingAuditOpenPresent = parseFindingAuditOpenFromSearch(
+      params.get(FINDING_AUDIT_OPEN_PARAM),
+    );
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -692,6 +697,7 @@ export function useReviewDetailWorkspaceTabs(
       || runDetailOutcomeMonitoredRiskOpenPresent
       || runLastFailureTechOpenPresent
       || findingEvidenceOpenPresent
+      || findingAuditOpenPresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent
