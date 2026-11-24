@@ -1,3 +1,7 @@
+using System.Text.Json.Serialization;
+
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings;
 
 /// <summary>Durable review-trail row for operator audits (SQL-backed in production composition).</summary>
@@ -39,10 +43,13 @@ public sealed class FindingReviewEventRecord
         init;
     } = string.Empty;
 
+    private FindingReviewAction action = FindingReviewAction.Reject;
+
+    [JsonRequired]
     public FindingReviewAction Action
     {
-        get;
-        init;
+        get => action;
+        init => action = ContractCollectionDefaults.RequireDefinedEnum(value);
     }
 
     public string? Notes

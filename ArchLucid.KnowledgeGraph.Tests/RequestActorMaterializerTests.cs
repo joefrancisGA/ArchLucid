@@ -67,4 +67,18 @@ public sealed class RequestActorMaterializerTests
         nodes.Should().ContainSingle();
         nodes[0].NodeType.Should().Be(GraphNodeTypes.Actor);
     }
+
+    [Theory]
+    [InlineData("[{}]")]
+    [InlineData("""[{"kind":"Human","contract":"Sync","origin":"Asserted"}]""")]
+    [InlineData("""[{"kind":"Human","trustOrigin":"External","contract":"Sync"}]""")]
+    [InlineData("""[{"kind":"Human","trustOrigin":2147483647,"contract":"Sync","origin":"Asserted"}]""")]
+    [InlineData("[null]")]
+    [InlineData("null")]
+    [InlineData("[")]
+    public void MaterializeFromActorsJson_rejects_incomplete_or_corrupt_actor_evidence(string raw)
+    {
+        Action read = () => RequestActorMaterializer.MaterializeFromActorsJson(raw, Guid.NewGuid());
+        read.Should().Throw<System.Text.Json.JsonException>();
+    }
 }

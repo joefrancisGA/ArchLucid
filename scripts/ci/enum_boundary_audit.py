@@ -74,7 +74,9 @@ def key(row):
 FOCUSED = {
     "ArchLucid.Contracts.Tests": [
         "DefinedEnumTests", "RunFindingCoverageSummaryDeserializationTests",
-        "ArchitectureFindingJsonConverterTests",
+        "ArchitectureFindingJsonConverterTests", "AuthorityEnumPresenceTests",
+        "FeasibilityVerdictDeserializationTests", "ArchitectureIntelligenceMissingEvidenceTests",
+        "AgentResultClaimListJsonConverterEvidenceRefsTests",
     ],
     "ArchLucid.Persistence.Tests": [
         "FindingsSnapshotJsonFallbackMapperTests", "FindingsCoverageProjectionMapperTests",
@@ -86,6 +88,7 @@ FOCUSED = {
         "ArchitectureIntelligenceLlmResponseMapperMissingValueTests",
         "TenantAzureOpenAiConnectionUpsertValidationTests",
         "ItsmInboundExternalStatusMapperTests", "ItsmInboundHumanReviewMapHelperTests",
+        "ProvenancePresentationMapperTests",
     ],
     "ArchLucid.AgentRuntime.Tests": [
         "AgentModelTierResolverTests", "QuickScanServiceCoverageTests",
@@ -93,6 +96,7 @@ FOCUSED = {
     ],
     "ArchLucid.Cli.Tests": ["ArchitectureRequestFileParserTests"],
     "ArchLucid.Architecture.Tests": ["ArchLucidApiJsonSourceGenerationTests"],
+    "ArchLucid.KnowledgeGraph.Tests": ["RequestActorMaterializerTests"],
     "ArchLucid.Analyzers.Tests": ["EnumBoundaryReviewAnalyzerTests"],
 }
 

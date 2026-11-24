@@ -10,6 +10,35 @@ namespace ArchLucid.Contracts.Tests.Findings;
 [Trait("Category", "Unit")]
 public sealed class ArchitectureFindingJsonConverterTests
 {
+    [Theory]
+    [InlineData("""{"severityStored":true,"sourceAgentStored":true,"enforcementTierStored":true}""")]
+    [InlineData("""{"severity":" ","severityStored":true,"sourceAgent":"0","sourceAgentStored":true,"enforcementTierStored":true}""")]
+    public void Deserialize_stored_flags_cannot_fabricate_missing_enum_evidence(string json)
+    {
+        ArchitectureFinding finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, CreateOptions())!;
+        finding.SeverityStored.Should().BeFalse();
+        finding.SourceAgentStored.Should().BeFalse();
+        finding.EnforcementTierStored.Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Deserialize_explicit_enum_values_honor_stored_flags(bool stored)
+    {
+        string json = "{\"severity\":\"Critical\",\"sourceAgent\":\"Compliance\",\"enforcementTier\":\"Advisory\","
+            + "\"severityStored\":" + JsonSerializer.Serialize(stored)
+            + ",\"sourceAgentStored\":" + JsonSerializer.Serialize(stored)
+            + ",\"enforcementTierStored\":" + JsonSerializer.Serialize(stored) + "}";
+        ArchitectureFinding finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, CreateOptions())!;
+        finding.SeverityStored.Should().Be(stored);
+        finding.SourceAgentStored.Should().Be(stored);
+        finding.EnforcementTierStored.Should().Be(stored);
+        finding.Severity.Should().Be(FindingSeverity.Critical);
+        finding.SourceAgent.Should().Be(AgentType.Compliance);
+        finding.EnforcementTier.Should().Be(FindingEnforcementTier.Advisory);
+    }
+
     [Fact]
     public void Deserialize_mapsDescriptionAndLegacyHighSeverity()
     {

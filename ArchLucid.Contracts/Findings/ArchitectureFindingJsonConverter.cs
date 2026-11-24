@@ -412,21 +412,22 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         return string.Empty;
     }
 
+    // Flags may explicitly suppress stored evidence, but cannot prove absent values were supplied.
     private static void ApplyStoredFlagsFromJson(JsonElement root, ArchitectureFinding finding)
     {
         if (TryGetPropertyIgnoreCase(root, "severityStored", out JsonElement severityStored))
         {
-            finding.SeverityStored = severityStored.ValueKind == JsonValueKind.True;
+            finding.SeverityStored = finding.SeverityStored && severityStored.ValueKind == JsonValueKind.True;
         }
 
         if (TryGetPropertyIgnoreCase(root, "sourceAgentStored", out JsonElement sourceAgentStored))
         {
-            finding.SourceAgentStored = sourceAgentStored.ValueKind == JsonValueKind.True;
+            finding.SourceAgentStored = finding.SourceAgentStored && sourceAgentStored.ValueKind == JsonValueKind.True;
         }
 
         if (TryGetPropertyIgnoreCase(root, "enforcementTierStored", out JsonElement enforcementTierStored))
         {
-            finding.EnforcementTierStored = enforcementTierStored.ValueKind == JsonValueKind.True;
+            finding.EnforcementTierStored = finding.EnforcementTierStored && enforcementTierStored.ValueKind == JsonValueKind.True;
         }
     }
 

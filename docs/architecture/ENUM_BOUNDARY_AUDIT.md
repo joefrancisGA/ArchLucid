@@ -8,6 +8,8 @@ External or persisted values must not become a meaningful domain enum merely bec
 
 ## Changes
 
+See [custom JSON and missing-value hardening](ENUM_JSON_PRESENCE_AUDIT.md) for the companion evidence-presence audit.
+
 - PR #8042: merged ITSM status mapper correction.
 - PR #8044: first cross-boundary TryParse guard wave (open when checked).
 - PR #8045: shared DefinedEnum parser, direct Enum.Parse migration and further TryParse adoption, persisted authority and billing fail-closed corrections (open when checked).

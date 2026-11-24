@@ -46,4 +46,22 @@ public sealed class ArchitectureIntelligenceMissingEvidenceTests
         var source = Assert.Single(result!.SourceTexts);
         Assert.Equal("Architecture evidence", source.Content);
     }
+
+    [Fact]
+    public void MissingClaimOrigin_DoesNotBecomeDirectlyExtracted()
+    {
+        ClaimProvenance result = JsonSerializer.Deserialize<ClaimProvenance>(
+            """{"supportStatus":0}""", new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
+        Assert.Equal(ClaimOrigin.ModelInferred, result.Origin);
+        Assert.Equal(SupportStatus.DirectlyEstablished, result.SupportStatus);
+    }
+
+    [Theory]
+    [InlineData("""{"origin":2147483647}""")]
+    [InlineData("""{"supportStatus":2147483647}""")]
+    public void DeserializeInvalidClaimEnum_IsRejected(string json)
+    {
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<ClaimProvenance>(
+            json, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+    }
 }
