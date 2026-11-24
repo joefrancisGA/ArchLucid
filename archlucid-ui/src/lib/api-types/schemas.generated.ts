@@ -8112,9 +8112,24 @@ export interface components {
             capturedUtc?: null | string;
             /** Format: uuid */
             cloudResourceId: string;
+            evidence?: null | components["schemas"]["PublicNetworkAccessVerificationEvidence"];
             outcome: components["schemas"]["PublicNetworkAccessVerificationOutcome"];
             /** Format: uuid */
             snapshotId?: null | string;
+        };
+        PublicNetworkAccessVerificationEvidence: {
+            /** Format: int32 */
+            maximumCaptureAgeHours: number;
+            /** Format: uuid */
+            projectId: string;
+            propertyKey: string;
+            /** Format: uuid */
+            resourceRowId: string;
+            /** Format: uuid */
+            tenantId: string;
+            verifierVersion: string;
+            /** Format: uuid */
+            workspaceId: string;
         };
         /** @enum {string} */
         PublicNetworkAccessVerificationOutcome: "Unverified" | "Verified" | "Contradicted";
