@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 thorough hunt (hit): no rotation (`shouldRotate: false`; default picker `cli-tenant-isolation`). Tenant-isolation CLI now rejects non-GUID `--alternate-tenant-id` (and workspace/project) before live probes run. Regression `Parse_RejectsNonGuidAlternateTenantId`. TenantIsolationNegativeTestRunnerTests **69/69**. Private beta: a mistaken alternate scope id fails at parse time instead of running inconclusive cross-tenant probes.
+> **Scope:** Contributor-reference — hunt 2026-11-24 thorough hunt (hit): `ui-oidc`. JWT `sub` hints now strip U+00AD via `normalizeOidcOAuthFormString`. Regression `strips soft hyphens from JWT sub claims before storing subject hints`. Scoped `session.test.ts` + `discovery.test.ts` **118/118**. Commits `98c1195544`, `398b032374`. Private beta: subject hints stay aligned with BFF sync when IdP `sub` contains soft hyphens.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -278,11 +278,11 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 - **aliases:** UI API client; fetch boundaries
 - **paths:** archlucid-ui/src/lib/api/
 - **test-filter:** lib/api
-- **hunts:** 9
-- **bugs-found:** 8
+- **hunts:** 10
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-23
-- **last-bug:** 2026-11-23
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4941,13 +4941,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-11-24 thorough hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Continued pass-26 monitors after the 2026-11-23 seed pass. Promoted **`readNormalizedSubjectFromPayload`** — JWT `sub` used configuration-only normalization, so U+00AD inside the subject claim reached `OIDC_USER_SUBJECT_KEY` while access-token and env paths already used OAuth-form rules; aligned subject hints with `normalizeOidcOAuthFormString`; regression `strips soft hyphens from JWT sub claims before storing subject hints`; scoped `session.test.ts` + `discovery.test.ts` vitest **118/118**. Cheap-disproof closed other pass-26 monitors — **valid-no-repro** `discoveryUrlForAuthority` raw authority (every `loadDiscoveryDocument` caller passes `getOidcAuthority` / `getGoogleOidcAuthority`; prior thorough dry #119), **valid-no-repro** `parseDiscoveryDocument` `end_session_endpoint` host (`normalizeOidcOAuthFormString` on logout URL since hit #106), **invalid** `buildAuthorizeUrl` soft-hyphen `state`/`nonce` (PKCE values are generated base64url), **valid-no-repro** authorize split normalizers on scope vs opaque params (scope/client/redirect env getters already OAuth-form; state/nonce are generated). Reseeded five pass-27 `(candidate)` monitors below. Private beta: invited operators keep a consistent subject hint when an IdP embeds invisible soft hyphens in the JWT `sub` claim, so BFF identity sync does not disagree with session storage.
+
+- [x] (proven) `readNormalizedSubjectFromPayload` — soft hyphen inside JWT `sub` — **hit 2026-11-24 thorough hunt:** configuration trim kept U+00AD; OAuth-form normalization on `sub`; regression above; `bugsmash-3` @ `398b032374`.
+- [x] (valid-no-repro) `discoveryUrlForAuthority` — soft hyphen only in authority hostname — **cheap-disproof 2026-11-24 thorough hunt:** env authority getters strip U+00AD before discovery; raw-authority path is monitor-only.
+- [x] (valid-no-repro) `parseDiscoveryDocument` — soft hyphen in optional `end_session_endpoint` hostname — **cheap-disproof 2026-11-24 thorough hunt:** `normalizeOidcOAuthFormString` on `end_session_endpoint` since 2026-11-23 discovery hit.
+- [x] (invalid) `buildAuthorizeUrl` — soft hyphen in outbound `state` or `nonce` — **cheap-disproof 2026-11-24 thorough hunt:** PKCE `state`/`nonce` are generated base64url, not portal paste.
+- [x] (valid-no-repro) `buildAuthorizeUrl` — split normalizers on authorize query — **cheap-disproof 2026-11-24 thorough hunt:** client/redirect/scope use OAuth-form env getters; opaque params are generated.
+
+- [ ] (candidate) `pickDisplayNameFromPayload` — soft hyphen inside JWT `name`/`preferred_username` — locus: display-name pick path; input: id_token `name` with U+00AD; wrong outcome: signed-in chrome shows invisible character; reachability: IdP profile claims (monitor).
+- [ ] (candidate) `decodeJwtPayload` — soft hyphen in JWT `nonce` claim — locus: nonce compare before callback; input: id_token `nonce` with U+00AD; wrong outcome: callback treated as tampered; reachability: IdP id_token (monitor; `jwt-payload` tests cover zero-width).
+- [ ] (candidate) `persistTokenResponse` — soft hyphen inside `refresh_token` string — locus: refresh token storage; input: token response `refresh_token` with U+00AD; wrong outcome: silent refresh posts wrong token; reachability: refresh_token grant (monitor; access_token already OAuth-form).
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — soft hyphen only in `error` code — locus: error code humanize path; input: authorize `error=access­denied`; wrong outcome: generic failure copy; reachability: IdP error query (monitor; description path has regression).
+- [ ] (candidate) `coerceAcceptedOidcEpochMsHint` — soft hyphen inside numeric `expires_at_ms` string — locus: BFF refresh hint parse; input: refresh JSON `expires_at_ms` string `17­28...`; wrong outcome: hint rejected or skewed; reachability: BFF refresh body (monitor).
+
 2026-11-23 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown waived (empty hypothesis queue). Reread `discovery`, `token-client`, `session`, `bff-session-sync`, `build-authorize-url`, `jwt-payload`, and `config` after the discovery-endpoint soft-hyphen hit. Falsify attempts: authority host U+00AD already canonicalizes via `URL` before discovery fetch; optional `end_session_endpoint` host strip already uses `normalizeOidcOAuthFormString`. No hunt-ready row promoted; seeded five `(candidate)` monitors below. Private beta: n/a.
 
-- [ ] (candidate) `discoveryUrlForAuthority` — soft hyphen only in authority hostname — locus: `new URL(withScheme)`; input: `https://login.example\u00ad.com/tenant/v2.0` without env getter; wrong outcome: discovery fetch targets wrong host; reachability: direct `loadDiscoveryDocument` call (monitor; `URL` canonicalizes host today).
-- [ ] (candidate) `parseDiscoveryDocument` — soft hyphen in optional `end_session_endpoint` hostname — locus: end_session normalize path; input: discovery JSON logout URL with U+00AD in host; wrong outcome: RP logout omitted or wrong host; reachability: IdP discovery JSON (monitor; OAuth-form strip already aligned).
-- [ ] (candidate) `readNormalizedSubjectFromPayload` — soft hyphen inside JWT `sub` — locus: configuration-only subject trim; input: access token `sub` with U+00AD; wrong outcome: split identity hints vs API subject; reachability: opaque JWT from IdP (monitor).
-- [ ] (candidate) `buildAuthorizeUrl` — soft hyphen in outbound `state` or `nonce` — locus: `trimAuthorizeQueryValue`; input: PKCE query values with U+00AD; wrong outcome: authorize vs callback mismatch; reachability: none today (generated base64url); monitor.
-- [ ] (candidate) `buildAuthorizeUrl` — split normalizers on authorize query — locus: OAuth-form vs configuration trim; input: soft hyphen only on scope vs state params; wrong outcome: partial strip; reachability: client_id/redirect/scope via env getters (monitor).
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`). Follow-up to BFF logout soft-hyphen hit. `parseDiscoveryDocument` still normalized `authorization_endpoint`, `token_endpoint`, and `end_session_endpoint` with configuration trimming only, so U+00AD inside discovery JSON hostnames survived into authorize and token POST targets. Endpoints now use `normalizeOidcOAuthFormString`. Regression `strips soft hyphens from discovery authorization and token endpoints`; discovery + config vitest 27/27. Private beta: sign-in and token exchange still target the identity-provider hosts advertised in discovery when those URLs contain invisible soft hyphens.
 
 - [x] (proven) `parseDiscoveryDocument` — soft hyphens in discovery endpoint URLs — **proven 2026-11-23 seed hunt:** authorization/token endpoints kept U+00AD; OAuth-form normalization now strips them like env authority getters.
@@ -19903,3 +19912,4 @@ ABQ-09 churn hotspot.
 2026-10-11 thorough hunt (dry): `host-core-jobs` — repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 thorough hunt (dry): `host-core-jobs` — repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 seed hunt (seed→hit): `ui-infra-resource-hub` — `ResourceHubClient` supplied `shortcutsTestId` to `InfraEvidenceWorkbenchHeaderActions`, but the shared header action wrapper dropped it, making the shortcut region unqueryable and breaking the focused ResourceHubClient test. The wrapper now applies the supplied test id; the focused ResourceHubClient, working-mode, and buyer-polished suites passed 52/52.
+
