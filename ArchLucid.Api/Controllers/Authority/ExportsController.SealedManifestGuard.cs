@@ -18,9 +18,19 @@ public sealed partial class ExportsController
         CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(runId, out Guid runGuid))
-            return null;
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        // Reuse the authoritative scoped architecture-sharing decision
+        // BEFORE fetching any run detail or export content. Hash integrity is
+        // complementary to sharing authorization; it cannot replace it.
+        IActionResult? accessDenied = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this, User, scope, runGuid, cancellationToken);
+
+        if (accessDenied is not null)
+            return accessDenied;
+
         RunDetailDto? detail;
 
         try
@@ -64,8 +74,14 @@ public sealed partial class ExportsController
         string normalizedExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
         RunExportRecord? record = await exportRecordRepository.GetByIdAsync(normalizedExportRecordId, cancellationToken);
 
-        if (record is null || string.IsNullOrWhiteSpace(record.RunId))
-            return null;
+        if (record is null)
+            return null; // The scoped facade returns the regular not-found result.
+
+        // A persisted export record with no valid run linkage must never skip
+        // the run-specific sharing check and fall through to a content reader.
+        if (!Guid.TryParse(record.RunId, out _))
+            return this.NotFoundProblem($"Export record '{normalizedExportRecordId}' was not found.",
+                ProblemTypes.ResourceNotFound);
 
         return await EnsureSealedManifestReadAllowedAsync(record.RunId, cancellationToken);
     }
