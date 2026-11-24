@@ -10,7 +10,8 @@ import {
   GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_TITLE,
   buildGoldenSponsorPackageWalkthroughHref,
 } from "@/lib/golden-sponsor-package-walkthrough";
-import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { GoldenSponsorPackageWalkthroughPartialCaptureStrip } from "@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughPartialCaptureStrip";
 import { GoldenSponsorPackageWalkthroughTenantCollectionStrip } from "@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughTenantCollectionStrip";
 import { cn } from "@/lib/utils";
 
@@ -69,7 +70,11 @@ export function GoldenSponsorPackageWalkthroughPanel(
               {index + 1}
             </span>
             <div className="min-w-0 space-y-0.5">
-              <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPE_SCALE.body)}>{step.label}</p>
+              <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPE_SCALE.body)}>
+                <Link href={buildGoldenSponsorPackageWalkthroughStepHref(step.id)} data-testid={`golden-sponsor-package-walkthrough-step-link-${step.id}`} className={OPERATOR_LINK.inline}>
+                  {step.label}
+                </Link>
+              </p>
               {!compact ? (
                 <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>{step.description}</p>
               ) : null}
@@ -84,6 +89,7 @@ export function GoldenSponsorPackageWalkthroughPanel(
             {GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA}
           </Link>
         </Button>
+        <GoldenSponsorPackageWalkthroughPartialCaptureStrip />
         <GoldenSponsorPackageWalkthroughTenantCollectionStrip />
       </div>
     </section>

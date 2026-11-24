@@ -16,6 +16,15 @@ import { SpecialtyTemplateCloudContextPicker } from "@/components/help/Specialty
 import { SpecialtyTemplateComparisonTable } from "@/components/help/SpecialtyTemplateComparisonTable";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { SpecialtyTemplateAuthorityLoadFailurePanel } from "@/components/help/SpecialtyTemplateAuthorityLoadFailurePanel";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { isOperatorAuthorityMeLoadFailure } from "@/lib/operator/operator-authority-me-load-failure";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { SPECIALTY_WALKTHROUGHS_HELP_PARTIAL_CAPTURE_LINE } from "@/lib/help/specialty-walkthroughs-partial-capture-copy";
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
 import { ReviewStartNavigationStallNotice } from "@/components/review-intake/ReviewStartNavigationStallNotice";
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
@@ -100,7 +109,12 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
 ): React.ReactElement {
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const { isAuthorityLoading } = useOperatorNavAuthority();
+  const { isAuthorityLoading, currentPrincipal, retryAuthorityLoad } = useOperatorNavAuthority();
+  const authorityLoadFailure = isOperatorAuthorityMeLoadFailure(currentPrincipal);
+  const productLine = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const capabilityCanExecute = useOperateCapability();
   const canExecute = buyerPolishedShell ? true : capabilityCanExecute;
   const permissionLoading = !buyerPolishedShell && isAuthorityLoading;
@@ -304,6 +318,17 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
       ) : null}
       <HelpTopicHashScroll />
 
+      {isSecureNowProductLine(productLine) && partialCapture ? (
+        <SecureNowPartialCaptureRecoveryParagraph
+          testId="help-specialty-walkthroughs-partial-capture"
+          partialCaptureSnapshotId={partialCaptureSnapshotId}
+          returnPath={partialCaptureReturnPath}
+          middleLine={SPECIALTY_WALKTHROUGHS_HELP_PARTIAL_CAPTURE_LINE}
+          cloudConnectionsTestId="help-specialty-walkthroughs-partial-cloud"
+          extractUploadTestId="help-specialty-walkthroughs-partial-extract"
+        />
+      ) : null}
+
       <div
         id={SPECIALTY_WALKTHROUGHS_HELP_PRIMARY_CONTENT_ID}
         data-testid={SPECIALTY_WALKTHROUGHS_HELP_PRIMARY_CONTENT_ID}
@@ -358,7 +383,11 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
 
         <div className={contentGridClass}>
           <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
-          {!canExecute && !buyerPolishedShell && !permissionLoading ? (
+          {authorityLoadFailure ? (
+            <SpecialtyTemplateAuthorityLoadFailurePanel onRetry={retryAuthorityLoad} />
+          ) : null}
+
+          {!canExecute && !buyerPolishedShell && !permissionLoading && !authorityLoadFailure ? (
             <div
               id={SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID}
               className={cn(HELP_PAGE_LAYOUT.contentPanel, "max-w-3xl")}

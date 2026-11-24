@@ -6,6 +6,12 @@
 # ArchLucid changelog
 
 
+## 2026-11-24 - Score lift round 135 (batch 100): Accelerator catalog and template wiring
+
+**Outcome.** Specialty walkthrough templates distinguish failed /me permissions from read-only browsing and surface partial-capture recovery on SecureNow. Template previews name illustrative-only content. Golden sponsor walkthrough adds per-step deep links and partial-capture recovery beside tenant collection CTAs. Remediation factory ranked-path empty hands off to pilot beat 2 fixture path. SecureNow first-hour and pilot-decision pages mount the labeled accelerator catalog.
+
+**Surfaces.** Specialty walkthrough templates, golden sponsor walkthrough, remediation factory ranked paths, SecureNow first-hour, pilot decision, honesty and mounted contract tests.
+
 ## 2026-11-24 - Score lift round 134 (batch 99): Template and accelerator richness
 
 **Outcome.** First review progress and walkthrough name failed reads versus empty checklist steps, with specialty-template recovery on the empty walkthrough branch. Golden sponsor package walkthrough adds tenant collection links after the sample CTA. SecureNow pilot spine exposes a labeled accelerator catalog cross-linking fixture and tenant guides.

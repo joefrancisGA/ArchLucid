@@ -91,6 +91,9 @@ export function SpecialtyTemplatePreviewDialog(props: SpecialtyTemplatePreviewDi
               <DialogDescription>{template.purpose}</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="specialty-template-preview-fixture-line">
+                {SPECIALTY_REVIEW_TEMPLATES_PREVIEW_FIXTURE_LINE}
+              </p>
               <PreviewTemplateSummary template={template} />
               <PreviewSection title="Sample review questions" items={template.preview.exampleQuestions} />
               <PreviewSection title="Evidence typically requested" items={template.preview.evidenceTypicallyRequested} />

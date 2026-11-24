@@ -106,6 +106,7 @@ import { RemediationFactoryPriorityQueueLoadFailurePartialHonesty } from "./Reme
 import { RemediationFactoryExecutiveMetricsLoadFailurePartialHonesty } from "./RemediationFactoryExecutiveMetricsLoadFailurePartialHonesty";
 import { RemediationFactoryRankedPathsLoadFailurePartialHonesty } from "./RemediationFactoryRankedPathsLoadFailurePartialHonesty";
 import { RemediationFactoryRankedPathsEmptyPartialHonesty } from "./RemediationFactoryRankedPathsEmptyPartialHonesty";
+import { RemediationFactoryRankedPathsEmptyAcceleratorHandoff } from "./RemediationFactoryRankedPathsEmptyAcceleratorHandoff";
 import { RemediationFactoryRankedPathsViewFilterEmptyPartialHonesty } from "./RemediationFactoryRankedPathsViewFilterEmptyPartialHonesty";
 import { RemediationFactorySimulatorLoadFailurePartialHonesty } from "./RemediationFactorySimulatorLoadFailurePartialHonesty";
 import { REMEDIATION_FACTORY_RANKED_PATHS_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/remediation-factory/remediation-factory-ranked-paths-empty-not-load-failure-copy";
@@ -1108,6 +1109,7 @@ export function RemediationFactoryClient() {
                         >
                           {REMEDIATION_FACTORY_RANKED_PATHS_EMPTY_NOT_LOAD_FAILURE_LINE}
                         </p>
+                        <RemediationFactoryRankedPathsEmptyAcceleratorHandoff />
                         <RemediationFactoryRankedPathsEmptyPartialHonesty />
                       </>
                     )}
