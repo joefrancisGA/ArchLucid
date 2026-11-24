@@ -31,6 +31,11 @@ import {
   LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH,
 } from "@/lib/canonicalize-legacy-operator-route-path";
 import { LEGACY_QUICK_START_PATH } from "@/lib/legacy-quick-start-route";
+import {
+  SECURENOW_DRAFT_MARKETING_PATH,
+  SECURENOW_SAMPLE_MARKETING_PATH,
+  SECURENOW_SKU_MARKETING_PATH,
+} from "@/lib/product-line/securenow-marketing-route-policy";
 
 const ENV_KEYS = [
   "ARCHLUCID_PUBLIC_SITE_URL",
@@ -101,6 +106,13 @@ describe("host-gate path classifiers", () => {
     expect(isMarketingOnlyPath("/faq")).toBe(true);
     expect(isMarketingOnlyPath("/showcase")).toBe(true);
     expect(isMarketingOnlyPath("/architecture/reviews")).toBe(false);
+  });
+  it("treats SecureNow and digest sponsor marketing paths as marketing-only", () => {
+    expect(isMarketingOnlyPath(SECURENOW_SKU_MARKETING_PATH)).toBe(true);
+    expect(isMarketingOnlyPath(SECURENOW_SAMPLE_MARKETING_PATH)).toBe(true);
+    expect(isMarketingOnlyPath(SECURENOW_DRAFT_MARKETING_PATH)).toBe(true);
+    expect(isMarketingOnlyPath("/digest/sponsor")).toBe(true);
+    expect(isMarketingOnlyPath("/digest/sponsor/run/abc123")).toBe(true);
   });
 });
 
@@ -207,6 +219,29 @@ describe("decideHostGateRedirect", () => {
     ).toEqual({ kind: "redirect", location: "https://archlucid.net/welcome" });
   });
 
+  it("redirects app-host SecureNow marketing paths to the public origin", () => {
+    process.env.ARCHLUCID_PUBLIC_SITE_URL = "https://archlucid.net";
+    process.env.ARCHLUCID_APP_SITE_URL = "https://app.archlucid.net";
+
+    expect(
+      decideHostGateRedirect({
+        hostHeader: "app.archlucid.net",
+        pathname: SECURENOW_SKU_MARKETING_PATH,
+        search: "",
+      }),
+    ).toEqual({ kind: "redirect", location: "https://archlucid.net/securenow-sku" });
+
+    expect(
+      decideHostGateRedirect({
+        hostHeader: "app.archlucid.net",
+        pathname: "/digest/sponsor/run/abc123",
+        search: "?token=1",
+      }),
+    ).toEqual({
+      kind: "redirect",
+      location: "https://archlucid.net/digest/sponsor/run/abc123?token=1",
+    });
+  });
   it("redirects app-host bare showcase funnel root to the public origin", () => {
     process.env.ARCHLUCID_PUBLIC_SITE_URL = "https://archlucid.net";
     process.env.ARCHLUCID_APP_SITE_URL = "https://app.archlucid.net";

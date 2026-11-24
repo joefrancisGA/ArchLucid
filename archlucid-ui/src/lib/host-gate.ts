@@ -43,6 +43,11 @@ import {
   LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH,
 } from "@/lib/canonicalize-legacy-operator-route-path";
 import { isSplitSiteHostingEnabled, resolveAppSiteOrigin, resolvePublicSiteOrigin } from "@/lib/site-urls";
+import {
+  SECURENOW_DRAFT_MARKETING_PATH,
+  SECURENOW_SAMPLE_MARKETING_PATH,
+  SECURENOW_SKU_MARKETING_PATH,
+} from "@/lib/product-line/securenow-marketing-route-policy";
 import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 
 /** Extra marketing paths not always in the sitemap (noindex / funnel). */
@@ -50,9 +55,12 @@ const EXTRA_MARKETING_EXACT_PATHS: readonly string[] = [
   "/faq",
   "/quick-scan",
   "/showcase",
+  SECURENOW_DRAFT_MARKETING_PATH,
+  SECURENOW_SAMPLE_MARKETING_PATH,
+  SECURENOW_SKU_MARKETING_PATH,
 ];
 
-const EXTRA_MARKETING_PREFIXES: readonly string[] = ["/showcase/", "/signup/"];
+const EXTRA_MARKETING_PREFIXES: readonly string[] = ["/showcase/", "/signup/", "/digest/"];
 
 /** Canonical operator paths for split-site host routing. */
 const CANONICAL_OPERATOR_PATH_PREFIXES: readonly string[] = [

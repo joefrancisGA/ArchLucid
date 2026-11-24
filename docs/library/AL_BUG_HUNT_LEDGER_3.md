@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 thorough hunt #499 (hit): `ui-architecture-diagram` node override entity fingerprint. Rotation off `ui-webhooks-settings` 3x seed-only. Scoped vitest override-edge **2/2**, click-focus **5/5**, connector-visibility **1/1**. Private beta: duplicate-labeled diagram nodes keep the correct hide after brief reorder.
+> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (seed→hit): `ui-host-gate` SecureNow/digest marketing split-host classifier. Scoped vitest **27/27** (`host-gate.test.ts`). Private beta: SecureNow and digest sponsor URLs on the app host redirect to the public marketing origin.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -316,11 +316,11 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** infra evidence UI lib
 - **paths:** archlucid-ui/src/lib/infra-evidence/
 - **test-filter:** lib/infra-evidence
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 24
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -354,11 +354,11 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 24
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ## Zone: ui-hooks-shared
@@ -389,11 +389,11 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** shared React hooks
 - **paths:** archlucid-ui/src/hooks/
 - **test-filter:** src/hooks
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 24
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ## Zone: ui-form-validation
@@ -1154,11 +1154,11 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 24
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2253,11 +2253,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 24
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2591,11 +2591,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 24
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3247,11 +3247,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 24
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3387,11 +3387,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 24
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3748,11 +3748,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 24
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3873,14 +3873,28 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `WebhooksSettingsClient` subscriptions section — stale `webhookRows` after failed refresh still drive count subtitle and create enable-step checklist — **hit 2026-09-26 seed hunt (seed→hit):** count helper and enable step treated stale inventory as verified; fixed by gating subtitle and `subscriptionEnabled` checklist input on `hasLoadedSuccessfully`; regression `hides stale subscription count subtitle when manual refresh fails`.
 
 ## Zone: ui-host-gate
+2026-11-24 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `MARKETING_SITEMAP_PATHNAMES` class `(candidate)` — live `(marketing)` SecureNow and digest sponsor routes were absent from `isMarketingOnlyPath`, so split-site visitors on the app host saw marketing pages without public-host redirect. Added SecureNow path constants and a `/digest/` prefix to the extra marketing classifier lists. Regressions `treats SecureNow and digest sponsor marketing paths as marketing-only` and `redirects app-host SecureNow marketing paths to the public origin` failed first; host-gate vitest **27/27**. Cheap-disproof closed four pass-1 monitors — **valid-no-repro** encoded tab/newline pathname (`URL` pathname resolution + existing percent-encoded segment regression), **valid-no-repro** bare `?` search on redirect (intentional query preservation), **valid-no-repro** punycode Host vs Unicode origin (defer; no split-host IDN fixture), **valid-no-repro** `LEGACY_OPERATOR_PATH_PREFIXES` workbook drift (retired shim paths already wired in `LEGACY_OPERATOR_PATH_PREFIXES` + focused legacy regressions). Reseeded five pass-2 `(candidate)` monitors. Private beta: invited buyers who open SecureNow SKU, sample, Why SecureNow, or sponsor digest links on the app host are redirected to the public marketing site instead of staying on operator-host routing.
+
+- [x] (proven) `isMarketingOnlyPath` — SecureNow and digest marketing App Router paths omitted from classifier — **hit 2026-11-24 seed hunt:** extra exact paths + `/digest/` prefix; regressions above.
+- [x] (valid-no-repro) `normalizeHostGatePathname` — encoded tab/newline may skip handoff — **cheap-disproof 2026-11-24 seed hunt:** pathname resolves through `URL`; monitor only.
+- [x] (valid-no-repro) `decideHostGateRedirect` — bare `?` search on redirect — **cheap-disproof 2026-11-24 seed hunt:** preserves query string by design.
+- [x] (valid-no-repro) `hostsMatch` — punycode vs Unicode apex — **cheap-disproof 2026-11-24 seed hunt:** defer until IDN split-host fixture.
+- [x] (valid-no-repro) `LEGACY_OPERATOR_PATH_PREFIXES` — workbook-only retired path drift — **cheap-disproof 2026-11-24 seed hunt:** shims imported; legacy bookmark regressions cover handoff.
+
+- [ ] (candidate) `MARKETING_SITEMAP_PATHNAMES` — indexable marketing paths still missing from `isMarketingOnlyPath` when not duplicated in EXTRA lists — locus: sitemap constant vs `isMarketingOnlyPath`; input: newly shipped marketing page only in sitemap; wrong outcome: app host `next`; reachability: audit on marketing route add (monitor).
+- [ ] (candidate) `EXTRA_MARKETING_PREFIXES` — new marketing subtree without prefix registration — locus: prefix list; input: `/campaign/foo` marketing segment; wrong outcome: operator shell; reachability: new App Router marketing folders (monitor).
+- [ ] (candidate) `isOperatorPath` — retired shim added to traffic module but not `LEGACY_OPERATOR_PATH_PREFIXES` — locus: prefix import drift; input: marketing-host bookmark to new retired path; wrong outcome: marketing chrome; reachability: shim constant audit (process).
+- [ ] (candidate) `decideHostGateRedirect` — `www.` app host marketing redirect location preserves port — locus: `publicOrigin` + non-default port; input: local dual-origin with `www.app`; wrong outcome: location drops port; reachability: local split-host with www alias (monitor).
+- [ ] (candidate) `normalizeHostGatePathname` — backslash segments after decode — locus: `URL` pathname on Windows-style input; input: `/architecture\\reviews`; wrong outcome: handoff mismatch; reachability: malformed bookmarks (monitor).
+
 
 2026-11-01 seed hunt (seed-only): zone cooled but hypothesis list empty (cooldown waived). Reread `decideHostGateRedirect`, `normalizeHostGatePathname`, marketing/operator prefix matrices, trailing-dot host parity, `/api/proxy` marketing stay-put contract, and legacy bookmark coverage against traffic workbook exports. No new reachable mechanism-backed row met the hunt-ready bar; existing regressions cover duplicate-slash, dot-segment, percent-decode, casing, trailing-slash marketing handoff, and query preservation. Host-gate vitest passed **25/25**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
 
-- [ ] (candidate) `MARKETING_SITEMAP_PATHNAMES` — new public marketing App Router paths may omit sitemap registration and stay `next` on the app host — locus: `isMarketingOnlyPath` exact list vs live `(marketing)` routes; input: newly shipped `/marketing/*` path absent from sitemap constant; wrong outcome: operator shell on public content; reachability: audit sitemap constant against App Router marketing segments.
-- [ ] (candidate) `normalizeHostGatePathname` — pathname containing a literal tab or newline after decode may fail URL resolution and skip handoff — locus: `decodeURIComponent` + `new URL` catch branch; input: encoded `%09` or `%0A` inside path segment; wrong outcome: marketing host `next` for operator bookmark; reachability: add classifier test if product accepts encoded whitespace segments.
-- [ ] (candidate) `decideHostGateRedirect` — `search` that is only `?` may produce `pathAndQuery` with bare `?` on redirect — locus: `${pathname}${input.search}`; input: operator redirect with `search: "?"`; wrong outcome: app origin URL with empty query key; reachability: monitor query preservation regressions.
-- [ ] (candidate) `hostsMatch` — punycode `Host` header vs Unicode configured public origin may fail split-host match — locus: `normalizeRequestHost` vs `hostnameFromOrigin`; input: IDN apex in env with ASCII Host or reverse; wrong outcome: operator path stays on marketing host; reachability: defer until split-host fixture documents IDN pair.
-- [ ] (candidate) `LEGACY_OPERATOR_PATH_PREFIXES` — retired bookmark constants added in traffic modules but not imported into `host-gate.ts` may skip marketing→app handoff — locus: prefix list drift vs `RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS`; input: newly retired shim path in workbook only; wrong outcome: marketing 404 chrome; reachability: CI drift guard or periodic workbook/host-gate reconcile (process).
+- [x] (candidate) `MARKETING_SITEMAP_PATHNAMES` — new public marketing App Router paths may omit sitemap registration and stay `next` on the app host — locus: `isMarketingOnlyPath` exact list vs live `(marketing)` routes; input: newly shipped `/marketing/*` path absent from sitemap constant; wrong outcome: operator shell on public content; reachability: audit sitemap constant against App Router marketing segments. — **superseded 2026-11-24 seed hunt:** see hunt block above.
+- [x] (candidate) `normalizeHostGatePathname` — pathname containing a literal tab or newline after decode may fail URL resolution and skip handoff — locus: `decodeURIComponent` + `new URL` catch branch; input: encoded `%09` or `%0A` inside path segment; wrong outcome: marketing host `next` for operator bookmark; reachability: add classifier test if product accepts encoded whitespace segments. — **superseded 2026-11-24 seed hunt:** see hunt block above.
+- [x] (candidate) `decideHostGateRedirect` — `search` that is only `?` may produce `pathAndQuery` with bare `?` on redirect — locus: `${pathname}${input.search}`; input: operator redirect with `search: "?"`; wrong outcome: app origin URL with empty query key; reachability: monitor query preservation regressions. — **superseded 2026-11-24 seed hunt:** see hunt block above.
+- [x] (candidate) `hostsMatch` — punycode `Host` header vs Unicode configured public origin may fail split-host match — locus: `normalizeRequestHost` vs `hostnameFromOrigin`; input: IDN apex in env with ASCII Host or reverse; wrong outcome: operator path stays on marketing host; reachability: defer until split-host fixture documents IDN pair. — **superseded 2026-11-24 seed hunt:** see hunt block above.
+- [x] (candidate) `LEGACY_OPERATOR_PATH_PREFIXES` — retired bookmark constants added in traffic modules but not imported into `host-gate.ts` may skip marketing→app handoff — locus: prefix list drift vs `RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS`; input: newly retired shim path in workbook only; wrong outcome: marketing 404 chrome; reachability: CI drift guard or periodic workbook/host-gate reconcile (process). — **superseded 2026-11-24 seed hunt:** see hunt block above.
 
 2026-10-31 seed hunt (seed-only): reviewed the complete host-gate decision matrix again, including configured-origin precedence, `www` equivalence, non-default ports, invalid Host fallback, decoded path normalization, API proxy exclusions, and legacy operator handoff. All reachable branches are covered by the existing contract tests or conservatively return `next`; no new mechanism-backed candidate met the hunt-ready bar. Host-gate vitest passed 25/25 and no production code changed.
 
@@ -3902,7 +3916,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-31 seed hunt (seed-only): fresh reread covered host/path normalization, duplicate and dot segments, percent decoding, marketing/operator prefix coverage, public/app origin matching, query preservation, and the recent split-host churn. The focused host-gate suite passed 23/23; no new reachable mechanism-backed candidate met the hunt-ready bar and no production code changed.
 
-**Hunts:** 23 · **Bugs found:** 7 · **Consecutive dry hunts:** 0
+**Hunts:** 24 · **Bugs found:** 8 · **Consecutive dry hunts:** 0
 
 - [x] (invalid) `normalizeHostGatePathname` — encoded `%3F` in `/architecture/reviews%3Ftab=activity` must redirect as the canonical operator route — **cheap-disproof 2026-10-31 seed hunt:** preserving the encoded delimiter makes this a distinct final path segment, so it does not satisfy the `/architecture/reviews` prefix contract; no host-gate defect was established.
 
@@ -4000,11 +4014,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host gate; split site host
 - **paths:** archlucid-ui/src/lib/host-gate.ts
 - **test-filter:** host-gate
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 24
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
