@@ -131,3 +131,4 @@
 {"at":"2026-11-24T02:33:20.8994673Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote transparencyTrailOpen-only URL"}
 {"at":"2026-11-24T02:35:30.3918383Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote runAssessmentNarrativeOpen-only URL"}
 {"at":"2026-11-24T02:37:46.8545023Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote terraformExportConfirm-only URL"}
+{"at":"2026-11-24T02:39:54.3029858Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote showMuted-only URL"}
