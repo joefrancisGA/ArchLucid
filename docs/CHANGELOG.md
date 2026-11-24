@@ -5,6 +5,13 @@
 
 # ArchLucid changelog
 
+
+## 2026-11-24 - Score lift round 133 (batch 98): Drift, package changes, decision and approvals gates
+
+**Outcome.** Drift workbench change-table empty states stay off the drift load-error branch. Package changes since finalize shows timeline load failure apart from empty timeline honesty. Decision register and governance approval status-filter empties remain gated off list load failures (mounted contracts).
+
+**Surfaces.** Drift workbench, package changes since finalize, decision register, governance workflow approvals, honesty and mounted contract tests.
+
 ## 2026-11-23 - Score lift round 131 (batch 96): Diagram stale gate, export finalize contracts
 
 **Outcome.** Diagram reconcile stale-snapshot filter empty honesty renders only when the workbench load succeeded, not beside the load-error panel. Mounted contracts lock consulting and whitelabel DOCX finalize-not-load-failure ids, golden manifest Markdown finalize on buyer-primary and more-formats surfaces, and run-detail evidence or manifest ZIP finalize ids.

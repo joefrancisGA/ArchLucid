@@ -48,4 +48,16 @@ describe("PackageChangesSinceFinalizePanel", () => {
       "No recorded changes since finalize yet.",
     );
   });
+
+  it("shows timeline load failure without empty state", () => {
+    render(
+      <PackageChangesSinceFinalizePanel
+        events={[]}
+        timelineLoadFailure={{ message: "Timeline unavailable", problem: null, correlationId: null, httpStatus: 503, retryAfterSeconds: null }}
+      />,
+    );
+
+    expect(screen.getByTestId("package-changes-since-finalize-timeline-load-failure")).toBeInTheDocument();
+    expect(screen.queryByTestId("package-changes-since-finalize-empty")).not.toBeInTheDocument();
+  });
 });

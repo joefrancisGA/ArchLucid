@@ -312,6 +312,7 @@ async function RunDetailBelowFoldPipelineAsync(props: BelowFoldAsyncProps): Prom
 
       {m.manifestId ? (
         <PackageChangesSinceFinalizePanel
+          timelineLoadFailure={pipeline.pipelineTimelineFailure}
           events={pipeline.pipelineTimelineAllForPackageChanges}
           finalizeUtc={finalizeUtc}
         />
