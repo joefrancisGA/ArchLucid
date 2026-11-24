@@ -6977,7 +6977,7 @@ export interface components {
         };
         PatchArchitectureRestrictToSharesRequest: {
             confirmRestrict?: boolean;
-            restrictToShares?: boolean;
+            restrictToShares: boolean;
         };
         PatchDraftRequest: {
             actorSet?: null | components["schemas"]["ActorSet"];
