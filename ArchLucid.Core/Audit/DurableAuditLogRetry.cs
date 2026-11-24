@@ -54,6 +54,9 @@ public static class DurableAuditLogRetry
             throwOnAbandon: true);
     }
 
+    internal static TimeSpan GetBackoffDelay(int attempt) =>
+        TimeSpan.FromMilliseconds(50 * (1 << Math.Clamp(attempt - 1, 0, 9)));
+
     private static async Task ExecuteWithRetryAsync(
         Func<CancellationToken, Task> writeAsync,
         ILogger logger,
@@ -100,9 +103,10 @@ public static class DurableAuditLogRetry
                         safeOperationLabel); // codeql[cs/log-forging]: OperationLabel sanitized immediately above.
                 }
 
-                if (attempt < maxAttempts)
+                if (attempt == maxAttempts)
+                    break;
 
-                    await Task.Delay(TimeSpan.FromMilliseconds(50 * (1 << (attempt - 1))), cancellationToken);
+                await Task.Delay(GetBackoffDelay(attempt), cancellationToken);
             }
 
         if (last is null)
