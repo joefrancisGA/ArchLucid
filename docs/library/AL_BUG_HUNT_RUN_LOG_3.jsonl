@@ -151,3 +151,4 @@
 {"set":3,"productLine":"archlucid-shared","zoneId":"ui-review-detail-workspace","at":"2026-11-24T14:51:21.7044972Z","outcome":"hit","note":"seed hunt: visit-default overwrote runToolInvocationForensicsTraceId-only URL"}
 {"zoneId":"ui-review-detail-workspace","outcome":"hit","set":3,"at":"2026-11-24T14:55:07.6102012Z","productLine":"archlucid-shared","note":"seed hunt: visit-default overwrote runAgentForensicsOpen=1-only URL"}
 {"at":"2026-11-24T14:57:47.1112929Z","zoneId":"ui-review-detail-workspace","set":3,"outcome":"hit","productLine":"archlucid-shared","note":"seed hunt: visit-default overwrote runAgentExecutionLogOpen=1-only URL"}
+{"outcome":"hit","productLine":"archlucid-shared","at":"2026-11-24T15:00:31.8665489Z","zoneId":"ui-review-detail-workspace","set":3,"note":"seed hunt: visit-default overwrote runEngineProvenanceOpen=1-only URL"}
