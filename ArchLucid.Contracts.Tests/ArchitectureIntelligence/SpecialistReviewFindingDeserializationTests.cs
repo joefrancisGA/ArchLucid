@@ -132,4 +132,28 @@ public sealed class SpecialistReviewFindingDeserializationTests
         finding.Should().NotBeNull();
         finding!.Provenance.Should().NotBeNull();
     }
+
+    [Fact]
+    public void New_finding_without_evidence_does_not_claim_pass()
+    {
+        SpecialistReviewFinding finding = new();
+        finding.Conclusion.Should().Be(ReviewConclusion.Indeterminate);
+        finding.EvidenceCondition.Should().Be(EvidenceCondition.Unverified);
+    }
+
+    [Theory]
+    [InlineData("{}", ReviewConclusion.Indeterminate, EvidenceCondition.Unverified)]
+    [InlineData("{\"conclusion\":0,\"evidenceCondition\":0}", ReviewConclusion.Pass, EvidenceCondition.Sufficient)]
+    [InlineData("{\"conclusion\":1,\"evidenceCondition\":1}", ReviewConclusion.Fail, EvidenceCondition.Insufficient)]
+    [InlineData("{\"conclusion\":3}", ReviewConclusion.NotApplicable, EvidenceCondition.Unverified)]
+    [InlineData("{\"evidenceCondition\":2}", ReviewConclusion.Indeterminate, EvidenceCondition.Conflicting)]
+    public void Deserialize_missing_status_is_conservative_and_explicit_values_are_preserved(
+        string json, ReviewConclusion conclusion, EvidenceCondition evidenceCondition)
+    {
+        SpecialistReviewFinding? finding =
+            JsonSerializer.Deserialize<SpecialistReviewFinding>(json, ContractJson.CamelCaseCompact);
+        finding.Should().NotBeNull();
+        finding!.Conclusion.Should().Be(conclusion);
+        finding.EvidenceCondition.Should().Be(evidenceCondition);
+    }
 }
