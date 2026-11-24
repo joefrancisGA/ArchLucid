@@ -24,7 +24,7 @@ public static class FindingSemanticSupportBandLlmJudgmentParser
             if (string.IsNullOrWhiteSpace(bandText))
                 return null;
 
-            if (Enum.TryParse(bandText.Trim(), ignoreCase: true, out FindingSemanticSupportBand band)
+            if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(bandText.Trim(), ignoreCase: true, out FindingSemanticSupportBand band)
                 && band is FindingSemanticSupportBand.Supported
                     or FindingSemanticSupportBand.Unchecked
                     or FindingSemanticSupportBand.Unsupported)
