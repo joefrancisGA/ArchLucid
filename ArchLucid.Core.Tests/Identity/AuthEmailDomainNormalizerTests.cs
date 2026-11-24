@@ -23,6 +23,9 @@ public sealed class AuthEmailDomainNormalizerTests
     [InlineData("sub..example.com")]
     [InlineData("user@sub..example.com")]
     [InlineData("bad-.example.com")]
+    [InlineData("sub\t.example.com")]
+    [InlineData("sub.\texample.com")]
+    [InlineData("sub.\nexample.com")]
     [InlineData("")]
     public void TryNormalize_rejects_invalid_domains(string input)
     {
