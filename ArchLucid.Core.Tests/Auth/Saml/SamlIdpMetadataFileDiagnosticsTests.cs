@@ -44,4 +44,19 @@ public sealed class SamlIdpMetadataFileDiagnosticsTests
         results.Should().Contain(static r =>
             r.Component == "metadata.ssoEndpoints" && r.Status == SamlTestConfigComponentStatus.Fail);
     }
+
+    [Fact]
+    public void Evaluate_invalid_expiry_is_not_reported_as_absent()
+    {
+        const string xml = """
+            <EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" entityID="https://idp.example/metadata" validUntil="invalid">
+              <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+                <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://idp.example/sso"/>
+              </IDPSSODescriptor>
+            </EntityDescriptor>
+            """;
+        var results = SamlIdpMetadataFileDiagnostics.Evaluate(xml);
+        results.Should().ContainSingle(r => r.Component == "metadata.validUntil")
+            .Which.Status.Should().Be(SamlTestConfigComponentStatus.Fail);
+    }
 }

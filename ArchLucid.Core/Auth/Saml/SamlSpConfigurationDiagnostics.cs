@@ -209,14 +209,21 @@ public static class SamlSpConfigurationDiagnostics
                 SamlTestConfigComponentStatus.Pass,
                 "IdP metadata document returned HTTP 200."));
 
-            DateTimeOffset? validUntilUtc = SamlMetadataValidUntilParser.TryExtractValidUntilUtc(xml);
+            if (!SamlMetadataValidUntilParser.TryReadValidUntilUtc(xml, out DateTimeOffset? validUntilUtc))
+            {
+                results.Add(new SamlTestConfigComponentResult(
+                    "saml2.idpMetadata.validUntil",
+                    SamlTestConfigComponentStatus.Fail,
+                    "IdP metadata document or validUntil attribute is invalid."));
+                return;
+            }
 
             if (validUntilUtc is null)
             {
                 results.Add(new SamlTestConfigComponentResult(
                     "saml2.idpMetadata.validUntil",
                     SamlTestConfigComponentStatus.Pass,
-                    "No root validUntil attribute on IdP metadata (normal for many IdPs)."));
+                    "No validUntil attribute on IdP metadata descriptors (normal for many IdPs)."));
 
                 return;
             }
