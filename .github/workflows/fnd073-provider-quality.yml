@@ -7,6 +7,10 @@ on:
       - 'ArchLucid.AgentRuntime/**'
       - 'ArchLucid.Host.Composition/Startup/Modules/Agents/**'
       - 'ArchLucid.AgentRuntime.Tests/Quality/ProviderQualityMonitorTests.cs'
+      - 'ArchLucid.Core/Resilience/IProviderQualityStateStore.cs'
+      - 'ArchLucid.Persistence/Resilience/SqlProviderQualityStateStore.cs'
+      - 'ArchLucid.Persistence/Migrations/System/007_ProviderQualityState.sql'
+      - 'ArchLucid.Persistence.Tests/Resilience/SqlProviderQualityStateStoreSqlIntegrationTests.cs'
       - '.github/workflows/fnd073-provider-quality.yml'
   workflow_dispatch:
 
@@ -52,3 +56,50 @@ jobs:
           assert "AllowUncorrelatedRecovery = false" in durable
           assert "IProviderQualityStateStore, SqlProviderQualityStateStore" in registrar
           PY
+
+  focused-provider-quality-sql:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Start disposable SQL Server on loopback
+        shell: bash
+        run: |
+          password="Fnd073!$(openssl rand -hex 20)"
+          echo "::add-mask::$password"
+          echo "ARCHLUCID_SQL_TEST=Server=127.0.0.1,1433;Database=master;User Id=sa;Password=$password;Encrypt=True;TrustServerCertificate=True;Connect Timeout=5" >> "$GITHUB_ENV"
+          docker run -d --name fnd073-sql -e ACCEPT_EULA=Y \
+            -e MSSQL_PID=Developer -e MSSQL_SA_PASSWORD="$password" \
+            -p 127.0.0.1:1433:1433 mcr.microsoft.com/mssql/server:2022-latest
+          for attempt in {1..45}; do
+            if docker exec -e SQLCMDPASSWORD="$password" fnd073-sql \
+              /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -b -l 2 -Q 'SELECT 1' >/dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::Disposable SQL Server did not become ready."
+          exit 1
+      - name: Run migration and real SQL concurrency regressions
+        run: >-
+          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj
+          -c Release --filter FullyQualifiedName~SqlProviderQualityStateStoreSqlIntegrationTests
+          --logger "trx;LogFileName=fnd073-sql.trx" --results-directory "$RUNNER_TEMP/fnd073-test-results"
+      - name: Require both SQL regressions to execute and pass
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          from xml.etree import ElementTree as ET
+          trx = Path(os.environ["RUNNER_TEMP"]) / "fnd073-test-results" / "fnd073-sql.trx"
+          results = ET.parse(trx).findall(".//{*}UnitTestResult")
+          if len(results) != 2 or any(result.get("outcome") != "Passed" for result in results):
+              raise SystemExit("Expected both FND-073 SQL regressions to execute and pass.")
+          PY
+      - name: Remove disposable SQL Server
+        if: always()
+        run: docker rm -f fnd073-sql || true
