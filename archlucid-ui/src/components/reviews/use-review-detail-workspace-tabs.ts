@@ -127,6 +127,10 @@ import {
   RUN_PIPELINE_STAGES_TECHNICAL_OPEN_PARAM,
 } from "@/lib/runs/run-pipeline-stages-technical-disclosure-url";
 import {
+  parseRunPipelineStagesOpenFromSearch,
+  RUN_PIPELINE_STAGES_OPEN_PARAM,
+} from "@/lib/runs/run-pipeline-stages-disclosure-url";
+import {
   parseRunToolInvocationForensicsOpenFromSearch,
   RUN_TOOL_INVOCATION_FORENSICS_OPEN_PARAM,
 } from "@/lib/runs/run-tool-invocation-forensics-disclosure-url";
@@ -419,6 +423,9 @@ export function useReviewDetailWorkspaceTabs(
     const runPipelineStagesTechnicalOpenPresent = parseRunPipelineStagesTechnicalOpenFromSearch(
       params.get(RUN_PIPELINE_STAGES_TECHNICAL_OPEN_PARAM),
     );
+    const runPipelineStagesOpenPresent = parseRunPipelineStagesOpenFromSearch(
+      params.get(RUN_PIPELINE_STAGES_OPEN_PARAM),
+    );
     const runToolInvocationForensicsOpenPresent = parseRunToolInvocationForensicsOpenFromSearch(
       params.get(RUN_TOOL_INVOCATION_FORENSICS_OPEN_PARAM),
     );
@@ -535,6 +542,7 @@ export function useReviewDetailWorkspaceTabs(
       || runDetailActivityTechnicalOpenPresent
       || runDetailActivityOutcomeMetricsOpenPresent
       || runPipelineStagesTechnicalOpenPresent
+      || runPipelineStagesOpenPresent
       || runToolInvocationForensicsOpenPresent
       || runToolInvocationForensicsTraceIdPresent
       || runAgentForensicsOpenPresent
