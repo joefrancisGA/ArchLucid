@@ -5,6 +5,8 @@ using ArchLucid.Application.Runs.Query;
 using ArchLucid.Application.Runs.Query.Stages;
 using ArchLucid.Core.Persistence.ApplicationPorts.Findings;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
@@ -59,6 +61,37 @@ public sealed class RunFindingsListStageTests
         runs.Verify(
             r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Run_specific_inspect_binds_requested_run_before_payload_read(bool includeTypedPayload)
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        Mock<IScopeContextProvider> scopes = new();
+        scopes.Setup(p => p.GetCurrentScope()).Returns(scope);
+        Mock<IRunRepository> runs = new(MockBehavior.Strict);
+        runs.Setup(r => r.GetByIdAsync(scope, runId, CancellationToken.None))
+            .ReturnsAsync(new RunRecord { RunId = runId, GoldenManifestId = Guid.NewGuid(), LegacyRunStatus = "Committed" });
+        Mock<IFindingInspectReadRepository> inspect = new(MockBehavior.Strict);
+        inspect.Setup(r => r.GetInspectAsync(scope, "finding-1", CancellationToken.None,
+            It.Is<FindingInspectReadOptions>(o => o.ExpectedRunId == runId &&
+                o.IncludeTypedPayload == includeTypedPayload)))
+            .ReturnsAsync(new FindingInspectResponse { RunId = Guid.NewGuid(), FindingId = "finding-1" });
+        RunFindingsInspectStage sut = new(runs.Object, inspect.Object,
+            new Mock<IFindingTrustLabelMapper>(MockBehavior.Strict).Object,
+            new Mock<IReasoningSummaryBuilder>(MockBehavior.Strict).Object,
+            scopes.Object, new Mock<IAuthorityQueryService>(MockBehavior.Strict).Object);
+
+        FindingInspectQueryResult result = await sut.GetFindingInspectForRunAsync(
+            runId.ToString("D"), "finding-1", includeTypedPayload, CancellationToken.None);
+
+        result.Outcome.Should().Be(RunFindingsQueryOutcome.NotFound);
+        inspect.Verify(r => r.GetInspectAsync(scope, "finding-1", CancellationToken.None,
+            It.Is<FindingInspectReadOptions>(o => o.ExpectedRunId == runId &&
+                o.IncludeTypedPayload == includeTypedPayload)), Times.Once);
     }
 
     private static RunFindingsListStage CreateStage(Mock<IRunRepository> runs)
