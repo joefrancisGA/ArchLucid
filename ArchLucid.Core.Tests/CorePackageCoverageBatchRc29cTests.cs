@@ -20,6 +20,24 @@ public sealed class CorePackageCoverageBatchRc29cTests
         IdentityIssuerNormalizer.Normalize(issuer).Should().Be(expected);
     }
 
+    [Theory]
+    [InlineData("/")]
+    [InlineData("///")]
+    [InlineData("  ///  ")]
+    public void IdentityIssuerNormalizer_Normalize_rejects_slash_only_issuers(string issuer)
+    {
+        Action act = () => IdentityIssuerNormalizer.Normalize(issuer);
+
+        act.Should().Throw<ArgumentException>().WithParameterName("issuer");
+    }
+
+    [Fact]
+    public void IdentityIssuerNormalizer_Normalize_preserves_nonempty_issuer_without_trailing_slashes()
+    {
+        IdentityIssuerNormalizer.Normalize("  ARCHLUCID:TRIAL-LOCAL///  ")
+            .Should().Be("archlucid:trial-local");
+    }
+
     [Fact]
     public void IdentityIssuerNormalizer_NormalizeMicrosoftEntraIssuer_builds_v2_issuer_url()
     {

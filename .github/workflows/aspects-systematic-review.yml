@@ -1,0 +1,29 @@
+name: Aspects systematic review guard
+
+# Focused Python tests only. Never dispatch comprehensive master or RC49 builds.
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'scripts/aspects_systematic_review.py'
+      - 'scripts/tests/test_aspects_systematic_review.py'
+      - 'docs/engineering/ASPECTS_SYSTEMATIC_AUDIT.md'
+      - '.github/workflows/aspects-systematic-review.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  focused-systematic-review-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Unit-test systematic Git source inventory, age and ledger isolation
+        run: python -m unittest discover -s scripts/tests -p 'test_aspects_systematic_review.py' -v

@@ -59,6 +59,49 @@ public sealed class TokenClaimsDiagnosticServiceTests
         first.ResolvedRoles.Should().BeEquivalentTo(second.ResolvedRoles);
     }
 
+    [Theory]
+    [InlineData(long.MinValue)]
+    [InlineData(long.MaxValue)]
+    public async Task DiagnoseAsync_reports_out_of_range_exp_without_throwing(long exp)
+    {
+        TokenClaimsDiagnosticService sut = CreateService();
+        string token = CreateUnsignedJwtWithExp(exp);
+
+        AdminTokenClaimsDiagnosticResponse response =
+            await sut.DiagnoseAsync(token, CancellationToken.None);
+
+        response.Warnings.Should().Contain("Token exp claim is outside the supported date range.");
+    }
+
+    [Fact]
+    public async Task DiagnoseAsync_retains_existing_past_exp_warning()
+    {
+        TokenClaimsDiagnosticService sut = CreateService();
+        string token = CreateUnsignedJwtWithExp(
+            DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds());
+
+        AdminTokenClaimsDiagnosticResponse response =
+            await sut.DiagnoseAsync(token, CancellationToken.None);
+
+        response.Warnings.Should().Contain("Token exp claim is in the past.");
+        response.Warnings.Should().NotContain("Token exp claim is outside the supported date range.");
+    }
+
+    private static string CreateUnsignedJwtWithExp(long exp)
+    {
+        static string Encode(string json) => Convert.ToBase64String(
+                System.Text.Encoding.UTF8.GetBytes(json))
+            .TrimEnd('=')
+            .Replace('+', '-')
+            .Replace('/', '_');
+
+        string payload = string.Create(
+            System.Globalization.CultureInfo.InvariantCulture,
+            $"{{\"exp\":{exp}}}");
+
+        return $"{Encode("{\"alg\":\"none\",\"typ\":\"JWT\"}")}.{Encode(payload)}.";
+    }
+
     private static TokenClaimsDiagnosticService CreateService()
     {
         Mock<IRoleSyncService> roleSync = new();

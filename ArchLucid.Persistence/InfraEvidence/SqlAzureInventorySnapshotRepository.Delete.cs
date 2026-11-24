@@ -193,6 +193,41 @@ public sealed partial class SqlAzureInventorySnapshotRepository
             };
         }
 
+        // IE-13 instances freeze their security-path citation. The old
+        // snapshot delete cascade silently SET PathId = NULL without a
+        // remediation rowversion CAS or application-level authorization.
+        // Block snapshot deletion when a referenced path belongs to it.
+        const string remediationPathCountSql = """
+            SELECT COUNT(1)
+            FROM dbo.RemediationInstances AS instance
+            INNER JOIN dbo.SecurityEvidencePaths AS path
+                ON path.PathId = instance.PathId
+               AND path.TenantId = instance.TenantId
+            WHERE instance.TenantId = @TenantId
+              AND path.SnapshotId = @SnapshotId;
+            """;
+
+        int remediationPathCount = await connection.ExecuteScalarAsync<int>(
+            new CommandDefinition(
+                remediationPathCountSql,
+                new
+                {
+                    scope.TenantId,
+                    SnapshotId = snapshotId,
+                },
+                transaction,
+                commandTimeout: DapperCommandTimeoutSeconds.Report,
+                cancellationToken: cancellationToken));
+
+        if (remediationPathCount > 0)
+        {
+            return new AzureInventorySnapshotDeleteResult
+            {
+                Outcome = AzureInventorySnapshotDeleteOutcome.BlockedReferencedByRemediationInstance,
+                BlockingReferenceCount = remediationPathCount,
+            };
+        }
+
         return null;
     }
 
@@ -262,17 +297,6 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                                WHERE TenantId = @TenantId
                                                  AND SnapshotId = @SnapshotId);
                                          """;
-
-        const string clearRemediationPathIdsSql = """
-                                                  UPDATE dbo.RemediationInstances
-                                                  SET PathId = NULL
-                                                  WHERE TenantId = @TenantId
-                                                    AND PathId IN (
-                                                        SELECT PathId
-                                                        FROM dbo.SecurityEvidencePaths
-                                                        WHERE TenantId = @TenantId
-                                                          AND SnapshotId = @SnapshotId);
-                                                  """;
 
         const string deleteSecurityPathsSql = """
                                               DELETE FROM dbo.SecurityEvidencePaths
@@ -394,7 +418,6 @@ public sealed partial class SqlAzureInventorySnapshotRepository
             deleteDiffsSql,
             deletePathRanksSql,
             deletePathHopsSql,
-            clearRemediationPathIdsSql,
             deleteSecurityPathsSql,
             deleteCutPointsSql,
             deleteAdvisoryTerraformSql,

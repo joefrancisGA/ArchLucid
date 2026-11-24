@@ -1,5 +1,7 @@
 # Aspects measurement recovery and freshness contract
 
+> **Systematic codebase review (Nov 23, 2026):** The primary Aspects program now uses an oldest-last-touched-first, whole-source inventory with per-file first-seen and last-modified Git dates, separate production/test/tooling/infra coverage, and explicit clean-review observations. Targeted defect hunts remain a separate track. See [ASPECTS_SYSTEMATIC_AUDIT.md](ASPECTS_SYSTEMATIC_AUDIT.md) and `scripts/aspects_systematic_review.py`. These coverage percentages do **not** replace the historical/provisional density series or manufacture new review LOC.
+
 ## What broke
 
 The historically displayed 1.3479 defects/KLOC was read repeatedly from a saved workbook
