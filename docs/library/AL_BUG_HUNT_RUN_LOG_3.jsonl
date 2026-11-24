@@ -102,3 +102,5 @@
 {"at":"2026-11-24T01:01:58.7775427Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote runDetailWorkspaceDisclosuresExpanded-only URL"}
 {"at":"2026-11-24T01:06:34.2316249Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote askThread-only URL"}
 {"at":"2026-11-24T01:09:38.4861709Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote presenterQuestionId-only URL"}
+{"at":"2026-11-24T01:15:31.0090001Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-11-24T01:15:47.3411659Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote shareLinkOpen-only URL"}
