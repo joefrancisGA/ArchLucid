@@ -1,6 +1,7 @@
 using System.Security.Claims;
 
 using ArchLucid.Api.Controllers.Authority;
+using ArchLucid.Api.Support;
 using ArchLucid.Api.Models;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
@@ -185,6 +186,20 @@ public sealed class ExportsControllerCompareSummaryAuditTests
                 Mock.Of<ArchLucid.Application.Exports.IRunExportCareerPostureGate>()),
             authorityQuery,
             scopeProvider.Object,
-            manifestHashService);
+            manifestHashService,
+            AllowedShareAccessGate());
     }
+    private static IArchitectureShareAccessGate AllowedShareAccessGate()
+    {
+        Mock<IArchitectureShareAccessGate> access = new();
+        access.Setup(g => g.EnsureRunReadAllowedAsync(
+                It.IsAny<ControllerBase>(),
+                It.IsAny<ClaimsPrincipal>(),
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IActionResult?)null);
+        return access.Object;
+    }
+
 }

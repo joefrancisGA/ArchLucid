@@ -1,4 +1,5 @@
 using ArchLucid.Api.Controllers.Authority;
+using ArchLucid.Api.Support;
 using ArchLucid.Api.Models;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
@@ -312,9 +313,23 @@ public sealed class ExportsControllerScopeTests
             facade,
             (authorityQuery ?? new Mock<IAuthorityQueryService>()).Object,
             scopeProvider.Object,
-            (manifestHashService ?? new Mock<IManifestHashService>()).Object);
+            (manifestHashService ?? new Mock<IManifestHashService>()).Object,
+            AllowedShareAccessGate());
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         return controller;
     }
+    private static IArchitectureShareAccessGate AllowedShareAccessGate()
+    {
+        Mock<IArchitectureShareAccessGate> access = new();
+        access.Setup(g => g.EnsureRunReadAllowedAsync(
+                It.IsAny<ControllerBase>(),
+                It.IsAny<System.Security.Claims.ClaimsPrincipal>(),
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IActionResult?)null);
+        return access.Object;
+    }
+
 }
