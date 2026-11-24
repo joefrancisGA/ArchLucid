@@ -179,7 +179,7 @@ public sealed class CollectionRunIngestService(
     private static CollectionRunStatus ParseStatus(string? status) =>
         string.Equals(status, "Partial", StringComparison.OrdinalIgnoreCase)
             ? CollectionRunStatus.PartiallySucceeded
-            : global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(status, ignoreCase: true, out CollectionRunStatus parsed) && Enum.IsDefined(parsed)
+            : global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(status, ignoreCase: true, out CollectionRunStatus parsed)
                 ? parsed
                 : CollectionRunStatus.Failed;
 
