@@ -96,7 +96,7 @@ public static class SelectiveAgentExecutePlanner
 
     private static bool TryParseAgentType(string value, out AgentType agentType)
     {
-        if (Enum.TryParse(value, ignoreCase: true, out agentType)
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(value, ignoreCase: true, out agentType)
             && Enum.IsDefined(agentType))
         {
             return true;

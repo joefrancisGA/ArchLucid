@@ -296,7 +296,7 @@ internal static class FindingInspectReadRepositoryCore
         string? normalizedOverlay = NormalizeInspectEnumToken(overlayBandStorage);
 
         if (normalizedOverlay is not null
-            && Enum.TryParse(normalizedOverlay, ignoreCase: true, out FindingSemanticSupportBand overlayBand)
+            && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(normalizedOverlay, ignoreCase: true, out FindingSemanticSupportBand overlayBand)
             && Enum.IsDefined(overlayBand))
         {
             return overlayBand;
@@ -348,7 +348,7 @@ internal static class FindingInspectReadRepositoryCore
             string? normalized = NormalizeInspectEnumToken(raw);
 
             if (normalized is not null
-                && Enum.TryParse(normalized, ignoreCase: true, out FindingClassification parsed)
+                && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(normalized, ignoreCase: true, out FindingClassification parsed)
                 && Enum.IsDefined(parsed))
             {
                 return parsed;
@@ -383,7 +383,7 @@ internal static class FindingInspectReadRepositoryCore
             string? normalized = NormalizeInspectEnumToken(raw);
 
             if (normalized is not null
-                && Enum.TryParse(normalized, ignoreCase: true, out FindingTreatment parsed)
+                && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(normalized, ignoreCase: true, out FindingTreatment parsed)
                 && Enum.IsDefined(parsed))
             {
                 return parsed;
@@ -418,7 +418,7 @@ internal static class FindingInspectReadRepositoryCore
             string? normalized = NormalizeInspectEnumToken(raw);
 
             if (normalized is not null
-                && Enum.TryParse(normalized, ignoreCase: true, out FindingSemanticSupportBand parsed)
+                && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(normalized, ignoreCase: true, out FindingSemanticSupportBand parsed)
                 && Enum.IsDefined(parsed))
             {
                 return parsed;

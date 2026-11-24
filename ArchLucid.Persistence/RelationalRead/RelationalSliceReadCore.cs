@@ -122,7 +122,7 @@ internal static class RelationalSliceReadCore
         if (string.IsNullOrWhiteSpace(value))
             return fallback;
 
-        return Enum.TryParse(value, ignoreCase: true, out TEnum parsed) && Enum.IsDefined(parsed)
+        return global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(value, ignoreCase: true, out TEnum parsed) && Enum.IsDefined(parsed)
             ? parsed
             : fallback;
     }
