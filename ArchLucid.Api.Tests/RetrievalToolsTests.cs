@@ -439,7 +439,7 @@ public sealed class RetrievalToolsTests
         };
 
         IReadOnlyList<RetrievalMcpToolHit> hits =
-            await sut.PriorDecisionSearchAsync(request, CancellationToken.None);
+            await sut.PriorDecisionSearchAsync(request, new HashSet<Guid> { Guid.NewGuid() }, CancellationToken.None);
 
         hits.Should().HaveCount(2);
         hits.Select(h => h.DocumentId).Should().Equal("prior-doc-1", "prior-doc-2");
@@ -479,6 +479,94 @@ public sealed class RetrievalToolsTests
             await sut.PolicyPackSearchAsync(request, CancellationToken.None);
 
         hits.Should().ContainSingle().Subject.Title.Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Platform_tools_dispatch_only_the_requested_platform_corpus(bool policy)
+    {
+        Mock<IRetrievalQueryService> query = new(MockBehavior.Strict);
+        CorpusKind kind = policy ? CorpusKind.PolicyPack : CorpusKind.AzureRetailPrice;
+        query.Setup(q => q.SearchAsync(It.Is<RetrievalQuery>(r =>
+            r.IncludePlatformCorpora && r.CorpusKindFilter == kind &&
+            r.AuthorizedEvidenceRunIds != null && r.AuthorizedEvidenceRunIds.Count == 0),
+            CancellationToken.None)).ReturnsAsync(Array.Empty<RetrievalHit>());
+        RetrievalTools sut = new(query.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid(),
+            QueryText = "test", IncludePlatformCorpora = false, CorpusKindFilter = CorpusKind.Conversation,
+        };
+
+        IReadOnlyList<RetrievalMcpToolHit> result = policy
+            ? await sut.PolicyPackSearchAsync(request, CancellationToken.None)
+            : await sut.PriceRowLookupAsync(request, CancellationToken.None);
+
+        result.Should().BeEmpty();
+        query.Verify(q => q.SearchAsync(It.IsAny<RetrievalQuery>(), CancellationToken.None), Times.Once);
+    }
+
+    [Fact]
+    public async Task Prior_decision_search_requires_nonempty_server_authority()
+    {
+        Mock<IRetrievalQueryService> query = new(MockBehavior.Strict);
+        RetrievalTools sut = new(query.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid(),
+            QueryText = "test",
+        };
+
+        (await sut.PriorDecisionSearchAsync(request, new HashSet<Guid>(), CancellationToken.None))
+            .Should().BeEmpty();
+        (await sut.PriorDecisionSearchAsync(request, new HashSet<Guid> { Guid.Empty }, CancellationToken.None))
+            .Should().BeEmpty();
+        Func<Task> missing = () => sut.PriorDecisionSearchAsync(request, null!, CancellationToken.None);
+        await missing.Should().ThrowAsync<ArgumentNullException>();
+        query.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Prior_decision_search_intersects_the_exact_authorized_run_and_corpus()
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<IRetrievalQueryService> query = new(MockBehavior.Strict);
+        query.Setup(q => q.SearchAsync(It.Is<RetrievalQuery>(r =>
+            !r.IncludePlatformCorpora && r.CorpusKindFilter == CorpusKind.PriorManifest &&
+            r.AuthorizedEvidenceRunIds != null &&
+            r.AuthorizedEvidenceRunIds.SetEquals(new[] { runId })),
+            CancellationToken.None)).ReturnsAsync(Array.Empty<RetrievalHit>());
+        RetrievalTools sut = new(query.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid(),
+            QueryText = "test", IncludePlatformCorpora = true, CorpusKindFilter = CorpusKind.Conversation,
+        };
+
+        (await sut.PriorDecisionSearchAsync(request, new HashSet<Guid> { runId, Guid.Empty }, CancellationToken.None))
+            .Should().BeEmpty();
+        query.Verify(q => q.SearchAsync(It.IsAny<RetrievalQuery>(), CancellationToken.None), Times.Once);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Platform_tool_rejects_incomplete_scope(bool missingWorkspace)
+    {
+        Mock<IRetrievalQueryService> query = new(MockBehavior.Strict);
+        RetrievalTools sut = new(query.Object);
+        RetrievalMcpToolRequest request = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = missingWorkspace ? Guid.Empty : Guid.NewGuid(),
+            ProjectId = missingWorkspace ? Guid.NewGuid() : Guid.Empty,
+            QueryText = "test",
+        };
+
+        Func<Task> act = () => sut.PolicyPackSearchAsync(request, CancellationToken.None);
+        await act.Should().ThrowAsync<ArgumentException>();
+        query.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -594,7 +682,7 @@ public sealed class RetrievalToolsTests
             TopK = 100,
         };
 
-        await sut.PriorDecisionSearchAsync(request, CancellationToken.None);
+        await sut.PriorDecisionSearchAsync(request, new HashSet<Guid> { Guid.NewGuid() }, CancellationToken.None);
 
         observedTopK.Should().Be(25, "corpus-filtered MCP searches prefetch 25 hits before filtering");
     }
