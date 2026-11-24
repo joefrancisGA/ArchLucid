@@ -399,6 +399,24 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
 
 
 
+  it("does not apply visit-default navigation when the URL only carries runCoverageCurationOpen=1", () => {
+    searchParamsHarness.applyQuery("runCoverageCurationOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runCoverageCurationOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runCoverageCurationOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
   it("does not apply visit-default navigation when the URL only carries runFindingExplainabilityOpen=1", () => {
     searchParamsHarness.applyQuery("runFindingExplainabilityOpen=1");
     window.history.replaceState({}, "", "/architecture/reviews/run-abc?runFindingExplainabilityOpen=1");
