@@ -22,7 +22,7 @@ internal sealed class TenantIsolationNegativeTestOptions
     {
         ArgumentNullException.ThrowIfNull(args);
 
-        return new TenantIsolationNegativeTestOptions
+        TenantIsolationNegativeTestOptions options = new TenantIsolationNegativeTestOptions
         {
             RunId = GetOptionValue(args, "--run-id"),
             AlternateTenantId = GetOptionValue(args, "--alternate-tenant-id"),
@@ -34,6 +34,32 @@ internal sealed class TenantIsolationNegativeTestOptions
             SuppressDefaultArtifacts = args.Any(static arg =>
                 string.Equals(arg, "--no-write-artifacts", StringComparison.OrdinalIgnoreCase)),
         };
+
+        ValidateAlternateScopeGuids(options);
+
+        return options;
+    }
+
+    private static void ValidateAlternateScopeGuids(TenantIsolationNegativeTestOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+
+        RequireGuidWhenPresent(options.AlternateTenantId, "--alternate-tenant-id");
+        RequireGuidWhenPresent(options.AlternateWorkspaceId, "--alternate-workspace-id");
+        RequireGuidWhenPresent(options.AlternateProjectId, "--alternate-project-id");
+    }
+
+    private static void RequireGuidWhenPresent(string? value, string optionName)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return;
+        }
+
+        if (!Guid.TryParse(value, out _))
+        {
+            throw new ArgumentException($"Option '{optionName}' requires a GUID.", optionName);
+        }
     }
 
     private static string? GetOptionValue(IReadOnlyList<string> args, string optionName)

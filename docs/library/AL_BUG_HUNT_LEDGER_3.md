@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 thorough hunt (hit): no rotation (`shouldRotate: false`; default picker `cli-tenant-isolation`). Offline exclude-run-id replay now SKIPs when prose evidence cites the manifest primary runId without any scannable list JSON. Regression `RunOffline_SkipsExcludeRunIdWhenProseEvidenceCitesPrimaryRunIdWithoutScannableJson`. TenantIsolationNegativeTestRunnerTests **68/68**. Private beta: replaying a tenant-isolation fixture with prose-only evidence mentioning the primary run no longer false-passes as verified absence.
+> **Scope:** Contributor-reference — hunt 2026-11-24 thorough hunt (hit): no rotation (`shouldRotate: false`; default picker `cli-tenant-isolation`). Tenant-isolation CLI now rejects non-GUID `--alternate-tenant-id` (and workspace/project) before live probes run. Regression `Parse_RejectsNonGuidAlternateTenantId`. TenantIsolationNegativeTestRunnerTests **69/69**. Private beta: a mistaken alternate scope id fails at parse time instead of running inconclusive cross-tenant probes.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -1268,13 +1268,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ---
 
+2026-11-24 thorough hunt (hit): no rotation (`shouldRotate: false`; default picker `cli-tenant-isolation`). Promoted monitor `TenantIsolationNegativeTestLiveRunner.ResolveAlternateScope`: non-GUID `--alternate-tenant-id` values were applied as scope headers without validation. `TenantIsolationNegativeTestOptions.Parse` now requires GUIDs for explicit alternate scope flags. Regression `Parse_RejectsNonGuidAlternateTenantId`. TenantIsolationNegativeTestRunnerTests **69/69**. Private beta: when an invited operator runs the tenant-isolation check with a bad alternate tenant id, the CLI reports a usage error before any cross-tenant HTTP probes.
+
 2026-11-24 thorough hunt (hit): no rotation (`shouldRotate: false`; default picker `cli-tenant-isolation`). Promoted monitor `TenantIsolationNegativeTestOfflineRunner.EmbeddedEvidenceContainsPrimaryRunId` prose-only branch: exclude-run-id offline replay passed when evidence mentioned the manifest primary runId in prose without scannable list JSON. Replay now SKIPs via `ProseEvidenceCitesPrimaryRunIdWithoutScannableList`. Regression `RunOffline_SkipsExcludeRunIdWhenProseEvidenceCitesPrimaryRunIdWithoutScannableJson`. TenantIsolationNegativeTestRunnerTests **68/68**. Private beta: when an invited operator replays a tenant-isolation fixture whose evidence is prose-only but names the primary run, the check no longer reports pass as verified absence.
 
 2026-11-23 seed hunt (seed-only): no open hunt-ready rows remained after the six 2026-11-23 seed hits. Reread `ShouldTrustVerifiedAbsentOutcomeOverFieldStatus`, offline `ResolveExcludeReplayVerdict` / `ResolveDenyReplayVerdict`, live `ScanRunListForForeignRunIdAsync`, `TenantIsolationNegativeTestOptions.GetOptionValue`, and `DeriveOverallVerdict`. Attempted failing repro on offline exclude captures with `observedStatusCode` **401** or **300** while the outcome says HTTP 200 foreign runId absent; cheap-disproof **valid-no-repro** (`EvaluateExcludeRunIdProbeVerdict` already Skip on non-2xx field). Inspected non-JSON evidence prose that cites the primary runId without a scannable list fragment; promoted monitor only. Scoped TenantIsolationNegativeTestRunnerTests **67/67** (`RunAnalyzers=false`). Seeded five `(candidate)` monitor rows below. Private beta: n/a.
 
 - [x] (proven) `TenantIsolationNegativeTestOfflineRunner` — prose evidence cited primary runId without scannable list JSON but exclude-run-id replay passed — **hit 2026-11-24 thorough hunt:** `ProseEvidenceCitesPrimaryRunIdWithoutScannableList`; regression above. Private beta: prose-only replay evidence naming the primary run no longer false-passes as verified absence.
 
-- [ ] (candidate) `TenantIsolationNegativeTestLiveRunner.ResolveAlternateScope` — `--alternate-tenant-id` / workspace / project values are not validated as guids before scope headers are applied — locus: `ApplyAlternateScopeHeaders`; input: non-GUID scope string from operator `--alternate-tenant-id`; wrong outcome: inconclusive probe Skip or misleading Pass without exercising tenant boundary (monitor; hunt 2026-11-23 reseed).
+- [x] (proven) `TenantIsolationNegativeTestOptions.Parse` — non-GUID `--alternate-tenant-id` reached live probes without validation — **hit 2026-11-24 thorough hunt:** `ValidateAlternateScopeGuids`; regression above. Private beta: bad alternate scope ids fail at parse time instead of inconclusive cross-tenant probes.
+
 - [ ] (candidate) `TenantIsolationNegativeTestAggregator.EvaluateDenyStatus` — HTTP **204 No Content** on deny-status offline replay is classified as unexpected success (Fail) rather than deny-equivalent Pass — locus: `EvaluateDenyStatus`; input: manifest deny probe with `observedStatusCode` 204 and outcome HTTP 404; wrong outcome: offline fixture Fail blocks replay pass when API returned empty deny (monitor; hunt 2026-11-23 reseed).
 - [ ] (candidate) `TenantIsolationNegativeTestLiveRunner.ScanRunListForForeignRunIdAsync` — rare **2xx** responses such as **203 Non-Authoritative** with a minimal body may false-pass exclude-run-id when JSON is not scannable — locus: 2xx success branch before `RunListPayloadIsScannable`; input: alternate list returns 203 with empty or non-JSON body; wrong outcome: Pass without scanning items (monitor; hunt 2026-11-23 reseed).
 - [ ] (candidate) `TenantIsolationNegativeTestOfflineRunner.ShouldTrustVerifiedAbsentOutcomeOverFieldStatus` — **304 Not Modified** field with HTTP 200 foreign runId absent outcome may trust outcome and Pass — locus: `ShouldTrust` returns true for any 2xx field; input: manifest list capture `observedStatusCode` 304 plus verified-absent outcome; wrong outcome: Pass when conditional response is unverified (monitor; hunt 2026-11-23 reseed).
@@ -1496,8 +1499,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 10
-- **bugs-found:** 9
+- **hunts:** 11
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

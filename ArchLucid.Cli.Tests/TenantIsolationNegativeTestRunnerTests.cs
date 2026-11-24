@@ -58,6 +58,17 @@ public sealed class TenantIsolationNegativeTestRunnerTests
     }
 
     [Fact]
+    public void Parse_RejectsNonGuidAlternateTenantId()
+    {
+        Action parse = () => TenantIsolationNegativeTestOptions.Parse(
+        [
+            "--run-id", "aaaaaaaa-1111-1111-1111-111111111111",
+            "--alternate-tenant-id", "not-a-guid",
+        ]);
+
+        parse.Should().Throw<ArgumentException>().WithMessage("*--alternate-tenant-id*requires a GUID*");
+    }
+    [Fact]
     public void Parse_RejectsALaterBlankRunIdAfterAValidOne()
     {
         Action laterBlank = () => TenantIsolationNegativeTestOptions.Parse(
