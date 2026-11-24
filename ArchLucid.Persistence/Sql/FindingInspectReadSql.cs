@@ -222,6 +222,7 @@ internal static class FindingInspectReadSql
                                          AND c.WorkspaceId = @WorkspaceId
                                          AND c.ProjectId = @ScopeProjectId
                                          AND c.FindingId = @FindingId
+                                         AND (@RequireExactRun = 0 OR e.RunId = @RunId)
                                          AND e.Disposition IS NOT NULL;
 
                                        SELECT COUNT_BIG(1)
@@ -230,6 +231,7 @@ internal static class FindingInspectReadSql
                                          AND WorkspaceId = @WorkspaceId
                                          AND ProjectId = @ScopeProjectId
                                          AND FindingId = @FindingId
+                                         AND (@RequireExactRun = 0 OR RunId = @RunId)
                                          AND Status = @ActiveStatus
                                          AND ExpiresAtUtc > SYSUTCDATETIME();
                                        """;

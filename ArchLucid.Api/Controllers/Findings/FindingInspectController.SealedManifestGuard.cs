@@ -12,13 +12,13 @@ namespace ArchLucid.Api.Controllers.Findings;
 public sealed partial class FindingInspectController
 {
     private async Task<IActionResult?> EnsureFindingInspectSealedManifestReadAllowedAsync(
+        ScopeContext scope,
         Guid runId,
         CancellationToken cancellationToken)
     {
         if (runId == Guid.Empty)
             return null;
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
 
         if (detail?.GoldenManifest is null)

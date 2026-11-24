@@ -1,4 +1,5 @@
 using ArchLucid.Persistence.Sql;
+using ArchLucid.Persistence.Findings;
 
 using FluentAssertions;
 
@@ -32,6 +33,38 @@ public sealed class FindingInspectReadSqlTests
     {
         FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("r.RunId = @ExpectedRunId");
         FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("r.RunId = @ExpectedRunId");
+    }
+
+    [Fact]
+    public void Authorized_inspect_disposition_and_waiver_require_the_same_run()
+    {
+        string disposition = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingCurrentDispositions");
+        string waiver = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.RiskExceptions");
+
+        disposition.Should().Contain("(@RequireExactRun = 0 OR e.RunId = @RunId)");
+        waiver.Should().Contain("(@RequireExactRun = 0 OR RunId = @RunId)");
+    }
+
+    [Fact]
+    public void Authorized_tracking_joins_correlated_finding_record_to_scoped_active_run()
+    {
+        string sql = DapperRunFindingExternalTrackingReadRepository.AuthorizedRunTrackingSql;
+        sql.Should().Contain("fr.FindingRecordId = itsm.FindingRecordId");
+        sql.Should().Contain("fr.FindingId = itsm.FindingId");
+        sql.Should().Contain("fr.TenantId = itsm.TenantId");
+        sql.Should().Contain("fr.WorkspaceId = itsm.WorkspaceId");
+        sql.Should().Contain("fr.ProjectId = itsm.ProjectId");
+        sql.Should().Contain("itsm.TenantId = @TenantId");
+        sql.Should().Contain("itsm.WorkspaceId = @WorkspaceId");
+        sql.Should().Contain("itsm.ProjectId = @ProjectId");
+        sql.Should().Contain("r.TenantId = @TenantId");
+        sql.Should().Contain("r.WorkspaceId = @WorkspaceId");
+        sql.Should().Contain("r.ScopeProjectId = @ProjectId");
+        sql.Should().Contain("r.RunId = @RunId");
+        sql.Should().Contain("r.ArchivedUtc IS NULL");
+        sql.Should().Contain("itsm.FindingId IN @FindingIds");
+        sql.Should().NotContain("itsm.FindingRecordId IS NULL");
+        sql.Should().NotContain("dbo.FindingReviewEvents");
     }
 
     [Fact]

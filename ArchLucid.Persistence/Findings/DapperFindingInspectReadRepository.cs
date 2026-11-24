@@ -61,7 +61,7 @@ public sealed partial class DapperFindingInspectReadRepository(ISqlConnectionFac
         if (row is null)
             return null;
 
-        DispositionJoinResult joinResult = await LoadDispositionJoinAsync(connection, scope, findingId, row, ct);
+        DispositionJoinResult joinResult = await LoadDispositionJoinAsync(connection, scope, findingId, row, options?.ExpectedRunId.HasValue == true, ct);
 
         return MapInspectResponse(row, joinResult, includeTypedPayload);
     }

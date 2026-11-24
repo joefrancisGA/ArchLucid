@@ -61,9 +61,18 @@ public sealed class RunFindingsInspectStage(
         }
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        FindingInspectReadOptions options = includeTypedPayload
-            ? FindingInspectReadOptions.Full
-            : FindingInspectReadOptions.MetadataOnly;
+        if (!AuthorityRunIdentifier.TryParse(runId, out Guid authorizedRunId) || authorizedRunId == Guid.Empty)
+            return new FindingInspectQueryResult
+            {
+                Outcome = RunFindingsQueryOutcome.NotFound,
+                ProblemDetail = $"Run '{runId}' was not found."
+            };
+
+        FindingInspectReadOptions options = new()
+        {
+            IncludeTypedPayload = includeTypedPayload,
+            ExpectedRunId = authorizedRunId,
+        };
 
         FindingInspectResponse? body =
             await findingInspectReadRepository.GetInspectAsync(scope, findingId.Trim(), cancellationToken, options);
@@ -77,7 +86,8 @@ public sealed class RunFindingsInspectStage(
             };
         }
 
-        if (!AuthorityRunIdentifier.Matches(runId.Trim(), body.RunId))
+        if (body.RunId != authorizedRunId ||
+            !string.Equals(body.FindingId, findingId.Trim(), StringComparison.OrdinalIgnoreCase))
         {
             return new FindingInspectQueryResult
             {

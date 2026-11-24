@@ -1,6 +1,7 @@
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Persistence.ApplicationPorts.Findings;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Application.Findings;
 
@@ -33,6 +34,29 @@ public sealed class RunFindingExternalTrackingEnrichmentService(
                 findingIds,
                 cancellationToken).ConfigureAwait(false);
 
+        return await MapAsync(tenantId, rows, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>Loads only tracking rows bound to the caller's previously authorized run.</summary>
+    public async Task<IReadOnlyDictionary<string, RunFindingExternalTrackingProjection>> LoadForAuthorizedRunFindingsAsync(
+        ScopeContext scope, Guid runId, IReadOnlyList<string> findingIds, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(findingIds);
+        if (scope.TenantId == Guid.Empty || scope.WorkspaceId == Guid.Empty ||
+            scope.ProjectId == Guid.Empty || runId == Guid.Empty)
+            throw new ArgumentException("Complete scope and run identity are required.");
+
+        IReadOnlyDictionary<string, RunFindingExternalTrackingReadRow> rows =
+            await _readRepository.ListForAuthorizedRunFindingsAsync(
+                scope, runId, findingIds, cancellationToken).ConfigureAwait(false);
+        return await MapAsync(scope.TenantId, rows, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task<IReadOnlyDictionary<string, RunFindingExternalTrackingProjection>> MapAsync(
+        Guid tenantId, IReadOnlyDictionary<string, RunFindingExternalTrackingReadRow> rows,
+        CancellationToken cancellationToken)
+    {
         Dictionary<string, RunFindingExternalTrackingProjection> result =
             new(StringComparer.Ordinal);
 
