@@ -76,7 +76,10 @@ public sealed class ProvenanceControllerTests
             scopeProvider.Object,
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
-            AllowedShareGate());
+            AllowedShareGate())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         IActionResult action = await controller.GetFullGraph(runId, CancellationToken.None);
 
@@ -111,7 +114,10 @@ public sealed class ProvenanceControllerTests
             scopeProvider.Object,
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
-            AllowedShareGate());
+            AllowedShareGate())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         await controller.GetNodeNeighborhood(runId, nodeId, depth: 999, CancellationToken.None);
 
