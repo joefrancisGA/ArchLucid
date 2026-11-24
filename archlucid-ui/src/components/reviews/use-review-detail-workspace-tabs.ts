@@ -114,6 +114,10 @@ import {
   parseRunCoverageCurationOpenFromSearch,
   RUN_COVERAGE_CURATION_OPEN_PARAM,
 } from "@/lib/reviews/run-coverage-curation-disclosure-url";
+import {
+  parseRunDetailStickyActionsTechnicalDetailOpenFromSearch,
+  RUN_DETAIL_STICKY_ACTIONS_TECHNICAL_DETAIL_OPEN_PARAM,
+} from "@/lib/reviews/run-detail-sticky-actions-technical-detail-disclosure-url";
 
 const WORKBENCH_TAB_IDS: readonly ReviewDetailTabId[] = ["architecture", "findings", "evidence"];
 
@@ -307,6 +311,9 @@ export function useReviewDetailWorkspaceTabs(
     const runCoverageCurationOpenPresent = parseRunCoverageCurationOpenFromSearch(
       params.get(RUN_COVERAGE_CURATION_OPEN_PARAM),
     );
+    const runDetailStickyActionsTechnicalDetailOpenPresent = parseRunDetailStickyActionsTechnicalDetailOpenFromSearch(
+      params.get(RUN_DETAIL_STICKY_ACTIONS_TECHNICAL_DETAIL_OPEN_PARAM),
+    );
     const runRecordMetaOpenPresent = parseRunDetailRecordMetadataOpenFromSearch(params.get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM));
     const askDockOpenPresent = parseReviewAskDockOpenFromSearch(params.get(REVIEW_ASK_DOCK_OPEN_PARAM));
     const askThreadPresent =
@@ -353,6 +360,7 @@ export function useReviewDetailWorkspaceTabs(
       || runImpactAnalysisOpenPresent
       || runFindingExplainabilityOpenPresent
       || runCoverageCurationOpenPresent
+      || runDetailStickyActionsTechnicalDetailOpenPresent
       || runRecordMetaOpenPresent
       || askDockOpenPresent
       || askThreadPresent
