@@ -1268,6 +1268,29 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
     expect(window.location.search).not.toContain("visit-default-finding");
     expect(window.location.search).not.toContain("reviewTab=findings");
   });
+
+  it("does not apply visit-default navigation when the URL only carries findingInspectEvidenceCitationArtifactId", () => {
+    searchParamsHarness.applyQuery("findingInspectEvidenceCitationArtifactId=diagram-1");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?findingInspectEvidenceCitationArtifactId=diagram-1",
+    );
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?findingInspectEvidenceCitationArtifactId=diagram-1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
   it("does not apply visit-default navigation when the URL only carries quickDecisionSupportingDetailFindingId", () => {
     searchParamsHarness.applyQuery("quickDecisionSupportingDetailFindingId=finding-1");
     window.history.replaceState({}, "", "/architecture/reviews/run-abc?quickDecisionSupportingDetailFindingId=finding-1");
