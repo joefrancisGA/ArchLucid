@@ -45,6 +45,7 @@ import {
 import { readPinRunIdFromSearchParams } from "@/lib/reviews/review-pin-run-url";
 import { parseReviewHeaderShareMenuOpenFromSearch, REVIEW_HEADER_SHARE_MENU_OPEN_PARAM } from "@/lib/reviews/review-header-share-menu-url";
 import { parseRunDetailRecordMetadataOpenFromSearch, RUN_DETAIL_RECORD_METADATA_OPEN_PARAM } from "@/lib/runs/run-detail-record-metadata-url";
+import { parseReviewAskDockOpenFromSearch, REVIEW_ASK_DOCK_OPEN_PARAM } from "@/lib/reviews/review-ask-dock-url";
 
 const WORKBENCH_TAB_IDS: readonly ReviewDetailTabId[] = ["architecture", "findings", "evidence"];
 
@@ -192,6 +193,7 @@ export function useReviewDetailWorkspaceTabs(
     const pinRunPresent = readPinRunIdFromSearchParams(params) !== null;
     const shareMenuOpenPresent = parseReviewHeaderShareMenuOpenFromSearch(params.get(REVIEW_HEADER_SHARE_MENU_OPEN_PARAM));
     const runRecordMetaOpenPresent = parseRunDetailRecordMetadataOpenFromSearch(params.get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM));
+    const askDockOpenPresent = parseReviewAskDockOpenFromSearch(params.get(REVIEW_ASK_DOCK_OPEN_PARAM));
     const hashPresent = window.location.hash.replace(/^#/, "").trim().length > 0;
 
     if (
@@ -205,6 +207,7 @@ export function useReviewDetailWorkspaceTabs(
       || pinRunPresent
       || shareMenuOpenPresent
       || runRecordMetaOpenPresent
+      || askDockOpenPresent
       || hashPresent
     ) {
       visitDefaultAppliedRef.current = true;
