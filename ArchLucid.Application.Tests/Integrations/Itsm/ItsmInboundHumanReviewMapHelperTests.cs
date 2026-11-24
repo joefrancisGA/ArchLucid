@@ -31,6 +31,7 @@ public sealed class ItsmInboundHumanReviewMapHelperTests
     [Theory]
     [InlineData("2147483647")]
     [InlineData("-2147483648")]
+    [InlineData("NotRequired,Approved")]
     public void TryConfiguredHumanReview_rejects_undefined_numeric_enum_values(string value)
     {
         Dictionary<string, string> map = new() { ["Done"] = value };

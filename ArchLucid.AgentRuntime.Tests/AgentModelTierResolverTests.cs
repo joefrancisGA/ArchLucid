@@ -179,6 +179,7 @@ public sealed class AgentModelTierResolverTests
     [Theory]
     [InlineData("2147483647")]
     [InlineData("-2147483648")]
+    [InlineData("Standard,Premium")]
     public void ResolveTierForAgent_undefined_configured_values_fall_back_to_standard(string value)
     {
         AgentModelTierResolver resolver = CreateResolver(

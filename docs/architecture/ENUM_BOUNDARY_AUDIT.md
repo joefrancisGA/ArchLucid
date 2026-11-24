@@ -35,3 +35,9 @@ Do not mark the enum audit complete merely because a PR exists or because the di
 Targeted test classes: DefinedEnumTests, RunFindingCoverageSummaryDeserializationTests, FindingsSnapshotJsonFallbackMapperTests, FindingsCoverageProjectionMapperTests, ArtifactBundleStatusParserTests, SynthesizedArtifactSliceStatusParserTests, AgentModelCatalogRepositoryCoreTests, BillingWebhookTrialActivatorTests, ArchLucidApiJsonSourceGenerationTests, ArchitectureRequestFileParserTests, EnumBoundaryReviewAnalyzerTests, and the tests added in PR #8044.
 
 The first-wave PR #8044 encountered a pre-existing test compilation failure (CS0051, run 45473957702). Its public theory signatures now use a Boolean selector while retaining both internal enum outcomes. Merge #8044 then #8045 before #8047 to avoid enabling ENUM002 before the raw Enum.Parse migrations are present. The latest fixes have not been confirmed by compilation.
+
+## Post-merge review
+
+PRs #8042, #8044, #8045 and #8047 are confirmed merged. At the verification checkpoint master was d3aabdd478c97724193c20b29ea1ad189917b6b8 and RC49 was 0dcf4112ca3e560f9e1539b25ab2d8b62144c9d3. RC49 did not yet contain DefinedEnum, the analyzer or the inventory script. The branches were diverged (master 1035 commits ahead, 51 behind); do not force-sync the release branch as part of this audit.
+
+Additional shared-parser migration closes the ordinary-enum composite-name gap: raw Enum.TryParse plus Enum.IsDefined accepts some comma-separated member names that combine into a declared value (e.g. Deferred,NeedsEvidence -> Remediated). Migrate to DefinedEnum.TryParse, retain existing downstream behavior and add explicit composition regressions. The E2E billing harness rejects invalid checkout tiers before subscription activation. No full build or catalog preflight executed; the semantic inventory and RC49 validation remain open.
