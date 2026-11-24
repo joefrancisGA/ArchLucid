@@ -13,10 +13,31 @@ export async function fetchBrowserDownload(
 }
 
 export function parseFilenameFromContentDisposition(header: string | null): string | null {
-  if (!header) return null;
-  const m = /filename\*?=(?:UTF-8''|")?([^";]+)/i.exec(header);
+  if (!header) {
+    return null;
+  }
 
-  return m?.[1]?.replace(/"/g, "").trim() ?? null;
+  const quotedFilename = /filename\s*=\s*"([^"]+)"/i.exec(header);
+
+  if (quotedFilename?.[1]) {
+    return quotedFilename[1].trim();
+  }
+
+  const starFilename = /filename\*\s*=\s*[^']*''([^;]+)/i.exec(header);
+
+  if (starFilename?.[1]) {
+  const encoded = starFilename[1].trim();
+
+  try {
+    return decodeURIComponent(encoded);
+  } catch {
+    return encoded;
+  }
+  }
+
+  const legacyMatch = /filename\s*=\s*([^;]+)/i.exec(header);
+
+  return legacyMatch?.[1]?.replace(/"/g, "").trim() ?? null;
 }
 
 export async function triggerBrowserBlobDownload(blob: Blob, fileName: string): Promise<void> {
