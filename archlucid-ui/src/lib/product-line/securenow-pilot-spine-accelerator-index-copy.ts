@@ -35,4 +35,10 @@ export const SECURENOW_PILOT_SPINE_ACCELERATOR_LINKS: readonly SecureNowPilotSpi
     label: "Golden sponsor export walkthrough",
     hint: "Illustrative sample package only — use the sample review link from Help when you are ready.",
   },
+  {
+    id: "remediation-factory-empty",
+    href: "/security/remediation-factory",
+    label: "Pilot beat 2 when ranked paths are empty",
+    hint: "Fixture walkthrough only — no stored ranked paths on your subscription yet.",
+  },
 ] as const;

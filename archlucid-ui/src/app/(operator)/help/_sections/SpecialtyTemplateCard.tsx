@@ -14,6 +14,7 @@ import {
   type SpecialtyReviewTemplateDefinition,
   type SpecialtyReviewTemplateId,
 } from "@/lib/specialty-review-templates";
+import { SPECIALTY_REVIEW_TEMPLATES_PREVIEW_FIXTURE_LINE } from "@/lib/help/specialty-template-preview-fixture-copy";
 import { cn } from "@/lib/utils";
 
 export const SPECIALTY_TEMPLATE_READ_ONLY_HINT_ID = "specialty-template-permission-hint";
@@ -105,6 +106,12 @@ export function SpecialtyTemplateCard(props: SpecialtyTemplateCardProps): React.
           {selected ? <StatusTag kind="ready" label="Selected" /> : null}
         </div>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{template.purpose}</p>
+        <p
+          className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="specialty-template-card-fixture-line"
+        >
+          {SPECIALTY_REVIEW_TEMPLATES_PREVIEW_FIXTURE_LINE}
+        </p>
       </CardHeader>
       <CardContent className={cn(OPERATOR_CARD.content, "row-start-2 grid grid-rows-subgrid gap-3 row-span-4")}>
         <div className="row-start-1">

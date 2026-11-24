@@ -356,6 +356,14 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
                       Sales-led — request a quote on public pricing.
                     </p>
                   ) : null}
+                  {selfServe ? (
+                    <p
+                      className={cn("m-0 pt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid={`billing-tier-not-securenow-sku-${pkg.id}`}
+                    >
+                      ArchLucid {pkg.title} checkout does not include SecureNow SN-EVAL or SN-ANNUAL entitlements.
+                    </p>
+                  ) : null}
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col gap-4 pt-0">
                   <PlanSummaryLines pricing={pricing} pkg={pkg} />
