@@ -15,27 +15,10 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
 {
     public async Task InsertInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default)
     {
-        const string sql = """
-                           INSERT INTO dbo.RemediationInstances
-                               (InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, PatternVersionId,
-                                PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, PathId,
-                                PathNarrativeJson, AssessmentId,
-                                ControlId, PreflightSnapshotId, ExecutionSnapshotId, VerificationSnapshotId, WaveId,
-                                PreflightResultJson, VerificationResultJson, CreatedByActorKey, ApprovedByActorKey,
-                                CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, ChangeImplementedUtc, VerifiedUtc, ClosedUtc)
-                           VALUES
-                               (@InstanceId, @TenantId, @WorkspaceId, @ProjectId, @FindingId, @PatternId, @PatternVersionId,
-                                @PatternKey, @FrozenPatternVersion, @AutomationLevel, @Status, @CloudResourceId, @PathId,
-                                @PathNarrativeJson, @AssessmentId,
-                                @ControlId, @PreflightSnapshotId, @ExecutionSnapshotId, @VerificationSnapshotId, @WaveId,
-                                @PreflightResultJson, @VerificationResultJson, @CreatedByActorKey, @ApprovedByActorKey,
-                                @CreatedUtc, @UpdatedUtc, @ApprovedUtc, @ExecutedUtc, @ChangeImplementedUtc, @VerifiedUtc, @ClosedUtc);
-                           """;
-
-        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
-        await conn.ExecuteAsync(
-            new CommandDefinition(sql, MapInstanceParameters(instance), cancellationToken: cancellationToken));
+        ArgumentNullException.ThrowIfNull(instance);
+        await InsertInstanceInScopeAsync(
+            ProjectScopeKey.Create(instance.TenantId, instance.WorkspaceId, instance.ProjectId),
+            instance, cancellationToken);
     }
 
     public async Task InsertInstanceInScopeAsync(
@@ -49,25 +32,12 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
         if (!scope.Matches(instance.TenantId, instance.WorkspaceId, instance.ProjectId))
             throw new InvalidOperationException("Scoped remediation instance payload does not match project authority.");
 
-        const string sql = """
-                           INSERT INTO dbo.RemediationInstances
-                               (InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, PatternVersionId,
-                                PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, PathId,
-                                PathNarrativeJson, AssessmentId,
-                                ControlId, PreflightSnapshotId, ExecutionSnapshotId, VerificationSnapshotId, WaveId,
-                                PreflightResultJson, VerificationResultJson, CreatedByActorKey, ApprovedByActorKey,
-                                CreatedUtc, UpdatedUtc, ApprovedUtc, ExecutedUtc, ChangeImplementedUtc, VerifiedUtc, ClosedUtc)
-                           VALUES
-                               (@InstanceId, @TenantId, @WorkspaceId, @ProjectId, @FindingId, @PatternId, @PatternVersionId,
-                                @PatternKey, @FrozenPatternVersion, @AutomationLevel, @Status, @CloudResourceId, @PathId,
-                                @PathNarrativeJson, @AssessmentId,
-                                @ControlId, @PreflightSnapshotId, @ExecutionSnapshotId, @VerificationSnapshotId, @WaveId,
-                                @PreflightResultJson, @VerificationResultJson, @CreatedByActorKey, @ApprovedByActorKey,
-                                @CreatedUtc, @UpdatedUtc, @ApprovedUtc, @ExecutedUtc, @ChangeImplementedUtc, @VerifiedUtc, @ClosedUtc);
-                           """;
+        const string sql = "dbo.uspRemediationCreateScoped";
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await conn.ExecuteAsync(
-            new CommandDefinition(sql, MapInstanceParameters(instance), cancellationToken: cancellationToken));
+            new CommandDefinition(sql, MapInstanceParameters(instance),
+                commandType: System.Data.CommandType.StoredProcedure,
+                cancellationToken: cancellationToken));
     }
 
     public async Task UpdateInstanceInScopeAsync(
@@ -192,30 +162,13 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
 
     public async Task InsertEvidenceAsync(RemediationEvidenceRecord evidence, CancellationToken cancellationToken = default)
     {
-        const string sql = """
-                           INSERT INTO dbo.RemediationEvidence
-                               (EvidenceId, InstanceId, TenantId, Phase, PayloadJson, ActorKey, CorrelationId, CreatedUtc)
-                           VALUES
-                               (@EvidenceId, @InstanceId, @TenantId, @Phase, @PayloadJson, @ActorKey, @CorrelationId, @CreatedUtc);
-                           """;
-
-        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
-        await conn.ExecuteAsync(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    evidence.EvidenceId,
-                    evidence.InstanceId,
-                    evidence.TenantId,
-                    Phase = (int)evidence.Phase,
-                    evidence.PayloadJson,
-                    evidence.ActorKey,
-                    evidence.CorrelationId,
-                    evidence.CreatedUtc,
-                },
-                cancellationToken: cancellationToken));
+        ArgumentNullException.ThrowIfNull(evidence);
+        RemediationInstanceRecord instance = await TryGetByIdAsync(
+            evidence.TenantId, evidence.InstanceId, cancellationToken)
+            ?? throw new InvalidOperationException("Remediation instance was not found for evidence insert.");
+        await InsertEvidenceInScopeAsync(
+            ProjectScopeKey.Create(instance.TenantId, instance.WorkspaceId, instance.ProjectId),
+            evidence, cancellationToken);
     }
 
     public async Task InsertEvidenceInScopeAsync(
@@ -226,22 +179,10 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(evidence);
 
-        const string sql = """
-                           IF NOT EXISTS (
-                               SELECT 1
-                               FROM dbo.RemediationInstances
-                               WHERE TenantId = @TenantId
-                                 AND WorkspaceId = @WorkspaceId
-                                 AND ProjectId = @ProjectId
-                                 AND InstanceId = @InstanceId
-                           )
-                               THROW 50012, 'Scoped remediation instance was not found for evidence insert.', 1;
+        if (evidence.TenantId != scope.TenantId)
+            throw new InvalidOperationException("Scoped remediation evidence payload does not match tenant authority.");
 
-                           INSERT INTO dbo.RemediationEvidence
-                               (EvidenceId, InstanceId, TenantId, Phase, PayloadJson, ActorKey, CorrelationId, CreatedUtc)
-                           VALUES
-                               (@EvidenceId, @InstanceId, @TenantId, @Phase, @PayloadJson, @ActorKey, @CorrelationId, @CreatedUtc);
-                           """;
+        const string sql = "dbo.uspRemediationAppendEvidenceScoped";
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await conn.ExecuteAsync(
             new CommandDefinition(
@@ -259,6 +200,7 @@ public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFacto
                     evidence.CorrelationId,
                     evidence.CreatedUtc,
                 },
+                commandType: System.Data.CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
     }
 

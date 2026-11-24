@@ -42,8 +42,8 @@ class RemediationAtomicUpdateContractTests(unittest.TestCase):
         self.assertIn(migration.rstrip(), consolidated,
                       "greenfield bootstrap must retain the migration without drift")
         procedure_migration = (ROOT / "ArchLucid.Persistence/Migrations/427_RemediationProcedureOnlyUpdates.sql").read_text()
-        self.assertTrue(consolidated.rstrip().endswith(procedure_migration.rstrip()),
-                        "greenfield bootstrap must mirror the newest procedure migration")
+        self.assertIn(procedure_migration.rstrip(), consolidated,
+                        "greenfield bootstrap must mirror the update procedure migration")
 
     def test_production_like_startup_reuses_existing_sql_immutability_probe(self):
         probe = (ROOT / "ArchLucid.Host.Core/Startup/Validation/Rules/"
@@ -67,11 +67,11 @@ class RemediationAtomicUpdateContractTests(unittest.TestCase):
                 "RemediationSqlRolePrivilegesTests.cs").read_text()
         self.assertIn("SqlServerPersistenceFixture", test)
         self.assertIn('InitialCatalog.Should().Contain("Test"', test)
-        self.assertIn("foreach (int migrationNumber in new[] { 426, 427 })", test)
+        self.assertIn("foreach (int migrationNumber in new[] { 426, 427, 428 })", test)
         self.assertIn("EXECUTE AS USER =", test)
         self.assertIn("forbiddenDirectUpdate", test)
         self.assertIn("uspRemediationUpdateScoped", test)
-        self.assertIn("approval and verification evidence remains appendable", test)
+        self.assertIn("direct INSERT must not mint approval or verification evidence", test)
         self.assertIn("ThrowAsync<SqlException>", test)
         self.assertIn("Enumerable.Range(0, 2)", test)
         self.assertIn("REVERT;", test)

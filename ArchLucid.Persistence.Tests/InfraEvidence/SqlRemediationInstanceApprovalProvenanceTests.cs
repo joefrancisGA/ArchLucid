@@ -223,11 +223,19 @@ public sealed class SqlRemediationInstanceApprovalProvenanceTests(SqlServerPersi
                 PatternKey = "test.approval." + patternId.ToString("N"),
                 FrozenPatternVersion = "1.0.0",
                 AutomationLevel = RemediationAutomationLevel.Manual,
+                Status = RemediationInstanceStatus.Classified,
+                CreatedByActorKey = "creator",
+                CreatedUtc = now,
+                UpdatedUtc = now,
+            });
+            RemediationInstanceRecord created = (await repository.TryGetByIdInScopeAsync(scope, id))!;
+            await repository.UpdateInstanceInScopeAsync(scope, new RemediationInstanceMutation
+            {
+                InstanceId = id,
+                ExpectedRowVersion = created.RowVersion,
                 Status = RemediationInstanceStatus.PreflightPassed,
                 PreflightSnapshotId = Guid.NewGuid(),
                 PreflightResultJson = "{\"passed\":true}",
-                CreatedByActorKey = "creator",
-                CreatedUtc = now,
                 UpdatedUtc = now,
             });
         }
