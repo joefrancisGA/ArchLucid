@@ -47,8 +47,6 @@ public sealed partial class RunDetailPageBundleController
             if (sealedGuardResult is not null)
                 return sealedGuardResult;
 
-            BuyerRunDetailSummaryDto buyerSummary = await BuildBuyerSummaryAsync(detail, cancellationToken).ConfigureAwait(false);
-
             Guid? manifestId = detail.Run.GoldenManifestId;
             ManifestSummaryDto? manifest = null;
 
@@ -75,6 +73,9 @@ public sealed partial class RunDetailPageBundleController
                     scope, pinnedId, manifest, pinnedDetail?.GoldenManifest,
                     pinnedDetail, _manifestHashService);
             }
+
+            BuyerRunDetailSummaryDto buyerSummary = await BuildBuyerSummaryAsync(detail, cancellationToken)
+                .ConfigureAwait(false);
 
             Task<RunSummaryDto?> progressTask =
                 _queryService.GetRunSummaryAsync(scope, runId, cancellationToken);
