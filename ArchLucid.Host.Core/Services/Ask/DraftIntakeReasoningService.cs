@@ -136,15 +136,12 @@ public sealed class DraftIntakeReasoningService(
             if (!IsUnanchoredInScope(thread, scope) || thread.ThreadId == draft.Document.ConversationThreadId)
                 return null;
 
-            DraftRequestDocument document = DraftRequestDocumentCloner.Clone(draft.Document);
-            document.ConversationThreadId = thread.ThreadId;
             Guid? previousArchitectureId = draft.ArchitectureId;
 
-            draft = await _draftRepository.UpdateAsync(
-                scope.TenantId, scope.WorkspaceId, scope.ProjectId, draftId,
-                draft.Status, document, draft.RedirectReason, draft.SpawnedRunId,
-                cancellationToken);
-            if (draft is null || draft.Document.ConversationThreadId != thread.ThreadId ||
+            draft = await _draftRepository.TryBindConversationThreadAsync(draft, thread.ThreadId, cancellationToken)
+                ?? throw new ArchLucid.Application.ConflictException(
+                    "Draft changed while establishing the intake conversation. Retry the request.");
+            if (draft.Document.ConversationThreadId != thread.ThreadId ||
                 draft.ArchitectureId != previousArchitectureId || !DraftRequestStateMachine.AllowsReasoning(draft.Status))
                 return null;
 
