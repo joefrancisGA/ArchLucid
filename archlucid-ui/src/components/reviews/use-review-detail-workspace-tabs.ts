@@ -50,6 +50,10 @@ import {
   parseRunDetailWorkspaceDisclosuresExpandedFromSearch,
   RUN_DETAIL_WORKSPACE_DISCLOSURES_EXPANDED_PARAM,
 } from "@/lib/runs/run-detail-workspace-disclosures-expanded-disclosure-url";
+import {
+  parseReviewPresenterQuestionIdFromSearch,
+  REVIEW_PRESENTER_QUESTION_ID_PARAM,
+} from "@/lib/reviews/review-presenter-elicitation-url";
 
 const WORKBENCH_TAB_IDS: readonly ReviewDetailTabId[] = ["architecture", "findings", "evidence"];
 
@@ -204,6 +208,8 @@ export function useReviewDetailWorkspaceTabs(
       parseRunDetailWorkspaceDisclosuresExpandedFromSearch(
         params.get(RUN_DETAIL_WORKSPACE_DISCLOSURES_EXPANDED_PARAM),
       ) !== null;
+    const presenterQuestionIdPresent =
+      parseReviewPresenterQuestionIdFromSearch(params.get(REVIEW_PRESENTER_QUESTION_ID_PARAM)).length > 0;
     const hashPresent = window.location.hash.replace(/^#/, "").trim().length > 0;
 
     if (
@@ -220,6 +226,7 @@ export function useReviewDetailWorkspaceTabs(
       || askDockOpenPresent
       || askThreadPresent
       || workspaceDisclosuresExpandedPresent
+      || presenterQuestionIdPresent
       || hashPresent
     ) {
       visitDefaultAppliedRef.current = true;
