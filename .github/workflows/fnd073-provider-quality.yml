@@ -42,7 +42,7 @@ jobs:
           assert "WilsonLowerBound" in monitor
           assert "ProviderQualityLabel.Unknown" in monitor
           assert "LlmJudge" not in evaluator
-          assert "AgentResultFaithfulnessSupportRatio" in evaluator
+          assert "HasCheckableContent" in evaluator
           assert "CacheServed" in evaluator
           assert "ProviderQualityQuarantiningAgentCompletionClient" in chain
           PY

@@ -16,6 +16,7 @@ public sealed partial class AgentOutputEvaluationRecorder
         string runId,
         AgentExecutionTrace trace,
         AgentResult? matchingResult,
+        AgentEvidencePackage? evidencePackage,
         AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult evaluated,
         CancellationToken cancellationToken)
     {
@@ -29,12 +30,21 @@ public sealed partial class AgentOutputEvaluationRecorder
             : trace.ModelVersion.Trim();
 
         bool cacheServed = matchingResult?.CacheServed == true;
-        bool independentlyChecked = !cacheServed
-            && evaluated.Semantic.AgentResultFaithfulnessSupportRatio.HasValue
+        AgentResultEvidenceFaithfulnessReport? independentReport = null;
+        if (!cacheServed
+            && evidencePackage is not null
+            && !string.IsNullOrWhiteSpace(trace.ParsedResultJson))
+        {
+            independentReport = agentResultEvidenceFaithfulnessChecker.Evaluate(
+                trace.ParsedResultJson,
+                evidencePackage);
+        }
+
+        bool independentlyChecked = independentReport?.HasCheckableContent == true
             && !string.Equals(modelId, AgentExecutionTraceModelMetadata.UnspecifiedDeploymentName, StringComparison.OrdinalIgnoreCase);
 
         ProviderQualityLabel label = independentlyChecked
-            ? evaluated.Semantic.AgentResultFaithfulnessSupportRatio >= 1.0 - 1e-9
+            ? independentReport!.SupportRatio >= 1.0 - 1e-9
                 ? ProviderQualityLabel.Supported
                 : ProviderQualityLabel.Unsupported
             : ProviderQualityLabel.Unknown;
