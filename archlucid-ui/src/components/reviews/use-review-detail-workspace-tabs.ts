@@ -126,6 +126,10 @@ import {
   parseRunPipelineStagesTechnicalOpenFromSearch,
   RUN_PIPELINE_STAGES_TECHNICAL_OPEN_PARAM,
 } from "@/lib/runs/run-pipeline-stages-technical-disclosure-url";
+import {
+  parseRunToolInvocationForensicsOpenFromSearch,
+  RUN_TOOL_INVOCATION_FORENSICS_OPEN_PARAM,
+} from "@/lib/runs/run-tool-invocation-forensics-disclosure-url";
 
 import {
   parseRunImpactAnalysisOpenFromSearch,
@@ -385,6 +389,9 @@ export function useReviewDetailWorkspaceTabs(
     const runPipelineStagesTechnicalOpenPresent = parseRunPipelineStagesTechnicalOpenFromSearch(
       params.get(RUN_PIPELINE_STAGES_TECHNICAL_OPEN_PARAM),
     );
+    const runToolInvocationForensicsOpenPresent = parseRunToolInvocationForensicsOpenFromSearch(
+      params.get(RUN_TOOL_INVOCATION_FORENSICS_OPEN_PARAM),
+    );
     const runImpactAnalysisOpenPresent = parseRunImpactAnalysisOpenFromSearch(
       params.get(RUN_IMPACT_ANALYSIS_OPEN_PARAM),
     );
@@ -475,6 +482,7 @@ export function useReviewDetailWorkspaceTabs(
       || runDetailActivityTechnicalOpenPresent
       || runDetailActivityOutcomeMetricsOpenPresent
       || runPipelineStagesTechnicalOpenPresent
+      || runToolInvocationForensicsOpenPresent
       || runImpactAnalysisOpenPresent
       || runFindingExplainabilityOpenPresent
       || runCoverageCurationOpenPresent
