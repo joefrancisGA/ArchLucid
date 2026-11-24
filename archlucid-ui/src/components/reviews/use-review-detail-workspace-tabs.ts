@@ -106,6 +106,10 @@ import {
   parseRunAuditIdentifiersOpenFromSearch,
   RUN_AUDIT_IDENTIFIERS_OPEN_PARAM,
 } from "@/lib/runs/run-audit-identifiers-disclosure-url";
+import {
+  parseRunPipelineTimelineOpenFromSearch,
+  RUN_PIPELINE_TIMELINE_OPEN_PARAM,
+} from "@/lib/runs/run-pipeline-timeline-disclosure-url";
 
 import {
   parseRunImpactAnalysisOpenFromSearch,
@@ -350,6 +354,9 @@ export function useReviewDetailWorkspaceTabs(
     const runAuditIdentifiersOpenPresent = parseRunAuditIdentifiersOpenFromSearch(
       params.get(RUN_AUDIT_IDENTIFIERS_OPEN_PARAM),
     );
+    const runPipelineTimelineOpenPresent = parseRunPipelineTimelineOpenFromSearch(
+      params.get(RUN_PIPELINE_TIMELINE_OPEN_PARAM),
+    );
     const runImpactAnalysisOpenPresent = parseRunImpactAnalysisOpenFromSearch(
       params.get(RUN_IMPACT_ANALYSIS_OPEN_PARAM),
     );
@@ -435,6 +442,7 @@ export function useReviewDetailWorkspaceTabs(
       || technologyBaselineEvidenceRefEntryIdPresent
       || techEntryIdPresent
       || runAuditIdentifiersOpenPresent
+      || runPipelineTimelineOpenPresent
       || runImpactAnalysisOpenPresent
       || runFindingExplainabilityOpenPresent
       || runCoverageCurationOpenPresent
