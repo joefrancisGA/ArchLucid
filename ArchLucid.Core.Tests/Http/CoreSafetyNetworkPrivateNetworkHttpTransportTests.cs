@@ -466,4 +466,18 @@ public sealed class CoreSafetyNetworkPrivateNetworkHttpTransportTests
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         sendCount.Should().Be(2);
     }
+
+    [Theory]
+    [InlineData(double.NaN, 0.5)]
+    [InlineData(double.NegativeInfinity, 0.1)]
+    [InlineData(double.PositiveInfinity, 1.0)]
+    [InlineData(0.75, 0.75)]
+    public void OutboundExternalHttpResilienceOptions_Normalize_produces_valid_failure_ratio(double input, double expected)
+    {
+        OutboundExternalHttpResilienceOptions options = new() { FailureRatio = input };
+        options.Normalize();
+
+        options.FailureRatio.Should().Be(expected);
+        double.IsFinite(options.FailureRatio).Should().BeTrue();
+    }
 }
