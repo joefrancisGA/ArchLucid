@@ -32,4 +32,21 @@ public sealed class AgentModelCatalogRepositoryCoreTests
         clone.Evaluations.Should().ContainSingle();
         clone.Evaluations[0].TaskType.Should().Be("summarize");
     }
+
+    [Theory]
+    [InlineData("unknown")]
+    [InlineData("2147483647")]
+    public void MapEntry_rejects_corrupt_security_and_capability_state(string raw)
+    {
+        Action capability = () => AgentModelCatalogRepositoryCore.MapEntry(
+            new() { StructuredOutputLevel = raw }, []);
+        Action boundary = () => AgentModelCatalogRepositoryCore.MapEntry(
+            new() { DataBoundary = raw }, []);
+        Action lifecycle = () => AgentModelCatalogRepositoryCore.MapEntry(
+            new() { LifecycleStatus = raw }, []);
+
+        capability.Should().Throw<ArgumentException>();
+        boundary.Should().Throw<ArgumentException>();
+        lifecycle.Should().Throw<ArgumentException>();
+    }
 }

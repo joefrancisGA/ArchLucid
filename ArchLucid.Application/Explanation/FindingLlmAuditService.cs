@@ -88,7 +88,6 @@ public sealed class FindingLlmAuditService(
             .ToList();
         if (traces.Count == 0)
             return null;
-
         string? preferredId = finding.Trace.SourceAgentExecutionTraceId;
         if (!string.IsNullOrWhiteSpace(preferredId))
         {
@@ -98,7 +97,7 @@ public sealed class FindingLlmAuditService(
                 return preferred;
         }
 
-        if (!Enum.TryParse(finding.EngineType, true, out AgentType engineAgent))
+        if (!ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(finding.EngineType, true, out AgentType engineAgent))
             return traces[0];
         AgentExecutionTrace? typed = traces.FirstOrDefault(t => t.AgentType == engineAgent);
         return typed ?? traces[0];

@@ -62,6 +62,30 @@ public sealed class FindingsSnapshotJsonFallbackMapperTests
         snapshot.ChecklistCoverage.Should().NotBeNull();
     }
 
+    [Theory]
+    [InlineData("Generating", FindingsSnapshotGenerationStatus.Generating)]
+    [InlineData("Failed", FindingsSnapshotGenerationStatus.Failed)]
+    public void Map_uses_authority_header_status_over_legacy_json(string raw, FindingsSnapshotGenerationStatus expected)
+    {
+        FindingsSnapshot blob = new() { GenerationStatus = FindingsSnapshotGenerationStatus.Complete };
+        FindingsSnapshotStorageRow row = CreateRow(JsonEntitySerializer.Serialize(blob), raw);
+
+        FindingsSnapshotJsonFallbackMapper.Map(row).GenerationStatus.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("2147483647")]
+    public void Map_rejects_missing_or_invalid_header_even_when_blob_claims_complete(string? raw)
+    {
+        FindingsSnapshot blob = new() { GenerationStatus = FindingsSnapshotGenerationStatus.Complete };
+        FindingsSnapshotStorageRow row = CreateRow(JsonEntitySerializer.Serialize(blob), raw);
+
+        Action act = () => FindingsSnapshotJsonFallbackMapper.Map(row);
+        act.Should().Throw<ArgumentException>();
+    }
+
     [Fact]
     public void Map_rejects_null_row()
     {
@@ -70,7 +94,7 @@ public sealed class FindingsSnapshotJsonFallbackMapperTests
         act.Should().Throw<ArgumentNullException>();
     }
 
-    private static FindingsSnapshotStorageRow CreateRow(string findingsJson) =>
+    private static FindingsSnapshotStorageRow CreateRow(string findingsJson, string? generationStatus = nameof(FindingsSnapshotGenerationStatus.Complete)) =>
         new()
         {
             FindingsSnapshotId = Guid.NewGuid(),
@@ -79,7 +103,7 @@ public sealed class FindingsSnapshotJsonFallbackMapperTests
             GraphSnapshotId = Guid.NewGuid(),
             CreatedUtc = new DateTime(2026, 8, 11, 0, 0, 0, DateTimeKind.Utc),
             SchemaVersion = 9,
-            GenerationStatus = nameof(FindingsSnapshotGenerationStatus.Complete),
+            GenerationStatus = generationStatus,
             FindingsJson = findingsJson,
         };
 }

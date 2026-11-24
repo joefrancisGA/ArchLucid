@@ -151,10 +151,10 @@ public sealed class AdminQuickScanSafetyController(
         string snapshotOperationalMode,
         string requestOperationalMode)
     {
-        if (Enum.TryParse(snapshotOperationalMode, ignoreCase: true, out QuickScanSafetyOperationalMode mode))
+        if (Enum.TryParse(snapshotOperationalMode, ignoreCase: true, out QuickScanSafetyOperationalMode mode) && Enum.IsDefined(mode))
             return mode;
 
-        if (Enum.TryParse(requestOperationalMode, ignoreCase: true, out mode))
+        if (Enum.TryParse(requestOperationalMode, ignoreCase: true, out mode) && Enum.IsDefined(mode))
             return mode;
 
         return QuickScanSafetyOperationalMode.Normal;

@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Serialization;
 
 using Dapper;
 
@@ -133,7 +134,7 @@ public sealed partial class SqlRiskExceptionRepository
 
     private static RiskExceptionRecord Map(RiskExceptionRow row)
     {
-        Enum.TryParse(row.Status, true, out RiskExceptionStatus status);
+        RiskExceptionStatus status = DefinedEnum.Parse<RiskExceptionStatus>(row.Status, ignoreCase: true);
 
         return new RiskExceptionRecord
         {

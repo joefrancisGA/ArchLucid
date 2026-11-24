@@ -101,7 +101,7 @@ public sealed class QuickScanSafetyOperationalAdminService(
 
     private static QuickScanSafetyOperationalMode ParseMode(string value)
     {
-        if (!Enum.TryParse(value, ignoreCase: true, out QuickScanSafetyOperationalMode mode))
+        if (!Enum.TryParse(value, ignoreCase: true, out QuickScanSafetyOperationalMode mode) || !Enum.IsDefined(mode))
         {
             throw new ArgumentException($"Unknown operational mode '{value}'.", nameof(value));
         }

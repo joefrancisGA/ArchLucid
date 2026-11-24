@@ -224,4 +224,26 @@ public sealed class QuickScanServiceCoverageTests
 
         public IDisposable? OnChange(Action<QuickScanSafetyOptions, string?> listener) => null;
     }
+
+    [Theory]
+    [InlineData("2147483647")]
+    [InlineData("-2147483648")]
+    public async Task ScanAsync_undefined_numeric_enum_values_are_not_stored(string value)
+    {
+        Mock<IAgentCompletionClient> completionClient = new();
+        completionClient.Setup(client => client.CompleteJsonAsync(
+                It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("{\"summary\":\"scan\",\"findings\":[{\"severity\":\"" + value
+                + "\",\"confidenceLevel\":\"" + value + "\",\"sourceAgent\":\"" + value + "\"}]}");
+
+        QuickScanResult result = await CreateService(completionClient.Object)
+            .ScanAsync(new Dictionary<string, string>(), CancellationToken.None);
+
+        var finding = result.Findings.Should().ContainSingle().Which;
+        finding.SeverityStored.Should().BeFalse();
+        finding.SourceAgentStored.Should().BeFalse();
+        finding.ConfidenceLevel.Should().BeNull();
+        finding.ReasoningTrace.Should().Be("Severity was not stored.");
+    }
 }

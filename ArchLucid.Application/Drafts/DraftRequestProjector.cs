@@ -193,7 +193,7 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
             return CloudProvider.None;
         }
 
-        if (Enum.TryParse(answer, ignoreCase: true, out CloudProvider provider))
+        if (Enum.TryParse(answer, ignoreCase: true, out CloudProvider provider) && Enum.IsDefined(provider))
             return provider;
 
         return CloudProvider.None;

@@ -45,13 +45,7 @@ internal static class CosmosAgentTraceDocumentMapper
     {
         ArgumentNullException.ThrowIfNull(row);
 
-        AgentType agentType = default;
-
-        if (!string.IsNullOrWhiteSpace(row.AgentType)
-            && Enum.TryParse(row.AgentType, ignoreCase: true, out AgentType parsed))
-        {
-            agentType = parsed;
-        }
+        AgentType agentType = ArchLucid.Contracts.Serialization.DefinedEnum.Parse<AgentType>(row.AgentType ?? string.Empty, ignoreCase: true);
 
         DateTime createdUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
 

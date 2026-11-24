@@ -124,7 +124,7 @@ public sealed class QuickScanTelemetry(ILogger<QuickScanTelemetry> logger) : IQu
             return "unknown";
         }
 
-        if (Enum.TryParse(capacityState, ignoreCase: true, out QuickScanPublicCapacityState parsed))
+        if (ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(capacityState, ignoreCase: true, out QuickScanPublicCapacityState parsed))
         {
             return parsed.ToString();
         }

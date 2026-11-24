@@ -49,7 +49,7 @@ public static class PilotProofPacketStructuralExecutionModeFormatter
     private static StructuralExecutionMode? ParseWireMode(JsonElement modeEl)
     {
         if (modeEl.ValueKind == JsonValueKind.String
-            && Enum.TryParse(modeEl.GetString(), ignoreCase: true, out StructuralExecutionMode parsedFromString))
+            && ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(modeEl.GetString(), ignoreCase: true, out StructuralExecutionMode parsedFromString))
         {
             return parsedFromString;
         }

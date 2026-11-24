@@ -84,7 +84,7 @@ internal static class PilotProofPacketRoiArtifacts
                 string? kindText = kindEl.GetString();
 
                 if (!string.IsNullOrWhiteSpace(kindText)
-                    && Enum.TryParse(kindText, ignoreCase: true, out RoiMetricSourceKind parsed))
+                    && ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(kindText, ignoreCase: true, out RoiMetricSourceKind parsed))
                     kind = parsed;
             }
 

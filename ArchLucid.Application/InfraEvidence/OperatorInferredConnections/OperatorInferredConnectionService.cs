@@ -246,7 +246,7 @@ public sealed class OperatorInferredConnectionService(
             return null;
         }
 
-        return Enum.TryParse(value, ignoreCase: true, out OperatorInferredDataPlaneAnswer answer)
+        return ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(value, ignoreCase: true, out OperatorInferredDataPlaneAnswer answer)
             ? answer
             : null;
     }

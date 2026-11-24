@@ -47,7 +47,7 @@ internal static class SecurityDeclaredConnectionApiMapper
             return false;
         }
 
-        if (Enum.TryParse(value, ignoreCase: true, out parsed))
+        if (Enum.TryParse(value, ignoreCase: true, out parsed) && Enum.IsDefined(parsed))
         {
             errorMessage = null;
             return true;

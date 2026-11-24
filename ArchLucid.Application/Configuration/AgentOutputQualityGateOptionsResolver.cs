@@ -47,7 +47,7 @@ public sealed class AgentOutputQualityGateOptionsResolver(
         if (string.IsNullOrWhiteSpace(raw))
             return false;
 
-        return Enum.TryParse(raw.Trim(), ignoreCase: true, out mode);
+        return Enum.TryParse(raw.Trim(), ignoreCase: true, out mode) && Enum.IsDefined(mode);
     }
 
     internal static string FormatMode(AgentOutputQualityGateMode mode) => mode.ToString();

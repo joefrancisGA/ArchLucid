@@ -13,9 +13,6 @@ internal static class FindingsSnapshotGenerationStatusParser
 {
     internal static FindingsSnapshotGenerationStatus Parse(string? raw)
     {
-        if (!string.IsNullOrWhiteSpace(raw) && Enum.TryParse(raw.Trim(), true, out FindingsSnapshotGenerationStatus st))
-            return st;
-
-        return FindingsSnapshotGenerationStatus.Complete;
+        return ArchLucid.Contracts.Serialization.DefinedEnum.Parse<FindingsSnapshotGenerationStatus>(raw?.Trim() ?? string.Empty, ignoreCase: true);
     }
 }

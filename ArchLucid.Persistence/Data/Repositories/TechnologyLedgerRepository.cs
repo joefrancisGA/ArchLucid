@@ -1,4 +1,5 @@
 using System.Data;
+using ArchLucid.Contracts.Serialization;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Common;
@@ -170,11 +171,11 @@ public sealed class TechnologyLedgerRepository(IDbConnectionFactory connectionFa
     {
         EntryId = row.EntryId,
         RunId = SqlRunIdMapping.ToContractRunId(row.RunId),
-        Role = Enum.Parse<TechnologyLedgerRole>(row.Role),
+        Role = DefinedEnum.Parse<TechnologyLedgerRole>(row.Role),
         TechnologyName = row.TechnologyName,
-        ProviderFamily = Enum.Parse<CloudProvider>(row.ProviderFamily),
-        Status = Enum.Parse<TechnologyLedgerStatus>(row.Status),
-        Source = Enum.Parse<TechnologyLedgerSource>(row.Source),
+        ProviderFamily = DefinedEnum.Parse<CloudProvider>(row.ProviderFamily),
+        Status = DefinedEnum.Parse<TechnologyLedgerStatus>(row.Status),
+        Source = DefinedEnum.Parse<TechnologyLedgerSource>(row.Source),
         EvidenceRef = row.EvidenceRef,
         Rationale = row.Rationale,
         IsLocked = row.IsLocked,

@@ -87,7 +87,7 @@ public static class UniversalIntakeAnswerProjector
             return;
         }
 
-        if (Enum.TryParse(effectiveAnswer, ignoreCase: true, out CloudProvider provider))
+        if (Enum.TryParse(effectiveAnswer, ignoreCase: true, out CloudProvider provider) && Enum.IsDefined(provider))
             request.CloudProvider = provider;
     }
 

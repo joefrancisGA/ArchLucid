@@ -249,8 +249,7 @@ public sealed class DapperTenantCatalogMigrationRepository(ISystemSqlConnectionF
 
         public TenantCatalogMigrationRecord ToRecord()
         {
-            if (!Enum.TryParse(Stage, ignoreCase: true, out TenantCatalogMigrationStage stage))
-                stage = TenantCatalogMigrationStage.ScopeFreeze;
+            TenantCatalogMigrationStage stage = ArchLucid.Contracts.Serialization.DefinedEnum.Parse<TenantCatalogMigrationStage>(Stage, ignoreCase: true);
 
             return new TenantCatalogMigrationRecord
             {

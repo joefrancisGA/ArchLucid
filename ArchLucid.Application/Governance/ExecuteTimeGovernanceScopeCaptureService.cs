@@ -1,4 +1,5 @@
 using System.Text.Json;
+using ArchLucid.Contracts.Serialization;
 
 using ArchLucid.Application.Governance.Coverage;
 using ArchLucid.Application.Common;
@@ -184,8 +185,8 @@ public sealed class ExecuteTimeGovernanceScopeCaptureService(
                 RunId = runId,
                 PolicyPackId = row.PolicyPackId,
                 PolicyPackVersion = row.PolicyPackVersion,
-                CoverageType = Enum.Parse<CoverageType>(row.CoverageType),
-                SelectionState = Enum.Parse<CoverageSelectionState>(row.SelectionState),
+                CoverageType = DefinedEnum.Parse<CoverageType>(row.CoverageType),
+                SelectionState = DefinedEnum.Parse<CoverageSelectionState>(row.SelectionState),
                 ExclusionReason = row.ExclusionReason,
                 ActorUserId = actorUserId,
                 CreatedUtc = createdUtc,

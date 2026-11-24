@@ -87,10 +87,7 @@ public sealed partial class DapperUserInvitationRepository(ISqlConnectionFactory
 
         public UserInvitationRecord ToRecord()
         {
-            if (!Enum.TryParse(Status, ignoreCase: true, out UserInvitationStatus status))
-            {
-                status = UserInvitationStatus.Pending;
-            }
+            UserInvitationStatus status = ArchLucid.Contracts.Serialization.DefinedEnum.Parse<UserInvitationStatus>(Status, ignoreCase: true);
 
             return new UserInvitationRecord
             {

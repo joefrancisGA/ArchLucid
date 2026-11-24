@@ -63,7 +63,7 @@ internal static class FindingsCoverageProjectionMapper
             IsMuted = row.IsMuted,
         };
 
-    /// <summary>Unknown persisted severity names degrade to <see cref="FindingSeverity.Info" /> instead of throwing.</summary>
+    /// <summary>Reject corrupt persisted severity rather than reporting it as informational.</summary>
     private static FindingSeverity ParseSeverity(string? severity) =>
-        Enum.TryParse(severity, ignoreCase: true, out FindingSeverity parsed) ? parsed : FindingSeverity.Info;
+        ArchLucid.Contracts.Serialization.DefinedEnum.Parse<FindingSeverity>(severity ?? string.Empty, ignoreCase: true);
 }

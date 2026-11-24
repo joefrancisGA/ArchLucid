@@ -185,9 +185,7 @@ public sealed partial class SqlTenantAwsConnectionRepository
                 AccountId = AccountId,
                 Region = Region,
                 RoleArn = RoleArn,
-                Status = Enum.TryParse<AwsConnectionStatus>(Status, out AwsConnectionStatus parsed)
-                    ? parsed
-                    : AwsConnectionStatus.Connected,
+                Status = ArchLucid.Contracts.Serialization.DefinedEnum.Parse<AwsConnectionStatus>(Status),
                 LastPolledUtc = LastPolledUtc,
                 CreatedUtc = CreatedUtc,
                 UpdatedUtc = UpdatedUtc,

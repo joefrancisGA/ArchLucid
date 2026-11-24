@@ -124,10 +124,7 @@ public sealed class SqlSecurityEvidencePathSearchCoverageRepository(ISqlConnecti
 
     private static SecurityEvidencePathSearchCoverageRecord Map(CoverageRow row)
     {
-        if (!Enum.TryParse(row.LimitKind, ignoreCase: false, out SecurityEvidencePathSearchLimitKind limitKind))
-        {
-            limitKind = SecurityEvidencePathSearchLimitKind.MaxPaths;
-        }
+        SecurityEvidencePathSearchLimitKind limitKind = ArchLucid.Contracts.Serialization.DefinedEnum.Parse<SecurityEvidencePathSearchLimitKind>(row.LimitKind);
 
         return new SecurityEvidencePathSearchCoverageRecord
         {

@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using ArchLucid.Contracts.Serialization;
 
 using ArchLucid.Core.Identity;
 using ArchLucid.Persistence.Connections;
@@ -136,7 +137,7 @@ public sealed class DapperIdentityMigrationReviewRepository(ISqlConnectionFactor
                 LegacySourceType = LegacySourceType,
                 LegacySourceId = LegacySourceId,
                 TenantId = TenantId,
-                ReasonCode = Enum.Parse<IdentityMigrationReviewReason>(ReasonCode),
+                ReasonCode = DefinedEnum.Parse<IdentityMigrationReviewReason>(ReasonCode),
                 ReasonDetail = ReasonDetail,
                 DetectedUtc = DetectedUtc,
                 ResolvedUtc = ResolvedUtc

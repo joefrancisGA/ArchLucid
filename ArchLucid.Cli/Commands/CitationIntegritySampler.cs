@@ -117,7 +117,7 @@ internal static class CitationIntegrityManifestLoader
         if (string.IsNullOrWhiteSpace(raw))
             return ArchitectureRunStatus.Committed;
 
-        if (Enum.TryParse(raw, ignoreCase: true, out ArchitectureRunStatus parsed))
+        if (ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(raw, ignoreCase: true, out ArchitectureRunStatus parsed))
             return parsed;
 
         throw new InvalidOperationException($"Unknown run status in citation integrity manifest: {raw}");

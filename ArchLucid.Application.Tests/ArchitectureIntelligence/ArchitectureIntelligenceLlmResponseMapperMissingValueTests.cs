@@ -60,4 +60,30 @@ public sealed class ArchitectureIntelligenceLlmResponseMapperMissingValueTests
 
         finding.Severity.Should().Be("Severity was not stored.");
     }
+
+    [Theory]
+    [InlineData("2147483647")]
+    [InlineData("-2147483648")]
+    public void Undefined_model_enum_values_use_uncertain_fallbacks(string value)
+    {
+        var element = ArchitectureIntelligenceLlmResponseMapper.MapExtractionElement(
+            new ArchitectureIntelligenceLlmResponseShapes.ExtractionElementShape
+            {
+                Name = "Unverified element",
+                Kind = value,
+                SupportStatus = value,
+                Origin = value,
+            }, "artifact");
+
+        element.Should().NotBeNull();
+        element!.Kind.Should().Be(ArchitectureElementKind.Assumption);
+        element.Provenance.SupportStatus.Should().Be(SupportStatus.NotYetEvaluated);
+        element.Provenance.Origin.Should().Be(ClaimOrigin.ModelInferred);
+
+        var finding = ArchitectureIntelligenceLlmResponseMapper.MapReviewFinding(
+            new ArchitectureIntelligenceLlmResponseShapes.ReviewFindingShape { Conclusion = value },
+            QualityDimension.Security);
+
+        finding.Conclusion.Should().Be(ReviewConclusion.Indeterminate);
+    }
 }

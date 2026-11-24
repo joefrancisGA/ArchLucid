@@ -432,7 +432,7 @@ public static class DeclarationIdentityActorMaterializer
 
         if (GraphNodePropertyReader.TryGetPropertyValue(node.Properties, "trustOrigin", out string? trustOrigin)
             && !string.IsNullOrWhiteSpace(trustOrigin)
-            && Enum.TryParse(trustOrigin.Trim(), ignoreCase: true, out TrustOrigin parsed))
+            && ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(trustOrigin.Trim(), ignoreCase: true, out TrustOrigin parsed))
         {
             return parsed;
         }

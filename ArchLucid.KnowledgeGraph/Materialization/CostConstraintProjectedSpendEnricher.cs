@@ -142,7 +142,7 @@ internal static class GraphTopologyInfrastructureCostNodes
         string? platformRaw = ReadProperty(topologyNode, "runtimePlatform", "platform");
 
         if (!string.IsNullOrWhiteSpace(platformRaw)
-            && Enum.TryParse(platformRaw, ignoreCase: true, out RuntimePlatform parsed))
+            && ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(platformRaw, ignoreCase: true, out RuntimePlatform parsed))
         {
             return parsed;
         }

@@ -34,7 +34,7 @@ internal static class ArchitectureIntelligenceLlmResponseMapper
             return null;
         }
 
-        if (!Enum.TryParse(item.Kind, ignoreCase: true, out ArchitectureElementKind kind))
+        if (!Enum.TryParse(item.Kind, ignoreCase: true, out ArchitectureElementKind kind) || !Enum.IsDefined(kind))
         {
             kind = ArchitectureElementKind.Assumption;
         }
@@ -160,7 +160,7 @@ internal static class ArchitectureIntelligenceLlmResponseMapper
 
     private static SupportStatus ParseSupportStatus(string? value)
     {
-        if (Enum.TryParse(value, ignoreCase: true, out SupportStatus parsed))
+        if (Enum.TryParse(value, ignoreCase: true, out SupportStatus parsed) && Enum.IsDefined(parsed))
         {
             return parsed;
         }
@@ -170,7 +170,7 @@ internal static class ArchitectureIntelligenceLlmResponseMapper
 
     private static ClaimOrigin ParseClaimOrigin(string? value)
     {
-        if (Enum.TryParse(value, ignoreCase: true, out ClaimOrigin parsed))
+        if (Enum.TryParse(value, ignoreCase: true, out ClaimOrigin parsed) && Enum.IsDefined(parsed))
         {
             return parsed;
         }
@@ -180,7 +180,7 @@ internal static class ArchitectureIntelligenceLlmResponseMapper
 
     private static ReviewConclusion ParseReviewConclusion(string? value)
     {
-        if (Enum.TryParse(value, ignoreCase: true, out ReviewConclusion parsed))
+        if (Enum.TryParse(value, ignoreCase: true, out ReviewConclusion parsed) && Enum.IsDefined(parsed))
         {
             return parsed;
         }

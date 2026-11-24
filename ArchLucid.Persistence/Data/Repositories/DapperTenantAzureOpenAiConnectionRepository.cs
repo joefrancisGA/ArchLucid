@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using ArchLucid.Contracts.Serialization;
 
 using ArchLucid.Core.AiProviders;
 using ArchLucid.Persistence.Connections;
@@ -169,7 +170,7 @@ public sealed class DapperTenantAzureOpenAiConnectionRepository(ISqlConnectionFa
         {
             TenantId = row.TenantId,
             Endpoint = row.Endpoint,
-            AuthMode = Enum.Parse<TenantAzureOpenAiAuthMode>(row.AuthMode, ignoreCase: true),
+            AuthMode = DefinedEnum.Parse<TenantAzureOpenAiAuthMode>(row.AuthMode, ignoreCase: true),
             ApiKeyKeyVaultSecretName = row.ApiKeyKeyVaultSecretName,
             DeploymentsJson = row.DeploymentsJson,
             IsEnabled = row.IsEnabled,

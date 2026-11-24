@@ -31,7 +31,7 @@ internal static partial class DraftRequestRepositoryCore
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(status);
 
-        if (!Enum.TryParse(status, true, out DraftRequestStatus parsed))
+        if (!ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(status, true, out DraftRequestStatus parsed))
             throw new InvalidOperationException($"Draft {draftId} has invalid status '{status}'.");
 
         return parsed;

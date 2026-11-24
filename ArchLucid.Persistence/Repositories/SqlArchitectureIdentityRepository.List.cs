@@ -279,9 +279,7 @@ public sealed partial class SqlArchitectureIdentityRepository
         new()
         {
             DraftId = row.DraftId,
-            Status = Enum.TryParse(row.Status, true, out DraftRequestStatus parsed)
-                ? parsed
-                : DraftRequestStatus.Drafting,
+            Status = ArchLucid.Contracts.Serialization.DefinedEnum.Parse<DraftRequestStatus>(row.Status, ignoreCase: true),
             SystemName = row.SystemName,
             UpdatedUtc = DateTime.SpecifyKind(row.UpdatedUtc, DateTimeKind.Utc),
         };

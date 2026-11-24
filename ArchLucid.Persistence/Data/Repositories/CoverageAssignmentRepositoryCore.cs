@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Governance.Coverage;
+using ArchLucid.Contracts.Serialization;
 
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -45,11 +46,11 @@ internal static class CoverageAssignmentRepositoryCore
             RunId = row.RunId is null ? null : SqlRunIdMapping.ToContractRunId(row.RunId.Value),
             PolicyPackId = row.PolicyPackId,
             PolicyPackVersion = row.PolicyPackVersion,
-            CoverageType = Enum.Parse<CoverageType>(row.CoverageType),
-            SelectionState = Enum.Parse<CoverageSelectionState>(row.SelectionState),
+            CoverageType = DefinedEnum.Parse<CoverageType>(row.CoverageType),
+            SelectionState = DefinedEnum.Parse<CoverageSelectionState>(row.SelectionState),
             RecommendationConfidence = row.RecommendationConfidence is null
                 ? null
-                : Enum.Parse<RecommendationConfidence>(row.RecommendationConfidence),
+                : DefinedEnum.Parse<RecommendationConfidence>(row.RecommendationConfidence),
             RecommendationTrigger = row.RecommendationTrigger,
             RecommendationRationale = row.RecommendationRationale,
             TriggeringEvidenceRef = row.TriggeringEvidenceRef,

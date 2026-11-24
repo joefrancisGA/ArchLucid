@@ -58,18 +58,12 @@ internal static class AgentModelCatalogRepositoryCore
             TierBinding = entry.TierBinding,
             CapabilityTags = DeserializeList(entry.CapabilityTagsJson),
             ApprovedTaskTypes = DeserializeList(entry.ApprovedTaskTypesJson),
-            StructuredOutputLevel = Enum.TryParse(entry.StructuredOutputLevel, true, out AgentModelStructuredOutputLevel level)
-                ? level
-                : AgentModelStructuredOutputLevel.StrictJsonSchema,
-            DataBoundary = Enum.TryParse(entry.DataBoundary, true, out AgentModelDataBoundaryKind boundary)
-                ? boundary
-                : AgentModelDataBoundaryKind.AzureBoundary,
+            StructuredOutputLevel = ArchLucid.Contracts.Serialization.DefinedEnum.Parse<AgentModelStructuredOutputLevel>(entry.StructuredOutputLevel, ignoreCase: true),
+            DataBoundary = ArchLucid.Contracts.Serialization.DefinedEnum.Parse<AgentModelDataBoundaryKind>(entry.DataBoundary, ignoreCase: true),
             ExternalSubprocessorDisclosureComplete = entry.ExternalSubprocessorDisclosureComplete,
-            LifecycleStatus = Enum.TryParse(entry.LifecycleStatus, true, out AgentModelCatalogLifecycleStatus lifecycle)
-                ? lifecycle
-                : AgentModelCatalogLifecycleStatus.Available,
+            LifecycleStatus = ArchLucid.Contracts.Serialization.DefinedEnum.Parse<AgentModelCatalogLifecycleStatus>(entry.LifecycleStatus, ignoreCase: true),
             StructuredOutputProbeUtc = entry.StructuredOutputProbeUtc,
-            TokenizerProfile = Enum.TryParse(entry.TokenizerProfile, true, out AgentModelTokenizerProfile tokenizerProfile)
+            TokenizerProfile = ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(entry.TokenizerProfile, true, out AgentModelTokenizerProfile tokenizerProfile)
                 ? tokenizerProfile
                 : AgentModelTokenizerProfile.CharHeuristic,
             CharsPerToken = entry.CharsPerToken > 0 ? entry.CharsPerToken : AgentModelCatalogTokenMath.DefaultCharsPerToken,
@@ -87,7 +81,7 @@ internal static class AgentModelCatalogRepositoryCore
         new()
         {
             TaskType = row.TaskType,
-            EvaluationState = Enum.TryParse(row.EvaluationState, true, out AgentModelEvaluationStateKind state)
+            EvaluationState = ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(row.EvaluationState, true, out AgentModelEvaluationStateKind state)
                 ? state
                 : AgentModelEvaluationStateKind.NotEvaluated,
             EvidenceJson = row.EvidenceJson,
