@@ -1,4 +1,7 @@
+using System.Security.Claims;
+
 using ArchLucid.Api.Controllers.Authority;
+using ArchLucid.Api.Support;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Services.Authority;
 using ArchLucid.Application;
@@ -87,6 +90,86 @@ public sealed class RunQueryControllerTests
 
         OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
         ok.Value.Should().BeSameAs(response);
+    }
+
+    [Theory]
+    [InlineData("detail")]
+    [InlineData("roi")]
+    [InlineData("stage-timeline")]
+    [InlineData("interactive-graph")]
+    [InlineData("evidence")]
+    [InlineData("finding-evidence")]
+    public async Task Restricted_architecture_share_denies_run_read_before_any_query(string action)
+    {
+        Guid runGuid = Guid.Parse(RunId);
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        Mock<IScopeContextProvider> scopes = new(MockBehavior.Strict);
+        scopes.Setup(x => x.GetCurrentScope()).Returns(scope);
+        Mock<IArchitectureShareAccessGate> gate = new(MockBehavior.Strict);
+        gate.Setup(x => x.EnsureRunReadAllowedAsync(
+                It.IsAny<ControllerBase>(),
+                It.IsAny<ClaimsPrincipal>(),
+                scope,
+                runGuid,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new NotFoundResult());
+        Mock<IRunGraphQueryService> graph = new(MockBehavior.Strict);
+        Mock<IRunProvenanceQueryService> provenance = new(MockBehavior.Strict);
+        Mock<IRunFindingsQueryService> findings = new(MockBehavior.Strict);
+        RunQueryController controller = CreateController(
+            runGraphQueryService: graph.Object,
+            runProvenanceQueryService: provenance.Object,
+            runFindingsQueryService: findings.Object,
+            scopeProvider: scopes.Object,
+            architectureShareAccessGate: gate.Object);
+
+        IActionResult response = action switch
+        {
+            "detail" => await controller.GetRun(RunId, CancellationToken.None),
+            "roi" => await controller.GetRunRoiEstimate(RunId, CancellationToken.None),
+            "stage-timeline" => await controller.GetRunStageTimeline(RunId, CancellationToken.None),
+            "interactive-graph" => await controller.GetInteractiveGraphSnapshot(RunId, CancellationToken.None),
+            "evidence" => await controller.GetRunEvidence(RunId, CancellationToken.None),
+            "finding-evidence" => await controller.GetFindingEvidenceChain(
+                RunId, "finding-1", CancellationToken.None),
+            _ => throw new InvalidOperationException(action)
+        };
+
+        response.Should().BeOfType<NotFoundResult>();
+        gate.Verify(x => x.EnsureRunReadAllowedAsync(
+            It.IsAny<ControllerBase>(),
+            It.IsAny<ClaimsPrincipal>(),
+            scope,
+            runGuid,
+            It.IsAny<CancellationToken>()), Times.Once);
+        graph.VerifyNoOtherCalls();
+        provenance.VerifyNoOtherCalls();
+        findings.VerifyNoOtherCalls();
+    }
+
+    [Theory]
+    [InlineData("roi")]
+    [InlineData("stage-timeline")]
+    public async Task Invalid_run_identifier_is_denied_before_share_gate_or_query(string action)
+    {
+        Mock<IArchitectureShareAccessGate> gate = new(MockBehavior.Strict);
+        Mock<IRunGraphQueryService> graph = new(MockBehavior.Strict);
+        RunQueryController controller = CreateController(
+            runGraphQueryService: graph.Object, architectureShareAccessGate: gate.Object);
+
+        IActionResult response = action == "roi"
+            ? await controller.GetRunRoiEstimate("not-a-guid", CancellationToken.None)
+            : await controller.GetRunStageTimeline("not-a-guid", CancellationToken.None);
+
+        response.Should().BeOfType<ObjectResult>().Which.StatusCode
+            .Should().Be(StatusCodes.Status404NotFound);
+        gate.VerifyNoOtherCalls();
+        graph.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -419,16 +502,18 @@ public sealed class RunQueryControllerTests
         IRunGraphQueryService? runGraphQueryService = null,
         IRunFindingsQueryService? runFindingsQueryService = null,
         IRunProvenanceQueryService? runProvenanceQueryService = null,
-        ITraceabilityBundleExportApplicationService? traceabilityExport = null) =>
+        ITraceabilityBundleExportApplicationService? traceabilityExport = null,
+        IScopeContextProvider? scopeProvider = null,
+        IArchitectureShareAccessGate? architectureShareAccessGate = null) =>
         new(
             runGraphQueryService ?? Mock.Of<IRunGraphQueryService>(),
             runFindingsQueryService ?? Mock.Of<IRunFindingsQueryService>(),
             runProvenanceQueryService ?? Mock.Of<IRunProvenanceQueryService>(),
             traceabilityExport ?? Mock.Of<ITraceabilityBundleExportApplicationService>(),
             Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IScopeContextProvider>(),
+            scopeProvider ?? Mock.Of<IScopeContextProvider>(),
             Mock.Of<IManifestHashService>(),
-            Mock.Of<ArchLucid.Api.Support.IArchitectureShareAccessGate>())
+            architectureShareAccessGate ?? Mock.Of<IArchitectureShareAccessGate>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };

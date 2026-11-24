@@ -53,9 +53,12 @@ class AtomicApprovalProvenanceTests(unittest.TestCase):
             ("public async Task InsertInstanceInScopeAsync(", "public async Task UpdateInstanceInScopeAsync("),
         ):
             statement = code.split(name, 1)[1].split(successor, 1)[0]
-            self.assertIn("INSERT INTO dbo.RemediationInstances", statement)
-            self.assertNotIn("ClosedUtc, RowVersion)", statement)
-            self.assertIn("ClosedUtc)", statement)
+            self.assertNotIn("INSERT INTO dbo.RemediationInstances", statement)
+        sql = (ROOT / "ArchLucid.Persistence/Migrations/428_RemediationProcedureOnlyInserts.sql").read_text()
+        statement = sql.split("INSERT INTO dbo.RemediationInstances", 1)[1].split("WHERE EXISTS", 1)[0]
+        self.assertNotIn("RowVersion", statement)
+        self.assertIn("CreatedUtc, UpdatedUtc)", statement)
+        self.assertIn("dbo.uspRemediationCreateScoped", code)
 
     def test_approval_service_writes_proof_with_atomic_method_not_two_writes(self):
         code = (ROOT / "ArchLucid.Application/InfraEvidence/RemediationInstances/"

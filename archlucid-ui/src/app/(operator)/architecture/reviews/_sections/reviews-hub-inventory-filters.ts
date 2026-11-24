@@ -1,3 +1,4 @@
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import type { RunSummary } from "@/types/authority";
 import type { ReviewPackageOwnerResolutionContext } from "@/lib/review-package-validation-picker";
 
@@ -12,7 +13,7 @@ import {
   WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY,
   WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY,
 } from "./reviews-hub-copy";
-import { toReviewsHubReviewRowDisplay } from "./reviews-hub-package-display";
+import { resolveReviewsHubRecencyInstant, toReviewsHubReviewRowDisplay } from "./reviews-hub-package-display";
 import type { ReviewsHubOverallStatus } from "./reviews-hub-review-status";
 import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
@@ -131,7 +132,8 @@ export function resolveInventoryFilterCountRuns(
     return mergedRuns;
   }
 
-  return visibilityFilteredRuns;
+  // The archived view passes every run as the visible pool. Other chips still count active reviews.
+  return visibilityFilteredRuns.filter((run) => !isArchivedRun(run));
 }
 
 export function countRunsMatchingInventoryFilter(
@@ -194,7 +196,11 @@ export function matchesFilter(
   }
 
   if (filter === "updated-recently") {
-    const updatedAt = new Date(run.createdUtc).getTime();
+    // The chip is "updated recently". createdUtc is only the fallback when the list row has no lastModifiedUtc.
+    const modifiedRaw = run.lastModifiedUtc?.trim() ?? "";
+    const createdRaw = run.createdUtc?.trim() ?? "";
+    const stamp = modifiedRaw.length > 0 ? modifiedRaw : createdRaw;
+    const updatedAt = new Date(stamp).getTime();
 
     if (Number.isNaN(updatedAt)) {
       return false;
@@ -208,6 +214,13 @@ export function matchesFilter(
   return row.overallStatus === filter;
 }
 
+function inventoryRunKey(runId: string): string {
+  const trimmed = runId.trim();
+
+  // The archive cache stores a trimmed id. A padded list id is the same review.
+  return trimmed.length > 0 ? trimmed : runId;
+}
+
 export function mergeRunsWithArchivedCache(
   runs: readonly RunSummary[],
   archivedRuns: readonly RunSummary[],
@@ -215,12 +228,16 @@ export function mergeRunsWithArchivedCache(
   const byId = new Map<string, RunSummary>();
 
   for (const run of runs) {
-    byId.set(run.runId, run);
+    byId.set(inventoryRunKey(run.runId), run);
   }
 
   for (const archivedRun of archivedRuns) {
-    if (!byId.has(archivedRun.runId)) {
-      byId.set(archivedRun.runId, archivedRun);
+    const key = inventoryRunKey(archivedRun.runId);
+    const existing = byId.get(key);
+
+    // The list can still hold the pre-archive row until refresh. The cache is the archived snapshot.
+    if (existing === undefined || existing.isArchived !== true) {
+      byId.set(key, archivedRun);
     }
   }
 
@@ -284,8 +301,9 @@ function compareRunsForInventory(
     return leftPinned - rightPinned;
   }
 
-  const leftUpdated = new Date(left.createdUtc).getTime();
-  const rightUpdated = new Date(right.createdUtc).getTime();
+  // Row labels use completed time for a finalized package and created time otherwise.
+  const leftUpdated = parseIsoUtcMs(resolveReviewsHubRecencyInstant(left).instantUtc);
+  const rightUpdated = parseIsoUtcMs(resolveReviewsHubRecencyInstant(right).instantUtc);
 
   if (!Number.isNaN(leftUpdated) && !Number.isNaN(rightUpdated) && leftUpdated !== rightUpdated) {
     return rightUpdated - leftUpdated;

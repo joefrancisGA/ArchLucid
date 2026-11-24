@@ -722,7 +722,7 @@ export function TerraformWorkbenchClient() {
           </p>
         ) : null}
 
-        {hub != null && !hasTerraformMapping ? (
+        {hub != null && !hasTerraformMapping && loadError == null ? (
           <EnterpriseCompactEmptyState
             title={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_NOT_MAPPED_TITLE}
             description={

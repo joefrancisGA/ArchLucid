@@ -18,6 +18,8 @@ import type { ReviewDetailTabActivityAt } from "@/lib/review-detail-tab-activity
 import {
   type ReviewDetailTabId,
   writeReviewDetailTabToUrl,
+  reviewDetailFindingIdClearForTabNavigation,
+  reviewDetailWorkbenchFocusForTabNavigation,
 } from "@/lib/review-detail-workspace-tabs";
 import { type ResolveReviewDetailVisibleTabsInput } from "@/lib/resolve-review-detail-visible-tabs";
 import type { ReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-lifecycle";
@@ -180,7 +182,12 @@ export function useReviewDetailTabNavigation(): (tab: ReviewDetailTabId) => void
         return;
       }
 
-      writeReviewDetailTabToUrl(tab, { hash: null });
+      writeReviewDetailTabToUrl(tab, {
+        hash: null,
+        findingId: reviewDetailFindingIdClearForTabNavigation(tab),
+        workbenchFocus: reviewDetailWorkbenchFocusForTabNavigation(tab),
+        presenter: null,
+      });
     },
     [context],
   );

@@ -5,12 +5,19 @@
 
 # ArchLucid changelog
 
-
 ## 2026-11-24 - Score lift round 133 (batch 98): Drift, package changes, decision and approvals gates
 
 **Outcome.** Drift workbench change-table empty states stay off the drift load-error branch. Package changes since finalize shows timeline load failure apart from empty timeline honesty. Decision register and governance approval status-filter empties remain gated off list load failures (mounted contracts).
 
 **Surfaces.** Drift workbench, package changes since finalize, decision register, governance workflow approvals, honesty and mounted contract tests.
+
+
+
+## 2026-11-24 - Score lift round 132 (batch 97): Infra workbench load-error gates
+
+**Outcome.** Diagram reconcile correspondence results stay off the reconciliation load-error branch. Terraform mapping empty honesty renders only after a successful hub read. Diagrams evidence-family empty honesty requires a successful diagram load. Resource explorer table chrome hides during ARM list load failure while keeping the explorer empty not-failure line on the success branch.
+
+**Surfaces.** Diagram reconcile, Terraform workbench, diagrams workbench, resources explorer, honesty and mounted contract tests.
 
 ## 2026-11-23 - Score lift round 131 (batch 96): Diagram stale gate, export finalize contracts
 

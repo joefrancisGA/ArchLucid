@@ -223,11 +223,19 @@ public sealed class SqlRemediationInstanceApprovalProvenanceTests(SqlServerPersi
                 PatternKey = "test.approval." + patternId.ToString("N"),
                 FrozenPatternVersion = "1.0.0",
                 AutomationLevel = RemediationAutomationLevel.Manual,
+                Status = RemediationInstanceStatus.Classified,
+                CreatedByActorKey = "creator",
+                CreatedUtc = now,
+                UpdatedUtc = now,
+            });
+            RemediationInstanceRecord created = (await repository.TryGetByIdInScopeAsync(scope, id))!;
+            await repository.UpdateInstanceInScopeAsync(scope, new RemediationInstanceMutation
+            {
+                InstanceId = id,
+                ExpectedRowVersion = created.RowVersion,
                 Status = RemediationInstanceStatus.PreflightPassed,
                 PreflightSnapshotId = Guid.NewGuid(),
                 PreflightResultJson = "{\"passed\":true}",
-                CreatedByActorKey = "creator",
-                CreatedUtc = now,
                 UpdatedUtc = now,
             });
         }
@@ -254,4 +262,165 @@ public sealed class SqlRemediationInstanceApprovalProvenanceTests(SqlServerPersi
             CreatedUtc = now,
         };
     }
+
+    [SkippableFact]
+    public async Task Verification_commits_evidence_atomically_and_rolls_back_when_receipt_insert_fails()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable,
+            SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        SqlConnectionStringBuilder builder = new(fixture.ConnectionString);
+        builder.InitialCatalog.Should().Contain("Test",
+            "the verification rollback test must never modify a production catalog");
+
+        ProjectScopeKey scope = ProjectScopeKey.Create(
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
+        Guid findingId = Guid.NewGuid();
+        Guid patternId = Guid.NewGuid();
+        Guid versionId = Guid.NewGuid();
+        Guid firstId = Guid.NewGuid();
+        Guid secondId = Guid.NewGuid();
+        DateTime now = DateTime.UtcNow;
+        SqlRemediationInstanceRepository repository =
+            new(new SqlConnectionFactory(fixture.ConnectionString));
+
+        await using (SqlConnection connection = new(fixture.ConnectionString))
+        {
+            await connection.OpenAsync();
+            await connection.ExecuteAsync(
+                """
+                INSERT INTO dbo.OperationalSecurityFindings
+                    (FindingId, TenantId, WorkspaceId, ProjectId, Provider, SourceSystem,
+                     SourceFindingId, Title, FirstObservedUtc, LastObservedUtc, Status,
+                     PayloadHashSha256, CreatedUtc, UpdatedUtc)
+                VALUES
+                    (@FindingId, @TenantId, @WorkspaceId, @ProjectId, @Provider, N'verification-atomic-test',
+                     @SourceFindingId, N'Verification transaction fixture', @Now, @Now, 0,
+                     @PayloadHashSha256, @Now, @Now);
+                INSERT INTO dbo.RemediationPatterns
+                    (PatternId, TenantId, PatternKey, DisplayName, CreatedByActorKey, CreatedUtc, UpdatedUtc)
+                VALUES (@PatternId, @TenantId, @PatternKey, N'Verification fixture', N'author', @Now, @Now);
+                INSERT INTO dbo.RemediationPatternVersions
+                    (VersionId, PatternId, TenantId, Version, Status, ControlObjective, ContentJson,
+                     AutomationLevel, AuthorActorKey, ApprovedByActorKey, ApprovedUtc, CreatedUtc, UpdatedUtc)
+                VALUES (@VersionId, @PatternId, @TenantId, N'1.0.0', @ApprovedPatternStatus,
+                        N'Fixture', N'{}', 0, N'author', N'pattern-approver', @Now, @Now, @Now);
+                INSERT INTO dbo.RemediationInstances
+                    (InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId,
+                     PatternVersionId, PatternKey, FrozenPatternVersion, AutomationLevel,
+                     Status, CreatedByActorKey, CreatedUtc, UpdatedUtc, ChangeImplementedUtc)
+                VALUES
+                    (@FirstId, @TenantId, @WorkspaceId, @ProjectId, @FindingId, @PatternId,
+                     @VersionId, @PatternKey, N'1.0.0', 0, @ChangeImplementedStatus,
+                     N'creator', @Now, @Now, @Now),
+                    (@SecondId, @TenantId, @WorkspaceId, @ProjectId, @FindingId, @PatternId,
+                     @VersionId, @PatternKey, N'1.0.0', 0, @ChangeImplementedStatus,
+                     N'creator', @Now, @Now, @Now);
+                """,
+                new
+                {
+                    findingId, patternId, versionId,
+                    FirstId = firstId, SecondId = secondId,
+                    scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+                    Provider = (int)CloudProvider.Azure,
+                    SourceFindingId = findingId.ToString("N"),
+                    PayloadHashSha256 = new byte[32],
+                    PatternKey = "test.verification." + patternId.ToString("N"),
+                    ApprovedPatternStatus = (int)RemediationPatternStatus.Approved,
+                    ChangeImplementedStatus = (int)RemediationInstanceStatus.ChangeImplemented,
+                    Now = now,
+                });
+        }
+
+        RemediationInstanceRecord firstBefore = (await repository.TryGetByIdInScopeAsync(scope, firstId))!;
+        RemediationInstanceRecord secondBefore = (await repository.TryGetByIdInScopeAsync(scope, secondId))!;
+        firstBefore.RowVersion.Should().HaveCount(8);
+        secondBefore.RowVersion.Should().HaveCount(8);
+
+        const string verificationJson = "{\"passed\":true}";
+        RemediationInstanceMutation firstVerification = new()
+        {
+            InstanceId = firstId,
+            Status = RemediationInstanceStatus.Verified,
+            ExpectedRowVersion = firstBefore.RowVersion,
+            VerificationSnapshotId = Guid.NewGuid(),
+            VerificationResultJson = verificationJson,
+            VerifiedUtc = now,
+            UpdatedUtc = now,
+        };
+        RemediationEvidenceRecord evidence = new()
+        {
+            EvidenceId = Guid.NewGuid(),
+            InstanceId = firstId,
+            TenantId = scope.TenantId,
+            Phase = RemediationEvidencePhase.Verify,
+            PayloadJson = verificationJson,
+            ActorKey = "independent-verifier",
+            CorrelationId = "sql-verification-transaction",
+            CreatedUtc = now,
+        };
+
+        RemediationEvidenceRecord CopyEvidence(Guid instance, Guid receiptId) => new()
+        {
+            EvidenceId = receiptId,
+            InstanceId = instance,
+            TenantId = scope.TenantId,
+            Phase = RemediationEvidencePhase.Verify,
+            PayloadJson = verificationJson,
+            ActorKey = "independent-verifier",
+            CorrelationId = "sql-verification-transaction",
+            CreatedUtc = now,
+        };
+
+        await repository.CommitVerificationInScopeAsync(scope, firstVerification, evidence);
+        RemediationInstanceRecord firstAfter = (await repository.TryGetByIdInScopeAsync(scope, firstId))!;
+        firstAfter.Status.Should().Be(RemediationInstanceStatus.Verified);
+        firstAfter.RowVersion.Should().NotEqual(firstBefore.RowVersion);
+        (await repository.ListEvidenceByInstanceInScopeAsync(scope, firstId))
+            .Should().ContainSingle().Which.Phase.Should().Be(RemediationEvidencePhase.Verify);
+
+        // A replay with the original token cannot append an additional receipt.
+        Func<Task> stale = () => repository.CommitVerificationInScopeAsync(
+            scope, firstVerification, CopyEvidence(firstId, Guid.NewGuid()));
+        await stale.Should().ThrowAsync<InvalidOperationException>();
+        (await repository.ListEvidenceByInstanceInScopeAsync(scope, firstId))
+            .Should().ContainSingle("stale verification cannot append evidence");
+
+        // The second row remains eligible for verification. A valid eight-byte
+        // token from the first row must not pass its compare-and-swap guard.
+        RemediationInstanceMutation staleOther = firstVerification with
+        {
+            InstanceId = secondId,
+            ExpectedRowVersion = firstBefore.RowVersion,
+        };
+        Func<Task> foreignRowVersion = () => repository.CommitVerificationInScopeAsync(
+            scope, staleOther, CopyEvidence(secondId, Guid.NewGuid()));
+        await foreignRowVersion.Should().ThrowAsync<InvalidOperationException>();
+
+        // The scope predicate must reject a valid token from another project.
+        ProjectScopeKey foreign = ProjectScopeKey.Create(
+            scope.TenantId, scope.WorkspaceId, Guid.NewGuid());
+        RemediationInstanceMutation secondVerification = firstVerification with
+        {
+            InstanceId = secondId,
+            ExpectedRowVersion = secondBefore.RowVersion,
+        };
+        Func<Task> wrongScope = () => repository.CommitVerificationInScopeAsync(
+            foreign, secondVerification,
+            CopyEvidence(secondId, Guid.NewGuid()));
+        await wrongScope.Should().ThrowAsync<InvalidOperationException>();
+
+        // The UPDATE would match, but the duplicate evidence primary key must
+        // abort the transaction, restoring both status and rowversion.
+        Func<Task> duplicateReceipt = () => repository.CommitVerificationInScopeAsync(
+            scope, secondVerification, CopyEvidence(secondId, evidence.EvidenceId));
+        await duplicateReceipt.Should().ThrowAsync<SqlException>();
+
+        RemediationInstanceRecord secondAfter = (await repository.TryGetByIdInScopeAsync(scope, secondId))!;
+        secondAfter.Status.Should().Be(RemediationInstanceStatus.ChangeImplemented);
+        secondAfter.RowVersion.Should().Equal(secondBefore.RowVersion);
+        (await repository.ListEvidenceByInstanceInScopeAsync(scope, secondId))
+            .Should().BeEmpty("verification state and evidence must roll back together");
+    }
+
 }

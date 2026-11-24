@@ -125,6 +125,52 @@ public sealed class CoreDependencyBoundaryAnalyzerTests
     }
 
     [Fact]
+    public void Api_target_reuses_existing_analyzers_and_keeps_snapshot_rules_advisory()
+    {
+        DirectoryInfo? directory = new(Directory.GetCurrentDirectory());
+        for (; directory is not null; directory = directory.Parent)
+        {
+            string apiProject = Path.Combine(directory.FullName, "ArchLucid.Api", "ArchLucid.Api.csproj");
+            if (!File.Exists(apiProject))
+                continue;
+
+            string projectText = File.ReadAllText(apiProject);
+            Assert.Contains("ArchLucid.Analyzers.csproj", projectText);
+            Assert.Contains("OutputItemType=\"Analyzer\"", projectText);
+            Assert.Contains("ReferenceOutputAssembly=\"false\"", projectText);
+
+            string endpointPath = Path.Combine(directory.FullName, "ArchLucid.Api",
+                "Controllers", "Planning", "GraphController.Snapshot.cs");
+            Assert.True(File.Exists(endpointPath),
+                "the FND017002-005 analyzers are scoped to a real temporal-snapshot endpoint");
+            Assert.Contains("GetArchitectureGraphTemporalSnapshot(",
+                File.ReadAllText(endpointPath));
+
+            // Four existing checks analyze the API endpoint but have not yet
+            // earned mandatory compiler enforcement. Preserve their current
+            // diagnostic contract while collecting real-source baselines.
+            (DiagnosticAnalyzer Analyzer, string Id)[] advisoryRules =
+            [
+                (new SecureNowSnapshotAuthorizationOrderAnalyzer(), "FND017002"),
+                (new AuthorizationDecisionConsumptionAnalyzer(), "FND017003"),
+                (new SnapshotAuthorizationDominanceAnalyzer(), "FND017004"),
+                (new SnapshotAuthorizationResourceBindingAnalyzer(), "FND017005"),
+            ];
+            foreach ((DiagnosticAnalyzer analyzer, string expectedId) in advisoryRules)
+            {
+                DiagnosticDescriptor rule = Assert.Single(analyzer.SupportedDiagnostics);
+                Assert.Equal(expectedId, rule.Id);
+                Assert.Equal(DiagnosticSeverity.Info, rule.DefaultSeverity);
+                Assert.True(rule.IsEnabledByDefault);
+            }
+
+            return;
+        }
+
+        throw new FileNotFoundException("Unable to locate checked-in ArchLucid.Api source tree");
+    }
+
+    [Fact]
     public async Task Core_can_use_independent_assembly()
     {
         var diagnostics = await AnalyzeAsync("ArchLucid.Core",
