@@ -71,7 +71,7 @@ public sealed partial class RunsExportController(
     {
         try
         {
-            if (!AuthorityRunIdentifier.TryParse(runId, out _))
+            if (!ArchLucid.Application.Runs.AuthorityRunIdentifier.TryParse(runId, out _))
                 return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
             if (!TryParseFormat(format, out ExportFormat exportFormat))
