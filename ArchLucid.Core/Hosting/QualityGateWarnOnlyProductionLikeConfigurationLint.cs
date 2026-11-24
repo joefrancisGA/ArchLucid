@@ -61,7 +61,7 @@ public static class QualityGateWarnOnlyProductionLikeConfigurationLint
             return (AgentOutputQualityGateMode)numeric == AgentOutputQualityGateMode.WarnOnly;
         }
 
-        if (Enum.TryParse(modeRaw, ignoreCase: true, out AgentOutputQualityGateMode parsed) && Enum.IsDefined(parsed))
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(modeRaw, ignoreCase: true, out AgentOutputQualityGateMode parsed) && Enum.IsDefined(parsed))
             return parsed == AgentOutputQualityGateMode.WarnOnly;
 
         return string.Equals(modeRaw, "WarnOnly", StringComparison.OrdinalIgnoreCase);

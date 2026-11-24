@@ -16,7 +16,7 @@ internal static class FindingInspectReadModelMapper
         if (normalized is null)
             return FindingSeverity.Info;
 
-        if (!Enum.TryParse(normalized, ignoreCase: true, out FindingSeverity sev) || !Enum.IsDefined(sev))
+        if (!global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(normalized, ignoreCase: true, out FindingSeverity sev) || !Enum.IsDefined(sev))
             throw new InvalidDataException($"Stored finding severity '{normalized}' is invalid.");
 
         return sev;
@@ -32,7 +32,7 @@ internal static class FindingInspectReadModelMapper
         if (normalized is null)
             return FindingHumanReviewStatus.NotRequired;
 
-        if (!Enum.TryParse(normalized, ignoreCase: true, out FindingHumanReviewStatus status) || !Enum.IsDefined(status))
+        if (!global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(normalized, ignoreCase: true, out FindingHumanReviewStatus status) || !Enum.IsDefined(status))
             throw new InvalidDataException($"Stored human review status '{normalized}' is invalid.");
 
         return status;
@@ -48,7 +48,7 @@ internal static class FindingInspectReadModelMapper
         if (normalized is null)
             return null;
 
-        if (!Enum.TryParse(normalized, ignoreCase: true, out FindingConfidenceLevel lvl))
+        if (!global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(normalized, ignoreCase: true, out FindingConfidenceLevel lvl))
             return null;
 
         return Enum.IsDefined(lvl) ? lvl : null;
@@ -64,7 +64,7 @@ internal static class FindingInspectReadModelMapper
         if (normalized is null)
             return null;
 
-        if (!Enum.TryParse(normalized, ignoreCase: true, out FindingDisposition disposition))
+        if (!global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(normalized, ignoreCase: true, out FindingDisposition disposition))
             return null;
 
         return Enum.IsDefined(disposition) ? disposition : null;

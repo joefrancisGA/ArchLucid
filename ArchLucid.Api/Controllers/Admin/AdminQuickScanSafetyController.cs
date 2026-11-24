@@ -151,10 +151,10 @@ public sealed class AdminQuickScanSafetyController(
         string snapshotOperationalMode,
         string requestOperationalMode)
     {
-        if (Enum.TryParse(snapshotOperationalMode, ignoreCase: true, out QuickScanSafetyOperationalMode mode) && Enum.IsDefined(mode))
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(snapshotOperationalMode, ignoreCase: true, out QuickScanSafetyOperationalMode mode) && Enum.IsDefined(mode))
             return mode;
 
-        if (Enum.TryParse(requestOperationalMode, ignoreCase: true, out mode) && Enum.IsDefined(mode))
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(requestOperationalMode, ignoreCase: true, out mode) && Enum.IsDefined(mode))
             return mode;
 
         return QuickScanSafetyOperationalMode.Normal;

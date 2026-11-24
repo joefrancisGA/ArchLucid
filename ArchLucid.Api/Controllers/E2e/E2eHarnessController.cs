@@ -135,9 +135,10 @@ public sealed class E2EHarnessController(
                 "Invalid or missing request body for E2E harness endpoint.",
                 ProblemTypes.ResourceNotFound);
 
-        if (!Enum.TryParse(body.CheckoutTier.Trim(), true, out BillingCheckoutTier tier))
-
-            tier = BillingCheckoutTier.Team;
+        if (!global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(body.CheckoutTier?.Trim(), true, out BillingCheckoutTier tier))
+            return this.NotFoundProblem(
+                "Invalid checkout tier for E2E harness endpoint.",
+                ProblemTypes.ResourceNotFound);
 
         string tierStorageCode = BillingTierCode.FromCheckoutTier(tier);
         string checkoutLabel = BillingTierCode.CheckoutTierLabel(tier);

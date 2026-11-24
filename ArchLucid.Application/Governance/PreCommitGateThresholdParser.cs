@@ -14,7 +14,7 @@ public static class PreCommitGateThresholdParser
 
         string normalized = thresholdText.Trim();
 
-        if (Enum.TryParse(normalized, ignoreCase: true, out FindingSeverity parsed)
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(normalized, ignoreCase: true, out FindingSeverity parsed)
             && Enum.IsDefined(parsed))
             return parsed;
 

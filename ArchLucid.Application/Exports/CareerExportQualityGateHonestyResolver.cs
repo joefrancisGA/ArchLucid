@@ -50,7 +50,7 @@ public static class CareerExportQualityGateHonestyResolver
             return null;
         }
 
-        if (Enum.TryParse(modeRaw, ignoreCase: true, out AgentOutputQualityGateMode parsed)
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(modeRaw, ignoreCase: true, out AgentOutputQualityGateMode parsed)
             && Enum.IsDefined(parsed))
         {
             return parsed;

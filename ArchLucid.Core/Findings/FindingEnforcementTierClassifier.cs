@@ -110,7 +110,7 @@ public static class FindingEnforcementTierClassifier
             return true;
         }
 
-        return Enum.TryParse(trimmed, ignoreCase: true, out tier) && Enum.IsDefined(tier);
+        return global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(trimmed, ignoreCase: true, out tier) && Enum.IsDefined(tier);
     }
 
     private static bool TryParseWholeNumberString(string raw, out int value)

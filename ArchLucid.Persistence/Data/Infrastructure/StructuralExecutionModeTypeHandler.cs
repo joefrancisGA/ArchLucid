@@ -27,7 +27,7 @@ public sealed class StructuralExecutionModeTypeHandler : SqlMapper.TypeHandler<S
 
         string text = value.ToString()?.Trim() ?? "";
 
-        return !Enum.TryParse(text, ignoreCase: false, out StructuralExecutionMode parsed) || !Enum.IsDefined(parsed) ? throw new DataException($"Unrecognised StructuralExecutionMode '{text}'.") : parsed;
+        return !global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(text, ignoreCase: false, out StructuralExecutionMode parsed) || !Enum.IsDefined(parsed) ? throw new DataException($"Unrecognised StructuralExecutionMode '{text}'.") : parsed;
     }
 
     public override void SetValue(IDbDataParameter parameter, StructuralExecutionMode value)

@@ -35,7 +35,7 @@ public static class ArchitectureRiskRegisterHumanReviewLabel
             return FindingHumanReviewStatus.NotRequired;
         }
 
-        if (Enum.TryParse(trimmed, true, out FindingHumanReviewStatus status) &&
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(trimmed, true, out FindingHumanReviewStatus status) &&
             Enum.IsDefined(typeof(FindingHumanReviewStatus), status))
             return status;
 

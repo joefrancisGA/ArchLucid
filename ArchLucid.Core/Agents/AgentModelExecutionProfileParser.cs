@@ -16,7 +16,7 @@ public static class AgentModelExecutionProfileParser
 
         string normalized = value.Trim();
 
-        if (Enum.TryParse(normalized, ignoreCase: true, out AgentModelExecutionProfile parsed)
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(normalized, ignoreCase: true, out AgentModelExecutionProfile parsed)
             && Enum.IsDefined(parsed))
         {
             profile = parsed;

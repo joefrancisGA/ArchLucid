@@ -37,7 +37,7 @@ public static partial class RealLlmOutputStructuralValidator
         type = default;
         error = null;
 
-        if (Enum.TryParse(input, true, out type) && Enum.IsDefined(type))
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(input, true, out type) && Enum.IsDefined(type))
             return true;
 
         if (int.TryParse(input, System.Globalization.NumberStyles.Integer,
@@ -178,7 +178,7 @@ public static partial class RealLlmOutputStructuralValidator
             return SetMsg(out message, "agentType number does not match the expected type.");
         }
 
-        if (Enum.TryParse(text, true, out AgentType t) && t == expected)
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(text, true, out AgentType t) && t == expected)
             return true;
 
         message = $"JSON agentType '{text}' does not match expected {expected}.";

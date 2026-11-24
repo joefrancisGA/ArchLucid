@@ -246,4 +246,22 @@ public sealed class QuickScanServiceCoverageTests
         finding.ConfidenceLevel.Should().BeNull();
         finding.ReasoningTrace.Should().Be("Severity was not stored.");
     }
+
+    [Fact]
+    public async Task ScanAsync_composite_ordinary_enum_names_do_not_become_stored_evidence()
+    {
+        Mock<IAgentCompletionClient> completionClient = new();
+        completionClient.Setup(client => client.CompleteJsonAsync(
+                It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("""{"summary":"scan","findings":[{"severity":"Warning,Error","confidenceLevel":"High,Medium","sourceAgent":"Topology,Cost"}]}""");
+
+        QuickScanResult result = await CreateService(completionClient.Object)
+            .ScanAsync(new Dictionary<string, string>(), CancellationToken.None);
+
+        var finding = result.Findings.Should().ContainSingle().Which;
+        finding.SeverityStored.Should().BeFalse();
+        finding.SourceAgentStored.Should().BeFalse();
+        finding.ConfidenceLevel.Should().BeNull();
+    }
 }

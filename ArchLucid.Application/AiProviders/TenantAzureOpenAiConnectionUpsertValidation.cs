@@ -40,7 +40,7 @@ public static class TenantAzureOpenAiConnectionUpsertValidation
         TenantAzureOpenAiAuthMode authMode = TenantAzureOpenAiAuthMode.ApiKey;
 
         if (!string.IsNullOrWhiteSpace(request.AuthMode)
-            && (!Enum.TryParse(request.AuthMode, ignoreCase: true, out authMode) || !Enum.IsDefined(authMode)))
+            && (!global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(request.AuthMode, ignoreCase: true, out authMode) || !Enum.IsDefined(authMode)))
         {
             error = "AuthMode must be ApiKey.";
 
