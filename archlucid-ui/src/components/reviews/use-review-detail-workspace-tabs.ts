@@ -146,6 +146,10 @@ import {
   parseQuickDecisionMuteFindingIdFromSearch,
   QUICK_DECISION_MUTE_FINDING_ID_PARAM,
 } from "@/lib/reviews/quick-decision-mute-panels-url";
+import {
+  parseQuickDecisionPolicyPackImpactOpenFromSearch,
+  QUICK_DECISION_POLICY_PACK_IMPACT_OPEN_PARAM,
+} from "@/lib/findings/quick-decision-policy-pack-impact-disclosure-url";
 
 const WORKBENCH_TAB_IDS: readonly ReviewDetailTabId[] = ["architecture", "findings", "evidence"];
 
@@ -360,6 +364,9 @@ export function useReviewDetailWorkspaceTabs(
       parseQuickDecisionReasoningFindingIdFromSearch(params.get(QUICK_DECISION_REASONING_FINDING_ID_PARAM)).length > 0;
     const quickDecisionMuteFindingIdPresent =
       parseQuickDecisionMuteFindingIdFromSearch(params.get(QUICK_DECISION_MUTE_FINDING_ID_PARAM)).length > 0;
+    const quickDecisionPolicyPackImpactOpenPresent = parseQuickDecisionPolicyPackImpactOpenFromSearch(
+      params.get(QUICK_DECISION_POLICY_PACK_IMPACT_OPEN_PARAM),
+    );
     const runRecordMetaOpenPresent = parseRunDetailRecordMetadataOpenFromSearch(params.get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM));
     const askDockOpenPresent = parseReviewAskDockOpenFromSearch(params.get(REVIEW_ASK_DOCK_OPEN_PARAM));
     const askThreadPresent =
@@ -414,6 +421,7 @@ export function useReviewDetailWorkspaceTabs(
       || quickDecisionAskFindingIdPresent
       || quickDecisionReasoningFindingIdPresent
       || quickDecisionMuteFindingIdPresent
+      || quickDecisionPolicyPackImpactOpenPresent
       || runRecordMetaOpenPresent
       || askDockOpenPresent
       || askThreadPresent
