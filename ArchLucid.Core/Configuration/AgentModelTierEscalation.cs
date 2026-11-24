@@ -16,9 +16,12 @@ public static class AgentModelTierEscalation
         if (currentTier == LlmModelTier.Standard)
             return LlmModelTier.Premium;
 
-        return LlmModelTier.Premium;
+        if (currentTier == LlmModelTier.Premium)
+            return LlmModelTier.Premium;
+
+        throw new ArgumentOutOfRangeException(nameof(currentTier), currentTier, "Unknown model tier.");
     }
 
-    /// <summary>True when <see cref="Escalate" /> would change the tier.</summary>
-    public static bool CanEscalate(LlmModelTier currentTier) => currentTier != LlmModelTier.Premium;
+    /// <summary>True when a known tier can move one step up the ladder.</summary>
+    public static bool CanEscalate(LlmModelTier currentTier) => currentTier is LlmModelTier.Economy or LlmModelTier.Standard;
 }
