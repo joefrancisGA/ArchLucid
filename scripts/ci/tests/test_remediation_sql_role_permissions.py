@@ -67,7 +67,7 @@ class RemediationSqlRolePermissionsTests(unittest.TestCase):
     def test_every_stored_procedure_parameter_uses_valid_tsql_at_prefix(self):
         sql = PROCEDURES.read_text()
         modules = re.findall(
-            r"CREATE OR ALTER PROCEDURE dbo\\.(\\w+)\\n(.*?)\\nWITH EXECUTE AS OWNER",
+            r"CREATE OR ALTER PROCEDURE dbo\.(\w+)\n(.*?)\nWITH EXECUTE AS OWNER",
             sql, flags=re.DOTALL,
         )
         self.assertEqual(3, len(modules), "validate every owner-context SQL procedure")
@@ -79,9 +79,9 @@ class RemediationSqlRolePermissionsTests(unittest.TestCase):
                 with self.subTest(procedure=name, declaration=line):
                     self.assertRegex(
                         line,
-                        r"^@[A-Za-z][A-Za-z0-9_]*\\s+"
-                        r"(?:UNIQUEIDENTIFIER|VARBINARY\\(\\d+\\)|INT|"
-                        r"NVARCHAR\\((?:MAX|\\d+)\\)|DATETIME2)$",
+                        r"^@[A-Za-z][A-Za-z0-9_]*\s+"
+                        r"(?:UNIQUEIDENTIFIER|VARBINARY\(\d+\)|INT|"
+                        r"NVARCHAR\((?:MAX|\d+)\)|DATETIME2)$",
                         "bare identifiers in SQL procedure parameter declarations "
                         "break DbUp migration 427 before any tests can execute",
                     )
