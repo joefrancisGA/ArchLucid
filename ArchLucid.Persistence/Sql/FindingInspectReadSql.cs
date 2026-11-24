@@ -6,6 +6,23 @@ namespace ArchLucid.Persistence.Sql;
 /// </summary>
 internal static class FindingInspectReadSql
 {
+    /// <summary>Identity-only projection with the same scoped newest-run selection as inspect.</summary>
+    public const string RunIdentity = """
+        SELECT TOP 1 r.RunId
+        FROM dbo.FindingRecords fr
+        INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
+        INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
+        WHERE fr.FindingId = @FindingId
+          AND fr.TenantId = @TenantId
+          AND fr.WorkspaceId = @WorkspaceId
+          AND fr.ProjectId = @ScopeProjectId
+          AND r.TenantId = @TenantId
+          AND r.WorkspaceId = @WorkspaceId
+          AND r.ScopeProjectId = @ScopeProjectId
+          AND r.ArchivedUtc IS NULL
+        ORDER BY r.CreatedUtc DESC, r.RunId DESC;
+        """;
+
     /// <summary>Primary inspect row including <c>PayloadJson</c>.</summary>
     public const string MainInspectWithTypedPayload = """
                                                      SELECT TOP 1
@@ -59,6 +76,7 @@ internal static class FindingInspectReadSql
                                                        AND r.TenantId = @TenantId
                                                        AND r.WorkspaceId = @WorkspaceId
                                                        AND r.ScopeProjectId = @ScopeProjectId
+                                                       AND (@ExpectedRunId IS NULL OR r.RunId = @ExpectedRunId)
                                                        AND (r.ArchivedUtc IS NULL)
                                                      ORDER BY r.CreatedUtc DESC, r.RunId DESC;
                                                      """;
@@ -116,6 +134,7 @@ internal static class FindingInspectReadSql
                                                           AND r.TenantId = @TenantId
                                                           AND r.WorkspaceId = @WorkspaceId
                                                           AND r.ScopeProjectId = @ScopeProjectId
+                                                          AND (@ExpectedRunId IS NULL OR r.RunId = @ExpectedRunId)
                                                           AND (r.ArchivedUtc IS NULL)
                                                         ORDER BY r.CreatedUtc DESC, r.RunId DESC;
                                                         """;
