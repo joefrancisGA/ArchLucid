@@ -77,6 +77,8 @@ public sealed class SpecialistFindingsSubstantiationService(
             .ReviewAsync(specialistFindings, supportedIds, cancellationToken)
             .ConfigureAwait(false);
 
+        AdversarialReviewService.RecordInventoryCounterexamples(adversarial, specialistFindings, validationByFindingId);
+
         return new SpecialistFindingsSubstantiationResult
         {
             SubstantiatedFindings = adversarial.SubstantiatedFindings,

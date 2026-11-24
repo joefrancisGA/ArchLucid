@@ -58,6 +58,33 @@ describe("ArchitectureIntelligenceReasoningResults", () => {
     );
   });
 
+  it("shows the recorded inventory probe outcome and coverage in the challenge lane", () => {
+    const result = minimalResult({
+      adversarial: {
+        challenges: [{
+          hypothesis: "Public network access is disabled.",
+          falsificationEvidenceNeeded: "Check the property.",
+          inventoryProbe: { outcome: "Refuted", coverage: "The explicit Azure property only." },
+        }],
+      },
+    });
+
+    render(
+      <ArchitectureIntelligenceReasoningResults
+        result={result}
+        findings={[]}
+        interviewQuestions={[]}
+        interviewAnswers={{}}
+        onInterviewAnswerChange={vi.fn()}
+        onResubmitAnswers={vi.fn()}
+        isBusy={false}
+      />,
+    );
+
+    expect(screen.getByText(/refuted\. the explicit azure property only/i)).toBeInTheDocument();
+    expect(screen.queryByText(/check the property/i)).not.toBeInTheDocument();
+  });
+
   it("omits verify-hypotheses lane link when adversarial challenges are absent", () => {
     const result = minimalResult({ runId: "run-adv", adversarial: { challenges: [] } });
 

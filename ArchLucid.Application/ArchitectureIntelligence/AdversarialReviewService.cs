@@ -1,3 +1,4 @@
+using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
@@ -55,10 +56,45 @@ public sealed class AdversarialReviewService : IAdversarialReviewService
         ArgumentNullException.ThrowIfNull(adversarialResult);
 
         return adversarialResult.Challenges
-            .Where(challenge => !challenge.Suppressed)
+            .Where(NeedsOpenQuestion)
             .Select(challenge =>
                 $"{challenge.Hypothesis} — falsify/confirm with: {challenge.FalsificationEvidenceNeeded}")
             .ToList();
+    }
+
+    internal static bool NeedsOpenQuestion(AdversarialChallenge challenge) =>
+        !challenge.Suppressed &&
+        challenge.InventoryProbe?.Outcome is not (InventoryFalsificationOutcome.Refuted or
+            InventoryFalsificationOutcome.SurvivedWithinTestedScope);
+
+    internal static void RecordInventoryCounterexamples(
+        AdversarialReviewResult review,
+        IReadOnlyList<SpecialistReviewFinding> findings,
+        IReadOnlyDictionary<string, EvidenceValidationResult> validationByFindingId)
+    {
+        foreach (SpecialistReviewFinding finding in findings)
+        {
+            if (finding.PublicNetworkAccessDisabledResourceId is not Guid resourceId)
+                continue;
+
+            validationByFindingId.TryGetValue(finding.FindingId, out EvidenceValidationResult? validation);
+            PublicNetworkAccessVerification? observation = validation?.PublicNetworkAccess;
+            InventoryFalsificationProbe probe = PublicNetworkAccessCounterexample.Evaluate(
+                observation?.CloudResourceId == resourceId && resourceId != Guid.Empty ? observation : null,
+                hasResourceBinding: resourceId != Guid.Empty);
+
+            review.Challenges.Add(new AdversarialChallenge
+            {
+                ChallengeId = Guid.NewGuid().ToString("N"),
+                SourceFindingId = finding.FindingId,
+                Hypothesis = resourceId == Guid.Empty
+                    ? "Public network access is disabled for an unidentified Azure resource."
+                    : ScopedPublicNetworkAccessVerifier.Title(resourceId),
+                FalsificationEvidenceNeeded = "Check whether the exact scoped Azure inventory property is Enabled.",
+                InventoryProbe = probe,
+                Lane = AdversarialLane.AdversarialChallenge,
+            });
+        }
     }
 
     private static AdversarialChallenge CreateChallenge(SpecialistReviewFinding finding)
