@@ -398,6 +398,25 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
 
 
 
+
+  it("does not apply visit-default navigation when the URL only carries archiveRunId", () => {
+    searchParamsHarness.applyQuery("archiveRunId=run-archive-target");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?archiveRunId=run-archive-target");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?archiveRunId=run-archive-target");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
   it("does not apply visit-default navigation when the URL only carries archiveConfirm=1", () => {
     searchParamsHarness.applyQuery("archiveConfirm=1");
     window.history.replaceState({}, "", "/architecture/reviews/run-abc?archiveConfirm=1");

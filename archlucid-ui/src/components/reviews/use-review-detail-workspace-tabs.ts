@@ -51,7 +51,7 @@ import { parseReviewConsultingExportOpenFromSearch, REVIEW_CONSULTING_EXPORT_OPE
 import { parseReviewGenerateAdrOpenFromSearch, REVIEW_GENERATE_ADR_OPEN_PARAM } from "@/lib/reviews/review-generate-adr-panels-url";
 import { parseReviewCliReproduceOpenFromSearch, REVIEW_CLI_REPRODUCE_OPEN_PARAM } from "@/lib/reviews/review-cli-reproduce-disclosure-url";
 import { parseReviewDeliverableAudienceFromSearch, parseReviewDeliverableOpenFromSearch, REVIEW_DELIVERABLE_AUDIENCE_PARAM, REVIEW_DELIVERABLE_OPEN_PARAM } from "@/lib/reviews/review-export-deliverable-panels-url";
-import { parseReviewArchiveConfirmOpenFromSearch, REVIEW_ARCHIVE_CONFIRM_PARAM } from "@/lib/reviews/review-archive-confirm-url";
+import { parseReviewArchiveConfirmOpenFromSearch, parseReviewArchiveRunIdFromSearch, REVIEW_ARCHIVE_CONFIRM_PARAM, REVIEW_ARCHIVE_RUN_ID_PARAM } from "@/lib/reviews/review-archive-confirm-url";
 import { parseRunDetailRecordMetadataOpenFromSearch, RUN_DETAIL_RECORD_METADATA_OPEN_PARAM } from "@/lib/runs/run-detail-record-metadata-url";
 import { parseReviewAskDockOpenFromSearch, parseReviewAskDockThreadIdFromSearch, REVIEW_ASK_DOCK_OPEN_PARAM, REVIEW_ASK_DOCK_THREAD_PARAM } from "@/lib/reviews/review-ask-dock-url";
 import {
@@ -218,6 +218,7 @@ export function useReviewDetailWorkspaceTabs(
     const deliverableOpenPresent = parseReviewDeliverableOpenFromSearch(params.get(REVIEW_DELIVERABLE_OPEN_PARAM));
     const deliverableAudiencePresent = parseReviewDeliverableAudienceFromSearch(params.get(REVIEW_DELIVERABLE_AUDIENCE_PARAM)) !== null;
     const archiveConfirmOpenPresent = parseReviewArchiveConfirmOpenFromSearch(params.get(REVIEW_ARCHIVE_CONFIRM_PARAM));
+    const archiveRunIdPresent = parseReviewArchiveRunIdFromSearch(params.get(REVIEW_ARCHIVE_RUN_ID_PARAM)).length > 0;
     const runRecordMetaOpenPresent = parseRunDetailRecordMetadataOpenFromSearch(params.get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM));
     const askDockOpenPresent = parseReviewAskDockOpenFromSearch(params.get(REVIEW_ASK_DOCK_OPEN_PARAM));
     const askThreadPresent =
@@ -250,6 +251,7 @@ export function useReviewDetailWorkspaceTabs(
       || deliverableOpenPresent
       || deliverableAudiencePresent
       || archiveConfirmOpenPresent
+      || archiveRunIdPresent
       || runRecordMetaOpenPresent
       || askDockOpenPresent
       || askThreadPresent
