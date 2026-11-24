@@ -45,3 +45,6 @@ a5dff22bb134d8c663a8a769e808762904e2cc8d:docs/library/AL_BUG_HUNT_LEDGER.md:gene
 a05b5f708368020f326cea55c2b706a77865a118:scripts/tests/test_fnd010_evidence_authorization.py:generic-api-key:34
 73d9bba96860d7a1f4c825eb35b0a19c5818a40c:scripts/tests/test_fnd010_evidence_authorization.py:generic-api-key:34
 42311bd1d74cc8df6feb4b965cee5c500e8e9d78:scripts/tests/test_fnd010_evidence_authorization.py:generic-api-key:34
+
+# Synthetic AWS Secrets Manager resource name in a historical parser test.
+730f0b0d267d723ded8b24fe78b2db01836c0621:ArchLucid.Application.Tests/Findings/SecretsLifecycleInventoryParserTests.cs:generic-api-key:15
