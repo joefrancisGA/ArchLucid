@@ -7,6 +7,10 @@ public interface IAskEvidenceAccess
 {
     string? GetAuthorizedActorId();
     Task<bool> CanReadRunAsync(ScopeContext scope, Guid runId, CancellationToken ct);
+
+    // Draft reasoning persists state, so require the existing read/decide intersection.
+    Task<bool> CanDecideArchitectureAsync(ScopeContext scope, Guid architectureId, CancellationToken ct) =>
+        Task.FromResult(false);
 }
 
 /// <summary>Hosts without an authenticated request adapter must not grant Ask evidence access.</summary>
