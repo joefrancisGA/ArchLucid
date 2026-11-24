@@ -31,6 +31,10 @@ import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useProfessionalWorkbenchEnabled } from "@/lib/workspace-mode/use-professional-workbench-enabled";
 
 import type { ReviewDetailWorkspaceProps } from "@/components/reviews/ReviewDetailWorkspace";
+import {
+  ARCHITECTURE_DIAGRAM_FINDING_PARAM,
+  parseArchitectureDiagramFindingIdFromSearch,
+} from "@/lib/architecture/architecture-findings-dual-pane-url";
 
 const WORKBENCH_TAB_IDS: readonly ReviewDetailTabId[] = ["architecture", "findings", "evidence"];
 
@@ -89,9 +93,12 @@ export function useReviewDetailWorkspaceTabs(
   const searchParams = useSearchParams();
   const { isWorkingMode } = useWorkspaceMode();
   const initialFindingIdFromParams = useMemo((): string | null => {
-    const trimmed = searchParams.get(REVIEW_DETAIL_FINDING_PARAM)?.trim() ?? "";
+    const parsed = parseArchitectureDiagramFindingIdFromSearch(
+      searchParams.get(REVIEW_DETAIL_FINDING_PARAM),
+      searchParams.get(ARCHITECTURE_DIAGRAM_FINDING_PARAM),
+    );
 
-    return trimmed.length > 0 ? trimmed : null;
+    return parsed.length > 0 ? parsed : null;
   }, [searchParams]);
   const initialFindingId = initialFindingIdFromParams;
   const initialWorkbenchFocus = null;

@@ -1,4 +1,5 @@
-> **Scope:** Contributor-reference — hunt ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
+> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reseeded after the window reader alias fix. `ReviewWorkbenchSelectionProvider` still derived `searchParamFindingId` from `findingId` only, so its mount effect reconciled selection to null and wiped a legacy `diagramFindingId` deep link. `searchParamFindingId` and `initialFindingIdFromParams` now use `parseArchitectureDiagramFindingIdFromSearch`. Regression `keeps legacy diagramFindingId selection when useSearchParams omits findingId` failed first (`none`), then workbench selection 4/4 and URL-sync 14/14. Private beta: when an invited operator opens an older findings link that still uses the legacy diagram query, the review workspace keeps that finding selected instead of clearing it on first paint.
+ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
 
@@ -11713,6 +11714,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `useReviewDetailWorkspaceTabs.navigateTab` — `findingId` persisted after leaving findings for overview — **hit 2026-11-23 thorough hunt:** clear `findingId` on non-findings non-workbench tab navigations; regression above. Private beta: When an invited operator leaves the findings tab for summary or another package tab via the strip, the shared review link no longer keeps a stale finding id in the query string.
 - [x] (proven) `readReviewDetailFindingIdFromWindowLocation` — legacy `diagramFindingId` links did not restore selection — **proven 2026-11-23 seed hunt:** window reader ignored the alias; hydration now prefers `findingId` then alias.
+- [x] (proven) `ReviewWorkbenchSelectionProvider` — `searchParamFindingId` ignored legacy `diagramFindingId` and cleared selection — **proven 2026-11-24 seed hunt:** reconcile effect dropped alias-only links; searchParams now hydrate the alias.
 - [x] (proven) `useReviewDetailWorkspaceTabs` — hash-driven tab moves left `findingId` when the hash selects a non-findings section — **proven 2026-11-23 thorough hunt:** `#review-summary` kept `findingId`; hash writers now clear it when leaving findings.
 - [x] (invalid) `useReviewDetailWorkspaceTabs` — stale `workbenchFocus` cleanup when `tabLifecycle` is undefined — **cheap-disproof 2026-11-23 thorough hunt:** `RunDetailTabbedWorkspaceShell` always supplies `tabLifecycle`; reseed monitor.
 - [x] (valid-no-repro) `ReviewWorkspaceStaleBanner` — visibility refetch vs baseline timing — **cheap-disproof 2026-11-23 thorough hunt:** fingerprint compare runs in `query.data` effect after refetch; reseed monitor.
@@ -12433,11 +12435,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 12
-- **bugs-found:** 11
+- **hunts:** 13
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-23
-- **last-bug:** 2026-11-23
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.
