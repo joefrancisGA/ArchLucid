@@ -34,14 +34,15 @@ public sealed partial class ArtifactExportController
 
         (ManifestSummaryDto? summary, IActionResult? manifestDenied) =
             await ResolveAuthorizedArtifactManifestAsync(scope, manifestId, ct);
-        if (manifestDenied is not null)
-            return manifestDenied;
+        if (manifestDenied is not null || summary is null)
+            return manifestDenied ?? this.NotFoundProblem(
+                $"Manifest '{manifestId}' was not found in the current scope.", ProblemTypes.ManifestNotFound);
 
         RunDetailDto? manifestDetail =
             await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, summary.RunId, ct);
 
         IActionResult? sealedHashProblem =
-            await EnsureExactArtifactManifestSealedReadAsync(scope, manifestId, summary!, manifestDetail, ct);
+            await EnsureExactArtifactManifestSealedReadAsync(scope, manifestId, summary, manifestDetail, ct);
 
         if (sealedHashProblem is not null)
             return sealedHashProblem;
@@ -227,14 +228,15 @@ public sealed partial class ArtifactExportController
 
         (ManifestSummaryDto? summary, IActionResult? manifestDenied) =
             await ResolveAuthorizedArtifactManifestAsync(scope, manifestId, ct);
-        if (manifestDenied is not null)
-            return manifestDenied;
+        if (manifestDenied is not null || summary is null)
+            return manifestDenied ?? this.NotFoundProblem(
+                $"Manifest '{manifestId}' was not found in the current scope.", ProblemTypes.ManifestNotFound);
 
         RunDetailDto? manifestDetail =
             await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, summary.RunId, ct);
 
         IActionResult? sealedHashProblem =
-            await EnsureExactArtifactManifestSealedReadAsync(scope, manifestId, summary!, manifestDetail, ct);
+            await EnsureExactArtifactManifestSealedReadAsync(scope, manifestId, summary, manifestDetail, ct);
 
         if (sealedHashProblem is not null)
             return sealedHashProblem;
@@ -285,14 +287,15 @@ public sealed partial class ArtifactExportController
 
         (ManifestSummaryDto? summary, IActionResult? manifestDenied) =
             await ResolveAuthorizedArtifactManifestAsync(scope, manifestId, ct);
-        if (manifestDenied is not null)
-            return manifestDenied;
+        if (manifestDenied is not null || summary is null)
+            return manifestDenied ?? this.NotFoundProblem(
+                $"Manifest '{manifestId}' was not found in the current scope.", ProblemTypes.ManifestNotFound);
 
         RunDetailDto? manifestDetail =
             await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, summary.RunId, ct);
 
         IActionResult? sealedHashProblem =
-            await EnsureExactArtifactManifestSealedReadAsync(scope, manifestId, summary!, manifestDetail, ct);
+            await EnsureExactArtifactManifestSealedReadAsync(scope, manifestId, summary, manifestDetail, ct);
 
         if (sealedHashProblem is not null)
             return sealedHashProblem;
@@ -351,14 +354,15 @@ public sealed partial class ArtifactExportController
 
         (ManifestSummaryDto? summary, IActionResult? manifestDenied) =
             await ResolveAuthorizedArtifactManifestAsync(scope, manifestId, ct);
-        if (manifestDenied is not null)
-            return manifestDenied;
+        if (manifestDenied is not null || summary is null)
+            return manifestDenied ?? this.NotFoundProblem(
+                $"Manifest '{manifestId}' was not found in the current scope.", ProblemTypes.ManifestNotFound);
 
         RunDetailDto? manifestDetail =
             await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, summary.RunId, ct);
 
         IActionResult? sealedHashProblem =
-            await EnsureExactArtifactManifestSealedReadAsync(scope, manifestId, summary!, manifestDetail, ct);
+            await EnsureExactArtifactManifestSealedReadAsync(scope, manifestId, summary, manifestDetail, ct);
 
         if (sealedHashProblem is not null)
             return sealedHashProblem;
