@@ -143,6 +143,38 @@ public sealed class ArchitectureShareAccessGateNotFoundPolicyTests
         AssertNotFound(result, HttpStatusCode.NotFound, ProblemTypes.RunNotFound);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Ask_adapter_reuses_authenticated_share_decision(bool canRead)
+    {
+        _runRepository.Setup(r => r.GetByIdAsync(Scope, RunId, CancellationToken.None))
+            .ReturnsAsync(new RunRecord { RunId = RunId, ArchitectureId = ArchitectureId });
+        _shareAccessService.Setup(s => s.EvaluateAsync(Scope, ArchitectureId, "jwt:tenant:unshared",
+                true, false, false, CancellationToken.None))
+            .ReturnsAsync(new ArchitectureShareAccessEvaluation { ArchitectureFound = true, CanRead = canRead });
+
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim(ClaimTypes.Role, "Reader")], "test")),
+        };
+        AskEvidenceAccess adapter = new(BuildSut(), new HttpContextAccessor { HttpContext = http }, _actorContext.Object);
+
+        (await adapter.CanReadRunAsync(Scope, RunId, CancellationToken.None)).Should().Be(canRead);
+        _shareAccessService.Verify(s => s.EvaluateAsync(Scope, ArchitectureId, "jwt:tenant:unshared",
+            true, false, false, CancellationToken.None), Times.Once);
+    }
+
+    [Fact]
+    public async Task Ask_adapter_without_authenticated_principal_denies_before_repository_lookup()
+    {
+        AskEvidenceAccess adapter = new(BuildSut(), new HttpContextAccessor(), _actorContext.Object);
+        adapter.GetAuthorizedActorId().Should().BeNull();
+        (await adapter.CanReadRunAsync(Scope, RunId, CancellationToken.None)).Should().BeFalse();
+        _runRepository.VerifyNoOtherCalls();
+    }
+
     private ArchitectureShareAccessGate BuildSut() =>
         new(_shareAccessService.Object, _actorContext.Object, _runRepository.Object);
 
