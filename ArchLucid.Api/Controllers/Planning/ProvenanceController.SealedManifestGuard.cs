@@ -15,6 +15,17 @@ public sealed partial class ProvenanceController
         Guid runId,
         CancellationToken cancellationToken)
     {
+        if (runId == Guid.Empty)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        // Reuse the existing scoped share-access policy before reading a
+        // run's provenance graph, decision nodes or neighborhood. Checking
+        // sealed-manifest integrity does not authorize a restricted read.
+        IActionResult? denied = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this, User, scope, runId, cancellationToken);
+        if (denied is not null)
+            return denied;
+
         RunDetailDto? detail;
 
         try

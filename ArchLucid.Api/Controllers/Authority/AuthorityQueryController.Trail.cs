@@ -34,6 +34,10 @@ public sealed partial class AuthorityQueryController
         try
         {
             ScopeContext scope = scopeProvider.GetCurrentScope();
+            IActionResult? shareDenied = await EnsureRunShareReadAllowedAsync(scope, runId, ct);
+            if (shareDenied is not null)
+                return shareDenied;
+
             RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
 
             if (detail is null)
@@ -75,6 +79,10 @@ public sealed partial class AuthorityQueryController
         try
         {
             ScopeContext scope = scopeProvider.GetCurrentScope();
+            IActionResult? shareDenied = await EnsureRunShareReadAllowedAsync(scope, runId, ct);
+            if (shareDenied is not null)
+                return shareDenied;
+
             RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
 
             if (detail is null)
@@ -114,15 +122,41 @@ public sealed partial class AuthorityQueryController
         try
         {
             ScopeContext scope = scopeProvider.GetCurrentScope();
+
+            if (manifestId == Guid.Empty)
+                return this.NotFoundProblem($"Manifest '{manifestId}' was not found.", ProblemTypes.ManifestNotFound);
+
+            // Resolve only the trusted scoped run identity before the sharing gate.
+            // No summary, manifest payload, blob overlay or run detail is read yet.
+            Guid? authorizedRunId = await queryService.GetRunIdByManifestIdAsync(scope, manifestId, ct);
+
+            if (authorizedRunId is not Guid runId || runId == Guid.Empty)
+                return this.NotFoundProblem($"Manifest '{manifestId}' was not found.", ProblemTypes.ManifestNotFound);
+
+            IActionResult? sharingDenied = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+                this, User, scope, runId, ct);
+
+            if (sharingDenied is not null)
+                return this.NotFoundProblem($"Manifest '{manifestId}' was not found.", ProblemTypes.ManifestNotFound);
+
             ManifestSummaryDto? result = await queryService.GetManifestSummaryAsync(scope, manifestId, ct);
 
-            if (result is null)
+            // Never follow a changed association to a run that was not authorized.
+            if (result is null || result.ManifestId != manifestId || result.RunId != runId)
                 return this.NotFoundProblem($"Manifest '{manifestId}' was not found.", ProblemTypes.ManifestNotFound);
 
             RunDetailDto? manifestDetail =
-                await queryService.GetRunDetailForManifestCompareAsync(scope, result.RunId, ct);
+                await queryService.GetRunDetailForManifestCompareAsync(scope, runId, ct);
 
-            IActionResult? sealedGuardResult = EnsureManifestSummarySealedReadAllowed(result, manifestDetail);
+            // The common current-manifest case already has the exact document;
+            // avoid an unnecessary second repository read. For a historical
+            // manifest ID, independently load and seal-verify that exact row.
+            var requestedManifest = manifestDetail?.GoldenManifest?.ManifestId == manifestId
+                ? manifestDetail.GoldenManifest
+                : await queryService.GetManifestForSummaryVerificationAsync(scope, manifestId, ct);
+
+            IActionResult? sealedGuardResult = EnsureManifestSummarySealedReadAllowed(
+                scope, manifestId, result, requestedManifest, manifestDetail);
 
             if (sealedGuardResult is not null)
                 return sealedGuardResult;
@@ -185,6 +219,10 @@ public sealed partial class AuthorityQueryController
     private async Task<IActionResult> GetRunProvenanceCoreAsync(Guid runId, CancellationToken ct)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        IActionResult? shareDenied = await EnsureRunShareReadAllowedAsync(scope, runId, ct);
+        if (shareDenied is not null)
+            return shareDenied;
+
         RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
 
         if (detail is null)
@@ -225,6 +263,11 @@ public sealed partial class AuthorityQueryController
     {
         try
         {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            IActionResult? shareDenied = await EnsureRunShareReadAllowedAsync(scope, runId, ct);
+            if (shareDenied is not null)
+                return shareDenied;
+
             RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
 
             if (detail is null)

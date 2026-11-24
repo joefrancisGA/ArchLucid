@@ -2,6 +2,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
@@ -12,6 +13,18 @@ namespace ArchLucid.Api.Controllers.Authority;
 
 public sealed partial class AuthorityQueryController
 {
+    /// <summary>
+    /// A scoped run read can expose a restricted architecture even when its
+    /// sealed manifest is valid. Reuse the established non-disclosing share
+    /// authority before any query or run-derived projection is evaluated.
+    /// </summary>
+    private Task<IActionResult?> EnsureRunShareReadAllowedAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken cancellationToken) =>
+        _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this, User, scope, runId, cancellationToken);
+
     private async Task<IActionResult?> EnsureRunInventorySealedManifestReadAllowedAsync(
         ScopeContext scope,
         CancellationToken cancellationToken)
@@ -87,23 +100,66 @@ public sealed partial class AuthorityQueryController
     }
 
     private IActionResult? EnsureManifestSummarySealedReadAllowed(
+        ScopeContext scope,
+        Guid requestedManifestId,
         ManifestSummaryDto result,
+        ManifestDocument? requestedManifest,
         RunDetailDto? manifestDetail)
     {
         try
         {
-            if (manifestDetail?.GoldenManifest is null)
+            // The run must still exist in the same trusted scope, and its
+            // current pinned manifest must be available as before.
+            if (manifestDetail?.Run is null ||
+                manifestDetail.Run.RunId != result.RunId ||
+                manifestDetail.GoldenManifest is null ||
+                manifestDetail.Run.GoldenManifestId != manifestDetail.GoldenManifest.ManifestId ||
+                manifestDetail.GoldenManifest.RunId != result.RunId)
             {
-                return MapRunQuerySealedManifestConflict(
-                    new ConflictException(
-                        $"Manifest '{result.ManifestId}' sealed hash verification is unavailable because the committed golden manifest is missing."));
+                throw new ConflictException(
+                    $"Manifest '{requestedManifestId}' cannot verify its associated committed run.");
+            }
 
+            // The exact manifest requested by the caller must independently
+            // match its scoped lookup and summary, even if the run has since
+            // pinned a newer golden manifest. Never hash a different manifest
+            // and treat that as proof of the requested version's integrity.
+            if (requestedManifest is null ||
+                requestedManifest.ManifestId != requestedManifestId ||
+                requestedManifest.RunId != result.RunId ||
+                requestedManifest.TenantId != scope.TenantId ||
+                requestedManifest.WorkspaceId != scope.WorkspaceId ||
+                requestedManifest.ProjectId != scope.ProjectId ||
+                !string.Equals(requestedManifest.ManifestHash, result.ManifestHash,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ConflictException(
+                    $"Manifest '{requestedManifestId}' exact-ID scope or run binding could not be verified.");
             }
 
             SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                manifestDetail.GoldenManifest,
+                requestedManifest,
                 result.RunId.ToString("D"),
                 manifestHashService);
+
+            // Keep the prior check on the pinned current manifest as well.
+            // The identical loaded object needs only one hash computation.
+            if (!ReferenceEquals(requestedManifest, manifestDetail.GoldenManifest))
+            {
+                if (requestedManifest.ManifestId == manifestDetail.GoldenManifest.ManifestId &&
+                    !string.Equals(requestedManifest.ManifestHash,
+                        manifestDetail.GoldenManifest.ManifestHash,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new ConflictException(
+                        $"Manifest '{requestedManifestId}' conflicts with the run's pinned manifest.");
+                }
+
+                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                    manifestDetail.GoldenManifest,
+                    result.RunId.ToString("D"),
+                    manifestHashService);
+            }
         }
         catch (ConflictException ex)
         {

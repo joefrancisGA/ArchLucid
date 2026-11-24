@@ -94,6 +94,9 @@ public abstract class GoldenManifestRepositoryContractTests
         loaded.RunId.Should().Be(runId);
         loaded.Metadata.Name.Should().Be("Contract Manifest");
         loaded.Assumptions.Should().Equal("a1");
+
+        (await repo.GetRunIdByManifestIdAsync(scope, manifestId, CancellationToken.None)).Should().Be(runId);
+        (await repo.GetRunIdByManifestIdAsync(scope, Guid.NewGuid(), CancellationToken.None)).Should().BeNull();
     }
 
     [SkippableFact]
@@ -136,6 +139,17 @@ public abstract class GoldenManifestRepositoryContractTests
 
         ManifestDocument? loaded = await repo.GetByIdAsync(otherTenant, manifestId, CancellationToken.None);
         loaded.Should().BeNull();
+        (await repo.GetRunIdByManifestIdAsync(otherTenant, manifestId, CancellationToken.None)).Should().BeNull();
+        ScopeContext otherWorkspace = new()
+        {
+            TenantId = scope.TenantId, WorkspaceId = Guid.NewGuid(), ProjectId = scope.ProjectId
+        };
+        ScopeContext otherProject = new()
+        {
+            TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = Guid.NewGuid()
+        };
+        (await repo.GetRunIdByManifestIdAsync(otherWorkspace, manifestId, CancellationToken.None)).Should().BeNull();
+        (await repo.GetRunIdByManifestIdAsync(otherProject, manifestId, CancellationToken.None)).Should().BeNull();
     }
 
     [SkippableFact]

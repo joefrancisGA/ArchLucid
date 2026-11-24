@@ -31,6 +31,9 @@ public interface IGoldenManifestRepository
         IDbTransaction? transaction = null,
         ManifestDocument? authorityPersistBody = null);
 
+    /// <summary>Resolves only the scoped run identity; must not load manifest payloads or blobs.</summary>
+    Task<Guid?> GetRunIdByManifestIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct);
+
     Task<ManifestDocument?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct);
 
     /// <summary>

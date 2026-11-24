@@ -81,6 +81,24 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
         return Task.FromResult(model);
     }
 
+    /// <inheritdoc />
+    public Task<Guid?> GetRunIdByManifestIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ct.ThrowIfCancellationRequested();
+        lock (_lock)
+        {
+            Guid? runId = _store.Where(x =>
+                    x.ManifestId == manifestId &&
+                    x.TenantId == scope.TenantId &&
+                    x.WorkspaceId == scope.WorkspaceId &&
+                    x.ProjectId == scope.ProjectId)
+                .Select(x => (Guid?)x.RunId)
+                .FirstOrDefault();
+            return Task.FromResult(runId);
+        }
+    }
+
     public Task<ManifestDocument?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
         lock (_lock)

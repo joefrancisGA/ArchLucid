@@ -1,4 +1,7 @@
+using System.Security.Claims;
+
 using ArchLucid.Api.Controllers.Planning;
+using ArchLucid.Api.Support;
 using ArchLucid.Api.Models;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
@@ -42,7 +45,8 @@ public sealed class ProvenanceControllerTests
             service.Object,
             scopeProvider.Object,
             Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>())
+            Mock.Of<IManifestHashService>(),
+            AllowedShareGate())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -71,7 +75,11 @@ public sealed class ProvenanceControllerTests
             service.Object,
             scopeProvider.Object,
             Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>());
+            Mock.Of<IManifestHashService>(),
+            AllowedShareGate())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         IActionResult action = await controller.GetFullGraph(runId, CancellationToken.None);
 
@@ -105,10 +113,75 @@ public sealed class ProvenanceControllerTests
             service.Object,
             scopeProvider.Object,
             Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>());
+            Mock.Of<IManifestHashService>(),
+            AllowedShareGate())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         await controller.GetNodeNeighborhood(runId, nodeId, depth: 999, CancellationToken.None);
 
         capturedDepth.Should().Be(ProvenanceQueryLimits.MaxNeighborhoodDepthProvenanceRoute);
     }
+
+    [Theory]
+    [InlineData("graph")]
+    [InlineData("decision")]
+    [InlineData("neighborhood")]
+    public async Task Restricted_run_sharing_denies_provenance_before_authority_or_graph_reads(string endpoint)
+    {
+        Guid runId = Guid.Parse("12345678-aaaa-bbbb-cccc-123456789abc");
+        Guid nodeId = Guid.NewGuid();
+
+        Mock<IProvenanceQueryService> provenance = new(MockBehavior.Strict);
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        Mock<IScopeContextProvider> scopes = new(MockBehavior.Strict);
+        scopes.Setup(s => s.GetCurrentScope()).Returns(Scope);
+        Mock<IArchitectureShareAccessGate> sharing = new(MockBehavior.Strict);
+        sharing.Setup(g => g.EnsureRunReadAllowedAsync(
+                It.IsAny<ControllerBase>(),
+                It.IsAny<ClaimsPrincipal>(),
+                Scope,
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new NotFoundResult());
+
+        ProvenanceController controller = new(
+            provenance.Object, scopes.Object, authority.Object,
+            Mock.Of<IManifestHashService>(), sharing.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+
+        IActionResult result = endpoint switch
+        {
+            "graph" => await controller.GetFullGraph(runId, CancellationToken.None),
+            "decision" => await controller.GetDecisionGraph(
+                runId, "decision-1", CancellationToken.None),
+            "neighborhood" => await controller.GetNodeNeighborhood(
+                runId, nodeId, 1, CancellationToken.None),
+            _ => throw new InvalidOperationException(endpoint),
+        };
+
+        result.Should().BeOfType<NotFoundResult>();
+        sharing.Verify(g => g.EnsureRunReadAllowedAsync(
+                It.IsAny<ControllerBase>(), It.IsAny<ClaimsPrincipal>(),
+                Scope, runId, It.IsAny<CancellationToken>()), Times.Once);
+        authority.VerifyNoOtherCalls();
+        provenance.VerifyNoOtherCalls();
+    }
+
+    private static IArchitectureShareAccessGate AllowedShareGate()
+    {
+        Mock<IArchitectureShareAccessGate> sharing = new();
+        sharing.Setup(g => g.EnsureRunReadAllowedAsync(
+                It.IsAny<ControllerBase>(),
+                It.IsAny<ClaimsPrincipal>(),
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IActionResult?)null);
+        return sharing.Object;
+    }
+
 }

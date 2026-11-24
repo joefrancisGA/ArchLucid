@@ -57,6 +57,10 @@ public sealed class CachingGoldenManifestRepository(
     }
 
     /// <inheritdoc />
+    public Task<Guid?> GetRunIdByManifestIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct) =>
+        _inner.GetRunIdByManifestIdAsync(scope, manifestId, ct);
+
+    /// <inheritdoc />
     public Task<ManifestDocument?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
