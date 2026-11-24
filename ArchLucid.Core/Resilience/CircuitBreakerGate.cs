@@ -26,6 +26,8 @@ public sealed partial class CircuitBreakerGate
 
     private readonly TimeProvider _timeProvider;
 
+    private long _admissionGeneration;
+
     private int _consecutiveFailures;
 
     private int _halfOpenSuccessCount;
