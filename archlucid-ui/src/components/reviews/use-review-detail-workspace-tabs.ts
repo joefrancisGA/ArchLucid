@@ -130,6 +130,10 @@ import {
   parseTerraformAdvisoryExportConfirmOpenFromSearch,
   TERRAFORM_ADVISORY_EXPORT_CONFIRM_PARAM,
 } from "@/lib/reviews/terraform-advisory-export-confirm-url";
+import {
+  parseQuickDecisionShowMutedFromSearch,
+  QUICK_DECISION_SHOW_MUTED_PARAM,
+} from "@/lib/reviews/quick-decision-muted-filter-url";
 
 const WORKBENCH_TAB_IDS: readonly ReviewDetailTabId[] = ["architecture", "findings", "evidence"];
 
@@ -335,6 +339,9 @@ export function useReviewDetailWorkspaceTabs(
     const terraformExportConfirmOpenPresent = parseTerraformAdvisoryExportConfirmOpenFromSearch(
       params.get(TERRAFORM_ADVISORY_EXPORT_CONFIRM_PARAM),
     );
+    const quickDecisionShowMutedPresent = parseQuickDecisionShowMutedFromSearch(
+      params.get(QUICK_DECISION_SHOW_MUTED_PARAM),
+    );
     const runRecordMetaOpenPresent = parseRunDetailRecordMetadataOpenFromSearch(params.get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM));
     const askDockOpenPresent = parseReviewAskDockOpenFromSearch(params.get(REVIEW_ASK_DOCK_OPEN_PARAM));
     const askThreadPresent =
@@ -385,6 +392,7 @@ export function useReviewDetailWorkspaceTabs(
       || transparencyTrailOpenPresent
       || runAssessmentNarrativeOpenPresent
       || terraformExportConfirmOpenPresent
+      || quickDecisionShowMutedPresent
       || runRecordMetaOpenPresent
       || askDockOpenPresent
       || askThreadPresent

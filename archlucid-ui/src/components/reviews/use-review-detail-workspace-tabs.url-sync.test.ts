@@ -399,6 +399,24 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
 
 
 
+  it("does not apply visit-default navigation when the URL only carries showMuted=1", () => {
+    searchParamsHarness.applyQuery("showMuted=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?showMuted=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?showMuted=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
   it("does not apply visit-default navigation when the URL only carries terraformExportConfirm=1", () => {
     searchParamsHarness.applyQuery("terraformExportConfirm=1");
     window.history.replaceState({}, "", "/architecture/reviews/run-abc?terraformExportConfirm=1");
