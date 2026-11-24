@@ -94,4 +94,14 @@ public sealed class AgentResultClaimListJsonConverterEvidenceRefsTests
         result.Should().NotBeNull();
         result!.EvidenceRefs.Should().Contain("pol-789");
     }
+
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("""{"agentType":0}""")]
+    [InlineData("""{"agentType":2147483647}""")]
+    public void Deserialize_rejects_absent_or_undefined_agent_role_even_with_plain_json_options(string json)
+    {
+        Action read = () => JsonSerializer.Deserialize<AgentResult>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        read.Should().Throw<JsonException>();
+    }
 }

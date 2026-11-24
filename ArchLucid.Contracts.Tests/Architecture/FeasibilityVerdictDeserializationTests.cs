@@ -48,4 +48,21 @@ public sealed class FeasibilityVerdictDeserializationTests
         verdict.Should().NotBeNull();
         verdict!.TransparencyTrail.Should().NotBeNull();
     }
+
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("""{"kind":2147483647}""")]
+    [InlineData("""{"kind":"Feasible,SoftInfeasible"}""")]
+    public void Deserialize_missing_invalid_or_composite_verdict_kind_is_rejected(string json)
+    {
+        Action read = () => JsonSerializer.Deserialize<FeasibilityVerdict>(json, ContractJson.Default);
+        read.Should().Throw<JsonException>();
+    }
+
+    [Fact]
+    public void Explicit_zero_verdict_remains_feasible()
+    {
+        JsonSerializer.Deserialize<FeasibilityVerdict>("""{"kind":0}""", ContractJson.Default)!
+            .Kind.Should().Be(FeasibilityVerdictKind.Feasible);
+    }
 }

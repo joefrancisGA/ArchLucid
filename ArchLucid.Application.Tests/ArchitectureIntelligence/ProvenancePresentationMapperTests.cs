@@ -48,4 +48,11 @@ public sealed class ProvenancePresentationMapperTests
         ProvenancePresentationMapper.Map(new ClaimProvenance())
             .Should().Be(ProvenancePresentationBucket.Unverified);
     }
+
+    [Fact]
+    public void Direct_support_without_explicit_origin_does_not_become_source_backed()
+    {
+        ClaimProvenance provenance = new() { SupportStatus = SupportStatus.DirectlyEstablished };
+        ProvenancePresentationMapper.Map(provenance).Should().NotBe(ProvenancePresentationBucket.SourceBacked);
+    }
 }
