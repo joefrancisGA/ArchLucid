@@ -34,9 +34,13 @@ public sealed class AskService(
     AskConversationHistoryBuilder conversationHistoryBuilder,
     FindingInstrumentationAuditSupport findingInstrumentationAudit,
     IActorContext actorContext,
-    ILogger<AskService> logger) : IAskService
+    ILogger<AskService> logger,
+    IAskEvidenceAccess evidenceAccess) : IAskService
 {
     private const int HistoryTake = 40;
+
+    private readonly IAskEvidenceAccess _evidenceAccess =
+        evidenceAccess ?? throw new ArgumentNullException(nameof(evidenceAccess));
 
     private const string ArchitectSystemPrompt =
         "You are a senior enterprise architect. " +
@@ -201,37 +205,47 @@ public sealed class AskService(
         if (string.IsNullOrWhiteSpace(request.Question))
             throw new ArgumentException("Question is required.", nameof(request));
 
+        string actorId = _evidenceAccess.GetAuthorizedActorId()
+            ?? throw new InvalidOperationException("Finding evidence is not available for the current caller.");
+        if (string.IsNullOrWhiteSpace(actorId))
+            throw new InvalidOperationException("Finding evidence is not available for the current caller.");
+
         string findingId = request.FindingId.ToString("N");
-        ConversationThread thread = await _conversationService.GetOrCreateThreadAsync(
-            request.ThreadId,
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            runId: null,
-            baseRunId: null,
-            targetRunId: null,
-            ct);
+        Guid? ownerRunId = await _findingInspectReadRepository.GetRunIdByFindingIdAsync(scope, findingId, ct);
+        if (ownerRunId is not Guid runId || runId == Guid.Empty ||
+            !await _evidenceAccess.CanReadRunAsync(scope, runId, ct))
+            throw new InvalidOperationException("Finding evidence is not available for the current caller.");
 
-        string question = request.Question.Trim();
-        await _conversationService.AppendUserMessageAsync(thread.ThreadId, question, ct);
-
-        IReadOnlyList<ConversationMessage> historyWindow =
-            await _conversationService.GetHistoryAsync(thread.ThreadId, HistoryTake, ct);
-        IReadOnlyList<ConversationMessage> priorMessages =
-            AskConversationHistoryBuilder.TrimCurrentUserTurn(historyWindow, question);
-        string historyText = await _conversationHistoryBuilder.BuildHistoryTextAsync(priorMessages, ct);
-
+        // Constrain the full read to the authorized owner, even if another run now has this finding ID.
         Contracts.Findings.FindingInspectResponse? finding =
-            await _findingInspectReadRepository.GetInspectAsync(scope, findingId, ct);
-
-        if (finding is null)
-            throw new InvalidOperationException($"Finding '{findingId}' was not found in the current scope.");
+            await _findingInspectReadRepository.GetInspectAsync(scope, findingId, ct,
+                new FindingInspectReadOptions { ExpectedRunId = runId });
+        if (finding is null || finding.RunId != runId)
+            throw new InvalidOperationException("Finding evidence is not available for the current caller.");
 
         await FindingInspectPinnedEvidenceGuard.EnsureInspectEvidenceInventoryBoundOrThrowAsync(
             finding,
             scope,
             _authorityQueryService,
             ct);
+
+        ConversationThread thread = await _conversationService.GetOrCreateThreadAsync(
+            request.ThreadId, scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+            runId, baseRunId: null, targetRunId: null, ct);
+
+        if (thread.RunId != runId || thread.BaseRunId.HasValue || thread.TargetRunId.HasValue)
+            throw new ArgumentException("Start a new thread for this finding's run.", nameof(request));
+
+        string question = request.Question.Trim();
+        HashSet<Guid> authorizedRuns = [runId];
+        IReadOnlyList<ConversationMessage> historyWindow =
+            await _conversationService.GetHistoryAsync(thread.ThreadId, HistoryTake, ct);
+        IReadOnlyList<ConversationMessage> priorMessages = AskHistoryEvidenceScope.SelectVerifiedTurns(
+            historyWindow, thread.ThreadId, actorId, authorizedRuns);
+        string historyText = await _conversationHistoryBuilder.BuildHistoryTextAsync(priorMessages, ct);
+        await _conversationService.AppendUserMessageAsync(thread.ThreadId, question, ct);
+        AskHistoryEvidenceScope? historyEvidence = AskHistoryEvidenceScope.Create(
+            thread.ThreadId, actorId, authorizedRuns, question, platformCorporaRequested: false);
 
         FindingSemanticSupportBand? semanticSupportBand =
             AskCitedFindingsSemanticSupportBandHonesty.TryReadBandFromFindingInspect(finding);
@@ -283,14 +297,14 @@ public sealed class AskService(
                 LogSanitizer.Sanitize(thread.ThreadId.ToString()));
 
             AskResponse fallback = _responseComposer.BuildFindingFallbackResponse(thread.ThreadId);
-            await _responseComposer.PersistFindingTurnAsync(thread.ThreadId, question, fallback, ct);
+            await _responseComposer.PersistFindingTurnAsync(thread.ThreadId, fallback, historyEvidence, ct);
             await LogFindingAskConversationPersistedAsync(scope, findingId, finding.RunId, thread.ThreadId, ct);
 
             return fallback;
         }
 
         AskResponse response = _responseComposer.Parse(thread.ThreadId, raw);
-        await _responseComposer.PersistFindingTurnAsync(thread.ThreadId, question, response, ct);
+        await _responseComposer.PersistFindingTurnAsync(thread.ThreadId, response, historyEvidence, ct);
         await LogFindingAskConversationPersistedAsync(scope, findingId, finding.RunId, thread.ThreadId, ct);
 
         return response;

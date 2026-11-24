@@ -151,6 +151,23 @@ public sealed class AzureSearchTenantScopeFilterBuilderTests
         AzureSearchTenantScopeFilterBuilder.BuildRequiredScopeFilter(query).Should().Contain(" and false");
     }
 
+    [Fact]
+    public void Authorized_ask_platform_filter_excludes_unproven_sentinel_corpora()
+    {
+        RetrievalQuery query = BaseQuery(includePlatform: true);
+        query.AuthorizedEvidenceRunIds = new HashSet<Guid>();
+        query.AllowedPolicyPackRulePackIds = ["pack-a"];
+
+        string filter = AzureSearchTenantScopeFilterBuilder.BuildRequiredScopeFilter(query);
+
+        filter.Should().Contain("and false");
+        filter.Should().Contain("corpusKind eq 'PlatformDoc'");
+        filter.Should().Contain("corpusKind eq 'ReferenceArchitecture'");
+        filter.Should().Contain("corpusKind eq 'AzureRetailPrice'");
+        filter.Should().Contain("policyPackRulePackId eq 'pack-a'");
+        filter.Should().NotContain("corpusKind eq 'Conversation'");
+    }
+
     private static RetrievalQuery BaseQuery(bool includePlatform) => new()
     {
         TenantId = TenantId,

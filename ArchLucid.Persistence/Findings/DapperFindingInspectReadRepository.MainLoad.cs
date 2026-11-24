@@ -13,6 +13,7 @@ public sealed partial class DapperFindingInspectReadRepository
         ScopeContext scope,
         string findingId,
         bool includeTypedPayload,
+        Guid? expectedRunId,
         CancellationToken ct)
     {
         string sql = FindingInspectReadRepositoryCore.ResolveMainInspectSql(includeTypedPayload);
@@ -26,6 +27,7 @@ public sealed partial class DapperFindingInspectReadRepository
                     scope.TenantId,
                     scope.WorkspaceId,
                     ScopeProjectId = scope.ProjectId,
+                    ExpectedRunId = expectedRunId,
                 },
                 cancellationToken: ct));
     }

@@ -79,21 +79,18 @@ public sealed class AskResponseComposer(
     public async Task PersistFallbackAsync(AskPreparedContext prepared, AskResponse response, CancellationToken cancellationToken) =>
         await PersistRunScopedTurnAsync(prepared, response, parsed: null, cancellationToken);
 
-    public async Task PersistFindingTurnAsync(
+    public Task PersistFindingTurnAsync(
         Guid threadId,
-        string question,
         AskResponse response,
+        AskHistoryEvidenceScope? historyEvidence,
         CancellationToken cancellationToken)
     {
-        string metadataJson = SerializeMetadata(response);
+        string metadataJson = SerializeMetadata(response, historyEvidenceScope: historyEvidence);
 
-        await _conversationService.AppendAssistantMessageAsync(
-            threadId,
-            response.Answer,
-            metadataJson,
-            cancellationToken);
-
-        await TryIndexFindingConversationAsync(threadId, question, response, metadataJson, cancellationToken);
+        // Finding conversations are not platform reference documents. Keep the
+        // durable thread, but do not publish private finding turns to the vector corpus.
+        return _conversationService.AppendAssistantMessageAsync(
+            threadId, response.Answer, metadataJson, cancellationToken);
     }
 
     public AskResponse Parse(Guid threadId, string? raw) => ParseWithShape(threadId, raw).Response;
@@ -131,7 +128,7 @@ public sealed class AskResponseComposer(
         LlmAskShape? parsed,
         CancellationToken cancellationToken)
     {
-        string metadataJson = SerializeMetadata(response, parsed);
+        string metadataJson = SerializeMetadata(response, parsed, prepared.HistoryEvidenceScope);
 
         await _conversationService.AppendAssistantMessageAsync(
             prepared.Thread.ThreadId,
@@ -180,54 +177,6 @@ public sealed class AskResponseComposer(
         }
     }
 
-    private async Task TryIndexFindingConversationAsync(
-        Guid threadId,
-        string question,
-        AskResponse response,
-        string metadataJson,
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            DateTime now = TimeProvider.System.UtcNowDateTime();
-            List<ConversationMessage> conversationTurn =
-            [
-                new()
-                {
-                    MessageId = Guid.NewGuid(),
-                    ThreadId = threadId,
-                    Role = ConversationMessageRole.User,
-                    Content = question,
-                    CreatedUtc = now,
-                    MetadataJson = "{}"
-                },
-
-                new()
-                {
-                    MessageId = Guid.NewGuid(),
-                    ThreadId = threadId,
-                    Role = ConversationMessageRole.Assistant,
-                    Content = response.Answer,
-                    CreatedUtc = now,
-                    MetadataJson = metadataJson
-                }
-            ];
-
-            IReadOnlyList<RetrievalDocument> convDocs = _retrievalDocumentBuilder.BuildForConversation(
-                Guid.Empty,
-                Guid.Empty,
-                Guid.Empty,
-                null,
-                conversationTurn);
-
-            await _retrievalIndexingService.IndexDocumentsAsync(convDocs, cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to index finding-ask conversation turn for retrieval.");
-        }
-    }
-
     private static string ResolveMissingAskAnswer(string? unwrapped, LlmAskShape? parsed)
     {
         if (string.IsNullOrWhiteSpace(unwrapped))
@@ -261,13 +210,15 @@ public sealed class AskResponseComposer(
         }
     }
 
-    private static string SerializeMetadata(AskResponse response, LlmAskShape? parsed = null) =>
+    private static string SerializeMetadata(AskResponse response, LlmAskShape? parsed = null,
+        AskHistoryEvidenceScope? historyEvidenceScope = null) =>
         JsonSerializer.Serialize(
             new
             {
                 response.ReferencedDecisions,
                 response.ReferencedFindings,
                 response.ReferencedArtifacts,
+                askEvidenceScopeV1 = historyEvidenceScope,
                 referencedDecisionsStoredEmpty = parsed?.ReferencedDecisions is { Count: 0 },
                 referencedDecisionsNotStored = parsed?.ReferencedDecisions is null,
                 referencedFindingsStoredEmpty = parsed?.ReferencedFindings is { Count: 0 },

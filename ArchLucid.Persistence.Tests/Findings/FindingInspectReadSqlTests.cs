@@ -12,6 +12,29 @@ namespace ArchLucid.Persistence.Tests.Findings;
 public sealed class FindingInspectReadSqlTests
 {
     [Fact]
+    public void Finding_owner_projection_is_scoped_and_contains_no_evidence_payload()
+    {
+        string sql = FindingInspectReadSql.RunIdentity;
+        sql.Should().Contain("SELECT TOP 1 r.RunId");
+        sql.Should().Contain("fr.TenantId = @TenantId");
+        sql.Should().Contain("fr.WorkspaceId = @WorkspaceId");
+        sql.Should().Contain("fr.ProjectId = @ScopeProjectId");
+        sql.Should().Contain("r.TenantId = @TenantId");
+        sql.Should().Contain("r.WorkspaceId = @WorkspaceId");
+        sql.Should().Contain("r.ScopeProjectId = @ScopeProjectId");
+        sql.Should().Contain("r.ArchivedUtc IS NULL");
+        sql.Should().Contain("ORDER BY r.CreatedUtc DESC, r.RunId DESC");
+        sql.Should().NotContain("PayloadJson").And.NotContain("ReasoningTrace");
+    }
+
+    [Fact]
+    public void Both_inspect_projections_can_bind_the_exact_authorized_run()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("r.RunId = @ExpectedRunId");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("r.RunId = @ExpectedRunId");
+    }
+
+    [Fact]
     public void FollowUpBatch_scopes_latest_disposition_to_workspace_and_project()
     {
         string dispositionSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingCurrentDispositions");

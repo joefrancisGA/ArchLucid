@@ -105,6 +105,8 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddScoped<Application.Architecture.IArchitectureShareAccessService, Application.Architecture.ArchitectureShareAccessService>();
         services.AddScoped<Application.Architecture.IArchitectureRestrictToSharesService, Application.Architecture.ArchitectureRestrictToSharesService>();
         services.AddScoped<Support.IArchitectureShareAccessGate, Support.ArchitectureShareAccessGate>();
+        services.AddScoped<Support.ArchitectureShareAccessGate>();
+        services.AddScoped<ArchLucid.Host.Core.Services.Ask.IAskEvidenceAccess, Support.AskEvidenceAccess>();
         services.AddScoped<IArchitectureRequestImportValidator, FluentArchitectureRequestImportValidator>();
         services.AddScoped<IImportRequestFileService, ImportRequestFileService>();
         services.AddScoped<IDocumentTextExtractionService, DocumentTextExtractionService>();

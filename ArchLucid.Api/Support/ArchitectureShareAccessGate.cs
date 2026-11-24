@@ -99,23 +99,29 @@ public sealed class ArchitectureShareAccessGate(
         Guid runId,
         CancellationToken cancellationToken = default)
     {
+        (bool found, bool canRead) = await EvaluateRunReadAsync(user, scope, runId, cancellationToken);
+        if (!found)
+            return controller.NotFoundProblem($"Run '{runId:D}' was not found.", ProblemTypes.RunNotFound);
+
+        return canRead ? null : ArchitectureShareNotVisibleAsNotFoundResponsePolicy.RunNotFound(controller, runId);
+    }
+
+    // Same scoped run/share evaluation for non-MVC consumers, without constructing an HTTP response.
+    public async Task<(bool Found, bool CanRead)> EvaluateRunReadAsync(
+        ClaimsPrincipal user, ScopeContext scope, Guid runId, CancellationToken cancellationToken = default)
+    {
         RunRecord? run = await _runRepository.GetByIdAsync(scope, runId, cancellationToken);
 
         if (run is null)
-        {
-            return controller.NotFoundProblem($"Run '{runId:D}' was not found.", ProblemTypes.RunNotFound);
-        }
+            return (false, false);
 
         if (run.ArchitectureId is not Guid architectureId)
-            return null;
+            return (true, true);
 
         ArchitectureShareAccessEvaluation access =
             await EvaluateArchitectureAsync(user, scope, architectureId, cancellationToken);
 
-        if (!access.CanRead)
-            return ArchitectureShareNotVisibleAsNotFoundResponsePolicy.RunNotFound(controller, runId);
-
-        return null;
+        return (true, access.CanRead);
     }
 
     public async Task<IActionResult?> EnsureRunDecideAllowedAsync(

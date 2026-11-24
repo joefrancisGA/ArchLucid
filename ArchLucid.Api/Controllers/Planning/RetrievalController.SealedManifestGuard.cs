@@ -1,11 +1,10 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
 using ArchLucid.Application;
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Core.Pagination;
 using ArchLucid.Persistence.Interfaces;
-using ArchLucid.Persistence.Models;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
@@ -29,9 +28,6 @@ public sealed partial class RetrievalController
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
-
-    // Limit enumeration, rather than silently broaden or truncate a project search.
-    private const int MaxAuthorizationPages = 5;
 
     private async Task<(Guid? RunId, HashSet<Guid> Allowed, IActionResult? Rejection)> ResolveAuthorizedRetrievalRunsAsync(
         ScopeContext scope, Guid? runId, Guid? manifestId, CancellationToken ct)
@@ -74,40 +70,14 @@ public sealed partial class RetrievalController
             return (requestedRunId, allowed, null);
         }
 
-        DateTime? cursorCreatedUtc = null;
-        Guid? cursorRunId = null;
-        HashSet<Guid> visited = [];
-        for (int pageNumber = 0; pageNumber < MaxAuthorizationPages; pageNumber++)
-        {
-            RunListPage page = await _runRepository.ListRecentInScopeKeysetAsync(
-                scope, cursorCreatedUtc, cursorRunId, RunPagination.MaxTake, ct);
+        HashSet<Guid>? projectAllowed = await AuthorizedEvidenceRunResolver.ResolveProjectAsync(
+            _runRepository, scope,
+            async (candidateId, token) => await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+                this, User, scope, candidateId, token) is null,
+            ct);
 
-            foreach (RunRecord candidate in page.Items)
-            {
-                if (candidate.RunId == Guid.Empty || !visited.Add(candidate.RunId))
-                    continue;
-
-                // The list is discovery only; always resolve actual sharing through the canonical gate.
-                IActionResult? denial = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
-                    this, User, scope, candidate.RunId, ct);
-                if (denial is null)
-                    allowed.Add(candidate.RunId);
-            }
-
-            if (!page.HasMore)
-                return (null, allowed, null);
-
-            if (page.Items.Count == 0)
-                break;
-
-            RunRecord last = page.Items[^1];
-            if (last.RunId == Guid.Empty ||
-                (cursorCreatedUtc == last.CreatedUtc && cursorRunId == last.RunId))
-                break;
-
-            cursorCreatedUtc = last.CreatedUtc;
-            cursorRunId = last.RunId;
-        }
+        if (projectAllowed is not null)
+            return (null, projectAllowed, null);
 
         return (null, [], this.ConflictProblem(
             "Project-wide retrieval cannot verify every run within the authorization budget. Specify a run or manifest.",

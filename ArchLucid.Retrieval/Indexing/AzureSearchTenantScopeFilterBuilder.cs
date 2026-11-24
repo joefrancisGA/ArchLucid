@@ -88,6 +88,14 @@ public static class AzureSearchTenantScopeFilterBuilder
                     $"(tenantId eq '{CorpusKindSentinels.PlatformSentinelTenantId:D}' and corpusKind ne 'PolicyPack')";
             }
 
+            // Platform-sentinel conversation rows are never valid reference corpora.
+            platformScope = $"({platformScope} and corpusKind ne 'Conversation')";
+
+            // Older finding conversations were incorrectly indexed under the platform sentinel.
+            // Constrained Ask may only read explicitly recognized platform corpora.
+            if (query.AuthorizedEvidenceRunIds is not null)
+                platformScope = $"({platformScope} and (corpusKind eq 'PlatformDoc' or corpusKind eq 'ReferenceArchitecture' or corpusKind eq 'AzureRetailPrice' or corpusKind eq 'PolicyPack'))";
+
             return $"(({string.Join(" and ", clauses)}) or {platformScope})";
         }
 

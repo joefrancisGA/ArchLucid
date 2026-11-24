@@ -5,6 +5,9 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Sql;
+
+using Dapper;
 
 namespace ArchLucid.Persistence.Findings;
 
@@ -17,6 +20,25 @@ public sealed partial class DapperFindingInspectReadRepository(ISqlConnectionFac
 {
     private readonly ISqlConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+
+    /// <inheritdoc />
+    public async Task<Guid?> GetRunIdByFindingIdAsync(
+        ScopeContext scope, string findingId, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(findingId);
+        await using Microsoft.Data.SqlClient.SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        return await connection.QuerySingleOrDefaultAsync<Guid?>(new CommandDefinition(
+            FindingInspectReadSql.RunIdentity,
+            new
+            {
+                FindingId = FindingInspectReadRepositoryCore.NormalizeFindingId(findingId),
+                scope.TenantId,
+                scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+            },
+            cancellationToken: ct));
+    }
 
     /// <inheritdoc />
     public async Task<FindingInspectResponse?> GetInspectAsync(
@@ -34,7 +56,7 @@ public sealed partial class DapperFindingInspectReadRepository(ISqlConnectionFac
 
         await using Microsoft.Data.SqlClient.SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
-        MainRow? row = await LoadMainRowAsync(connection, scope, findingId, includeTypedPayload, ct);
+        MainRow? row = await LoadMainRowAsync(connection, scope, findingId, includeTypedPayload, options?.ExpectedRunId, ct);
 
         if (row is null)
             return null;

@@ -20,4 +20,7 @@ public sealed record AskPreparedContext(
     string RetrievalContext,
     bool RetrievalDegraded,
     ScopeContext Scope,
-    IReadOnlyList<AskCitedFindingsSemanticSupportBandHonesty.FindingBandIndexEntry> FindingBandIndex);
+    IReadOnlyList<AskCitedFindingsSemanticSupportBandHonesty.FindingBandIndexEntry> FindingBandIndex)
+{
+    public AskHistoryEvidenceScope? HistoryEvidenceScope { get; init; }
+}
