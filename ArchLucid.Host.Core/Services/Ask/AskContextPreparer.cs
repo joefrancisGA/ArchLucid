@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Ask;
+using ArchLucid.Application.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Decisioning.Interfaces;
@@ -35,9 +36,13 @@ public sealed class AskContextPreparer(
     IOptionsMonitor<AskRetrievalOptions> askRetrievalOptions,
     IRunRepository runRepository,
     IManifestHashService manifestHashService,
-    ILogger<AskContextPreparer> logger)
+    ILogger<AskContextPreparer> logger,
+    IAskEvidenceAccess evidenceAccess)
 {
     private const int HistoryTake = 40;
+
+    private readonly IAskEvidenceAccess _evidenceAccess =
+        evidenceAccess ?? throw new ArgumentNullException(nameof(evidenceAccess));
 
     private readonly IAuthorityQueryService _query =
         query ?? throw new ArgumentNullException(nameof(query));
@@ -79,6 +84,18 @@ public sealed class AskContextPreparer(
         if (string.IsNullOrWhiteSpace(request.Question))
             throw new ArgumentException("Question is required.", nameof(request));
 
+        string actorId = _evidenceAccess.GetAuthorizedActorId()
+            ?? throw new InvalidOperationException("Ask evidence is not available for the current caller.");
+
+        if (string.IsNullOrWhiteSpace(actorId))
+            throw new InvalidOperationException("Ask evidence is not available for the current caller.");
+
+        // Explicit request anchors must be checked before creating or mutating a thread.
+        HashSet<Guid> checkedRuns = [];
+        await RequireReadAsync(scope, request.RunId, checkedRuns, cancellationToken);
+        await RequireReadAsync(scope, request.BaseRunId, checkedRuns, cancellationToken);
+        await RequireReadAsync(scope, request.TargetRunId, checkedRuns, cancellationToken);
+
         ConversationThread thread = await _conversationService.GetOrCreateThreadAsync(
             request.ThreadId,
             scope.TenantId,
@@ -89,18 +106,43 @@ public sealed class AskContextPreparer(
             request.TargetRunId,
             cancellationToken);
 
+        // Stored anchors are independent of caller-supplied values and must also be authorized.
+        await RequireReadAsync(scope, thread.RunId, checkedRuns, cancellationToken);
+        await RequireReadAsync(scope, thread.BaseRunId, checkedRuns, cancellationToken);
+        await RequireReadAsync(scope, thread.TargetRunId, checkedRuns, cancellationToken);
+
+        if (request.ThreadId == thread.ThreadId &&
+            ((request.RunId.HasValue && request.RunId != thread.RunId) ||
+             (request.BaseRunId.HasValue && request.BaseRunId != thread.BaseRunId) ||
+             (request.TargetRunId.HasValue && request.TargetRunId != thread.TargetRunId)))
+            throw new ArgumentException("Start a new thread to change its run or comparison anchors.", nameof(request));
+
         Guid? effectiveRunId = request.RunId ?? thread.RunId;
         Guid? effectiveBaseRunId = request.BaseRunId ?? thread.BaseRunId;
         Guid? effectiveTargetRunId = request.TargetRunId ?? thread.TargetRunId;
 
-        string question = request.Question.Trim();
-        await _conversationService.AppendUserMessageAsync(thread.ThreadId, question, cancellationToken);
+        if (effectiveBaseRunId.HasValue != effectiveTargetRunId.HasValue ||
+            (!effectiveRunId.HasValue && effectiveBaseRunId.HasValue))
+            throw new ArgumentException("Provide runId and both comparison anchors.", nameof(request));
 
+        HashSet<Guid>? projectRuns = await AuthorizedEvidenceRunResolver.ResolveProjectAsync(
+            _runRepository, scope,
+            (id, token) => _evidenceAccess.CanReadRunAsync(scope, id, token), cancellationToken);
+
+        if (projectRuns is null && !effectiveRunId.HasValue)
+            throw new ArchLucid.Application.ConflictException(
+                "Project-wide Ask authorization budget exceeded. Specify a run.");
+
+        HashSet<Guid> authorizedRuns = projectRuns ?? [];
+        authorizedRuns.UnionWith(checkedRuns);
+
+        string question = request.Question.Trim();
         IReadOnlyList<ConversationMessage> historyWindow =
             await _conversationService.GetHistoryAsync(thread.ThreadId, HistoryTake, cancellationToken);
-        IReadOnlyList<ConversationMessage> priorMessages =
-            AskConversationHistoryBuilder.TrimCurrentUserTurn(historyWindow, question);
+        IReadOnlyList<ConversationMessage> priorMessages = AskHistoryEvidenceScope.SelectVerifiedTurns(
+            historyWindow, thread.ThreadId, actorId, authorizedRuns);
         string historyText = await _conversationHistoryBuilder.BuildHistoryTextAsync(priorMessages, cancellationToken);
+        await _conversationService.AppendUserMessageAsync(thread.ThreadId, question, cancellationToken);
 
         if (!effectiveRunId.HasValue)
         {
@@ -116,6 +158,8 @@ public sealed class AskContextPreparer(
                 question,
                 historyText,
                 scope,
+                actorId,
+                authorizedRuns,
                 cancellationToken);
         }
 
@@ -206,6 +250,7 @@ public sealed class AskContextPreparer(
             scope,
             question,
             detail,
+            authorizedRuns,
             cancellationToken);
 
         IReadOnlyList<AskCitedFindingsSemanticSupportBandHonesty.FindingBandIndexEntry> findingBandIndex =
@@ -224,7 +269,10 @@ public sealed class AskContextPreparer(
             retrievalContext,
             retrievalDegraded,
             scope,
-            findingBandIndex);
+            findingBandIndex)
+        {
+            HistoryEvidenceScope = CreateHistoryEvidenceScope(actorId, authorizedRuns, question),
+        };
     }
 
     private async Task<AskPreparedContext> PrepareWorkspaceContextAsync(
@@ -232,6 +280,8 @@ public sealed class AskContextPreparer(
         string question,
         string historyText,
         ScopeContext scope,
+        string actorId,
+        IReadOnlySet<Guid> authorizedRuns,
         CancellationToken cancellationToken)
     {
         string contextJson = AskWorkspaceContextBuilder.BuildContextJson(scope);
@@ -239,6 +289,7 @@ public sealed class AskContextPreparer(
             scope,
             question,
             runDetailForFallback: null,
+            authorizedRuns,
             cancellationToken);
 
         return new AskPreparedContext(
@@ -254,13 +305,17 @@ public sealed class AskContextPreparer(
             retrievalContext,
             retrievalDegraded,
             scope,
-            []);
+            [])
+        {
+            HistoryEvidenceScope = CreateHistoryEvidenceScope(actorId, authorizedRuns, question),
+        };
     }
 
     private async Task<(string Context, bool Degraded)> BuildRetrievalContextAsync(
         ScopeContext scope,
         string question,
         RunDetailDto? runDetailForFallback,
+        IReadOnlySet<Guid> authorizedRuns,
         CancellationToken cancellationToken)
     {
         try
@@ -279,6 +334,7 @@ public sealed class AskContextPreparer(
                     ProjectId = scope.ProjectId,
                     RunId = null,
                     ManifestId = null,
+                    AuthorizedEvidenceRunIds = authorizedRuns,
                     QueryText = question,
                     TopK = retrievalTopK,
                     IncludePlatformCorpora = includePolicyPacks || includePlatformDocs,
@@ -308,4 +364,23 @@ public sealed class AskContextPreparer(
             return (fallback, true);
         }
     }
+
+    private static AskHistoryEvidenceScope? CreateHistoryEvidenceScope(
+        string actorId, IReadOnlySet<Guid> authorizedRuns, string question) =>
+        AskHistoryEvidenceScope.Create(actorId, authorizedRuns, question,
+            AskRetrievalIntentDetector.DetectPolicyPackIntent(question) ||
+            AskRetrievalIntentDetector.DetectPlatformDocIntent(question));
+
+    private async Task RequireReadAsync(
+        ScopeContext scope, Guid? runId, HashSet<Guid> checkedRuns, CancellationToken ct)
+    {
+        if (runId is not Guid id || checkedRuns.Contains(id))
+            return;
+
+        if (id == Guid.Empty || !await _evidenceAccess.CanReadRunAsync(scope, id, ct))
+            throw new InvalidOperationException("Ask evidence is not available for the current caller.");
+
+        checkedRuns.Add(id);
+    }
+
 }
