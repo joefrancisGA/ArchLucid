@@ -12,12 +12,15 @@ function compareAssignedToMeOldestFindings(
   left: GovernanceFindingQueueRow,
   right: GovernanceFindingQueueRow,
 ): number {
-  const leftAging = left.agingDays ?? -1;
-  const rightAging = right.agingDays ?? -1;
-  const agingDelta = rightAging - leftAging;
+  const leftAging = left.agingDays;
+  const rightAging = right.agingDays;
 
-  if (agingDelta !== 0) {
-    return agingDelta;
+  if (leftAging !== null && leftAging !== undefined && rightAging !== null && rightAging !== undefined) {
+    const agingDelta = rightAging - leftAging;
+
+    if (agingDelta !== 0) {
+      return agingDelta;
+    }
   }
 
   const leftDue = resolveGovernanceQueueDueDateMs(left);

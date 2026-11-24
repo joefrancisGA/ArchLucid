@@ -1,15 +1,24 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (seed-only): `ui-governance-findings-queue` pass-36 reseed. Scoped vitest **17/17**. Private beta: n/a.
+> **Scope:** Contributor-reference — hunt 2026-11-24 thorough hunt (hit): `ui-lib-governance` oldest-assigned finding aging guard. Scoped vitest **12/12**. Private beta: assigned-to-me queue highlights sooner-due findings when aging is missing.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
+2026-11-24 thorough hunt #3 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-1 `(candidate)` rows — **proven** `resolveGovernanceAssignedToMeOldestFinding` treated missing `agingDays` as `-1`, so a zero-day row beat a sooner-due row without stored aging; **valid-no-repro** `compareSeverity` title-case ranks (register mapper keeps trimmed API casing; monitor for lowercase drift vs density sort), **valid-no-repro** `parseGovernanceFindingsSearchQuery` padding (`matchesGovernanceFindingsSearchQuery` trims before matching; writer trims on replace), **valid-no-repro** `isApprovedStatus` excluding `Promoted`/`Activated` (Approved filter matches workflow `Approved` status; help guide models post-approval states separately), **valid-no-repro** `parseDecisionRegisterCategoryFromSearch` padding (decision-register page trims on filter apply). Regression `uses soonest due date when aging days are not stored on a row`; oldest-finding suite **4/4** with assigned-to-me sort, approval filter, findings search, and density sort **12/12** scoped. Reseeded five pass-2 `(candidate)` monitors below. Private beta: invited operators on the assigned-to-me governance queue now see the oldest-action callout prefer the finding with the sooner due date when aging days are not stored, instead of a zero-day row with a later due date.
 
 2026-11-23 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reread findings search, approval status filter, assigned-to-me sort, density sort, and due-date helpers after the 2026-11-23 dry pass. No row met hunt-ready: approval status still matches only `approved` (Promoted/Activated remain uncited), and assigned-to-me severity ranks use title case while the findings signal sort lowercases. Seeded five `(candidate)` monitors. Private beta: n/a.
 
-- [ ] (candidate) `compareSeverity` — title-case severity ranks only — locus: `SEVERITY_ORDER` keys `Critical`/`High`; input: queue row severity `critical`; wrong outcome: rank 99 while `sortGovernanceFindingsRowsBySignal` ranks it first; reachability: register mapper stores trimmed API severity (monitor; shipped enums are title case).
-- [ ] (candidate) `parseGovernanceFindingsSearchQuery` — reader keeps padding the writer strips — locus: returns `raw` untrimmed; input: `q=%20vault%20`; wrong outcome: URL chip and matcher disagree until the next write; reachability: pasted findings search (monitor; matcher trims).
-- [ ] (candidate) `isApprovedStatus` — `Promoted` and `Activated` miss the approved filter — locus: equality on `approved` only; input: approval row status `Promoted`; wrong outcome: row hidden under Approved; reachability: approval queue status strings (monitor; prior dry pass did not cite a producer).
-- [ ] (candidate) `resolveGovernanceAssignedToMeOldestFinding` — null `agingDays` sorts as `-1` — locus: `?? -1`; input: finding with null aging and an older due date; wrong outcome: a zero-aging row wins oldest; reachability: assigned-to-me rows missing aging (monitor).
-- [ ] (candidate) `parseDecisionRegisterCategoryFromSearch` — reader does not trim — locus: returns raw category; input: `category=%20Risk%20`; wrong outcome: filter chip misses the trimmed writer value; reachability: decision register category URL (monitor).
+- [x] (valid-no-repro) `compareSeverity` — title-case severity ranks only — **cheap-disproof 2026-11-24 thorough hunt #3:** API/register rows use trimmed title-case severity; density sort lowercases by design (monitor).
+- [x] (valid-no-repro) `parseGovernanceFindingsSearchQuery` — reader keeps padding the writer strips — **cheap-disproof 2026-11-24 thorough hunt #3:** matcher trims; debounced writer normalizes URL.
+- [x] (valid-no-repro) `isApprovedStatus` — `Promoted` and `Activated` miss the approved filter — **cheap-disproof 2026-11-24 thorough hunt #3:** Approved filter targets `Approved` workflow status; Promoted/Activated remain monitor-only.
+- [x] (proven) `resolveGovernanceAssignedToMeOldestFinding` — null `agingDays` sorts as `-1` — **hit 2026-11-24 thorough hunt #3:** compare aging only when both rows store aging; regression `uses soonest due date when aging days are not stored on a row`.
+- [x] (valid-no-repro) `parseDecisionRegisterCategoryFromSearch` — reader does not trim — **cheap-disproof 2026-11-24 thorough hunt #3:** `use-decision-register-page` trims on filter apply.
+
+- [x] (superseded) pass-1 `(candidate)` queue — **superseded 2026-11-24 thorough hunt #3 (mixed dry + hit):** closed at zone header; see pass-2 reseed.
+
+- [ ] (candidate) `compareGovernanceAssignedToMeQueueRows` — lowercase API severity may sort after title-case Low — locus: `SEVERITY_ORDER` keys; input: `high` vs `Low`; wrong outcome: Low wins severity sort; monitor; pass-2 reseed.
+- [ ] (candidate) `parseGovernanceFindingsSearchQuery` — untrimmed `q` may show padding in search input before debounced replace — locus: search field hydration; input: `q=%20vault%20`; monitor; pass-2 reseed.
+- [ ] (candidate) `filterGovernanceApprovalsByStatusFilter` — `Promoted` rows under Approved filter — locus: approval queue; input: status `Promoted`; monitor; pass-2 reseed.
+- [ ] (candidate) `governanceFindingsSearchHrefFromSearch` — whitespace-only `q` delete vs reader raw — locus: href writer; input: spaces-only query; monitor; pass-2 reseed.
+- [ ] (candidate) `decisionRegisterCategoryHrefFromSearch` — padded category in URL until operator edits — locus: advanced filters; input: category with leading spaces; monitor; pass-2 reseed.
 2026-11-23 thorough hunt (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). The only hunt-ready row was a reseed stub with no locus, input, or wrong outcome, so it is `(invalid)`. Re-read `governanceFindingsClearAllFiltersHref`, `governanceFindingsClearReviewScopeHref`, `governanceFindingsNlTitleHrefFromSearch`, and `resolveGovernanceScopedReviewOpenHref`. Cheap-disproof closed the four pass-1 monitors: clear-all deletes `bulkDispConfirm`, clear-scope deletes keyboard triage params, row review href trims `runId` before encoding, and title facets go through `URLSearchParams.set`. Inverse checks on architecture-id case, approval status `Promoted`/`Activated`, and the untrimmed findings search reader did not meet the hunt-ready bar. Private beta: n/a.
 
 2026-11-20 thorough hunt #2 (hit): cheap-disproof closed four header `(hunt-ready)` URL helpers — **valid-no-repro** `governanceFindingsClearAllFiltersHref` drops bulk confirm without selection (`governance-findings-clear-all-filters-url.test.ts`), **valid-no-repro** `governanceFindingsClearReviewScopeHref` clears keyboard triage with `runId` removal (suite), **valid-no-repro** `governanceFindingQueueRowReviewHref` trims padded ids via `resolveGovernanceScopedReviewOpenHref`, **valid-no-repro** NL title/`URLSearchParams` encoding for embedded `=` (title facet join path). Promoted architecture scope chip: `governanceFindingsArchitectureScopeHrefFromSearch` wrote whitespace-only `architectureId` into the URL instead of canonical `all`; normalize trim and map empty to `architectureId=all`; regression `treats whitespace-only architecture id as all-architectures scope without dropping filters`; architecture-scope suite **6/6**. Scoped governance URL cluster **26/26** (pick-review, clear filters, clear scope, architecture-scope). Private beta: bad architecture scope input no longer leaves padded `architectureId` query junk on the findings queue.
@@ -41,11 +50,11 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 - **aliases:** governance lib; findings URL helpers
 - **paths:** archlucid-ui/src/lib/governance/
 - **test-filter:** lib/governance
-- **hunts:** 3
-- **bugs-found:** 0
+- **hunts:** 4
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-23
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
