@@ -102,6 +102,10 @@ import {
   parseTechnologyBaselineEntryIdFromSearch,
   TECHNOLOGY_BASELINE_ENTRY_PARAM,
 } from "@/lib/reviews/technology-baseline-rationale-url";
+import {
+  parseRunImpactAnalysisOpenFromSearch,
+  RUN_IMPACT_ANALYSIS_OPEN_PARAM,
+} from "@/lib/reviews/run-impact-analysis-disclosure-url";
 
 const WORKBENCH_TAB_IDS: readonly ReviewDetailTabId[] = ["architecture", "findings", "evidence"];
 
@@ -286,6 +290,9 @@ export function useReviewDetailWorkspaceTabs(
       parseTechnologyBaselineEvidenceRefEntryIdFromSearch(params.get(TECHNOLOGY_BASELINE_EVIDENCE_REF_ENTRY_ID_PARAM)).length > 0;
     const techEntryIdPresent =
       parseTechnologyBaselineEntryIdFromSearch(params.get(TECHNOLOGY_BASELINE_ENTRY_PARAM)).length > 0;
+    const runImpactAnalysisOpenPresent = parseRunImpactAnalysisOpenFromSearch(
+      params.get(RUN_IMPACT_ANALYSIS_OPEN_PARAM),
+    );
     const runRecordMetaOpenPresent = parseRunDetailRecordMetadataOpenFromSearch(params.get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM));
     const askDockOpenPresent = parseReviewAskDockOpenFromSearch(params.get(REVIEW_ASK_DOCK_OPEN_PARAM));
     const askThreadPresent =
@@ -329,6 +336,7 @@ export function useReviewDetailWorkspaceTabs(
       || workspaceAiProbeDebugMetadataOpenPresent
       || technologyBaselineEvidenceRefEntryIdPresent
       || techEntryIdPresent
+      || runImpactAnalysisOpenPresent
       || runRecordMetaOpenPresent
       || askDockOpenPresent
       || askThreadPresent
