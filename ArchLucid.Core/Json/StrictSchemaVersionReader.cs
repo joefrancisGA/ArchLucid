@@ -66,7 +66,8 @@ public static class StrictSchemaVersionReader
             && double.IsFinite(numeric)
             && numeric >= 0
             && numeric <= int.MaxValue
-            && numeric == Math.Floor(numeric))
+            && numeric == Math.Floor(numeric)
+            && HasIntegralDecimalDigits(element.GetRawText()))
         {
             schemaVersion = (int)numeric;
 
@@ -96,7 +97,8 @@ public static class StrictSchemaVersionReader
             && double.IsFinite(numeric)
             && numeric >= 0
             && numeric <= int.MaxValue
-            && numeric == Math.Floor(numeric))
+            && numeric == Math.Floor(numeric)
+            && HasIntegralDecimalDigits(jsonValue.ToJsonString()))
         {
             schemaVersion = (int)numeric;
 
@@ -128,7 +130,8 @@ public static class StrictSchemaVersionReader
             && double.IsFinite(numeric)
             && numeric >= 0
             && numeric <= int.MaxValue
-            && numeric == Math.Floor(numeric))
+            && numeric == Math.Floor(numeric)
+            && HasIntegralDecimalDigits(trimmed))
         {
             value = (int)numeric;
 
@@ -138,5 +141,60 @@ public static class StrictSchemaVersionReader
         value = default;
 
         return false;
+    }
+
+    // Floating-point conversion can round a fractional decimal (or an underflow)
+    // to an integer. Check the original decimal digits before accepting the result.
+    private static bool HasIntegralDecimalDigits(string raw)
+    {
+        ReadOnlySpan<char> text = raw.AsSpan();
+        int exponentIndex = text.IndexOfAny('e', 'E');
+        ReadOnlySpan<char> mantissa = exponentIndex < 0 ? text : text[..exponentIndex];
+
+        int fractionalDigits = 0;
+        int trailingZeros = 0;
+        bool afterDecimalPoint = false;
+        bool hasNonzeroDigit = false;
+
+        foreach (char digit in mantissa)
+        {
+            if (digit == '.')
+            {
+                afterDecimalPoint = true;
+                continue;
+            }
+
+            if (digit is '+' or '-')
+                continue;
+
+            if (digit is < '0' or > '9')
+                return false;
+
+            if (afterDecimalPoint)
+                fractionalDigits++;
+
+            if (digit == '0')
+            {
+                trailingZeros++;
+            }
+            else
+            {
+                hasNonzeroDigit = true;
+                trailingZeros = 0;
+            }
+        }
+
+        if (!hasNonzeroDigit)
+            return true;
+
+        int exponent = 0;
+        if (exponentIndex >= 0
+            && !int.TryParse(text[(exponentIndex + 1)..], NumberStyles.AllowLeadingSign,
+                CultureInfo.InvariantCulture, out exponent))
+        {
+            return false;
+        }
+
+        return (long)fractionalDigits - trailingZeros <= exponent;
     }
 }
