@@ -247,12 +247,17 @@ public sealed class RemediationSqlRolePrivilegesTests(SqlServerPersistenceFixtur
             legitimateScopedUpdate.Should().Be(1,
                 "owner-context SQL procedure must be usable even when direct table UPDATE is denied");
 
+            // Classified -> PreflightPassed already occurred; PreflightPassed ->
+            // PreflightBlocked is still a valid transition. Reusing the old
+            // token must fail specifically because the rowversion advanced.
+            DynamicParameters staleMutation = new(scopedMutation);
+            staleMutation.Add("Status", 2);
             int staleRetry = await connection.QuerySingleAsync<int>(
                 "dbo.uspRemediationUpdateScoped",
-                scopedMutation,
+                staleMutation,
                 commandType: System.Data.CommandType.StoredProcedure);
             staleRetry.Should().Be(0,
-                "previous rowversion must no longer authorize the same stored-procedure update");
+                "an otherwise-allowed transition must reject a stale rowversion");
 
             // Even zero-row ad-hoc instance UPDATE must now fail for the runtime role.
             Func<Task> forbiddenDirectUpdate = () => connection.ExecuteAsync(
