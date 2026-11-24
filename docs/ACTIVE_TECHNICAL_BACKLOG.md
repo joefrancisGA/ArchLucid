@@ -32,7 +32,7 @@
 | Priority | QA & stabilization | Release readiness | 2.0 foundations | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Immediate | 0 | 0 | 0 | 0 |
-| Critical | 24 | 5 | 0 | 29 |
+| Critical | 29 | 5 | 0 | 34 |
 | High | 262 | 141 | 0 | 403 |
 | Medium | 10 | 2 | 15 | 27 |
 | Low | 0 | 0 | 63 | 63 |
@@ -45,7 +45,7 @@ Each section is ordered **QA → release readiness → 2.0 foundations**. Within
 
 ### Critical
 
-#### QA & stabilization (24)
+#### QA & stabilization (29)
 
 | ID | Technical item | Origin / qualification |
 | --- | --- | --- |
@@ -73,6 +73,11 @@ Each section is ordered **QA → release readiness → 2.0 foundations**. Within
 | FND-075 | Durable per-stage analysis checkpoints and selective recovery | Critical extension of FND-049 and existing selective agent retry/run persistence. Persist tenant/workspace/project-scoped run and stage identities, lifecycle state, attempts, lease/fencing, result references and input versions; atomically publish successful checkpoints with outputs where feasible. Automatically resume only eligible unfinished stages after interruption or restart, using idempotent execution and bounded retries; verify crash recovery, concurrent workers, stale leases, scope isolation and no duplicated successful work. |
 | FND-076 | Dependency-aware analysis reuse and invalidation | Critical extension of FND-064/FND-075 and SecureNow SA-13 incremental invalidation. Record versioned evidence, policies, engine/configuration and dependency fingerprints per analysis stage; reuse successful results only when inputs and upstream results remain valid; propagate incomplete/stale states and recompute affected dependents without repeating valid independent work. Preserve immutable historical snapshots; test changed evidence/policy, upstream failures and mixed-version prevention. |
 | FND-077 | End-to-end partial analysis coverage and recovery honesty | Critical hardening of existing three-state evaluation contract, FindingsSnapshot.EngineFailures/GenerationStatus and SecureNow coverage surfaces; extend FND-075/FND-076. Distinguish successful no-finding, incomplete/failed, pending, stale and not-applicable stages; expose coverage, missing sources, retry exhaustion and recovery status in API, UI and exports. Prevent incomplete evidence from becoming an authoritative negative security conclusion; preserve valid findings and enforce existing finalization rules. Test partial failures, zero findings with missing coverage, dependency gaps and successful resumption across both products. |
+| FND-078 | Reusable paired baseline-versus-candidate analysis engine evaluation | Critical implementation slice of TB-2408/FND-059/FND-062/FND-038 for both products. Run pinned baseline and candidate on identical authorized immutable evidence, policy, scope and configuration; record engine/model/version and coverage, normalize and align finding identities without conflating uncertain matches, classify added, removed, changed, agreed and incomparable results. Optional blinded LLM comparative judge prioritizes review only; no model preference establishes truth. Test reproducibility, order effects, missing coverage and identity mismatches. |
+| FND-079 | Automated deterministic proof and disproof of divergent findings | Critical extension of FND-069/FND-070/FND-072 and TB-2408. Route disagreements, particularly missing or new critical findings, through the cheapest applicable independent deterministic evidence checks, bounded reference oracles, metamorphic tests or counterexamples; record supported, refuted, inconclusive and not-testable with evidence and scope. Reuse existing verification mechanisms; avoid treating absence, shared assumptions or model agreement as proof. Test both false-positive and false-negative cases; no customer mutation. |
+| FND-080 | Independent human engineering adjudication and regression corpus expansion | Critical extension of FND-071/FND-038/FND-059 and Expert-Level Miss Review. Escalate unresolved material discrepancies to qualified independent human reviewers with blinded outputs where feasible; record rationale, evidence, reviewer independence, scope, uncertainty and disputed labels. Distinguish expert judgment from reproducible proof; convert validated adjudications into versioned automated regression fixtures when feasible, preserve holdout cases and prevent corpus contamination. Test audit and label lifecycle; protect tenant data. |
+| FND-081 | Mandatory severity-weighted analysis engine promotion gate | Critical implementation slice of TB-2408/TB-2409/FND-069/FND-073. Reuse existing quality and promotion infrastructure to evaluate paired runs using independently adjudicated truth, severity-stratified precision/recall, coverage, uncertainty and performance budgets. Block promotion on confirmed unacceptable critical regressions or unresolved material critical disagreements; never allow additional minor findings or LLM preferences to offset a critical miss. Pin cohort and policy versions, persist gate evidence, ensure release-path enforcement and tested rollback; revalidate before activation. |
+| FND-082 | Independent sampling of agreed engine conclusions and shared blind spots | Critical extension of FND-038/FND-059/FND-079. Sample agreements, including shared negative conclusions, with reproducible severity/risk-stratified sampling and independent oracles or blind human review; measure correlated errors and false negatives, retain unknowns separately, record sampling coverage and uncertainty. Escalate discovered common-mode defects into FND-080 corpus and FND-081 promotion gates; test cases where both engines are wrong and avoid interpreting unsampled agreement as proof. |
 
 #### Release readiness (5)
 
