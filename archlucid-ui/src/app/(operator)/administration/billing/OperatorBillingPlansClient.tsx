@@ -45,6 +45,8 @@ import {
   parseBillingPlanAddonsOpenFromSearch,
 } from "@/lib/administration/billing-plan-addons-url";
 import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
+import { SECURENOW_ARCHITECTURE_SUBSCRIPTION_BOUNDARY } from "@/lib/marketing/securenow-public-commercial-packaging-copy";
+import { SECURENOW_OPERATOR_QUOTE_PACKET_HREF } from "@/lib/product-line/securenow-beta-sku-contents-copy";
 
 function buildSalesLedPricingHref(tierId: MarketingPricingTierId): string {
   return `/pricing?source=operator-billing&tier=${encodeURIComponent(tierId)}#pricing-quote-request`;
@@ -279,6 +281,13 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
         {OPERATOR_BILLING_CATALOG_NOTE}{" "}
         <Link href="/pricing" className={OPERATOR_LINK.nav}>
           View public pricing
+        </Link>
+        .
+      </p>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="billing-securenow-subscription-boundary">
+        {SECURENOW_ARCHITECTURE_SUBSCRIPTION_BOUNDARY}{" "}
+        <Link href={SECURENOW_OPERATOR_QUOTE_PACKET_HREF} className={OPERATOR_LINK.nav}>
+          Open SecureNow quote packet
         </Link>
         .
       </p>
