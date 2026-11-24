@@ -108,58 +108,9 @@ public sealed partial class AuthorityQueryController
     {
         try
         {
-            // The run must still exist in the same trusted scope, and its
-            // current pinned manifest must be available as before.
-            if (manifestDetail?.Run is null ||
-                manifestDetail.Run.RunId != result.RunId ||
-                manifestDetail.GoldenManifest is null ||
-                manifestDetail.Run.GoldenManifestId != manifestDetail.GoldenManifest.ManifestId ||
-                manifestDetail.GoldenManifest.RunId != result.RunId)
-            {
-                throw new ConflictException(
-                    $"Manifest '{requestedManifestId}' cannot verify its associated committed run.");
-            }
-
-            // The exact manifest requested by the caller must independently
-            // match its scoped lookup and summary, even if the run has since
-            // pinned a newer golden manifest. Never hash a different manifest
-            // and treat that as proof of the requested version's integrity.
-            if (requestedManifest is null ||
-                requestedManifest.ManifestId != requestedManifestId ||
-                requestedManifest.RunId != result.RunId ||
-                requestedManifest.TenantId != scope.TenantId ||
-                requestedManifest.WorkspaceId != scope.WorkspaceId ||
-                requestedManifest.ProjectId != scope.ProjectId ||
-                !string.Equals(requestedManifest.ManifestHash, result.ManifestHash,
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                throw new ConflictException(
-                    $"Manifest '{requestedManifestId}' exact-ID scope or run binding could not be verified.");
-            }
-
-            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                requestedManifest,
-                result.RunId.ToString("D"),
-                manifestHashService);
-
-            // Keep the prior check on the pinned current manifest as well.
-            // The identical loaded object needs only one hash computation.
-            if (!ReferenceEquals(requestedManifest, manifestDetail.GoldenManifest))
-            {
-                if (requestedManifest.ManifestId == manifestDetail.GoldenManifest.ManifestId &&
-                    !string.Equals(requestedManifest.ManifestHash,
-                        manifestDetail.GoldenManifest.ManifestHash,
-                        StringComparison.OrdinalIgnoreCase))
-                {
-                    throw new ConflictException(
-                        $"Manifest '{requestedManifestId}' conflicts with the run's pinned manifest.");
-                }
-
-                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                    manifestDetail.GoldenManifest,
-                    result.RunId.ToString("D"),
-                    manifestHashService);
-            }
+            SealedManifestReadGuard.EnsureManifestSummaryBindingAndHashesOrThrow(
+                scope, requestedManifestId, result, requestedManifest,
+                manifestDetail, manifestHashService);
         }
         catch (ConflictException ex)
         {
