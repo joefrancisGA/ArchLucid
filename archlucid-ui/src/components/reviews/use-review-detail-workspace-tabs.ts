@@ -258,6 +258,11 @@ import {
 } from "@/lib/runs/run-trust-evidence-disclosure-url";
 
 import {
+  parseRunStoredEvidencePreviewShapeFromSearch,
+  RUN_STORED_EVIDENCE_PREVIEW_SHAPE_PARAM,
+} from "@/lib/runs/run-stored-evidence-preview-shape-url";
+
+import {
   parseRunImpactAnalysisOpenFromSearch,
   RUN_IMPACT_ANALYSIS_OPEN_PARAM,
 } from "@/lib/reviews/run-impact-analysis-disclosure-url";
@@ -617,6 +622,8 @@ export function useReviewDetailWorkspaceTabs(
     const findingTechnicalAuditOpenPresent = parseFindingTechnicalAuditOpenFromSearch(
       params.get(FINDING_TECHNICAL_AUDIT_OPEN_PARAM),
     );
+    const runStoredEvidencePreviewShapePresent =
+      (parseRunStoredEvidencePreviewShapeFromSearch(params.get(RUN_STORED_EVIDENCE_PREVIEW_SHAPE_PARAM)) ?? "").length > 0;
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -748,6 +755,7 @@ export function useReviewDetailWorkspaceTabs(
       || findingExportOpenPresent
       || findingTechnicalIdsOpenPresent
       || findingTechnicalAuditOpenPresent
+      || runStoredEvidencePreviewShapePresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent
