@@ -128,9 +128,9 @@ public static class CommittedEffectiveGovernanceSnapshotExportFormatter
             }
 
             line.Append(" · ");
-            line.Append(row.CoverageType.Trim());
+            line.Append(FormatRecordedValue(row.CoverageType));
             line.Append(" · ");
-            line.Append(row.SelectionState.Trim());
+            line.Append(FormatRecordedValue(row.SelectionState));
 
             if (!string.IsNullOrWhiteSpace(row.ExclusionReason))
             {
@@ -168,9 +168,9 @@ public static class CommittedEffectiveGovernanceSnapshotExportFormatter
             }
 
             coverage.Append(" · ");
-            coverage.Append(row.CoverageType.Trim());
+            coverage.Append(FormatRecordedValue(row.CoverageType));
             coverage.Append(" · ");
-            coverage.Append(row.SelectionState.Trim());
+            coverage.Append(FormatRecordedValue(row.SelectionState));
 
             if (!string.IsNullOrWhiteSpace(row.ExclusionReason))
             {
@@ -181,4 +181,6 @@ public static class CommittedEffectiveGovernanceSnapshotExportFormatter
 
         rows.Add(("Coverage assignments at commit", coverage.ToString()));
     }
+    private static string FormatRecordedValue(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? "not recorded" : value.Trim();
 }

@@ -125,4 +125,33 @@ public sealed class CommittedEffectiveGovernanceSnapshotExportFormatterTests
         rows.Should().Contain(row => row.Label == "Compliance rule keys at commit" && row.Value == "0");
         rows.Should().Contain(row => row.Label == "Merge conflicts at commit" && row.Value == "0");
     }
+
+    [Theory]
+    [InlineData(null, null)]
+    [InlineData("  ", "  ")]
+    public void Missing_coverage_fields_are_disclosed_in_both_export_formats(
+        string? coverageType, string? selectionState)
+    {
+        Guid packId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        CommittedEffectiveGovernanceSnapshotDescriptor snapshot = new()
+        {
+            HasEffectivePolicy = true,
+            CoverageAssignments =
+            [
+                new CommittedCoverageAssignmentSnapshot
+                {
+                    PolicyPackId = packId,
+                    PolicyPackVersion = "1.0.0",
+                    CoverageType = coverageType!,
+                    SelectionState = selectionState!,
+                },
+            ],
+        };
+
+        CommittedEffectiveGovernanceSnapshotExportFormatter.FormatReadmeDetailLines(snapshot)
+            .Should().Contain($"  Coverage: {packId:D} v1.0.0 · not recorded · not recorded");
+        CommittedEffectiveGovernanceSnapshotExportFormatter.FormatProvenanceAppendixRows(snapshot)
+            .Should().Contain(row => row.Label == "Coverage assignments at commit"
+                && row.Value == $"{packId:D} v1.0.0 · not recorded · not recorded");
+    }
 }
