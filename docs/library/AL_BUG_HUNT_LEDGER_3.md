@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 thorough hunt (hit): `ui-oidc`. `normalizeOidcDisplayString` strips U+00AD from JWT profile claims before session display hints. Commit `87963e3ef9`. Private beta: signed-in chrome shows clean operator names when IdP claims embed soft hyphens.
+> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (seed-only): `infra-evidence-diagrams`. Closed pass-27 race/URL monitors via existing cancellation, snapshot reset, and regressions. Reseed pass-28. Scoped vitest **96/111** (15 pre-existing workbench failures). Private beta: n/a.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -19661,11 +19661,6 @@ ABQ-09 churn hotspot.
 ## Zone: infra-evidence-diagrams
 2026-11-24 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone **`securenow-question-queue`** cleared by hit at tail). Reread DiagramsWorkbenchClient and InfraEvidenceDiagramOutline; closed five pass-26 `(candidate)` monitors — **valid-no-repro** seed catalog stale apply (regressions `does not keep the prior snapshot executive seed catalog after the snapshot picker changes` and `refreshes dependency seed catalog when the URL snapshot id changes`; `seedCatalogOutline` reset on `selectedSnapshotId`), **valid-no-repro** `loadingPreview` stuck (preview `finally` respects effect cancellation; missing-snapshot path disables mode picker via `diagramTypePickerEnabled`), **valid-no-repro** PNG export snapshot mismatch (`runPngExport` uses current `selectedSnapshotId`; regression `passes the active render query to PNG export`), **valid-no-repro** declared edge panel with cleared inventory selection (inventory panel is controlled; declared selection is independent by design), **valid-no-repro** family chip on zero-edge snapshot (`resolveSelectableInfraEvidenceDiagramFamily` + URL sync effect; regression `falls back to All when the selected family has no edges on the diagram`). No hunt-ready row promoted; reseeded five pass-27 `(candidate)` monitors. Scoped vitest **64/79** DiagramsWorkbenchClient + **32/32** InfraEvidenceDiagramOutline (15 pre-existing workbench failures unrelated to this pass). Private beta: n/a.
 
-- [ ] (candidate) `DiagramsWorkbenchClient.loadSeedCatalog` — in-flight executive catalog apply without `selectedSnapshotIdRef` guard after rapid snapshot change — locus: dependency-neighborhood catalog fetch; monitor; pass-27 reseed.
-- [ ] (candidate) `DiagramsWorkbenchClient.loadPreview` — preview `finally` clears `loadingPreview` for stale snapshot when newer preview still in flight — locus: concurrent preview fetch; monitor; pass-27 reseed.
-- [ ] (candidate) `DiagramsWorkbenchClient.loadRender` — `loadingRender` stuck after snapshot clear when slow prior render settles — locus: render effect `finally`; monitor; pass-27 reseed.
-- [ ] (candidate) `InfraEvidenceDiagramOutline` — unknown-node filter scope retains prior seed after `startingResourceSeedId` clears — locus: `unknownFilterDefaultScope` effect; monitor; pass-27 reseed.
-- [ ] (candidate) `DiagramsWorkbenchClient` — deep-linked `evidenceFamily` URL persists when mode disables family filter — locus: mode switch away from filterable modes; monitor; pass-27 reseed.
 
 - [x] (valid-no-repro) `DiagramsWorkbenchClient` — slow render repopulates `seedCatalogSnapshotId` after URL snapshot change — **cheap-disproof 2026-11-24 seed hunt (pass-26):** seed catalog reset + regressions from hunt **#496** family.
 - [x] (valid-no-repro) `DiagramsWorkbenchClient` — `loadingPreview` stays true after snapshot change until slow prior preview finally settles — **cheap-disproof 2026-11-24 seed hunt (pass-26):** cancellation + `selectedSnapshotIdRef` on apply paths (hunt **#496** family).
@@ -19682,10 +19677,10 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 0
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **hunts:** 1
+- **bugs-found:**0
+- **consecutive-dry-hunts:**0
+- **last-hunt:** 2026-11-24
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
