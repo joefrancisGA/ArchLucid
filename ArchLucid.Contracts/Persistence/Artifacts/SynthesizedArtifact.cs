@@ -64,9 +64,7 @@ public class SynthesizedArtifact
     public SynthesizedArtifactGenerationStatus Status
     {
         get => status;
-        set => status = ContractCollectionDefaults.CoalesceInvalidEnumZero(
-            value,
-            SynthesizedArtifactGenerationStatus.Generated);
+        set => status = ContractCollectionDefaults.RequireDefinedEnum(value);
     }
 
     private Dictionary<string, string> metadata = new();

@@ -56,14 +56,12 @@ public sealed class RunFindingCoverageSummary
     }
 
     /// <summary>Snapshot generation status persisted on the findings snapshot header.</summary>
-    private FindingsSnapshotGenerationStatus generationStatus = FindingsSnapshotGenerationStatus.Complete;
+    private FindingsSnapshotGenerationStatus generationStatus = FindingsSnapshotGenerationStatus.Generating;
 
     public FindingsSnapshotGenerationStatus GenerationStatus
     {
         get => generationStatus;
-        init => generationStatus = ContractCollectionDefaults.CoalesceInvalidEnumZero(
-            value,
-            FindingsSnapshotGenerationStatus.Complete);
+        init => generationStatus = ContractCollectionDefaults.RequireDefinedEnum(value);
     }
 
     /// <summary>Governance disposition counts for findings on this run (null when snapshot missing).</summary>

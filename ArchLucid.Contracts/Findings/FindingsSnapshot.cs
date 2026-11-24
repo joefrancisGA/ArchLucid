@@ -47,9 +47,7 @@ public class FindingsSnapshot
     public FindingsSnapshotGenerationStatus GenerationStatus
     {
         get => generationStatus;
-        set => generationStatus = ContractCollectionDefaults.CoalesceInvalidEnumZero(
-            value,
-            FindingsSnapshotGenerationStatus.Complete);
+        set => generationStatus = ContractCollectionDefaults.RequireDefinedEnum(value);
     }
 
     /// <summary>Engines that threw during this snapshot build (empty when all engines succeeded).</summary>

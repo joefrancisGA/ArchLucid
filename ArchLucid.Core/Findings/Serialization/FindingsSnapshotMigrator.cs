@@ -19,7 +19,7 @@ public static class FindingsSnapshotMigrator
         FindingChecklistCoverageRouter.Apply(snapshot);
 
         if (!Enum.IsDefined(typeof(FindingsSnapshotGenerationStatus), snapshot.GenerationStatus))
-            snapshot.GenerationStatus = FindingsSnapshotGenerationStatus.Complete;
+            throw new System.Text.Json.JsonException("Undefined findings snapshot generation status.");
 
         if (snapshot.SchemaVersion < FindingsSchema.CurrentSnapshotVersion)
             snapshot.SchemaVersion = FindingsSchema.CurrentSnapshotVersion;
