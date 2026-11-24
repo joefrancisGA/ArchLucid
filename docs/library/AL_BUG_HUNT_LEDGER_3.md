@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `domain` deep links when `REVIEW_FINDINGS_DOMAIN_FILTER_PARAM` is non-empty after trim. Regression `does not apply visit-default navigation when the URL only carries domain`. URL-sync vitest **117/117**. Private beta: shared review links that only set a findings domain filter in the query are no longer overwritten with visit-default tab or finding query keys on first load.
+> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `showLow` deep links via `params.has(REVIEW_FINDINGS_SHOW_LOW_PARAM)`. Regression `does not apply visit-default navigation when the URL only carries showLow`. URL-sync vitest **118/118**. Private beta: shared review links that only set findings low-confidence visibility in the query are no longer overwritten with visit-default tab or finding query keys on first load.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -11705,6 +11705,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-08-28 thorough hunt #191: proved billing paid-tier precedence over stale frictionless flag; cheap-disproved welcome/disclosure scope persistence and AI snapshot disposition crash; seeded frictionless session cleanup and LLM budget cache refresh candidates.
 
 ## Zone: ui-review-detail-workspace
+2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `showLow` monitor: a deep link with only a findings low-confidence visibility flag was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `showLow` when `REVIEW_FINDINGS_SHOW_LOW_PARAM` is present in the query. Regression `does not apply visit-default navigation when the URL only carries showLow`. URL-sync vitest **118/118**. Private beta: when an invited operator opens a shared review link that only sets show-low in the query, visit-default tab navigation no longer replaces that query on first load.
+
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `domain` monitor: a deep link with only a non-empty findings domain filter was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `domain` when `REVIEW_FINDINGS_DOMAIN_FILTER_PARAM` is non-empty after trim. Regression `does not apply visit-default navigation when the URL only carries domain`. URL-sync vitest **117/117**. Private beta: when an invited operator opens a shared review link that only names a findings domain in the query, visit-default tab navigation no longer replaces that query on first load.
 
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `owner` monitor: a deep link with only a non-empty findings owner filter was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `owner` when `REVIEW_FINDINGS_OWNER_FILTER_PARAM` is non-empty after trim. Regression `does not apply visit-default navigation when the URL only carries owner`. URL-sync vitest **116/116**. Private beta: when an invited operator opens a shared review link that only names a findings owner in the query, visit-default tab navigation no longer replaces that query on first load.
@@ -11880,6 +11882,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 
+
+- [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `showLow` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored findings show-low visibility deep links; regression above. Private beta: shared links that only set `showLow` are no longer replaced with visit-default query keys on first load.
 
 - [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `domain` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored non-empty findings domain filter deep links; regression above. Private beta: shared links that only set `domain` are no longer replaced with visit-default query keys on first load.
 
@@ -12709,8 +12713,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 119
-- **bugs-found:** 118
+- **hunts:** 120
+- **bugs-found:** 119
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
