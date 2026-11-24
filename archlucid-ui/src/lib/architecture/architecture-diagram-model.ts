@@ -112,11 +112,14 @@ function resolveArchitectureDiagramNodeOverride(
 
   const override = nodeOverrideById.get(node.id);
 
-  if (
-    override !== undefined
-    && (override.entityFingerprint.length === 0 || override.entityFingerprint === node.entityFingerprint)
-  ) {
-    return override;
+  if (override !== undefined) {
+    if (node.entityFingerprint.length > 0 && override.entityFingerprint.length === 0) {
+      return node;
+    }
+
+    if (override.entityFingerprint.length === 0 || override.entityFingerprint === node.entityFingerprint) {
+      return override;
+    }
   }
 
   return node;

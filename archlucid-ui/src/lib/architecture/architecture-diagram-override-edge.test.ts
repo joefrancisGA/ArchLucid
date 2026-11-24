@@ -36,6 +36,28 @@ function buildModel(dataFlows: readonly string[]) {
   );
 }
 
+function buildQueuesModel(
+  order: readonly { readonly label: string; readonly detail: string | null }[],
+) {
+  return buildArchitectureDiagramModel(
+    {
+      sections: [
+        {
+          key: "systems-and-services",
+          title: "Systems",
+          narrativeMarkdown: null,
+          entities: order.map((entity) => ({ ...entity, provenance: "asserted" as const })),
+          provenance: "asserted",
+        },
+      ],
+      hasPartialParseFailure: false,
+      suppressedArtifactCount: 0,
+      sourceText: "diagram",
+    },
+    "Test",
+  );
+}
+
 describe("applyArchitectureDiagramOverrides", () => {
   it("applies edge removal by stable endpoints when positional edge ids shift", () => {
     const original = buildModel(["Alpha -> Beta"]);
@@ -58,28 +80,6 @@ describe("applyArchitectureDiagramOverrides", () => {
   });
 
   it("applies node removal by entity fingerprint when positional node ids shift after reorder", () => {
-    function buildQueuesModel(
-      order: readonly { readonly label: string; readonly detail: string | null }[],
-    ) {
-      return buildArchitectureDiagramModel(
-        {
-          sections: [
-            {
-              key: "systems-and-services",
-              title: "Systems",
-              narrativeMarkdown: null,
-              entities: order.map((entity) => ({ ...entity, provenance: "asserted" as const })),
-              provenance: "asserted",
-            },
-          ],
-          hasPartialParseFailure: false,
-          suppressedArtifactCount: 0,
-          sourceText: "diagram",
-        },
-        "Test",
-      );
-    }
-
     const original = buildQueuesModel([
       { label: "Queue", detail: "first" },
       { label: "Queue", detail: "second" },
@@ -95,5 +95,24 @@ describe("applyArchitectureDiagramOverrides", () => {
     const applied = applyArchitectureDiagramOverrides(shifted, [{ ...removedTarget, removed: true }], []);
 
     expect(applied.nodes.filter((node) => !node.removed).map((node) => node.id)).toEqual(["system_queue_1"]);
+  });
+
+  it("ignores legacy id-only node overrides when the live node has an entity fingerprint", () => {
+    const shifted = buildQueuesModel([
+      { label: "Queue", detail: "second" },
+      { label: "Queue", detail: "first" },
+    ]);
+    const node = shifted.nodes.find((candidate) => candidate.id === "system_queue_1");
+
+    expect(node).toBeDefined();
+
+    const legacyOverride = {
+      ...(node as NonNullable<typeof node>),
+      entityFingerprint: "",
+      removed: true,
+    };
+    const applied = applyArchitectureDiagramOverrides(shifted, [legacyOverride], []);
+
+    expect(applied.nodes.find((candidate) => candidate.id === "system_queue_1")?.removed).toBe(false);
   });
 });

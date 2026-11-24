@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (seed→hit): `ui-host-gate` SecureNow/digest marketing split-host classifier. Scoped vitest **27/27** (`host-gate.test.ts`). Private beta: SecureNow and digest sponsor URLs on the app host redirect to the public marketing origin.
+> **Scope:** Contributor-reference — hunt 2026-11-24 thorough hunt #500 (hit): `ui-architecture-diagram` legacy id-only node overrides. Scoped vitest override-edge **3/3**, click-focus **5/5**, connector-visibility **1/1**. Private beta: stale device-local diagram hides no longer remove the wrong duplicate after entity reorder.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -19955,6 +19955,20 @@ ABQ-09 churn hotspot.
 2026-10-03 seed hunt (seed-only): `ui-architecture-diagram` — re-read diagram focus, model/override, neighborhood-map generation/parsing, storage, and existing tests; generator aggregation invalidated duplicate-link and duplicate-type-key candidates, while no remaining candidate met the same-run repro bar. 18 focused tests passed.
 
 ## Zone: ui-architecture-diagram
+2026-11-24 thorough hunt #500 (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted pass-3 monitor legacy node overrides without `entityFingerprint`. Id-only overrides still matched after reorder when live nodes carried fingerprints, reintroducing the duplicate-label mis-removal class for device-local storage saved before the fingerprint ship. `resolveArchitectureDiagramNodeOverride` now skips id fallback when the live node has a fingerprint but the override does not. Regression `ignores legacy id-only node overrides when the live node has an entity fingerprint` failed first; override-edge **3/3**, click-focus **5/5**, connector-visibility **1/1**. Cheap-disproof closed four pass-3 monitors — **valid-no-repro** `outlineNodeMatchesDomFocus` duplicate title (no cited duplicate forest outline), **valid-no-repro** detail whitespace fingerprint (trim alignment on label and detail), **valid-no-repro** `architectureDiagramNodeOverrideKey` cross-kind collision (override key includes `kind`), **valid-no-repro** unlabeled `node_${index}` path (id fallback remains for fingerprintless nodes; monitor). Reseeded five pass-4 `(candidate)` monitors. Private beta: Older saved diagram node hides that lack fingerprints no longer remove a different duplicate-labeled entity after the brief reorders.
+
+- [x] (proven) `applyArchitectureDiagramOverrides` — legacy node overrides without `entityFingerprint` attach after reorder — **hit 2026-11-24 thorough hunt #500:** skip id fallback when live node has fingerprint; regression above.
+- [x] (valid-no-repro) `outlineNodeMatchesDomFocus` — first outline node wins a shared title token — **cheap-disproof 2026-11-24 thorough hunt #500:** monitor; no reachable duplicate forest fixture.
+- [x] (valid-no-repro) `buildArchitectureDiagramNodeEntityFingerprint` — detail whitespace collapse — **cheap-disproof 2026-11-24 thorough hunt #500:** fingerprint uses same trim as model build.
+- [x] (valid-no-repro) `architectureDiagramNodeOverrideKey` — same label across kinds — **cheap-disproof 2026-11-24 thorough hunt #500:** key includes `kind` and `provenance`.
+- [x] (valid-no-repro) `applyArchitectureDiagramOverrides` — unlabeled `node_${index}` overrides — **cheap-disproof 2026-11-24 thorough hunt #500:** id fallback retained when fingerprint empty on both sides.
+
+- [ ] (candidate) `applyArchitectureDiagramOverrides` — two unlabeled entities share empty fingerprint and one removal hides both — locus: fingerprint map; input: duplicate `\u001f` keys; wrong outcome: both nodes removed; reachability: blank-label entity pairs (monitor).
+- [ ] (candidate) `outlineNodeMatchesDomFocus` — first outline node wins a shared title token — locus: outline walk; input: two nodes whose labels normalize to the same token; wrong outcome: click dimming uses the earlier node; reachability: forest outline with duplicate display names (monitor).
+- [ ] (candidate) `buildArchitectureDiagramNodeEntityFingerprint` — label trim diverges from display label normalization — locus: `resolveArchitectureDiagramNodeDisplayLabel`; input: decorative whitespace label; wrong outcome: override miss; reachability: asserted entities with odd label padding (monitor).
+- [ ] (candidate) `resolveArchitectureDiagramNodeOverride` — stale fingerprint on override with shifted id — locus: fingerprint map without id guard; input: override fingerprint matches wrong positional id; wrong outcome: mis-apply removal; reachability: edited brief after override save (monitor).
+- [ ] (candidate) `sanitizeNodeId` — duplicate blank labels collide on `system_node_N` suffix — locus: `usedIds` suffix loop; input: three unlabeled entities; wrong outcome: override targets wrong suffix; reachability: multiple blank entities (monitor).
+
 2026-11-24 thorough hunt #499 (hit): rotation (`shouldRotate: true`; reason: *3x seed-only on `ui-webhooks-settings`*). Promoted pass-2 monitor `applyArchitectureDiagramOverrides` — node overrides keyed only by generated id. Duplicate-labeled entities with different detail text lost the wrong node when brief entity order changed (same class as the prior edge endpoint-key fix). Overrides now resolve by `entityFingerprint` (`label` + detail) before positional id. Regression `applies node removal by entity fingerprint when positional node ids shift after reorder` failed first; override-edge **2/2**, click-focus **5/5**, connector-visibility **1/1**. Cheap-disproof closed four remaining pass-2 monitors. Reseeded five pass-3 `(candidate)` monitors. Private beta: operators who hide one of two same-labeled systems on the architecture diagram keep that specific queue hidden after the brief reorders entities, instead of removing the other duplicate.
 
 - [x] (proven) `applyArchitectureDiagramOverrides` — node overrides keyed only by generated id — **hit 2026-11-24 thorough hunt #499:** fingerprint match before id; regression `applies node removal by entity fingerprint when positional node ids shift after reorder`.
@@ -19984,7 +19998,7 @@ ABQ-09 churn hotspot.
 
 - [x] (proven) `applyArchitectureDiagramOverrides` — persisted edge overrides keyed only by generated positional ids — **proven 2026-11-23 seed hunt:**`edge_0` removal after reorder deleted `Gamma -> Alpha`; endpoint-keyed overrides now apply safely.
 - [x] (proven) `applyArchitectureDiagramOverrides` in `architecture-diagram-model.ts` — persisted node overrides keyed only by generated positional ids — **proven 2026-11-24 thorough hunt #499:** duplicate labels with distinct detail mis-applied removal after reorder; `entityFingerprint` match before id.
-2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. After the dom-id mapping hit, `resolveInventoryDiagramClickFocusId` still compared the full accessibility `<title>` (for example `vm-app (Virtual machine)`) only to outline `node.id`, so forest inventory clicks kept the Mermaid slug and neighbor dimming failed. Mapping now matches flowchart dom slugs, stripped title resource names, and outline labels. Regression `maps forest accessibility titles to outline ids for neighbor dimming` failed first (focus stayed `flowchart-vm-app-0`), then click-focus passed 5/5. Private beta: clicking a resource on a forest inventory diagram keeps its linked neighbors visible instead of dimming the entire canvas.
+- [x] (proven) `resolveArchitectureDiagramNodeOverride` — legacy id-only overrides applied after entity reorder — **proven 2026-11-24 thorough hunt #500:** skip id fallback when live node has fingerprint; regression `ignores legacy id-only node overrides when the live node has an entity fingerprint`.
 
 - [x] (proven) `resolveInventoryDiagramClickFocusId` — accessibility title only matched outline id, not resource label — **proven 2026-11-23 seed hunt:** title `vm-app (Virtual machine)` did not resolve to outline `vm-app`; title tokens and dom slug now align with label and resource name.
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. Inventory diagram click focus passed Mermaid dom ids such as `flowchart-api-0` into `resolveDiagramClickFocus` while the outline stores logical ids such as `api`, so one-hop neighbors were dimmed. `resolveInventoryDiagramClickFocusId` maps the node title to the outline id on click and when applying dim classes. Regression `maps a flowchart node id to the outline id before resolving neighbors` failed first (received `flowchart-api-0`), then click-focus passed 4/4. Private beta: clicking an inventory diagram node with an outline loaded keeps its linked neighbors visible instead of dimming the whole plate.
@@ -20025,11 +20039,11 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 10
-- **bugs-found:** 8
+- **hunts:** 12
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-23
-- **last-bug:** 2026-11-23
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
