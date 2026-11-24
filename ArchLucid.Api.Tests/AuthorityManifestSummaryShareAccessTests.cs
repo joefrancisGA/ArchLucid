@@ -10,6 +10,7 @@ using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Provenance;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Manifest;
@@ -268,6 +269,64 @@ public sealed class AuthorityManifestSummaryShareAccessTests
 
         response.Should().BeOfType<ObjectResult>().Which.StatusCode
             .Should().Be(StatusCodes.Status409Conflict);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Shared_exact_manifest_integrity_guard_reuses_current_seal_and_verifies_historical_seal(
+        bool historical)
+    {
+        ManifestDocument requested = Document(ManifestId);
+        ManifestDocument pinned = historical ? Document(Guid.NewGuid()) : requested;
+        RunDetailDto runDetail = new()
+        {
+            Run = new RunRecord { RunId = RunId, GoldenManifestId = pinned.ManifestId },
+            GoldenManifest = pinned,
+        };
+
+        Mock<IManifestHashService> hash = new(MockBehavior.Strict);
+        hash.Setup(h => h.ComputeHash(requested)).Returns(requested.ManifestHash);
+        if (historical)
+            hash.Setup(h => h.ComputeHash(pinned)).Returns(pinned.ManifestHash);
+
+        SealedManifestReadGuard.EnsureManifestSummaryBindingAndHashesOrThrow(
+            Scope, ManifestId, Summary(), requested, runDetail, hash.Object);
+
+        hash.Verify(h => h.ComputeHash(requested), Times.Once);
+        if (historical)
+            hash.Verify(h => h.ComputeHash(pinned), Times.Once);
+        else
+            hash.Verify(h => h.ComputeHash(It.IsAny<ManifestDocument>()), Times.Once);
+    }
+
+    [Theory]
+    [InlineData("run")]
+    [InlineData("pinned-id")]
+    [InlineData("requested-scope")]
+    public void Shared_exact_manifest_integrity_guard_fails_before_hash_on_invalid_association(
+        string mismatch)
+    {
+        ManifestDocument requested = Document(ManifestId);
+        ManifestDocument pinned = requested;
+        RunDetailDto runDetail = new()
+        {
+            Run = new RunRecord { RunId = RunId, GoldenManifestId = ManifestId },
+            GoldenManifest = pinned,
+        };
+        if (mismatch == "run")
+            runDetail.Run.RunId = Guid.NewGuid();
+        if (mismatch == "pinned-id")
+            runDetail.Run.GoldenManifestId = Guid.NewGuid();
+        if (mismatch == "requested-scope")
+            requested.ProjectId = Guid.NewGuid();
+
+        Mock<IManifestHashService> hash = new(MockBehavior.Strict);
+        Action check = () => SealedManifestReadGuard.EnsureManifestSummaryBindingAndHashesOrThrow(
+            Scope, ManifestId, Summary(), requested, runDetail, hash.Object);
+
+        check.Should().Throw<ConflictException>();
+        hash.VerifyNoOtherCalls();
     }
 
     private static void AssertManifestNotFound(IActionResult action)
