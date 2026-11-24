@@ -76,7 +76,7 @@ internal static class SecurityAssetAssertionApiMapper
             return false;
         }
 
-        if (Enum.TryParse(value, ignoreCase: true, out parsed))
+        if (Enum.TryParse(value, ignoreCase: true, out parsed) && Enum.IsDefined(parsed))
         {
             errorMessage = null;
             return true;
