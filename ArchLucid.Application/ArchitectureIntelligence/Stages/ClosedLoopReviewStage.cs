@@ -8,7 +8,8 @@ public sealed class ClosedLoopReviewStage(
     IAsyncSpecialistReviewService specialistReviewService,
     IEvidenceValidationPipeline evidenceValidationPipeline,
     IAsyncAdversarialReviewService adversarialReviewService,
-    IImmutableSourceStore sourceStore) : IClosedLoopReviewStage
+    IImmutableSourceStore sourceStore,
+    ScopedPublicNetworkAccessVerifier? publicNetworkAccessVerifier = null) : IClosedLoopReviewStage
 {
     private const int SpecialistReviewMaxConcurrent = 3;
     private const int EvidenceValidationMaxConcurrent = 4;
@@ -65,7 +66,7 @@ public sealed class ClosedLoopReviewStage(
 
         context.Interview = interview;
 
-        context.ValidationResults = await ValidateFindingsAsync(context.AllFindings, cancellationToken);
+        context.ValidationResults = await ValidateFindingsAsync(context, cancellationToken);
 
         context.ValidationByFindingId = context.ValidationResults
             .ToDictionary(result => result.FindingId, StringComparer.Ordinal);
@@ -137,9 +138,10 @@ public sealed class ClosedLoopReviewStage(
     }
 
     private async Task<List<EvidenceValidationResult>> ValidateFindingsAsync(
-        IReadOnlyList<SpecialistReviewFinding> findings,
+        ClosedLoopStageContext context,
         CancellationToken cancellationToken)
     {
+        IReadOnlyList<SpecialistReviewFinding> findings = context.AllFindings;
         if (findings.Count == 0)
             return [];
 
@@ -148,6 +150,21 @@ public sealed class ClosedLoopReviewStage(
             EvidenceValidationMaxConcurrent,
             async (finding, ct) =>
             {
+                if (finding.PublicNetworkAccessDisabledResourceId is Guid resourceId)
+                {
+                    PublicNetworkAccessVerification observation = publicNetworkAccessVerifier is null
+                        ? new(resourceId, PublicNetworkAccessVerificationOutcome.Unverified)
+                        : await publicNetworkAccessVerifier.VerifyAsync(context.TenantId, context.EffectiveRequest.WorkspaceId,
+                            context.EffectiveRequest.ProjectId, context.RunId, resourceId, ct);
+                    return new EvidenceValidationResult
+                    {
+                        FindingId = finding.FindingId,
+                        PublicNetworkAccess = observation,
+                        Escalated = observation.Outcome != PublicNetworkAccessVerificationOutcome.Verified,
+                        SemanticMethod = SemanticAssessmentMethod.NotPerformed,
+                    };
+                }
+
                 List<string> citedArtifactIds = finding.EvidenceArtifactIds
                     .Where(id => !string.IsNullOrWhiteSpace(id))
                     .Distinct(StringComparer.Ordinal)

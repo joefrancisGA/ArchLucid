@@ -140,6 +140,9 @@ public static class ArchitectureIntelligenceProductBridge
             ["architectureIntelligence.provenancePresentation"] = presentationBucket.ToString(),
         };
 
+        if (finding.PublicNetworkAccessDisabledResourceId is Guid resourceId)
+            properties[ScopedPublicNetworkAccessVerifier.ResourceProperty] = resourceId.ToString("D");
+
         if (finding.EvidenceArtifactIds.Count > 0)
         {
             properties["architectureIntelligence.evidenceArtifactIds"] =
@@ -173,6 +176,11 @@ public static class ArchitectureIntelligenceProductBridge
             && validationByFindingId.TryGetValue(finding.FindingId, out EvidenceValidationResult? validation)
             && validation is not null)
         {
+            if (validation.PublicNetworkAccess is { SnapshotId: Guid snapshotId, CapturedUtc: DateTime capturedUtc })
+            {
+                properties[ScopedPublicNetworkAccessVerifier.SnapshotProperty] = snapshotId.ToString("D");
+                properties["architectureIntelligence.publicNetworkAccessCapturedUtc"] = capturedUtc.ToString("O");
+            }
             properties["architectureIntelligence.citationProbe"] = validation.CitationProbe.ToString();
             properties["architectureIntelligence.semanticAssessmentMethod"] = validation.SemanticMethod.ToString();
             properties["architectureIntelligence.integrityPassed"] = validation.OverallPassedIntegrity.ToString();
@@ -208,8 +216,8 @@ public static class ArchitectureIntelligenceProductBridge
                 ArchitecturePillarRollup.FromSpecialistDimension(finding.Dimension)),
             EngineType = EngineType,
             Severity = severity,
-            Title = finding.Title,
-            Rationale = finding.Rationale,
+            Title = finding.PublicNetworkAccessDisabledResourceId is Guid id ? ScopedPublicNetworkAccessVerifier.Title(id) : finding.Title,
+            Rationale = finding.PublicNetworkAccessDisabledResourceId.HasValue ? ScopedPublicNetworkAccessVerifier.Rationale : finding.Rationale,
             ConfidenceScore = finding.Confidence,
             HumanReviewStatus = humanReviewStatus,
             Properties = properties,

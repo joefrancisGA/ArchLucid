@@ -2,7 +2,7 @@ name: Finding verification regressions
 
 on:
   pull_request:
-    branches: [master]
+    branches: [master, codex/fnd069-citation-verification]
     paths:
       - 'ArchLucid.Application/ArchitectureIntelligence/**'
       - 'ArchLucid.Contracts/ArchitectureIntelligence/**'
@@ -11,6 +11,10 @@ on:
 
 permissions:
   contents: read
+
+concurrency:
+  group: finding-verification-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   verification:
@@ -26,7 +30,7 @@ jobs:
       - name: Require finding verification and publish regressions to pass
         run: >-
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~EvidenceValidationPipelineTests|FullyQualifiedName~EvidenceValidationSourceRereadTests|FullyQualifiedName~TrustPublishGateTests|FullyQualifiedName~AdversarialReviewServiceTests|FullyQualifiedName~AdversarialReviewRouterServiceTests|FullyQualifiedName~ArchitectureIntelligenceBatch45Tests|FullyQualifiedName~ArchitectureIntelligenceLlmResponseMapperMissingValueTests|FullyQualifiedName~ArchitectureIntelligenceProductBridge|FullyQualifiedName~ClosedLoopReReviewPublishIntegratorTests|FullyQualifiedName~ClosedLoopReasoningResultClonerTests'
+          --filter 'FullyQualifiedName~EvidenceValidationPipelineTests|FullyQualifiedName~EvidenceValidationSourceRereadTests|FullyQualifiedName~TrustPublishGateTests|FullyQualifiedName~ArchitectureIntelligenceProductPublishServiceTests|FullyQualifiedName~AdversarialReviewServiceTests|FullyQualifiedName~AdversarialReviewRouterServiceTests|FullyQualifiedName~ArchitectureIntelligenceBatch45Tests|FullyQualifiedName~ArchitectureIntelligenceLlmResponseMapperMissingValueTests|FullyQualifiedName~ArchitectureIntelligenceProductBridge|FullyQualifiedName~ClosedLoopReReviewPublishIntegratorTests|FullyQualifiedName~ClosedLoopReasoningResultClonerTests'
           --logger 'console;verbosity=normal'
       - name: Check the wider architecture intelligence suite for new failures
         env:

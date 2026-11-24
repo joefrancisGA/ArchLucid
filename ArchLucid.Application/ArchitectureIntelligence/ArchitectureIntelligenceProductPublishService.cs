@@ -16,6 +16,7 @@ public sealed class ArchitectureIntelligenceProductPublishService : IArchitectur
     private readonly IFindingsSnapshotRepository? _findingsSnapshotRepository;
     private readonly IRecommendationRepository? _recommendationRepository;
     private readonly IRunRepository? _runRepository;
+    private readonly ScopedPublicNetworkAccessVerifier? _publicNetworkAccessVerifier;
 
     public ArchitectureIntelligenceProductPublishService(IServiceProvider serviceProvider)
     {
@@ -23,6 +24,7 @@ public sealed class ArchitectureIntelligenceProductPublishService : IArchitectur
         _findingsSnapshotRepository = serviceProvider.GetService<IFindingsSnapshotRepository>();
         _recommendationRepository = serviceProvider.GetService<IRecommendationRepository>();
         _runRepository = serviceProvider.GetService<IRunRepository>();
+        _publicNetworkAccessVerifier = serviceProvider.GetService<ScopedPublicNetworkAccessVerifier>();
     }
 
     public async Task<ArchitectureIntelligencePublishResult> PublishAsync(
@@ -47,12 +49,12 @@ public sealed class ArchitectureIntelligenceProductPublishService : IArchitectur
             };
         }
 
-        if (result.PublishBlocked)
+        if (result.PublishBlocked || result.CacheHit)
         {
             return new ArchitectureIntelligencePublishResult
             {
                 Published = false,
-                SkipReason = "Publish blocked by trust gate.",
+                SkipReason = result.CacheHit ? ClosedLoopCacheHitPublishGuard.SkipReason : "Publish blocked by trust gate.",
             };
         }
 
@@ -69,6 +71,11 @@ public sealed class ArchitectureIntelligenceProductPublishService : IArchitectur
         ScopeContext scope = BuildScope(tenantId, workspaceId, projectId);
         Guid? findingsSnapshotId = null;
         int recommendationCount = 0;
+
+        if (_findingsSnapshotRepository is not null && result.ProductFindings.Count > 0)
+        {
+            await RecheckInventoryClaimsAsync(result, tenantId, workspaceId, projectId, runId, cancellationToken);
+        }
 
         if (_findingsSnapshotRepository is not null && result.ProductFindings.Count > 0)
         {
@@ -97,6 +104,39 @@ public sealed class ArchitectureIntelligenceProductPublishService : IArchitectur
                 ? "No publishable findings or recommendations."
                 : null,
         };
+    }
+
+    private async Task RecheckInventoryClaimsAsync(
+        ClosedLoopReasoningResult result, string tenantId, string workspaceId, string projectId, string runId,
+        CancellationToken cancellationToken)
+    {
+        List<Finding> publishable = new(result.ProductFindings.Count);
+        foreach (Finding finding in result.ProductFindings)
+        {
+            if (finding.Properties is null || !finding.Properties.TryGetValue(ScopedPublicNetworkAccessVerifier.ResourceProperty, out string? resource))
+            {
+                publishable.Add(finding);
+                continue;
+            }
+
+            if (Guid.TryParse(resource, out Guid resourceId) &&
+                _publicNetworkAccessVerifier is not null &&
+                finding.Title == ScopedPublicNetworkAccessVerifier.Title(resourceId) &&
+                finding.Rationale == ScopedPublicNetworkAccessVerifier.Rationale)
+            {
+                PublicNetworkAccessVerification current = await _publicNetworkAccessVerifier.VerifyAsync(
+                    tenantId, workspaceId, projectId, runId, resourceId, cancellationToken);
+                if (current.Outcome == PublicNetworkAccessVerificationOutcome.Verified &&
+                    finding.Properties.TryGetValue(ScopedPublicNetworkAccessVerifier.SnapshotProperty, out string? snapshot) &&
+                    Guid.TryParse(snapshot, out Guid expectedSnapshot) && current.SnapshotId == expectedSnapshot)
+                {
+                    publishable.Add(finding);
+                    continue;
+                }
+            }
+        }
+
+        result.ProductFindings = publishable;
     }
 
     private async Task<Guid?> MergeOrCreateFindingsSnapshotAsync(

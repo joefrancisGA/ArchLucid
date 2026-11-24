@@ -89,7 +89,10 @@ public sealed class ArchitectureIntelligenceLlmGateway : IArchitectureIntelligen
             "Respond with JSON: {\"dimension\":\"Reliability|Security|Cost|...\", \"findings\":[{\"title\":\"...\", " +
             "\"rationale\":\"...\", \"conclusion\":\"Pass|Fail|Indeterminate|NotApplicable\", " +
             "\"severity\":\"Critical|High|Medium|Low\", \"confidence\":0.0, \"notes\":\"...\"}], " +
-            "\"openQuestions\":[\"...\"]}";
+            "\"openQuestions\":[\"...\"]}. " +
+            "For an explicit claim that public network access is disabled on one Azure resource, include " +
+            "publicNetworkAccessDisabledResourceId with its cloud resource GUID only when the supplied context identifies it. " +
+            "Never infer this setting from the existence of a private endpoint.";
 
         string userPrompt = BuildModelSummaryPrompt(model, dimension);
 

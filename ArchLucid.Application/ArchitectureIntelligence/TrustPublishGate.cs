@@ -30,6 +30,10 @@ public sealed class TrustPublishGate : ITrustPublishGate
         HashSet<string> supportedIds = EvidenceSupportTierResolver.SupportedFindingIds(validationResults);
         List<SpecialistReviewFinding> publishableFindings = findings
             .Where(finding => supportedIds.Contains(finding.FindingId))
+            .Where(finding => finding.PublicNetworkAccessDisabledResourceId is not Guid resourceId ||
+                validationResults.Where(result => result.FindingId == finding.FindingId).All(result =>
+                    result.PublicNetworkAccess is { Outcome: PublicNetworkAccessVerificationOutcome.Verified,
+                        SnapshotId: not null, CapturedUtc: not null } proof && proof.CloudResourceId == resourceId))
             .Where(finding => !blockedFindingIds.Contains(finding.FindingId))
             .ToList();
 

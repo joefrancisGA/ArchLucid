@@ -58,6 +58,9 @@ public class SpecialistReviewFinding
         set => provenance = value ?? new ClaimProvenance();
     }
 
+    /// <summary>Candidate claim that public network access is disabled on this exact Azure resource.</summary>
+    public Guid? PublicNetworkAccessDisabledResourceId { get; set; }
+
     public double Confidence
     {
         get;

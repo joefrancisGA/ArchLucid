@@ -94,6 +94,18 @@ public sealed class SpecialistFindingsSubstantiationService(
             EvidenceValidationMaxConcurrent,
             async (finding, ct) =>
             {
+                // This path has no authorized product run or inventory binding.
+                if (finding.PublicNetworkAccessDisabledResourceId is Guid resourceId)
+                {
+                    return new EvidenceValidationResult
+                    {
+                        FindingId = finding.FindingId,
+                        PublicNetworkAccess = new(resourceId, PublicNetworkAccessVerificationOutcome.Unverified),
+                        Escalated = true,
+                        SemanticMethod = SemanticAssessmentMethod.NotPerformed,
+                    };
+                }
+
                 List<string> citedArtifactIds = finding.EvidenceArtifactIds
                     .Where(id => !string.IsNullOrWhiteSpace(id))
                     .Distinct(StringComparer.Ordinal)
