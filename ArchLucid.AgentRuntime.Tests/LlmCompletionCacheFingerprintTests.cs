@@ -117,4 +117,36 @@ public sealed class LlmCompletionCacheFingerprintTests
         digest.Should().HaveLength(64);
         LlmCompletionCacheFingerprint.ComputePromptHash("a", "b").Should().Be(digest);
     }
+
+    [Fact]
+    public void ComputePromptHash_distinguishes_embedded_delimiters()
+    {
+        LlmCompletionCacheFingerprint.ComputePromptHash("a\0b", "c")
+            .Should().NotBe(LlmCompletionCacheFingerprint.ComputePromptHash("a", "b\0c"));
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Compute_distinguishes_embedded_delimiters(bool partitionByScope)
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        LlmCompletionCacheFingerprint.Compute(partitionByScope, "dep", "a\0b", "c", scope)
+            .Should().NotBe(LlmCompletionCacheFingerprint.Compute(partitionByScope, "dep", "a", "b\0c", scope));
+    }
+
+    [Fact]
+    public void ComputePromptHash_does_not_reuse_legacy_digest()
+    {
+        string legacy = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
+            System.Text.Encoding.UTF8.GetBytes("a\0b")));
+
+        LlmCompletionCacheFingerprint.ComputePromptHash("a", "b").Should().NotBe(legacy);
+    }
 }
