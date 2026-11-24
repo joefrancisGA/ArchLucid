@@ -1,4 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Persistence.Graph;
@@ -10,6 +11,7 @@ using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Planning;
@@ -30,6 +32,10 @@ public sealed partial class GraphController
         try
         {
             ScopeContext scope = scopeProvider.GetCurrentScope();
+            IActionResult? denied = await EnsureReviewGraphReadAllowedAsync(scope, runId, ct);
+            if (denied is not null)
+                return denied;
+
             RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
 
             if (detail is null)
@@ -84,6 +90,10 @@ public sealed partial class GraphController
         try
         {
             ScopeContext scope = scopeProvider.GetCurrentScope();
+            IActionResult? denied = await EnsureReviewGraphReadAllowedAsync(scope, runId, ct);
+            if (denied is not null)
+                return denied;
+
             RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
 
             if (detail is null)
@@ -109,6 +119,12 @@ public sealed partial class GraphController
         {
             return MapGraphSealedManifestConflict(ex);
         }
+    }
+
+    private Task<IActionResult?> EnsureReviewGraphReadAllowedAsync(ScopeContext scope, Guid runId, CancellationToken ct)
+    {
+        var gate = HttpContext.RequestServices.GetRequiredService<IArchitectureShareAccessGate>();
+        return gate.EnsureRunReadAllowedAsync(this, User, scope, runId, ct);
     }
 
     private static GraphViewModel MapArchitectureGraph(GraphSnapshot snapshot)

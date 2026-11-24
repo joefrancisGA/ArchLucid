@@ -1,4 +1,7 @@
+using System.Security.Claims;
+
 using ArchLucid.Api.Controllers.Planning;
+using ArchLucid.Api.Support;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -12,6 +15,7 @@ using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 using Moq;
@@ -34,7 +38,8 @@ public sealed class GraphControllerTests
     private static GraphController CreateController(
         IAuthorityQueryService? authorityQueryService = null,
         IRunRepository? runRepository = null,
-        KnowledgeGraphLimitsOptions? limits = null)
+        KnowledgeGraphLimitsOptions? limits = null,
+        IArchitectureShareAccessGate? shareGate = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -64,6 +69,15 @@ public sealed class GraphControllerTests
             FullGraphResponseMaxNodes = 500
         });
 
+        if (shareGate is null)
+        {
+            Mock<IArchitectureShareAccessGate> allowed = new(MockBehavior.Strict);
+            allowed.Setup(g => g.EnsureRunReadAllowedAsync(It.IsAny<ControllerBase>(), It.IsAny<ClaimsPrincipal>(),
+                    Scope, RunId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((IActionResult?)null);
+            shareGate = allowed.Object;
+        }
+
         return new GraphController(
             authorityService,
             runsService,
@@ -71,7 +85,15 @@ public sealed class GraphControllerTests
             Mock.Of<IManifestHashService>(),
             options)
         {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    RequestServices = new ServiceCollection()
+                        .AddSingleton<IArchitectureShareAccessGate>(shareGate)
+                        .BuildServiceProvider()
+                }
+            }
         };
     }
 
@@ -98,6 +120,30 @@ public sealed class GraphControllerTests
             Run = new RunRecord { RunId = RunId, ProjectId = "proj-a" },
             GraphSnapshot = snapshot
         };
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Restricted_run_returns_404_before_graph_detail_read(bool paged)
+    {
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        Mock<IArchitectureShareAccessGate> sharing = new(MockBehavior.Strict);
+        GraphController controller = CreateController(authority.Object, shareGate: sharing.Object);
+        using CancellationTokenSource cancellation = new();
+        CancellationToken ct = cancellation.Token;
+        var denial = ArchitectureShareNotVisibleAsNotFoundResponsePolicy.RunNotFound(controller, RunId);
+        sharing.Setup(g => g.EnsureRunReadAllowedAsync(controller, controller.User, Scope, RunId, ct))
+            .ReturnsAsync(denial);
+
+        IActionResult result = paged
+            ? await controller.GetArchitectureGraphNodesPage(RunId, ct: ct)
+            : await controller.GetArchitectureGraph(RunId, ct);
+
+        result.Should().BeSameAs(denial);
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        sharing.Verify(g => g.EnsureRunReadAllowedAsync(controller, controller.User, Scope, RunId, ct), Times.Once);
+        authority.VerifyNoOtherCalls();
     }
 
     [Fact]
