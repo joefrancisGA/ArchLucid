@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using ArchLucid.Core;
 using ArchLucid.Core.Llm;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
@@ -22,7 +23,8 @@ internal static class ArchitectureIntelligenceLlmJsonCompletionHelper
         string systemPrompt,
         string userPrompt,
         CancellationToken cancellationToken,
-        int? maxTokens = null)
+        int? maxTokens = null,
+        bool propagateQuotaDenial = false)
     {
         if (completionClient is null)
         {
@@ -44,7 +46,7 @@ internal static class ArchitectureIntelligenceLlmJsonCompletionHelper
         {
             return null;
         }
-        catch (InvalidOperationException)
+        catch (InvalidOperationException ex) when (!propagateQuotaDenial || ex is not LlmTokenQuotaExceededException)
         {
             return null;
         }
