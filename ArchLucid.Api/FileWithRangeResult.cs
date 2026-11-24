@@ -17,6 +17,14 @@ public sealed class FileWithRangeResult(
     {
         HttpResponse response = context.HttpContext.Response;
         response.Headers["Accept-Ranges"] = "bytes";
+        // A quoted Content-Disposition filename must escape embedded quotes and backslashes.
+        // Strip line breaks so a supplied file name cannot turn the response header malformed.
+        string encodedFileName = fileDownloadName
+            .Replace("\\", "\\\\", StringComparison.Ordinal)
+            .Replace("\"", "\\\"", StringComparison.Ordinal)
+            .Replace("\r", string.Empty, StringComparison.Ordinal)
+            .Replace("\n", string.Empty, StringComparison.Ordinal);
+
 
         long totalLength = fileContents.LongLength;
         if (totalLength == 0)
@@ -24,7 +32,7 @@ public sealed class FileWithRangeResult(
             response.ContentLength = 0;
             response.StatusCode = StatusCodes.Status200OK;
             response.ContentType = contentType;
-            response.Headers["Content-Disposition"] = $"attachment; filename=\"{fileDownloadName}\"";
+            response.Headers["Content-Disposition"] = $"attachment; filename=\"{encodedFileName}\"";
             return;
         }
 
@@ -36,7 +44,7 @@ public sealed class FileWithRangeResult(
             response.Headers["Content-Range"] = $"bytes {start}-{end}/{totalLength}";
             response.ContentLength = length;
             response.ContentType = contentType;
-            response.Headers["Content-Disposition"] = $"attachment; filename=\"{fileDownloadName}\"";
+            response.Headers["Content-Disposition"] = $"attachment; filename=\"{encodedFileName}\"";
 
             await response.Body.WriteAsync(fileContents.AsMemory((int)start, (int)length),
                 context.HttpContext.RequestAborted);
@@ -46,7 +54,7 @@ public sealed class FileWithRangeResult(
         response.StatusCode = StatusCodes.Status200OK;
         response.ContentLength = totalLength;
         response.ContentType = contentType;
-        response.Headers["Content-Disposition"] = $"attachment; filename=\"{fileDownloadName}\"";
+        response.Headers["Content-Disposition"] = $"attachment; filename=\"{encodedFileName}\"";
         await response.Body.WriteAsync(fileContents, context.HttpContext.RequestAborted);
     }
 

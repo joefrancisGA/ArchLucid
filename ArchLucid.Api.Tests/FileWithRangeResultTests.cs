@@ -11,6 +11,44 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class FileWithRangeResultTests
 {
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public async Task ExecuteResultAsync_escapes_download_filename_for_all_response_forms(
+        bool rangeRequested, bool emptyPayload)
+    {
+        const string filename = "audit\"; inline=true; x=\"part\\one.txt";
+        byte[] payload = emptyPayload ? [] : [0x01, 0x02, 0x03];
+        DefaultHttpContext http = new() { Response = { Body = new MemoryStream() } };
+        if (rangeRequested)
+            http.Request.Headers.Range = "bytes=1-2";
+
+        ActionContext action = new(http, new RouteData(), new ActionDescriptor());
+        FileWithRangeResult sut = new(http.Request, payload, "application/octet-stream", filename);
+
+        await sut.ExecuteResultAsync(action);
+
+        http.Response.Headers["Content-Disposition"].ToString().Should().Be(
+            "attachment; filename=\"audit\\\"; inline=true; x=\\\"part\\\\one.txt\"");
+        http.Response.StatusCode.Should().Be(rangeRequested
+            ? StatusCodes.Status206PartialContent
+            : StatusCodes.Status200OK);
+    }
+
+    [Fact]
+    public async Task ExecuteResultAsync_strips_crlf_from_download_filename()
+    {
+        DefaultHttpContext http = new() { Response = { Body = new MemoryStream() } };
+        ActionContext action = new(http, new RouteData(), new ActionDescriptor());
+        FileWithRangeResult sut = new(http.Request, [0x01], "application/octet-stream", "report\r\nInjected: 1.txt");
+
+        await sut.ExecuteResultAsync(action);
+
+        http.Response.Headers["Content-Disposition"].ToString()
+            .Should().Be("attachment; filename=\"reportInjected: 1.txt\"");
+    }
+
     [SkippableFact]
     public async Task ExecuteResultAsync_empty_payload_returns_200_with_zero_length()
     {
