@@ -1,11 +1,19 @@
+using System.Data.SqlTypes;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Architecture;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Host.Core.Services.Ask;
 using ArchLucid.Persistence.Conversation;
+using ArchLucid.Persistence.Interfaces;
 
 using Asp.Versioning;
 
@@ -16,10 +24,9 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Planning;
 
 /// <summary>
-///     Provides read access to conversation threads and their messages.
-///     All results are scoped to the caller's tenant, workspace, and project.
+/// Provides scoped conversation history only for completed turns whose actor and evidence
+/// provenance can still be authorized. Unverified legacy messages are not exposed.
 /// </summary>
-/// <remarks>Routes under <c>api/conversations</c>.</remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -29,23 +36,20 @@ namespace ArchLucid.Api.Controllers.Planning;
 public sealed class ConversationController(
     IConversationThreadRepository threadRepository,
     IConversationMessageRepository messageRepository,
-    IScopeContextProvider scopeProvider)
+    IScopeContextProvider scopeProvider,
+    IAskEvidenceAccess evidenceAccess,
+    IRunRepository runRepository)
     : ControllerBase
 {
-    /// <summary>Lists conversation threads for the current scope.</summary>
-    /// <param name="take">
-    ///     Number of threads to return (clamped to 1..<see cref="PaginationDefaults.MaxPageSize" />; defaults
-    ///     to 50). Used when <paramref name="page" /> is not set.
-    /// </param>
-    /// <param name="page">One-based page number. When provided, the response is a <see cref="PagedResponse{T}" />.</param>
-    /// <param name="pageSize">
-    ///     Items per page (clamped 1..<see cref="PaginationDefaults.MaxPageSize" />; default 50). Only used
-    ///     when <paramref name="page" /> is set.
-    /// </param>
-    /// <param name="ct">Cancellation token.</param>
+    private const int MaxThreadCandidates = 500;
+    private const int ListingHistoryTake = 40;
+
+    /// <summary>Lists visible conversation threads, paginating only after verifying visibility.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<ConversationThread>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(PagedResponse<ConversationThread>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ListThreads(
         int take = 50,
         [FromQuery] int? page = null,
@@ -53,62 +57,238 @@ public sealed class ConversationController(
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        string? actorId = evidenceAccess.GetAuthorizedActorId();
+        if (!HasIdentifiedActor(actorId) || !IsCompleteScope(scope))
+            return this.NotFoundProblem("Conversation history is not available for the current caller.",
+                ProblemTypes.ResourceNotFound);
 
-        if (page.HasValue)
+        // Raw scope-wide totals and headers are discovery inputs, not public results.
+        List<ConversationThread>? candidates = await LoadCandidateThreadsAsync(scope, ct);
+        if (candidates is null)
+            return ListingBudgetConflict();
+
+        Dictionary<Guid, bool> decisions = [];
+        List<ConversationThread> visible = [];
+        HashSet<Guid>? projectRuns = null;
+        foreach (ConversationThread thread in candidates)
         {
-            (int safePage, int safePageSize) = PaginationDefaults.Normalize(page.Value, pageSize);
-            int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
-            (IReadOnlyList<ConversationThread> items, int total) = await threadRepository.ListByScopePagedAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                skip,
-                safePageSize,
-                ct);
+            ct.ThrowIfCancellationRequested();
+            HashSet<Guid>? anchors = await ResolveThreadAnchorsAsync(thread, scope, decisions, ct);
+            if (anchors is null)
+                continue;
 
-            return Ok(PagedResponseBuilder.FromDatabasePage(items, total, safePage, safePageSize));
+            projectRuns ??= await AuthorizedEvidenceRunResolver.ResolveProjectAsync(
+                runRepository, scope, (id, token) => CanReadRunAsync(scope, id, decisions, token), ct);
+            if (projectRuns is null)
+                return ListingBudgetConflict();
+
+            HashSet<Guid> authorizedRuns = new(projectRuns);
+            authorizedRuns.UnionWith(anchors);
+
+            IReadOnlyList<ConversationMessage> messages =
+                await messageRepository.GetByThreadIdAsync(thread.ThreadId, ListingHistoryTake, ct);
+            IReadOnlyList<ConversationMessage> verified = AskHistoryEvidenceScope.SelectVerifiedTurns(
+                messages, thread.ThreadId, actorId!, authorizedRuns);
+            if (verified.Count == 0)
+                continue;
+
+            // Do not reveal a title or last activity caused by an unverified turn.
+            ConversationMessage[] completed = verified
+                .Where(m => m.Role == ConversationMessageRole.Assistant).ToArray();
+            if (completed.Length == 0)
+                continue;
+
+            visible.Add(new ConversationThread
+            {
+                ThreadId = thread.ThreadId,
+                TenantId = thread.TenantId,
+                WorkspaceId = thread.WorkspaceId,
+                ProjectId = thread.ProjectId,
+                RunId = thread.RunId,
+                BaseRunId = thread.BaseRunId,
+                TargetRunId = thread.TargetRunId,
+                Title = "Architecture Conversation",
+                CreatedUtc = completed.Min(m => m.CreatedUtc),
+                LastUpdatedUtc = completed.Max(m => m.CreatedUtc),
+            });
         }
 
+        List<ConversationThread> ordered = visible.OrderByDescending(t => t.LastUpdatedUtc)
+            .ThenBy(t => new SqlGuid(t.ThreadId)).ToList();
+        if (page.HasValue)
+            return Ok(PagedResponseBuilder.Build(ordered, page.Value, pageSize));
+
         int safeTake = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
-
-        IReadOnlyList<ConversationThread> threads = await threadRepository.ListByScopeAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            safeTake,
-            ct);
-
-        return Ok(PagedResponseBuilder.FromDatabasePage(threads, threads.Count, 1, safeTake));
+        List<ConversationThread> recent = ordered.Take(safeTake).ToList();
+        return Ok(PagedResponseBuilder.FromDatabasePage(recent, recent.Count, 1, safeTake));
     }
 
-    /// <summary>Returns messages for the specified conversation thread.</summary>
-    /// <param name="threadId">Thread identifier.</param>
-    /// <param name="take">
-    ///     Number of messages to return (clamped to 1..<see cref="PaginationDefaults.MaxListingTake" />;
-    ///     defaults to 100).
-    /// </param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Message list, or 404 when the thread does not exist or belongs to another scope.</returns>
+    /// <summary>Returns completed, currently authorized conversation turns within the recent message window.</summary>
     [HttpGet("{threadId:guid}/messages")]
     [ProducesResponseType(typeof(IReadOnlyList<ConversationMessage>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetMessages(Guid threadId, int take = 100, CancellationToken ct = default)
     {
-        int safeTake = Math.Clamp(take, 1, PaginationDefaults.MaxListingTake);
+        IActionResult NotFoundThread() => this.NotFoundProblem(
+            $"Conversation thread '{threadId}' was not found in the current scope.", ProblemTypes.ResourceNotFound);
+
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        string? actorId = evidenceAccess.GetAuthorizedActorId();
+        if (threadId == Guid.Empty || !HasIdentifiedActor(actorId) || !IsCompleteScope(scope))
+            return NotFoundThread();
+
         ConversationThread? thread = await threadRepository.GetByIdAsync(threadId, ct);
+        if (thread is null || thread.ThreadId != threadId)
+            return NotFoundThread();
 
-        if (thread is null ||
-            thread.TenantId != scope.TenantId ||
-            thread.WorkspaceId != scope.WorkspaceId ||
-            thread.ProjectId != scope.ProjectId)
+        Dictionary<Guid, bool> decisions = [];
+        HashSet<Guid>? anchors = await ResolveThreadAnchorsAsync(thread, scope, decisions, ct);
+        if (anchors is null)
+            return NotFoundThread();
 
-            return this.NotFoundProblem(
-                $"Conversation thread '{threadId}' was not found in the current scope.",
-                ProblemTypes.ResourceNotFound);
+        HashSet<Guid>? projectRuns = await AuthorizedEvidenceRunResolver.ResolveProjectAsync(
+            runRepository, scope, (id, token) => CanReadRunAsync(scope, id, decisions, token), ct);
+        // Match Ask's anchored fallback; never treat incomplete enumeration as unrestricted.
+        if (projectRuns is null && thread.RunId is null)
+            return NotFoundThread();
 
-        IReadOnlyList<ConversationMessage>
-            messages = await messageRepository.GetByThreadIdAsync(threadId, safeTake, ct);
-        return Ok(messages);
+        HashSet<Guid> authorizedRuns = projectRuns ?? [];
+        authorizedRuns.UnionWith(anchors);
+
+        // Read the bounded recent window before applying the caller's result limit. A denied
+        // recent turn must not crowd a permitted turn out of the requested response.
+        IReadOnlyList<ConversationMessage> messages = await messageRepository.GetByThreadIdAsync(
+            threadId, PaginationDefaults.MaxListingTake, ct);
+        IReadOnlyList<ConversationMessage> verified = AskHistoryEvidenceScope.SelectVerifiedTurns(
+            messages, threadId, actorId!, authorizedRuns);
+        if (verified.Count == 0)
+            return NotFoundThread();
+
+        int safeTake = Math.Clamp(take, 1, PaginationDefaults.MaxListingTake);
+        return Ok(ProjectPublicMessages(verified).TakeLast(safeTake).ToList());
+    }
+
+    private static bool HasIdentifiedActor(string? actorId) =>
+        !string.IsNullOrWhiteSpace(actorId) &&
+        !string.Equals(actorId, "api-user", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsCompleteScope(ScopeContext scope) =>
+        scope.TenantId != Guid.Empty && scope.WorkspaceId != Guid.Empty && scope.ProjectId != Guid.Empty;
+
+    private IActionResult ListingBudgetConflict() => this.ConflictProblem(
+        "Conversation history could not be completely authorized within the listing budget.",
+        ProblemTypes.Conflict);
+
+    private async Task<List<ConversationThread>?> LoadCandidateThreadsAsync(ScopeContext scope, CancellationToken ct)
+    {
+        List<ConversationThread> candidates = [];
+        HashSet<Guid> seen = [];
+        int? expectedTotal = null;
+        for (int skip = 0; skip < MaxThreadCandidates;)
+        {
+            int pageTake = Math.Min(PaginationDefaults.MaxPageSize, MaxThreadCandidates - skip);
+            (IReadOnlyList<ConversationThread> items, int total) = await threadRepository.ListByScopePagedAsync(
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId, skip, pageTake, ct);
+            if (total < 0 || total > MaxThreadCandidates ||
+                (expectedTotal.HasValue && expectedTotal.Value != total) ||
+                items.Count != Math.Min(pageTake, Math.Max(0, total - skip)))
+                return null;
+
+            expectedTotal = total;
+            foreach (ConversationThread item in items)
+            {
+                if (!seen.Add(item.ThreadId))
+                    return null;
+                candidates.Add(item);
+            }
+
+            skip += items.Count;
+            if (skip >= total)
+                return candidates;
+        }
+
+        return null;
+    }
+
+    private async Task<HashSet<Guid>?> ResolveThreadAnchorsAsync(
+        ConversationThread thread, ScopeContext scope, Dictionary<Guid, bool> decisions, CancellationToken ct)
+    {
+        if (thread.ThreadId == Guid.Empty || thread.ArchivedUtc.HasValue ||
+            thread.TenantId != scope.TenantId || thread.WorkspaceId != scope.WorkspaceId ||
+            thread.ProjectId != scope.ProjectId ||
+            thread.BaseRunId.HasValue != thread.TargetRunId.HasValue ||
+            (thread.RunId is null && thread.BaseRunId.HasValue))
+            return null;
+
+        HashSet<Guid> anchors = [];
+        foreach (Guid? candidate in new[] { thread.RunId, thread.BaseRunId, thread.TargetRunId })
+        {
+            if (candidate is not Guid id)
+                continue;
+            if (id == Guid.Empty || !await CanReadRunAsync(scope, id, decisions, ct))
+                return null;
+            anchors.Add(id);
+        }
+
+        return anchors;
+    }
+
+    private async Task<bool> CanReadRunAsync(
+        ScopeContext scope, Guid runId, Dictionary<Guid, bool> decisions, CancellationToken ct)
+    {
+        if (!decisions.TryGetValue(runId, out bool allowed))
+        {
+            allowed = await evidenceAccess.CanReadRunAsync(scope, runId, ct);
+            decisions.Add(runId, allowed);
+        }
+
+        return allowed;
+    }
+
+    private static IEnumerable<ConversationMessage> ProjectPublicMessages(IReadOnlyList<ConversationMessage> verified)
+    {
+        // The V1 proof binds question text, not the original user row's identity. Return a
+        // stable display-only question ID and the verified completion time rather than
+        // leaking an unrelated matching row's identifier, timestamp or metadata.
+        for (int i = 0; i + 1 < verified.Count; i += 2)
+        {
+            ConversationMessage question = verified[i];
+            ConversationMessage answer = verified[i + 1];
+            byte[] digest = SHA256.HashData(Encoding.UTF8.GetBytes($"ask-question-display|{answer.MessageId:N}"));
+            yield return new ConversationMessage
+            {
+                MessageId = new Guid(digest.AsSpan(0, 16)),
+                ThreadId = answer.ThreadId,
+                Role = ConversationMessageRole.User,
+                Content = question.Content,
+                CreatedUtc = answer.CreatedUtc,
+                MetadataJson = "{}",
+            };
+            yield return new ConversationMessage
+            {
+                MessageId = answer.MessageId,
+                ThreadId = answer.ThreadId,
+                Role = ConversationMessageRole.Assistant,
+                Content = answer.Content,
+                CreatedUtc = answer.CreatedUtc,
+                MetadataJson = PublicAssistantMetadata(answer.MetadataJson),
+            };
+        }
+    }
+
+    private static string PublicAssistantMetadata(string metadata)
+    {
+        using JsonDocument document = JsonDocument.Parse(metadata);
+        Dictionary<string, JsonElement> publicValues = new(StringComparer.Ordinal);
+        foreach (JsonProperty property in document.RootElement.EnumerateObject())
+        {
+            if (property.Name is "referencedDecisions" or "referencedFindings" or "referencedArtifacts" or
+                "referencedDecisionsStoredEmpty" or "referencedDecisionsNotStored" or
+                "referencedFindingsStoredEmpty" or "referencedFindingsNotStored" or
+                "referencedArtifactsStoredEmpty" or "referencedArtifactsNotStored")
+                publicValues.TryAdd(property.Name, property.Value);
+        }
+
+        return JsonSerializer.Serialize(publicValues);
     }
 }
