@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `hideGeneric` deep links via `params.has(REVIEW_FINDINGS_HIDE_GENERIC_PARAM)`. Regression `does not apply visit-default navigation when the URL only carries hideGeneric`. URL-sync vitest **120/120**. Private beta: shared review links that only set hide-generic density in the query are no longer overwritten with visit-default tab or finding query keys on first load.
+> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `findingsFilterPanelOpen` deep links via `parseFindingsFilterPanelOpenFromSearch` !== null. Regression `does not apply visit-default navigation when the URL only carries findingsFilterPanelOpen`. URL-sync vitest **121/121**. Private beta: shared review links that only open the findings filter panel in the query are no longer overwritten with visit-default tab or finding query keys on first load.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -11705,6 +11705,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-08-28 thorough hunt #191: proved billing paid-tier precedence over stale frictionless flag; cheap-disproved welcome/disclosure scope persistence and AI snapshot disposition crash; seeded frictionless session cleanup and LLM budget cache refresh candidates.
 
 ## Zone: ui-review-detail-workspace
+2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `findingsFilterPanelOpen` monitor: a deep link with only a findings filter-panel disclosure flag was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `findingsFilterPanelOpen` via `parseFindingsFilterPanelOpenFromSearch` !== null. Regression `does not apply visit-default navigation when the URL only carries findingsFilterPanelOpen`. URL-sync vitest **121/121**. Private beta: when an invited operator opens a shared review link that only opens the findings filter panel in the query, visit-default tab navigation no longer replaces that query on first load.
+
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `hideGeneric` monitor: a deep link with only a hide-generic density flag was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `hideGeneric` when `REVIEW_FINDINGS_HIDE_GENERIC_PARAM` is present in the query. Regression `does not apply visit-default navigation when the URL only carries hideGeneric`. URL-sync vitest **120/120**. Private beta: when an invited operator opens a shared review link that only sets hide-generic in the query, visit-default tab navigation no longer replaces that query on first load.
 
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `showAdvisory` monitor: a deep link with only a findings advisory visibility flag was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `showAdvisory` when `REVIEW_FINDINGS_SHOW_ADVISORY_PARAM` is present in the query. Regression `does not apply visit-default navigation when the URL only carries showAdvisory`. URL-sync vitest **119/119**. Private beta: when an invited operator opens a shared review link that only sets show-advisory in the query, visit-default tab navigation no longer replaces that query on first load.
@@ -11886,6 +11888,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 
+
+- [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `findingsFilterPanelOpen` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored findings filter-panel disclosure deep links; regression above. Private beta: shared links that only set `findingsFilterPanelOpen` are no longer replaced with visit-default query keys on first load.
 
 - [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `hideGeneric` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored hide-generic density deep links; regression above. Private beta: shared links that only set `hideGeneric` are no longer replaced with visit-default query keys on first load.
 
@@ -12721,8 +12725,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 122
-- **bugs-found:** 121
+- **hunts:** 123
+- **bugs-found:** 122
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
