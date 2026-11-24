@@ -379,6 +379,25 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
 
 
 
+
+  it("does not apply visit-default navigation when the URL only carries roomElicitation=1", () => {
+    searchParamsHarness.applyQuery("roomElicitation=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?roomElicitation=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?roomElicitation=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
   it("does not apply visit-default navigation when the URL only carries legacy archTab", () => {
     searchParamsHarness.applyQuery("archTab=findings");
     window.history.replaceState({}, "", "/architecture/reviews/run-abc?archTab=findings");
