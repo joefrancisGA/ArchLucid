@@ -118,6 +118,10 @@ import {
   parseRunDetailActivityTechnicalOpenFromSearch,
   RUN_DETAIL_ACTIVITY_TECHNICAL_OPEN_PARAM,
 } from "@/lib/runs/run-detail-activity-technical-disclosure-url";
+import {
+  parseRunDetailActivityOutcomeMetricsOpenFromSearch,
+  RUN_DETAIL_ACTIVITY_OUTCOME_METRICS_OPEN_PARAM,
+} from "@/lib/runs/run-detail-activity-outcome-metrics-disclosure-url";
 
 import {
   parseRunImpactAnalysisOpenFromSearch,
@@ -371,6 +375,9 @@ export function useReviewDetailWorkspaceTabs(
     const runDetailActivityTechnicalOpenPresent = parseRunDetailActivityTechnicalOpenFromSearch(
       params.get(RUN_DETAIL_ACTIVITY_TECHNICAL_OPEN_PARAM),
     );
+    const runDetailActivityOutcomeMetricsOpenPresent = parseRunDetailActivityOutcomeMetricsOpenFromSearch(
+      params.get(RUN_DETAIL_ACTIVITY_OUTCOME_METRICS_OPEN_PARAM),
+    );
     const runImpactAnalysisOpenPresent = parseRunImpactAnalysisOpenFromSearch(
       params.get(RUN_IMPACT_ANALYSIS_OPEN_PARAM),
     );
@@ -459,6 +466,7 @@ export function useReviewDetailWorkspaceTabs(
       || runPipelineTimelineOpenPresent
       || runRetrievalGroundingOpenPresent
       || runDetailActivityTechnicalOpenPresent
+      || runDetailActivityOutcomeMetricsOpenPresent
       || runImpactAnalysisOpenPresent
       || runFindingExplainabilityOpenPresent
       || runCoverageCurationOpenPresent
