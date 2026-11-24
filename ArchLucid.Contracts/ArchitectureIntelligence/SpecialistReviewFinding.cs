@@ -36,13 +36,13 @@ public class SpecialistReviewFinding
     {
         get;
         set;
-    }
+    } = ReviewConclusion.Indeterminate;
 
     public EvidenceCondition EvidenceCondition
     {
         get;
         set;
-    }
+    } = EvidenceCondition.Unverified;
 
     public GovernanceDisposition GovernanceDisposition
     {
