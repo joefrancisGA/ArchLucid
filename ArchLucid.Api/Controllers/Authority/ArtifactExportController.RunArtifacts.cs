@@ -32,19 +32,17 @@ public sealed partial class ArtifactExportController
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        ManifestSummaryDto? summary = await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct);
-
-        if (summary is null)
-            return this.NotFoundProblem(
-                $"Manifest '{manifestId}' was not found in the current scope.",
-                ProblemTypes.ManifestNotFound);
+        (ManifestSummaryDto? summary, IActionResult? manifestDenied) =
+            await ResolveAuthorizedArtifactManifestAsync(scope, manifestId, ct);
+        if (manifestDenied is not null || summary is null)
+            return manifestDenied ?? this.NotFoundProblem(
+                $"Manifest '{manifestId}' was not found in the current scope.", ProblemTypes.ManifestNotFound);
 
         RunDetailDto? manifestDetail =
             await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, summary.RunId, ct);
 
-        IActionResult? sealedHashProblem = EnsureSealedManifestHashOrConflict(
-            manifestDetail?.GoldenManifest,
-            summary.RunId.ToString("D"));
+        IActionResult? sealedHashProblem =
+            await EnsureExactArtifactManifestSealedReadAsync(scope, manifestId, summary, manifestDetail, ct);
 
         if (sealedHashProblem is not null)
             return sealedHashProblem;
@@ -88,6 +86,10 @@ public sealed partial class ArtifactExportController
     public async Task<IActionResult> ListArtifactsForRun(Guid runId, CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        IActionResult? shareDenied = await EnsureArtifactRunShareReadAllowedAsync(scope, runId, ct);
+        if (shareDenied is not null)
+            return shareDenied;
+
         RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
 
         if (detail is null)
@@ -129,6 +131,10 @@ public sealed partial class ArtifactExportController
     public async Task<IActionResult> DownloadBundleForRun(Guid runId, CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        IActionResult? shareDenied = await EnsureArtifactRunShareReadAllowedAsync(scope, runId, ct);
+        if (shareDenied is not null)
+            return shareDenied;
+
         RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
 
         if (detail is null)
@@ -170,6 +176,10 @@ public sealed partial class ArtifactExportController
     public async Task<IActionResult> DownloadArtifactForRun(Guid runId, Guid artifactId, CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        IActionResult? shareDenied = await EnsureArtifactRunShareReadAllowedAsync(scope, runId, ct);
+        if (shareDenied is not null)
+            return shareDenied;
+
         RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
 
         if (detail is null)
@@ -216,19 +226,17 @@ public sealed partial class ArtifactExportController
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        ManifestSummaryDto? summary = await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct);
-
-        if (summary is null)
-            return this.NotFoundProblem(
-                $"Manifest '{manifestId}' was not found in the current scope.",
-                ProblemTypes.ManifestNotFound);
+        (ManifestSummaryDto? summary, IActionResult? manifestDenied) =
+            await ResolveAuthorizedArtifactManifestAsync(scope, manifestId, ct);
+        if (manifestDenied is not null || summary is null)
+            return manifestDenied ?? this.NotFoundProblem(
+                $"Manifest '{manifestId}' was not found in the current scope.", ProblemTypes.ManifestNotFound);
 
         RunDetailDto? manifestDetail =
             await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, summary.RunId, ct);
 
-        IActionResult? sealedHashProblem = EnsureSealedManifestHashOrConflict(
-            manifestDetail?.GoldenManifest,
-            summary.RunId.ToString("D"));
+        IActionResult? sealedHashProblem =
+            await EnsureExactArtifactManifestSealedReadAsync(scope, manifestId, summary, manifestDetail, ct);
 
         if (sealedHashProblem is not null)
             return sealedHashProblem;
@@ -277,19 +285,17 @@ public sealed partial class ArtifactExportController
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        ManifestSummaryDto? summary = await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct);
-
-        if (summary is null)
-            return this.NotFoundProblem(
-                $"Manifest '{manifestId}' was not found in the current scope.",
-                ProblemTypes.ManifestNotFound);
+        (ManifestSummaryDto? summary, IActionResult? manifestDenied) =
+            await ResolveAuthorizedArtifactManifestAsync(scope, manifestId, ct);
+        if (manifestDenied is not null || summary is null)
+            return manifestDenied ?? this.NotFoundProblem(
+                $"Manifest '{manifestId}' was not found in the current scope.", ProblemTypes.ManifestNotFound);
 
         RunDetailDto? manifestDetail =
             await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, summary.RunId, ct);
 
-        IActionResult? sealedHashProblem = EnsureSealedManifestHashOrConflict(
-            manifestDetail?.GoldenManifest,
-            summary.RunId.ToString("D"));
+        IActionResult? sealedHashProblem =
+            await EnsureExactArtifactManifestSealedReadAsync(scope, manifestId, summary, manifestDetail, ct);
 
         if (sealedHashProblem is not null)
             return sealedHashProblem;
@@ -346,19 +352,17 @@ public sealed partial class ArtifactExportController
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        ManifestSummaryDto? summary = await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct);
-
-        if (summary is null)
-            return this.NotFoundProblem(
-                $"Manifest '{manifestId}' was not found in the current scope.",
-                ProblemTypes.ManifestNotFound);
+        (ManifestSummaryDto? summary, IActionResult? manifestDenied) =
+            await ResolveAuthorizedArtifactManifestAsync(scope, manifestId, ct);
+        if (manifestDenied is not null || summary is null)
+            return manifestDenied ?? this.NotFoundProblem(
+                $"Manifest '{manifestId}' was not found in the current scope.", ProblemTypes.ManifestNotFound);
 
         RunDetailDto? manifestDetail =
             await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, summary.RunId, ct);
 
-        IActionResult? sealedHashProblem = EnsureSealedManifestHashOrConflict(
-            manifestDetail?.GoldenManifest,
-            summary.RunId.ToString("D"));
+        IActionResult? sealedHashProblem =
+            await EnsureExactArtifactManifestSealedReadAsync(scope, manifestId, summary, manifestDetail, ct);
 
         if (sealedHashProblem is not null)
             return sealedHashProblem;
