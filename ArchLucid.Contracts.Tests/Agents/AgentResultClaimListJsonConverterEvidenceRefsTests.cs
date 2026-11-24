@@ -104,4 +104,24 @@ public sealed class AgentResultClaimListJsonConverterEvidenceRefsTests
         Action read = () => JsonSerializer.Deserialize<AgentResult>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web));
         read.Should().Throw<JsonException>();
     }
+
+    [Fact]
+    public void Serialize_unset_result_role_does_not_invent_topology()
+    {
+        Action write = () => JsonSerializer.Serialize(new AgentResult(), Options);
+        write.Should().Throw<JsonException>();
+    }
+
+    [Theory]
+    [InlineData("""{"agentType":"Topology,Cost"}""")]
+    [InlineData("""{"agentType":"Topology","AgentType":"Compliance"}""")]
+    public void Deserialize_rejects_ambiguous_result_role_before_stock_converter(string json)
+    {
+        JsonSerializerOptions options = new(JsonSerializerDefaults.Web)
+        {
+            Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() },
+        };
+        Action read = () => JsonSerializer.Deserialize<AgentResult>(json, options);
+        read.Should().Throw<JsonException>();
+    }
 }

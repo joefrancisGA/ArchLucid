@@ -18,6 +18,8 @@ public sealed class AgentResultJsonConverter : JsonConverter<AgentResult>
         using JsonDocument document = JsonDocument.ParseValue(ref reader);
         JsonElement root = document.RootElement;
 
+        ValidateRoleToken(root);
+
         AgentResultJsonPayload? payload = JsonSerializer.Deserialize<AgentResultJsonPayload>(root.GetRawText(), options);
 
         if (payload is null)
@@ -32,8 +34,35 @@ public sealed class AgentResultJsonConverter : JsonConverter<AgentResult>
         return result;
     }
 
-    public override void Write(Utf8JsonWriter writer, AgentResult value, JsonSerializerOptions options) =>
+    public override void Write(Utf8JsonWriter writer, AgentResult value, JsonSerializerOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(value);
+        if (!Enum.IsDefined(value.AgentType))
+            throw new JsonException("Cannot serialize AgentResult without a declared agentType.");
+
         JsonSerializer.Serialize(writer, AgentResultJsonPayload.FromAgentResult(value), options);
+    }
+
+    private static void ValidateRoleToken(JsonElement root)
+    {
+        if (root.ValueKind != JsonValueKind.Object)
+            throw new JsonException("AgentResult must be a JSON object.");
+
+        bool found = false;
+        foreach (JsonProperty property in root.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, "agentType", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (found)
+                throw new JsonException("AgentResult contains duplicate agentType properties.");
+
+            found = true;
+            if (property.Value.ValueKind == JsonValueKind.String
+                && property.Value.GetString()?.Contains(',') == true)
+                throw new JsonException("AgentResult agentType must be a single declared role.");
+        }
+    }
 
     internal static void MergeClaimEvidenceRefs(JsonElement root, AgentResult result)
     {
