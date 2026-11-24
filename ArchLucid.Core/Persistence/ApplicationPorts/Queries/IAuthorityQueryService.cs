@@ -1,3 +1,4 @@
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 
@@ -175,6 +176,21 @@ public interface IAuthorityQueryService
     /// </summary>
     /// <returns>Summary DTO, or <see langword="null" /> when the manifest id is unknown in <paramref name="scope" />.</returns>
     Task<ManifestSummaryDto?> GetManifestSummaryAsync(
+        ScopeContext scope,
+        Guid manifestId,
+        CancellationToken ct);
+
+    /// <summary>
+    ///     Loads the exact requested manifest within the same trusted scope for
+    ///     sealed-hash verification. Unlike run-header manifest comparison,
+    ///     this supports prior manifest IDs without silently validating only
+    ///     the run's current golden-manifest pointer.
+    /// </summary>
+    /// <remarks>
+    ///     Callers must first authorize the manifest's associated run; this
+    ///     method enforces repository scope, not actor-level share access.
+    /// </remarks>
+    Task<ManifestDocument?> GetManifestForSummaryVerificationAsync(
         ScopeContext scope,
         Guid manifestId,
         CancellationToken ct);
