@@ -56,19 +56,27 @@ jobs:
               summary = doc.find(".//{*}ResultSummary")
               if counters is None or int(counters.get("passed", 0)) == 0 or summary.get("outcome") not in {"Completed", "Passed", "Failed"}:
                   sys.exit(f"Incomplete test execution in {which}")
-              if doc.findall(".//{*}RunInfo[@outcome='Error']"):
-                  sys.exit(f"Test host errors in {which}")
+              if any(int(counters.get(key, 0)) for key in ("error", "timeout", "aborted", "disconnected")):
+                  sys.exit(f"Test execution errors in {which}")
+              # VSTest can emit RunInfo errors for ordinary failing runs. Compare these
+              # with the base as well, while treating incomplete or aborted runs as errors.
+              errors = collections.Counter(
+                  (item.findtext("{*}Text") or "").replace(str(root / "finding-verification-base"), "<checkout>")
+                  .replace(str(pathlib.Path.cwd()), "<checkout>").strip()
+                  for item in doc.findall(".//{*}RunInfo[@outcome='Error']")
+              )
               failed = collections.Counter(r.attrib["testName"] for r in doc.findall(".//{*}UnitTestResult") if r.get("outcome") == "Failed")
               if sum(failed.values()) != int(counters.get("failed", 0)):
                   sys.exit(f"Inconsistent failure count in {which}")
-              return failed
+              return failed, errors
 
-          head = failures("pr-results")
-          base = failures("base-results")
+          head, head_errors = failures("pr-results")
+          base, base_errors = failures("base-results")
           if not head or (int(sys.argv[2]) and not base):
               sys.exit("Test command failed without attributable test failures")
           new = head - base
           print(f"PR failures: {sum(head.values())}. Base failures: {sum(base.values())}. New failures: {sum(new.values())}.")
-          if new:
-              sys.exit("\n".join(sorted(new)))
+          new_errors = head_errors - base_errors
+          if new or new_errors:
+              sys.exit("\n".join(sorted(new) + sorted(new_errors)))
           PY
