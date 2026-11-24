@@ -1,3 +1,6 @@
+using System.Security.Claims;
+
+using ArchLucid.Api.Support;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Agents;
@@ -12,12 +15,24 @@ using ArchLucid.Decisioning.Services;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
+using Microsoft.AspNetCore.Mvc;
+
 using Moq;
 
 namespace ArchLucid.Api.Tests;
 
 internal static class DocxExportControllerTestSupport
 {
+    internal static IArchitectureShareAccessGate CreateAllowingShareGate()
+    {
+        Mock<IArchitectureShareAccessGate> gate = new(MockBehavior.Strict);
+        gate.Setup(g => g.EnsureRunReadAllowedAsync(
+                It.IsAny<ControllerBase>(), It.IsAny<ClaimsPrincipal>(), It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IActionResult?)null);
+        return gate.Object;
+    }
+
     internal static ManifestDocument CreateSealedExportManifest(
         Guid runId,
         Guid manifestId,
