@@ -19,7 +19,7 @@ public sealed class FineTuningConsentService(IFineTuningManifestConsentReader co
         if (string.IsNullOrWhiteSpace(raw))
             return FineTuningConsentStatus.Disabled;
 
-        if (Enum.TryParse(raw.Trim(), ignoreCase: true, out FineTuningConsentStatus parsed))
+        if (Enum.TryParse(raw.Trim(), ignoreCase: true, out FineTuningConsentStatus parsed) && Enum.IsDefined(parsed))
             return parsed;
 
         return FineTuningConsentStatus.Disabled;
