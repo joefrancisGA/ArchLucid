@@ -8,6 +8,8 @@ import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-c
 import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
 import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+import { SecureNowBetaSkuContentsSection } from "@/components/product-line/SecureNowBetaSkuContentsSection";
+import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
 import { SecureNowPilotSpineAcceleratorIndex } from "@/components/product-line/SecureNowPilotSpineAcceleratorIndex";
 
 import { SecureNowPilotDispositionOutcomeRehearsalPanels } from "@/components/product-line/SecureNowPilotDispositionOutcomeRehearsalPanels";
@@ -276,8 +278,10 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
             Read the sponsor-facing decision path
           </Link>
         </p>
+        <SecureNowBetaSkuContentsSection />
+        <SecureNowFixtureWorkspaceNotEntitlementLine />
         <SecureNowPilotSpineAcceleratorIndex />
-            <SecureNowProcurementTrustStrip />
+        <SecureNowProcurementTrustStrip />
       </main>
     </OperatorPageContainer>
   );

@@ -53,6 +53,11 @@ describe("SecureNow pilot decision preparation page", () => {
       "href",
       "/why-securenow#pilot-decision",
     );
+    expect(screen.getByTestId("securenow-beta-sku-contents-section")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Signed-in quote packet" })).toHaveAttribute(
+      "href",
+      "/administration/securenow-quote-packet",
+    );
   });
 
   it("shows commercial index when Proceed is selected", () => {

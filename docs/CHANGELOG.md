@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-24 - SecureNow commercial packaging honesty
+
+**Outcome.** First-hour and pilot-decision pages show the beta SKU includes and excludes card. Operator billing states that an ArchLucid subscription does not include SecureNow and keeps quote as the SecureNow path. The signed-in quote packet repeats public meter-cap copy beside each SKU. Fixture and demo sessions say the workspace is not an SN-EVAL or SN-ANNUAL entitlement.
+
+**Surfaces.** SecureNow first hour, pilot decision, quote packet, operator billing plans.
+
 
 ## 2026-11-24 - Score lift round 135 (batch 100): Accelerator catalog and template wiring
 

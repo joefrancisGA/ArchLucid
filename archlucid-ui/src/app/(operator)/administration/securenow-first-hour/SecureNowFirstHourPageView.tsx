@@ -4,6 +4,8 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
+import { SecureNowBetaSkuContentsSection } from "@/components/product-line/SecureNowBetaSkuContentsSection";
+import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
 import { SecureNowPilotSpineAcceleratorIndex } from "@/components/product-line/SecureNowPilotSpineAcceleratorIndex";
 import { SecureNowFirstHourCollectionSetupSection } from "@/components/product-line/SecureNowFirstHourCollectionSetupSection";
 import { SECURENOW_PILOT_SPINE_PATH } from "@/lib/product-line/securenow-pilot-spine-copy";
@@ -92,6 +94,9 @@ export function SecureNowFirstHourPageView(): React.JSX.Element {
             ))}
           </ul>
         </section>
+
+        <SecureNowBetaSkuContentsSection />
+        <SecureNowFixtureWorkspaceNotEntitlementLine />
 
         <SecureNowPilotSpineAcceleratorIndex />
 
