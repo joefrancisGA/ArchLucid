@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 thorough hunt #500 (hit): `ui-architecture-diagram` legacy id-only node overrides. Scoped vitest override-edge **3/3**, click-focus **5/5**, connector-visibility **1/1**. Private beta: stale device-local diagram hides no longer remove the wrong duplicate after entity reorder.
+> **Scope:** Contributor-reference — hunt 2026-11-24 thorough hunt #501 (dry): `ui-claim-discipline-policy` pass-44 monitors. Scoped vitest **44/44**. Private beta: n/a.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -17068,13 +17068,23 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-claim-discipline-policy
 
+2026-11-24 thorough hunt #501 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-44 `(candidate)` monitors — **valid-no-repro** Terraform TOC/orientation parity (visible `help-governance-infrastructure-terraform` band intentionally keeps claim TOC row; `HelpGovernanceInfrastructureTerraformGuideView` regression asserts heading ids and orientation strip); **invalid** mismatched `claimHeadingId` on omitted infra slug (all `help-governance-infrastructure-*` guides use visible bands with matching `GOVERNANCE_INFRASTRUCTURE_*_CLAIM_HEADING_ID` constants); **valid-no-repro** infra omit-set sibling drift-only (`passes governance infrastructure drift help claim through for visible-band orientation slug`; terraform/resources/diagrams share visible-band pattern); **valid-no-repro** admin `part="sources"` / omitted slugs (`administration settings evidence strips` regressions; `resolveClaimDisciplineForStrip` suppresses duplicate claim while sources render); **invalid** whitespace-padded slug (registry `stripSlug` values are static literals with no padded config/OpenAPI source). Reseeded five pass-45 `(candidate)` monitors below. Scoped vitest **44/44** (`claim-discipline-policy.test.ts`, `administration-settings-claim-discipline-strips.test.tsx`, `HelpGovernanceInfrastructureTerraformGuideView.test.tsx`). Private beta: n/a.
+
+- [x] (valid-no-repro) `HelpGovernanceInfrastructureTerraformGuideView` — TOC keeps claim heading id while header paragraph repeats orientation claim — **cheap-disproof 2026-11-24 thorough hunt #501:** visible-band infra help design; guide regression + orientation strip claim heading id matches TOC.
+- [x] (invalid) `resolveGuideHeadingsForStrip` — mismatched `claimHeadingId` constant leaves orphan TOC anchor on omitted infra help slug — **cheap-disproof 2026-11-24 thorough hunt #501:** no omitted `help-governance-infrastructure-*` slug; filter only applies when band omitted.
+- [x] (valid-no-repro) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` — newly shipped `help-governance-infrastructure-*` sibling omits drift only while others stay visible — **cheap-disproof 2026-11-24 thorough hunt #501:** drift visible by design; policy regression above.
+- [x] (valid-no-repro) `EvidenceOrientationSourcesAndClaimStrip` — `part="sources"` on visible slug suppresses claim while header fold omits bottom band — **cheap-disproof 2026-11-24 thorough hunt #501:** admin settings sources-only strips + `resolveClaimDisciplineForStrip` on omitted slugs (hunt **#43** family).
+- [x] (invalid) `shouldOmitClaimDisciplineBand` — whitespace-padded stripSlug misses omit set exact key — **cheap-disproof 2026-11-24 thorough hunt #501:** no reachable padded slug input; literals only.
+
+- [ ] (candidate) `EvidenceOrientationClaimAndSourcesStrip` — `!whereToGoNextVisible && resolvedClaim === undefined` returns null and drops sources on visible workbench slugs — locus: early return; input: working workspace + sources-only infra strip (monitor).
+- [ ] (candidate) `resolveGuideHeadingsForStrip` — help guide uses `help-governance-infrastructure-*` slug while workbench orientation uses registry slug without `help-` prefix — locus: dual slug surfaces; input: terraform/resources workbench pair (monitor).
+- [ ] (candidate) `EvidenceOrientationClaimCallout` — omitted `claimHeadingId` defaults to `{slug}-claim-discipline-heading` diverging from help guide TOC constants — locus: default anchor; input: marketing `part="claim"` strips (monitor).
+- [ ] (candidate) `expectsVisibleClaimDisciplineBand` — new artifact export slug ships without omit entry while print orientation must stay visible — locus: omit set growth; input: package-print exception pattern (monitor).
+- [ ] (candidate) `resolveGuideHeadingsForStrip` — guide passes strip slug A while footer orientation strip passes alias B on same page — locus: alias map; input: cloud-connections help family (monitor).
+
 2026-11-24 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone **`ui-infra-resource-hub`** at run-log tail after hunt **#494** hit). Reread `claim-discipline-policy.ts`, infrastructure help guide `resolveGuideHeadingsForStrip` call sites, orientation strip registry, and focused tests; cheap-disproof closed three pass-43 `(candidate)` monitors — **valid-no-repro** specialty walkthrough header/TOC parity (`drops specialty walkthrough claim TOC row when help-specialty-walkthroughs omits the orientation band`; `does not list a claim-discipline TOC entry on the specialty walkthrough catalog headings`), **valid-no-repro** empty visible-band claim shell (`still renders an empty claim callout shell when claim prop is an empty string on a visible slug`), **valid-no-repro** legacy alias drift (`omits legacy orientation strip slug aliases that differ from registry help-topic slugs`). No row met hunt-ready; reseeded five pass-44 `(candidate)` monitors below. Scoped **51/51** (`claim-discipline-policy.test.ts`, `EvidenceOrientationClaimAndSourcesStrip.test.tsx`, `administration-settings-claim-discipline-strips.test.tsx`). Private beta: n/a.
 
-- [ ] (candidate) `HelpGovernanceInfrastructureTerraformGuideView` — TOC keeps claim heading id while header paragraph repeats orientation claim — locus: visible `help-governance-infrastructure-terraform` slug; input: guide headings vs orientation strip (monitor).
-- [ ] (candidate) `resolveGuideHeadingsForStrip` — mismatched `claimHeadingId` constant leaves orphan TOC anchor on omitted infra help slug — locus: exact id filter; input: governance infrastructure help family (monitor).
-- [ ] (candidate) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` — newly shipped `help-governance-infrastructure-*` sibling omits drift only while others stay visible — locus: omit set parity; input: infra help registry expansion (monitor).
-- [ ] (candidate) `EvidenceOrientationSourcesAndClaimStrip` — `part="sources"` on visible slug suppresses claim while header fold omits bottom band — locus: split strip parts; input: admin settings sources-only strips (monitor).
-- [ ] (candidate) `shouldOmitClaimDisciplineBand` — whitespace-padded stripSlug misses omit set exact key — locus: Set lookup; input: trimmed vs untrimmed slug (monitor).
+- [x] (superseded) pass-44 (candidate) queue — **superseded 2026-11-24 thorough hunt #501:** closed at zone header; see pass-45 reseed.
 
 - [x] (valid-no-repro) `resolveGuideHeadingsForStrip` — buyer-polished specialty walkthrough header claim lacks anchor id matching filtered TOC — locus: header vs TOC parity; input: HS shell only (monitor). — **cheap-disproof 2026-11-24 seed hunt:** specialty walkthrough TOC + heading filter regressions (hunt **#43** family).
 - [x] (valid-no-repro) `EvidenceOrientationSourcesAndClaimStrip` — `part="both"` with empty claim still renders empty callout — locus: split vs combined parts; input: registry strips using `claim=""` (monitor). — **cheap-disproof 2026-11-24 seed hunt:** intentional empty callout shell regression (hunt **#43** family).
@@ -17103,9 +17113,9 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 4
+- **hunts:** 5
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
 - **related-pd-tb:** none
