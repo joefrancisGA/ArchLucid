@@ -233,6 +233,19 @@ public sealed class CorePackageCoverageBatchRc29eTests
             && m.Tags.Any(t => t.Key == "corpus_kind" && (string?)t.Value == "TenantManifest"));
     }
 
+    [Theory]
+    [InlineData("unrecognized-event")]
+    [InlineData("")]
+    [InlineData(" signup ")]
+    public void Record_first_tenant_funnel_event_rejects_outside_catalog(string eventName)
+    {
+        Action record = () => ArchLucidInstrumentation.RecordFirstTenantFunnelEvent(
+            eventName, recordPerTenant: false, tenantIdNormalized: null);
+
+        record.Should().Throw<ArgumentOutOfRangeException>()
+            .WithParameterName("eventName");
+    }
+
     [Fact]
     public void Record_first_tenant_funnel_event_and_startup_config_warning_emit()
     {
