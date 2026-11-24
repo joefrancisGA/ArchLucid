@@ -1,6 +1,7 @@
 using ArchLucid.AgentRuntime.Caching;
 using ArchLucid.AgentRuntime.Tokens;
 using ArchLucid.AgentRuntime.Safety;
+using ArchLucid.AgentRuntime.Quality;
 using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Application.Budgeting;
@@ -152,6 +153,13 @@ internal static class AgentCompletionAzureScopedChainRegistrar
                 absoluteExpiration: ttl,
                 scopeProvider: scopeProvider,
                 logger: cacheLogger);
+        }
+
+        if (sp.GetService<IProviderQualityMonitor>() is { } providerQualityMonitor)
+        {
+            completionPipeline = new ProviderQualityQuarantiningAgentCompletionClient(
+                completionPipeline,
+                providerQualityMonitor);
         }
 
         return completionPipeline;
