@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `reviewPipelineDevTelemetryOpen=1` deep links via `parseReviewPipelineDevTelemetryOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries reviewPipelineDevTelemetryOpen=1`. URL-sync vitest **91/91**. Private beta: shared review links that only open pipeline dev telemetry in the query are no longer overwritten with visit-default tab or finding query keys on first load.
+> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `runDetailOutcomeCardsOpen=1` deep links via `parseRunDetailOutcomeCardsOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries runDetailOutcomeCardsOpen=1`. URL-sync vitest **92/92**. Private beta: shared review links that only open run detail outcome cards in the query are no longer overwritten with visit-default tab or finding query keys on first load.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -11706,6 +11706,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `runDetailOutcomeCardsOpen` monitor: a bare outcome-cards disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `runDetailOutcomeCardsOpen` via `parseRunDetailOutcomeCardsOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries runDetailOutcomeCardsOpen=1`. URL-sync vitest **92/92**. Private beta: when an invited operator opens a shared review link that only opens run detail outcome cards in the query, visit-default tab navigation no longer replaces that query on first load.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `reviewPipelineDevTelemetryOpen` monitor: a bare pipeline dev-telemetry disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `reviewPipelineDevTelemetryOpen` via `parseReviewPipelineDevTelemetryOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries reviewPipelineDevTelemetryOpen=1`. URL-sync vitest **91/91**. Private beta: when an invited operator opens a shared review link that only opens pipeline dev telemetry in the query, visit-default tab navigation no longer replaces that query on first load.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `runInspectorOpenArtifactOpen` monitor: a bare run-inspector open-artifact disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `runInspectorOpenArtifactOpen` via `parseRunInspectorOpenArtifactOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries runInspectorOpenArtifactOpen=1`. URL-sync vitest **90/90**. Private beta: when an invited operator opens a shared review link that only opens run inspector open artifact in the query, visit-default tab navigation no longer replaces that query on first load.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `runInspectorRelatedActionsOpen` monitor: a bare run-inspector related-actions disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `runInspectorRelatedActionsOpen` via `parseRunInspectorRelatedActionsOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries runInspectorRelatedActionsOpen=1`. URL-sync vitest **89/89**. Private beta: when an invited operator opens a shared review link that only opens run inspector related actions in the query, visit-default tab navigation no longer replaces that query on first load.
@@ -11840,6 +11841,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 
+
+- [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `runDetailOutcomeCardsOpen` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored outcome-cards disclosure deep links; regression above. Private beta: shared links that only set `runDetailOutcomeCardsOpen=1` are no longer replaced with visit-default query keys on first load.
 
 - [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `reviewPipelineDevTelemetryOpen` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored pipeline dev-telemetry disclosure deep links; regression above. Private beta: shared links that only set `reviewPipelineDevTelemetryOpen=1` are no longer replaced with visit-default query keys on first load.
 
@@ -12618,8 +12621,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 93
-- **bugs-found:** 92
+- **hunts:** 94
+- **bugs-found:** 93
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24

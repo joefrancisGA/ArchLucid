@@ -211,6 +211,10 @@ import {
   REVIEW_PIPELINE_DEV_TELEMETRY_OPEN_PARAM,
 } from "@/lib/runs/review-pipeline-dev-telemetry-disclosure-url";
 import {
+  parseRunDetailOutcomeCardsOpenFromSearch,
+  RUN_DETAIL_OUTCOME_CARDS_OPEN_PARAM,
+} from "@/lib/runs/run-detail-outcome-cards-disclosure-url";
+import {
   parseTrustEvidenceFieldsOpenFromSearch,
   parseTrustEvidenceTechOpenFromSearch,
   TRUST_EVIDENCE_FIELDS_OPEN_PARAM,
@@ -535,6 +539,9 @@ export function useReviewDetailWorkspaceTabs(
     const reviewPipelineDevTelemetryOpenPresent = parseReviewPipelineDevTelemetryOpenFromSearch(
       params.get(REVIEW_PIPELINE_DEV_TELEMETRY_OPEN_PARAM),
     );
+    const runDetailOutcomeCardsOpenPresent = parseRunDetailOutcomeCardsOpenFromSearch(
+      params.get(RUN_DETAIL_OUTCOME_CARDS_OPEN_PARAM),
+    );
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -652,6 +659,7 @@ export function useReviewDetailWorkspaceTabs(
       || runInspectorRelatedActionsOpenPresent
       || runInspectorOpenArtifactOpenPresent
       || reviewPipelineDevTelemetryOpenPresent
+      || runDetailOutcomeCardsOpenPresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent
