@@ -1219,8 +1219,7 @@ public static class InventoryDiagramOrphanedStateClassifier
                  })
         {
             if (properties.TryGetValue(key, out string? currencyValue)
-                && Enum.TryParse(currencyValue, ignoreCase: true, out InventoryDiagramEvidenceCurrency parsed)
-                && Enum.IsDefined(parsed))
+                && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(currencyValue, ignoreCase: true, out InventoryDiagramEvidenceCurrency parsed))
             {
                 return parsed;
             }
