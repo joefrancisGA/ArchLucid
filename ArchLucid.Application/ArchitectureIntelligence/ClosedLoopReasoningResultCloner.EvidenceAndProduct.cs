@@ -27,6 +27,7 @@ internal static partial class ClosedLoopReasoningResultCloner
             StageResults = result.StageResults.Select(CloneValidationStageOutcome).ToList(),
             OverallPassedIntegrity = result.OverallPassedIntegrity,
             SemanticAssessment = result.SemanticAssessment,
+            SemanticMethod = result.SemanticMethod,
             CompletenessNotes = result.CompletenessNotes,
             Escalated = result.Escalated,
             SupportTier = result.SupportTier,

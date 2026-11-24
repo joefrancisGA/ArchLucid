@@ -27,8 +27,9 @@ public sealed class TrustPublishGate : ITrustPublishGate
         HashSet<string> blockedFindingIds = ExtractBlockedFindingIds(blockingViolations);
         HashSet<string> blockedRecommendationIds = ExtractBlockedRecommendationIds(blockingViolations);
 
+        HashSet<string> supportedIds = EvidenceSupportTierResolver.SupportedFindingIds(validationResults);
         List<SpecialistReviewFinding> publishableFindings = findings
-            .Where(finding => integrityPassedIds.Contains(finding.FindingId))
+            .Where(finding => supportedIds.Contains(finding.FindingId))
             .Where(finding => !blockedFindingIds.Contains(finding.FindingId))
             .ToList();
 

@@ -110,6 +110,57 @@ public sealed class EvidenceValidationPipelineTests
             .Detail.Should().Contain("via LLM");
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Unverified_supplemental_quote_fails_before_semantic_review(bool asyncPath)
+    {
+        ImmutableSourceArtifact source = StoreArtifact("The inventory contains the approved endpoint.");
+        var gateway = new FixedSemanticGateway(SemanticSupportAssessment.Supports);
+        var pipeline = new EvidenceValidationPipeline(gateway);
+        string[] ids = [source.ArtifactId];
+        string[] quotes = ["approved endpoint", "All endpoints were verified as private."];
+        const string claim = "All endpoints were verified as private.";
+
+        var result = asyncPath
+            ? await pipeline.ValidateAsync("f", ids, quotes, _store, claim)
+            : pipeline.Validate("f", ids, quotes, _store, claim);
+
+        result.OverallPassedIntegrity.Should().BeFalse();
+        result.SemanticAssessment.Should().Be(SemanticSupportAssessment.DoesNotEstablish);
+        result.Escalated.Should().BeTrue();
+        result.SemanticMethod.Should().Be(SemanticAssessmentMethod.NotPerformed);
+        gateway.SemanticCalls.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task Authentic_additional_passage_allows_one_semantic_review()
+    {
+        ImmutableSourceArtifact source = StoreArtifact("Inventory includes the endpoint. A private link is recorded.");
+        var gateway = new FixedSemanticGateway(SemanticSupportAssessment.PartiallySupports);
+        var pipeline = new EvidenceValidationPipeline(gateway);
+        var result = await pipeline.ValidateAsync("f", [source.ArtifactId],
+            ["includes the endpoint", "A private link is recorded"], _store, "Private endpoint");
+
+        result.OverallPassedIntegrity.Should().BeTrue();
+        result.SemanticAssessment.Should().Be(SemanticSupportAssessment.PartiallySupports);
+        result.SemanticMethod.Should().Be(SemanticAssessmentMethod.Model);
+        gateway.SemanticCalls.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Intact_artifact_without_a_passage_spends_no_semantic_review_call()
+    {
+        ImmutableSourceArtifact source = StoreArtifact("Inventory includes the endpoint.");
+        var gateway = new FixedSemanticGateway(SemanticSupportAssessment.Supports);
+        var result = await new EvidenceValidationPipeline(gateway).ValidateAsync(
+            "f", [source.ArtifactId], [], _store, "All endpoints are private");
+
+        result.OverallPassedIntegrity.Should().BeTrue();
+        result.SemanticAssessment.Should().Be(SemanticSupportAssessment.DoesNotEstablish);
+        gateway.SemanticCalls.Should().Be(0);
+    }
+
     private sealed class FixedSemanticGateway : IArchitectureIntelligenceLlmGateway
     {
         private readonly SemanticSupportAssessment _assessment;
@@ -118,6 +169,8 @@ public sealed class EvidenceValidationPipelineTests
         {
             _assessment = assessment;
         }
+
+        public int SemanticCalls { get; private set; }
 
         public bool IsClientAvailable => true;
 
@@ -148,8 +201,11 @@ public sealed class EvidenceValidationPipelineTests
         public Task<SemanticSupportAssessment?> AssessSemanticSupportAsync(
             string claimedConclusion,
             IReadOnlyList<string> citedQuotes,
-            CancellationToken cancellationToken = default) =>
-            Task.FromResult<SemanticSupportAssessment?>(_assessment);
+            CancellationToken cancellationToken = default)
+        {
+            SemanticCalls++;
+            return Task.FromResult<SemanticSupportAssessment?>(_assessment);
+        }
     }
 
     private ImmutableSourceArtifact StoreArtifact(string content)

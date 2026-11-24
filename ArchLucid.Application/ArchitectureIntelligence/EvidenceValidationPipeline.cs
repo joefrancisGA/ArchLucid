@@ -23,13 +23,8 @@ public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
         IImmutableSourceStore sourceStore,
         string claimedConclusion)
     {
-        return BuildResult(
-            findingId,
-            citedArtifactIds,
-            citedQuotes,
-            sourceStore,
-            claimedConclusion,
-            llmSemanticAssessment: null);
+        bool integrityPassed = CheckCitations(findingId, citedArtifactIds, citedQuotes, sourceStore, claimedConclusion, default);
+        return BuildResult(findingId, citedArtifactIds, citedQuotes, claimedConclusion, integrityPassed, null);
     }
 
     public async Task<EvidenceValidationResult> ValidateAsync(
@@ -40,32 +35,31 @@ public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
         string claimedConclusion,
         CancellationToken cancellationToken = default)
     {
-        SemanticSupportAssessment? llmAssessment = null;
+        cancellationToken.ThrowIfCancellationRequested();
+        // Keep the model input bound to the same citation lists that passed verification.
+        ArgumentNullException.ThrowIfNull(citedArtifactIds);
+        ArgumentNullException.ThrowIfNull(citedQuotes);
+        string[] artifactIds = citedArtifactIds.ToArray();
+        string[] quotes = citedQuotes.ToArray();
+        bool integrityPassed = CheckCitations(findingId, artifactIds, quotes, sourceStore, claimedConclusion, cancellationToken);
+        SemanticSupportAssessment? assessment = null;
 
-        if (_llmGateway is not null)
+        if (integrityPassed && _llmGateway is not null && quotes.Any(quote => !string.IsNullOrWhiteSpace(quote)))
         {
-            llmAssessment = await _llmGateway.AssessSemanticSupportAsync(
-                claimedConclusion,
-                citedQuotes,
-                cancellationToken);
+            assessment = await _llmGateway.AssessSemanticSupportAsync(claimedConclusion, quotes, cancellationToken)
+                .ConfigureAwait(false);
         }
 
-        return BuildResult(
-            findingId,
-            citedArtifactIds,
-            citedQuotes,
-            sourceStore,
-            claimedConclusion,
-            llmAssessment);
+        return BuildResult(findingId, artifactIds, quotes, claimedConclusion, integrityPassed, assessment);
     }
 
-    private static EvidenceValidationResult BuildResult(
+    private static bool CheckCitations(
         string findingId,
         IReadOnlyList<string> citedArtifactIds,
         IReadOnlyList<string> citedQuotes,
         IImmutableSourceStore sourceStore,
         string claimedConclusion,
-        SemanticSupportAssessment? llmSemanticAssessment)
+        CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(findingId))
         {
@@ -81,7 +75,17 @@ public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
             throw new ArgumentException("ClaimedConclusion is required.", nameof(claimedConclusion));
         }
 
-        bool integrityPassed = ValidateIntegrity(citedArtifactIds, citedQuotes, sourceStore);
+        return ValidateIntegrity(citedArtifactIds, citedQuotes, sourceStore, cancellationToken);
+    }
+
+    private static EvidenceValidationResult BuildResult(
+        string findingId,
+        IReadOnlyList<string> citedArtifactIds,
+        IReadOnlyList<string> citedQuotes,
+        string claimedConclusion,
+        bool integrityPassed,
+        SemanticSupportAssessment? llmSemanticAssessment)
+    {
         EvidenceValidationStageOutcome integrityStage = new()
         {
             Stage = EvidenceValidationStage.DeterministicIntegrity,
@@ -92,7 +96,7 @@ public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
             IsDeterministic = true,
         };
 
-        bool claimAlignmentPassed = EvaluateClaimAlignment(citedQuotes, claimedConclusion);
+        bool claimAlignmentPassed = integrityPassed && EvaluateClaimAlignment(citedQuotes, claimedConclusion);
         EvidenceValidationStageOutcome claimAlignmentStage = new()
         {
             Stage = EvidenceValidationStage.ClaimAlignment,
@@ -106,7 +110,10 @@ public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
         SemanticSupportAssessment semanticAssessment = llmSemanticAssessment
             ?? AssessSemanticSupportHeuristic(integrityPassed, claimAlignmentPassed, citedQuotes, claimedConclusion);
 
-        string semanticDetail = llmSemanticAssessment.HasValue
+        bool hasVerifiedQuotes = integrityPassed && citedQuotes.Any(quote => !string.IsNullOrWhiteSpace(quote));
+        string semanticDetail = !hasVerifiedQuotes
+            ? "Semantic review skipped because no verified passage was available."
+            : llmSemanticAssessment.HasValue
             ? $"Semantic support assessed as {semanticAssessment} via LLM (model reasoning; not deterministic)."
             : $"Semantic support assessed as {semanticAssessment} via heuristic fallback (model reasoning; not deterministic).";
 
@@ -176,6 +183,8 @@ public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
             ],
             OverallPassedIntegrity = integrityPassed,
             SemanticAssessment = semanticAssessment,
+            SemanticMethod = !hasVerifiedQuotes ? SemanticAssessmentMethod.NotPerformed
+                : llmSemanticAssessment.HasValue ? SemanticAssessmentMethod.Model : SemanticAssessmentMethod.Heuristic,
             CompletenessNotes = completenessNotes,
             Escalated = escalated,
         };
@@ -188,7 +197,8 @@ public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
     private static bool ValidateIntegrity(
         IReadOnlyList<string> citedArtifactIds,
         IReadOnlyList<string> citedQuotes,
-        IImmutableSourceStore sourceStore)
+        IImmutableSourceStore sourceStore,
+        CancellationToken cancellationToken)
     {
         if (citedArtifactIds.Count == 0)
         {
@@ -197,6 +207,7 @@ public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
 
         for (int index = 0; index < citedArtifactIds.Count; index++)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             string artifactId = citedArtifactIds[index];
             string? expectedQuote = index < citedQuotes.Count ? citedQuotes[index] : null;
 
@@ -204,6 +215,16 @@ public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
             {
                 return false;
             }
+        }
+
+        // A source reread may append passages beyond the positional artifact/quote pairs.
+        // Every additional nonempty passage must also occur in a cited, verified source.
+        for (int index = citedArtifactIds.Count; index < citedQuotes.Count; index++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            string quote = citedQuotes[index];
+            if (!string.IsNullOrWhiteSpace(quote) && !citedArtifactIds.Any(id => sourceStore.VerifyIntegrity(id, quote)))
+                return false;
         }
 
         return true;

@@ -23,6 +23,7 @@ public sealed class TrustPublishGateTests
                 {
                     FindingId = "ok",
                     OverallPassedIntegrity = true,
+                    SemanticAssessment = SemanticSupportAssessment.Supports,
                 },
                 new EvidenceValidationResult
                 {
@@ -82,6 +83,7 @@ public sealed class TrustPublishGateTests
                 {
                     FindingId = "ok",
                     OverallPassedIntegrity = true,
+                    SemanticAssessment = SemanticSupportAssessment.Supports,
                 },
             ],
             [
@@ -110,6 +112,7 @@ public sealed class TrustPublishGateTests
                 {
                     FindingId = "ok",
                     OverallPassedIntegrity = true,
+                    SemanticAssessment = SemanticSupportAssessment.Supports,
                 },
             ],
             [
@@ -170,6 +173,7 @@ public sealed class TrustPublishGateTests
                 {
                     FindingId = "blocked-finding",
                     OverallPassedIntegrity = true,
+                    SemanticAssessment = SemanticSupportAssessment.Supports,
                 },
             ],
             [
@@ -182,6 +186,25 @@ public sealed class TrustPublishGateTests
                 },
             ]);
 
+        decision.PublishableFindings.Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData(SemanticSupportAssessment.DoesNotEstablish)]
+    [InlineData(SemanticSupportAssessment.Contradicts)]
+    [InlineData(SemanticSupportAssessment.PartiallySupports)]
+    public void Intact_citations_without_full_claim_support_cannot_authorize_publication(SemanticSupportAssessment? assessment)
+    {
+        var finding = CreateFinding("f", "All endpoints use private links");
+        finding.Confidence = 1;
+        var validation = new EvidenceValidationResult
+        {
+            FindingId = "f", OverallPassedIntegrity = true, SemanticAssessment = assessment,
+        };
+        var decision = _gate.Decide([finding], [], [validation], []);
+
+        decision.IntegrityPassedFindingIds.Should().Contain("f");
         decision.PublishableFindings.Should().BeEmpty();
     }
 

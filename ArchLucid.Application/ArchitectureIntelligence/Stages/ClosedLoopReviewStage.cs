@@ -78,14 +78,11 @@ public sealed class ClosedLoopReviewStage(
             EvidenceSupportTierResolver.ApplyToFinding(finding, validation);
         }
 
-        HashSet<string> integrityPassedIds = context.ValidationResults
-            .Where(result => result.OverallPassedIntegrity)
-            .Select(result => result.FindingId)
-            .ToHashSet(StringComparer.Ordinal);
+        HashSet<string> supportedIds = EvidenceSupportTierResolver.SupportedFindingIds(context.ValidationResults);
 
         context.Adversarial = await _adversarialReviewService.ReviewAsync(
             context.AllFindings,
-            integrityPassedIds,
+            supportedIds,
             cancellationToken);
 
         int challengeQuestionIndex = interview.EvidenceDrivenQuestions.Count;

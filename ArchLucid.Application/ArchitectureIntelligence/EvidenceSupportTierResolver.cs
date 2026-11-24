@@ -5,34 +5,23 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 /// <summary>Maps validation pipeline output to honest sponsor-facing evidence tiers (TB-2340 item 46).</summary>
 internal static class EvidenceSupportTierResolver
 {
+    // Eligibility for further review. Semantic support alone is not independent factual verification.
+    internal static HashSet<string> SupportedFindingIds(IReadOnlyList<EvidenceValidationResult> results) =>
+        results.GroupBy(result => result.FindingId, StringComparer.Ordinal)
+            .Where(group => group.All(result => result.OverallPassedIntegrity &&
+                result.SemanticAssessment == SemanticSupportAssessment.Supports))
+            .Select(group => group.Key)
+            .ToHashSet(StringComparer.Ordinal);
+
     internal static EvidenceSupportTier Resolve(EvidenceValidationResult validation)
     {
         ArgumentNullException.ThrowIfNull(validation);
 
-        if (validation.OverallPassedIntegrity)
-        {
-            if (validation.SemanticAssessment is SemanticSupportAssessment.Supports
-                or SemanticSupportAssessment.PartiallySupports)
-            {
-                return EvidenceSupportTier.IntegrityVerified;
-            }
+        if (validation.OverallPassedIntegrity && validation.SemanticAssessment == SemanticSupportAssessment.Supports)
+            return EvidenceSupportTier.IntegrityVerified;
 
+        if (validation.SemanticAssessment is SemanticSupportAssessment.Supports or SemanticSupportAssessment.PartiallySupports)
             return EvidenceSupportTier.SemanticInferenceFromPartialEvidence;
-        }
-
-        if (validation.SemanticAssessment is SemanticSupportAssessment.Supports
-            or SemanticSupportAssessment.PartiallySupports)
-        {
-            return EvidenceSupportTier.SemanticInferenceFromPartialEvidence;
-        }
-
-        bool semanticStagePassed = validation.StageResults
-            .Any(stage => stage.Stage == EvidenceValidationStage.SemanticSupport && stage.Passed);
-
-        if (semanticStagePassed || validation.SemanticAssessment.HasValue)
-        {
-            return EvidenceSupportTier.SemanticInferenceFromPartialEvidence;
-        }
 
         return EvidenceSupportTier.Unverified;
     }

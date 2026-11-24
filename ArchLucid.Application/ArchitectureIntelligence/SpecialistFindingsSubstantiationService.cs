@@ -71,13 +71,10 @@ public sealed class SpecialistFindingsSubstantiationService(
             EvidenceSupportTierResolver.ApplyToFinding(finding, validation);
         }
 
-        HashSet<string> integrityPassedIds = validationResults
-            .Where(result => result.OverallPassedIntegrity)
-            .Select(result => result.FindingId)
-            .ToHashSet(StringComparer.Ordinal);
+        HashSet<string> supportedIds = EvidenceSupportTierResolver.SupportedFindingIds(validationResults);
 
         AdversarialReviewResult adversarial = await _adversarialReviewService
-            .ReviewAsync(specialistFindings, integrityPassedIds, cancellationToken)
+            .ReviewAsync(specialistFindings, supportedIds, cancellationToken)
             .ConfigureAwait(false);
 
         return new SpecialistFindingsSubstantiationResult

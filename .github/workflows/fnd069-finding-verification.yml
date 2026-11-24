@@ -1,0 +1,27 @@
+name: Finding verification regressions
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.Application/ArchitectureIntelligence/**'
+      - 'ArchLucid.Contracts/ArchitectureIntelligence/**'
+      - 'ArchLucid.Application.Tests/ArchitectureIntelligence/**'
+      - '.github/workflows/fnd069-finding-verification.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - run: >-
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~ArchLucid.Application.Tests.ArchitectureIntelligence.'
+          --logger 'console;verbosity=normal'
