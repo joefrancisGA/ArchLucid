@@ -523,6 +523,166 @@ public sealed class ArtifactExportSealedManifestRuntimeConflictTests
         sharing.VerifyNoOtherCalls();
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Authorized_current_or_historical_manifest_reaches_artifact_lookup_only_after_both_seals(
+        bool historical)
+    {
+        Guid manifestId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Guid artifactId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        Guid pinnedId = historical ? Guid.NewGuid() : manifestId;
+        ManifestDocument pinned = new()
+        {
+            ManifestId = pinnedId,
+            RunId = RunId,
+            TenantId = Scope.TenantId,
+            WorkspaceId = Scope.WorkspaceId,
+            ProjectId = Scope.ProjectId,
+            ManifestHash = "sealed-valid",
+        };
+        ManifestDocument requested = historical
+            ? new ManifestDocument
+            {
+                ManifestId = manifestId,
+                RunId = RunId,
+                TenantId = Scope.TenantId,
+                WorkspaceId = Scope.WorkspaceId,
+                ProjectId = Scope.ProjectId,
+                ManifestHash = "sealed-valid",
+            }
+            : pinned;
+        RunDetailDto runDetail = new()
+        {
+            Run = new RunRecord
+            {
+                RunId = RunId,
+                GoldenManifestId = pinnedId,
+                LegacyRunStatus = nameof(ArchLucid.Contracts.Common.ArchitectureRunStatus.Committed),
+            },
+            GoldenManifest = pinned
+        };
+
+        Mock<IAuthorityQueryService> query = new(MockBehavior.Strict);
+        query.Setup(q => q.GetRunIdByManifestIdAsync(
+                Scope, manifestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid?)RunId);
+        query.Setup(q => q.GetManifestSummaryAsync(
+                Scope, manifestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ManifestSummaryDto
+            {
+                ManifestId = manifestId,
+                RunId = RunId,
+                ManifestHash = "sealed-valid",
+            });
+        query.Setup(q => q.GetRunDetailForManifestCompareAsync(
+                Scope, RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(runDetail);
+        if (historical)
+        {
+            query.Setup(q => q.GetManifestForSummaryVerificationAsync(
+                    Scope, manifestId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(requested);
+        }
+
+        Mock<IArchitectureShareAccessGate> sharing = new(MockBehavior.Strict);
+        sharing.Setup(g => g.EnsureRunReadAllowedAsync(
+                It.IsAny<ControllerBase>(), It.IsAny<ClaimsPrincipal>(),
+                Scope, RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IActionResult?)null);
+        Mock<IManifestHashService> hash = new(MockBehavior.Strict);
+        hash.Setup(h => h.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns("sealed-valid");
+
+        Mock<IArtifactQueryService> artifacts = new(MockBehavior.Strict);
+        artifacts.Setup(x => x.GetArtifactByIdAsync(
+                Scope, manifestId, artifactId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((SynthesizedArtifact?)null);
+
+        ArtifactExportController sut = BuildController(
+            authority: query.Object, manifestHashService: hash.Object,
+            artifactQueryService: artifacts.Object,
+            architectureShareAccessGate: sharing.Object);
+
+        IActionResult result = await sut.GetArtifactDescriptor(
+            manifestId, artifactId, CancellationToken.None);
+
+        // The artifact is deliberately absent, but the protected lookup was
+        // reached only after authorization and exact manifest verification.
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode
+            .Should().Be(StatusCodes.Status404NotFound);
+        artifacts.Verify(x => x.GetArtifactByIdAsync(
+            Scope, manifestId, artifactId, It.IsAny<CancellationToken>()), Times.Once);
+        hash.Verify(h => h.ComputeHash(It.IsAny<ManifestDocument>()),
+            historical ? Times.Exactly(2) : Times.Once());
+        query.Verify(q => q.GetManifestForSummaryVerificationAsync(
+            It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            historical ? Times.Once() : Times.Never());
+    }
+
+    [Fact]
+    public async Task Historical_manifest_mismatched_run_binding_returns_conflict_before_artifact_lookup()
+    {
+        Guid manifestId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Guid artifactId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        Guid pinnedId = Guid.NewGuid();
+        Mock<IAuthorityQueryService> query = new(MockBehavior.Strict);
+        query.Setup(q => q.GetRunIdByManifestIdAsync(
+                Scope, manifestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid?)RunId);
+        query.Setup(q => q.GetManifestSummaryAsync(
+                Scope, manifestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ManifestSummaryDto
+            {
+                ManifestId = manifestId,
+                RunId = RunId,
+                ManifestHash = "sealed-valid",
+            });
+        query.Setup(q => q.GetRunDetailForManifestCompareAsync(
+                Scope, RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = RunId, GoldenManifestId = pinnedId },
+                GoldenManifest = new ManifestDocument
+                {
+                    ManifestId = pinnedId,
+                    RunId = RunId,
+                    ManifestHash = "sealed-valid"
+                }
+            });
+        query.Setup(q => q.GetManifestForSummaryVerificationAsync(
+                Scope, manifestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ManifestDocument
+            {
+                ManifestId = manifestId,
+                RunId = Guid.NewGuid(),
+                TenantId = Scope.TenantId,
+                WorkspaceId = Scope.WorkspaceId,
+                ProjectId = Scope.ProjectId,
+                ManifestHash = "sealed-valid",
+            });
+
+        Mock<IArchitectureShareAccessGate> sharing = new(MockBehavior.Strict);
+        sharing.Setup(g => g.EnsureRunReadAllowedAsync(
+                It.IsAny<ControllerBase>(), It.IsAny<ClaimsPrincipal>(),
+                Scope, RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IActionResult?)null);
+        Mock<IArtifactQueryService> artifacts = new(MockBehavior.Strict);
+        Mock<IManifestHashService> hash = new(MockBehavior.Strict);
+
+        ArtifactExportController sut = BuildController(
+            authority: query.Object, artifactQueryService: artifacts.Object,
+            manifestHashService: hash.Object,
+            architectureShareAccessGate: sharing.Object);
+        IActionResult response = await sut.GetArtifactDescriptor(
+            manifestId, artifactId, CancellationToken.None);
+
+        response.Should().BeOfType<ObjectResult>().Which.StatusCode
+            .Should().Be(StatusCodes.Status409Conflict);
+        artifacts.VerifyNoOtherCalls();
+        hash.VerifyNoOtherCalls();
+    }
+
     private static ArtifactExportController BuildController(
         IAuthorityQueryService? authority = null,
         IRunExportPackageBuilder? runExportPackageBuilder = null,
