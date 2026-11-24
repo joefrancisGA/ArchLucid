@@ -3,6 +3,7 @@ using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports;
@@ -35,7 +36,8 @@ public sealed partial class ExportsController(
     IRunExportQueryFacade runExportQueryFacade,
     IAuthorityQueryService authorityQueryService,
     IScopeContextProvider scopeContextProvider,
-    IManifestHashService manifestHashService) : ControllerBase
+    IManifestHashService manifestHashService,
+    IArchitectureShareAccessGate architectureShareAccessGate) : ControllerBase
 {
     private readonly IRunExportQueryFacade _runExportQueryFacade =
         runExportQueryFacade ?? throw new ArgumentNullException(nameof(runExportQueryFacade));
@@ -48,6 +50,9 @@ public sealed partial class ExportsController(
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
+        architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
 
     [HttpGet("review/{runId}/exports")]
     [ProducesResponseType(typeof(RunExportHistoryResponse), StatusCodes.Status200OK)]

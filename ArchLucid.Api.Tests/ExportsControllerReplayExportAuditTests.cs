@@ -1,6 +1,7 @@
 using System.Security.Claims;
 
 using ArchLucid.Api.Controllers.Authority;
+using ArchLucid.Api.Support;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports;
 using ArchLucid.Contracts.Architecture;
@@ -81,7 +82,7 @@ public sealed class ExportsControllerReplayExportAuditTests
             scopeProvider.Object,
             Mock.Of<ArchLucid.Application.Exports.IRunExportCareerPostureGate>());
 
-        ExportsController sut = new(facade, authorityQuery, scopeProvider.Object, manifestHashService);
+        ExportsController sut = new(facade, authorityQuery, scopeProvider.Object, manifestHashService, AllowedShareAccessGate());
         sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult action = await sut.ReplayExportRecord(
@@ -155,11 +156,7 @@ public sealed class ExportsControllerReplayExportAuditTests
             scopeProvider.Object,
             Mock.Of<ArchLucid.Application.Exports.IRunExportCareerPostureGate>());
 
-        ExportsController sut = new(
-            facade,
-            authorityQuery,
-            scopeProvider.Object,
-            manifestHashService);
+        ExportsController sut = new(facade, authorityQuery, scopeProvider.Object, manifestHashService, AllowedShareAccessGate());
         DefaultHttpContext http = new()
         {
             User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "u")])),
@@ -183,4 +180,17 @@ public sealed class ExportsControllerReplayExportAuditTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
+    private static IArchitectureShareAccessGate AllowedShareAccessGate()
+    {
+        Mock<IArchitectureShareAccessGate> access = new();
+        access.Setup(g => g.EnsureRunReadAllowedAsync(
+                It.IsAny<ControllerBase>(),
+                It.IsAny<ClaimsPrincipal>(),
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IActionResult?)null);
+        return access.Object;
+    }
+
 }
