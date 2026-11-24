@@ -13,7 +13,7 @@ internal static class FindingVerificationFindingProjection
         bool sourceAgentStored = false;
 
         if (!string.IsNullOrWhiteSpace(finding.EngineType)
-            && Enum.TryParse(finding.EngineType, ignoreCase: true, out AgentType parsedAgent))
+            && Enum.TryParse(finding.EngineType, ignoreCase: true, out AgentType parsedAgent) && Enum.IsDefined(parsedAgent))
         {
             sourceAgent = parsedAgent;
             sourceAgentStored = true;
