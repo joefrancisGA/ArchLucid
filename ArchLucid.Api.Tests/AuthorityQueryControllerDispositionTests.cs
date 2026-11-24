@@ -111,6 +111,8 @@ public sealed class AuthorityQueryControllerDispositionTests
 
         AuthorityQueryController controller = BuildSut();
 
+        // Exercise the retained legacy routes explicitly to guard their authorization boundary.
+#pragma warning disable CS0618
         IActionResult response = action switch
         {
             "summary" => await controller.GetRunSummary(RunGuid, CancellationToken.None),
@@ -123,6 +125,7 @@ public sealed class AuthorityQueryControllerDispositionTests
             "signed-review-record" => await controller.GetRunGoldenManifest(RunGuid, CancellationToken.None),
             _ => throw new InvalidOperationException(action),
         };
+#pragma warning restore CS0618
 
         response.Should().BeOfType<NotFoundResult>();
         _shareAccessGate.Verify(g => g.EnsureRunReadAllowedAsync(
