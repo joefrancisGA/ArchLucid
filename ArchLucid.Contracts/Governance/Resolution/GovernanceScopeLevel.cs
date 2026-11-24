@@ -9,7 +9,7 @@ public static class GovernanceScopeLevel
 
     public const string Project = "Project";
 
-    public static readonly string[] All = [Tenant, Workspace, Project];
+    public static readonly IReadOnlyList<string> All = Array.AsReadOnly(new[] { Tenant, Workspace, Project });
 
     public static string? TryNormalize(string? value)
     {
