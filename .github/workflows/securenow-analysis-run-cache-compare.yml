@@ -46,7 +46,7 @@ jobs:
             for repetition in 1 2 3; do
               for engine in serialized-baseline bounded-singleflight; do
                 docker run --rm --memory=512m --memory-swap=512m --cpus=1 \
-                  -v "$PWD:/src" -w /src mcr.microsoft.com/dotnet/runtime:10.0 \
+                  -v "$PWD:/src" -w /src mcr.microsoft.com/dotnet/aspnet:10.0 \
                   dotnet tools/SecureNow.AnalysisRunCacheBench/bin/Release/net10.0/SecureNow.AnalysisRunCacheBench.dll \
                   "$engine" "$scenario" 300 "$repetition" \
                   "artifacts/securenow/cache-compare/cache-${scenario}-${engine}-run${repetition}.json"

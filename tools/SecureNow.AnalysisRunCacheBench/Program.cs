@@ -188,6 +188,8 @@ Directory.CreateDirectory(Path.GetDirectoryName(output)!);
 await File.WriteAllTextAsync(output, JsonSerializer.Serialize(artifact,
     new JsonSerializerOptions { WriteIndented = true }));
 
+return 0;
+
 static double Percentile(double[] ordered, double percentile) =>
     ordered[Math.Clamp((int)Math.Ceiling(ordered.Length * percentile) - 1, 0, ordered.Length - 1)];
 
