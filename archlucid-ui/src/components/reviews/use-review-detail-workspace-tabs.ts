@@ -276,6 +276,10 @@ import {
   REVIEW_FINDINGS_JOB_VIEW_PARAM,
 } from "@/lib/findings/review-findings-job-view-url";
 import { REVIEW_FINDINGS_TOOLBAR_FILTER_PARAM } from "@/lib/findings/review-findings-toolbar-filter-url";
+import {
+  parseReviewFindingsToolbarSearchQuery,
+  REVIEW_FINDINGS_TOOLBAR_SEARCH_PARAM,
+} from "@/lib/findings/review-findings-toolbar-search-url";
 import { REVIEW_FINDINGS_TOOLBAR_SORT_PARAM } from "@/lib/findings/review-findings-toolbar-sort-url";
 import { REVIEW_FINDINGS_DOMAIN_FILTER_PARAM, REVIEW_FINDINGS_OWNER_FILTER_PARAM } from "@/lib/findings/review-findings-toolbar-field-filters-url";
 import { REVIEW_FINDINGS_HIDE_GENERIC_PARAM, REVIEW_FINDINGS_SHOW_ADVISORY_PARAM, REVIEW_FINDINGS_SHOW_LOW_PARAM } from "@/lib/findings/review-findings-visibility-url";
@@ -672,6 +676,8 @@ export function useReviewDetailWorkspaceTabs(
     const findingsListViewPresent =
       parseReviewFindingsListViewFromSearch(params.get(REVIEW_FINDINGS_LIST_VIEW_PARAM)) !== null;
     const findingJobViewPresent = isFindingJobViewSearchParam(params.get(REVIEW_FINDINGS_JOB_VIEW_PARAM));
+    const findingsToolbarSearchPresent =
+      parseReviewFindingsToolbarSearchQuery(params.get(REVIEW_FINDINGS_TOOLBAR_SEARCH_PARAM)).trim().length > 0;
     const findingsToolbarFilterPresent =
       (params.get(REVIEW_FINDINGS_TOOLBAR_FILTER_PARAM)?.trim() ?? "").length > 0;
     const findingsToolbarSortPresent =
@@ -824,6 +830,7 @@ export function useReviewDetailWorkspaceTabs(
       || findingsClassificationBandPresent
       || findingsListViewPresent
       || findingJobViewPresent
+      || findingsToolbarSearchPresent
       || findingsToolbarFilterPresent
       || findingsToolbarSortPresent
       || findingsToolbarOwnerFilterPresent
