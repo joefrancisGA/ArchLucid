@@ -12,6 +12,18 @@ namespace ArchLucid.Api.Controllers.Authority;
 
 public sealed partial class AuthorityQueryController
 {
+    /// <summary>
+    /// A scoped run read can expose a restricted architecture even when its
+    /// sealed manifest is valid. Reuse the established non-disclosing share
+    /// authority before any query or run-derived projection is evaluated.
+    /// </summary>
+    private Task<IActionResult?> EnsureRunShareReadAllowedAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken cancellationToken) =>
+        _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this, User, scope, runId, cancellationToken);
+
     private async Task<IActionResult?> EnsureRunInventorySealedManifestReadAllowedAsync(
         ScopeContext scope,
         CancellationToken cancellationToken)
