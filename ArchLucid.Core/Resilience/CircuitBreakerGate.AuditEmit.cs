@@ -18,6 +18,7 @@ public sealed partial class CircuitBreakerGate
 
     private void EmitStateTransition(string fromState, string toState)
     {
+        _admissionGeneration++;
         _lastStateChangeUtc = _timeProvider.GetUtcNow();
 
         TagList tags = new() { { "gate", GateName }, { "from_state", fromState }, { "to_state", toState } };
