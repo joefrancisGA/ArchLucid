@@ -105,3 +105,4 @@
 {"at":"2026-11-24T01:15:31.0090001Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-11-24T01:15:47.3411659Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote shareLinkOpen-only URL"}
 {"at":"2026-11-24T01:19:02.7246746Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote meetingPacketOpen-only URL"}
+{"at":"2026-11-24T01:22:09.8025079Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote finalizeConfirm-only URL"}
