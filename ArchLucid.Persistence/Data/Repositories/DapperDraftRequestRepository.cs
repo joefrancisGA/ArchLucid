@@ -1,3 +1,4 @@
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
@@ -109,6 +110,56 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
                 commandTimeout: InteractiveDraftCommandTimeoutSeconds));
 
         return response;
+    }
+
+    /// <inheritdoc />
+    public async Task<DraftRequestResponse?> TryBindConversationThreadAsync(
+        DraftRequestResponse expected, Guid threadId, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(expected);
+        PersistenceTenantScope.RequireEntityTenant(expected.TenantId);
+        if (threadId == Guid.Empty || expected.DocumentContentHashSha256 is null ||
+            !DraftDocumentContentFingerprint.SequenceEqual(expected.DocumentContentHashSha256,
+                DraftDocumentContentFingerprint.Compute(expected.Document)) ||
+            expected.Status is not (DraftRequestStatus.Drafting or DraftRequestStatus.Admitted))
+            return null;
+
+        DraftRequestDocument document = DraftRequestRepositoryCore.CloneDocument(expected.Document, JsonOptions);
+        document.ConversationThreadId = threadId;
+        const string sql = """
+            UPDATE dbo.DraftRequests
+            SET DocumentJson = @DocumentJson,
+                DocumentContentHashSha256 = @NewHash,
+                ReadModelJson = NULL,
+                ReadModelSchemaVersion = 0,
+                UpdatedUtc = @Now
+            WHERE DraftId = @DraftId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+              AND Status = @Status
+              AND UpdatedUtc = @UpdatedUtc
+              AND ((ArchitectureId IS NULL AND @ArchitectureId IS NULL) OR ArchitectureId = @ArchitectureId)
+              AND DocumentContentHashSha256 = @ExpectedHash;
+            SELECT @@ROWCOUNT;
+            """;
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        DynamicParameters parameters = new(new
+        {
+            expected.DraftId, expected.TenantId, expected.WorkspaceId, expected.ProjectId,
+            Status = expected.Status.ToString(), expected.ArchitectureId,
+            ExpectedHash = expected.DocumentContentHashSha256,
+            DocumentJson = JsonSerializer.Serialize(document, JsonOptions),
+            NewHash = DraftDocumentContentFingerprint.Compute(document),
+        });
+        parameters.Add("UpdatedUtc", expected.UpdatedUtc, DbType.DateTime2);
+        parameters.Add("Now", TimeProvider.System.GetUtcNow().UtcDateTime, DbType.DateTime2);
+        int rows = await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, parameters,
+            cancellationToken: ct, commandTimeout: InteractiveDraftCommandTimeoutSeconds));
+
+        return rows == 1
+            ? await GetAsync(expected.TenantId, expected.WorkspaceId, expected.ProjectId, expected.DraftId, ct)
+            : null;
     }
 
     /// <inheritdoc />

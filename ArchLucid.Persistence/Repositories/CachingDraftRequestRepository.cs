@@ -84,6 +84,21 @@ public sealed class CachingDraftRequestRepository(
     }
 
     /// <inheritdoc />
+    public async Task<DraftRequestResponse?> TryBindConversationThreadAsync(
+        DraftRequestResponse expected, Guid threadId, CancellationToken ct)
+    {
+        try
+        {
+            return await _inner.TryBindConversationThreadAsync(expected, threadId, ct);
+        }
+        finally
+        {
+            // Even if the write succeeded and the refresh was canceled, evict the prior revision.
+            await InvalidateDraftAsync(expected.TenantId, expected.WorkspaceId, expected.ProjectId, expected.DraftId);
+        }
+    }
+
+    /// <inheritdoc />
     public async Task<DraftRequestResponse?> UpdateAsync(
         Guid tenantId,
         Guid workspaceId,

@@ -1,0 +1,57 @@
+name: FND-010 Draft Intake Share Authorization
+on:
+  pull_request:
+    branches: [master, main]
+    paths:
+      - 'ArchLucid.Host.Core/Services/Ask/**'
+      - 'ArchLucid.Host.Core.Tests/Ask/**'
+      - 'ArchLucid.Api/Support/AskEvidenceAccess.cs'
+      - 'ArchLucid.Api.Tests/ArchitectureShareAccessGateNotFoundPolicyTests.cs'
+      - 'ArchLucid.Core/Persistence/ApplicationPorts/Interfaces/IDraftRequestRepository.cs'
+      - 'ArchLucid.Persistence/Data/Repositories/*DraftRequestRepository*.cs'
+      - 'ArchLucid.Persistence/Repositories/CachingDraftRequestRepository.cs'
+      - 'ArchLucid.Persistence.Tests/Repositories/DraftRequestRepositoryCoreTests.cs'
+      - 'ArchLucid.Persistence.Tests/Caching/CachingDraftRequestRepositoryTests.cs'
+      - '.github/workflows/fnd010-draft-intake-share-authorization.yml'
+permissions:
+  contents: read
+concurrency:
+  group: fnd010-draft-intake-share-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  draft-intake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Verify draft reasoning and existing Ask provenance behavior
+        run: >-
+          dotnet test ArchLucid.Host.Core.Tests/ArchLucid.Host.Core.Tests.csproj
+          --filter "FullyQualifiedName~DraftIntakeReasoningServiceTests|FullyQualifiedName~DraftIntakeReasoningShareAccessTests|FullyQualifiedName~AskServiceShareAccessTests|FullyQualifiedName~AskServiceConversationCompressionTests"
+  draft-api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Verify canonical share and conversation boundaries
+        run: >-
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj
+          --filter "FullyQualifiedName~ArchitectureShareAccessGateNotFoundPolicyTests|FullyQualifiedName~DraftIntakeSealedManifestRuntimeConflictTests|FullyQualifiedName~ConversationControllerShareAccessTests"
+  draft-persistence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Verify conditional draft binding and cache invalidation
+        run: >-
+          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj
+          --filter "FullyQualifiedName~DraftRequestRepositoryCoreTests|FullyQualifiedName~CachingDraftRequestRepositoryTests"
