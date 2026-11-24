@@ -73,6 +73,36 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
     }
 
     /// <inheritdoc />
+    public Task<DraftRequestResponse?> TryBindConversationThreadAsync(
+        DraftRequestResponse expected, Guid threadId, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(expected);
+        ct.ThrowIfCancellationRequested();
+        if (threadId == Guid.Empty ||
+            expected.Status is not (DraftRequestStatus.Drafting or DraftRequestStatus.Admitted) ||
+            !_drafts.TryGetValue(expected.DraftId, out InMemoryDraftRequestStoredDraft? stored) ||
+            !DraftRequestRepositoryCore.MatchesProjectScope(expected.TenantId, expected.WorkspaceId,
+                expected.ProjectId, stored.TenantId, stored.WorkspaceId, stored.ProjectId) ||
+            stored.Status != expected.Status || stored.ArchitectureId != expected.ArchitectureId ||
+            stored.UpdatedUtc != expected.UpdatedUtc ||
+            !DraftDocumentContentFingerprint.SequenceEqual(stored.DocumentContentHashSha256,
+                expected.DocumentContentHashSha256))
+            return Task.FromResult<DraftRequestResponse?>(null);
+
+        DraftRequestDocument document = DraftRequestRepositoryCore.CloneDocument(stored.Document, JsonOptions);
+        document.ConversationThreadId = threadId;
+        InMemoryDraftRequestStoredDraft updated = stored with
+        {
+            Document = document,
+            DocumentContentHashSha256 = DraftDocumentContentFingerprint.Compute(document),
+            UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+        };
+
+        return Task.FromResult<DraftRequestResponse?>(_drafts.TryUpdate(expected.DraftId, updated, stored)
+            ? Map(updated) : null);
+    }
+
+    /// <inheritdoc />
     public Task<DraftRequestResponse?> UpdateAsync(
         Guid tenantId,
         Guid workspaceId,
