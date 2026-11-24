@@ -179,6 +179,10 @@ import {
   RUN_TECHNICAL_DETAILS_OPEN_PARAM,
 } from "@/lib/runs/run-detail-operator-technical-disclosure-url";
 import {
+  parseRunDetailSponsorBriefingOpenFromSearch,
+  RUN_DETAIL_SPONSOR_BRIEFING_OPEN_PARAM,
+} from "@/lib/runs/run-detail-sponsor-briefing-disclosure-url";
+import {
   parseTrustEvidenceFieldsOpenFromSearch,
   parseTrustEvidenceTechOpenFromSearch,
   TRUST_EVIDENCE_FIELDS_OPEN_PARAM,
@@ -479,6 +483,9 @@ export function useReviewDetailWorkspaceTabs(
     const runTechnicalDetailsOpenPresent = parseRunTechnicalDetailsOpenFromSearch(
       params.get(RUN_TECHNICAL_DETAILS_OPEN_PARAM),
     );
+    const runDetailSponsorBriefingOpenPresent = parseRunDetailSponsorBriefingOpenFromSearch(
+      params.get(RUN_DETAIL_SPONSOR_BRIEFING_OPEN_PARAM),
+    );
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -588,6 +595,7 @@ export function useReviewDetailWorkspaceTabs(
       || runRefineWithAiOpenPresent
       || runDeliverablesOpenPresent
       || runTechnicalDetailsOpenPresent
+      || runDetailSponsorBriefingOpenPresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent
