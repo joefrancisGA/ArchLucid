@@ -118,3 +118,4 @@
 {"at":"2026-11-24T01:53:52.7795287Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote reviewFailureTechnicalMetadataOpen-only URL"}
 {"at":"2026-11-24T01:56:49.6964300Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote reviewChainOfCustodySectionKey-only URL"}
 {"at":"2026-11-24T01:59:55.1948456Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote sponsorRehearsalPreviewOpen-only URL"}
+{"at":"2026-11-24T02:02:55.0292881Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote submittedArchitectureOpen-only URL"}
