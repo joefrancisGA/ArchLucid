@@ -31,4 +31,16 @@ public sealed class AskEvidenceAccess(
         (bool found, bool canRead) = await gate.EvaluateRunReadAsync(user, scope, runId, ct);
         return found && canRead;
     }
+
+    public async Task<bool> CanDecideArchitectureAsync(ScopeContext scope, Guid architectureId, CancellationToken ct)
+    {
+        if (architectureId == Guid.Empty || string.IsNullOrWhiteSpace(GetAuthorizedActorId()) ||
+            context.HttpContext?.User is not { } user ||
+            !ArchitectureShareAuthorityProbe.HasExecuteAuthority(user))
+            return false;
+
+        var access = await gate.EvaluateArchitectureAsync(user, scope, architectureId, ct);
+        return access.ArchitectureFound && access.CanRead && access.CanDecide;
+    }
+
 }
