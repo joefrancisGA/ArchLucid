@@ -5,10 +5,10 @@ internal static class ArtifactBundleStatusParser
 {
     internal static ArtifactBundleStatus Parse(string? raw)
     {
-        if (!string.IsNullOrWhiteSpace(raw) && Enum.TryParse(raw.Trim(), true, out ArtifactBundleStatus st))
-            return st;
+        if (string.IsNullOrWhiteSpace(raw))
+            return ArtifactBundleStatus.Available; // Legacy missing value only.
 
-        return ArtifactBundleStatus.Available;
+        return ArchLucid.Contracts.Serialization.DefinedEnum.Parse<ArtifactBundleStatus>(raw.Trim(), ignoreCase: true);
     }
 }
 
