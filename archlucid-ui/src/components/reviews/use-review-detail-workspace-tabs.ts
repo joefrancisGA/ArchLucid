@@ -171,6 +171,10 @@ import {
   RUN_REFINE_WITH_AI_OPEN_PARAM,
 } from "@/lib/runs/run-detail-refine-with-ai-disclosure-url";
 import {
+  parseRunDeliverablesOpenFromSearch,
+  RUN_DELIVERABLES_OPEN_PARAM,
+} from "@/lib/runs/run-detail-deliverables-disclosure-url";
+import {
   parseTrustEvidenceFieldsOpenFromSearch,
   parseTrustEvidenceTechOpenFromSearch,
   TRUST_EVIDENCE_FIELDS_OPEN_PARAM,
@@ -466,6 +470,8 @@ export function useReviewDetailWorkspaceTabs(
     const runRefineWithAiOpenPresent = parseRunRefineWithAiOpenFromSearch(
       params.get(RUN_REFINE_WITH_AI_OPEN_PARAM),
     );
+    const runDeliverablesOpenPresent =
+      parseRunDeliverablesOpenFromSearch(params.get(RUN_DELIVERABLES_OPEN_PARAM)) === true;
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -573,6 +579,7 @@ export function useReviewDetailWorkspaceTabs(
       || runExplanationProvenanceOpenPresent
       || runAdvancedAnalysisOpenPresent
       || runRefineWithAiOpenPresent
+      || runDeliverablesOpenPresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent
