@@ -57,6 +57,11 @@ public sealed partial class ArchitectureDiagramIngestController(
             return this.BadRequestProblem("At least one diagram source is required.", ProblemTypes.ValidationFailed);
         }
 
+        if (request.Sources.Any(static source => source is null))
+        {
+            return this.BadRequestProblem("Diagram sources must not contain null entries.", ProblemTypes.ValidationFailed);
+        }
+
         IActionResult? sealedGuardResult = await EnsureRunSealedManifestAllowedAsync(runId, cancellationToken);
 
         if (sealedGuardResult is not null)

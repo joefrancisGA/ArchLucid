@@ -1,3 +1,5 @@
+using System.Collections.ObjectModel;
+
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>Validated primary environment values for Quick Scan requests.</summary>
@@ -28,7 +30,7 @@ public static class QuickScanPrimaryEnvironment
 
     /// <summary>User-facing labels keyed by canonical value.</summary>
     public static readonly IReadOnlyDictionary<string, string> DisplayLabels =
-        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        new ReadOnlyDictionary<string, string>(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             [Azure] = "Azure",
             [Aws] = "AWS",
@@ -39,7 +41,7 @@ public static class QuickScanPrimaryEnvironment
             [ProviderNeutral] = "Provider-neutral",
             [Other] = "Other",
             [NotSure] = "Not sure",
-        };
+        });
 
     public static bool TryNormalize(string? raw, out string normalized)
     {
