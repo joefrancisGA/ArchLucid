@@ -1,14 +1,14 @@
+using System.Collections.Frozen;
+
 namespace ArchLucid.Contracts.Governance.PolicyPacks;
 
 /// <summary>Derives and enforces <see cref="PolicyPack.DistributionScope" /> invariants for V1.</summary>
 public static class PolicyPackDistributionScopeRules
 {
     /// <summary>Scopes that may be stored but have no V1 distribution API.</summary>
-    public static readonly HashSet<string> ReservedUnimplementedScopes = new(StringComparer.OrdinalIgnoreCase)
-    {
-        PolicyPackDistributionScope.OrganizationShared,
-        PolicyPackDistributionScope.Marketplace,
-    };
+    public static readonly IReadOnlySet<string> ReservedUnimplementedScopes =
+        new[] { PolicyPackDistributionScope.OrganizationShared, PolicyPackDistributionScope.Marketplace }
+            .ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>Maps pack authorship type to the default distribution scope at create time.</summary>
     public static string ResolveForPackType(string packType)
