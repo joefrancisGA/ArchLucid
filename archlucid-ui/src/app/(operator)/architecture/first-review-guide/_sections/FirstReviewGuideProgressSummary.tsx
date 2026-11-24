@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StepProgressMeter } from "@/components/ui/step-progress-meter";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { FIRST_REVIEW_GUIDE_PROGRESS_LOAD_FAILURE_LINE } from "@/lib/first-review-guide/first-review-guide-progress-load-failure-copy";
 import type { FirstReviewGuideProgress } from "@/lib/first-review-guide-state";
 import { formatStepProgressCompleteLabel } from "@/lib/step-progress-label";
 
@@ -28,8 +29,8 @@ export function FirstReviewGuideProgressSummary({
 
   if (isError) {
     return (
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="first-review-guide-progress-unavailable">
-        Progress unavailable until review status loads.
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="first-review-guide-progress-load-failure">
+        {FIRST_REVIEW_GUIDE_PROGRESS_LOAD_FAILURE_LINE}
       </p>
     );
   }

@@ -227,8 +227,8 @@ describe("FirstReviewGuidePageClient", () => {
 
     expect(screen.getByTestId("first-review-guide-context-error")).toBeInTheDocument();
     expect(screen.getByTestId("first-review-guide-retry")).toBeInTheDocument();
-    expect(screen.getByTestId("first-review-guide-progress-unavailable")).toBeInTheDocument();
-    expect(screen.getByTestId("first-review-guide-walkthrough-unavailable")).toBeInTheDocument();
+    expect(screen.getByTestId("first-review-guide-progress-load-failure")).toBeInTheDocument();
+    expect(screen.getByTestId("first-review-guide-walkthrough-load-failure")).toBeInTheDocument();
     expect(screen.queryByTestId("first-review-guide-readiness")).not.toBeInTheDocument();
   });
 
