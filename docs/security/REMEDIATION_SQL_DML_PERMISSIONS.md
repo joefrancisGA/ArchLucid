@@ -3,8 +3,8 @@
 **Scope:** IE-13 remediation persistence, `ArchLucidApp` database role, and
 production-like runtime permission validation. With migration 427 deployed and
 the startup permission probe passing for the actual runtime principal, raw
-instance UPDATE is denied for that principal. This is **not** protection from
-dbo/db_owner, direct INSERT, a privileged SQL operator, or an unauthorized
+instance UPDATE is denied for that principal. Migration 428 also denies direct INSERT on both tables. This is **not** protection from
+dbo/db_owner, a privileged SQL operator, or an unauthorized
 caller with valid scoped procedure arguments.
 
 ## Audited production write paths (2026-11-23)
@@ -21,7 +21,8 @@ caller with valid scoped procedure arguments.
   `dbo.uspRemediationCommitVerification`; the verified/failed decision and
   matching evidence INSERT share one SQL-owned transaction, with strict CAS.
 - `SqlRemediationInstanceRepository.InsertEvidenceAsync` and
-  `InsertEvidenceInScopeAsync`: evidence **INSERT**, not amendment.
+  `InsertEvidenceInScopeAsync`: now route ordinary evidence through
+  `dbo.uspRemediationAppendEvidenceScoped`; receipt phases 3/4 are rejected.
 - `SqlAzureInventorySnapshotRepository.Delete`: previously used an
   independent `UPDATE dbo.RemediationInstances SET PathId = NULL` while
   deleting a linked security-path snapshot. This bypassed remediation
@@ -60,10 +61,8 @@ the role is missing at migration time, the DDL does not apply. The
 existing production-like sealed-evidence startup probe has been
 extended to check these three role DENYs, **membership of the connected
 runtime principal in [ArchLucidApp]**, and the **effective** absence of
-the forbidden rights. It also requires effective `SELECT`/`INSERT` on
-both tables. After migration 427 it requires the
-three procedure EXECUTE permissions and rejects effective raw UPDATE on
-instances, rather than permitting that DML from the runtime role. Failure to meet those checks is a
+the forbidden rights. Migration 428 requires effective SELECT on both tables, EXECUTE on
+all five procedures, and rejects all direct remediation table DML. Failure to meet those checks is a
 startup error where that probe runs. A `dbo` / `db_owner` connection can
 bypass object DENYs and should not be used by the runtime.
 
@@ -92,12 +91,10 @@ SELECT N'dbo.RemediationInstances',
        HAS_PERMS_BY_NAME(N'dbo.RemediationInstances', N'OBJECT', N'DELETE');
 ```
 
-Expected after migration 427 on the actual application principal:
-evidence can be **inserted but not updated/deleted**; instances can be
-**inserted but not directly updated/deleted**. `CanUpdate=1` for instances
-is a failed security invariant, not a pass. Verify EXECUTE rights for
-all three `dbo.uspRemediation*` procedures separately.
-Unexpected `NULL` or `0` on required SELECT/INSERT or procedure
+Expected after migration 428 on the actual application principal:
+all six direct INSERT/UPDATE/DELETE checks return 0. Verify SELECT and
+EXECUTE rights for all five `dbo.uspRemediation*` procedures separately.
+Unexpected `NULL` or `0` on required SELECT or procedure
 EXECUTE permissions may indicate a broken deployment; `1` on
 forbidden operations is unsafe.
 Inspect role membership, schema/object-level grants, server privileges,
@@ -115,14 +112,14 @@ catalog; it is **not** a fleet-wide proof for all tenant catalogs.
 The focused source workflow tests migration and consolidated-schema
 parity, runtime probe wiring, and absence of the direct snapshot-delete
 remediation UPDATE. A disposable SQL Server integration test replays
-both actual migrations after setting up a test role and impersonates an
+all three actual migrations after setting up a test role and impersonates an
 `ArchLucidApp` user with `db_datawriter` privileges, ensuring direct
 instance UPDATE, instance DELETE and evidence UPDATE/DELETE are denied,
-while evidence INSERT and guarded procedure EXECUTE remain available.
+while guarded procedure EXECUTE remains available and direct INSERT is denied.
 A SQL fixture skip is not a passing SQL test.
 
-**Remaining trust boundary:** Application SQL principals can still insert
-remediation instances and evidence, and callers able to invoke a guarded
+**Remaining trust boundary:** Application SQL principals cannot directly insert
+remediation instances or evidence after 428, but callers able to invoke a guarded
 procedure with valid scoped identifiers and current rowversions may still
 forge inputs if the upstream application authorization is compromised.
 Procedure-level transition predicates and atomic provenance narrow the impact
@@ -150,3 +147,10 @@ portion. Never replay against a customer database during disposable tests.
 
 No cloud remediation executor, `remediation.execute` permission,
 FND-015 signing authority, or full build on `master` was enabled.
+
+## Migration 428: procedure-only creation and ordinary evidence
+
+- `uspRemediationCreateScoped` accepts only Classified initial state, rejects prepopulated lifecycle/provenance fields, and binds the finding to tenant/workspace/project and the approved pattern version to tenant/pattern/key/version/automation level. SQL generates rowversion.
+- `uspRemediationAppendEvidenceScoped` accepts phases Before, ExecuteRequest, ExecuteResult only for an existing scoped WaveAssigned instance. Approval and verification remain exclusively in the existing atomic CAS procedures. This does not make ordinary evidence independently signed, unique by phase, or atomic with the later execution state transition.
+- Both tables explicitly DENY INSERT to ArchLucidApp even if it has db_datawriter. The startup probe now requires SELECT and five procedure EXECUTE rights and rejects all six direct table DML permissions.
+- Deploy the matching application and migration together before runtime resumes; older binaries issuing inline INSERT will fail closed. If role provisioning occurs after journaling, replay the idempotent grants/DENYs with an elevated identity. Verify each tenant catalog. No cloud execution is enabled.
