@@ -86,6 +86,10 @@ import {
   parseSubmittedArchitectureFullDescriptionOpenFromSearch,
   SUBMITTED_ARCHITECTURE_FULL_DESCRIPTION_OPEN_PARAM,
 } from "@/lib/reviews/submitted-architecture-full-description-disclosure-url";
+import {
+  parseWorkspaceAiProbeDiagnosticsOpenFromSearch,
+  WORKSPACE_AI_PROBE_DIAGNOSTICS_OPEN_PARAM,
+} from "@/lib/reviews/workspace-ai-probe-diagnostics-disclosure-url";
 
 const WORKBENCH_TAB_IDS: readonly ReviewDetailTabId[] = ["architecture", "findings", "evidence"];
 
@@ -260,6 +264,9 @@ export function useReviewDetailWorkspaceTabs(
     const submittedArchitectureFullDescriptionOpenPresent = parseSubmittedArchitectureFullDescriptionOpenFromSearch(
       params.get(SUBMITTED_ARCHITECTURE_FULL_DESCRIPTION_OPEN_PARAM),
     );
+    const workspaceAiProbeDiagnosticsOpenPresent = parseWorkspaceAiProbeDiagnosticsOpenFromSearch(
+      params.get(WORKSPACE_AI_PROBE_DIAGNOSTICS_OPEN_PARAM),
+    );
     const runRecordMetaOpenPresent = parseRunDetailRecordMetadataOpenFromSearch(params.get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM));
     const askDockOpenPresent = parseReviewAskDockOpenFromSearch(params.get(REVIEW_ASK_DOCK_OPEN_PARAM));
     const askThreadPresent =
@@ -299,6 +306,7 @@ export function useReviewDetailWorkspaceTabs(
       || sponsorRehearsalPreviewOpenPresent
       || submittedArchitectureOpenPresent
       || submittedArchitectureFullDescriptionOpenPresent
+      || workspaceAiProbeDiagnosticsOpenPresent
       || runRecordMetaOpenPresent
       || askDockOpenPresent
       || askThreadPresent

@@ -399,6 +399,28 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
 
 
 
+  it("does not apply visit-default navigation when the URL only carries workspaceAiProbeDiagnosticsOpen=1", () => {
+    searchParamsHarness.applyQuery("workspaceAiProbeDiagnosticsOpen=1");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?workspaceAiProbeDiagnosticsOpen=1",
+    );
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?workspaceAiProbeDiagnosticsOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
   it("does not apply visit-default navigation when the URL only carries submittedArchitectureFullDescriptionOpen=1", () => {
     searchParamsHarness.applyQuery("submittedArchitectureFullDescriptionOpen=1");
     window.history.replaceState(
