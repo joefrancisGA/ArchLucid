@@ -42,6 +42,13 @@ type ArchitectureIntelligenceReasoningResultsProps = {
   isBusy: boolean;
 };
 
+const inventoryProbeLabels = {
+  Refuted: "Refuted",
+  SurvivedWithinTestedScope: "Survived within tested scope",
+  Untestable: "Untestable",
+  HumanReviewRequired: "Human review required",
+};
+
 export function ArchitectureIntelligenceReasoningResults(props: ArchitectureIntelligenceReasoningResultsProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const integritySet = new Set(props.result.integrityPassedFindingIds ?? []);
@@ -257,7 +264,10 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
           <ul className="m-0 list-disc space-y-1 pl-5">
             {adversarialPayload.challenges.map((challenge, index) => (
               <li key={`${challenge.hypothesis}-${index}`} className={OPERATOR_TYPOGRAPHY.body}>
-                {challenge.hypothesis} — {challenge.falsificationEvidenceNeeded}
+                {challenge.hypothesis}
+                {challenge.inventoryProbe == null
+                  ? ` — ${challenge.falsificationEvidenceNeeded}`
+                  : ` — ${inventoryProbeLabels[challenge.inventoryProbe.outcome] ?? "Outcome unavailable"}. ${challenge.inventoryProbe.coverage}`}
               </li>
             ))}
           </ul>

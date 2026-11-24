@@ -60,6 +60,7 @@ internal static partial class ClosedLoopReasoningResultCloner
             Suppressed = challenge.Suppressed,
             SuppressionReason = challenge.SuppressionReason,
             SourceFindingId = challenge.SourceFindingId,
+            InventoryProbe = challenge.InventoryProbe,
         };
     }
 }

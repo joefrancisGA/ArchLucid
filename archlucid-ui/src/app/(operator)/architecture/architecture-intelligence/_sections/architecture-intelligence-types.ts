@@ -53,7 +53,15 @@ export type EvidenceValidationResult = {
 
 export type AdversarialReviewResult = {
   substantiatedFindings?: SpecialistReviewFinding[];
-  challenges?: Array<{ hypothesis: string; falsificationEvidenceNeeded: string; suppressed?: boolean }>;
+  challenges?: Array<{
+    hypothesis: string;
+    falsificationEvidenceNeeded: string;
+    suppressed?: boolean;
+    inventoryProbe?: {
+      outcome: "Refuted" | "SurvivedWithinTestedScope" | "Untestable" | "HumanReviewRequired";
+      coverage: string;
+    } | null;
+  }>;
   falsePositiveRateByLane?: Record<string, number>;
 };
 

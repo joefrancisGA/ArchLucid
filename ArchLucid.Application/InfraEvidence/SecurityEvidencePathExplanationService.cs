@@ -186,21 +186,30 @@ public sealed class SecurityEvidencePathExplanationService(
                 provenanceKind = ProvenanceKind.DeterministicInference;
                 simulatorLabel = SecurityEvidencePathExplanationBuilder.SimulatorLabel;
 
-                switch (verification)
+                InventoryFalsificationProbe probe = PublicNetworkAccessCounterexample.Evaluate(
+                    verification, hasResourceBinding: verification is not null);
+                switch (probe.Outcome)
                 {
-                    case { Outcome: PublicNetworkAccessVerificationOutcome.Verified, Evidence: { } evidence }:
+                    case InventoryFalsificationOutcome.SurvivedWithinTestedScope:
+                        var evidence = verification!.Evidence!;
                         configurationFact = $" Azure inventory snapshot {verification.SnapshotId:D} "
                             + $"captured at {verification.CapturedUtc:O} records publicNetworkAccess=Disabled "
                             + $"for resource {verification.CloudResourceId:D} (inventory row {evidence.ResourceRowId:D}). "
                             + $"Deterministic verification: {evidence.VerifierVersion}; "
                             + $"maximum capture age at verification: {evidence.MaximumCaptureAgeHours} hours. "
-                            + "Coverage: the explicit Azure property only.";
+                            + "Coverage: the explicit Azure property only. The hypothesis survived within the tested scope.";
                         break;
-                    case { Outcome: PublicNetworkAccessVerificationOutcome.Contradicted }:
-                        modelOutputRejection = "The public network access claim was contradicted by the path inventory snapshot.";
+                    case InventoryFalsificationOutcome.Refuted:
+                        modelOutputRejection = $"Refuted by the scoped Azure inventory: {verification!.SnapshotId:D}, "
+                            + $"resource {verification.CloudResourceId:D}, inventory row {verification.Evidence!.ResourceRowId:D}, "
+                            + $"captured {verification.CapturedUtc:O}. The public network access claim was contradicted. "
+                            + probe.Coverage;
+                        break;
+                    case InventoryFalsificationOutcome.HumanReviewRequired:
+                        modelOutputRejection = "Human review required. The public network access claim remains unverified without a cited resource.";
                         break;
                     default:
-                        modelOutputRejection = "The public network access claim remains unverified in the path inventory snapshot.";
+                        modelOutputRejection = "Untestable. The public network access claim remains unverified in the path inventory snapshot.";
                         break;
                 }
             }

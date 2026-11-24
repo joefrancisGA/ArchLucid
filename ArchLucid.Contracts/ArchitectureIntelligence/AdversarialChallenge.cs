@@ -20,6 +20,9 @@ public class AdversarialChallenge
         set;
     } = null!;
 
+    /// <summary>Recorded read-only probe. Older and unstructured challenges may omit it.</summary>
+    public InventoryFalsificationProbe? InventoryProbe { get; set; }
+
     public double Confidence
     {
         get;

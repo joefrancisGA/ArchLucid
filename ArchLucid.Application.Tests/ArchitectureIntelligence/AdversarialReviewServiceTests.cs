@@ -99,6 +99,56 @@ public sealed class AdversarialReviewServiceTests
             challenge.Hypothesis.StartsWith("Selective High/Critical re-check:", StringComparison.Ordinal));
     }
 
+    [Theory]
+    [InlineData(PublicNetworkAccessVerificationOutcome.Contradicted, true, true, InventoryFalsificationOutcome.Refuted)]
+    [InlineData(PublicNetworkAccessVerificationOutcome.Verified, true, true, InventoryFalsificationOutcome.SurvivedWithinTestedScope)]
+    [InlineData(PublicNetworkAccessVerificationOutcome.Verified, false, true, InventoryFalsificationOutcome.Untestable)]
+    [InlineData(PublicNetworkAccessVerificationOutcome.Verified, true, false, InventoryFalsificationOutcome.Untestable)]
+    [InlineData(PublicNetworkAccessVerificationOutcome.Unverified, false, false, InventoryFalsificationOutcome.HumanReviewRequired)]
+    public void Inventory_probe_stays_in_the_challenge_lane_and_survives_the_review_cache(
+        PublicNetworkAccessVerificationOutcome observationOutcome, bool hasEvidence, bool matchingResource,
+        InventoryFalsificationOutcome expected)
+    {
+        Guid resourceId = expected == InventoryFalsificationOutcome.HumanReviewRequired ? Guid.Empty : Guid.NewGuid();
+        SpecialistReviewFinding finding = new()
+        {
+            FindingId = "claim", Conclusion = ReviewConclusion.Pass, Confidence = 1,
+            PublicNetworkAccessDisabledResourceId = resourceId,
+        };
+        var validation = new EvidenceValidationResult
+        {
+            FindingId = finding.FindingId,
+            PublicNetworkAccess = new(matchingResource ? resourceId : Guid.NewGuid(),
+                observationOutcome, Guid.NewGuid(), DateTime.UtcNow)
+            {
+                Evidence = hasEvidence
+                    ? new("inventory/1", Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),
+                        Guid.NewGuid(), "publicNetworkAccess", 24)
+                    : null,
+            },
+        };
+
+        AdversarialReviewResult review = _service.Review([finding]);
+        review.Challenges.Should().BeEmpty();
+        AdversarialReviewService.RecordInventoryCounterexamples(
+            review, [finding], new Dictionary<string, EvidenceValidationResult> { [finding.FindingId] = validation });
+
+        review.SubstantiatedFindings.Should().BeEmpty();
+        AdversarialChallenge challenge = review.Challenges.Should().ContainSingle().Which;
+        challenge.Lane.Should().Be(AdversarialLane.AdversarialChallenge);
+        challenge.InventoryProbe!.Outcome.Should().Be(expected);
+        challenge.InventoryProbe.Coverage.Should().Contain("explicit Azure property only");
+        if (matchingResource)
+            challenge.InventoryProbe.Verification.Should().Be(validation.PublicNetworkAccess);
+        else
+            challenge.InventoryProbe.Verification.Should().BeNull();
+        _service.ToOpenQuestions(review).Should().HaveCount(
+            expected is InventoryFalsificationOutcome.Untestable or InventoryFalsificationOutcome.HumanReviewRequired ? 1 : 0);
+
+        var cached = ClosedLoopReasoningResultCloner.Clone(new ClosedLoopReasoningResult { Adversarial = review });
+        cached.Adversarial.Challenges.Should().ContainSingle().Which.InventoryProbe.Should().Be(challenge.InventoryProbe);
+    }
+
     [Fact]
     public void Review_adds_selective_challenge_when_integrity_passed_and_severity_is_high()
     {

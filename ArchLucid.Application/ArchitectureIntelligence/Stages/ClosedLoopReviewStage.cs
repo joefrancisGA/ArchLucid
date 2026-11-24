@@ -86,6 +86,9 @@ public sealed class ClosedLoopReviewStage(
             supportedIds,
             cancellationToken);
 
+        AdversarialReviewService.RecordInventoryCounterexamples(
+            context.Adversarial, context.AllFindings, context.ValidationByFindingId);
+
         int challengeQuestionIndex = interview.EvidenceDrivenQuestions.Count;
 
         foreach (string openQuestion in _adversarialReviewService.ToOpenQuestions(context.Adversarial))
@@ -204,7 +207,7 @@ public sealed class ClosedLoopReviewStage(
     {
         foreach (AdversarialChallenge challenge in adversarial.Challenges)
         {
-            if (challenge.Suppressed)
+            if (!AdversarialReviewService.NeedsOpenQuestion(challenge))
                 continue;
 
             model.Elements.Add(new ArchitectureModelElement

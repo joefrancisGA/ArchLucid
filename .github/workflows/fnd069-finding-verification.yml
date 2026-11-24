@@ -8,11 +8,13 @@ on:
       - 'ArchLucid.Contracts/ArchitectureIntelligence/**'
       - 'ArchLucid.Application.Tests/ArchitectureIntelligence/**'
       - 'ArchLucid.Application/InfraEvidence/InventoryPublicNetworkAccessVerifier.cs'
+      - 'ArchLucid.Application/InfraEvidence/PublicNetworkAccessCounterexample.cs'
       - 'ArchLucid.Application/InfraEvidence/SecurityEvidencePathExplanation*.cs'
       - 'ArchLucid.Application.Tests/InfraEvidence/SecurityEvidencePathExplanation*Tests.cs'
       - 'ArchLucid.Application/Findings/FindingVerification/FindingVerificationReportExportApplicationService.cs'
       - 'ArchLucid.ArtifactSynthesis/FindingVerification/**'
       - 'ArchLucid.Application.Tests/Findings/FindingVerificationReportExportApplicationServiceTests.cs'
+      - 'archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/**'
       - '.github/workflows/fnd069-finding-verification.yml'
 
 permissions:
@@ -95,3 +97,21 @@ jobs:
           if new or new_errors:
               sys.exit("\n".join(sorted(new) + sorted(new_errors)))
           PY
+
+  challenge-display:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: archlucid-ui
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+      - run: npm ci
+      - run: >-
+          npm run test:vitest-single-worker --
+          'src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceReasoningResults.test.tsx'

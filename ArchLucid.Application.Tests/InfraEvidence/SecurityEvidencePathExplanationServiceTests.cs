@@ -135,12 +135,12 @@ public sealed class SecurityEvidencePathExplanationServiceTests
 
     [Theory]
     [InlineData("Disabled", false, false, true, true, null)]
-    [InlineData("Enabled", false, false, true, true, "contradicted")]
-    [InlineData(null, false, false, true, true, "unverified")]
-    [InlineData("Disabled", true, false, true, true, "unverified")]
-    [InlineData("Disabled", false, true, true, true, "unverified")]
-    [InlineData("Disabled", false, false, false, true, "unverified")]
-    [InlineData("Disabled", false, false, true, false, "unverified")]
+    [InlineData("Enabled", false, false, true, true, "Refuted")]
+    [InlineData(null, false, false, true, true, "Untestable")]
+    [InlineData("Disabled", true, false, true, true, "Untestable")]
+    [InlineData("Disabled", false, true, true, true, "Untestable")]
+    [InlineData("Disabled", false, false, false, true, "Human review required")]
+    [InlineData("Disabled", false, false, true, false, "Human review required")]
     public async Task Public_network_setting_is_rendered_only_from_the_scoped_path_snapshot(
         string? value, bool stale, bool wrongProject, bool typedClaim, bool citesHop, string? rejection)
     {
@@ -198,11 +198,15 @@ public sealed class SecurityEvidencePathExplanationServiceTests
                 .And.Contain(captured.ToString("O")).And.Contain(path.SnapshotId.ToString("D"))
                 .And.Contain(resourceId.ToString("D")).And.Contain(rowId.ToString("D"))
                 .And.Contain(InventoryPublicNetworkAccessVerifier.VerifierVersion)
-                .And.Contain("Coverage: the explicit Azure property only.");
+                .And.Contain("Coverage: the explicit Azure property only.")
+                .And.Contain("survived within the tested scope");
         }
         else
         {
             explanation.ModelOutputRejection.Should().Contain(rejection);
+            if (rejection == "Refuted")
+                explanation.ModelOutputRejection.Should().Contain(path.SnapshotId.ToString("D"))
+                    .And.Contain(rowId.ToString("D")).And.Contain("explicit Azure property only");
             explanation.ExecutiveSummary.Should().NotContain("publicNetworkAccess=Disabled");
         }
 
