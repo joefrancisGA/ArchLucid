@@ -309,6 +309,37 @@ public sealed class InMemoryVectorIndexTests
         hits.Select(h => h.ChunkId).Should().NotContain(new[] { "other-dec", "other-fin" });
     }
 
+    [Fact]
+    public async Task Authorized_evidence_filter_excludes_restricted_and_unproven_chunks_before_top_k()
+    {
+        Guid allowed = Guid.NewGuid();
+        Guid denied = Guid.NewGuid();
+        RetrievalChunk visible = MakeChunk("visible", TenantId, WorkspaceId, ProjectId, [0.5f, 0.5f]);
+        visible.RunId = allowed;
+        visible.CorpusKind = CorpusKind.TenantManifest;
+        RetrievalChunk restricted = MakeChunk("restricted", TenantId, WorkspaceId, ProjectId, [1f, 0f]);
+        restricted.RunId = denied;
+        restricted.CorpusKind = CorpusKind.TenantManifest;
+        RetrievalChunk unknown = MakeChunk("unknown", TenantId, WorkspaceId, ProjectId, [1f, 0f]);
+        unknown.CorpusKind = CorpusKind.PriorManifest;
+        RetrievalChunk conversation = MakeChunk("conversation", TenantId, WorkspaceId, ProjectId, [1f, 0f]);
+        conversation.RunId = allowed;
+        conversation.CorpusKind = CorpusKind.Conversation;
+
+        InMemoryVectorIndex index = new();
+        await index.UpsertChunksAsync([restricted, unknown, conversation, visible], CancellationToken.None);
+        RetrievalQuery query = BaseQuery();
+        query.TopK = 1;
+        query.AuthorizedEvidenceRunIds = new HashSet<Guid> { allowed };
+
+        IReadOnlyList<RetrievalHit> hits = await index.SearchAsync(query, [1f, 0f], CancellationToken.None);
+
+        hits.Should().ContainSingle().Which.ChunkId.Should().Be("visible");
+
+        query.AuthorizedEvidenceRunIds = new HashSet<Guid>();
+        (await index.SearchAsync(query, [1f, 0f], CancellationToken.None)).Should().BeEmpty();
+    }
+
     private static RetrievalChunk MakePlatformPolicyPackChunk(string chunkId, string rulePackId, float[] embedding)
     {
         RetrievalChunk chunk = MakeChunk(
