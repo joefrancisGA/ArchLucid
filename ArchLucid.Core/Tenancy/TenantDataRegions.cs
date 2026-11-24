@@ -13,7 +13,7 @@ public static class TenantDataRegions
     ///     Allowlist applied when configuration does not specify <see cref="Configuration.TenantProvisioningOptions.SupportedDataRegions" />.
     /// </summary>
     /// <remarks>Matches common Azure-first buyer regions; extend via configuration rather than widening this silently.</remarks>
-    public static readonly string[] PlatformDefaultSupportedRegions =
+    public static IReadOnlyList<string> PlatformDefaultSupportedRegions { get; } = Array.AsReadOnly<string>(
     [
         Default,
         "eastus",
@@ -27,7 +27,7 @@ public static class TenantDataRegions
         "australiaeast",
         "centralindia",
         "brazilsouth",
-    ];
+    ]);
 
     /// <summary>Lowercase trimming; callers must enforce allowlists separately.</summary>
     public static string Normalize(string? value)
