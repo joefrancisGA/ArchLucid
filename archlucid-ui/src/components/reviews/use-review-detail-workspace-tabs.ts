@@ -106,6 +106,10 @@ import {
   parseRunImpactAnalysisOpenFromSearch,
   RUN_IMPACT_ANALYSIS_OPEN_PARAM,
 } from "@/lib/reviews/run-impact-analysis-disclosure-url";
+import {
+  parseRunFindingExplainabilityOpenFromSearch,
+  RUN_FINDING_EXPLAINABILITY_OPEN_PARAM,
+} from "@/lib/reviews/run-finding-explainability-disclosure-url";
 
 const WORKBENCH_TAB_IDS: readonly ReviewDetailTabId[] = ["architecture", "findings", "evidence"];
 
@@ -293,6 +297,9 @@ export function useReviewDetailWorkspaceTabs(
     const runImpactAnalysisOpenPresent = parseRunImpactAnalysisOpenFromSearch(
       params.get(RUN_IMPACT_ANALYSIS_OPEN_PARAM),
     );
+    const runFindingExplainabilityOpenPresent = parseRunFindingExplainabilityOpenFromSearch(
+      params.get(RUN_FINDING_EXPLAINABILITY_OPEN_PARAM),
+    );
     const runRecordMetaOpenPresent = parseRunDetailRecordMetadataOpenFromSearch(params.get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM));
     const askDockOpenPresent = parseReviewAskDockOpenFromSearch(params.get(REVIEW_ASK_DOCK_OPEN_PARAM));
     const askThreadPresent =
@@ -337,6 +344,7 @@ export function useReviewDetailWorkspaceTabs(
       || technologyBaselineEvidenceRefEntryIdPresent
       || techEntryIdPresent
       || runImpactAnalysisOpenPresent
+      || runFindingExplainabilityOpenPresent
       || runRecordMetaOpenPresent
       || askDockOpenPresent
       || askThreadPresent
