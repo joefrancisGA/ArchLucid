@@ -1,0 +1,50 @@
+name: FND-010 Finding Inspect Share Authorization
+on:
+  pull_request:
+    branches: [master, main]
+    paths:
+      - 'ArchLucid.Api/Controllers/Findings/FindingInspectController*.cs'
+      - 'ArchLucid.Api.Tests/FindingInspectControllerShareAccessTests.cs'
+      - 'ArchLucid.Api/Support/ArchitectureShareAccessGate.cs'
+      - 'ArchLucid.Application/Findings/RunFindingExternalTrackingEnrichmentService.cs'
+      - 'ArchLucid.Application/Runs/Query/Stages/RunFindingsInspectStage.cs'
+      - 'ArchLucid.Application.Tests/Runs/Query/RunFindingsListStageTests.cs'
+      - 'ArchLucid.Core/Persistence/ApplicationPorts/Findings/IRunFindingExternalTrackingReadRepository.cs'
+      - 'ArchLucid.Persistence/Findings/**'
+      - 'ArchLucid.Persistence/Sql/FindingInspectReadSql.cs'
+      - 'ArchLucid.Persistence.Tests/Findings/**'
+      - '.github/workflows/fnd010-finding-inspect-share-authorization.yml'
+permissions:
+  contents: read
+concurrency:
+  group: fnd010-finding-inspect-share-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  finding-inspect-http:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Verify direct finding inspection boundary
+        run: >-
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj
+          --filter "FullyQualifiedName~FindingInspectControllerShareAccessTests|FullyQualifiedName~ArchitectureShareAccessGateNotFoundPolicyTests|FullyQualifiedName~RunQueryControllerTests"
+  finding-inspect-persistence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Verify authorized run binding and tracking projection
+        run: >-
+          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj
+          --filter "FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~InMemoryRunFindingExternalTrackingReadRepositoryTests|FullyQualifiedName~InMemoryFindingInspectReadRepositoryValidationTests|FullyQualifiedName~InMemoryFindingInspectReadRepositoryNormalizationTests"
+      - name: Verify run-specific inspector and existing list/export mapping
+        run: >-
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj
+          --filter "FullyQualifiedName~RunFindingsListStageTests|FullyQualifiedName~RunFindingsQueryServiceExportTests|FullyQualifiedName~ArchitectureRunFindingsCsvFormatterTests"
