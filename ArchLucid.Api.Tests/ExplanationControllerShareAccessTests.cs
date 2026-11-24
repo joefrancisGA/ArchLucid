@@ -134,7 +134,11 @@ public sealed class ExplanationControllerShareAccessTests
             });
         h.Hash.Setup(m => m.ComputeHash(It.IsAny<ManifestDocument>())).Returns("sealed");
         h.Summary.Setup(s => s.GetSummaryAsync(Scope, A, CancellationToken.None))
-            .ReturnsAsync(new RunExplanationSummary { FindingCount = 0 });
+            .ReturnsAsync(new RunExplanationSummary
+            {
+                Explanation = new ExplanationResult(), ThemeSummaries = [],
+                OverallAssessment = "test", RiskPosture = "Low", FindingCount = 0,
+            });
 
         (await h.Controller.AggregateRunExplanation(A, CancellationToken.None)).Should().BeOfType<OkObjectResult>();
         (await h.Controller.AggregateRunExplanation(A, CancellationToken.None)).Should().BeOfType<NotFoundResult>();
