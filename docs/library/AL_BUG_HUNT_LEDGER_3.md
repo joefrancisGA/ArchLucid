@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `findingTechnicalMetadataOpen=1` deep links via `parseFindingTechnicalMetadataOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries findingTechnicalMetadataOpen=1`. URL-sync vitest **99/99**. Private beta: shared review links that only open finding technical-metadata inspect in the query are no longer overwritten with visit-default tab or finding query keys on first load.
+> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `findingEvidenceBasisOpen=1` deep links via `parseFindingEvidenceBasisOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries findingEvidenceBasisOpen=1`. URL-sync vitest **100/100**. Private beta: shared review links that only open finding evidence-basis inspect in the query are no longer overwritten with visit-default tab or finding query keys on first load.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -11706,6 +11706,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `findingEvidenceBasisOpen` monitor: a bare finding evidence-basis inspect disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `findingEvidenceBasisOpen` via `parseFindingEvidenceBasisOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries findingEvidenceBasisOpen=1`. URL-sync vitest **100/100**. Private beta: when an invited operator opens a shared review link that only opens finding evidence-basis inspect in the query, visit-default tab navigation no longer replaces that query on first load.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `findingTechnicalMetadataOpen` monitor: a bare finding technical-metadata inspect disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `findingTechnicalMetadataOpen` via `parseFindingTechnicalMetadataOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries findingTechnicalMetadataOpen=1`. URL-sync vitest **99/99**. Private beta: when an invited operator opens a shared review link that only opens finding technical-metadata inspect in the query, visit-default tab navigation no longer replaces that query on first load.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `findingRelatedAuditOpen` monitor: a bare finding related-audit inspect disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `findingRelatedAuditOpen` via `parseFindingRelatedAuditOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries findingRelatedAuditOpen=1`. URL-sync vitest **98/98**. Private beta: when an invited operator opens a shared review link that only opens finding related-audit inspect in the query, visit-default tab navigation no longer replaces that query on first load.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `findingAuditOpen` monitor: a bare finding-audit inspect disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `findingAuditOpen` via `parseFindingAuditOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries findingAuditOpen=1`. URL-sync vitest **97/97**. Private beta: when an invited operator opens a shared review link that only opens finding audit inspect in the query, visit-default tab navigation no longer replaces that query on first load.
@@ -11848,6 +11849,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 
+
+- [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `findingEvidenceBasisOpen` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored finding evidence-basis inspect disclosure deep links; regression above. Private beta: shared links that only set `findingEvidenceBasisOpen=1` are no longer replaced with visit-default query keys on first load.
 
 - [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `findingTechnicalMetadataOpen` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored finding technical-metadata inspect disclosure deep links; regression above. Private beta: shared links that only set `findingTechnicalMetadataOpen=1` are no longer replaced with visit-default query keys on first load.
 
@@ -12642,8 +12645,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 101
-- **bugs-found:** 100
+- **hunts:** 102
+- **bugs-found:** 101
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
