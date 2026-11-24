@@ -32,7 +32,7 @@
 | Priority | QA & stabilization | Release readiness | 2.0 foundations | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Immediate | 0 | 0 | 0 | 0 |
-| Critical | 33 | 5 | 0 | 38 |
+| Critical | 34 | 5 | 0 | 39 |
 | High | 262 | 141 | 0 | 403 |
 | Medium | 10 | 2 | 15 | 27 |
 | Low | 0 | 0 | 63 | 63 |
@@ -45,7 +45,7 @@ Each section is ordered **QA → release readiness → 2.0 foundations**. Within
 
 ### Critical
 
-#### QA & stabilization (33)
+#### QA & stabilization (34)
 
 | ID | Technical item | Origin / qualification |
 | --- | --- | --- |
@@ -82,6 +82,7 @@ Each section is ordered **QA → release readiness → 2.0 foundations**. Within
 | FND-084 | Semantic fingerprints and safe early termination of invalidation propagation | Critical extension of FND-076/FND-083/FND-062. Define versioned canonical output fingerprints that preserve security-relevant semantics, scope, completeness and evidence lineage while excluding only proven irrelevant volatile fields. Stop propagation only when downstream input equivalence is independently established and dependency/version contracts remain valid; ambiguous, incomplete or changed contracts trigger conservative recomputation. Test equivalent reorderings, changed permissions, provenance changes, missing evidence and incompatible versions; never infer equivalence from LLM judgment alone. |
 | FND-085 | Cost-optimized intermediate result materialization and persistence | Critical extension of FND-075/FND-076/FND-083/FND-043 and TB-2411. Evaluate measured recomputation expense, serialization/storage/read overhead, reuse frequency and retention limits to selectively persist expensive reusable intermediate results; reuse existing authorized snapshot and checkpoint stores rather than create competing infrastructure. Version and validate serialized results, bound retention and resource use, preserve audit/history requirements, fail safely on eviction or corrupt/missing artifacts. Benchmark cold/warm workloads, storage pressure, recovery and total cost; optimization must not weaken correctness or isolation. |
 | FND-086 | Conservative negative-dependency tracking and incremental-versus-full recomputation equivalence | Critical verification slice of FND-076/FND-078/FND-079/FND-083/FND-084 and SA-13. Track dependencies on absence, query domains, collection completeness and potentially new graph edges/resources, not only previously observed path members. Compare incremental results against full recomputation on identical pinned evidence, policies and engine versions with independent bounded oracles where feasible; cover additions, deletions, indirect reachability, changed NSG/identity rules, previously absent paths and incomplete inputs. Block unsafe incremental rollout on material discrepancies or unresolved coverage; fall back to full or safely scoped wider recomputation when dependency completeness cannot be established. Record semantic equivalence within tested scope, not universal proof. |
+| FND-087 | Complete solution-wide enum boundary enforcement and compatibility verification | Critical QA/stabilization closure of the targeted enum audit (PRs #8042, #8044, #8045, #8047, #8051, #8057, #8058 and pending #8062; see docs/architecture/ENUM_BOUNDARY_AUDIT.md). Reconcile and validate #8062, run compiler-backed inventory on current master using the existing compilation lane (no duplicate full CI), verify analyzer execution for every product project, remediate unsafe conversions and JSON/default-value bypasses, review only exact source-fingerprinted legitimate exceptions, run focused regression tests and authorized read-only historical SQL/JSON compatibility checks. Promote ENUM001 policy from changed-files to all only after actual inventory classification; keep ENUM002 blocking, demonstrate negative-control CI failure and compliant CI success, publish diagnostic/test evidence and confirm release-path enforcement. No automatic baseline approval, broad suppression, or fabricated successful evidence. Deferred from ordinary Aspects by owner on 2026-11-24; track separately from sampled defect-density statistics. |
 
 #### Release readiness (5)
 
