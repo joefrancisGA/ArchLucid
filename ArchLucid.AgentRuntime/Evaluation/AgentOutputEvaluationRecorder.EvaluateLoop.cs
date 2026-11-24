@@ -95,6 +95,9 @@ public sealed partial class AgentOutputEvaluationRecorder
         if (evaluated is null)
             return;
 
+        await RecordProviderQualityAsync(runId, trace, matchingResult, evaluated, cancellationToken)
+            .ConfigureAwait(false);
+
         await AppendCalibrationSampleIfEnabledAsync(trace, matchingResult, evaluated, cancellationToken)
             .ConfigureAwait(false);
 

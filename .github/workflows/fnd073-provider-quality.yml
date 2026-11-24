@@ -1,0 +1,48 @@
+name: FND-073 provider quality quarantine
+
+on:
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'ArchLucid.AgentRuntime/**'
+      - 'ArchLucid.Host.Composition/Startup/Modules/Agents/**'
+      - 'ArchLucid.AgentRuntime.Tests/Quality/ProviderQualityMonitorTests.cs'
+      - '.github/workflows/fnd073-provider-quality.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  focused-provider-quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Restore focused test project
+        run: dotnet restore ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj
+      - name: Run FND-073 focused regressions
+        run: >-
+          dotnet test ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj
+          --no-restore
+          -c Release
+          --filter "FullyQualifiedName~ProviderQualityMonitorTests|FullyQualifiedName~AgentCompletionFallbackEligibilityTests"
+          --logger "console;verbosity=normal"
+      - name: Verify production wiring and independent signal
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          monitor = Path("ArchLucid.AgentRuntime/Quality/ProviderQualityMonitor.cs").read_text()
+          evaluator = Path("ArchLucid.AgentRuntime/Evaluation/AgentOutputEvaluationRecorder.ProviderQuality.cs").read_text()
+          chain = Path("ArchLucid.Host.Composition/Startup/Modules/Agents/AgentCompletionAzureScopedChainRegistrar.cs").read_text()
+          assert "MinimumIndependentKnownSamples" in monitor
+          assert "WilsonLowerBound" in monitor
+          assert "ProviderQualityLabel.Unknown" in monitor
+          assert "LlmJudge" not in evaluator
+          assert "AgentResultFaithfulnessSupportRatio" in evaluator
+          assert "CacheServed" in evaluator
+          assert "ProviderQualityQuarantiningAgentCompletionClient" in chain
+          PY

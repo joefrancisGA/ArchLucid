@@ -1,5 +1,6 @@
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.AgentRuntime.Evaluation;
+using ArchLucid.AgentRuntime.Quality;
 using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Agents.Evidence;
 using ArchLucid.Application.Findings;
@@ -51,6 +52,10 @@ partial class AgentLlmSupportCompositionModule
             if (o.MinScoreWarnBelow is { } warnFloor)
                 o.MinScoreWarnBelow = Math.Clamp(warnFloor, 0.0, 1.0);
         });
+        services.AddOptions<ProviderQualityOptions>()
+            .Bind(configuration.GetSection(ProviderQualityOptions.SectionPath));
+        services.PostConfigure<ProviderQualityOptions>(static options => options.Normalize());
+        services.AddSingleton<IProviderQualityMonitor, ProviderQualityMonitor>();
         services.AddSingleton<AgentOutputEvaluator>();
         services.AddSingleton<IAgentOutputEvaluator>(static sp => sp.GetRequiredService<AgentOutputEvaluator>());
         services.AddSingleton<IAgentResultEvidenceFaithfulnessChecker, AgentResultEvidenceFaithfulnessChecker>();
