@@ -1,6 +1,8 @@
 import type { JSX } from "react";
 
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { StatusTag } from "@/components/ui/status-tag";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import {
@@ -14,6 +16,7 @@ import {
   type PackageChangeSourceEvent,
   type PackageChangeTimelineEntry,
 } from "@/lib/package-changes-since-finalize";
+import { PACKAGE_CHANGES_SINCE_FINALIZE_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/runs/package-changes-since-finalize-empty-not-load-failure-copy";
 import { cn } from "@/lib/utils";
 
 export type PackageChangesSinceFinalizePanelProps = {
@@ -22,6 +25,7 @@ export type PackageChangesSinceFinalizePanelProps = {
   /** Pre-built entries skip rebuild when the parent already mapped events. */
   readonly entries?: readonly PackageChangeTimelineEntry[] | null;
   readonly className?: string;
+  readonly timelineLoadFailure?: ApiLoadFailureState | null;
 };
 
 function resolveEntries(props: PackageChangesSinceFinalizePanelProps): PackageChangeTimelineEntry[] {
@@ -80,21 +84,38 @@ export function PackageChangesSinceFinalizePanel(
         {PACKAGE_CHANGES_SINCE_FINALIZE_INTRO}
       </p>
 
-      {eventsNotStored ? (
+      {props.timelineLoadFailure ? (
+        <div
+          className="m-0 mt-3 space-y-2"
+          data-testid="package-changes-since-finalize-timeline-load-failure"
+        >
+          <OperatorApiProblem failure={props.timelineLoadFailure} />
+        </div>
+      ) : null}
+
+      {!props.timelineLoadFailure && eventsNotStored ? (
         <p
           className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="package-changes-since-finalize-events-not-stored"
         >
           {PACKAGE_CHANGES_SINCE_FINALIZE_EVENTS_NOT_STORED_COPY}
         </p>
-      ) : entries.length === 0 ? (
-        <p
-          className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="package-changes-since-finalize-empty"
-        >
-          {PACKAGE_CHANGES_SINCE_FINALIZE_EMPTY_COPY}
-        </p>
-      ) : (
+      ) : !props.timelineLoadFailure && entries.length === 0 ? (
+        <div className="m-0 mt-3 grid gap-1">
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="package-changes-since-finalize-empty"
+          >
+            {PACKAGE_CHANGES_SINCE_FINALIZE_EMPTY_COPY}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="package-changes-since-finalize-empty-not-load-failure"
+          >
+            {PACKAGE_CHANGES_SINCE_FINALIZE_EMPTY_NOT_LOAD_FAILURE_LINE}
+          </p>
+        </div>
+      ) : !props.timelineLoadFailure ? (
         <ol
           className="m-0 mt-3 list-none space-y-3 p-0"
           data-testid="package-changes-since-finalize-list"
@@ -124,7 +145,7 @@ export function PackageChangesSinceFinalizePanel(
             </li>
           ))}
         </ol>
-      )}
+      ) : null}
     </section>
   );
 }

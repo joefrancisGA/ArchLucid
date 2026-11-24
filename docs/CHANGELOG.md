@@ -5,6 +5,13 @@
 
 # ArchLucid changelog
 
+## 2026-11-24 - Score lift round 133 (batch 98): Drift, package changes, decision and approvals gates
+
+**Outcome.** Drift workbench change-table empty states stay off the drift load-error branch. Package changes since finalize shows timeline load failure apart from empty timeline honesty. Decision register and governance approval status-filter empties remain gated off list load failures (mounted contracts).
+
+**Surfaces.** Drift workbench, package changes since finalize, decision register, governance workflow approvals, honesty and mounted contract tests.
+
+
 
 ## 2026-11-24 - Score lift round 132 (batch 97): Infra workbench load-error gates
 
