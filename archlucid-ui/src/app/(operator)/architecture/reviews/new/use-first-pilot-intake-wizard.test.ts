@@ -557,6 +557,28 @@ describe("useFirstPilotIntakeWizard session restore", () => {
     expect(capturedPersistence?.state.scopeBullets).toEqual(sampleScopeBullets);
   });
 
+
+  it("applies example template after empty session restore on the same mount", async () => {
+    scopeGateSearchParamsHarness.state.query = "template=customer-intake-modernization";
+    sessionRestoreOnMountHarness.snapshot = {
+      runTitle: "",
+      briefText: "",
+      focusedPilotModeEnabled: true,
+      l0Answers: {},
+      l0SkippedQuestionKeys: [],
+      scopeGateOpen: false,
+      scopeBullets: [],
+    };
+
+    const { result } = renderHook(() => useFirstPilotIntakeWizard({}), {
+      wrapper: ScopeGateSearchParamsRerenderHost,
+    });
+
+    await waitFor(() => {
+      expect(result.current.runTitle).toBe("Enterprise customer intake");
+    });
+  });
+
   it("keeps restored quick-start title when template= deeplink and session auto-restore run on the same mount", async () => {
     scopeGateSearchParamsHarness.state.query = "template=customer-intake-modernization";
     sessionRestoreOnMountHarness.snapshot = {

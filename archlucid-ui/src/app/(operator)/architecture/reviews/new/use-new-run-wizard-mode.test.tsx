@@ -1,4 +1,4 @@
-import { act, fireEvent, renderHook, type ReactNode } from "@testing-library/react";
+import { act, fireEvent, renderHook, waitFor, type ReactNode } from "@testing-library/react";
 import { createElement, useSyncExternalStore } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -192,6 +192,45 @@ describe("useNewRunWizardMode", () => {
     rerender();
 
     expect(result.current.wizardMode).toBe("quick");
+  });
+
+
+  it("re-applies committed-manifest probe after transient mode=full URL is cleared", async () => {
+    let probeState: "pending" | "success" = "pending";
+
+    vi.mocked(useNewRunWizardCommittedProbeQuery).mockImplementation(() => {
+      if (probeState === "pending") {
+        return {
+          isPending: true,
+          isSuccess: false,
+          isError: false,
+          data: undefined,
+        } as ReturnType<typeof useNewRunWizardCommittedProbeQuery>;
+      }
+
+      return {
+        isPending: false,
+        isSuccess: true,
+        isError: false,
+        data: { hasCommittedManifest: true, latestCommittedRunId: "run-1", latestRunId: "run-1" },
+      } as ReturnType<typeof useNewRunWizardCommittedProbeQuery>;
+    });
+
+    wizardModeSearchParamsHarness.state.query = "mode=full";
+
+    const { result, rerender } = renderHook(() => useNewRunWizardMode(false), {
+      wrapper: WizardModeSearchParamsRerenderHost,
+    });
+
+    expect(result.current.wizardMode).toBe("full");
+
+    wizardModeSearchParamsHarness.applySearchParamsQuery("");
+    probeState = "success";
+    rerender();
+
+    await waitFor(() => {
+      expect(result.current.wizardMode).toBe("full");
+    });
   });
 
 });

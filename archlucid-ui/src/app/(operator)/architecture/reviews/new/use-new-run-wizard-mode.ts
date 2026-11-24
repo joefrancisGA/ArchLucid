@@ -99,6 +99,7 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
         wizardModeRef.current = "quick";
         setWizardMode("quick");
         writeStoredWizardMode("quick");
+        modeChosenRef.current = false;
       }
 
       return;
@@ -125,6 +126,7 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
           wizardModeRef.current = "quick";
           setWizardMode("quick");
           writeStoredWizardMode("quick");
+          modeChosenRef.current = false;
         }
 
         return;

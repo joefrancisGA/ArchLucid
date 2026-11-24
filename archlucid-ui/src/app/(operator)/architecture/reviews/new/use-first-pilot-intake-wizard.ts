@@ -211,7 +211,13 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   );
   const handleSessionRestore = useCallback(
     (snapshot: { state: FirstPilotIntakeSessionState }) => {
-      exampleTemplatePrefillAppliedRef.current = true;
+      if (
+        wizardSessionHasTextContent(snapshot.state.runTitle) ||
+        wizardSessionHasTextContent(snapshot.state.briefText)
+      ) {
+        exampleTemplatePrefillAppliedRef.current = true;
+      }
+
       setRunTitle(snapshot.state.runTitle);
       setBriefText(snapshot.state.briefText);
       setFocusedPilotModeEnabled(snapshot.state.focusedPilotModeEnabled);
