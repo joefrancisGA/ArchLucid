@@ -64,6 +64,10 @@ public sealed class CustomRoleClaimsTransformation(
 
         foreach (string permission in permissions)
         {
+            // Legacy tenant roles may contain a platform-only permission. Never project it.
+            if (!Permissions.IsTenantAssignable(permission))
+                continue;
+
             if (!id.HasClaim(Permissions.ClaimType, permission))
                 id.AddClaim(new Claim(Permissions.ClaimType, permission));
         }
