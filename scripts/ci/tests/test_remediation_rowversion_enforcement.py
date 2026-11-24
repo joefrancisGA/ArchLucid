@@ -35,7 +35,7 @@ class RowVersionEnforcementTests(unittest.TestCase):
         segment = s.split("private async Task RestoreInstanceAfterAssociationFailureAsync(", 1)[1]
         segment = segment.split("private static VerifiedRemediationControlAssociationRecord CreateAssociation(", 1)[0]
         self.assertIn("TryGetByIdInScopeAsync(", segment)
-        self.assertIn("current.RowVersion is not { Length: 8 }", segment)
+        self.assertIn("current?.RowVersion is not { Length: 8 }", segment)
         self.assertIn("ToMutation(current) with { ExpectedRowVersion = null }", segment)
         self.assertIn("ExpectedRowVersion = current.RowVersion", segment)
         self.assertIn("ToMutation(beforeVerify)", segment)
