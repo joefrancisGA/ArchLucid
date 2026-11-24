@@ -100,3 +100,4 @@
 {"at":"2026-11-24T00:53:53.9493050Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote runRecordMetaOpen-only URL"}
 {"at":"2026-11-24T00:57:11.7146009Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote askDock-only URL"}
 {"at":"2026-11-24T01:01:58.7775427Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote runDetailWorkspaceDisclosuresExpanded-only URL"}
+{"at":"2026-11-24T01:06:34.2316249Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote askThread-only URL"}
