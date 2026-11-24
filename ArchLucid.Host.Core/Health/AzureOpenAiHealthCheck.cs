@@ -39,7 +39,7 @@ public sealed class AzureOpenAiHealthCheck(IConfiguration configuration) : IHeal
 
         if (!AzureOpenAiEndpointConnectivitySocketProbe.TryGetHttpAuthority(endpoint, out Uri? authority))
 
-            return HealthCheckResult.Unhealthy("AzureOpenAI:Endpoint must be an absolute HTTP(S) URL with a host and no embedded credentials.");
+            return HealthCheckResult.Unhealthy("AzureOpenAI:Endpoint must be a valid absolute URL (HTTP(S), with a host and no embedded credentials).");
 
         using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         linked.CancelAfter(AzureOpenAiEndpointConnectivityLintLimits.SocketProbeTimeout);
