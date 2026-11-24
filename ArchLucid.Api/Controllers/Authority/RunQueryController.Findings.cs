@@ -34,7 +34,7 @@ public sealed partial class RunQueryController
     {
         try
         {
-            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+            IActionResult? sealedGuardResult = await EnsureRunReadBoundaryAsync(runId, cancellationToken);
 
             if (sealedGuardResult is not null)
                 return sealedGuardResult;
@@ -80,7 +80,7 @@ public sealed partial class RunQueryController
     {
         try
         {
-            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+            IActionResult? sealedGuardResult = await EnsureRunReadBoundaryAsync(runId, cancellationToken);
 
             if (sealedGuardResult is not null)
                 return sealedGuardResult;
@@ -117,7 +117,7 @@ public sealed partial class RunQueryController
     {
         try
         {
-            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+            IActionResult? sealedGuardResult = await EnsureRunReadBoundaryAsync(runId, cancellationToken);
 
             if (sealedGuardResult is not null)
                 return sealedGuardResult;
@@ -156,7 +156,7 @@ public sealed partial class RunQueryController
     {
         try
         {
-            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+            IActionResult? sealedGuardResult = await EnsureRunReadBoundaryAsync(runId, cancellationToken);
 
             if (sealedGuardResult is not null)
                 return sealedGuardResult;
@@ -212,7 +212,7 @@ public sealed partial class RunQueryController
         string runId,
         CancellationToken cancellationToken)
     {
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+        IActionResult? sealedGuardResult = await EnsureRunReadBoundaryAsync(runId, cancellationToken);
 
         if (sealedGuardResult is not null)
             return sealedGuardResult;
