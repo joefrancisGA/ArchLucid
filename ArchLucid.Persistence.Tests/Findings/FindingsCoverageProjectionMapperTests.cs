@@ -108,9 +108,12 @@ public sealed class FindingsCoverageProjectionMapperTests
     }
 
     [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
     [InlineData("unknown")]
     [InlineData("2147483647")]
-    public void Map_rejects_unknown_snapshot_generation_status(string raw)
+    public void Map_rejects_unknown_snapshot_generation_status(string? raw)
     {
         // The parser is called by the same projection that determines commit eligibility.
         Action act = () => FindingsSnapshotGenerationStatusParser.Parse(raw);
@@ -126,6 +129,7 @@ public sealed class FindingsCoverageProjectionMapperTests
                 FindingsSnapshotId = Guid.NewGuid(),
                 RunId = Guid.NewGuid(),
                 SchemaVersion = 7,
+                GenerationStatus = nameof(FindingsSnapshotGenerationStatus.Complete),
                 EvaluationConfidenceEnrichmentSkipped = null,
             },
             []);
