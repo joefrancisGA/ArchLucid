@@ -8,11 +8,11 @@ export interface components {
         ActorDescriptor: {
             /** Format: int32 */
             confidence?: number;
-            contract?: components["schemas"]["InteractionContract"];
-            kind?: components["schemas"]["ActorKind"];
+            contract: components["schemas"]["InteractionContract"];
+            kind: components["schemas"]["ActorKind"];
             label?: null | string;
-            origin?: components["schemas"]["ActorOrigin"];
-            trustOrigin?: components["schemas"]["TrustOrigin"];
+            origin: components["schemas"]["ActorOrigin"];
+            trustOrigin: components["schemas"]["TrustOrigin"];
         };
         /** @enum {string} */
         ActorKind: "Human" | "Machine" | "Both";
@@ -399,6 +399,7 @@ export interface components {
             confidence?: number | string;
             falsificationEvidenceNeeded?: string;
             hypothesis?: string;
+            inventoryProbe?: null | components["schemas"]["InventoryFalsificationProbe"];
             lane?: components["schemas"]["AdversarialLane"];
             sourceFindingId?: null | string;
             suppressed?: boolean;
@@ -4183,6 +4184,7 @@ export interface components {
             publicNetworkAccess?: null | components["schemas"]["PublicNetworkAccessVerification"];
             semanticAssessment?: null | components["schemas"]["SemanticSupportAssessment"];
             semanticMethod?: components["schemas"]["SemanticAssessmentMethod"];
+            semanticVerificationDeferredReason?: null | string;
             stageResults?: components["schemas"]["EvidenceValidationStageOutcome"][];
             supportTier?: components["schemas"]["EvidenceSupportTier"];
         };
@@ -4426,7 +4428,7 @@ export interface components {
             /** Format: int32 */
             confidence?: null | number;
             hardCitations?: components["schemas"]["FeasibilityHardCitation"][];
-            kind?: components["schemas"]["FeasibilityVerdictKind"];
+            kind: components["schemas"]["FeasibilityVerdictKind"];
             proposedRelaxations?: components["schemas"]["ProposedRelaxation"][];
             softEnvelope?: null | components["schemas"]["SoftInfeasibilityEnvelope"];
             summary?: string;
@@ -5826,6 +5828,13 @@ export interface components {
             /** Format: date */
             rollupDate?: string;
             rows?: components["schemas"]["InternalCrossTenantRollupDailyItemResponse"][];
+        };
+        /** @enum {string} */
+        InventoryFalsificationOutcome: "Untestable" | "Refuted" | "SurvivedWithinTestedScope" | "HumanReviewRequired";
+        InventoryFalsificationProbe: {
+            coverage: string;
+            outcome: components["schemas"]["InventoryFalsificationOutcome"];
+            verification: null | components["schemas"]["PublicNetworkAccessVerification"];
         };
         InvitationValidationResponse: {
             allowEmailCode?: boolean;
@@ -8548,7 +8557,7 @@ export interface components {
             subjectId?: string;
         };
         RecordRunOperatorGovernanceDispositionRequest: {
-            decision?: components["schemas"]["RunOperatorGovernanceDecision"];
+            decision: components["schemas"]["RunOperatorGovernanceDecision"];
             rationale?: null | string;
         };
         RegisterItsmCorrelationRequest: {
@@ -9290,7 +9299,7 @@ export interface components {
             riskExceptionId?: string;
             /** Format: uuid */
             runId?: null | string;
-            status?: components["schemas"]["RiskExceptionStatus"];
+            status: components["schemas"]["RiskExceptionStatus"];
             /** Format: uuid */
             tenantId?: string;
             /** Format: uuid */
