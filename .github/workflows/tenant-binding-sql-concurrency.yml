@@ -6,6 +6,9 @@ on:
     paths:
       - ArchLucid.Persistence.Tests/TenantDatabaseBindingConcurrencySqlIntegrationTests.cs
       - ArchLucid.Persistence/Tenancy/DapperTenantDatabaseBindingRepository.cs
+      - ArchLucid.Persistence.Tests/Data/Infrastructure/TenantSchemaBootstrapParityIntegrationTests.cs
+      - ArchLucid.Persistence/Tenancy/TenantDirectorySql.cs
+      - ArchLucid.Persistence/Scripts/ArchLucid.System.sql
       - ArchLucid.Persistence/Migrations/System/**
       - .github/workflows/tenant-binding-sql-concurrency.yml
   workflow_dispatch:
@@ -52,10 +55,10 @@ jobs:
         run: |
           dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj \
             --configuration Release \
-            --filter 'FullyQualifiedName~TenantDatabaseBindingConcurrencySqlIntegrationTests' \
+            --filter 'FullyQualifiedName~TenantDatabaseBindingConcurrencySqlIntegrationTests|FullyQualifiedName~System_migrations_alone_support_tenant_directory_lookup|FullyQualifiedName~TenantSchemaBootstrapParityIntegrationTests.Migration_006_' \
             --logger 'trx;LogFileName=tenant-binding-concurrency.trx' \
             --results-directory TestResults/tenant-binding
-      - name: Require actual execution of both SQL tests
+      - name: Require actual execution of all focused SQL tests
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -68,11 +71,14 @@ jobs:
           expected = {
               "Concurrent_first_writes_for_same_tenant_leave_one_pending_binding",
               "Concurrent_updates_of_failed_binding_clear_error_and_preserve_creation_time",
+              "System_migrations_alone_support_tenant_directory_lookup",
+              "Migration_006_backfills_only_offboarded_tenants_when_request_column_is_missing",
+              "Migration_006_preserves_recorded_erasure_request_and_legal_hold",
           }
           actual = {r.attrib["testName"].rsplit(".", 1)[-1] for r in results}
-          if len(results) != 2 or actual != expected or any(r.attrib.get("outcome") != "Passed" for r in results):
-              raise SystemExit("Expected both named SQL integration tests to execute and pass; skipped or missing tests are not evidence.")
-          print("Both named SQL integration tests executed and passed.")
+          if len(results) != len(expected) or actual != expected or any(r.attrib.get("outcome") != "Passed" for r in results):
+              raise SystemExit("Expected all named SQL integration tests to execute and pass; skipped or missing tests are not evidence.")
+          print("All named SQL integration tests executed and passed.")
           PY
       - name: Preserve SQL test evidence
         if: always()
