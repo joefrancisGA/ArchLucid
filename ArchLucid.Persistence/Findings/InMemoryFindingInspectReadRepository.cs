@@ -30,6 +30,19 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
         authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
 
     /// <inheritdoc />
+    public Task<Guid?> GetRunIdByFindingIdAsync(ScopeContext scope, string findingId, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(findingId);
+        ct.ThrowIfCancellationRequested();
+        Match match = DemoFindingId.Match(FindingInspectReadRepositoryCore.NormalizeFindingId(findingId));
+        // A demo ID supplies only a candidate. The caller still authorizes the scoped run
+        // and subsequently verifies that the finding exists in that run.
+        return Task.FromResult(match.Success && Guid.TryParseExact(match.Groups["run"].Value, "N", out Guid id)
+            ? (Guid?)id : null);
+    }
+
+    /// <inheritdoc />
     public async Task<FindingInspectResponse?> GetInspectAsync(
         ScopeContext scope,
         string findingId,
@@ -50,6 +63,9 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             return null;
 
         if (!Guid.TryParseExact(m.Groups["run"].Value, "N", out Guid runId))
+            return null;
+
+        if (options?.ExpectedRunId is Guid expectedRunId && expectedRunId != runId)
             return null;
 
         RunDetailDto? detail = await _authorityQuery.GetRunDetailAsync(scope, runId, ct);
