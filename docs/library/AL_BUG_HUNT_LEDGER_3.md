@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `findingWorkWithOpen=1` deep links via `parseFindingWorkWithOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries findingWorkWithOpen=1`. URL-sync vitest **102/102**. Private beta: shared review links that only open finding work-with inspect in the query are no longer overwritten with visit-default tab or finding query keys on first load.
+> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `findingExportOpen=1` deep links via `parseFindingExportOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries findingExportOpen=1`. URL-sync vitest **103/103**. Private beta: shared review links that only open finding export actions disclosure in the query are no longer overwritten with visit-default tab or finding query keys on first load.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -11705,6 +11705,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-08-28 thorough hunt #191: proved billing paid-tier precedence over stale frictionless flag; cheap-disproved welcome/disclosure scope persistence and AI snapshot disposition crash; seeded frictionless session cleanup and LLM budget cache refresh candidates.
 
 ## Zone: ui-review-detail-workspace
+2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `findingExportOpen` monitor: a bare finding export actions disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `findingExportOpen` via `parseFindingExportOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries findingExportOpen=1`. URL-sync vitest **103/103**. Private beta: when an invited operator opens a shared review link that only opens finding export in the query, visit-default tab navigation no longer replaces that query on first load.
+
 
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `findingWorkWithOpen` monitor: a bare finding work-with inspect disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `findingWorkWithOpen` via `parseFindingWorkWithOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries findingWorkWithOpen=1`. URL-sync vitest **102/102**. Private beta: when an invited operator opens a shared review link that only opens finding work-with inspect in the query, visit-default tab navigation no longer replaces that query on first load.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `findingFullEvidenceTraceOpen` monitor: a bare finding full-evidence trace inspect disclosure deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `findingFullEvidenceTraceOpen` via `parseFindingFullEvidenceTraceOpenFromSearch`. Regression `does not apply visit-default navigation when the URL only carries findingFullEvidenceTraceOpen=1`. URL-sync vitest **101/101**. Private beta: when an invited operator opens a shared review link that only opens finding full-evidence trace inspect in the query, visit-default tab navigation no longer replaces that query on first load.
@@ -11851,6 +11853,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 
+
+- [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `findingExportOpen` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored finding export actions disclosure deep links; regression above. Private beta: shared links that only set `findingExportOpen=1` are no longer replaced with visit-default query keys on first load.
 
 - [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `findingWorkWithOpen` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored finding work-with inspect disclosure deep links; regression above. Private beta: shared links that only set `findingWorkWithOpen=1` are no longer replaced with visit-default query keys on first load.
 
@@ -12651,8 +12655,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 104
-- **bugs-found:** 103
+- **hunts:** 105
+- **bugs-found:** 104
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
