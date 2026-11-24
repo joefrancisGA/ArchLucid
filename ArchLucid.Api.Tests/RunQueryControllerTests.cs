@@ -96,6 +96,9 @@ public sealed class RunQueryControllerTests
     [InlineData("detail")]
     [InlineData("roi")]
     [InlineData("stage-timeline")]
+    [InlineData("interactive-graph")]
+    [InlineData("evidence")]
+    [InlineData("finding-evidence")]
     public async Task Restricted_architecture_share_denies_run_read_before_any_query(string action)
     {
         Guid runGuid = Guid.Parse(RunId);
@@ -116,8 +119,12 @@ public sealed class RunQueryControllerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new NotFoundResult());
         Mock<IRunGraphQueryService> graph = new(MockBehavior.Strict);
+        Mock<IRunProvenanceQueryService> provenance = new(MockBehavior.Strict);
+        Mock<IRunFindingsQueryService> findings = new(MockBehavior.Strict);
         RunQueryController controller = CreateController(
             runGraphQueryService: graph.Object,
+            runProvenanceQueryService: provenance.Object,
+            runFindingsQueryService: findings.Object,
             scopeProvider: scopes.Object,
             architectureShareAccessGate: gate.Object);
 
@@ -126,6 +133,10 @@ public sealed class RunQueryControllerTests
             "detail" => await controller.GetRun(RunId, CancellationToken.None),
             "roi" => await controller.GetRunRoiEstimate(RunId, CancellationToken.None),
             "stage-timeline" => await controller.GetRunStageTimeline(RunId, CancellationToken.None),
+            "interactive-graph" => await controller.GetInteractiveGraphSnapshot(RunId, CancellationToken.None),
+            "evidence" => await controller.GetRunEvidence(RunId, CancellationToken.None),
+            "finding-evidence" => await controller.GetFindingEvidenceChain(
+                RunId, "finding-1", CancellationToken.None),
             _ => throw new InvalidOperationException(action)
         };
 
@@ -137,6 +148,8 @@ public sealed class RunQueryControllerTests
             runGuid,
             It.IsAny<CancellationToken>()), Times.Once);
         graph.VerifyNoOtherCalls();
+        provenance.VerifyNoOtherCalls();
+        findings.VerifyNoOtherCalls();
     }
 
     [Theory]
