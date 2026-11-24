@@ -42,8 +42,12 @@ public sealed partial class AuthorityReadsController(
     IManifestHashService manifestHashService,
     IScopeContextProvider scopeContextProvider,
     IAuthorityQueryService authorityQueryService,
-    IRunDetailQueryService runDetailQueryService) : ControllerBase
+    IRunDetailQueryService runDetailQueryService,
+    IArchitectureShareAccessGate architectureShareAccessGate) : ControllerBase
 {
+    private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
+        architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
+
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
 
@@ -134,6 +138,10 @@ public sealed partial class AuthorityReadsController(
     {
         try
         {
+            IActionResult? shareDenied = await EnsureRunShareReadAllowedAsync(runId, ct);
+            if (shareDenied is not null)
+                return shareDenied;
+
             RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
 
             if (detail is null)
@@ -161,6 +169,10 @@ public sealed partial class AuthorityReadsController(
     {
         try
         {
+            IActionResult? shareDenied = await EnsureRunShareReadAllowedAsync(runId, ct);
+            if (shareDenied is not null)
+                return shareDenied;
+
             RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
 
             if (detail is null)
@@ -199,6 +211,10 @@ public sealed partial class AuthorityReadsController(
     {
         try
         {
+            IActionResult? shareDenied = await EnsureRunShareReadAllowedAsync(runId, ct);
+            if (shareDenied is not null)
+                return shareDenied;
+
             RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
 
             if (detail is null)
@@ -234,6 +250,10 @@ public sealed partial class AuthorityReadsController(
     {
         try
         {
+            IActionResult? shareDenied = await EnsureRunShareReadAllowedAsync(runId, ct);
+            if (shareDenied is not null)
+                return shareDenied;
+
             RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
 
             if (detail is null)
@@ -268,6 +288,10 @@ public sealed partial class AuthorityReadsController(
     {
         try
         {
+            IActionResult? shareDenied = await EnsureRunShareReadAllowedAsync(runId, ct);
+            if (shareDenied is not null)
+                return shareDenied;
+
             return await GetReviewTrailProvenanceCoreAsync(runId, ct);
         }
         catch (ConflictException ex)
@@ -317,6 +341,10 @@ public sealed partial class AuthorityReadsController(
     {
         try
         {
+            IActionResult? shareDenied = await EnsureRunShareReadAllowedAsync(runId, ct);
+            if (shareDenied is not null)
+                return shareDenied;
+
             RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
 
             if (detail is null)
@@ -359,4 +387,8 @@ public sealed partial class AuthorityReadsController(
             return MapReviewTrailSealedManifestConflict(ex);
         }
     }
+
+    private Task<IActionResult?> EnsureRunShareReadAllowedAsync(Guid runId, CancellationToken ct) =>
+        _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this, User, _scopeContextProvider.GetCurrentScope(), runId, ct);
 }
