@@ -44,14 +44,12 @@ public static class AzureOpenAiEndpointConnectivityLintAdvisor
         if (string.IsNullOrWhiteSpace(endpoint))
             return null;
 
-        if (!Uri.TryCreate(endpoint, UriKind.Absolute, out Uri? resourceUri))
+        if (!AzureOpenAiEndpointConnectivitySocketProbe.TryGetHttpAuthority(endpoint, out Uri? authority))
         {
             return new HostingMisconfigurationWarning(
                 InvalidUrlRuleName,
-                "AzureOpenAI:Endpoint must be a valid absolute URL for Real agent mode (example: https://{resource}.openai.azure.com/).");
+                "AzureOpenAI:Endpoint must be an absolute HTTP(S) URL with a host and no embedded credentials for Real agent mode (example: https://{resource}.openai.azure.com/).");
         }
-
-        Uri authority = new(resourceUri.GetLeftPart(UriPartial.Authority));
 
         Func<Uri, CancellationToken, Task<bool>> probe =
             tcpReachabilityProbe ?? AzureOpenAiEndpointConnectivitySocketProbe.IsTcpReachableAsync;
@@ -61,18 +59,18 @@ public static class AzureOpenAiEndpointConnectivityLintAdvisor
             using CancellationTokenSource budget = new();
             budget.CancelAfter(AzureOpenAiEndpointConnectivityLintLimits.SocketProbeTimeout);
 
-            Task<bool> probeTask = probe(authority, budget.Token);
+            Task<bool> probeTask = probe(authority!, budget.Token);
             bool reachable = probeTask.GetAwaiter().GetResult();
 
             if (reachable)
                 return null;
 
-            return Unreachable(authority, "connectivity probe returned false.");
+            return Unreachable(authority!, "connectivity probe returned false.");
         }
         catch (OperationCanceledException)
         {
             return Unreachable(
-                authority,
+                authority!,
                 string.Format(
                     CultureInfo.InvariantCulture,
                     "timed out after {0} seconds (DNS or TCP connect).",
@@ -80,7 +78,7 @@ public static class AzureOpenAiEndpointConnectivityLintAdvisor
         }
         catch (Exception ex)
         {
-            return Unreachable(authority, ex.Message);
+            return Unreachable(authority!, ex.Message);
         }
     }
 

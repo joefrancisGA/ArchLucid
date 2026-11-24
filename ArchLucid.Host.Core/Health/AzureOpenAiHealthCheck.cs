@@ -37,11 +37,9 @@ public sealed class AzureOpenAiHealthCheck(IConfiguration configuration) : IHeal
             return HealthCheckResult.Unhealthy(
                 "AzureOpenAI:Endpoint is not configured for Real agent mode.");
 
-        if (!Uri.TryCreate(endpoint, UriKind.Absolute, out Uri? resourceUri))
+        if (!AzureOpenAiEndpointConnectivitySocketProbe.TryGetHttpAuthority(endpoint, out Uri? authority))
 
-            return HealthCheckResult.Unhealthy("AzureOpenAI:Endpoint must be a valid absolute URL.");
-
-        Uri authority = new(resourceUri.GetLeftPart(UriPartial.Authority));
+            return HealthCheckResult.Unhealthy("AzureOpenAI:Endpoint must be a valid absolute URL (HTTP(S), with a host and no embedded credentials).");
 
         using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         linked.CancelAfter(AzureOpenAiEndpointConnectivityLintLimits.SocketProbeTimeout);
@@ -49,11 +47,11 @@ public sealed class AzureOpenAiHealthCheck(IConfiguration configuration) : IHeal
         try
         {
             await AzureOpenAiEndpointConnectivitySocketProbe
-                .IsTcpReachableAsync(authority, linked.Token)
+                .IsTcpReachableAsync(authority!, linked.Token)
                 .ConfigureAwait(false);
 
             return HealthCheckResult.Healthy(
-                string.Format(CultureInfo.InvariantCulture, "Azure OpenAI endpoint '{0}' TCP reachable.", authority.Host));
+                string.Format(CultureInfo.InvariantCulture, "Azure OpenAI endpoint '{0}' TCP reachable.", authority!.Host));
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
@@ -61,7 +59,7 @@ public sealed class AzureOpenAiHealthCheck(IConfiguration configuration) : IHeal
                 string.Format(
                     CultureInfo.InvariantCulture,
                     "Azure OpenAI endpoint '{0}' TCP probe timed out after {1:0.#}s.",
-                    authority.Host,
+                    authority!.Host,
                     AzureOpenAiEndpointConnectivityLintLimits.SocketProbeTimeout.TotalSeconds));
         }
         catch (OperationCanceledException)
@@ -71,7 +69,7 @@ public sealed class AzureOpenAiHealthCheck(IConfiguration configuration) : IHeal
         catch (Exception ex)
         {
             return HealthCheckResult.Unhealthy(
-                string.Format(CultureInfo.InvariantCulture, "Azure OpenAI endpoint '{0}' TCP probe failed.", authority.Host),
+                string.Format(CultureInfo.InvariantCulture, "Azure OpenAI endpoint '{0}' TCP probe failed.", authority!.Host),
                 ex);
         }
     }

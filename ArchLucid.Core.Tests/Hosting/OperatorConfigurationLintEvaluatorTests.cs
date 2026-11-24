@@ -126,4 +126,48 @@ public sealed class OperatorConfigurationLintEvaluatorTests
         snapshot.AdvisoryFindings.Should().NotContain(w =>
             AzureOpenAiEndpointConnectivityLintAdvisor.IsConnectivitySurfaceRule(w.RuleName));
     }
+
+    [Theory]
+    [InlineData("file:///tmp/example")]
+    [InlineData("mailto:operator@example.invalid")]
+    [InlineData("ftp://example.invalid/")]
+    [InlineData("https://user:password@example.invalid/")]
+    public void ConnectivityAdvisor_rejects_unsupported_authorities_without_probing(string endpoint)
+    {
+        IConfiguration cfg = new ConfigurationBuilder().AddInMemoryCollection(
+            new Dictionary<string, string?>
+            {
+                ["AgentExecution:Mode"] = "Real",
+                ["AzureOpenAI:Endpoint"] = endpoint
+            }).Build();
+        int calls = 0;
+        HostingMisconfigurationWarning? finding =
+            AzureOpenAiEndpointConnectivityLintAdvisor.TryDescribeConnectivityFinding(cfg,
+                (_, _) => { calls++; return Task.FromResult(true); });
+
+        calls.Should().Be(0);
+        finding.Should().NotBeNull();
+        finding!.Value.RuleName.Should().Be(AzureOpenAiEndpointConnectivityLintAdvisor.InvalidUrlRuleName);
+    }
+
+    [Theory]
+    [InlineData("https://example.invalid/path?q=1", "https://example.invalid/")]
+    [InlineData("http://example.invalid:8080/path", "http://example.invalid:8080/")]
+    public void ConnectivityAdvisor_preserves_valid_http_authority(string endpoint, string expectedAuthority)
+    {
+        IConfiguration cfg = new ConfigurationBuilder().AddInMemoryCollection(
+            new Dictionary<string, string?>
+            {
+                ["AgentExecution:Mode"] = "Real",
+                ["AzureOpenAI:Endpoint"] = endpoint
+            }).Build();
+
+        Uri? observed = null;
+        HostingMisconfigurationWarning? finding =
+            AzureOpenAiEndpointConnectivityLintAdvisor.TryDescribeConnectivityFinding(cfg,
+                (uri, _) => { observed = uri; return Task.FromResult(true); });
+
+        finding.Should().BeNull();
+        observed.Should().Be(new Uri(expectedAuthority));
+    }
 }
