@@ -3,6 +3,7 @@ using System.Security.Claims;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Support;
+using ArchLucid.Application;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Explanation;
