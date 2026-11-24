@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Runs;
@@ -36,7 +37,8 @@ public sealed partial class RunsExportController(
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider,
     IAuthorityQueryService authorityQueryService,
-    IManifestHashService manifestHashService) : ControllerBase
+    IManifestHashService manifestHashService,
+    IArchitectureShareAccessGate architectureShareAccessGate) : ControllerBase
 {
     private readonly IArchitectureReviewExportService _exportService =
         exportService ?? throw new ArgumentNullException(nameof(exportService));
@@ -52,6 +54,9 @@ public sealed partial class RunsExportController(
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
+        architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
 
     /// <summary>Downloads a review export for the given run (<c>docx</c>, <c>pdf</c>, or <c>html</c>).</summary>
     [HttpGet("{runId}/export/{format}")]
