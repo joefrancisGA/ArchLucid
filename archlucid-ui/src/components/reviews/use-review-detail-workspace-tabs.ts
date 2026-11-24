@@ -115,6 +115,10 @@ import {
   CHANGES_SINCE_LAST_REVIEW_OPEN_PARAM,
 } from "@/lib/runs/changes-since-last-review-disclosure-url";
 import {
+  parsePipelineTimelineEventIdFromSearch,
+  PIPELINE_TIMELINE_EVENT_ID_PARAM,
+} from "@/lib/runs/pipeline-timeline-event-disclosure-url";
+import {
   parseRunRetrievalGroundingOpenFromSearch,
   RUN_RETRIEVAL_GROUNDING_OPEN_PARAM,
 } from "@/lib/runs/run-retrieval-grounding-disclosure-url";
@@ -418,6 +422,8 @@ export function useReviewDetailWorkspaceTabs(
     const changesSinceLastReviewOpenPresent = parseChangesSinceLastReviewOpenFromSearch(
       params.get(CHANGES_SINCE_LAST_REVIEW_OPEN_PARAM),
     );
+    const pipelineTimelineEventIdPresent =
+      parsePipelineTimelineEventIdFromSearch(params.get(PIPELINE_TIMELINE_EVENT_ID_PARAM)).length > 0;
     const runRetrievalGroundingOpenPresent = parseRunRetrievalGroundingOpenFromSearch(
       params.get(RUN_RETRIEVAL_GROUNDING_OPEN_PARAM),
     );
@@ -546,6 +552,7 @@ export function useReviewDetailWorkspaceTabs(
       || runAuditIdentifiersOpenPresent
       || runPipelineTimelineOpenPresent
       || changesSinceLastReviewOpenPresent
+      || pipelineTimelineEventIdPresent
       || runRetrievalGroundingOpenPresent
       || runDetailActivityTechnicalOpenPresent
       || runDetailActivityOutcomeMetricsOpenPresent
