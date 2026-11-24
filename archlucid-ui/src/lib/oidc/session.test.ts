@@ -598,6 +598,18 @@ describe("persistTokenResponse", () => {
     expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBeNull();
   });
 
+  it("strips soft hyphens from JWT sub claims before storing subject hints", () => {
+    const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
+    const payload = Buffer.from(
+      JSON.stringify({ sub: "user\u00ad123", exp: Math.floor(Date.now() / 1000) + 3600 }),
+    ).toString("base64url");
+    const accessToken = `${header}.${payload}.sig`;
+
+    persistTokenResponse({ access_token: accessToken, expires_in: 3600 });
+
+    expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBe("user123");
+  });
+
   it("stores subject hints from id_token when the access JWT omits sub", () => {
     const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
     const accessPayload = Buffer.from(JSON.stringify({ scp: "openid profile" })).toString("base64url");
