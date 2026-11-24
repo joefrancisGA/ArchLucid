@@ -19,10 +19,24 @@ internal static class ArchLucidApiJsonSerializerOptions
         options.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
         options.PropertyNameCaseInsensitive = true;
 
-        if (!options.Converters.Any(static converter => converter is JsonStringEnumConverter))
+        if (!options.Converters.Any(static converter => converter is ValidatedEnumJsonConverterFactory))
         {
-            // k6 and CLI payloads often send numeric enum values (cloudProvider: 1); allow integers alongside strings.
-            options.Converters.Add(new JsonStringEnumConverter(null, allowIntegerValues: true));
+            // Keep the configured stock converter's naming and numeric-token policy.
+            // Wrap it at the same position so specific converters keep their precedence.
+            int index = -1;
+            for (int i = 0; i < options.Converters.Count; i++)
+            {
+                if (options.Converters[i] is JsonStringEnumConverter)
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+            if (index >= 0)
+                options.Converters[index] = new ValidatedEnumJsonConverterFactory((JsonStringEnumConverter)options.Converters[index]);
+            else
+                options.Converters.Add(new ValidatedEnumJsonConverterFactory(new JsonStringEnumConverter(null, allowIntegerValues: true)));
         }
 
         ArchLucidApiJsonTypeInfoResolverChain.Apply(options);
