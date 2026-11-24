@@ -99,6 +99,28 @@ public sealed class MeterListenerCounterSnapshotProviderTests
             .BeGreaterThanOrEqualTo(7);
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("\t")]
+    public void Snapshot_buckets_blank_metric_labels_into_unknown(string label)
+    {
+        _ = ArchLucidInstrumentation.FindingsProducedTotal;
+        _ = ArchLucidInstrumentation.OperatorTaskSuccessTotal;
+
+        using MeterListenerCounterSnapshotProvider sut = new();
+
+        ArchLucidInstrumentation.FindingsProducedTotal.Add(2, new TagList { { "severity", label } });
+        ArchLucidInstrumentation.OperatorTaskSuccessTotal.Add(3, new TagList { { "task", label } });
+
+        InstrumentationCounterSnapshot snapshot = sut.GetSnapshot();
+
+        snapshot.FindingsProducedBySeverity.Should().ContainKey("unknown").WhoseValue.Should().Be(2);
+        snapshot.OperatorTaskSuccessByTask.Should().ContainKey("unknown").WhoseValue.Should().Be(3);
+        snapshot.FindingsProducedBySeverity.Should().NotContainKey(label);
+        snapshot.OperatorTaskSuccessByTask.Should().NotContainKey(label);
+    }
+
     [Fact]
     public void Snapshot_groups_operator_task_success_by_task_tag()
     {
