@@ -78,7 +78,9 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
     {
         ArgumentNullException.ThrowIfNull(expected);
         ct.ThrowIfCancellationRequested();
-        if (threadId == Guid.Empty ||
+        if (threadId == Guid.Empty || expected.DocumentContentHashSha256 is null ||
+            !DraftDocumentContentFingerprint.SequenceEqual(expected.DocumentContentHashSha256,
+                DraftDocumentContentFingerprint.Compute(expected.Document)) ||
             expected.Status is not (DraftRequestStatus.Drafting or DraftRequestStatus.Admitted) ||
             !_drafts.TryGetValue(expected.DraftId, out InMemoryDraftRequestStoredDraft? stored) ||
             !DraftRequestRepositoryCore.MatchesProjectScope(expected.TenantId, expected.WorkspaceId,
