@@ -171,7 +171,11 @@ export function useReviewDetailWorkspaceTabs(
 
     const params = new URLSearchParams(window.location.search);
     const reviewTabPresent = (params.get(REVIEW_DETAIL_TAB_PARAM)?.trim() ?? "").length > 0;
-    const findingPresent = (params.get(REVIEW_DETAIL_FINDING_PARAM)?.trim() ?? "").length > 0;
+    const findingPresent =
+      parseArchitectureDiagramFindingIdFromSearch(
+        params.get(REVIEW_DETAIL_FINDING_PARAM),
+        params.get(ARCHITECTURE_DIAGRAM_FINDING_PARAM),
+      ).length > 0;
     const hashPresent = window.location.hash.replace(/^#/, "").trim().length > 0;
 
     if (reviewTabPresent || findingPresent || hashPresent) {

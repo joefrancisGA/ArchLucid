@@ -358,6 +358,24 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
     expect(window.location.search).toContain("findingId=finding-queue-1");
   });
 
+  it("does not apply visit-default finding navigation when the URL only carries legacy diagramFindingId", () => {
+    searchParamsHarness.applyQuery("diagramFindingId=legacy-finding-1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?diagramFindingId=legacy-finding-1");
+
+    const { result } = renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?diagramFindingId=legacy-finding-1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("findingId=");
+  });
   it("clears findingId on first paint when a section hash selects overview", () => {
     searchParamsHarness.applyQuery("reviewTab=findings&findingId=finding-queue-1");
     window.history.replaceState(
