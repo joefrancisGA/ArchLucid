@@ -114,6 +114,10 @@ import {
   parseRunRetrievalGroundingOpenFromSearch,
   RUN_RETRIEVAL_GROUNDING_OPEN_PARAM,
 } from "@/lib/runs/run-retrieval-grounding-disclosure-url";
+import {
+  parseRunDetailActivityTechnicalOpenFromSearch,
+  RUN_DETAIL_ACTIVITY_TECHNICAL_OPEN_PARAM,
+} from "@/lib/runs/run-detail-activity-technical-disclosure-url";
 
 import {
   parseRunImpactAnalysisOpenFromSearch,
@@ -364,6 +368,9 @@ export function useReviewDetailWorkspaceTabs(
     const runRetrievalGroundingOpenPresent = parseRunRetrievalGroundingOpenFromSearch(
       params.get(RUN_RETRIEVAL_GROUNDING_OPEN_PARAM),
     );
+    const runDetailActivityTechnicalOpenPresent = parseRunDetailActivityTechnicalOpenFromSearch(
+      params.get(RUN_DETAIL_ACTIVITY_TECHNICAL_OPEN_PARAM),
+    );
     const runImpactAnalysisOpenPresent = parseRunImpactAnalysisOpenFromSearch(
       params.get(RUN_IMPACT_ANALYSIS_OPEN_PARAM),
     );
@@ -451,6 +458,7 @@ export function useReviewDetailWorkspaceTabs(
       || runAuditIdentifiersOpenPresent
       || runPipelineTimelineOpenPresent
       || runRetrievalGroundingOpenPresent
+      || runDetailActivityTechnicalOpenPresent
       || runImpactAnalysisOpenPresent
       || runFindingExplainabilityOpenPresent
       || runCoverageCurationOpenPresent
