@@ -40,4 +40,14 @@ public sealed class DraftRequestListStatusFilterTests
 
         act.Should().Throw<InvalidOperationException>();
     }
+
+    [Theory]
+    [InlineData("2147483647")]
+    [InlineData("-2147483648")]
+    public void ParseOrDefault_undefined_numeric_status_throws(string value)
+    {
+        Action act = () => DraftRequestListStatusFilter.ParseOrDefault(value);
+
+        act.Should().Throw<InvalidOperationException>();
+    }
 }

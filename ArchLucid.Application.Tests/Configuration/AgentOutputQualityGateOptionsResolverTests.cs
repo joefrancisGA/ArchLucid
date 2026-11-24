@@ -56,4 +56,15 @@ public sealed class AgentOutputQualityGateOptionsResolverTests
 
         return new AgentOutputQualityGateOptionsResolver(Options.Create(host), scope.Object, settings.Object);
     }
+
+    [Theory]
+    [InlineData("2147483647")]
+    [InlineData("-2147483648")]
+    public void Resolve_undefined_tenant_override_preserves_host_mode(string value)
+    {
+        AgentOutputQualityGateOptions host = new() { Mode = AgentOutputQualityGateMode.PilotStrict };
+        AgentOutputQualityGateOptionsResolver resolver = CreateResolver(host, Guid.NewGuid(), value);
+
+        resolver.Resolve().Mode.Should().Be(AgentOutputQualityGateMode.PilotStrict);
+    }
 }

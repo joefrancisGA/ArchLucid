@@ -146,7 +146,7 @@ public sealed class AdminAgentModelCatalogController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
         }
 
-        if (!Enum.TryParse(request.EvaluationState, true, out AgentModelEvaluationStateKind evaluationState))
+        if (!Enum.TryParse(request.EvaluationState, true, out AgentModelEvaluationStateKind evaluationState) || !Enum.IsDefined(evaluationState))
         {
             return this.BadRequestProblem("EvaluationState is invalid.", ProblemTypes.ValidationFailed);
         }

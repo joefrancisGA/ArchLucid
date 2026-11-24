@@ -53,7 +53,7 @@ public static class RunRecordToArchitectureRunMapper
         if (string.IsNullOrWhiteSpace(legacyRunStatus))
             return ArchitectureRunStatus.Created;
 
-        if (!Enum.TryParse(legacyRunStatus, true, out ArchitectureRunStatus parsed))
+        if (!Enum.TryParse(legacyRunStatus, true, out ArchitectureRunStatus parsed) || !Enum.IsDefined(parsed))
 
             throw new InvalidOperationException(
                 $"Unrecognised ArchitectureRunStatus '{legacyRunStatus}'. " +

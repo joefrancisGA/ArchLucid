@@ -105,6 +105,6 @@ public sealed class TenantBrandingController(
         if (string.IsNullOrWhiteSpace(raw))
             return false;
 
-        return Enum.TryParse(raw.Trim(), ignoreCase: true, out displayContext);
+        return Enum.TryParse(raw.Trim(), ignoreCase: true, out displayContext) && Enum.IsDefined(displayContext);
     }
 }

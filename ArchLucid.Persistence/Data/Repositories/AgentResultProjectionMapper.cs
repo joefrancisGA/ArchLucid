@@ -87,5 +87,5 @@ internal static class AgentResultProjectionMapper
     }
 
     private static bool TryParseAgentType(string? persistedAgentType, out AgentType agentType) =>
-        Enum.TryParse(persistedAgentType, ignoreCase: true, out agentType);
+        Enum.TryParse(persistedAgentType, ignoreCase: true, out agentType) && Enum.IsDefined(agentType);
 }
