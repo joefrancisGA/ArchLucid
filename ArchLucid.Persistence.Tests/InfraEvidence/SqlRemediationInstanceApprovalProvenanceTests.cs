@@ -352,6 +352,18 @@ public sealed class SqlRemediationInstanceApprovalProvenanceTests(SqlServerPersi
             CreatedUtc = now,
         };
 
+        RemediationEvidenceRecord CopyEvidence(Guid instance, Guid receiptId) => new()
+        {
+            EvidenceId = receiptId,
+            InstanceId = instance,
+            TenantId = scope.TenantId,
+            Phase = RemediationEvidencePhase.Verify,
+            PayloadJson = verificationJson,
+            ActorKey = "independent-verifier",
+            CorrelationId = "sql-verification-transaction",
+            CreatedUtc = now,
+        };
+
         await repository.CommitVerificationInScopeAsync(scope, firstVerification, evidence);
         RemediationInstanceRecord firstAfter = (await repository.TryGetByIdInScopeAsync(scope, firstId))!;
         firstAfter.Status.Should().Be(RemediationInstanceStatus.Verified);
@@ -361,7 +373,7 @@ public sealed class SqlRemediationInstanceApprovalProvenanceTests(SqlServerPersi
 
         // A replay with the original token cannot append an additional receipt.
         Func<Task> stale = () => repository.CommitVerificationInScopeAsync(
-            scope, firstVerification, evidence with { EvidenceId = Guid.NewGuid() });
+            scope, firstVerification, CopyEvidence(firstId, Guid.NewGuid()));
         await stale.Should().ThrowAsync<InvalidOperationException>();
         (await repository.ListEvidenceByInstanceInScopeAsync(scope, firstId))
             .Should().ContainSingle("stale verification cannot append evidence");
@@ -376,13 +388,13 @@ public sealed class SqlRemediationInstanceApprovalProvenanceTests(SqlServerPersi
         };
         Func<Task> wrongScope = () => repository.CommitVerificationInScopeAsync(
             foreign, secondVerification,
-            evidence with { EvidenceId = Guid.NewGuid(), InstanceId = secondId });
+            CopyEvidence(secondId, Guid.NewGuid()));
         await wrongScope.Should().ThrowAsync<InvalidOperationException>();
 
         // The UPDATE would match, but the duplicate evidence primary key must
         // abort the transaction, restoring both status and rowversion.
         Func<Task> duplicateReceipt = () => repository.CommitVerificationInScopeAsync(
-            scope, secondVerification, evidence with { InstanceId = secondId });
+            scope, secondVerification, CopyEvidence(secondId, evidence.EvidenceId));
         await duplicateReceipt.Should().ThrowAsync<SqlException>();
 
         RemediationInstanceRecord secondAfter = (await repository.TryGetByIdInScopeAsync(scope, secondId))!;
