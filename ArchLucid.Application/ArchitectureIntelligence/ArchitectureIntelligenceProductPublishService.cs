@@ -126,12 +126,12 @@ public sealed class ArchitectureIntelligenceProductPublishService : IArchitectur
             {
                 PublicNetworkAccessVerification current = await _publicNetworkAccessVerifier.VerifyAsync(
                     tenantId, workspaceId, projectId, runId, resourceId, cancellationToken);
-                if (current.Outcome == PublicNetworkAccessVerificationOutcome.Verified &&
+                if (current is { Outcome: PublicNetworkAccessVerificationOutcome.Verified, CapturedUtc: DateTime capturedUtc } &&
                     finding.Properties.TryGetValue(ScopedPublicNetworkAccessVerifier.SnapshotProperty, out string? snapshot) &&
                     Guid.TryParse(snapshot, out Guid expectedSnapshot) && current.SnapshotId == expectedSnapshot)
                 {
+                    finding.Properties["architectureIntelligence.publicNetworkAccessCapturedUtc"] = capturedUtc.ToString("O");
                     publishable.Add(finding);
-                    continue;
                 }
             }
         }

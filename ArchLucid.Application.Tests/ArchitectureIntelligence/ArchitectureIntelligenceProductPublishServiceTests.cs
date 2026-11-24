@@ -94,14 +94,15 @@ public sealed class ArchitectureIntelligenceProductPublishServiceTests
     }
 
     [Theory]
-    [InlineData("Disabled", false, false, false, PublicNetworkAccessVerificationOutcome.Verified, true)]
-    [InlineData("Enabled", false, false, false, PublicNetworkAccessVerificationOutcome.Contradicted, false)]
-    [InlineData("Disabled", true, false, false, PublicNetworkAccessVerificationOutcome.Unverified, false)]
-    [InlineData("Disabled", false, true, false, PublicNetworkAccessVerificationOutcome.Unverified, false)]
-    [InlineData("Disabled", false, false, true, PublicNetworkAccessVerificationOutcome.Verified, false)]
-    [InlineData(null, false, false, false, PublicNetworkAccessVerificationOutcome.Unverified, false)]
+    [InlineData("Disabled", false, false, false, false, PublicNetworkAccessVerificationOutcome.Verified, true)]
+    [InlineData("Enabled", false, false, false, false, PublicNetworkAccessVerificationOutcome.Contradicted, false)]
+    [InlineData("Disabled", true, false, false, false, PublicNetworkAccessVerificationOutcome.Unverified, false)]
+    [InlineData("Disabled", false, true, false, false, PublicNetworkAccessVerificationOutcome.Unverified, false)]
+    [InlineData("Disabled", false, false, true, false, PublicNetworkAccessVerificationOutcome.Verified, false)]
+    [InlineData(null, false, false, false, false, PublicNetworkAccessVerificationOutcome.Unverified, false)]
+    [InlineData("Disabled", false, false, false, true, PublicNetworkAccessVerificationOutcome.Verified, false)]
     public async Task Scoped_inventory_controls_the_gate_and_persisted_finding(
-        string? value, bool stale, bool foreign, bool cacheHit,
+        string? value, bool stale, bool foreign, bool cacheHit, bool revokeShare,
         PublicNetworkAccessVerificationOutcome expected, bool shouldPublish)
     {
         ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
@@ -144,6 +145,13 @@ public sealed class ArchitectureIntelligenceProductPublishServiceTests
         var observation = await verifier.VerifyAsync(tenant, workspace, project, run, assetId, default);
         observation.Outcome.Should().Be(expected);
 
+        if (revokeShare)
+        {
+            shares.Setup(x => x.EvaluateAsync(It.IsAny<ScopeContext>(), architectureId, "reviewer",
+                    true, false, false, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ArchitectureShareAccessEvaluation { ArchitectureFound = true, CanRead = false });
+        }
+
         SpecialistReviewFinding candidate = new()
         {
             FindingId = "asset-claim", Title = "The resource cannot be reached publicly.",
@@ -180,6 +188,10 @@ public sealed class ArchitectureIntelligenceProductPublishServiceTests
                 .Which.Title.Should().Be(ScopedPublicNetworkAccessVerifier.Title(assetId));
         else
             findings.Saved.Should().BeEmpty();
+
+        if (revokeShare || cacheHit)
+            snapshots.Verify(x => x.TryGetBySnapshotIdAsync(
+                It.IsAny<ScopeContext>(), snapshotId, It.IsAny<CancellationToken>()), Times.Once);
 
         if (stale || foreign)
             snapshots.Verify(x => x.ListResourcesAndPropertiesByCloudResourceIdsAsync(

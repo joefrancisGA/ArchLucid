@@ -95,6 +95,6 @@ public sealed class ScopedPublicNetworkAccessVerifier(
             "ENABLED" => PublicNetworkAccessVerificationOutcome.Contradicted,
             _ => PublicNetworkAccessVerificationOutcome.Unverified,
         };
-        return new(resourceId, outcome, snapshotId, captured);
+        return new(resourceId, outcome, snapshotId, DateTime.SpecifyKind(captured, DateTimeKind.Utc));
     }
 }
