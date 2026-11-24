@@ -35,4 +35,40 @@ public sealed class HeldCheckLedgerTests
 
         act.Should().NotThrow();
     }
+
+    [Fact]
+    public void BuildRollup_retains_all_concurrent_engine_records()
+    {
+        HeldCheckLedger ledger = new();
+
+        Parallel.For(0, 512, index =>
+        {
+            ledger.Record($"engine-{index}", HeldCheckInputCode.ActorNodes);
+            ledger.Record($"engine-{index}", HeldCheckInputCode.ActorNodes);
+        });
+
+        HeldCheckLedgerRollupEntry entry = ledger.BuildRollup().Should().ContainSingle().Which;
+        entry.EngineCount.Should().Be(512);
+        entry.EngineTypes.Should().OnlyHaveUniqueItems();
+    }
+
+    [Fact]
+    public void BuildRollup_can_snapshot_while_engines_record()
+    {
+        HeldCheckLedger ledger = new();
+
+        Parallel.Invoke(
+            () => Parallel.For(0, 512, index =>
+                ledger.Record($"engine-{index}", HeldCheckInputCode.AzureInventoryZip)),
+            () =>
+            {
+                for (int i = 0; i < 100; i++)
+                {
+                    foreach (HeldCheckLedgerRollupEntry entry in ledger.BuildRollup())
+                        entry.EngineCount.Should().Be(entry.EngineTypes.Count);
+                }
+            });
+
+        ledger.BuildRollup().Should().ContainSingle().Which.EngineCount.Should().Be(512);
+    }
 }
