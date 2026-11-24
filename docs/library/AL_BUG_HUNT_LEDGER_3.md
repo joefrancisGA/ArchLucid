@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (seed→hit): `securenow-question-queue` ARM resource id POST matcher casing. Scoped vitest **151/151**. Private beta: SecureNow save no longer drops successful answer POSTs when the API returns a lowercased ARM resource id.
+> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (seed-only): `ui-architecture-intelligence` pass-51 reseed. Scoped vitest **15/15**. Private beta: n/a.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -4040,6 +4040,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-architecture-intelligence
 
+2026-11-24 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone **`securenow-question-queue`** hit at run-log tail). Reread `buildRequest`, `shouldRequestGoldenFixtureForGoldenTest`, action POST gates, and product-context hydration after attachment-only hit family; cheap-disproof closed prior empty-reasoning publish gate (`hasActionableArchitectureIntelligenceResult`), whitespace-only source context (`hasUsableArchitectureSourceText`), and non-canonical filename casing drift (product loader emits exact `architecture-description.txt`). No row met hunt-ready; reseeded five pass-51 `(candidate)` monitors below. Scoped vitest **15/15** (`architecture-intelligence-client-api.test.ts`, `architecture-intelligence-page-helpers.test.ts`, `use-architecture-intelligence-product-context.test.ts`, `architecture-intelligence-analysis-checklist.test.ts`). Private beta: n/a.
+
+- [ ] (candidate) `buildRequest` — hydrated canonical `architecture-description.txt` with whitespace-only body ships on continue/publish when textarea empty — locus: hydrated branch without operator override; input: whitespace canonical row (monitor).
+- [ ] (candidate) `continueWithAnswers` / `publishRun` — POST without `architectureDescription.trim()` guard unlike `runReasoningWithOptions` — locus: shared `buildRequest`; input: cleared textarea after prior reasoning (monitor).
+- [ ] (candidate) `canAnalyzeHydratedReview` — `productContextStatus === "loaded"` on attachment-only intake while description textarea empty — locus: analyze gate vs inbound copy; input: attachment-only deep link (monitor).
+- [ ] (candidate) `loadGoldenFixture` — `markProductContextLoaded(sources.length > 0)` ignores whitespace-only fixture bodies — locus: fixture hydration; input: blank fixture source row (monitor).
+- [ ] (candidate) `ArchitectureIntelligencePageClient.test.tsx` — full page-client Vitest file VM heap blocks new action-state repros — locus: test harness; input: isolated regression pattern (monitor).
+
 2026-11-24 seed hunt (seed→hit): no rotation (shouldRotate: false). Promoted attachment-only hydrated intake in buildRequest and runGoldenTest; architecture-intelligence-client-api Vitest 5/5. Private beta: invited architects on attachment-only deep links now send correctly labeled architecture text for reasoning posts and get fixture-backed golden tests when they have not supplied a primary brief.
 
 2026-10-31 thorough hunt (dry): attempted the retained empty-reasoning publish-gate candidate with an isolated page-client test selection, but Vitest exhausted the VM heap before producing a reliable repro; the candidate remains open for a lower-memory harness. The focused checklist suite passed 5/5 and no production change was made. Private beta: n/a.
@@ -4114,9 +4122,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 3
+- **hunts:** 4
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
 - **related-pd-tb:** none
