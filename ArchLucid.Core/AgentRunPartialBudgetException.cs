@@ -13,9 +13,8 @@ public sealed class AgentRunPartialBudgetException : Exception
 {
     /// <summary>Builds the exception with captured successful <see cref="AgentResult" /> rows.</summary>
     public AgentRunPartialBudgetException(CostLimitExceededException budgetCause, IReadOnlyList<AgentResult> completedResults)
-        : base(budgetCause.Message, budgetCause)
+        : base((budgetCause ?? throw new ArgumentNullException(nameof(budgetCause))).Message, budgetCause)
     {
-        ArgumentNullException.ThrowIfNull(budgetCause);
         ArgumentNullException.ThrowIfNull(completedResults);
 
         CompletedResults = completedResults;
