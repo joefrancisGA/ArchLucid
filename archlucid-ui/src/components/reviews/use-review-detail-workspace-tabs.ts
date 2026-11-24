@@ -37,6 +37,10 @@ import {
   parseArchitectureDiagramFindingIdFromSearch,
 } from "@/lib/architecture/architecture-findings-dual-pane-url";
 import { readRoomElicitationFromSearchParams } from "@/lib/reviews/review-room-elicitation-url";
+import {
+  REVIEW_WORKSPACE_MORE_TABS_OPEN_PARAM,
+  parseReviewWorkspaceMoreTabsOpenFromSearch,
+} from "@/lib/reviews/review-workspace-more-tabs-url";
 
 const WORKBENCH_TAB_IDS: readonly ReviewDetailTabId[] = ["architecture", "findings", "evidence"];
 
@@ -183,6 +187,9 @@ export function useReviewDetailWorkspaceTabs(
     const presenterPresent = readPresenterModeFromSearchParams(params);
     const legacyArchTabPresent = hasExplicitLegacyArchTabParam(params.get("archTab"));
     const roomElicitationPresent = readRoomElicitationFromSearchParams(params);
+    const moreTabsOpenPresent = parseReviewWorkspaceMoreTabsOpenFromSearch(
+      params.get(REVIEW_WORKSPACE_MORE_TABS_OPEN_PARAM),
+    );
     const hashPresent = window.location.hash.replace(/^#/, "").trim().length > 0;
 
     if (
@@ -192,6 +199,7 @@ export function useReviewDetailWorkspaceTabs(
       || presenterPresent
       || legacyArchTabPresent
       || roomElicitationPresent
+      || moreTabsOpenPresent
       || hashPresent
     ) {
       visitDefaultAppliedRef.current = true;
