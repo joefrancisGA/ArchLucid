@@ -107,6 +107,46 @@ public sealed class EmailOtpAuthOptionsValidatorTests
         result.Failures.Should().Contain(f => f.Contains("HashPepper", StringComparison.Ordinal));
     }
 
+    [Theory]
+    [InlineData(EmailOtpBotChallengeProvider.None)]
+    [InlineData(EmailOtpBotChallengeProvider.HCaptcha)]
+    [InlineData((EmailOtpBotChallengeProvider)99)]
+    public void Validate_production_like_rejects_unsupported_required_bot_provider(EmailOtpBotChallengeProvider provider)
+    {
+        EmailOtpAuthOptionsValidator sut = CreateValidator(isDevelopment: false, isProduction: true);
+        ValidateOptionsResult result = sut.Validate(Options.DefaultName,
+            new EmailOtpAuthOptions
+            {
+                Enabled = true,
+                HashPepper = new string('x', 32),
+                RequireBotChallenge = true,
+                BotChallenge = new EmailOtpBotChallengeOptions { Provider = provider, SecretKey = "test" }
+            });
+
+        result.Failed.Should().BeTrue();
+        result.Failures.Should().Contain(f => f.Contains("Provider", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Validate_production_like_accepts_supported_required_bot_provider()
+    {
+        EmailOtpAuthOptionsValidator sut = CreateValidator(isDevelopment: false, isProduction: true);
+        ValidateOptionsResult result = sut.Validate(Options.DefaultName,
+            new EmailOtpAuthOptions
+            {
+                Enabled = true,
+                HashPepper = new string('x', 32),
+                RequireBotChallenge = true,
+                BotChallenge = new EmailOtpBotChallengeOptions
+                {
+                    Provider = EmailOtpBotChallengeProvider.Turnstile,
+                    SecretKey = "test"
+                }
+            });
+
+        result.Succeeded.Should().BeTrue();
+    }
+
     private static EmailOtpAuthOptionsValidator CreateValidator(bool isDevelopment, bool isProduction)
     {
         string environmentName = isProduction
