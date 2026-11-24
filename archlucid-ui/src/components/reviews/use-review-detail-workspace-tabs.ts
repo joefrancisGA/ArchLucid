@@ -49,6 +49,7 @@ import { parseReviewMeetingPacketOpenFromSearch, REVIEW_MEETING_PACKET_OPEN_PARA
 import { parseReviewFinalizeConfirmOpenFromSearch, parseReviewFinalizeSuccessOpenFromSearch, REVIEW_FINALIZE_CONFIRM_PARAM, REVIEW_FINALIZE_SUCCESS_PARAM } from "@/lib/reviews/review-finalize-confirm-url";
 import { parseReviewConsultingExportOpenFromSearch, REVIEW_CONSULTING_EXPORT_OPEN_PARAM } from "@/lib/reviews/review-consulting-export-panels-url";
 import { parseReviewGenerateAdrOpenFromSearch, REVIEW_GENERATE_ADR_OPEN_PARAM } from "@/lib/reviews/review-generate-adr-panels-url";
+import { parseReviewCliReproduceOpenFromSearch, REVIEW_CLI_REPRODUCE_OPEN_PARAM } from "@/lib/reviews/review-cli-reproduce-disclosure-url";
 import { parseRunDetailRecordMetadataOpenFromSearch, RUN_DETAIL_RECORD_METADATA_OPEN_PARAM } from "@/lib/runs/run-detail-record-metadata-url";
 import { parseReviewAskDockOpenFromSearch, parseReviewAskDockThreadIdFromSearch, REVIEW_ASK_DOCK_OPEN_PARAM, REVIEW_ASK_DOCK_THREAD_PARAM } from "@/lib/reviews/review-ask-dock-url";
 import {
@@ -211,6 +212,7 @@ export function useReviewDetailWorkspaceTabs(
     const finalizeSuccessOpenPresent = parseReviewFinalizeSuccessOpenFromSearch(params.get(REVIEW_FINALIZE_SUCCESS_PARAM));
     const consultingExportOpenPresent = parseReviewConsultingExportOpenFromSearch(params.get(REVIEW_CONSULTING_EXPORT_OPEN_PARAM));
     const generateAdrOpenPresent = parseReviewGenerateAdrOpenFromSearch(params.get(REVIEW_GENERATE_ADR_OPEN_PARAM));
+    const cliReproduceOpenPresent = parseReviewCliReproduceOpenFromSearch(params.get(REVIEW_CLI_REPRODUCE_OPEN_PARAM));
     const runRecordMetaOpenPresent = parseRunDetailRecordMetadataOpenFromSearch(params.get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM));
     const askDockOpenPresent = parseReviewAskDockOpenFromSearch(params.get(REVIEW_ASK_DOCK_OPEN_PARAM));
     const askThreadPresent =
@@ -239,6 +241,7 @@ export function useReviewDetailWorkspaceTabs(
       || finalizeSuccessOpenPresent
       || consultingExportOpenPresent
       || generateAdrOpenPresent
+      || cliReproduceOpenPresent
       || runRecordMetaOpenPresent
       || askDockOpenPresent
       || askThreadPresent
