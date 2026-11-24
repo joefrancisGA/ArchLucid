@@ -2,15 +2,25 @@ name: Finding verification regressions
 
 on:
   pull_request:
-    branches: [master]
+    branches: [master, codex/fnd069-citation-verification]
     paths:
       - 'ArchLucid.Application/ArchitectureIntelligence/**'
       - 'ArchLucid.Contracts/ArchitectureIntelligence/**'
       - 'ArchLucid.Application.Tests/ArchitectureIntelligence/**'
+      - 'ArchLucid.Application/InfraEvidence/InventoryPublicNetworkAccessVerifier.cs'
+      - 'ArchLucid.Application/InfraEvidence/SecurityEvidencePathExplanation*.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/SecurityEvidencePathExplanation*Tests.cs'
+      - 'ArchLucid.Application/Findings/FindingVerification/FindingVerificationReportExportApplicationService.cs'
+      - 'ArchLucid.ArtifactSynthesis/FindingVerification/**'
+      - 'ArchLucid.Application.Tests/Findings/FindingVerificationReportExportApplicationServiceTests.cs'
       - '.github/workflows/fnd069-finding-verification.yml'
 
 permissions:
   contents: read
+
+concurrency:
+  group: finding-verification-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   verification:
@@ -26,7 +36,7 @@ jobs:
       - name: Require finding verification and publish regressions to pass
         run: >-
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~EvidenceValidationPipelineTests|FullyQualifiedName~EvidenceValidationSourceRereadTests|FullyQualifiedName~TrustPublishGateTests|FullyQualifiedName~AdversarialReviewServiceTests|FullyQualifiedName~AdversarialReviewRouterServiceTests|FullyQualifiedName~ArchitectureIntelligenceBatch45Tests|FullyQualifiedName~ArchitectureIntelligenceLlmResponseMapperMissingValueTests|FullyQualifiedName~ArchitectureIntelligenceProductBridge|FullyQualifiedName~ClosedLoopReReviewPublishIntegratorTests|FullyQualifiedName~ClosedLoopReasoningResultClonerTests'
+          --filter 'FullyQualifiedName~EvidenceValidationPipelineTests|FullyQualifiedName~EvidenceValidationSourceRereadTests|FullyQualifiedName~TrustPublishGateTests|FullyQualifiedName~FindingVerificationReportExportApplicationServiceTests|FullyQualifiedName~SecurityEvidencePathExplanationServiceTests|FullyQualifiedName~SecurityEvidencePathExplanationBuilderTests|FullyQualifiedName~ArchitectureIntelligenceProductPublishServiceTests|FullyQualifiedName~AdversarialReviewServiceTests|FullyQualifiedName~AdversarialReviewRouterServiceTests|FullyQualifiedName~ArchitectureIntelligenceBatch45Tests|FullyQualifiedName~ArchitectureIntelligenceLlmResponseMapperMissingValueTests|FullyQualifiedName~ArchitectureIntelligenceProductBridge|FullyQualifiedName~ClosedLoopReReviewPublishIntegratorTests|FullyQualifiedName~ClosedLoopReasoningResultClonerTests'
           --logger 'console;verbosity=normal'
       - name: Check the wider architecture intelligence suite for new failures
         env:
@@ -39,6 +49,9 @@ jobs:
           if dotnet test "$project" -c Release --no-build --filter "$suite" \
               --results-directory "$RUNNER_TEMP/pr-results" --logger 'trx;LogFileName=suite.trx'; then
             exit 0
+          fi
+          if ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+            git fetch --no-tags --depth=1 origin "$BASE_SHA"
           fi
           git worktree add --detach "$RUNNER_TEMP/finding-verification-base" "$BASE_SHA"
           (cd "$RUNNER_TEMP/finding-verification-base" && dotnet test "$project" -c Release \

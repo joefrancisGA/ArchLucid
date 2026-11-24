@@ -63,14 +63,20 @@ internal static class ArchitectureIntelligenceLlmResponseMapper
 
     internal static SpecialistReviewFinding MapReviewFinding(ReviewFindingShape item, QualityDimension dimension)
     {
-        ReviewConclusion conclusion = ParseReviewConclusion(item.Conclusion);
+        Guid? resourceId = item.PublicNetworkAccessDisabledResourceId is string candidate
+            ? (Guid.TryParse(candidate, out Guid parsed) ? parsed : Guid.Empty)
+            : null;
+        ReviewConclusion conclusion = resourceId.HasValue
+            ? ReviewConclusion.Pass
+            : ParseReviewConclusion(item.Conclusion);
 
         return new SpecialistReviewFinding
         {
             FindingId = Guid.NewGuid().ToString("N"),
             Dimension = dimension,
-            Title = item.Title?.Trim() ?? string.Empty,
-            Rationale = item.Rationale?.Trim() ?? string.Empty,
+            Title = resourceId is Guid id ? ScopedPublicNetworkAccessVerifier.Title(id) : item.Title?.Trim() ?? string.Empty,
+            Rationale = resourceId.HasValue ? ScopedPublicNetworkAccessVerifier.Rationale : item.Rationale?.Trim() ?? string.Empty,
+            PublicNetworkAccessDisabledResourceId = resourceId,
             Conclusion = conclusion,
             EvidenceCondition = EvidenceCondition.Unverified,
             GovernanceDisposition = GovernanceDisposition.Open,
@@ -81,7 +87,7 @@ internal static class ArchitectureIntelligenceLlmResponseMapper
                 Origin = ClaimOrigin.ModelInferred,
                 SupportStatus = SupportStatus.NotYetEvaluated,
                 Confidence = ClampConfidence(item.Confidence),
-                Notes = item.Notes?.Trim(),
+                Notes = resourceId.HasValue ? null : item.Notes?.Trim(),
             },
         };
     }

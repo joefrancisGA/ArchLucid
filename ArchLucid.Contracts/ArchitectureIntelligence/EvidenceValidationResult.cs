@@ -30,6 +30,8 @@ public class EvidenceValidationResult
         set;
     }
 
+    public PublicNetworkAccessVerification? PublicNetworkAccess { get; set; }
+
     public CitationProbeOutcome CitationProbe { get; set; }
 
     /// <summary>Source of the semantic assessment. Historical records default to Unknown.</summary>

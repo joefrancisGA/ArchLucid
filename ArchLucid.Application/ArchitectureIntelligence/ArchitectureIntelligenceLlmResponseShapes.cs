@@ -85,6 +85,9 @@ internal static class ArchitectureIntelligenceLlmResponseShapes
 
     internal sealed class ReviewFindingShape
     {
+        [JsonPropertyName("publicNetworkAccessDisabledResourceId")]
+        public string? PublicNetworkAccessDisabledResourceId { get; init; }
+
         [JsonPropertyName("title")]
         public string? Title
         {

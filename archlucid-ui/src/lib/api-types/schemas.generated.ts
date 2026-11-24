@@ -4180,6 +4180,7 @@ export interface components {
             escalated?: boolean;
             findingId?: string;
             overallPassedIntegrity?: boolean;
+            publicNetworkAccess?: null | components["schemas"]["PublicNetworkAccessVerification"];
             semanticAssessment?: null | components["schemas"]["SemanticSupportAssessment"];
             semanticMethod?: components["schemas"]["SemanticAssessmentMethod"];
             stageResults?: components["schemas"]["EvidenceValidationStageOutcome"][];
@@ -8106,6 +8107,17 @@ export interface components {
         };
         /** @enum {string} */
         ProvenanceNodeType: "Finding" | "Rule" | "Decision" | "GraphNode" | "Artifact" | "Manifest";
+        PublicNetworkAccessVerification: {
+            /** Format: date-time */
+            capturedUtc?: null | string;
+            /** Format: uuid */
+            cloudResourceId: string;
+            outcome: components["schemas"]["PublicNetworkAccessVerificationOutcome"];
+            /** Format: uuid */
+            snapshotId?: null | string;
+        };
+        /** @enum {string} */
+        PublicNetworkAccessVerificationOutcome: "Unverified" | "Verified" | "Contradicted";
         PublishPolicyPackVersionRequest: {
             contentJson: string;
             version?: string;
@@ -10671,6 +10683,8 @@ export interface components {
             governanceDisposition?: components["schemas"]["GovernanceDisposition"];
             lifecycleScope?: components["schemas"]["ArchitectureLifecycleScope"];
             provenance?: components["schemas"]["ClaimProvenance"];
+            /** Format: uuid */
+            publicNetworkAccessDisabledResourceId?: null | string;
             rationale?: string;
             relatedDecisionElementIds?: string[];
             relatedModelElementIds?: string[];

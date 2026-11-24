@@ -8,14 +8,18 @@ internal static class EvidenceSupportTierResolver
     // Eligibility for further review. Semantic support alone is not independent factual verification.
     internal static HashSet<string> SupportedFindingIds(IReadOnlyList<EvidenceValidationResult> results) =>
         results.GroupBy(result => result.FindingId, StringComparer.Ordinal)
-            .Where(group => group.All(result => result.OverallPassedIntegrity &&
-                result.SemanticAssessment == SemanticSupportAssessment.Supports))
+            .Where(group => group.All(result => result.PublicNetworkAccess is { } observation
+                ? observation.Outcome == PublicNetworkAccessVerificationOutcome.Verified
+                : result.OverallPassedIntegrity && result.SemanticAssessment == SemanticSupportAssessment.Supports))
             .Select(group => group.Key)
             .ToHashSet(StringComparer.Ordinal);
 
     internal static EvidenceSupportTier Resolve(EvidenceValidationResult validation)
     {
         ArgumentNullException.ThrowIfNull(validation);
+
+        if (validation.PublicNetworkAccess?.Outcome == PublicNetworkAccessVerificationOutcome.Verified)
+            return EvidenceSupportTier.IntegrityVerified;
 
         if (validation.OverallPassedIntegrity && validation.SemanticAssessment == SemanticSupportAssessment.Supports)
             return EvidenceSupportTier.IntegrityVerified;
@@ -33,6 +37,12 @@ internal static class EvidenceSupportTierResolver
 
         EvidenceSupportTier tier = Resolve(validation);
         finding.EvidenceSupportTier = tier;
+
+        if (validation.PublicNetworkAccess?.Outcome == PublicNetworkAccessVerificationOutcome.Contradicted)
+        {
+            finding.EvidenceCondition = EvidenceCondition.Conflicting;
+            return;
+        }
 
         if (tier == EvidenceSupportTier.IntegrityVerified)
         {

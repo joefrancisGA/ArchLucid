@@ -14329,6 +14329,16 @@
           "overallPassedIntegrity": {
             "type": "boolean"
           },
+          "publicNetworkAccess": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicNetworkAccessVerification"
+              }
+            ]
+          },
           "semanticAssessment": {
             "anyOf": [
               {
@@ -27636,6 +27646,44 @@
         ],
         "type": "string"
       },
+      "PublicNetworkAccessVerification": {
+        "properties": {
+          "capturedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/PublicNetworkAccessVerificationOutcome"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "cloudResourceId",
+          "outcome"
+        ],
+        "type": "object"
+      },
+      "PublicNetworkAccessVerificationOutcome": {
+        "enum": [
+          "Unverified",
+          "Verified",
+          "Contradicted"
+        ],
+        "type": "string"
+      },
       "PublishPolicyPackVersionRequest": {
         "properties": {
           "contentJson": {
@@ -36438,6 +36486,13 @@
           },
           "provenance": {
             "$ref": "#/components/schemas/ClaimProvenance"
+          },
+          "publicNetworkAccessDisabledResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "rationale": {
             "type": "string"

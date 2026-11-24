@@ -1,3 +1,8 @@
+using System.Text.Json;
+using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Contracts.ArchitectureIntelligence;
+using DocumentFormat.OpenXml.Packaging;
+
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Findings.FindingVerification;
 using ArchLucid.ArtifactSynthesis.FindingVerification;
@@ -26,11 +31,32 @@ public sealed class FindingVerificationReportExportApplicationServiceTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
     };
 
-    [Fact]
-    public async Task ExportMarkdownAsync_returns_markdown_bytes_for_existing_report()
+    [Theory]
+    [InlineData("legacy", false)]
+    [InlineData("verified", true)]
+    [InlineData("foreign", false)]
+    [InlineData("malformed", false)]
+    public async Task Exports_render_independent_evidence_only_for_a_verified_source_finding(string scenario, bool includeEvidence)
     {
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
         Guid findingsSnapshotId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Guid resource = Guid.NewGuid(), snapshot = Guid.NewGuid(), row = Guid.NewGuid();
+        var verification = new PublicNetworkAccessVerification(resource, PublicNetworkAccessVerificationOutcome.Verified,
+            snapshot, new DateTime(2026, 11, 24, 10, 0, 0, DateTimeKind.Utc))
+        {
+            Evidence = new("inventory-verifier/1", TestScope.TenantId, TestScope.WorkspaceId,
+                scenario == "foreign" ? Guid.NewGuid() : TestScope.ProjectId, row, "publicNetworkAccess", 24),
+        };
+        Finding finding = new()
+        {
+            FindingId = "finding-1",
+            Title = ScopedPublicNetworkAccessVerifier.Title(resource),
+            Severity = FindingSeverity.Critical,
+        };
+        if (scenario != "legacy")
+            finding.Properties[ArchitectureIntelligenceProductPublishService.InventoryVerificationProperty] =
+                scenario == "malformed" ? "{" : JsonSerializer.Serialize(verification);
 
         InMemoryFindingVerificationReportRepository repository = new();
         FindingVerificationReportRecord record = await repository.AppendAsync(
@@ -65,15 +91,7 @@ public sealed class FindingVerificationReportExportApplicationServiceTests
                     FindingsSnapshot = new FindingsSnapshot
                     {
                         FindingsSnapshotId = findingsSnapshotId,
-                        Findings =
-                        [
-                            new Finding
-                            {
-                                FindingId = "finding-1",
-                                Title = "Public storage",
-                                Severity = FindingSeverity.Critical,
-                            },
-                        ],
+                        Findings = [finding],
                     },
                     GoldenManifest = new ManifestDocument { ManifestHash = "sha256-sealed" },
                 });
@@ -91,6 +109,21 @@ public sealed class FindingVerificationReportExportApplicationServiceTests
 
         string markdown = System.Text.Encoding.UTF8.GetString(bytes);
         markdown.Should().Contain("finding-1");
-        markdown.Should().Contain("Public storage");
+        markdown.Should().Contain(finding.Title);
+
+        byte[] docx = await sut.ExportDocxAsync(TestScope, runId, record.ReportId);
+        using var stream = new MemoryStream(docx);
+        using var document = WordprocessingDocument.Open(stream, false);
+        string docxText = document.MainDocumentPart!.Document.Body!.InnerText;
+        foreach (string output in new[] { markdown, docxText })
+        {
+            if (includeEvidence)
+                output.Should().Contain("inventory-verifier/1").And.Contain(row.ToString("D"))
+                    .And.Contain(snapshot.ToString("D")).And.Contain(TestScope.ProjectId.ToString("D"))
+                    .And.Contain("Coverage: publicNetworkAccess=Disabled.");
+            else
+                output.Should().NotContain("Independent evidence from the source findings")
+                    .And.NotContain("inventory-verifier/1");
+        }
     }
 }

@@ -89,6 +89,7 @@ public static class SecurityEvidencePathExplanationBuilder
             hops = hops.Select(hop => new
             {
                 hop.HopOrdinal,
+                hasInventoryResource = hop.CloudResourceId is Guid id && id != Guid.Empty,
                 fromNodeLabel = SecurityEvidencePathExplanationTemplateBuilder.ShortNodeLabel(hop.FromNodeId),
                 toNodeLabel = SecurityEvidencePathExplanationTemplateBuilder.ShortNodeLabel(hop.ToNodeId),
                 edgeType = hop.EdgeType,
@@ -211,6 +212,7 @@ public static class SecurityEvidencePathExplanationBuilder
             content = new SecurityEvidencePathExplanationContent
             {
                 ExecutiveSummary = executiveSummary,
+                PublicNetworkAccessDisabledHopOrdinal = parsed.PublicNetworkAccessDisabledHopOrdinal,
                 BusinessImpactHypotheses = hypotheses,
                 ProposedRemediation = proposedRemediation,
                 CitedEvidenceRefs = citedEvidenceRefs,
@@ -307,6 +309,8 @@ public static class SecurityEvidencePathExplanationBuilder
 
     private sealed class SecurityEvidencePathExplanationLlmResponse
     {
+        public int? PublicNetworkAccessDisabledHopOrdinal { get; set; }
+
         public string ExecutiveSummary
         {
             get;
@@ -335,6 +339,8 @@ public static class SecurityEvidencePathExplanationBuilder
 
 public sealed class SecurityEvidencePathExplanationContent
 {
+    internal int? PublicNetworkAccessDisabledHopOrdinal { get; init; }
+
     public string ExecutiveSummary
     {
         get;

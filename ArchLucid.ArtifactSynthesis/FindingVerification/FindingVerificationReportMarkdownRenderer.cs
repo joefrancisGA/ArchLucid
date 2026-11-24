@@ -56,6 +56,15 @@ public static class FindingVerificationReportMarkdownRenderer
             builder.AppendLine("|");
         }
 
+        var independent = model.Findings.Where(finding => !string.IsNullOrWhiteSpace(finding.IndependentVerification)).ToList();
+        if (independent.Count > 0)
+        {
+            builder.AppendLine();
+            builder.AppendLine("## Independent evidence from the source findings");
+            foreach (FindingVerificationReportFindingRow finding in independent)
+                builder.AppendLine($"- {EscapeCell(finding.FindingId, "Finding ID")}: {EscapeCell(finding.IndependentVerification, "Verification")}");
+        }
+
         return builder.ToString();
     }
 

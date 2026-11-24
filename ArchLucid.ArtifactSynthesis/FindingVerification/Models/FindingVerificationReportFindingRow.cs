@@ -26,6 +26,8 @@ public sealed class FindingVerificationReportFindingRow
         init;
     }
 
+    public string? IndependentVerification { get; init; }
+
     public required string TraceText
     {
         get;
