@@ -3,7 +3,6 @@ using ArchLucid.AgentRuntime.Quality;
 using FluentAssertions;
 
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Time.Testing;
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
@@ -71,7 +70,7 @@ public sealed class ProviderQualityMonitorTests
     [Fact]
     public void Quarantine_admits_one_bounded_probe_and_independent_support_recovers()
     {
-        FakeTimeProvider clock = new();
+        ManualTimeProvider clock = new();
         ProviderQualityMonitor monitor = CreateMonitor(5, clock);
         for (int i = 0; i < 5; i++)
             monitor.Record(Sample($"bad-{i}", ProviderQualityLabel.Contradicted, independent: true));
@@ -172,6 +171,13 @@ public sealed class ProviderQualityMonitorTests
         bool independent,
         int severity = 1) =>
         new(id, PrimaryKey, label, severity, independent, "deterministic", DateTimeOffset.UtcNow);
+
+    private sealed class ManualTimeProvider : TimeProvider
+    {
+        private DateTimeOffset _utcNow = DateTimeOffset.UnixEpoch;
+        public override DateTimeOffset GetUtcNow() => _utcNow;
+        internal void Advance(TimeSpan value) => _utcNow = _utcNow.Add(value);
+    }
 
     private static Mock<IAgentCompletionClient> Client(string model)
     {
