@@ -217,6 +217,6 @@ public sealed class CosmosClientFactory(IOptionsMonitor<CosmosDbOptions> options
         if (string.IsNullOrWhiteSpace(raw))
             return ConsistencyLevel.Session;
 
-        return Enum.TryParse(raw.Trim(), true, out ConsistencyLevel level) ? level : ConsistencyLevel.Session;
+        return ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(raw.Trim(), true, out ConsistencyLevel level) ? level : ConsistencyLevel.Session;
     }
 }
