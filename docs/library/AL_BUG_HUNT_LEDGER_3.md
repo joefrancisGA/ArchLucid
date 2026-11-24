@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 thorough hunt (hit): `ui-lib-governance` oldest-assigned finding aging guard. Scoped vitest **12/12**. Private beta: assigned-to-me queue highlights sooner-due findings when aging is missing.
+> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (seed-only): `ui-lib-governance` pass-3 reseed. Scoped vitest **10/10**. Private beta: n/a.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -14,11 +14,19 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 
 - [x] (superseded) pass-1 `(candidate)` queue — **superseded 2026-11-24 thorough hunt #3 (mixed dry + hit):** closed at zone header; see pass-2 reseed.
 
-- [ ] (candidate) `compareGovernanceAssignedToMeQueueRows` — lowercase API severity may sort after title-case Low — locus: `SEVERITY_ORDER` keys; input: `high` vs `Low`; wrong outcome: Low wins severity sort; monitor; pass-2 reseed.
-- [ ] (candidate) `parseGovernanceFindingsSearchQuery` — untrimmed `q` may show padding in search input before debounced replace — locus: search field hydration; input: `q=%20vault%20`; monitor; pass-2 reseed.
-- [ ] (candidate) `filterGovernanceApprovalsByStatusFilter` — `Promoted` rows under Approved filter — locus: approval queue; input: status `Promoted`; monitor; pass-2 reseed.
-- [ ] (candidate) `governanceFindingsSearchHrefFromSearch` — whitespace-only `q` delete vs reader raw — locus: href writer; input: spaces-only query; monitor; pass-2 reseed.
-- [ ] (candidate) `decisionRegisterCategoryHrefFromSearch` — padded category in URL until operator edits — locus: advanced filters; input: category with leading spaces; monitor; pass-2 reseed.
+- [x] (valid-no-repro) `compareGovernanceAssignedToMeQueueRows` — lowercase API severity may sort after title-case Low — **cheap-disproof 2026-11-24 seed hunt (seed-only):** API rows use title-case severity; monitor for lowercase drift.
+- [x] (valid-no-repro) `parseGovernanceFindingsSearchQuery` — untrimmed `q` may show padding in search input before debounced replace — **cheap-disproof 2026-11-24 seed hunt (seed-only):** row matching trims; writer normalizes URL on replace.
+- [x] (valid-no-repro) `filterGovernanceApprovalsByStatusFilter` — `Promoted` rows under Approved filter — **cheap-disproof 2026-11-24 seed hunt (seed-only):** Approved filter matches `Approved` status only (monitor).
+- [x] (valid-no-repro) `governanceFindingsSearchHrefFromSearch` — whitespace-only `q` delete vs reader raw — **cheap-disproof 2026-11-24 seed hunt (seed-only):** href helper deletes `q` when trim is empty.
+- [x] (valid-no-repro) `decisionRegisterCategoryHrefFromSearch` — padded category in URL until operator edits — **cheap-disproof 2026-11-24 seed hunt (seed-only):** category href trims on write.
+
+- [x] (superseded) pass-2 `(candidate)` queue — **superseded 2026-11-24 seed hunt (seed-only):** closed at zone header; see pass-3 reseed.
+
+- [ ] (candidate) `compareGovernanceAssignedToMeQueueRows` — normalize severity rank when API emits lowercase enums — locus: `SEVERITY_ORDER` map; input: `critical` before `Medium`; monitor; pass-3 reseed.
+- [ ] (candidate) `governanceFindingsHideGenericHrefFromSearch` — toggling hide-generic may retain padded `q` from prior URL — locus: hide-generic href merge; input: `q=%20vault%20&hideGeneric=1`; monitor; pass-3 reseed.
+- [ ] (candidate) `filterGovernanceApprovalsByStatusFilter` — `inreview` vs `InReview` pending bucket — locus: `isPendingStatus`; input: mixed-case pending status; monitor; pass-3 reseed.
+- [ ] (candidate) `resolveGovernanceQueueDueDateMs` — whitespace-only `revisitDueUtc` may beat waiver date — locus: due-date resolver; input: revisit ` ` + waiver ISO; monitor; pass-3 reseed.
+- [ ] (candidate) `isLowInsightDensityScore` — NaN density may hide rows when hide-generic is on — locus: density filter; input: `insightDensityScore: NaN`; monitor; pass-3 reseed.
 2026-11-23 thorough hunt (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). The only hunt-ready row was a reseed stub with no locus, input, or wrong outcome, so it is `(invalid)`. Re-read `governanceFindingsClearAllFiltersHref`, `governanceFindingsClearReviewScopeHref`, `governanceFindingsNlTitleHrefFromSearch`, and `resolveGovernanceScopedReviewOpenHref`. Cheap-disproof closed the four pass-1 monitors: clear-all deletes `bulkDispConfirm`, clear-scope deletes keyboard triage params, row review href trims `runId` before encoding, and title facets go through `URLSearchParams.set`. Inverse checks on architecture-id case, approval status `Promoted`/`Activated`, and the untrimmed findings search reader did not meet the hunt-ready bar. Private beta: n/a.
 
 2026-11-20 thorough hunt #2 (hit): cheap-disproof closed four header `(hunt-ready)` URL helpers — **valid-no-repro** `governanceFindingsClearAllFiltersHref` drops bulk confirm without selection (`governance-findings-clear-all-filters-url.test.ts`), **valid-no-repro** `governanceFindingsClearReviewScopeHref` clears keyboard triage with `runId` removal (suite), **valid-no-repro** `governanceFindingQueueRowReviewHref` trims padded ids via `resolveGovernanceScopedReviewOpenHref`, **valid-no-repro** NL title/`URLSearchParams` encoding for embedded `=` (title facet join path). Promoted architecture scope chip: `governanceFindingsArchitectureScopeHrefFromSearch` wrote whitespace-only `architectureId` into the URL instead of canonical `all`; normalize trim and map empty to `architectureId=all`; regression `treats whitespace-only architecture id as all-architectures scope without dropping filters`; architecture-scope suite **6/6**. Scoped governance URL cluster **26/26** (pick-review, clear filters, clear scope, architecture-scope). Private beta: bad architecture scope input no longer leaves padded `architectureId` query junk on the findings queue.
@@ -50,9 +58,9 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 - **aliases:** governance lib; findings URL helpers
 - **paths:** archlucid-ui/src/lib/governance/
 - **test-filter:** lib/governance
-- **hunts:** 4
+- **hunts:** 5
 - **bugs-found:** 1
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
 - **related-pd-tb:** none
