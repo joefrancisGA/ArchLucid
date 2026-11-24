@@ -13938,9 +13938,22 @@ BEGIN
     SELECT @EvidenceId, @InstanceId, @TenantId, @Phase, @PayloadJson, @ActorKey, @CorrelationId, @CreatedUtc
     FROM dbo.RemediationInstances
     WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId
-      AND ProjectId = @ProjectId AND InstanceId = @InstanceId AND Status = 4;
+      AND ProjectId = @ProjectId AND InstanceId = @InstanceId AND Status = 4
+      -- Do not allow a fabricated request/result without its predecessor.
+      -- The live advisory-only path writes Before -> ExecuteRequest -> ExecuteResult
+      -- under the same actor and correlation ID, with monotonic timestamps.
+      AND (@Phase = 0 OR EXISTS (
+          SELECT 1
+          FROM dbo.RemediationEvidence AS prior
+          WHERE prior.TenantId = @TenantId
+            AND prior.InstanceId = @InstanceId
+            AND prior.Phase = @Phase - 1
+            AND prior.ActorKey = @ActorKey
+            AND prior.CorrelationId = @CorrelationId
+            AND prior.CreatedUtc <= @CreatedUtc
+      ));
     IF @@ROWCOUNT <> 1
-        THROW 50428, N'Ordinary remediation evidence requires a scoped wave-assigned instance.', 1;
+        THROW 50428, N'Ordinary remediation evidence requires a scoped wave-assigned instance and its matching prior phase.', 1;
 END;
 GO
 
