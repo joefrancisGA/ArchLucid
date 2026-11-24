@@ -7,6 +7,9 @@ on:
       - 'ArchLucid.Application/ArchitectureIntelligence/**'
       - 'ArchLucid.Contracts/ArchitectureIntelligence/**'
       - 'ArchLucid.Application.Tests/ArchitectureIntelligence/**'
+      - 'ArchLucid.Application/InfraEvidence/InventoryPublicNetworkAccessVerifier.cs'
+      - 'ArchLucid.Application/InfraEvidence/SecurityEvidencePathExplanation*.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/SecurityEvidencePathExplanation*Tests.cs'
       - '.github/workflows/fnd069-finding-verification.yml'
 
 permissions:
@@ -30,7 +33,7 @@ jobs:
       - name: Require finding verification and publish regressions to pass
         run: >-
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~EvidenceValidationPipelineTests|FullyQualifiedName~EvidenceValidationSourceRereadTests|FullyQualifiedName~TrustPublishGateTests|FullyQualifiedName~ArchitectureIntelligenceProductPublishServiceTests|FullyQualifiedName~AdversarialReviewServiceTests|FullyQualifiedName~AdversarialReviewRouterServiceTests|FullyQualifiedName~ArchitectureIntelligenceBatch45Tests|FullyQualifiedName~ArchitectureIntelligenceLlmResponseMapperMissingValueTests|FullyQualifiedName~ArchitectureIntelligenceProductBridge|FullyQualifiedName~ClosedLoopReReviewPublishIntegratorTests|FullyQualifiedName~ClosedLoopReasoningResultClonerTests'
+          --filter 'FullyQualifiedName~EvidenceValidationPipelineTests|FullyQualifiedName~EvidenceValidationSourceRereadTests|FullyQualifiedName~TrustPublishGateTests|FullyQualifiedName~SecurityEvidencePathExplanationServiceTests|FullyQualifiedName~SecurityEvidencePathExplanationBuilderTests|FullyQualifiedName~ArchitectureIntelligenceProductPublishServiceTests|FullyQualifiedName~AdversarialReviewServiceTests|FullyQualifiedName~AdversarialReviewRouterServiceTests|FullyQualifiedName~ArchitectureIntelligenceBatch45Tests|FullyQualifiedName~ArchitectureIntelligenceLlmResponseMapperMissingValueTests|FullyQualifiedName~ArchitectureIntelligenceProductBridge|FullyQualifiedName~ClosedLoopReReviewPublishIntegratorTests|FullyQualifiedName~ClosedLoopReasoningResultClonerTests'
           --logger 'console;verbosity=normal'
       - name: Check the wider architecture intelligence suite for new failures
         env:

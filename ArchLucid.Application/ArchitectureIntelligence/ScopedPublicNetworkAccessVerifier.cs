@@ -1,7 +1,7 @@
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.ArchitectureIntelligence;
-using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Interfaces;
@@ -22,7 +22,6 @@ public sealed class ScopedPublicNetworkAccessVerifier(
     internal const string ResourceProperty = "architectureIntelligence.publicNetworkAccessResourceId";
     internal const string SnapshotProperty = "architectureIntelligence.publicNetworkAccessSnapshotId";
     internal const string Rationale = "The scoped Azure inventory records the publicNetworkAccess setting for this resource.";
-    private static readonly TimeSpan MaximumCaptureAge = TimeSpan.FromHours(24);
 
     internal static string Title(Guid id) => $"Public network access is disabled for Azure resource {id:D}";
 
@@ -64,37 +63,7 @@ public sealed class ScopedPublicNetworkAccessVerifier(
             binding.ArchitectureId != architectureId || snapshotId == Guid.Empty)
             return unverified;
 
-        AzureInventorySnapshotRecord? header = await snapshots.TryGetBySnapshotIdAsync(evidenceScope, snapshotId, cancellationToken);
-        DateTime now = (clock ?? TimeProvider.System).GetUtcNow().UtcDateTime;
-        if (header is not { CaptureStatus: AzureInventoryCaptureStatus.Succeeded, CapturedUtc: DateTime captured } ||
-            header.SnapshotId != snapshotId || header.TenantId != tenant ||
-            header.WorkspaceId != workspace || header.ProjectId != project ||
-            captured > now || now - captured > MaximumCaptureAge)
-            return unverified;
-
-        var (resources, properties) = await snapshots.ListResourcesAndPropertiesByCloudResourceIdsAsync(
-            evidenceScope, snapshotId, [resourceId], cancellationToken);
-        if (resources.Count != 1)
-            return unverified;
-
-        AzureInventoryResourceRecord resource = resources[0];
-        if (resource.SnapshotId != snapshotId || resource.TenantId != tenant ||
-            resource.CloudResourceId != resourceId || resource.ResourceRowId == Guid.Empty)
-            return unverified;
-
-        var setting = properties.Where(property => property.ResourceRowId == resource.ResourceRowId &&
-            (property.PropertyKey.Equals("publicNetworkAccess", StringComparison.OrdinalIgnoreCase) ||
-             property.PropertyKey.Equals("properties.publicNetworkAccess", StringComparison.OrdinalIgnoreCase)))
-            .Take(2).ToArray();
-        if (setting.Length != 1 || setting[0].IsRedacted)
-            return unverified;
-
-        PublicNetworkAccessVerificationOutcome outcome = setting[0].PropertyValue?.Trim().ToUpperInvariant() switch
-        {
-            "DISABLED" => PublicNetworkAccessVerificationOutcome.Verified,
-            "ENABLED" => PublicNetworkAccessVerificationOutcome.Contradicted,
-            _ => PublicNetworkAccessVerificationOutcome.Unverified,
-        };
-        return new(resourceId, outcome, snapshotId, DateTime.SpecifyKind(captured, DateTimeKind.Utc));
+        return await InventoryPublicNetworkAccessVerifier.VerifyAsync(
+            snapshots, evidenceScope, snapshotId, resourceId, clock ?? TimeProvider.System, cancellationToken);
     }
 }

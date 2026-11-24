@@ -133,6 +133,83 @@ public sealed class SecurityEvidencePathExplanationServiceTests
             Times.Once);
     }
 
+    [Theory]
+    [InlineData("Disabled", false, false, true, true, null)]
+    [InlineData("Enabled", false, false, true, true, "contradicted")]
+    [InlineData(null, false, false, true, true, "unverified")]
+    [InlineData("Disabled", true, false, true, true, "unverified")]
+    [InlineData("Disabled", false, true, true, true, "unverified")]
+    [InlineData("Disabled", false, false, false, true, "unverified")]
+    [InlineData("Disabled", false, false, true, false, "unverified")]
+    public async Task Public_network_setting_is_rendered_only_from_the_scoped_path_snapshot(
+        string? value, bool stale, bool wrongProject, bool typedClaim, bool citesHop, string? rejection)
+    {
+        ScopeContext scope = CreateScope();
+        Guid pathId = Guid.NewGuid(), resourceId = Guid.NewGuid(), rowId = Guid.NewGuid();
+        SecurityEvidencePathRecord path = CreatePath(pathId, PathConfidenceBand.Probable);
+        InMemoryPathRepository paths = new();
+        paths.StoredPaths.Add(path);
+        paths.StoredHops.Add(CreateHop(pathId, 1, "evidence-1", resourceId));
+
+        string modelJson = BuildPathExplanationLlmJson(
+            pathId, citesHop ? ["evidence-1"] : [$"path:{pathId:D}"],
+            "Public network access is disabled and the asset is unreachable.");
+        if (typedClaim)
+            modelJson = modelJson.Insert(modelJson.IndexOf('{') + 1, "\"publicNetworkAccessDisabledHopOrdinal\":1,");
+        Mock<IAgentCompletionClient> llm = new();
+        llm.Setup(client => client.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(),
+                It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(modelJson);
+
+        DateTime captured = DateTime.UtcNow.AddHours(stale ? -25 : -1);
+        Mock<IAzureInventorySnapshotRepository> snapshots = new();
+        snapshots.Setup(repo => repo.TryGetBySnapshotIdAsync(scope, path.SnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AzureInventorySnapshotRecord
+            {
+                SnapshotId = path.SnapshotId, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId,
+                ProjectId = wrongProject ? Guid.NewGuid() : scope.ProjectId,
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded, CapturedUtc = captured,
+            });
+        IReadOnlyList<AzureInventoryResourceRecord> resources = [new()
+        {
+            SnapshotId = path.SnapshotId, TenantId = scope.TenantId, CloudResourceId = resourceId, ResourceRowId = rowId,
+        }];
+        IReadOnlyList<AzureInventoryResourcePropertyReadModel> properties = [new()
+        {
+            ResourceRowId = rowId, PropertyKey = "properties.publicNetworkAccess", PropertyValue = value,
+        }];
+        snapshots.Setup(repo => repo.ListResourcesAndPropertiesByCloudResourceIdsAsync(
+                scope, path.SnapshotId, It.Is<IReadOnlyList<Guid>>(ids => ids.Count == 1 && ids[0] == resourceId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((resources, properties));
+
+        CapturingExplanationRepository persisted = new();
+        var sut = CreateSut(paths, persisted, llm.Object, CreatePassthroughRedactor(), snapshots: snapshots.Object);
+        var result = await sut.TryBuildExplanationAsync(scope, pathId, useSimulator: false, allowInsufficientEvidence: false);
+
+        result.Succeeded.Should().BeTrue();
+        var explanation = persisted.LastInserted!;
+        explanation.ProvenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
+        explanation.ExecutiveSummary.Should().NotContain("the asset is unreachable");
+        if (rejection is null)
+        {
+            explanation.ModelOutputRejection.Should().BeNull();
+            explanation.ExecutiveSummary.Should().Contain("publicNetworkAccess=Disabled")
+                .And.Contain(captured.ToString("O")).And.Contain(path.SnapshotId.ToString("D"))
+                .And.Contain(resourceId.ToString("D"));
+        }
+        else
+        {
+            explanation.ModelOutputRejection.Should().Contain(rejection);
+            explanation.ExecutiveSummary.Should().NotContain("publicNetworkAccess=Disabled");
+        }
+
+        if (stale || wrongProject || !typedClaim || !citesHop)
+            snapshots.Verify(repo => repo.ListResourcesAndPropertiesByCloudResourceIdsAsync(
+                It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<IReadOnlyList<Guid>>(), It.IsAny<CancellationToken>()),
+                Times.Never);
+    }
+
     [Fact]
     public async Task TryBuildExplanationAsync_rejected_model_output_falls_back_to_stored_path()
     {
@@ -398,14 +475,16 @@ public sealed class SecurityEvidencePathExplanationServiceTests
         ISecurityEvidencePathExplanationRepository explanationRepository,
         IAgentCompletionClient llm,
         IPromptRedactor promptRedactor,
-        ISecurityEvidenceCutPointRepository? cutPointRepository = null) =>
+        ISecurityEvidenceCutPointRepository? cutPointRepository = null,
+        IAzureInventorySnapshotRepository? snapshots = null) =>
         new(
             pathRepository,
             cutPointRepository ?? new NoOpCutPointRepository(),
             explanationRepository,
             llm,
             promptRedactor,
-            NullLogger<SecurityEvidencePathExplanationService>.Instance);
+            NullLogger<SecurityEvidencePathExplanationService>.Instance,
+            snapshotRepository: snapshots);
 
     private static string BuildPathExplanationLlmJson(
         Guid pathId,
@@ -516,7 +595,8 @@ public sealed class SecurityEvidencePathExplanationServiceTests
             UpdatedUtc = DateTime.UtcNow,
         };
 
-    private static SecurityEvidencePathHopRecord CreateHop(Guid pathId, int hopOrdinal, string evidenceReference) =>
+    private static SecurityEvidencePathHopRecord CreateHop(
+        Guid pathId, int hopOrdinal, string evidenceReference, Guid? resourceId = null) =>
         new()
         {
             HopRowId = Guid.NewGuid(),
@@ -529,6 +609,7 @@ public sealed class SecurityEvidencePathExplanationServiceTests
             ProvenanceKind = ProvenanceKind.DerivedFact,
             HopConfidenceBand = PathConfidenceBand.Possible,
             EvidenceReference = evidenceReference,
+            CloudResourceId = resourceId,
         };
 
     private sealed class CapturingExplanationRepository : ISecurityEvidencePathExplanationRepository

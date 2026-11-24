@@ -1,4 +1,5 @@
 using ArchLucid.Application;
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Llm;
@@ -17,14 +18,20 @@ public sealed class SecurityEvidencePathExplanationService(
     IAgentCompletionClient llm,
     IPromptRedactor promptRedactor,
     ILogger<SecurityEvidencePathExplanationService> logger,
-    ISecurityEvidencePathRankRepository? rankRepository = null) : ISecurityEvidencePathExplanationService
+    ISecurityEvidencePathRankRepository? rankRepository = null,
+    IAzureInventorySnapshotRepository? snapshotRepository = null,
+    TimeProvider? timeProvider = null) : ISecurityEvidencePathExplanationService
 {
     public const int PathExplanationMaxOutputTokens = 800;
 
     private const string ExplanationSystemPrompt =
         "You are an enterprise cloud security architect summarizing a cited SecureNow architect path. "
-        + "Return ONLY JSON with keys executiveSummary, businessImpactHypotheses, proposedRemediation, citedEvidenceRefs. "
+        + "Return ONLY JSON with keys executiveSummary, businessImpactHypotheses, proposedRemediation, citedEvidenceRefs, "
+        + "and optional publicNetworkAccessDisabledHopOrdinal. "
         + "Use ONLY allowedEvidenceRefs for citedEvidenceRefs. "
+        + "If proposing that an Azure resource has public network access disabled, put its hop ordinal in "
+        + "publicNetworkAccessDisabledHopOrdinal. Use a hop marked hasInventoryResource with a cited evidence reference. "
+        + "Keep the setting and any conclusions based on it out of free text. "
         + "Do not invent Azure ARM resource ids, hops, snapshot rows, ExactMatch patterns, or ObservedFact claims. "
         + "Business impact lines must be explicit hypotheses (AiInference), not observed traffic or exfiltration.";
 
@@ -42,7 +49,8 @@ public sealed class SecurityEvidencePathExplanationService(
             SecurityEvidencePathRecord? path =
                 await pathRepository.TryGetByIdInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
-            if (path is null)
+            if (path is null || path.PathId != pathId || path.TenantId != scope.TenantId ||
+                path.WorkspaceId != scope.WorkspaceId || path.ProjectId != scope.ProjectId)
             {
                 return new SecurityEvidencePathExplanationResult
                 {
@@ -167,6 +175,33 @@ public sealed class SecurityEvidencePathExplanationService(
                 }
             }
 
+            string? configurationFact = null;
+            if (provenanceKind == ProvenanceKind.AiInference &&
+                (content.PublicNetworkAccessDisabledHopOrdinal.HasValue || MentionsPublicNetworkAccess(content)))
+            {
+                PublicNetworkAccessVerification? verification = await VerifyPublicNetworkAccessAsync(
+                    scope, path, hops, content, cancellationToken);
+                content = SecurityEvidencePathExplanationBuilder.BuildSimulatorExplanation(
+                    path, hops, cutPoints, allowedEvidenceRefs, rankContext);
+                provenanceKind = ProvenanceKind.DeterministicInference;
+                simulatorLabel = SecurityEvidencePathExplanationBuilder.SimulatorLabel;
+
+                switch (verification)
+                {
+                    case { Outcome: PublicNetworkAccessVerificationOutcome.Verified }:
+                        configurationFact = $" Azure inventory snapshot {verification.SnapshotId:D} "
+                            + $"captured at {verification.CapturedUtc:O} records publicNetworkAccess=Disabled "
+                            + $"for resource {verification.CloudResourceId:D}.";
+                        break;
+                    case { Outcome: PublicNetworkAccessVerificationOutcome.Contradicted }:
+                        modelOutputRejection = "The public network access claim was contradicted by the path inventory snapshot.";
+                        break;
+                    default:
+                        modelOutputRejection = "The public network access claim remains unverified in the path inventory snapshot.";
+                        break;
+                }
+            }
+
             if (string.IsNullOrWhiteSpace(content.ExecutiveSummary))
             {
                 return new SecurityEvidencePathExplanationResult
@@ -188,7 +223,7 @@ public sealed class SecurityEvidencePathExplanationService(
                 ExplanationId = explanationId,
                 PathId = pathId,
                 TenantId = scope.TenantId,
-                ExecutiveSummary = content.ExecutiveSummary,
+                ExecutiveSummary = content.ExecutiveSummary + configurationFact,
                 BusinessImpactHypotheses = content.BusinessImpactHypotheses,
                 ProposedRemediation = content.ProposedRemediation,
                 CitedEvidenceRefs = validCitations,
@@ -224,6 +259,44 @@ public sealed class SecurityEvidencePathExplanationService(
                 ErrorMessage = ex.Message,
             };
         }
+    }
+
+    private async Task<PublicNetworkAccessVerification?> VerifyPublicNetworkAccessAsync(
+        ScopeContext scope,
+        SecurityEvidencePathRecord path,
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops,
+        SecurityEvidencePathExplanationContent content,
+        CancellationToken cancellationToken)
+    {
+        if (snapshotRepository is null || content.PublicNetworkAccessDisabledHopOrdinal is not > 0)
+            return null;
+
+        SecurityEvidencePathHopRecord[] matches = hops.Where(
+            hop => hop.HopOrdinal == content.PublicNetworkAccessDisabledHopOrdinal).Take(2).ToArray();
+        if (matches.Length != 1 || matches[0].PathId != path.PathId || matches[0].TenantId != scope.TenantId ||
+            matches[0].CloudResourceId is not Guid resourceId || string.IsNullOrWhiteSpace(matches[0].EvidenceReference) ||
+            !content.CitedEvidenceRefs.Contains(matches[0].EvidenceReference.Trim(), StringComparer.OrdinalIgnoreCase))
+            return null;
+
+        return await InventoryPublicNetworkAccessVerifier.VerifyAsync(
+            snapshotRepository, scope, path.SnapshotId, resourceId, timeProvider ?? TimeProvider.System, cancellationToken);
+    }
+
+    private static bool MentionsPublicNetworkAccess(SecurityEvidencePathExplanationContent content)
+    {
+        static bool MentionsSetting(string? text) =>
+            text is not null && (text.Contains("publicNetworkAccess", StringComparison.OrdinalIgnoreCase) ||
+                text.Contains("public network access", StringComparison.OrdinalIgnoreCase) ||
+                text.Contains("public-network-access", StringComparison.OrdinalIgnoreCase) ||
+                text.Contains("public_network_access", StringComparison.OrdinalIgnoreCase));
+
+        return MentionsSetting(content.ExecutiveSummary) ||
+            content.BusinessImpactHypotheses.Any(MentionsSetting) ||
+            MentionsSetting(content.ProposedRemediation.RecommendedChange) ||
+            MentionsSetting(content.ProposedRemediation.RecommendedChangeSource) ||
+            MentionsSetting(content.ProposedRemediation.SuggestedPatternKey) ||
+            content.ProposedRemediation.VerificationQueries.Any(MentionsSetting) ||
+            content.ProposedRemediation.Preconditions.Any(MentionsSetting);
     }
 
     private static async Task<string> BuildRankContextAsync(
