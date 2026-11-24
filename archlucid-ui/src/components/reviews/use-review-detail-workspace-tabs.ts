@@ -142,6 +142,10 @@ import {
   parseQuickDecisionReasoningFindingIdFromSearch,
   QUICK_DECISION_REASONING_FINDING_ID_PARAM,
 } from "@/lib/reviews/quick-decision-reasoning-panels-url";
+import {
+  parseQuickDecisionMuteFindingIdFromSearch,
+  QUICK_DECISION_MUTE_FINDING_ID_PARAM,
+} from "@/lib/reviews/quick-decision-mute-panels-url";
 
 const WORKBENCH_TAB_IDS: readonly ReviewDetailTabId[] = ["architecture", "findings", "evidence"];
 
@@ -354,6 +358,8 @@ export function useReviewDetailWorkspaceTabs(
       parseQuickDecisionAskFindingIdFromSearch(params.get(QUICK_DECISION_ASK_FINDING_ID_PARAM)).length > 0;
     const quickDecisionReasoningFindingIdPresent =
       parseQuickDecisionReasoningFindingIdFromSearch(params.get(QUICK_DECISION_REASONING_FINDING_ID_PARAM)).length > 0;
+    const quickDecisionMuteFindingIdPresent =
+      parseQuickDecisionMuteFindingIdFromSearch(params.get(QUICK_DECISION_MUTE_FINDING_ID_PARAM)).length > 0;
     const runRecordMetaOpenPresent = parseRunDetailRecordMetadataOpenFromSearch(params.get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM));
     const askDockOpenPresent = parseReviewAskDockOpenFromSearch(params.get(REVIEW_ASK_DOCK_OPEN_PARAM));
     const askThreadPresent =
@@ -407,6 +413,7 @@ export function useReviewDetailWorkspaceTabs(
       || quickDecisionShowMutedPresent
       || quickDecisionAskFindingIdPresent
       || quickDecisionReasoningFindingIdPresent
+      || quickDecisionMuteFindingIdPresent
       || runRecordMetaOpenPresent
       || askDockOpenPresent
       || askThreadPresent
