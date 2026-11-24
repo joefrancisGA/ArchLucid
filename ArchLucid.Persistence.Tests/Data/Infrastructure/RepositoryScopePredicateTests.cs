@@ -28,9 +28,7 @@ public sealed class RepositoryScopePredicateTests
 
         string clause = RepositoryScopePredicate.AndTripleWhere(scope);
 
-        clause.Should().Contain("TenantId = @ScopeTenantId");
-        clause.Should().Contain("WorkspaceId = @ScopeWorkspaceId");
-        clause.Should().Contain("ProjectId = @ScopeProjectId");
+        clause.Should().Be(" AND TenantId = @ScopeTenantId AND WorkspaceId = @ScopeWorkspaceId AND ProjectId = @ScopeProjectId");
     }
 
     [SkippableFact]

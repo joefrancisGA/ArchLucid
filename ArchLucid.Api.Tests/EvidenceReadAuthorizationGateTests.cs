@@ -23,7 +23,8 @@ public sealed class EvidenceReadAuthorizationGateTests
             $"evidence.read:{Tenant:D}:{Workspace:D}:{Project:D}:{Evidence:D}")],
             authenticated ? "test" : null));
 
-    private static (EvidenceReadAuthorizationGate Gate, Mock<IAuthorizationService> Authorization)
+    private static (EvidenceReadAuthorizationGate Gate, Mock<IAuthorizationService> Authorization,
+        Mock<IEvidenceEntitlementAuthority> Entitlements)
         CreateGate(Guid? tenant = null, bool allowed = true)
     {
         Mock<IScopeContextProvider> scope = new();
@@ -45,13 +46,13 @@ public sealed class EvidenceReadAuthorizationGateTests
         audit.Setup(a => a.WriteAsync(
             It.IsAny<CentralAuthorizationAuditRecord>(),
             It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        return (new EvidenceReadAuthorizationGate(new CentralAuthorizationDecisions(scope.Object, entitlements.Object, auth.Object, audit.Object, TimeProvider.System, new DenyUnconfiguredRemediationApproval())), auth);
+        return (new EvidenceReadAuthorizationGate(new CentralAuthorizationDecisions(scope.Object, entitlements.Object, auth.Object, audit.Object, TimeProvider.System, new DenyUnconfiguredRemediationApproval())), auth, entitlements);
     }
 
     [Fact]
     public async Task Authorized_scoped_read_is_allowed()
     {
-        var (gate, auth) = CreateGate();
+        var (gate, auth, _) = CreateGate();
         EvidenceReadDecision result = await gate.AuthorizeAsync(
             Principal(), Tenant, Workspace, Project, Evidence);
         result.Allowed.Should().BeTrue();
@@ -62,7 +63,7 @@ public sealed class EvidenceReadAuthorizationGateTests
     [Fact]
     public async Task Foreign_tenant_is_denied_before_policy_evaluation()
     {
-        var (gate, auth) = CreateGate(Guid.NewGuid());
+        var (gate, auth, _) = CreateGate(Guid.NewGuid());
         EvidenceReadDecision result = await gate.AuthorizeAsync(
             Principal(), Tenant, Workspace, Project, Evidence);
         result.Allowed.Should().BeFalse();
@@ -72,7 +73,7 @@ public sealed class EvidenceReadAuthorizationGateTests
     [Fact]
     public async Task Unauthenticated_principal_is_denied()
     {
-        var (gate, auth) = CreateGate();
+        var (gate, auth, _) = CreateGate();
         (await gate.AuthorizeAsync(Principal(false), Tenant, Workspace, Project, Evidence))
             .Allowed.Should().BeFalse();
         auth.VerifyNoOtherCalls();
@@ -81,7 +82,7 @@ public sealed class EvidenceReadAuthorizationGateTests
     [Fact]
     public async Task Policy_denial_is_fail_closed()
     {
-        var (gate, _) = CreateGate(allowed: false);
+        var (gate, _, _) = CreateGate(allowed: false);
         (await gate.AuthorizeAsync(Principal(), Tenant, Workspace, Project, Evidence))
             .Allowed.Should().BeFalse();
     }
@@ -89,17 +90,18 @@ public sealed class EvidenceReadAuthorizationGateTests
     [Fact]
     public async Task Unauthenticated_principal_is_denied_before_entitlement_check()
     {
-        var (gate, auth) = CreateGate();
+        var (gate, auth, entitlements) = CreateGate();
         var identity = new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "operator")]);
         (await gate.AuthorizeAsync(new ClaimsPrincipal(identity), Tenant, Workspace, Project, Evidence))
             .Allowed.Should().BeFalse();
+        entitlements.VerifyNoOtherCalls();
         auth.VerifyNoOtherCalls();
     }
 
     [Fact]
     public async Task Empty_evidence_identifier_is_denied()
     {
-        var (gate, auth) = CreateGate();
+        var (gate, auth, _) = CreateGate();
         (await gate.AuthorizeAsync(Principal(), Tenant, Workspace, Project, Guid.Empty))
             .Allowed.Should().BeFalse();
         auth.VerifyNoOtherCalls();
