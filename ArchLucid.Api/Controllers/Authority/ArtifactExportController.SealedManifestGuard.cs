@@ -67,6 +67,9 @@ public sealed partial class ArtifactExportController
         ScopeContext scope, Guid manifestId, ManifestSummaryDto summary,
         RunDetailDto? manifestDetail, CancellationToken ct)
     {
+        // Preserve the existing no-extra-read behavior when the run's current
+        // pin is missing or inconsistent. The shared application guard
+        // authoritatively checks these associations again before hashing.
         if (manifestDetail?.Run is null ||
             manifestDetail.Run.RunId != summary.RunId ||
             manifestDetail.GoldenManifest is null ||
@@ -77,29 +80,20 @@ public sealed partial class ArtifactExportController
                 new ConflictException($"Manifest '{manifestId}' has no verifiable committed run binding."));
         }
 
-        var current = manifestDetail.GoldenManifest;
-        var requested = current.ManifestId == manifestId
+        ManifestDocument current = manifestDetail.GoldenManifest;
+        ManifestDocument? requested = current.ManifestId == manifestId
             ? current
             : await authorityQueryService.GetManifestForSummaryVerificationAsync(scope, manifestId, ct);
 
-        if (requested is null ||
-            requested.ManifestId != manifestId ||
-            requested.RunId != summary.RunId ||
-            requested.TenantId != scope.TenantId ||
-            requested.WorkspaceId != scope.WorkspaceId ||
-            requested.ProjectId != scope.ProjectId ||
-            !string.Equals(requested.ManifestHash, summary.ManifestHash, StringComparison.OrdinalIgnoreCase))
+        try
         {
-            return MapArtifactExportSealedManifestConflict(
-                new ConflictException($"Manifest '{manifestId}' exact identity, scope, run or hash binding failed."));
+            SealedManifestReadGuard.EnsureManifestSummaryBindingAndHashesOrThrow(
+                scope, manifestId, summary, requested, manifestDetail, manifestHashService);
         }
-
-        IActionResult? pinnedConflict = EnsureSealedManifestHashOrConflict(current, summary.RunId.ToString("D"));
-        if (pinnedConflict is not null)
-            return pinnedConflict;
-
-        if (!ReferenceEquals(requested, current))
-            return EnsureSealedManifestHashOrConflict(requested, summary.RunId.ToString("D"));
+        catch (ConflictException ex)
+        {
+            return MapArtifactExportSealedManifestConflict(ex);
+        }
 
         return null;
     }

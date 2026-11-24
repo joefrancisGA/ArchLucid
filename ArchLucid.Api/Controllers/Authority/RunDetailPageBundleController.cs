@@ -42,6 +42,7 @@ public sealed partial class RunDetailPageBundleController(
     IManifestHashService manifestHashService,
     IConfiguration configuration,
     IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor,
+    IArchitectureShareAccessGate architectureShareAccessGate,
     ILogger<RunDetailPageBundleController> logger) : ControllerBase
 {
     private const int DeferredProjectRunTake = 60;
@@ -84,6 +85,9 @@ public sealed partial class RunDetailPageBundleController(
 
     private readonly IEffectiveAgentExecutionModeAccessor _effectiveAgentExecutionModeAccessor =
         effectiveAgentExecutionModeAccessor ?? throw new ArgumentNullException(nameof(effectiveAgentExecutionModeAccessor));
+
+    private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
+        architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
 
     private readonly ILogger<RunDetailPageBundleController> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
