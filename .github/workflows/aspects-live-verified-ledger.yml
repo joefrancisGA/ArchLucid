@@ -45,10 +45,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: Validate source evidence and verified-subset density
@@ -77,7 +77,7 @@ jobs:
               out.write(Path("artifacts/aspects/aspects-density-snapshot.md").read_text())
           PY
       - name: Publish verified density BEFORE optional chart or comparison jobs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: aspects-live-verified-ledger
           path: |
@@ -92,17 +92,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: Validate historical source data and SMA25 arithmetic separately
         run: |
           python -m unittest discover -s scripts/tests -p 'test_aspects_accounting_report.py' -v
       - name: Download independently published verified density
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: aspects-live-verified-ledger
           path: artifacts/aspects
@@ -204,7 +204,7 @@ jobs:
               out.write("\nLive verified artifact was already published independently.\n")
           PY
       - name: Upload optional comparison, 79 historical 900-snapshot and 700 provisional charts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: aspects-live-comparison-and-history
           path: |
