@@ -33,5 +33,10 @@ describe("SecureNowFirstHourPageView", () => {
     expect(document.getElementById("path-inspect")).toHaveTextContent("3 — Advisory cut point");
     expect(document.getElementById("stop")).toHaveTextContent("4 — Stop");
     expect(document.getElementById("first-useful-answer")).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-beta-sku-contents-section")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Signed-in quote packet" })).toHaveAttribute(
+      "href",
+      "/administration/securenow-quote-packet",
+    );
   });
 });

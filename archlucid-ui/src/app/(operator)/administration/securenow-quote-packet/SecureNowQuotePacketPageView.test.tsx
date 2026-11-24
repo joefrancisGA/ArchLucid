@@ -37,5 +37,11 @@ describe("SecureNowQuotePacketPageView", () => {
     expect(screen.getByTestId("securenow-published-list-price")).toBeInTheDocument();
     expect(screen.getByText(/\$24,000/)).toBeInTheDocument();
     expect(screen.getByTestId("securenow-beta-sku-contents-section")).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-quote-packet-meter-cap-SN-EVAL")).toHaveTextContent(
+      "does not reset automatically",
+    );
+    expect(screen.getByTestId("securenow-quote-packet-meter-cap-SN-ANNUAL")).toHaveTextContent(
+      "private quote",
+    );
   });
 });

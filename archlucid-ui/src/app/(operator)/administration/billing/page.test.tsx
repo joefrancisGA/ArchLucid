@@ -430,6 +430,13 @@ describe("BillingSettingsPage", () => {
     const quoteLink = within(professionalCard).getByRole("link", { name: /Request guided trial/i });
     expect(quoteLink).toHaveAttribute("href", expect.stringContaining("/pricing"));
     expect(quoteLink).toHaveAttribute("href", expect.stringContaining("#pricing-quote-request"));
+    expect(screen.getByTestId("billing-securenow-subscription-boundary")).toHaveTextContent(
+      "does not include SecureNow",
+    );
+    expect(screen.getByRole("link", { name: "Open SecureNow quote packet" })).toHaveAttribute(
+      "href",
+      "/administration/securenow-quote-packet",
+    );
 
     vi.unstubAllGlobals();
   });

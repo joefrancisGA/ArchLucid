@@ -1,10 +1,12 @@
 import Link from "next/link";
 
 import { SecureNowBetaSkuContentsSection } from "@/components/product-line/SecureNowBetaSkuContentsSection";
+import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
 import { SecureNowPublishedListPriceSection } from "@/components/product-line/SecureNowPublishedListPriceSection";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { secureNowSkuMeterCapForSku } from "@/lib/marketing/securenow-public-commercial-packaging-copy";
 import {
   PROCUREMENT_SN_EVAL_ANCHOR_FRAGMENT,
   PROCUREMENT_SN_EVAL_ANCHOR_TEST_ID,
@@ -44,12 +46,19 @@ export function SecureNowQuotePacketPageView(): React.JSX.Element {
             SKU identifiers and meters
           </h2>
           <ul className="list-disc space-y-2 pl-5">
-            {SECURENOW_QUOTE_PACKET_SKUS.map(([sku, meter]) => (
-              <li key={sku} className={OPERATOR_TYPOGRAPHY.body}>
-                <span className="font-medium">{sku}</span>
-                <span> — {meter}</span>
-              </li>
-            ))}
+            {SECURENOW_QUOTE_PACKET_SKUS.map(([sku, meter]) => {
+              const meterCap = secureNowSkuMeterCapForSku(sku);
+
+              return (
+                <li key={sku} className={OPERATOR_TYPOGRAPHY.body} data-testid={`securenow-quote-packet-sku-${sku}`}>
+                  <span className="font-medium">{sku}</span>
+                  <span> — {meter}</span>
+                  {meterCap !== null ? (
+                    <span data-testid={`securenow-quote-packet-meter-cap-${sku}`}> — {meterCap}</span>
+                  ) : null}
+                </li>
+              );
+            })}
           </ul>
         </section>
 
@@ -69,6 +78,7 @@ export function SecureNowQuotePacketPageView(): React.JSX.Element {
         <SecureNowPublishedListPriceSection typography="operator" />
 
         <SecureNowBetaSkuContentsSection showQuoteLink={false} />
+        <SecureNowFixtureWorkspaceNotEntitlementLine />
 
         <section aria-labelledby="securenow-quote-packet-links-heading" className="space-y-2">
           <h2 id="securenow-quote-packet-links-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
