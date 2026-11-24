@@ -147,3 +147,4 @@
 {"outcome":"hit","productLine":"archlucid-shared","set":3,"zoneId":"ui-review-detail-workspace","at":"2026-11-24T14:42:02.0503404Z","note":"seed hunt: visit-default overwrote runPipelineStagesTechnicalOpen-only URL"}
 {"outcome":"hit","at":"2026-11-24T14:43:42.8461356Z","set":3,"productLine":"archlucid-shared","zoneId":"ui-review-detail-workspace","note":"seed hunt: visit-default overwrote runToolInvocationForensicsOpen-only URL"}
 {"zoneId":"ui-review-detail-workspace","outcome":"hit","note":"seed hunt: visit-default overwrote trustEvidenceFieldsOpen-only URL","at":"2026-11-24T14:45:24.6288518Z","productLine":"archlucid-shared","set":3}
+{"note":"seed hunt: visit-default overwrote trustEvidenceTechOpen-only URL","zoneId":"ui-review-detail-workspace","productLine":"archlucid-shared","at":"2026-11-24T14:48:33.3716082Z","set":3,"outcome":"hit"}
