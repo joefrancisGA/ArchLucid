@@ -32,7 +32,7 @@
 | Priority | QA & stabilization | Release readiness | 2.0 foundations | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Immediate | 0 | 0 | 0 | 0 |
-| Critical | 44 | 5 | 0 | 49 |
+| Critical | 45 | 5 | 0 | 50 |
 | High | 262 | 141 | 0 | 403 |
 | Medium | 10 | 2 | 15 | 27 |
 | Low | 0 | 0 | 63 | 63 |
@@ -45,7 +45,7 @@ Each section is ordered **QA → release readiness → 2.0 foundations**. Within
 
 ### Critical
 
-#### QA & stabilization (44)
+#### QA & stabilization (45)
 
 | ID | Technical item | Origin / qualification |
 | --- | --- | --- |
@@ -93,6 +93,7 @@ Each section is ordered **QA → release readiness → 2.0 foundations**. Within
 | FND-095 | Provider-independent recorded-input replay and historical execution isolation | Critical extension of existing authority/agent replay and SecureNow offline replay after FND-094/096; [Historical analytical reproducibility](architecture/HISTORICAL_ANALYTICAL_REPRODUCIBILITY.md). Reuse authorized recorded-result adapters, pinned compatible deterministic components and isolated resource-bounded workers; distinguish raw-response from typed-result replay, prohibit live provider calls, current-input substitution, customer mutation and original-chain overwrite. Test model retirement, changed current configuration, missing inputs, incompatible executables, network denial, authorization and semantic output comparison. |
 | FND-096 | Governed reproducibility retention and artifact availability | Critical extension of FND-052/075/085/094 and existing forensic/evidence persistence; [Historical analytical reproducibility](architecture/HISTORICAL_ANALYTICAL_REPRODUCIBILITY.md). Define tenant-approved retention and fidelity requirements for each replay mode, purpose-limited encrypted storage, scoped access, redaction, deletion and legal-hold rules, versioned artifact integrity and restoration. Distinguish exact, derived, truncated, missing, expired, erased and incompatible artifacts; never bypass privacy controls or claim reproducibility beyond retained authorized inputs. Test restoration, tampering, expiration, erasure and optional-cache eviction. |
 | FND-097 | Cross-product historical replay equivalence and independent revalidation | Critical assurance extension of FND-059/069–071/078–079/084/086/094–096; [Historical analytical reproducibility](architecture/HISTORICAL_ANALYTICAL_REPRODUCIBILITY.md). Develop independent historical fixtures for ArchLucid and SecureNow; validate sealed reconstruction, provider-disabled recorded-input replay and separate independent claim revalidation on pinned evidence. Compare stage/final semantic results, detect drift and counterexamples, distinguish integrity from truth and report partial/unavailable outcomes explicitly. Test model retirement, current policy/engine changes, missing coverage and historical chain immutability; no customer mutation or unqualified reproducibility claims. |
+| FND-098 | Complete solution-wide enum boundary enforcement and compatibility verification | Critical QA/stabilization closure of the targeted enum audit (PRs #8042, #8044, #8045, #8047, #8051, #8057, #8058 and merged #8062; see docs/architecture/ENUM_BOUNDARY_AUDIT.md). Validate merged #8062, run compiler-backed inventory on current master using the existing compilation lane (no duplicate full CI), verify analyzer execution for every product project, remediate unsafe conversions and JSON/default-value bypasses, review only exact source-fingerprinted legitimate exceptions, run focused regression tests and authorized read-only historical SQL/JSON compatibility checks. Promote ENUM001 policy from changed-files to all only after actual inventory classification; keep ENUM002 blocking, demonstrate negative-control CI failure and compliant CI success, publish diagnostic/test evidence and confirm release-path enforcement. No automatic baseline approval, broad suppression, or fabricated successful evidence. Deferred from ordinary Aspects by owner on 2026-11-24; track separately from sampled defect-density statistics. |
 
 #### Release readiness (5)
 
