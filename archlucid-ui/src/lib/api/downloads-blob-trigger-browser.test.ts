@@ -14,4 +14,10 @@ describe("parseFilenameFromContentDisposition", () => {
 
     expect(parseFilenameFromContentDisposition(header)).toBe("plain-name.pdf");
   });
+
+  it("stops an unquoted legacy filename at the next semicolon", () => {
+    const header = "attachment; filename=report.pdf; size=123";
+
+    expect(parseFilenameFromContentDisposition(header)).toBe("report.pdf");
+  });
 });

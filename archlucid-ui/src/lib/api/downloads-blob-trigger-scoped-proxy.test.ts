@@ -95,6 +95,30 @@ describe("downloadScopedProxyFileGet", () => {
     vi.unstubAllGlobals();
     createObjectUrl.mockRestore();
   });
+
+  it("does not save application/octet-stream when the caller omitted content-type prefixes", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response("binary", {
+          status: 200,
+          headers: { "Content-Type": "application/octet-stream" },
+        }),
+      ),
+    );
+    const createObjectUrl = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:test");
+
+    await expect(
+      downloadScopedProxyFileGet("/api/proxy/v1/authority/reviews/run-1/decision-receipt", {
+        accept: "application/json",
+        defaultFileName: "decision-receipt-run-1.json",
+      }),
+    ).rejects.toThrow(/octet-stream/);
+
+    expect(createObjectUrl).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+    createObjectUrl.mockRestore();
+  });
 });
 
 describe("openScopedProxyFileGetInNewTab", () => {

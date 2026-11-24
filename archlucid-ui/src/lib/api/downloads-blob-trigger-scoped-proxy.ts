@@ -25,7 +25,7 @@ export type ScopedProxyFileGetOptions = {
 function rejectUnguardedHtmlOrProblemDownload(response: Response): void {
   const contentType = response.headers.get("Content-Type")?.toLowerCase() ?? "";
 
-  if (contentType.includes("text/html") || contentType.includes("text/plain") || contentType.includes("application/problem+json")) {
+  if (contentType.includes("text/html") || contentType.includes("text/plain") || contentType.includes("application/problem+json") || contentType.includes("application/octet-stream")) {
     throw new Error(`Download blocked: unexpected content type '${contentType || "unknown"}'.`);
   }
 }
