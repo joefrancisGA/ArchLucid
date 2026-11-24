@@ -1,7 +1,9 @@
 using System.Text.Json;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
@@ -12,11 +14,17 @@ using static ArchitectureIntelligenceLlmResponseShapes;
 public sealed class ArchitectureIntelligenceLlmGateway : IArchitectureIntelligenceLlmGateway
 {
     private readonly IAgentCompletionClient? _completionClient;
+    private readonly SemanticVerificationBudget _verificationBudget;
+    private readonly TimeProvider _clock;
 
     public ArchitectureIntelligenceLlmGateway(IServiceProvider serviceProvider)
     {
         ArgumentNullException.ThrowIfNull(serviceProvider);
         _completionClient = serviceProvider.GetService<IAgentCompletionClient>();
+        _verificationBudget = new(
+            serviceProvider.GetService<IOptions<ArchitectureIntelligencePipelineOptions>>()?.Value ?? new(),
+            serviceProvider.GetService<ILlmCostEstimator>());
+        _clock = serviceProvider.GetService<TimeProvider>() ?? TimeProvider.System;
     }
 
     public bool IsClientAvailable => _completionClient is not null;
@@ -214,11 +222,22 @@ public sealed class ArchitectureIntelligenceLlmGateway : IArchitectureIntelligen
             $"Claimed conclusion:\n{claimedConclusion}\n\nCited quotes:\n" +
             JsonSerializer.Serialize(citedQuotes ?? [], JsonOptions);
 
-        string? responseJson = await TryCompleteJsonAsync(
-            _completionClient,
-            systemPrompt,
-            userPrompt,
-            cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+        var (outputTokens, timeout) = _verificationBudget.Reserve(claimedConclusion, systemPrompt, userPrompt);
+        using CancellationTokenSource deadline = new(timeout, _clock);
+        using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, deadline.Token);
+
+        string? responseJson;
+        try
+        {
+            responseJson = await TryCompleteJsonAsync(_completionClient, systemPrompt, userPrompt, linked.Token, outputTokens)
+                .WaitAsync(linked.Token).ConfigureAwait(false);
+            linked.Token.ThrowIfCancellationRequested();
+        }
+        catch (OperationCanceledException) when (deadline.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+        {
+            throw new SemanticVerificationDeferredException("The semantic verification deadline elapsed.");
+        }
 
         if (string.IsNullOrWhiteSpace(responseJson))
         {

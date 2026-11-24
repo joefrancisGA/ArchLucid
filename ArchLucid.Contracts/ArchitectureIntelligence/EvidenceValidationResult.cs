@@ -37,6 +37,9 @@ public class EvidenceValidationResult
     /// <summary>Source of the semantic assessment. Historical records default to Unknown.</summary>
     public SemanticAssessmentMethod SemanticMethod { get; set; }
 
+    /// <summary>Reason model verification could not complete under the current budget.</summary>
+    public string? SemanticVerificationDeferredReason { get; set; }
+
     public string? CompletenessNotes
     {
         get;

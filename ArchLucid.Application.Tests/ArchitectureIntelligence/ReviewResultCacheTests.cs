@@ -11,6 +11,23 @@ namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
 public sealed class ReviewResultCacheTests
 {
     [Fact]
+    public void Set_does_not_cache_a_review_deferred_by_the_verification_budget()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "budget-retry" };
+        ClosedLoopReasoningResult deferred = new()
+        {
+            ValidationResults = [new() { FindingId = "f", SemanticVerificationDeferredReason = "Token budget exhausted." }],
+        };
+
+        cache.Set(manifest, deferred);
+        cache.TryGet(manifest, out _).Should().BeFalse();
+
+        cache.Set(manifest, new ClosedLoopReasoningResult());
+        cache.TryGet(manifest, out _).Should().BeTrue();
+    }
+
+    [Fact]
     public void TryGet_returns_false_after_entry_expires()
     {
         FakeTimeProvider clock = new(new DateTimeOffset(2026, 8, 25, 12, 0, 0, TimeSpan.Zero));

@@ -1,6 +1,13 @@
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Core;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Llm;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Time.Testing;
+using Moq;
 
 namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
 
@@ -170,6 +177,151 @@ public sealed class EvidenceValidationPipelineTests
         var result = _pipeline.Validate("f", ["absent"], ["an attributed passage"], _store, "Private endpoint");
         result.OverallPassedIntegrity.Should().BeFalse();
         result.CitationProbe.Should().Be(CitationProbeOutcome.Untestable);
+    }
+
+    [Theory]
+    [InlineData(0, "0.25", "token budget")]
+    [InlineData(16384, "0", "cost budget")]
+    public async Task Exhausted_capacity_never_calls_the_model_or_promotes_valid_citations(
+        int tokens, string dollars, string reason)
+    {
+        const string passage = "The inventory includes the endpoint but does not establish that it is private.";
+        var source = StoreArtifact(passage);
+        Mock<IAgentCompletionClient> provider = new(MockBehavior.Strict);
+        using var services = CreateServices(provider.Object,
+            new ArchitectureIntelligencePipelineOptions
+            {
+                SemanticVerificationTokenAllowance = tokens,
+                SemanticVerificationEstimatedUsdAllowance = decimal.Parse(dollars, System.Globalization.CultureInfo.InvariantCulture),
+            });
+        var pipeline = new EvidenceValidationPipeline(new ArchitectureIntelligenceLlmGateway(services));
+
+        var result = await pipeline.ValidateAsync("f", [source.ArtifactId], [passage], _store,
+            "Fail:Critical:endpoint is private");
+
+        provider.VerifyNoOtherCalls();
+        result.SemanticVerificationDeferredReason.Should().Contain(reason);
+        AssertDeferred(result);
+    }
+
+    [Fact]
+    public async Task Ordinary_findings_cannot_spend_capacity_reserved_for_high_severity()
+    {
+        const string passage = "The inventory records the approved endpoint.";
+        var source = StoreArtifact(passage);
+        Mock<IAgentCompletionClient> provider = new(MockBehavior.Strict);
+        provider.Setup(client => client.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), 128, null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("""{"assessment":"Supports"}""");
+        provider.Setup(client => client.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), 256, null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("""{"assessment":"Supports"}""");
+        using var services = CreateServices(provider.Object, new ArchitectureIntelligencePipelineOptions(), cost: 0.08m);
+        var pipeline = new EvidenceValidationPipeline(new ArchitectureIntelligenceLlmGateway(services));
+
+        var first = await pipeline.ValidateAsync("first", [source.ArtifactId], [passage], _store, "Fail:Medium:endpoint");
+        var second = await pipeline.ValidateAsync("second", [source.ArtifactId], [passage], _store, "Fail:Low:endpoint");
+        var third = await pipeline.ValidateAsync("third", [source.ArtifactId], [passage], _store, "Fail:High:endpoint");
+
+        first.SemanticMethod.Should().Be(SemanticAssessmentMethod.Model);
+        AssertDeferred(second);
+        third.SemanticMethod.Should().Be(SemanticAssessmentMethod.Model);
+        provider.Verify(client => client.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), 128, null,
+            It.IsAny<CancellationToken>()), Times.Once);
+        provider.Verify(client => client.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), 256, null,
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Concurrent_findings_cannot_oversubscribe_remaining_budget()
+    {
+        const string passage = "The inventory records the approved endpoint.";
+        var source = StoreArtifact(passage);
+        TaskCompletionSource<string> providerReply = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<IAgentCompletionClient> provider = new(MockBehavior.Strict);
+        provider.Setup(client => client.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), 256, null,
+                It.IsAny<CancellationToken>()))
+            .Returns(providerReply.Task);
+        using var services = CreateServices(provider.Object,
+            new ArchitectureIntelligencePipelineOptions { SemanticVerificationEstimatedUsdAllowance = 0.10m }, cost: 0.08m);
+        var pipeline = new EvidenceValidationPipeline(new ArchitectureIntelligenceLlmGateway(services));
+
+        Task<EvidenceValidationResult> admitted = pipeline.ValidateAsync("first", [source.ArtifactId], [passage],
+            _store, "Fail:High:endpoint");
+        var denied = await pipeline.ValidateAsync("second", [source.ArtifactId], [passage], _store, "Fail:High:endpoint");
+
+        AssertDeferred(denied);
+        providerReply.SetResult("""{"assessment":"Supports"}""");
+        (await admitted).SemanticMethod.Should().Be(SemanticAssessmentMethod.Model);
+        provider.Verify(client => client.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), 256, null,
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Deadline_discards_a_late_supported_assessment()
+    {
+        const string passage = "The inventory records the approved endpoint.";
+        var source = StoreArtifact(passage);
+        FakeTimeProvider clock = new();
+        TaskCompletionSource<string> providerReply = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<IAgentCompletionClient> provider = new(MockBehavior.Strict);
+        provider.Setup(client => client.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), 256, null,
+                It.IsAny<CancellationToken>()))
+            .Returns(providerReply.Task);
+        using var services = CreateServices(provider.Object, new ArchitectureIntelligencePipelineOptions(), clock: clock);
+        var pipeline = new EvidenceValidationPipeline(new ArchitectureIntelligenceLlmGateway(services));
+
+        var pending = pipeline.ValidateAsync("f", [source.ArtifactId], [passage], _store, "Fail:High:endpoint");
+        clock.Advance(TimeSpan.FromSeconds(11));
+        var result = await pending.WaitAsync(TimeSpan.FromSeconds(2));
+        providerReply.SetResult("""{"assessment":"Supports"}""");
+
+        result.SemanticVerificationDeferredReason.Should().Contain("deadline");
+        AssertDeferred(result);
+    }
+
+    [Fact]
+    public async Task Tenant_budget_denial_cannot_promote_a_claim_through_heuristic_fallback()
+    {
+        const string passage = "The inventory records the approved endpoint.";
+        var source = StoreArtifact(passage);
+        Mock<IAgentCompletionClient> provider = new(MockBehavior.Strict);
+        provider.Setup(client => client.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), 256, null,
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new LlmTokenQuotaExceededException("Tenant limit reached."));
+        using var services = CreateServices(provider.Object, new ArchitectureIntelligencePipelineOptions());
+        var pipeline = new EvidenceValidationPipeline(new ArchitectureIntelligenceLlmGateway(services));
+
+        var result = await pipeline.ValidateAsync("f", [source.ArtifactId], [passage], _store, "Fail:High:endpoint");
+
+        result.SemanticVerificationDeferredReason.Should().Contain("tenant AI");
+        AssertDeferred(result);
+    }
+
+    private static ServiceProvider CreateServices(IAgentCompletionClient provider,
+        ArchitectureIntelligencePipelineOptions options, decimal cost = 0.01m, TimeProvider? clock = null)
+    {
+        Mock<ILlmCostEstimator> estimator = new();
+        estimator.Setup(value => value.EstimateUsd(It.IsAny<int>(), It.IsAny<int>(), 0, null, null)).Returns(cost);
+        return new ServiceCollection()
+            .AddSingleton(provider)
+            .AddSingleton(Options.Create(options))
+            .AddSingleton(estimator.Object)
+            .AddSingleton(clock ?? TimeProvider.System)
+            .BuildServiceProvider();
+    }
+
+    private static void AssertDeferred(EvidenceValidationResult result)
+    {
+        result.OverallPassedIntegrity.Should().BeTrue();
+        result.SemanticAssessment.Should().Be(SemanticSupportAssessment.DoesNotEstablish);
+        result.SemanticMethod.Should().Be(SemanticAssessmentMethod.NotPerformed);
+        result.SupportTier.Should().Be(EvidenceSupportTier.Unverified);
+        result.Escalated.Should().BeTrue();
+        result.StageResults.Should().Contain(stage =>
+            stage.Stage == EvidenceValidationStage.Escalation && stage.Detail!.Contains("Human review"));
+        var finding = new SpecialistReviewFinding { FindingId = result.FindingId, Confidence = 1 };
+        new TrustPublishGate().Decide([finding], [], [result], []).PublishableFindings.Should().BeEmpty();
     }
 
     private sealed class FixedSemanticGateway : IArchitectureIntelligenceLlmGateway

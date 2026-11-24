@@ -21,7 +21,8 @@ internal static class ArchitectureIntelligenceLlmJsonCompletionHelper
         IAgentCompletionClient? completionClient,
         string systemPrompt,
         string userPrompt,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        int? maxTokens = null)
     {
         if (completionClient is null)
         {
@@ -33,7 +34,7 @@ internal static class ArchitectureIntelligenceLlmJsonCompletionHelper
             string response = await completionClient.CompleteJsonAsync(
                 systemPrompt,
                 userPrompt,
-                maxTokens: null,
+                maxTokens: maxTokens,
                 temperature: null,
                 cancellationToken: cancellationToken);
 
