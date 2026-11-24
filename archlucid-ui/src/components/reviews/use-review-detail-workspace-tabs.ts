@@ -118,6 +118,10 @@ import {
   parseRunDetailStickyActionsTechnicalDetailOpenFromSearch,
   RUN_DETAIL_STICKY_ACTIONS_TECHNICAL_DETAIL_OPEN_PARAM,
 } from "@/lib/reviews/run-detail-sticky-actions-technical-detail-disclosure-url";
+import {
+  parseTransparencyTrailOpenFromSearch,
+  TRANSPARENCY_TRAIL_OPEN_PARAM,
+} from "@/lib/reviews/transparency-trail-open-url";
 
 const WORKBENCH_TAB_IDS: readonly ReviewDetailTabId[] = ["architecture", "findings", "evidence"];
 
@@ -314,6 +318,9 @@ export function useReviewDetailWorkspaceTabs(
     const runDetailStickyActionsTechnicalDetailOpenPresent = parseRunDetailStickyActionsTechnicalDetailOpenFromSearch(
       params.get(RUN_DETAIL_STICKY_ACTIONS_TECHNICAL_DETAIL_OPEN_PARAM),
     );
+    const transparencyTrailOpenPresent = parseTransparencyTrailOpenFromSearch(
+      params.get(TRANSPARENCY_TRAIL_OPEN_PARAM),
+    );
     const runRecordMetaOpenPresent = parseRunDetailRecordMetadataOpenFromSearch(params.get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM));
     const askDockOpenPresent = parseReviewAskDockOpenFromSearch(params.get(REVIEW_ASK_DOCK_OPEN_PARAM));
     const askThreadPresent =
@@ -361,6 +368,7 @@ export function useReviewDetailWorkspaceTabs(
       || runFindingExplainabilityOpenPresent
       || runCoverageCurationOpenPresent
       || runDetailStickyActionsTechnicalDetailOpenPresent
+      || transparencyTrailOpenPresent
       || runRecordMetaOpenPresent
       || askDockOpenPresent
       || askThreadPresent
