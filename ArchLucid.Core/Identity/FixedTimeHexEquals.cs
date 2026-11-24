@@ -1,5 +1,4 @@
 using System.Security.Cryptography;
-using System.Text;
 
 namespace ArchLucid.Core.Identity;
 
@@ -30,11 +29,8 @@ public static class FixedTimeHexEquals
         }
         catch (FormatException)
         {
-            byte[] leftUtf8 = Encoding.UTF8.GetBytes(left.ToString());
-            byte[] rightUtf8 = Encoding.UTF8.GetBytes(right.ToString());
-
-            return leftUtf8.Length == rightUtf8.Length
-                && CryptographicOperations.FixedTimeEquals(leftUtf8, rightUtf8);
+            // Invalid digest encodings must never compare equal.
+            return false;
         }
     }
 }
