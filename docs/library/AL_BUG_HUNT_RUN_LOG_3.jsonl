@@ -199,3 +199,4 @@
 {"productLine":"archlucid-shared","set":3,"zoneId":"ui-review-detail-workspace","at":"2026-11-24T16:42:01.6564458Z","outcome":"hit","note":"seed hunt: visit-default overwrote hideGeneric=1-only URL"}
 {"productLine":"archlucid-shared","set":3,"zoneId":"ui-review-detail-workspace","at":"2026-11-24T16:43:39.2938630Z","outcome":"hit","note":"seed hunt: visit-default overwrote findingsFilterPanelOpen=1-only URL"}
 {"productLine":"archlucid-shared","set":3,"zoneId":"cli-tenant-isolation","at":"2026-11-24T16:49:54.3849091Z","outcome":"hit","note":"thorough hunt: offline exclude-run-id replay passed on prose-only primary-run-id evidence"}
+{"productLine":"archlucid-shared","set":3,"zoneId":"cli-tenant-isolation","at":"2026-11-24T16:53:47.2917507Z","outcome":"hit","note":"thorough hunt: non-GUID alternate-tenant-id reached live probes"}
