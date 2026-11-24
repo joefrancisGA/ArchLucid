@@ -133,3 +133,4 @@
 {"at":"2026-11-24T02:37:46.8545023Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote terraformExportConfirm-only URL"}
 {"at":"2026-11-24T02:39:54.3029858Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote showMuted-only URL"}
 {"at":"2026-11-24T02:41:59.8216364Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote qdAskFindingId-only URL"}
+{"at":"2026-11-24T02:43:52.5567178Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote qdReasonId-only URL"}
