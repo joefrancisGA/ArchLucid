@@ -1,5 +1,7 @@
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
+using System.Security.Claims;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports;
@@ -172,6 +174,46 @@ public sealed class ArtifactExportSealedManifestRuntimeConflictTests
         IActionResult action = await sut.DownloadTerraformAdvisoryExport(RunId, CancellationToken.None);
 
         AssertSealedManifestConflict409(action);
+    }
+
+    [Theory]
+    [InlineData("decision-receipt")]
+    [InlineData("terraform-advisory")]
+    public async Task Restricted_run_is_denied_before_artifact_data_read_or_download(
+        string endpoint)
+    {
+        Mock<IArchitectureShareAccessGate> sharing = new(MockBehavior.Strict);
+        sharing.Setup(g => g.EnsureRunReadAllowedAsync(
+                It.IsAny<ControllerBase>(), It.IsAny<ClaimsPrincipal>(),
+                Scope, RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new NotFoundResult());
+
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        Mock<IDecisionReceiptService> receipts = new(MockBehavior.Strict);
+        Mock<IArtifactPackagingService> packaging = new(MockBehavior.Strict);
+
+        ArtifactExportController sut = BuildController(
+            authority: authority.Object,
+            decisionReceiptService: receipts.Object,
+            artifactPackagingService: packaging.Object,
+            architectureShareAccessGate: sharing.Object);
+
+        IActionResult action = endpoint switch
+        {
+            "decision-receipt" => await sut.DownloadRunDecisionReceipt(
+                RunId, CancellationToken.None),
+            "terraform-advisory" => await sut.DownloadTerraformAdvisoryExport(
+                RunId, CancellationToken.None),
+            _ => throw new InvalidOperationException(endpoint),
+        };
+
+        action.Should().BeOfType<NotFoundResult>();
+        sharing.Verify(g => g.EnsureRunReadAllowedAsync(
+            It.IsAny<ControllerBase>(), It.IsAny<ClaimsPrincipal>(),
+            Scope, RunId, It.IsAny<CancellationToken>()), Times.Once);
+        authority.VerifyNoOtherCalls();
+        receipts.VerifyNoOtherCalls();
+        packaging.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -391,7 +433,9 @@ public sealed class ArtifactExportSealedManifestRuntimeConflictTests
         IRunExportLineageVerifier? runExportLineageVerifier = null,
         IManifestHashService? manifestHashService = null,
         IDecisionReceiptService? decisionReceiptService = null,
-        IArtifactQueryService? artifactQueryService = null)
+        IArtifactQueryService? artifactQueryService = null,
+        IArtifactPackagingService? artifactPackagingService = null,
+        IArchitectureShareAccessGate? architectureShareAccessGate = null)
     {
         IAuthorityQueryService authorityQueryService =
             authority ?? SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun();
@@ -414,7 +458,7 @@ public sealed class ArtifactExportSealedManifestRuntimeConflictTests
         return new ArtifactExportController(
             artifactQueryService ?? Mock.Of<IArtifactQueryService>(),
             authorityQueryService,
-            Mock.Of<IArtifactPackagingService>(),
+            artifactPackagingService ?? Mock.Of<IArtifactPackagingService>(),
             scopeProvider.Object,
             audit.Object,
             Mock.Of<ArchLucid.Core.Diagrams.IDiagramImageRenderer>(),
@@ -427,7 +471,7 @@ public sealed class ArtifactExportSealedManifestRuntimeConflictTests
             manifestHashService ?? SealedManifestHashTestSupport.CreateManifestHashService(),
             Mock.Of<IBrandedDiagramExportService>(),
             Mock.Of<IFindingVerificationReportQueryService>(),
-            Mock.Of<ArchLucid.Api.Support.IArchitectureShareAccessGate>(),
+            architectureShareAccessGate ?? PermissiveShareGate(),
             Mock.Of<IRunDetailQueryService>(),
             Mock.Of<IGraphSnapshotRepository>(),
             Mock.Of<IAgentExecutionTraceRepository>(),
@@ -437,4 +481,15 @@ public sealed class ArtifactExportSealedManifestRuntimeConflictTests
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
     }
+    private static IArchitectureShareAccessGate PermissiveShareGate()
+    {
+        Mock<IArchitectureShareAccessGate> sharing = new();
+        sharing.Setup(g => g.EnsureRunReadAllowedAsync(
+                It.IsAny<ControllerBase>(), It.IsAny<ClaimsPrincipal>(),
+                It.IsAny<ScopeContext>(), It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IActionResult?)null);
+        return sharing.Object;
+    }
+
 }

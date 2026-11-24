@@ -34,6 +34,14 @@ public sealed partial class ArtifactExportController
     public async Task<IActionResult> DownloadRunDecisionReceipt(Guid runId, CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        // Reuse the same scoped architecture-sharing gate as ZIP downloads.
+        // A sealed manifest proves integrity, not permission to view the run.
+        IActionResult? shareDenied = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this, User, scope, runId, ct);
+        if (shareDenied is not null)
+            return shareDenied;
+
         IActionResult? sealedGuardResult = await EnsureRunSealedManifestHashOrConflictAsync(scope, runId, ct);
 
         if (sealedGuardResult is not null)
@@ -230,6 +238,14 @@ public sealed partial class ArtifactExportController
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        // Authorize the underlying restricted architecture before reading the
+        // manifest or preparing a downloadable Terraform advisory package.
+        IActionResult? shareDenied = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this, User, scope, runId, ct);
+        if (shareDenied is not null)
+            return shareDenied;
+
         RunDetailDto? runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
 
         if (runDetail is null)
