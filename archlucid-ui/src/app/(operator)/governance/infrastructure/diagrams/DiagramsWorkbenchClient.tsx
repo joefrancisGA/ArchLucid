@@ -1708,6 +1708,10 @@ export function DiagramsWorkbenchClient() {
   }, [selectedSnapshotId]);
 
   useEffect(() => {
+    setDependencySeedBlockedDialog(null);
+  }, [selectedSnapshotId]);
+
+  useEffect(() => {
     if (selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing) {
       setModePreviews([]);
       setSnapshotCompletenessWarnings([]);

@@ -4075,8 +4075,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -8909,8 +8909,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -10017,8 +10017,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -10764,8 +10764,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -11641,8 +11641,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -13603,8 +13603,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -13791,8 +13791,8 @@ ABQ-09 churn hotspot.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -16795,8 +16795,8 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -16973,8 +16973,8 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -19539,8 +19539,8 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -19662,6 +19662,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `SecureNowQuestionQueue` / `securenow-question-queue-provider` — list payloads could carry `isExpired: false` while `expirationUtc` was already in the past, so details read “Not expired” and open filtering kept stale rows until reload; `secureNowQuestionShowsExpired`; regressions `returns true when expirationUtc is in the past even if isExpired is false` and `marks expiration as expired in details when expirationUtc is past but isExpired is false`.
 ## Zone: infra-evidence-diagrams
 
+2026-11-24 thorough hunt (hit): no rotation (`shouldRotate: false`). Promoted pass-28 dependency seed blocked dialog after snapshot navigation — the modal from an empty neighborhood on snapshot A stayed open after the snapshot picker moved to snapshot B because neither `handleSnapshotChange` nor URL-driven snapshot updates cleared `dependencySeedBlockedDialog`; clear it when `selectedSnapshotId` changes; regression `dismisses the dependency seed blocked dialog when the snapshot picker changes`; cheap-disproof closed the other four pass-28 monitors (preview/render guards, mode change clears `mermaidView`, outline swap clears declared-edge fetch, camera focus nonce gated on non-empty focus ids). DiagramsWorkbenchClient targeted vitest 3/3 on seed-blocked regressions. Private beta: invited operators who change infra diagram snapshots no longer see a stale dependency-neighborhood blocked modal tied to the prior snapshot.
 2026-11-24 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Continuation on pass-27 monitors. Cheap-disproof closed all five — **valid-no-repro** `loadSeedCatalog` stale apply (effect `cancelled` + catalog reset on snapshot; catalog regressions), **valid-no-repro** `loadPreview` `finally`/`loadingPreview` (hunt **#496** family), **valid-no-repro** `loadRender` stuck flag (regression `drops stale in-flight render when URL snapshot id changes before the prior request completes`), **valid-no-repro** outline unknown-filter on cleared seed (reset effect on `startingResourceSeedId`), **invalid** inert `evidenceFamily` URL when filter disabled. Reseeded five pass-28 `(candidate)` monitors. Scoped vitest **96/111** (15 pre-existing workbench failures). Private beta: n/a.
 
 - [x] (valid-no-repro) `DiagramsWorkbenchClient.loadSeedCatalog` — pass-27 monitor — **cheap-disproof 2026-11-24 seed hunt:** cancellation + catalog reset.
@@ -19670,11 +19671,11 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `InfraEvidenceDiagramOutline` unknown-filter scope — pass-27 monitor — **cheap-disproof 2026-11-24 seed hunt:** seed clear effect.
 - [x] (invalid) `DiagramsWorkbenchClient` `evidenceFamily` URL when filter off — pass-27 monitor — **cheap-disproof 2026-11-24 seed hunt:** inert param.
 
-- [ ] (candidate) `DiagramsWorkbenchClient` — `loadGeneration` retry vs slow preview — monitor; pass-28.
-- [ ] (candidate) `DiagramsWorkbenchClient` — `mermaidView` URL after mode change — monitor; pass-28.
-- [ ] (candidate) `DiagramsWorkbenchClient` — seed blocked dialog after snapshot change — monitor; pass-28.
-- [ ] (candidate) `InfraEvidenceDiagramOutline` — declared-connections fetch vs outline swap — monitor; pass-28.
-- [ ] (candidate) `DiagramsWorkbenchClient` — camera focus nonce without focus nodes — monitor; pass-28.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — `loadGeneration` retry vs slow preview — **cheap-disproof 2026-11-24 thorough hunt:** preview effect cancels in-flight fetches and resets snapshot-scoped preview state on `selectedSnapshotId` change (hunt **#496** family).
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — `mermaidView` URL after mode change — **cheap-disproof 2026-11-24 thorough hunt:** `handleModeChange` / `handleResourceGroupPickerChange` strip `mermaidView` via `syncUrl`.
+- [x] (proven) `DiagramsWorkbenchClient` — seed blocked dialog after snapshot change — **hit 2026-11-24 thorough hunt:** clear `dependencySeedBlockedDialog` when `selectedSnapshotId` changes; regression `dismisses the dependency seed blocked dialog when the snapshot picker changes`.
+- [x] (valid-no-repro) `InfraEvidenceDiagramOutline` — declared-connections fetch vs outline swap — **cheap-disproof 2026-11-24 thorough hunt:** outline `useEffect` clears `selectedDeclaredEdge` and `declaredConnections` on `outline` change; fetch effect uses `cancelled` guard.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — camera focus nonce without focus nodes — **cheap-disproof 2026-11-24 thorough hunt:** `cameraFocusNonce` bumps only when `cameraFocusNodeIds.length > 0`.
 
 2026-11-24 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone **`securenow-question-queue`** cleared by hit at tail). Reread DiagramsWorkbenchClient and InfraEvidenceDiagramOutline; closed five pass-26 `(candidate)` monitors — **valid-no-repro** seed catalog stale apply (regressions `does not keep the prior snapshot executive seed catalog after the snapshot picker changes` and `refreshes dependency seed catalog when the URL snapshot id changes`; `seedCatalogOutline` reset on `selectedSnapshotId`), **valid-no-repro** `loadingPreview` stuck (preview `finally` respects effect cancellation; missing-snapshot path disables mode picker via `diagramTypePickerEnabled`), **valid-no-repro** PNG export snapshot mismatch (`runPngExport` uses current `selectedSnapshotId`; regression `passes the active render query to PNG export`), **valid-no-repro** declared edge panel with cleared inventory selection (inventory panel is controlled; declared selection is independent by design), **valid-no-repro** family chip on zero-edge snapshot (`resolveSelectableInfraEvidenceDiagramFamily` + URL sync effect; regression `falls back to All when the selected family has no edges on the diagram`). No hunt-ready row promoted; reseeded five pass-27 `(candidate)` monitors. Scoped vitest **64/79** DiagramsWorkbenchClient + **32/32** InfraEvidenceDiagramOutline (15 pre-existing workbench failures unrelated to this pass). Private beta: n/a.
 
@@ -19694,8 +19695,8 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -19747,6 +19748,12 @@ ABQ-09 churn hotspot.
 
 2026-10-08 seed hunt (hit): Full subscription Show network details was dropped before compile. Merge kept a false default when another display flag built compile options, and the peel-budget options copy omitted IncludeNetworkDetails on every render. Regression `Render_full_subscription_keeps_network_details_when_another_display_flag_is_set` passed with the preview-flag regression.
 
+
+- [ ] (candidate) `DiagramsWorkbenchClient` — subscription filter retry vs stale preview — monitor; pass-29.
+- [ ] (candidate) `DiagramsWorkbenchClient` — deep-linked missing snapshot vs seed blocked dialog — monitor; pass-29.
+- [ ] (candidate) `DiagramsWorkbenchClient` — render retry generation vs stale blocked dialog — monitor; pass-29.
+- [ ] (candidate) `InfraEvidenceDiagramOutline` — declared panel open during connections load error — monitor; pass-29.
+- [ ] (candidate) `DiagramsWorkbenchClient` — URL snapshot hydration vs blocked dialog — monitor; pass-29.
 ### Hypotheses
 
 - [x] (proven) `InfraEvidenceSnapshotMermaidService.TryGetPreviewAsync` — a reachable preview request with `includeRecoveryServices=true`, `includeCrossGroupFanOut=true`, or `includeAvdAssets=true` rendered modes without those compile options because only `includePrivateEndpointNodes` was forwarded; fixed by merging all display flags into preview compile options; regression `Preview_applies_all_requested_display_flags_to_mode_renders`
@@ -19890,6 +19897,12 @@ ABQ-09 churn hotspot.
 - [x] (invalid) `DiagramNeighborhoodMapView` link rows — the inventory SVG generator aggregates links by neighborhood pair before emission, so repeated same-endpoint links are not a reachable product input.
 - [x] (invalid) `DiagramNeighborhoodMapView.renderTypeChip` — the inventory SVG generator groups type metadata by name before emission, so repeated same-name type chips are not a reachable product input.
 
+
+- [ ] (candidate) `DiagramsWorkbenchClient` — subscription filter retry vs stale preview — monitor; pass-29.
+- [ ] (candidate) `DiagramsWorkbenchClient` — deep-linked missing snapshot vs seed blocked dialog — monitor; pass-29.
+- [ ] (candidate) `DiagramsWorkbenchClient` — render retry generation vs stale blocked dialog — monitor; pass-29.
+- [ ] (candidate) `InfraEvidenceDiagramOutline` — declared panel open during connections load error — monitor; pass-29.
+- [ ] (candidate) `DiagramsWorkbenchClient` — URL snapshot hydration vs blocked dialog — monitor; pass-29.
 ### Hypotheses
 
 - [x] (proven) `useArchitectureDiagramPanel` / `ArchitectureDiagramPanel` — `highlightedNodeId` from the findings dual-pane was read only when `diagramModel` changed, so a later highlight left the first provenance node selected — **hit 2026-10-09 seed hunt:** effect depends on `highlightedNodeId`. Regression `moves provenance selection when the highlighted node changes after the diagram is ready`.
