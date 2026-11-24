@@ -35,12 +35,15 @@ public sealed class AskServiceAskAboutFindingTests
             ProjectId = Guid.NewGuid()
         };
 
+        Guid runId = Guid.NewGuid();
+        Guid findingId = Guid.NewGuid();
         ConversationThread thread = new()
         {
             ThreadId = Guid.NewGuid(),
             TenantId = scope.TenantId,
             WorkspaceId = scope.WorkspaceId,
-            ProjectId = scope.ProjectId
+            ProjectId = scope.ProjectId,
+            RunId = runId,
         };
 
         Mock<IConversationService> conversationService = new();
@@ -50,7 +53,7 @@ public sealed class AskServiceAskAboutFindingTests
                 scope.TenantId,
                 scope.WorkspaceId,
                 scope.ProjectId,
-                null,
+                runId,
                 null,
                 null,
                 It.IsAny<CancellationToken>()))
@@ -59,11 +62,13 @@ public sealed class AskServiceAskAboutFindingTests
             .Setup(c => c.GetHistoryAsync(thread.ThreadId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        Guid runId = Guid.NewGuid();
-
         Mock<IFindingInspectReadRepository> findingRepository = new();
         findingRepository
-            .Setup(r => r.GetInspectAsync(scope, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetRunIdByFindingIdAsync(scope, findingId.ToString("N"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid?)runId);
+        findingRepository
+            .Setup(r => r.GetInspectAsync(scope, findingId.ToString("N"), It.IsAny<CancellationToken>(),
+                It.Is<FindingInspectReadOptions>(o => o.ExpectedRunId == runId)))
             .ReturnsAsync(new Contracts.Findings.FindingInspectResponse
             {
                 FindingId = Guid.NewGuid().ToString("N"),
@@ -124,7 +129,7 @@ public sealed class AskServiceAskAboutFindingTests
         AskResponse response = await sut.AskAboutFindingAsync(
             new FindingAskRequest
             {
-                FindingId = Guid.NewGuid(),
+                FindingId = findingId,
                 Question = "How do I fix this?"
             },
             scope,
