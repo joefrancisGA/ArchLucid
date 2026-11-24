@@ -56,4 +56,36 @@ describe("sortRunsForWorkingReviewsHubInventory (LI-08)", () => {
       "older",
     ]);
   });
+  it("orders a finalized package by its completed time ahead of a later-created draft", () => {
+    const runs = [
+      run({
+        runId: "created-later",
+        createdUtc: "2026-03-01T00:00:00Z",
+        hasGoldenManifest: false,
+      }),
+      run({
+        runId: "finalized-early-created",
+        createdUtc: "2026-01-01T00:00:00Z",
+        completedUtc: "2026-05-01T00:00:00Z",
+        hasGoldenManifest: true,
+      }),
+    ];
+
+    expect(sortRunsForInventory(runs, () => false).map((item) => item.runId)).toEqual([
+      "finalized-early-created",
+      "created-later",
+    ]);
+  });
+
+  it("orders a review by created time when that timestamp has surrounding whitespace", () => {
+    const runs = [
+      run({ runId: "a-earlier", createdUtc: "2026-01-01T00:00:00Z" }),
+      run({ runId: "b-later", createdUtc: " 2026-06-01T00:00:00Z" }),
+    ];
+
+    expect(sortRunsForInventory(runs, () => false).map((item) => item.runId)).toEqual([
+      "b-later",
+      "a-earlier",
+    ]);
+  });
 });

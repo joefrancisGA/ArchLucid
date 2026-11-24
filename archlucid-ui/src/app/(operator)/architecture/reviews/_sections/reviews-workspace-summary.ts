@@ -32,9 +32,15 @@ export function deriveReviewsWorkspaceSummary(runs: readonly RunSummary[]): Revi
   let openRisksTotalOmitted = false;
 
   for (const run of tenantRuns) {
-    if (run.hasGoldenManifest === true) {
+    // Governance warnings keep the review Active, so it must not use the finalized chip.
+    if (run.hasGoldenManifest === true && run.hasGovernanceWarnings !== true) {
       committed += 1;
-      readyForGovernance += 1;
+      const decision = run.operatorGovernanceDecision?.trim() ?? "";
+
+      // A stored decision means approval already happened, so the package is not awaiting it.
+      if (decision.length === 0) {
+        readyForGovernance += 1;
+      }
     } else {
       inProgress += 1;
     }
@@ -43,7 +49,8 @@ export function deriveReviewsWorkspaceSummary(runs: readonly RunSummary[]): Revi
 
     if (findingCount !== null) {
       findings += findingCount;
-    } else {
+    } else if (run.hasFindingsSnapshot === true || run.hasGoldenManifest === true) {
+      // A draft that has not reached findings yet has no count to omit.
       findingsTotalOmitted = true;
     }
 
@@ -52,8 +59,7 @@ export function deriveReviewsWorkspaceSummary(runs: readonly RunSummary[]): Revi
     if (warningCount !== null) {
       openRisks += warningCount;
     } else if (run.hasWarnings === true || run.hasGovernanceWarnings === true) {
-      openRisksTotalOmitted = true;
-    } else {
+      // A missing count is an incomplete total only when the review says warnings exist.
       openRisksTotalOmitted = true;
     }
   }

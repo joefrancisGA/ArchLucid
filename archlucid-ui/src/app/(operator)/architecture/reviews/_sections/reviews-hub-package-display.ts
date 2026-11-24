@@ -9,6 +9,7 @@ import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-revi
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isSampleReviewRun } from "@/lib/reviews/is-sample-review-run";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import {
@@ -131,7 +132,7 @@ function storedFiniteCount(value: number | null | undefined): number | null {
   return Math.max(0, Math.trunc(value));
 }
 
-function resolveReviewsHubRecencyInstant(run: RunSummary): { readonly kind: "created" | "finalized"; readonly instantUtc: string } {
+export function resolveReviewsHubRecencyInstant(run: RunSummary): { readonly kind: "created" | "finalized"; readonly instantUtc: string } {
   if (run.hasGoldenManifest === true) {
     const completedUtc = run.completedUtc?.trim() ?? "";
 
@@ -140,7 +141,9 @@ function resolveReviewsHubRecencyInstant(run: RunSummary): { readonly kind: "cre
     }
   }
 
-  return { kind: "created", instantUtc: run.createdUtc };
+  const createdUtc = run.createdUtc?.trim() ?? "";
+
+  return { kind: "created", instantUtc: createdUtc };
 }
 
 function formatLastUpdated(run: RunSummary): string {
@@ -162,7 +165,8 @@ function formatLastUpdated(run: RunSummary): string {
 
 function formatLastUpdatedAbsolute(run: RunSummary): string {
   const recency = resolveReviewsHubRecencyInstant(run);
-  const parsed = new Date(recency.instantUtc);
+  const parsedMs = parseIsoUtcMs(recency.instantUtc);
+  const parsed = new Date(parsedMs);
 
   if (Number.isNaN(parsed.getTime())) {
     return recency.instantUtc;

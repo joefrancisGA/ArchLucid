@@ -64,7 +64,7 @@ export function resolveReviewWorkspaceTabForVisit(
   return resolveReviewDetailTabForVisit(paramValue, resolved);
 }
 
-function hasExplicitLegacyArchTabParam(archTabValue: string | null | undefined): boolean {
+export function hasExplicitLegacyArchTabParam(archTabValue: string | null | undefined): boolean {
   if (archTabValue === null || archTabValue === undefined || archTabValue.trim().length === 0) {
     return false;
   }

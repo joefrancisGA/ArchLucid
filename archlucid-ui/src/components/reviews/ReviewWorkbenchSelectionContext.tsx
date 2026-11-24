@@ -13,6 +13,10 @@ import { useSearchParams } from "next/navigation";
 
 import type { ReviewWorkbenchColumnId } from "@/components/reviews/ReviewWorkbenchLayout";
 import {
+  ARCHITECTURE_DIAGRAM_FINDING_PARAM,
+  parseArchitectureDiagramFindingIdFromSearch,
+} from "@/lib/architecture/architecture-findings-dual-pane-url";
+import {
   readReviewDetailFindingIdFromWindowLocation,
   REVIEW_DETAIL_FINDING_PARAM,
 } from "@/lib/review-detail-workspace-tabs";
@@ -42,9 +46,12 @@ export type ReviewWorkbenchSelectionProviderProps = {
 export function ReviewWorkbenchSelectionProvider(props: ReviewWorkbenchSelectionProviderProps): React.JSX.Element {
   const searchParams = useSearchParams();
   const searchParamFindingId = useMemo((): string | null => {
-    const trimmed = searchParams.get(REVIEW_DETAIL_FINDING_PARAM)?.trim() ?? "";
+    const parsed = parseArchitectureDiagramFindingIdFromSearch(
+      searchParams.get(REVIEW_DETAIL_FINDING_PARAM),
+      searchParams.get(ARCHITECTURE_DIAGRAM_FINDING_PARAM),
+    );
 
-    return trimmed.length > 0 ? trimmed : null;
+    return parsed.length > 0 ? parsed : null;
   }, [searchParams]);
   const initialSelectedFindingId =
     readReviewDetailFindingIdFromWindowLocation() ?? props.initialFindingId ?? null;

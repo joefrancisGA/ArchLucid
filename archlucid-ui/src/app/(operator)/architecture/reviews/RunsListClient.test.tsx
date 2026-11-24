@@ -868,6 +868,32 @@ describe("RunsListClient inspector", () => {
     expect(screen.queryByTestId(`runs-row-${malformedRun.runId}`)).toBeNull();
     expect(screen.getByTestId(`runs-row-${sampleRun.runId}`)).toBeInTheDocument();
   });
+  it("keeps a review whose createdUtc has surrounding whitespace", () => {
+    const paddedRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000dd",
+      description: "Padded timestamp review",
+      createdUtc: " 2026-01-20T12:00:00.000Z",
+    };
+
+    const rowOrder = (): string[] =>
+      Array.from(document.querySelectorAll('[data-testid^="runs-row-"]')).map((row) =>
+        row.getAttribute("data-testid") ?? "",
+      );
+
+    renderRunsList(
+      <RunsListClient
+        runs={[sampleRun, paddedRun]}
+        projectId="default"
+        page={1}
+        pageSize={20}
+        totalCount={2}
+      />,
+    );
+
+    expect(screen.getByTestId(`runs-row-${paddedRun.runId}`)).toBeInTheDocument();
+    expect(rowOrder()[0]).toBe(`runs-row-${paddedRun.runId}`);
+  });
 
   it("re-sorts rows when sort= changes via popstate before useSearchParams catches up", () => {
     const olderRun: RunSummary = {

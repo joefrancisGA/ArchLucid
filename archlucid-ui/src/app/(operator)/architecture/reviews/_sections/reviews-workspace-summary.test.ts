@@ -50,4 +50,78 @@ describe("deriveReviewsWorkspaceSummary", () => {
     expect(summary.findings).toBe(2);
     expect(summary.openRisks).toBe(0);
   });
+  it("does not mark open risks omitted when warning count and warning flags are absent", () => {
+    const summary = deriveReviewsWorkspaceSummary([
+      run({ runId: "live-in-flight", hasFindingsSnapshot: true, findingCount: 2 }),
+    ]);
+
+    expect(summary.openRisks).toBe(0);
+    expect(summary.openRisksTotalOmitted).toBe(false);
+  });
+
+  it("marks open risks omitted when a review flags warnings without a stored count", () => {
+    const summary = deriveReviewsWorkspaceSummary([
+      run({ runId: "flagged", hasFindingsSnapshot: true, findingCount: 1, hasWarnings: true }),
+    ]);
+
+    expect(summary.openRisks).toBe(0);
+    expect(summary.openRisksTotalOmitted).toBe(true);
+  });
+  it("does not mark findings omitted for a draft that has not stored a findings snapshot", () => {
+    const summary = deriveReviewsWorkspaceSummary([
+      run({
+        runId: "draft",
+        hasGoldenManifest: false,
+        hasFindingsSnapshot: false,
+      }),
+    ]);
+
+    expect(summary.findings).toBe(0);
+    expect(summary.findingsTotalOmitted).toBe(false);
+    expect(summary.inProgress).toBe(1);
+  });
+
+  it("marks findings omitted when a finalized review has no stored finding count", () => {
+    const summary = deriveReviewsWorkspaceSummary([
+      run({ runId: "finalized", hasGoldenManifest: true }),
+    ]);
+
+    expect(summary.findings).toBe(0);
+    expect(summary.findingsTotalOmitted).toBe(true);
+  });
+  it("does not count a finalized package with a stored approval decision as awaiting approval", () => {
+    const summary = deriveReviewsWorkspaceSummary([
+      run({
+        runId: "approved",
+        hasGoldenManifest: true,
+        findingCount: 1,
+        warningCount: 0,
+        operatorGovernanceDecision: "Approved",
+      }),
+      run({
+        runId: "undecided",
+        hasGoldenManifest: true,
+        findingCount: 1,
+        warningCount: 0,
+      }),
+    ]);
+
+    expect(summary.committed).toBe(2);
+    expect(summary.readyForGovernance).toBe(1);
+  });
+  it("counts a golden manifest with governance warnings as an active review", () => {
+    const summary = deriveReviewsWorkspaceSummary([
+      run({
+        runId: "warnings",
+        hasGoldenManifest: true,
+        hasGovernanceWarnings: true,
+        findingCount: 1,
+        warningCount: 1,
+      }),
+    ]);
+
+    expect(summary.committed).toBe(0);
+    expect(summary.inProgress).toBe(1);
+    expect(summary.readyForGovernance).toBe(0);
+  });
 });

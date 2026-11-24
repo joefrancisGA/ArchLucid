@@ -114,6 +114,25 @@ describe("ReviewWorkbenchSelectionProvider", () => {
     expect(screen.getByTestId("selected-finding-id")).toHaveTextContent("none");
   });
 
+
+  it("keeps legacy diagramFindingId selection when useSearchParams omits findingId", () => {
+    searchParamsHarness.applyQuery("reviewTab=findings&diagramFindingId=finding-legacy");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&diagramFindingId=finding-legacy",
+    );
+
+    render(
+      <ReviewWorkbenchSelectionProvider>
+        <SelectionProbe />
+      </ReviewWorkbenchSelectionProvider>,
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(screen.getByTestId("selected-finding-id")).toHaveTextContent("finding-legacy");
+  });
+
   it("follows findingId query changes without a popstate event", () => {
     searchParamsHarness.applyQuery("reviewTab=findings&findingId=finding-a");
     window.history.replaceState(
