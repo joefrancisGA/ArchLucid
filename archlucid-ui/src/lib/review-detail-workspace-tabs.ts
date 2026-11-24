@@ -113,7 +113,7 @@ export const REVIEW_DETAIL_TAB_LABELS: Record<ReviewDetailTabId, string> = {
   evidence: "Evidence",
   policies: "Policies and standards",
   "decisions-remediation": "Decisions and remediation",
-  "review-package": "Finalized review record",
+  "review-package": "Sponsor packet",
   architecture: "Architecture",
   activity: "Activity",
 };

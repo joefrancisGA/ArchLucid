@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-24 - ArchLucid review cognitive load
+
+**Outcome.** The review spine names one buyer next action, defines evidence, finalize, and sponsor packet in one line, and makes the sponsor packet the primary control once the open gate is clear. The package tab is labeled Sponsor packet. Disposition stays a text link so the header keeps one primary button. Empty evidence and unfinalized export name the next step.
+
+**Surfaces.** First-review spine, review workspace tab label.
+
 ## 2026-11-24 - SecureNow commercial packaging honesty
 
 **Outcome.** First-hour and pilot-decision pages show the beta SKU includes and excludes card. Operator billing states that an ArchLucid subscription does not include SecureNow and keeps quote as the SecureNow path. The signed-in quote packet repeats public meter-cap copy beside each SKU. Fixture and demo sessions say the workspace is not an SN-EVAL or SN-ANNUAL entitlement.

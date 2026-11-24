@@ -102,6 +102,11 @@ describe("RunDetailFirstReviewSpineBand", () => {
     expect(screen.getByTestId("review-open-gate")).toHaveTextContent(
       "No uncited finding or open decision-grade disposition is stored, and a committed package is stored. This is not an approval to build.",
     );
+    expect(screen.getByTestId("review-cognitive-load-next-action")).toHaveTextContent("Open the sponsor packet");
+    expect(screen.getByTestId("review-cognitive-load-sponsor-primary")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/run-abc?reviewTab=review-package",
+    );
   });
 
   it("does not call the gate clear when evidence reference count was not stored", () => {
