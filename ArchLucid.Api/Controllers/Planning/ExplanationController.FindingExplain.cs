@@ -30,6 +30,10 @@ public sealed partial class ExplanationController
         try
         {
             ScopeContext scope = scopeProvider.GetCurrentScope();
+            IActionResult? shareDenied = await EnsureExplanationRunReadAllowedAsync(scope, runId, ct);
+            if (shareDenied is not null)
+                return shareDenied;
+
             RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
 
             if (detail?.GoldenManifest is null)
@@ -83,6 +87,10 @@ public sealed partial class ExplanationController
         try
         {
             ScopeContext scope = scopeProvider.GetCurrentScope();
+            IActionResult? shareDenied = await EnsureExplanationRunReadAllowedAsync(scope, runId, ct);
+            if (shareDenied is not null)
+                return shareDenied;
+
             RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
 
             if (detail?.GoldenManifest is null)
