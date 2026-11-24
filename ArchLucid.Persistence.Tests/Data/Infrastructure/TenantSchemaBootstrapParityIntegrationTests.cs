@@ -1,7 +1,12 @@
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Sql;
+using ArchLucid.Persistence.Tenancy;
+using ArchLucid.Persistence.Tests.Support;
 using ArchLucid.TestSupport;
+
+using Dapper;
 
 using FluentAssertions;
 
@@ -180,6 +185,44 @@ public sealed class TenantSchemaBootstrapParityIntegrationTests
         {
             Skip.If(true, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason + " " + ex.Message);
             throw new InvalidOperationException("Unreachable: Skip.If should throw.", ex);
+        }
+    }
+
+    [SkippableFact]
+    public async Task System_migrations_alone_support_tenant_directory_lookup()
+    {
+        string connectionString = CreateEphemeralCatalogConnectionStringOrSkip("SystemDirectory");
+        SqlServerTestCatalogCommands.EnsureCatalogExists(connectionString);
+        try
+        {
+            DatabaseMigrator.RunSystem(connectionString);
+            Guid id = Guid.NewGuid();
+            const string slug = "system-directory";
+            await using (SqlConnection connection = new(connectionString))
+            {
+                await connection.OpenAsync();
+                await connection.ExecuteAsync(
+                    "INSERT INTO dbo.Tenants (Id, Name, Slug, Tier) VALUES (@Id, @Name, @Slug, @Tier)",
+                    new { Id = id, Name = "System directory tenant", Slug = slug, Tier = "Standard" });
+            }
+
+            DapperTenantRepository repository =
+                DapperTenantRepositoryTestFactory.CreateForPerTenantCatalogSameDatabaseIntegration(
+                    new TestSqlConnectionFactory(connectionString));
+            TenantRecord tenant = Assert.IsType<TenantRecord>(
+                await repository.GetByIdFromControlPlaneCatalogAsync(id, CancellationToken.None));
+
+            Assert.Equal(id, tenant.Id);
+            Assert.Equal(slug, tenant.Slug);
+            Assert.Equal(TenantTier.Standard, tenant.Tier);
+            Assert.Equal(TenantDataRegions.Default, tenant.DataRegion);
+            Assert.Equal(0, tenant.TrialArchitecturePreseedAttemptCount);
+            Assert.Null(tenant.LegalHoldUntilUtc);
+            Assert.Null(await repository.GetByIdFromControlPlaneCatalogAsync(Guid.NewGuid(), CancellationToken.None));
+        }
+        finally
+        {
+            SqlServerTestCatalogCommands.DropCatalogIfExists(connectionString);
         }
     }
 
