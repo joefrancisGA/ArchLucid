@@ -46,6 +46,7 @@ jobs:
           python3 - "$RUNNER_TEMP" "${base_status:-0}" <<'PY'
           import collections
           import pathlib
+          import re
           import sys
           import xml.etree.ElementTree as ET
 
@@ -61,7 +62,8 @@ jobs:
               # VSTest can emit RunInfo errors for ordinary failing runs. Compare these
               # with the base as well, while treating incomplete or aborted runs as errors.
               errors = collections.Counter(
-                  (item.findtext("{*}Text") or "").replace(str(root / "finding-verification-base"), "<checkout>")
+                  re.sub(r"^\[xUnit\.net \d+:\d+:\d+\.\d+\]\s*", "", item.findtext("{*}Text") or "")
+                  .replace(str(root / "finding-verification-base"), "<checkout>")
                   .replace(str(pathlib.Path.cwd()), "<checkout>").strip()
                   for item in doc.findall(".//{*}RunInfo[@outcome='Error']")
               )
