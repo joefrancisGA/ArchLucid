@@ -427,6 +427,102 @@ public sealed class ArtifactExportSealedManifestRuntimeConflictTests
         AssertSealedManifestConflict409(action);
     }
 
+    [Theory]
+    [InlineData("list-run")]
+    [InlineData("bundle-run")]
+    [InlineData("artifact-run")]
+    [InlineData("list-manifest")]
+    [InlineData("descriptor-manifest")]
+    [InlineData("artifact-manifest")]
+    [InlineData("bundle-manifest")]
+    public async Task Restricted_architecture_denied_before_any_artifact_or_run_detail_read(
+        string route)
+    {
+        Guid manifestId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Guid artifactId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        bool byManifest = route.EndsWith("-manifest", StringComparison.Ordinal);
+        Mock<IAuthorityQueryService> query = new(MockBehavior.Strict);
+
+        // Manifest routes may resolve the scoped manifest-to-run identifier
+        // only. No full manifest summary or payload read is allowed pre-gate.
+        if (byManifest)
+        {
+            query.Setup(q => q.GetRunIdByManifestIdAsync(
+                    Scope, manifestId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Guid?)RunId);
+        }
+
+        Mock<IArchitectureShareAccessGate> sharing = new(MockBehavior.Strict);
+        sharing.Setup(g => g.EnsureRunReadAllowedAsync(
+                It.IsAny<ControllerBase>(), It.IsAny<ClaimsPrincipal>(),
+                Scope, RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new NotFoundResult());
+
+        Mock<IArtifactQueryService> artifacts = new(MockBehavior.Strict);
+        Mock<IArtifactPackagingService> packaging = new(MockBehavior.Strict);
+
+        ArtifactExportController sut = BuildController(
+            authority: query.Object, artifactQueryService: artifacts.Object,
+            artifactPackagingService: packaging.Object,
+            architectureShareAccessGate: sharing.Object);
+
+        IActionResult action = route switch
+        {
+            "list-run" => await sut.ListArtifactsForRun(RunId, CancellationToken.None),
+            "bundle-run" => await sut.DownloadBundleForRun(RunId, CancellationToken.None),
+            "artifact-run" => await sut.DownloadArtifactForRun(RunId, artifactId, CancellationToken.None),
+            "list-manifest" => await sut.ListArtifacts(manifestId, CancellationToken.None),
+            "descriptor-manifest" => await sut.GetArtifactDescriptor(manifestId, artifactId, CancellationToken.None),
+            "artifact-manifest" => await sut.DownloadArtifact(manifestId, artifactId, CancellationToken.None),
+            "bundle-manifest" => await sut.DownloadBundle(manifestId, CancellationToken.None),
+            _ => throw new InvalidOperationException(route)
+        };
+
+        if (byManifest)
+        {
+            ObjectResult denied = action.Should().BeOfType<ObjectResult>().Subject;
+            denied.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+            denied.Value?.ToString().Should().NotContain(RunId.ToString("D"));
+            query.Verify(q => q.GetRunIdByManifestIdAsync(
+                Scope, manifestId, It.IsAny<CancellationToken>()), Times.Once);
+        }
+        else
+        {
+            action.Should().BeOfType<NotFoundResult>();
+        }
+
+        sharing.Verify(g => g.EnsureRunReadAllowedAsync(
+            It.IsAny<ControllerBase>(), It.IsAny<ClaimsPrincipal>(),
+            Scope, RunId, It.IsAny<CancellationToken>()), Times.Once);
+        query.VerifyNoOtherCalls();
+        artifacts.VerifyNoOtherCalls();
+        packaging.VerifyNoOtherCalls();
+    }
+
+    [Theory]
+    [InlineData("missing")]
+    [InlineData("empty-run")]
+    public async Task Manifest_artifact_lookup_rejects_missing_or_empty_scoped_run_reference(string variant)
+    {
+        Guid manifestId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Mock<IAuthorityQueryService> query = new(MockBehavior.Strict);
+        query.Setup(q => q.GetRunIdByManifestIdAsync(
+                Scope, manifestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(variant == "empty-run" ? (Guid?)Guid.Empty : null);
+
+        Mock<IArchitectureShareAccessGate> sharing = new(MockBehavior.Strict);
+        ArtifactExportController sut = BuildController(
+            authority: query.Object, architectureShareAccessGate: sharing.Object);
+
+        IActionResult action = await sut.ListArtifacts(manifestId, CancellationToken.None);
+        action.Should().BeOfType<ObjectResult>().Which.StatusCode
+            .Should().Be(StatusCodes.Status404NotFound);
+        query.Verify(q => q.GetRunIdByManifestIdAsync(
+            Scope, manifestId, It.IsAny<CancellationToken>()), Times.Once);
+        query.VerifyNoOtherCalls();
+        sharing.VerifyNoOtherCalls();
+    }
+
     private static ArtifactExportController BuildController(
         IAuthorityQueryService? authority = null,
         IRunExportPackageBuilder? runExportPackageBuilder = null,
