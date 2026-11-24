@@ -8,6 +8,50 @@ namespace ArchLucid.Core.Tests.Audit;
 public sealed class InMemoryAuditRetryQueueTests
 {
     [Fact]
+    public async Task Rejected_enqueue_does_not_change_pending_count()
+    {
+        InMemoryAuditRetryQueue queue = new(1);
+        queue.TryEnqueue(NewEvent()).Should().BeTrue();
+        queue.TryEnqueue(NewEvent()).Should().BeFalse();
+        queue.ApproximatePendingCount.Should().Be(1);
+
+        await queue.DequeueAsync(CancellationToken.None);
+        queue.NotifyPersistedSuccess();
+        queue.ApproximatePendingCount.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task Concurrent_consumer_does_not_observe_negative_pending_count()
+    {
+        InMemoryAuditRetryQueue queue = new(1);
+        using CancellationTokenSource timeout = new(TimeSpan.FromSeconds(10));
+        const int count = 500;
+
+        Task consumer = Task.Run(async () =>
+        {
+            for (int i = 0; i < count; i++)
+            {
+                await queue.DequeueAsync(timeout.Token);
+                queue.NotifyPersistedSuccess();
+                queue.ApproximatePendingCount.Should().BeGreaterThanOrEqualTo(0);
+            }
+        });
+
+        for (int i = 0; i < count; i++)
+        {
+            AuditEvent next = NewEvent();
+            while (!queue.TryEnqueue(next))
+            {
+                timeout.Token.ThrowIfCancellationRequested();
+                await Task.Yield();
+            }
+        }
+
+        await consumer;
+        queue.ApproximatePendingCount.Should().Be(0);
+    }
+
+    [Fact]
     public void Constructor_rejects_non_positive_capacity()
     {
         Action act = () => _ = new InMemoryAuditRetryQueue(0);
