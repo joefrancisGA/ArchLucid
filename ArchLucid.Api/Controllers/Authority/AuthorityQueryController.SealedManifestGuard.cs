@@ -2,6 +2,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
@@ -87,23 +88,75 @@ public sealed partial class AuthorityQueryController
     }
 
     private IActionResult? EnsureManifestSummarySealedReadAllowed(
+        ScopeContext scope,
+        Guid requestedManifestId,
         ManifestSummaryDto result,
+        ManifestDocument? requestedManifest,
         RunDetailDto? manifestDetail)
     {
         try
         {
-            if (manifestDetail?.GoldenManifest is null)
+            // The run must still exist in the same trusted scope, and its
+            // current pinned manifest must be available as before.
+            if (manifestDetail?.Run is null ||
+                manifestDetail.Run.RunId != result.RunId ||
+                manifestDetail.GoldenManifest is null ||
+                manifestDetail.Run.GoldenManifestId != manifestDetail.GoldenManifest.ManifestId ||
+                manifestDetail.GoldenManifest.RunId != result.RunId)
             {
-                return MapRunQuerySealedManifestConflict(
-                    new ConflictException(
-                        $"Manifest '{result.ManifestId}' sealed hash verification is unavailable because the committed golden manifest is missing."));
+                throw new ConflictException(
+                    $"Manifest '{requestedManifestId}' cannot verify its associated committed run.");
+            }
 
+            // The exact manifest requested by the caller must independently
+            // match its scoped lookup and summary, even if the run has since
+            // pinned a newer golden manifest. Never hash a different manifest
+            // and treat that as proof of the requested version's integrity.
+            if (requestedManifest is null ||
+                requestedManifest.ManifestId != requestedManifestId ||
+                requestedManifest.RunId != result.RunId ||
+                requestedManifest.TenantId != scope.TenantId ||
+                requestedManifest.WorkspaceId != scope.WorkspaceId ||
+                requestedManifest.ProjectId != scope.ProjectId ||
+                !string.Equals(requestedManifest.ManifestHash, result.ManifestHash,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ConflictException(
+                    $"Manifest '{requestedManifestId}' exact-ID scope or run binding could not be verified.");
             }
 
             SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
                 manifestDetail.GoldenManifest,
                 result.RunId.ToString("D"),
                 manifestHashService);
+
+            // Historical sealed manifests are legitimate inputs. Verify their
+            // actual payload, not only the run's current golden-manifest hash.
+            if (requestedManifest.ManifestId != manifestDetail.GoldenManifest.ManifestId)
+            {
+                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                    requestedManifest,
+                    result.RunId.ToString("D"),
+                    manifestHashService);
+            }
+            else
+            {
+                // Even same-ID responses from different providers must bind
+                // identically; a valid current hash is not proof of an
+                // inconsistent requested document.
+                if (!string.Equals(requestedManifest.ManifestHash,
+                    manifestDetail.GoldenManifest.ManifestHash,
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new ConflictException(
+                        $"Manifest '{requestedManifestId}' conflicts with the run's pinned manifest.");
+                }
+
+                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                    requestedManifest,
+                    result.RunId.ToString("D"),
+                    manifestHashService);
+            }
         }
         catch (ConflictException ex)
         {
