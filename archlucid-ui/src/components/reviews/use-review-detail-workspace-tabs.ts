@@ -199,6 +199,10 @@ import {
   RUN_DETAIL_FIRST_SCREEN_PROOF_OPEN_PARAM,
 } from "@/lib/runs/run-detail-first-screen-proof-disclosure-url";
 import {
+  parseRunInspectorRelatedActionsOpenFromSearch,
+  RUN_INSPECTOR_RELATED_ACTIONS_OPEN_PARAM,
+} from "@/lib/runs/run-inspector-related-actions-disclosure-url";
+import {
   parseTrustEvidenceFieldsOpenFromSearch,
   parseTrustEvidenceTechOpenFromSearch,
   TRUST_EVIDENCE_FIELDS_OPEN_PARAM,
@@ -514,6 +518,9 @@ export function useReviewDetailWorkspaceTabs(
     const runDetailFirstScreenProofOpenPresent = parseRunDetailFirstScreenProofOpenFromSearch(
       params.get(RUN_DETAIL_FIRST_SCREEN_PROOF_OPEN_PARAM),
     );
+    const runInspectorRelatedActionsOpenPresent = parseRunInspectorRelatedActionsOpenFromSearch(
+      params.get(RUN_INSPECTOR_RELATED_ACTIONS_OPEN_PARAM),
+    );
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -628,6 +635,7 @@ export function useReviewDetailWorkspaceTabs(
       || bulkEvidenceUploadErrorDiagnosticsOpenPresent
       || runDetailBuyerSponsorBriefExportsOpenPresent
       || runDetailFirstScreenProofOpenPresent
+      || runInspectorRelatedActionsOpenPresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent
