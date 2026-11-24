@@ -94,3 +94,4 @@
 {"at":"2026-11-24T00:25:16.7964777Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote reviewMoreTabsOpen-only URL"}
 {"at":"2026-11-24T00:29:22.9131747Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: useReviewDetailTabNavigation fallback left findingId"}
 {"at":"2026-11-24T00:34:24.1837910Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: tab nav fallback left workbenchFocus"}
+{"at":"2026-11-24T00:38:16.8990921Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: tab nav fallback left presenter"}
