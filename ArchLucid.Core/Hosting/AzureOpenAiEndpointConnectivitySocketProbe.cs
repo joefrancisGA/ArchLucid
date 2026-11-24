@@ -5,6 +5,20 @@ namespace ArchLucid.Core.Hosting;
 /// <summary>Minimal TCP connectivity probe for HTTPS (or HTTP) authority URLs.</summary>
 public static class AzureOpenAiEndpointConnectivitySocketProbe
 {
+    /// <summary>Accept only absolute HTTP(S) endpoints with a host and no embedded credentials.</summary>
+    public static bool TryGetHttpAuthority(string endpoint, out Uri? authority)
+    {
+        authority = null;
+        if (!Uri.TryCreate(endpoint, UriKind.Absolute, out Uri? uri)
+            || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
+            || string.IsNullOrWhiteSpace(uri.Host)
+            || !string.IsNullOrEmpty(uri.UserInfo))
+            return false;
+
+        authority = new Uri(uri.GetLeftPart(UriPartial.Authority));
+        return true;
+    }
+
     /// <summary>
     ///     Opens a TCP connection to <paramref name="authorityUri" /> host/default port (443 for https).
     /// </summary>
