@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Contracts.InfraEvidence;
@@ -30,7 +31,8 @@ public sealed partial class CloudResourceEvidenceHubController(
     ICloudResourceExplorerQueryService explorerQueryService,
     IScopeContextProvider scopeProvider,
     IAuthorityQueryService authorityQueryService,
-    IManifestHashService manifestHashService) : ControllerBase
+    IManifestHashService manifestHashService,
+    IArchitectureShareAccessGate shareAccessGate) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(typeof(PagedResponse<CloudResourceSummary>), StatusCodes.Status200OK)]
@@ -66,6 +68,7 @@ public sealed partial class CloudResourceEvidenceHubController(
     }
 
     [HttpGet("{cloudResourceId:guid}/hub")]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     [ProducesResponseType(typeof(CloudResourceEvidenceHubResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -94,12 +97,18 @@ public sealed partial class CloudResourceEvidenceHubController(
                 ProblemTypes.ValidationFailed);
         }
 
-        IActionResult? sealedGuardResult = await EnsureHubRunSealedManifestAllowedAsync(runId, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        if (runId is Guid requestedRunId && requestedRunId != Guid.Empty)
+        {
+            IActionResult? denied = await shareAccessGate.EnsureRunReadAllowedAsync(
+                this, User, scope, requestedRunId, cancellationToken);
+            if (denied is not null)
+                return denied;
+
+            IActionResult? sealFailure = await EnsureHubRunSealedManifestAllowedAsync(scope, requestedRunId, cancellationToken);
+            if (sealFailure is not null)
+                return sealFailure;
+        }
 
         try
         {

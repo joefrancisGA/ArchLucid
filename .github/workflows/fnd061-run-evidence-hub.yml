@@ -1,0 +1,47 @@
+name: FND-061 run-scoped evidence hub
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController*.cs'
+      - 'ArchLucid.Api/Support/ArchitectureShareAccessGate.cs'
+      - 'ArchLucid.Api.Tests/InfraEvidence/RunScopedEvidenceHubHttpTests.cs'
+      - 'archlucid-ui/src/lib/infra-evidence/infra-evidence-resource-hub-cache*.ts'
+      - 'archlucid-ui/src/lib/infra-evidence/infra-evidence-hub-api*.ts'
+      - '.github/workflows/fnd061-run-evidence-hub.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  http-authorization:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - run: >-
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~RunScopedEvidenceHubHttpTests'
+          --logger 'console;verbosity=normal'
+  browser-authorization:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: archlucid-ui
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+      - run: npm ci
+      - run: >-
+          npm run test:vitest-single-worker --
+          src/lib/infra-evidence/infra-evidence-resource-hub-cache.test.ts
+          src/lib/infra-evidence/infra-evidence-hub-api.test.ts
