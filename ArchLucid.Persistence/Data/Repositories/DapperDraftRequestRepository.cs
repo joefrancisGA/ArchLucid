@@ -112,6 +112,53 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
     }
 
     /// <inheritdoc />
+    public async Task<DraftRequestResponse?> TryBindConversationThreadAsync(
+        DraftRequestResponse expected, Guid threadId, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(expected);
+        PersistenceTenantScope.RequireEntityTenant(expected.TenantId);
+        if (threadId == Guid.Empty ||
+            expected.Status is not (DraftRequestStatus.Drafting or DraftRequestStatus.Admitted))
+            return null;
+
+        DraftRequestDocument document = DraftRequestRepositoryCore.CloneDocument(expected.Document, JsonOptions);
+        document.ConversationThreadId = threadId;
+        const string sql = """
+            UPDATE dbo.DraftRequests
+            SET DocumentJson = @DocumentJson,
+                DocumentContentHashSha256 = @NewHash,
+                ReadModelJson = NULL,
+                ReadModelSchemaVersion = 0,
+                UpdatedUtc = @Now
+            WHERE DraftId = @DraftId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+              AND Status = @Status
+              AND UpdatedUtc = @UpdatedUtc
+              AND ((ArchitectureId IS NULL AND @ArchitectureId IS NULL) OR ArchitectureId = @ArchitectureId)
+              AND ((DocumentContentHashSha256 IS NULL AND @ExpectedHash IS NULL)
+                   OR DocumentContentHashSha256 = @ExpectedHash);
+            SELECT @@ROWCOUNT;
+            """;
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        int rows = await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, new
+        {
+            expected.DraftId, expected.TenantId, expected.WorkspaceId, expected.ProjectId,
+            Status = expected.Status.ToString(),
+            expected.UpdatedUtc, expected.ArchitectureId,
+            ExpectedHash = expected.DocumentContentHashSha256,
+            DocumentJson = JsonSerializer.Serialize(document, JsonOptions),
+            NewHash = DraftDocumentContentFingerprint.Compute(document),
+            Now = TimeProvider.System.GetUtcNow().UtcDateTime,
+        }, cancellationToken: ct, commandTimeout: InteractiveDraftCommandTimeoutSeconds));
+
+        return rows == 1
+            ? await GetAsync(expected.TenantId, expected.WorkspaceId, expected.ProjectId, expected.DraftId, ct)
+            : null;
+    }
+
+    /// <inheritdoc />
     public async Task<DraftRequestResponse?> UpdateAsync(
         Guid tenantId,
         Guid workspaceId,
