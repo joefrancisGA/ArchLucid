@@ -1,0 +1,87 @@
+name: Tenant binding SQL concurrency regression
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - ArchLucid.Persistence.Tests/TenantDatabaseBindingConcurrencySqlIntegrationTests.cs
+      - ArchLucid.Persistence/Tenancy/DapperTenantDatabaseBindingRepository.cs
+      - ArchLucid.Persistence/Migrations/System/**
+      - .github/workflows/tenant-binding-sql-concurrency.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  focused-sql:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Verify existing source guard
+        run: python -m unittest discover -s scripts/tests -p 'test_aspects_tenant_binding_merge_guard.py' -v
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Start disposable SQL Server
+        shell: bash
+        run: |
+          set -euo pipefail
+          password="BindingRace!$(openssl rand -hex 20)"
+          echo "::add-mask::$password"
+          docker run -d --name tenant-binding-sql -e ACCEPT_EULA=Y \
+            -e MSSQL_PID=Developer -e MSSQL_SA_PASSWORD="$password" \
+            -p 127.0.0.1:1433:1433 mcr.microsoft.com/mssql/server:2022-latest
+          connection="Server=127.0.0.1,1433;Initial Catalog=master;User ID=sa;Password=$password;Encrypt=True;TrustServerCertificate=True;Connect Timeout=5"
+          echo "::add-mask::$connection"
+          echo "ARCHLUCID_SQL_TEST=$connection" >> "$GITHUB_ENV"
+          for attempt in $(seq 1 60); do
+            if docker exec tenant-binding-sql /opt/mssql-tools18/bin/sqlcmd \
+              -S localhost -U sa -P "$password" -C -l 2 -b -Q 'SELECT 1' >/dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::Disposable SQL Server did not become ready"
+          exit 1
+      - name: Run focused persistence integration tests
+        run: |
+          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj \
+            --configuration Release \
+            --filter 'FullyQualifiedName~TenantDatabaseBindingConcurrencySqlIntegrationTests' \
+            --logger 'trx;LogFileName=tenant-binding-concurrency.trx' \
+            --results-directory TestResults/tenant-binding
+      - name: Require actual execution of both SQL tests
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          path = Path("TestResults/tenant-binding/tenant-binding-concurrency.trx")
+          root = ET.parse(path).getroot()
+          ns = {"t": "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}
+          results = root.findall(".//t:UnitTestResult", ns)
+          expected = {
+              "Concurrent_first_writes_for_same_tenant_leave_one_pending_binding",
+              "Concurrent_updates_of_failed_binding_clear_error_and_preserve_creation_time",
+          }
+          actual = {r.attrib["testName"].rsplit(".", 1)[-1] for r in results}
+          if len(results) != 2 or actual != expected or any(r.attrib.get("outcome") != "Passed" for r in results):
+              raise SystemExit("Expected both named SQL integration tests to execute and pass; skipped or missing tests are not evidence.")
+          print("Both named SQL integration tests executed and passed.")
+          PY
+      - name: Preserve SQL test evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: tenant-binding-concurrency-trx
+          path: TestResults/tenant-binding/*.trx
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Remove disposable SQL Server
+        if: always()
+        run: docker rm -f tenant-binding-sql || true
