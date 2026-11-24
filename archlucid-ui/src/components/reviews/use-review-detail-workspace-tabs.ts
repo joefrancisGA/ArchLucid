@@ -227,6 +227,10 @@ import {
   RUN_LAST_FAILURE_TECH_OPEN_PARAM,
 } from "@/lib/runs/run-last-failure-tech-details-url";
 import {
+  parseFindingEvidenceOpenFromSearch,
+  FINDING_EVIDENCE_OPEN_PARAM,
+} from "@/lib/findings/finding-detail-inspect-disclosure-url";
+import {
   parseTrustEvidenceFieldsOpenFromSearch,
   parseTrustEvidenceTechOpenFromSearch,
   TRUST_EVIDENCE_FIELDS_OPEN_PARAM,
@@ -563,6 +567,9 @@ export function useReviewDetailWorkspaceTabs(
     const runLastFailureTechOpenPresent = parseRunLastFailureTechOpenFromSearch(
       params.get(RUN_LAST_FAILURE_TECH_OPEN_PARAM),
     );
+    const findingEvidenceOpenPresent = parseFindingEvidenceOpenFromSearch(
+      params.get(FINDING_EVIDENCE_OPEN_PARAM),
+    );
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -684,6 +691,7 @@ export function useReviewDetailWorkspaceTabs(
       || runDetailOutcomeDecisionKeyOpenPresent
       || runDetailOutcomeMonitoredRiskOpenPresent
       || runLastFailureTechOpenPresent
+      || findingEvidenceOpenPresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent
