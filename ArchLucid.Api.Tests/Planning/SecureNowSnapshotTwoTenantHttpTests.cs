@@ -1,4 +1,8 @@
+using System.Collections.Concurrent;
 using System.Net;
+using System.Runtime.ExceptionServices;
+using Microsoft.Data.SqlClient;
+using FluentAssertions.Execution;
 using ArchLucid.Api.Tests.Security;
 using FluentAssertions;
 
@@ -34,9 +38,28 @@ public sealed class SecureNowSnapshotTwoTenantHttpTests(GreenfieldSqlApiFactory 
         GreenfieldIntegrationTenantScope.WireScope(clientB, tenantB, workspaceB, projectB);
 
         string url = $"/v1/evidence-graph/snapshot?runId={unknownRun:D}&asOf=2026-11-22T09%3A00%3A00Z";
+        ConcurrentDictionary<string, byte> diagnostics = new();
+        void Capture(object? sender, FirstChanceExceptionEventArgs args)
+        {
+            var ex = args.Exception;
+            if (ex is OperationCanceledException || diagnostics.Count >= 30)
+                return;
+            string message = ex is SqlException sql ? $"SQL {sql.Number}: {sql.Message}" : ex.GetType().Name;
+            string? frame = ex.StackTrace?.Split('\n').FirstOrDefault(line => line.Contains("ArchLucid.", StringComparison.Ordinal));
+            diagnostics.TryAdd($"{message} {frame}", 0);
+        }
+        AppDomain.CurrentDomain.FirstChanceException += Capture;
+        try
+        {
         using HttpResponseMessage a = await clientA.GetAsync(url);
         using HttpResponseMessage b = await clientB.GetAsync(url);
-        a.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        b.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        using var assertions = new AssertionScope();
+        a.StatusCode.Should().Be(HttpStatusCode.NotFound, "tenant A response {0}; diagnostics {1}", await a.Content.ReadAsStringAsync(), string.Join(" | ", diagnostics.Keys));
+        b.StatusCode.Should().Be(HttpStatusCode.NotFound, "tenant B response {0}", await b.Content.ReadAsStringAsync());
+        }
+        finally
+        {
+            AppDomain.CurrentDomain.FirstChanceException -= Capture;
+        }
     }
 }
