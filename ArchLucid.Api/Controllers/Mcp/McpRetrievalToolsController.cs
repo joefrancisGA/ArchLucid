@@ -39,7 +39,7 @@ public sealed class McpRetrievalToolsController(
     public Task<IActionResult> PolicyPackSearchAsync(
         [FromBody] McpRetrievalSearchBody body,
         CancellationToken cancellationToken) =>
-        SearchAsync(body, async (request, ct) => await _retrievalTools.PolicyPackSearchAsync(request, ct), cancellationToken);
+        SearchAsync(body, async (_, request, ct) => await _retrievalTools.PolicyPackSearchAsync(request, ct), cancellationToken);
 
     // idempotency-posture: dry-run-no-persist
     [HttpPost("prior-decision-search")]
@@ -50,12 +50,8 @@ public sealed class McpRetrievalToolsController(
     public Task<IActionResult> PriorDecisionSearchAsync(
         [FromBody] McpRetrievalSearchBody body,
         CancellationToken cancellationToken) =>
-        SearchAsync(body, async (request, ct) =>
+        SearchAsync(body, async (scope, request, ct) =>
         {
-            ScopeContext scope = new()
-            {
-                TenantId = request.TenantId, WorkspaceId = request.WorkspaceId, ProjectId = request.ProjectId,
-            };
             HashSet<Guid>? allowed = await AuthorizedEvidenceRunResolver.ResolveProjectAsync(
                 runRepository, scope, (id, token) => evidenceAccess.CanReadRunAsync(scope, id, token), ct);
             if (allowed is null)
@@ -72,11 +68,11 @@ public sealed class McpRetrievalToolsController(
     public Task<IActionResult> PriceRowLookupAsync(
         [FromBody] McpRetrievalSearchBody body,
         CancellationToken cancellationToken) =>
-        SearchAsync(body, async (request, ct) => await _retrievalTools.PriceRowLookupAsync(request, ct), cancellationToken);
+        SearchAsync(body, async (_, request, ct) => await _retrievalTools.PriceRowLookupAsync(request, ct), cancellationToken);
 
     private async Task<IActionResult> SearchAsync(
         McpRetrievalSearchBody? body,
-        Func<RetrievalMcpToolRequest, CancellationToken, Task<IReadOnlyList<RetrievalMcpToolHit>?>> search,
+        Func<ScopeContext, RetrievalMcpToolRequest, CancellationToken, Task<IReadOnlyList<RetrievalMcpToolHit>?>> search,
         CancellationToken cancellationToken)
     {
         if (body is null || string.IsNullOrWhiteSpace(body.QueryText))
@@ -97,7 +93,7 @@ public sealed class McpRetrievalToolsController(
             TopK = body.TopK ?? 8
         };
 
-        IReadOnlyList<RetrievalMcpToolHit>? hits = await search(request, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<RetrievalMcpToolHit>? hits = await search(scope, request, cancellationToken).ConfigureAwait(false);
         if (hits is null)
             return this.ConflictProblem("Project-wide retrieval authorization budget exceeded.", ProblemTypes.Conflict);
 
