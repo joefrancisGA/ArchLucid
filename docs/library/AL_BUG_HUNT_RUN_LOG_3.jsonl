@@ -124,3 +124,4 @@
 {"at":"2026-11-24T02:11:46.2722300Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote workspaceAiProbeDebugMetadataOpen-only URL"}
 {"at":"2026-11-24T02:14:57.4552439Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote technologyBaselineEvidenceRefEntryId-only URL"}
 {"at":"2026-11-24T02:18:15.9239031Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote techEntryId-only URL"}
+{"at":"2026-11-24T02:21:24.6178293Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote runImpactAnalysisOpen-only URL"}
