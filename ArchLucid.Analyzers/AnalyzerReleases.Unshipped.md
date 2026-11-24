@@ -8,6 +8,8 @@ FND017003 | Architecture | Info | Authorization decision consumption
 FND017004 | Architecture | Info | Snapshot evidence authorization dominance
 FND017005 | Architecture | Info | Snapshot evidence authorization resource binding
 
+ENUM001 | Architecture | Info | Raw enum boundary conversion review
+
 ### Removed Rules
 
 Rule ID | Category | Severity | Notes
