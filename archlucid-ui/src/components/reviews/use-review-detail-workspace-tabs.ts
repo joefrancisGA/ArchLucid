@@ -187,6 +187,10 @@ import {
   RUN_DETAIL_PROVENANCE_IDENTIFIERS_OPEN_PARAM,
 } from "@/lib/runs/run-detail-provenance-identifiers-disclosure-url";
 import {
+  parseBulkEvidenceUploadErrorDiagnosticsOpenFromSearch,
+  BULK_EVIDENCE_UPLOAD_ERROR_DIAGNOSTICS_OPEN_PARAM,
+} from "@/lib/runs/bulk-evidence-upload-error-diagnostics-disclosure-url";
+import {
   parseTrustEvidenceFieldsOpenFromSearch,
   parseTrustEvidenceTechOpenFromSearch,
   TRUST_EVIDENCE_FIELDS_OPEN_PARAM,
@@ -493,6 +497,9 @@ export function useReviewDetailWorkspaceTabs(
     const runDetailProvenanceIdentifiersOpenPresent = parseRunDetailProvenanceIdentifiersOpenFromSearch(
       params.get(RUN_DETAIL_PROVENANCE_IDENTIFIERS_OPEN_PARAM),
     );
+    const bulkEvidenceUploadErrorDiagnosticsOpenPresent = parseBulkEvidenceUploadErrorDiagnosticsOpenFromSearch(
+      params.get(BULK_EVIDENCE_UPLOAD_ERROR_DIAGNOSTICS_OPEN_PARAM),
+    );
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -604,6 +611,7 @@ export function useReviewDetailWorkspaceTabs(
       || runTechnicalDetailsOpenPresent
       || runDetailSponsorBriefingOpenPresent
       || runDetailProvenanceIdentifiersOpenPresent
+      || bulkEvidenceUploadErrorDiagnosticsOpenPresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent
