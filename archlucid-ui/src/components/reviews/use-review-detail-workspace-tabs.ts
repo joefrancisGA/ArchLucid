@@ -94,6 +94,10 @@ import {
   parseWorkspaceAiProbeDebugMetadataOpenFromSearch,
   WORKSPACE_AI_PROBE_DEBUG_METADATA_OPEN_PARAM,
 } from "@/lib/reviews/workspace-ai-probe-debug-metadata-disclosure-url";
+import {
+  parseTechnologyBaselineEvidenceRefEntryIdFromSearch,
+  TECHNOLOGY_BASELINE_EVIDENCE_REF_ENTRY_ID_PARAM,
+} from "@/lib/reviews/technology-baseline-evidence-ref-disclosure-url";
 
 const WORKBENCH_TAB_IDS: readonly ReviewDetailTabId[] = ["architecture", "findings", "evidence"];
 
@@ -274,6 +278,8 @@ export function useReviewDetailWorkspaceTabs(
     const workspaceAiProbeDebugMetadataOpenPresent = parseWorkspaceAiProbeDebugMetadataOpenFromSearch(
       params.get(WORKSPACE_AI_PROBE_DEBUG_METADATA_OPEN_PARAM),
     );
+    const technologyBaselineEvidenceRefEntryIdPresent =
+      parseTechnologyBaselineEvidenceRefEntryIdFromSearch(params.get(TECHNOLOGY_BASELINE_EVIDENCE_REF_ENTRY_ID_PARAM)).length > 0;
     const runRecordMetaOpenPresent = parseRunDetailRecordMetadataOpenFromSearch(params.get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM));
     const askDockOpenPresent = parseReviewAskDockOpenFromSearch(params.get(REVIEW_ASK_DOCK_OPEN_PARAM));
     const askThreadPresent =
@@ -315,6 +321,7 @@ export function useReviewDetailWorkspaceTabs(
       || submittedArchitectureFullDescriptionOpenPresent
       || workspaceAiProbeDiagnosticsOpenPresent
       || workspaceAiProbeDebugMetadataOpenPresent
+      || technologyBaselineEvidenceRefEntryIdPresent
       || runRecordMetaOpenPresent
       || askDockOpenPresent
       || askThreadPresent
