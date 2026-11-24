@@ -4,6 +4,7 @@ using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Support;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
@@ -53,6 +54,11 @@ public sealed class ExportsControllerShareAccessTests
 
         Mock<IRunExportQueryFacade> facade = new(MockBehavior.Strict);
         Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        // A two-record comparison can pass the permitted left-run integrity
+        // precheck before denying the restricted right run.
+        authority.Setup(q => q.GetRunDetailAsync(
+                Scope, RunA, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunDetailDto?)null);
         Mock<IManifestHashService> manifestHash = new(MockBehavior.Strict);
         Mock<IScopeContextProvider> scopes = new(MockBehavior.Strict);
         scopes.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -70,8 +76,8 @@ public sealed class ExportsControllerShareAccessTests
                 Scope,
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync((ControllerBase _, ClaimsPrincipal _, ScopeContext _, Guid id, CancellationToken _) =>
-                id == (denyRightRun ? RunB : RunA) ? new NotFoundResult() : null);
+            .ReturnsAsync((ControllerBase controller, ClaimsPrincipal user, ScopeContext scope, Guid id, CancellationToken token) =>
+                (IActionResult?)(id == (denyRightRun ? RunB : RunA) ? new NotFoundResult() : null));
 
         ExportsController controller = new(
             facade.Object, authority.Object, scopes.Object,
@@ -104,7 +110,15 @@ public sealed class ExportsControllerShareAccessTests
             It.IsAny<ControllerBase>(), It.IsAny<ClaimsPrincipal>(),
             Scope, denyRightRun ? RunB : RunA, It.IsAny<CancellationToken>()), Times.Once);
         facade.VerifyNoOtherCalls();
-        authority.VerifyNoOtherCalls();
+        if (denyRightRun)
+        {
+            authority.Verify(q => q.GetRunDetailAsync(
+                Scope, RunA, It.IsAny<CancellationToken>()), Times.Once);
+        }
+        else
+        {
+            authority.VerifyNoOtherCalls();
+        }
         manifestHash.VerifyNoOtherCalls();
     }
 
