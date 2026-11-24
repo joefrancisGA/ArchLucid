@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `findingsFilterPanelOpen` deep links via `parseFindingsFilterPanelOpenFromSearch` !== null. Regression `does not apply visit-default navigation when the URL only carries findingsFilterPanelOpen`. URL-sync vitest **121/121**. Private beta: shared review links that only open the findings filter panel in the query are no longer overwritten with visit-default tab or finding query keys on first load.
+> **Scope:** Contributor-reference — hunt 2026-11-24 thorough hunt (hit): no rotation (`shouldRotate: false`; default picker `cli-tenant-isolation`). Offline exclude-run-id replay now SKIPs when prose evidence cites the manifest primary runId without any scannable list JSON. Regression `RunOffline_SkipsExcludeRunIdWhenProseEvidenceCitesPrimaryRunIdWithoutScannableJson`. TenantIsolationNegativeTestRunnerTests **68/68**. Private beta: replaying a tenant-isolation fixture with prose-only evidence mentioning the primary run no longer false-passes as verified absence.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -1268,9 +1268,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ---
 
+2026-11-24 thorough hunt (hit): no rotation (`shouldRotate: false`; default picker `cli-tenant-isolation`). Promoted monitor `TenantIsolationNegativeTestOfflineRunner.EmbeddedEvidenceContainsPrimaryRunId` prose-only branch: exclude-run-id offline replay passed when evidence mentioned the manifest primary runId in prose without scannable list JSON. Replay now SKIPs via `ProseEvidenceCitesPrimaryRunIdWithoutScannableList`. Regression `RunOffline_SkipsExcludeRunIdWhenProseEvidenceCitesPrimaryRunIdWithoutScannableJson`. TenantIsolationNegativeTestRunnerTests **68/68**. Private beta: when an invited operator replays a tenant-isolation fixture whose evidence is prose-only but names the primary run, the check no longer reports pass as verified absence.
+
 2026-11-23 seed hunt (seed-only): no open hunt-ready rows remained after the six 2026-11-23 seed hits. Reread `ShouldTrustVerifiedAbsentOutcomeOverFieldStatus`, offline `ResolveExcludeReplayVerdict` / `ResolveDenyReplayVerdict`, live `ScanRunListForForeignRunIdAsync`, `TenantIsolationNegativeTestOptions.GetOptionValue`, and `DeriveOverallVerdict`. Attempted failing repro on offline exclude captures with `observedStatusCode` **401** or **300** while the outcome says HTTP 200 foreign runId absent; cheap-disproof **valid-no-repro** (`EvaluateExcludeRunIdProbeVerdict` already Skip on non-2xx field). Inspected non-JSON evidence prose that cites the primary runId without a scannable list fragment; promoted monitor only. Scoped TenantIsolationNegativeTestRunnerTests **67/67** (`RunAnalyzers=false`). Seeded five `(candidate)` monitor rows below. Private beta: n/a.
 
-- [ ] (candidate) `TenantIsolationNegativeTestOfflineRunner.EmbeddedEvidenceContainsPrimaryRunId` — prose evidence may cite the manifest primary runId without a `{`/`[` scannable list fragment and still pass exclude-run-id when outcome says absent — locus: only scannable JSON fragments participate in `ListFragmentContainsPrimaryRunId`; input: evidence `"operator note: saw aaaa-1111-1111-1111-111111111111 in logs"`; wrong outcome: Pass despite textual primary-run mention in capture (monitor; hunt 2026-11-23 reseed).
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner` — prose evidence cited primary runId without scannable list JSON but exclude-run-id replay passed — **hit 2026-11-24 thorough hunt:** `ProseEvidenceCitesPrimaryRunIdWithoutScannableList`; regression above. Private beta: prose-only replay evidence naming the primary run no longer false-passes as verified absence.
+
 - [ ] (candidate) `TenantIsolationNegativeTestLiveRunner.ResolveAlternateScope` — `--alternate-tenant-id` / workspace / project values are not validated as guids before scope headers are applied — locus: `ApplyAlternateScopeHeaders`; input: non-GUID scope string from operator `--alternate-tenant-id`; wrong outcome: inconclusive probe Skip or misleading Pass without exercising tenant boundary (monitor; hunt 2026-11-23 reseed).
 - [ ] (candidate) `TenantIsolationNegativeTestAggregator.EvaluateDenyStatus` — HTTP **204 No Content** on deny-status offline replay is classified as unexpected success (Fail) rather than deny-equivalent Pass — locus: `EvaluateDenyStatus`; input: manifest deny probe with `observedStatusCode` 204 and outcome HTTP 404; wrong outcome: offline fixture Fail blocks replay pass when API returned empty deny (monitor; hunt 2026-11-23 reseed).
 - [ ] (candidate) `TenantIsolationNegativeTestLiveRunner.ScanRunListForForeignRunIdAsync` — rare **2xx** responses such as **203 Non-Authoritative** with a minimal body may false-pass exclude-run-id when JSON is not scannable — locus: 2xx success branch before `RunListPayloadIsScannable`; input: alternate list returns 203 with empty or non-JSON body; wrong outcome: Pass without scanning items (monitor; hunt 2026-11-23 reseed).
@@ -1493,8 +1496,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 9
-- **bugs-found:** 8
+- **hunts:** 10
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23

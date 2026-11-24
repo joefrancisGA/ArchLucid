@@ -43,6 +43,10 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
                 // Captured list JSON is already authoritative for hasMore. The same fragments must fail the probe when they still contain the primary run.
                 verdict = TenantIsolationNegativeTestVerdict.Fail;
             }
+            else if (ProseEvidenceCitesPrimaryRunIdWithoutScannableList(probe.Evidence, primaryRunId))
+            {
+                verdict = TenantIsolationNegativeTestVerdict.Skip;
+            }
             else if (probe.RunListClaimsMorePages == true
                      || TryInferRunListClaimsMorePagesFromEvidence(probe.Evidence)
                      || probe.RunListPayloadScannable == false
@@ -98,7 +102,57 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
         return false;
     }
 
-    private static bool ListFragmentContainsPrimaryRunId(string json, string primaryRunId)
+
+    private static bool ProseEvidenceCitesPrimaryRunIdWithoutScannableList(string? evidence, string? primaryRunId)
+    {
+        if (string.IsNullOrWhiteSpace(evidence) || string.IsNullOrWhiteSpace(primaryRunId))
+        {
+            return false;
+        }
+
+        string text = evidence.Trim();
+
+        if (!EvidenceTextMentionsRunId(text, primaryRunId))
+        {
+            return false;
+        }
+
+        for (int index = 0; index < text.Length; index++)
+        {
+
+            if (text[index] is not ('{' or '['))
+            {
+                continue;
+            }
+
+            string embedded = text[index..];
+
+            if (TenantIsolationNegativeTestAggregator.RunListPayloadIsScannable(embedded))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool EvidenceTextMentionsRunId(string text, string runId)
+    {
+        string trimmed = runId.Trim();
+
+        if (text.Contains(trimmed, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        if (!Guid.TryParse(trimmed, out Guid parsed))
+        {
+            return false;
+        }
+
+        return text.Contains(parsed.ToString("N"), StringComparison.OrdinalIgnoreCase)
+            || text.Contains(parsed.ToString("D"), StringComparison.OrdinalIgnoreCase);
+    }    private static bool ListFragmentContainsPrimaryRunId(string json, string primaryRunId)
     {
         if (!TenantIsolationNegativeTestAggregator.RunListPayloadIsScannable(json))
             return false;
