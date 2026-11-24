@@ -41,4 +41,11 @@ public sealed class ProvenancePresentationMapperTests
 
         ProvenancePresentationMapper.MapFinding(finding).Should().Be(ProvenancePresentationBucket.Unverified);
     }
+
+    [Fact]
+    public void Map_missing_provenance_is_unverified()
+    {
+        ProvenancePresentationMapper.Map(new ClaimProvenance())
+            .Should().Be(ProvenancePresentationBucket.Unverified);
+    }
 }

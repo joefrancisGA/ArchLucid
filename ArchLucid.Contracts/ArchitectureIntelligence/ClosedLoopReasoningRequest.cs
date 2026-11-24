@@ -37,7 +37,11 @@ public class ClosedLoopReasoningRequest
     public List<ClosedLoopReasoningSourceText> SourceTexts
     {
         get => sourceTexts;
-        set => sourceTexts = ContractCollectionDefaults.Coalesce(value);
+        set => sourceTexts = value is null
+            ? []
+            : value.Any(static source => source is null)
+                ? value.OfType<ClosedLoopReasoningSourceText>().ToList()
+                : value;
     }
 
     private List<string> declaredPriorities = [];
