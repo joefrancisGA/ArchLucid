@@ -1,6 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
-using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
@@ -24,29 +23,6 @@ public sealed partial class AuthorityQueryController
         CancellationToken cancellationToken) =>
         _architectureShareAccessGate.EnsureRunReadAllowedAsync(
             this, User, scope, runId, cancellationToken);
-
-    private async Task<IActionResult?> EnsureRunInventorySealedManifestReadAllowedAsync(
-        ScopeContext scope,
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            await RunInventorySealedManifestReadGuard.EnsureRunInventoryReadAllowedOrThrowAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                runDetailQueryService,
-                queryService,
-                manifestHashService,
-                cancellationToken);
-        }
-        catch (ConflictException ex)
-        {
-            return MapRunQuerySealedManifestConflict(ex);
-        }
-
-        return null;
-    }
 
     /// <summary>
     ///     Maps authority query read <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.

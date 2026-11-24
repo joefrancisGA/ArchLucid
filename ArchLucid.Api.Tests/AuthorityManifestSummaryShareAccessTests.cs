@@ -432,7 +432,10 @@ public sealed class AuthorityManifestSummaryShareAccessTests
                 Mock.Of<IActorContext>(),
                 Mock.Of<IEffectiveAgentExecutionModeAccessor>(),
                 Hash.Object,
-                Mock.Of<ILogger<AuthorityRunReadHandlers>>());
+                Mock.Of<ILogger<AuthorityRunReadHandlers>>(),
+                new AuthorityRunInventoryQuery(Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+                    Mock.Of<IAgentExecutionTraceRepository>()),
+                Gate.Object);
 
             return new AuthorityQueryController(
                 Query.Object,
@@ -443,7 +446,6 @@ public sealed class AuthorityManifestSummaryShareAccessTests
                 Mock.Of<IActorContext>(),
                 Mock.Of<IRunOperatorGovernanceDispositionService>(),
                 Hash.Object,
-                Mock.Of<IRunDetailQueryService>(),
                 Mock.Of<IConfiguration>(),
                 Mock.Of<IEffectiveAgentExecutionModeAccessor>(),
                 Gate.Object,
