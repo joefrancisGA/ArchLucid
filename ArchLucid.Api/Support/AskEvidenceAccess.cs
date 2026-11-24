@@ -32,6 +32,11 @@ public sealed class AskEvidenceAccess(
         return found && canRead;
     }
 
+    public string? GetAuthorizedDraftActorId() =>
+        context.HttpContext?.User is { } user && ArchitectureShareAuthorityProbe.HasExecuteAuthority(user)
+            ? GetAuthorizedActorId()
+            : null;
+
     public async Task<bool> CanDecideArchitectureAsync(ScopeContext scope, Guid architectureId, CancellationToken ct)
     {
         if (architectureId == Guid.Empty || string.IsNullOrWhiteSpace(GetAuthorizedActorId()) ||
