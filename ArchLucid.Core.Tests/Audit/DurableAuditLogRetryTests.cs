@@ -16,6 +16,17 @@ namespace ArchLucid.Core.Tests.Audit;
 [Trait("Category", "Unit")]
 public sealed class DurableAuditLogRetryTests
 {
+    [Theory]
+    [InlineData(1, 50)]
+    [InlineData(2, 100)]
+    [InlineData(10, 25600)]
+    [InlineData(31, 25600)]
+    [InlineData(int.MaxValue, 25600)]
+    public void Backoff_is_positive_and_bounded(int attempt, int expectedMilliseconds)
+    {
+        DurableAuditLogRetry.GetBackoffDelay(attempt).Should().Be(TimeSpan.FromMilliseconds(expectedMilliseconds));
+    }
+
     [Fact]
     public async Task TryLogAsync_succeeds_on_first_attempt_without_delay()
     {
