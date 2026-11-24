@@ -381,7 +381,25 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
 
 
 
-  it("does not apply visit-default navigation when the URL only carries reviewMoreTabsOpen=1", () => {
+
+  it("does not apply visit-default navigation when the URL only carries pinRunId", () => {
+    searchParamsHarness.applyQuery("pinRunId=run-pinned-ctx");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?pinRunId=run-pinned-ctx");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?pinRunId=run-pinned-ctx");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });  it("does not apply visit-default navigation when the URL only carries reviewMoreTabsOpen=1", () => {
     searchParamsHarness.applyQuery("reviewMoreTabsOpen=1");
     window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewMoreTabsOpen=1");
 

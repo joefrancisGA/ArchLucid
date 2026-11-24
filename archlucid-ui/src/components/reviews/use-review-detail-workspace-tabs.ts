@@ -42,6 +42,7 @@ import {
   REVIEW_WORKSPACE_MORE_TABS_OPEN_PARAM,
   parseReviewWorkspaceMoreTabsOpenFromSearch,
 } from "@/lib/reviews/review-workspace-more-tabs-url";
+import { readPinRunIdFromSearchParams } from "@/lib/reviews/review-pin-run-url";
 
 const WORKBENCH_TAB_IDS: readonly ReviewDetailTabId[] = ["architecture", "findings", "evidence"];
 
@@ -186,6 +187,7 @@ export function useReviewDetailWorkspaceTabs(
     const moreTabsOpenPresent = parseReviewWorkspaceMoreTabsOpenFromSearch(
       params.get(REVIEW_WORKSPACE_MORE_TABS_OPEN_PARAM),
     );
+    const pinRunPresent = readPinRunIdFromSearchParams(params) !== null;
     const hashPresent = window.location.hash.replace(/^#/, "").trim().length > 0;
 
     if (
@@ -196,6 +198,7 @@ export function useReviewDetailWorkspaceTabs(
       || legacyArchTabPresent
       || roomElicitationPresent
       || moreTabsOpenPresent
+      || pinRunPresent
       || hashPresent
     ) {
       visitDefaultAppliedRef.current = true;

@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 22026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Extended `useReviewDetailTabNavigation` fallback: out-of-context tab writes now pass `presenter: null` so stale `presenter=1` does not linger when overview CTAs navigate outside workspace tab context. Regression `clears presenter from the URL when tab context is absent and the destination is overview`. Tab-navigation vitest **3/3**. Private beta: shared overview navigation links no longer keep presenter mode enabled when presenter is inactive.
+> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `pinRunId` deep links via `readPinRunIdFromSearchParams`. Regression `does not apply visit-default navigation when the URL only carries pinRunId`. URL-sync vitest **21/21**. Private beta: shared review links that only name a pinned desk context run are no longer overwritten with visit-default tab or finding query keys on first load.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -11736,6 +11736,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried legacy `archTab` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored legacy tab deep links; regression above. Private beta: older shared links that only set `archTab` are no longer replaced with visit-default query keys on first load.
 - [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `roomElicitation` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored room-elicitation deep links; regression above. Private beta: shared links that only enable room elicitation are no longer replaced with visit-default query keys on first load.
 - [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `reviewMoreTabsOpen` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored More-sections open deep links; regression above. Private beta: shared links that only open the More-sections menu in the query are no longer replaced with visit-default query keys on first load.
+
+- [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `pinRunId` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored pinned-context deep links; regression above. Private beta: shared links that only set `pinRunId` are no longer replaced with visit-default query keys on first load.
 - [x] (proven) `useReviewDetailTabNavigation` — fallback tab write left `findingId` when workspace tab context was absent — **hit 2026-11-24 seed hunt:** `reviewDetailFindingIdClearForTabNavigation`; regression above. Private beta: overview CTAs that navigate outside workspace context no longer leave stale finding ids in the query string.
 
 - [x] (proven) `useReviewDetailTabNavigation` — fallback tab write left `workbenchFocus` when workspace tab context was absent — **hit 2026-11-24 seed hunt:** `reviewDetailWorkbenchFocusForTabNavigation`; regression above. Private beta: overview CTAs that navigate outside workspace context no longer leave stale workbench column queries in the query string.
@@ -12456,8 +12458,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 22
-- **bugs-found:** 21
+- **hunts:** 23
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24

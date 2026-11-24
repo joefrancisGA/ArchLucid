@@ -54,4 +54,21 @@ describe("useReviewDetailTabNavigation", () => {
     expect(window.location.search).not.toContain("presenter=");
     expect(window.location.search).toContain("reviewTab=overview");
   });
+
+  it("clears legacy diagramFindingId from the URL when tab context is absent and the destination is overview", () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&diagramFindingId=legacy-finding-1",
+    );
+
+    const { result } = renderHook(() => useReviewDetailTabNavigation());
+
+    act(() => {
+      result.current("overview");
+    });
+
+    expect(window.location.search).not.toContain("diagramFindingId=");
+    expect(window.location.search).toContain("reviewTab=overview");
+  });
 });
