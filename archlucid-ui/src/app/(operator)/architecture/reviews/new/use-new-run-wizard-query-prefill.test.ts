@@ -504,4 +504,42 @@ describe("useNewRunWizardQueryPrefill", () => {
       );
     });
   });
+  it("does not apply preset when accelerator is cleared after accelerator prefill on the same mount", async () => {
+    const reset = vi.fn<UseFormReset<WizardFormValues>>();
+
+    const { rerender } = renderHook(
+      ({
+        acceleratorPackId,
+      }: {
+        acceleratorPackId: string | null;
+      }) =>
+        useNewRunWizardQueryPrefill({
+          params: {
+            ...buildParams(acceleratorPackId),
+            presetDeeplinkPresetId: "greenfield",
+            presetDeeplinkToken: "greenfield",
+          },
+          stepIndex: 0,
+          wizardMode: "full",
+          reset,
+          setValue: vi.fn(),
+          goToStep: vi.fn(),
+          persistWizardMode: vi.fn(),
+          onPendingEvidenceFileChange: vi.fn(),
+          showToast: vi.fn(),
+        }),
+      { initialProps: { acceleratorPackId: "ai-llm-workload" } },
+    );
+
+    await waitFor(() => {
+      expect(reset).toHaveBeenCalledTimes(1);
+    });
+
+    reset.mockClear();
+    rerender({ acceleratorPackId: null });
+
+    await waitFor(() => {
+      expect(reset).not.toHaveBeenCalled();
+    });
+  });
 });

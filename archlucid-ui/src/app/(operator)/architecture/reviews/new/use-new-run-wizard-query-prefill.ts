@@ -136,6 +136,11 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
       return;
     }
 
+    // An accelerator reset already filled the form; do not apply a deferred preset when accelerator= drops.
+    if (acceleratorPrefillAppliedIdRef.current !== null) {
+      return;
+    }
+
     const presetValues = resolveWizardPresetValuesFromDeeplink(presetDeeplinkToken);
 
     if (presetValues === null) {
