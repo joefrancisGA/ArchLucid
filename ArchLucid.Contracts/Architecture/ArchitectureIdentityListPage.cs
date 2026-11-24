@@ -31,7 +31,7 @@ public sealed class ArchitectureIdentityListPage
         init;
     } = 50;
 
-    public bool HasMore => Page * PageSize < TotalCount;
+    public bool HasMore => (long)Page * PageSize < TotalCount;
 
     /// <summary>Archived identities excluded when <c>includeArchived</c> is false.</summary>
     public int ArchivedHiddenCount
