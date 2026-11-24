@@ -221,6 +221,9 @@ import { DriftChangeRiskCell } from "./DriftChangeRiskCell";
 import { DriftChangeResourceCells } from "./DriftChangeResourceCell";
 import { DriftChangesPagination } from "./DriftChangesPagination";
 import { DriftLaterCapturesAvailability } from "./DriftLaterCapturesAvailability";
+import { SecureNowSecondCapturePathDeltaHonestyStrip } from "@/components/product-line/SecureNowSecondCapturePathDeltaHonestyStrip";
+import { DRIFT_WORKBENCH_SECOND_CAPTURE_PATH_DELTA_LINE } from "@/lib/infra-evidence/drift-workbench-second-capture-path-delta-copy";
+import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
 import { DriftResumeLastComparisonRow } from "./DriftResumeLastComparisonRow";
 import {
   DRIFT_CHANGES_TABLE_COLUMN_COUNT,
@@ -244,9 +247,14 @@ type PendingDriftSubscriptionConfirmation =
   | { readonly kind: "snapshot"; readonly snapshotId: string }
   | { readonly kind: "diff"; readonly diffId: string };
 
+function countSuccessfulInfraCaptures(snapshots: readonly InfraEvidenceSnapshotSummary[]): number {
+  return snapshots.filter((row) => isInfraEvidenceSnapshotCaptureSucceeded(row.captureStatus)).length;
+}
+
 export function DriftWorkbenchClient() {
   const { ianaTimeZoneId } = useIanaTimeZonePreference();
   const { productLine } = useProductLine();
+  const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const pageTitle = resolveSecureNowPageHeading(
     productLine,
     GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE,
@@ -1581,6 +1589,18 @@ export function DriftWorkbenchClient() {
 
               <DriftLaterCapturesAvailability partition={laterSnapshotsPartition} />
 
+              {isSecureNowProductLine(productLine) &&
+              !loadingSnapshots &&
+              countSuccessfulInfraCaptures(snapshots) === 1 ? (
+                <SecureNowSecondCapturePathDeltaHonestyStrip
+                  testId="infra-drift-second-capture-path-delta"
+                  returnPath={partialCaptureReturnPath}
+                  middleLine={DRIFT_WORKBENCH_SECOND_CAPTURE_PATH_DELTA_LINE}
+                  cloudConnectionsTestId="infra-drift-second-capture-cloud-connections"
+                  extractUploadTestId="infra-drift-second-capture-extract-upload"
+                />
+              ) : null}
+
               <div className="flex flex-wrap items-start gap-3">
                 <Button
                   type="button"
@@ -1819,6 +1839,18 @@ export function DriftWorkbenchClient() {
             title={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_LATER_DIFFS_TITLE}
             description={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_LATER_DIFFS_BODY}
             testId="infra-drift-diffs-empty-later-than-anchor"
+            footer={
+              isSecureNowProductLine(productLine) &&
+              countSuccessfulInfraCaptures(snapshots) === 1 ? (
+                <SecureNowSecondCapturePathDeltaHonestyStrip
+                  testId="infra-drift-diffs-empty-later-second-capture"
+                  returnPath={partialCaptureReturnPath}
+                  middleLine={DRIFT_WORKBENCH_SECOND_CAPTURE_PATH_DELTA_LINE}
+                  cloudConnectionsTestId="infra-drift-diffs-empty-later-cloud-connections"
+                  extractUploadTestId="infra-drift-diffs-empty-later-extract-upload"
+                />
+              ) : undefined
+            }
           />
         ) : null}
 
