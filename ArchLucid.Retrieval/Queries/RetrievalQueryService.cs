@@ -212,7 +212,7 @@ public sealed class RetrievalQueryService(
 
         // Graph expansion reads snapshots by document ID, outside the vector-index authorization filter.
         // Keep it off for authorization-constrained searches until that path verifies ownership.
-        if (query.AuthorizedEvidenceRunIds is null &&
+        if (query.AuthorizedEvidenceRunIds is null && query.CorpusKindFilter is null &&
             advancedOptions.Enabled && advancedOptions.EnableGraphRag && hits.Count > 0)
         {
             hits = await _graphRagNeighborExpander
@@ -243,6 +243,7 @@ public sealed class RetrievalQueryService(
             ProjectId = query.ProjectId,
             RunId = query.RunId,
             AuthorizedEvidenceRunIds = query.AuthorizedEvidenceRunIds,
+            CorpusKindFilter = query.CorpusKindFilter,
             ManifestId = query.ManifestId,
             QueryText = query.QueryText,
             TopK = topK,
