@@ -126,34 +126,25 @@ public sealed partial class AuthorityQueryController
             }
 
             SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                manifestDetail.GoldenManifest,
+                requestedManifest,
                 result.RunId.ToString("D"),
                 manifestHashService);
 
-            // Historical sealed manifests are legitimate inputs. Verify their
-            // actual payload, not only the run's current golden-manifest hash.
-            if (requestedManifest.ManifestId != manifestDetail.GoldenManifest.ManifestId)
+            // Keep the prior check on the pinned current manifest as well.
+            // The identical loaded object needs only one hash computation.
+            if (!ReferenceEquals(requestedManifest, manifestDetail.GoldenManifest))
             {
-                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                    requestedManifest,
-                    result.RunId.ToString("D"),
-                    manifestHashService);
-            }
-            else
-            {
-                // Even same-ID responses from different providers must bind
-                // identically; a valid current hash is not proof of an
-                // inconsistent requested document.
-                if (!string.Equals(requestedManifest.ManifestHash,
-                    manifestDetail.GoldenManifest.ManifestHash,
-                    StringComparison.OrdinalIgnoreCase))
+                if (requestedManifest.ManifestId == manifestDetail.GoldenManifest.ManifestId &&
+                    !string.Equals(requestedManifest.ManifestHash,
+                        manifestDetail.GoldenManifest.ManifestHash,
+                        StringComparison.OrdinalIgnoreCase))
                 {
                     throw new ConflictException(
                         $"Manifest '{requestedManifestId}' conflicts with the run's pinned manifest.");
                 }
 
                 SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                    requestedManifest,
+                    manifestDetail.GoldenManifest,
                     result.RunId.ToString("D"),
                     manifestHashService);
             }
