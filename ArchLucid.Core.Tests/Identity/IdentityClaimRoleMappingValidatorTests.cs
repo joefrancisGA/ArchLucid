@@ -10,6 +10,25 @@ namespace ArchLucid.Core.Tests.Identity;
 [Trait("Category", "Unit")]
 public sealed class IdentityClaimRoleMappingValidatorTests
 {
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Null_mapping_array_or_entry_reports_validation_failure(bool nullArray)
+    {
+        IdentityClaimRoleMappingDocument mapping = new()
+        {
+            RoleClaimName = "groups",
+            Mappings = nullArray ? null! : [null!]
+        };
+
+        IdentityClaimRoleMappingValidator.Evaluate(mapping).Should().Contain(r =>
+            r.Component == "claimMapping.mappings" &&
+            r.Status == SamlTestConfigComponentStatus.Fail);
+
+        Action act = () => IdentityClaimRoleMappingValidator.ValidateOrThrow(mapping);
+        act.Should().Throw<ArgumentException>();
+    }
+
     [Fact]
     public void Evaluate_fails_when_role_claim_name_missing()
     {
