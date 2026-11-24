@@ -139,6 +139,10 @@ import {
   RUN_AGENT_FORENSICS_OPEN_PARAM,
 } from "@/lib/runs/run-agent-forensics-disclosure-url";
 import {
+  parseRunAgentExecutionLogOpenFromSearch,
+  RUN_AGENT_EXECUTION_LOG_OPEN_PARAM,
+} from "@/lib/runs/run-agent-execution-log-disclosure-url";
+import {
   parseTrustEvidenceFieldsOpenFromSearch,
   parseTrustEvidenceTechOpenFromSearch,
   TRUST_EVIDENCE_FIELDS_OPEN_PARAM,
@@ -411,6 +415,9 @@ export function useReviewDetailWorkspaceTabs(
     const runAgentForensicsOpenPresent = parseRunAgentForensicsOpenFromSearch(
       params.get(RUN_AGENT_FORENSICS_OPEN_PARAM),
     );
+    const runAgentExecutionLogOpenPresent = parseRunAgentExecutionLogOpenFromSearch(
+      params.get(RUN_AGENT_EXECUTION_LOG_OPEN_PARAM),
+    );
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -509,7 +516,9 @@ export function useReviewDetailWorkspaceTabs(
       || runPipelineStagesTechnicalOpenPresent
       || runToolInvocationForensicsOpenPresent
       || runToolInvocationForensicsTraceIdPresent
-      || runAgentForensicsOpenPresent      || trustEvidenceFieldsOpenPresent
+      | runAgentForensicsOpenPresent
+      || runAgentExecutionLogOpenPresent
+      || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent
       || runFindingExplainabilityOpenPresent
