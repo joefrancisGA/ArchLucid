@@ -29,16 +29,11 @@ public sealed partial class RunQueryController
     {
         try
         {
-            IActionResult? shareGuardResult =
-                await EnsureRunShareReadAllowedAsync(runId, cancellationToken);
+            IActionResult? readGuardResult =
+                await EnsureRunReadBoundaryAsync(runId, cancellationToken);
 
-            if (shareGuardResult is not null)
-                return shareGuardResult;
-
-            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
-
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
+            if (readGuardResult is not null)
+                return readGuardResult;
 
             RunGraphDetailQueryResult result = await runGraphQueryService.GetRunDetailAsync(runId, cancellationToken);
 
@@ -66,16 +61,11 @@ public sealed partial class RunQueryController
     {
         try
         {
-            IActionResult? shareGuardResult =
-                await EnsureRunShareReadAllowedAsync(runId, cancellationToken);
+            IActionResult? readGuardResult =
+                await EnsureRunReadBoundaryAsync(runId, cancellationToken);
 
-            if (shareGuardResult is not null)
-                return shareGuardResult;
-
-            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
-
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
+            if (readGuardResult is not null)
+                return readGuardResult;
 
             RunRoiEstimateQueryResult result = await runGraphQueryService.GetRunRoiEstimateAsync(runId, cancellationToken);
 
@@ -100,16 +90,11 @@ public sealed partial class RunQueryController
     {
         try
         {
-            IActionResult? shareGuardResult =
-                await EnsureRunShareReadAllowedAsync(runId, cancellationToken);
+            IActionResult? readGuardResult =
+                await EnsureRunReadBoundaryAsync(runId, cancellationToken);
 
-            if (shareGuardResult is not null)
-                return shareGuardResult;
-
-            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
-
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
+            if (readGuardResult is not null)
+                return readGuardResult;
 
             RunStageTimelineQueryResult result =
                 await runGraphQueryService.GetRunStageTimelineAsync(runId, cancellationToken);
@@ -190,24 +175,5 @@ public sealed partial class RunQueryController
         return this.OkWithConditionalEtag(result.Body, result.Etag);
     }
 
-    /// <summary>
-    /// Reuse the same scoped run-ownership/share authorization across detail,
-    /// ROI and stage-timeline responses. A sealed hash guard protects integrity,
-    /// not the caller's right to view a restricted architecture.
-    /// </summary>
-    private Task<IActionResult?> EnsureRunShareReadAllowedAsync(
-        string runId,
-        CancellationToken cancellationToken)
-    {
-        if (!Guid.TryParse(runId, out Guid runGuid))
-        {
-            return Task.FromResult<IActionResult?>(
-                this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound));
-        }
-
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        return _architectureShareAccessGate.EnsureRunReadAllowedAsync(
-            this, User, scope, runGuid, cancellationToken);
-    }
 
 }
