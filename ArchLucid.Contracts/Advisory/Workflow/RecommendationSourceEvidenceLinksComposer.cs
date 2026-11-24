@@ -45,10 +45,10 @@ public static class RecommendationSourceEvidenceLinksComposer
 
         try
         {
-            List<RecommendationSourceEvidenceLink>? links =
-                JsonSerializer.Deserialize<List<RecommendationSourceEvidenceLink>>(json, JsonOptions);
+            List<RecommendationSourceEvidenceLink?>? links =
+                JsonSerializer.Deserialize<List<RecommendationSourceEvidenceLink?>>(json, JsonOptions);
 
-            return links ?? [];
+            return links?.OfType<RecommendationSourceEvidenceLink>().ToList() ?? [];
         }
         catch (JsonException)
         {
