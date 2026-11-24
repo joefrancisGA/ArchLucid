@@ -1,7 +1,7 @@
 name: FND-010 .NET Evidence Authorization
 on:
   pull_request:
-    branches: [master, main, architecture/fnd010-scim-acl-authority, architecture/fnd010-run-ownership-guard, architecture/fnd010-central-decision-service, architecture/fnd010-decision-audit-worker, architecture/fnd010-remediation-policy-boundary]
+    branches: [master, main, audit/fnd010-manifest-id-run-share-seal-20261124, architecture/fnd010-scim-acl-authority, architecture/fnd010-run-ownership-guard, architecture/fnd010-central-decision-service, architecture/fnd010-decision-audit-worker, architecture/fnd010-remediation-policy-boundary]
   workflow_dispatch:
 permissions:
   contents: read
