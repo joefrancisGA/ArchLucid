@@ -153,3 +153,4 @@
 {"at":"2026-11-24T14:57:47.1112929Z","zoneId":"ui-review-detail-workspace","set":3,"outcome":"hit","productLine":"archlucid-shared","note":"seed hunt: visit-default overwrote runAgentExecutionLogOpen=1-only URL"}
 {"outcome":"hit","productLine":"archlucid-shared","at":"2026-11-24T15:00:31.8665489Z","zoneId":"ui-review-detail-workspace","set":3,"note":"seed hunt: visit-default overwrote runEngineProvenanceOpen=1-only URL"}
 {"at":"2026-11-24T15:03:01.3946665Z","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote runExplanationProvenanceOpen=1-only URL","zoneId":"ui-review-detail-workspace"}
+{"outcome":"hit","note":"seed hunt: visit-default overwrote runAdvancedAnalysisOpen=1-only URL","productLine":"archlucid-shared","zoneId":"ui-review-detail-workspace","at":"2026-11-24T15:05:23.7950455Z","set":3}
