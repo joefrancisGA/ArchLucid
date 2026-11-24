@@ -10,9 +10,9 @@ namespace ArchLucid.Persistence.Tests.Sql;
 
 /// <summary>
 /// Disposable SQL Server proof that the actual migration denies remediation
-/// evidence edits/deletes and instance deletes to the application role, even
-/// when that principal also has db_datawriter rights.
-/// It intentionally does not claim direct instance UPDATE has been revoked.
+/// evidence edits/deletes and instance UPDATE/DELETE to the application role,
+/// even when that principal also has db_datawriter rights. It proves a guarded
+/// owner-context update succeeds, and a repeated stale CAS does not.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
@@ -22,7 +22,7 @@ public sealed class RemediationSqlRolePrivilegesTests(SqlServerPersistenceFixtur
     private const string RoleName = "ArchLucidApp";
 
     [SkippableFact]
-    public async Task Role_denies_evidence_rewrite_and_direct_delete_but_preserves_required_instance_update()
+    public async Task Role_denies_direct_dml_but_allows_guarded_procedure_and_rejects_stale_rowversion()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable,
             SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
@@ -213,9 +213,7 @@ public sealed class RemediationSqlRolePrivilegesTests(SqlServerPersistenceFixtur
             evidenceInsert.Should().Be(1,
                 "approval and verification evidence remains appendable");
 
-            int legitimateScopedUpdate = await connection.QuerySingleAsync<int>(
-                "dbo.uspRemediationUpdateScoped",
-                new
+            var scopedMutation = new
                 {
                     TenantId = tenantId,
                     WorkspaceId = workspaceId,
@@ -241,10 +239,20 @@ public sealed class RemediationSqlRolePrivilegesTests(SqlServerPersistenceFixtur
                     ChangeImplementedUtc = (DateTime?)null,
                     VerifiedUtc = (DateTime?)null,
                     ClosedUtc = (DateTime?)null,
-                },
+                };
+            int legitimateScopedUpdate = await connection.QuerySingleAsync<int>(
+                "dbo.uspRemediationUpdateScoped",
+                scopedMutation,
                 commandType: System.Data.CommandType.StoredProcedure);
             legitimateScopedUpdate.Should().Be(1,
                 "owner-context SQL procedure must be usable even when direct table UPDATE is denied");
+
+            int staleRetry = await connection.QuerySingleAsync<int>(
+                "dbo.uspRemediationUpdateScoped",
+                scopedMutation,
+                commandType: System.Data.CommandType.StoredProcedure);
+            staleRetry.Should().Be(0,
+                "previous rowversion must no longer authorize the same stored-procedure update");
 
             // Even zero-row ad-hoc instance UPDATE must now fail for the runtime role.
             Func<Task> forbiddenDirectUpdate = () => connection.ExecuteAsync(
