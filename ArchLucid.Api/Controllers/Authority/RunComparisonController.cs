@@ -2,6 +2,7 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
@@ -45,7 +46,8 @@ public sealed partial class RunComparisonController(
     IScopeContextProvider scopeContextProvider,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
-    IValidator<RunPairQuery> runPairQueryValidator)
+    IValidator<RunPairQuery> runPairQueryValidator,
+    IArchitectureShareAccessGate architectureShareAccessGate)
     : ControllerBase
 {
     private readonly ICompareRunsApplicationFacade _compareRunsFacade =
@@ -82,6 +84,9 @@ public sealed partial class RunComparisonController(
 
     private readonly IValidator<RunPairQuery> _runPairQueryValidator =
         runPairQueryValidator ?? throw new ArgumentNullException(nameof(runPairQueryValidator));
+
+    private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
+        architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
 
     private async Task<IActionResult?> ValidateRunPairQueryAsync(RunPairQuery query,
         CancellationToken cancellationToken)
