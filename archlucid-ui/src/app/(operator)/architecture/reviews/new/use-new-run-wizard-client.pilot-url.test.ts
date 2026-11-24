@@ -200,6 +200,8 @@ vi.mock("./use-new-run-wizard-steps", () => ({
   }),
 }));
 
+import { WIZARD_MODE_STORAGE_KEY } from "./new-run-wizard-steps";
+
 import { useNewRunWizardClient } from "./use-new-run-wizard-client";
 
 function PilotSearchParamsRerenderHost({ children }: { readonly children: ReactNode }) {
@@ -304,4 +306,32 @@ describe("useNewRunWizardClient pilot URL sync", () => {
 
     expect(focusedPilotModeEnabledRef.current).toBe(true);
   });
+
+  it("keeps full wizard mode when embedded detailed panel loses mode= from the URL", async () => {
+    pilotSearchParamsHarness.state.query = "path=detailed&mode=full";
+
+    const view = render(
+      createElement(
+        PilotSearchParamsRerenderHost,
+        null,
+        createElement(NewRunWizardClientPilotProbe),
+      ),
+    );
+
+    await waitFor(() => {
+      expect(pilotSearchParamsHarness.state.query).toContain("mode=full");
+    });
+
+    pilotSearchParamsHarness.applySearchParamsQuery("path=detailed");
+    view.rerender(
+      createElement(
+        PilotSearchParamsRerenderHost,
+        null,
+        createElement(NewRunWizardClientPilotProbe),
+      ),
+    );
+
+    expect(window.localStorage.getItem(WIZARD_MODE_STORAGE_KEY)).toBe("full");
+  });
+
 });

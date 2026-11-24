@@ -179,6 +179,21 @@ describe("useNewRunWizardMode", () => {
     expect(result.current.wizardMode).toBe("full");
   });
 
+
+  it("keeps full wizard mode when mode= is cleared on path=detailed", () => {
+    wizardModeSearchParamsHarness.state.query = "path=detailed&mode=full";
+
+    const { result, rerender } = renderHook(() => useNewRunWizardMode(false), {
+      wrapper: WizardModeSearchParamsRerenderHost,
+    });
+
+    expect(result.current.wizardMode).toBe("full");
+
+    wizardModeSearchParamsHarness.applySearchParamsQuery("path=detailed");
+    rerender();
+
+    expect(result.current.wizardMode).toBe("full");
+  });
   it("resets wizard mode when mode= is cleared without a popstate event", () => {
     wizardModeSearchParamsHarness.state.query = "mode=full";
 

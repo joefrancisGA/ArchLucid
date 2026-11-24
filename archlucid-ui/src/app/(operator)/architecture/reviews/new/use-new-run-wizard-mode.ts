@@ -15,6 +15,7 @@ import {
   parseNewRunWizardModeFromSearch,
 } from "@/lib/runs/new-run-wizard-mode-url";
 
+import { isEmbeddedFullWizardPathQuery } from "./reviews-new-path-switcher-state";
 import { WIZARD_MODE_STORAGE_KEY } from "./new-run-wizard-steps";
 
 export type NewRunWizardMode = "quick" | "full";
@@ -94,8 +95,16 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
     previousUrlModeRef.current = urlMode;
 
     if (urlMode === null) {
+      const pathQuery = searchParams.get("path") ?? "";
+      const keepFullOnEmbeddedPath = isEmbeddedFullWizardPathQuery(pathQuery);
+
       // Match step= URL sync: when the mode param is removed, collapse to quick start.
-      if (previousUrlMode !== null && previousUrlMode !== undefined && wizardModeRef.current !== "quick") {
+      if (
+        previousUrlMode !== null &&
+        previousUrlMode !== undefined &&
+        wizardModeRef.current !== "quick" &&
+        !keepFullOnEmbeddedPath
+      ) {
         wizardModeRef.current = "quick";
         setWizardMode("quick");
         writeStoredWizardMode("quick");
@@ -113,7 +122,7 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
 
     modeChosenRef.current = true;
     seenExplicitUrlModeRef.current = true;
-  }, [urlMode]);
+  }, [searchParams, urlMode]);
 
   useEffect(() => {
     const syncModeFromUrl = (): void => {

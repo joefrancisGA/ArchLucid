@@ -57,6 +57,12 @@ function readStoredFullGuidedSubMode(): FullGuidedSubMode {
   return "guided-intake";
 }
 
+/** Templates/detailed and guided-intake tabs mount the full wizard without quick-start collapse. */
+export function isEmbeddedFullWizardPathQuery(pathQuery: string): boolean {
+  const normalized = pathQuery.trim().toLowerCase();
+
+  return normalized === "detailed" || normalized === "guided-intake";
+}
 export function readStoredActivePath(): ReviewsNewActivePath {
   const pathMode = readStoredPathMode();
 
