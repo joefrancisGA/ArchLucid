@@ -195,6 +195,10 @@ import {
   RUN_DETAIL_BUYER_SPONSOR_BRIEF_EXPORTS_OPEN_PARAM,
 } from "@/lib/runs/run-detail-buyer-sponsor-brief-exports-disclosure-url";
 import {
+  parseRunDetailFirstScreenProofOpenFromSearch,
+  RUN_DETAIL_FIRST_SCREEN_PROOF_OPEN_PARAM,
+} from "@/lib/runs/run-detail-first-screen-proof-disclosure-url";
+import {
   parseTrustEvidenceFieldsOpenFromSearch,
   parseTrustEvidenceTechOpenFromSearch,
   TRUST_EVIDENCE_FIELDS_OPEN_PARAM,
@@ -507,6 +511,9 @@ export function useReviewDetailWorkspaceTabs(
     const runDetailBuyerSponsorBriefExportsOpenPresent = parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(
       params.get(RUN_DETAIL_BUYER_SPONSOR_BRIEF_EXPORTS_OPEN_PARAM),
     );
+    const runDetailFirstScreenProofOpenPresent = parseRunDetailFirstScreenProofOpenFromSearch(
+      params.get(RUN_DETAIL_FIRST_SCREEN_PROOF_OPEN_PARAM),
+    );
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -620,6 +627,7 @@ export function useReviewDetailWorkspaceTabs(
       || runDetailProvenanceIdentifiersOpenPresent
       || bulkEvidenceUploadErrorDiagnosticsOpenPresent
       || runDetailBuyerSponsorBriefExportsOpenPresent
+      || runDetailFirstScreenProofOpenPresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent
