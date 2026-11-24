@@ -168,4 +168,30 @@ describe("useNewRunWizardMode", () => {
     expect(result.current.wizardMode).toBe("quick");
     expect(result.current.committedManifestProbeFailed).toBe(true);
   });
+  it("keeps stored full mode when the URL omits mode on first mount", () => {
+    window.localStorage.setItem(WIZARD_MODE_STORAGE_KEY, "full");
+    wizardModeSearchParamsHarness.state.query = "";
+
+    const { result } = renderHook(() => useNewRunWizardMode(false), {
+      wrapper: WizardModeSearchParamsRerenderHost,
+    });
+
+    expect(result.current.wizardMode).toBe("full");
+  });
+
+  it("resets wizard mode when mode= is cleared without a popstate event", () => {
+    wizardModeSearchParamsHarness.state.query = "mode=full";
+
+    const { result, rerender } = renderHook(() => useNewRunWizardMode(false), {
+      wrapper: WizardModeSearchParamsRerenderHost,
+    });
+
+    expect(result.current.wizardMode).toBe("full");
+
+    wizardModeSearchParamsHarness.applySearchParamsQuery("");
+    rerender();
+
+    expect(result.current.wizardMode).toBe("quick");
+  });
+
 });

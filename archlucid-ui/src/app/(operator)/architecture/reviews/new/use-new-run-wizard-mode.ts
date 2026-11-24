@@ -64,6 +64,8 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
   // A deep link (accelerator, preset) or a click has already decided the mode, so the first-run probe
   // below must not overwrite it when its request resolves.
   const modeChosenRef = useRef(false);
+  const previousUrlModeRef = useRef<NewRunWizardMode | null | undefined>(undefined);
+  const seenExplicitUrlModeRef = useRef(false);
   const storedMode = readStoredWizardMode();
   const committedProbeQuery = useNewRunWizardCommittedProbeQuery({
     enabled: !baselineFirst && storedMode === null,
@@ -88,7 +90,17 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
   );
 
   useEffect(() => {
+    const previousUrlMode = previousUrlModeRef.current;
+    previousUrlModeRef.current = urlMode;
+
     if (urlMode === null) {
+      // Match step= URL sync: when the mode param is removed, collapse to quick start.
+      if (previousUrlMode !== null && previousUrlMode !== undefined && wizardModeRef.current !== "quick") {
+        wizardModeRef.current = "quick";
+        setWizardMode("quick");
+        writeStoredWizardMode("quick");
+      }
+
       return;
     }
 
@@ -99,6 +111,7 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
     }
 
     modeChosenRef.current = true;
+    seenExplicitUrlModeRef.current = true;
   }, [urlMode]);
 
   useEffect(() => {
@@ -107,15 +120,24 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
         searchParamFromRouterSearchParams(searchParamsRef.current, "mode"),
       );
 
-      if (nextMode !== null) {
-        if (wizardModeRef.current !== nextMode) {
-          wizardModeRef.current = nextMode;
-          setWizardMode(nextMode);
-          writeStoredWizardMode(nextMode);
+      if (nextMode === null) {
+        if (seenExplicitUrlModeRef.current && wizardModeRef.current !== "quick") {
+          wizardModeRef.current = "quick";
+          setWizardMode("quick");
+          writeStoredWizardMode("quick");
         }
 
-        modeChosenRef.current = true;
+        return;
       }
+
+      if (wizardModeRef.current !== nextMode) {
+        wizardModeRef.current = nextMode;
+        setWizardMode(nextMode);
+        writeStoredWizardMode(nextMode);
+      }
+
+      modeChosenRef.current = true;
+      seenExplicitUrlModeRef.current = true;
     };
 
     syncModeFromUrl();
