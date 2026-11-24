@@ -34,6 +34,10 @@ public sealed partial class AuthorityQueryController
         try
         {
             ScopeContext scope = scopeProvider.GetCurrentScope();
+            IActionResult? shareDenied = await EnsureRunShareReadAllowedAsync(scope, runId, ct);
+            if (shareDenied is not null)
+                return shareDenied;
+
             RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
 
             if (detail is null)
@@ -75,6 +79,10 @@ public sealed partial class AuthorityQueryController
         try
         {
             ScopeContext scope = scopeProvider.GetCurrentScope();
+            IActionResult? shareDenied = await EnsureRunShareReadAllowedAsync(scope, runId, ct);
+            if (shareDenied is not null)
+                return shareDenied;
+
             RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
 
             if (detail is null)
@@ -185,6 +193,10 @@ public sealed partial class AuthorityQueryController
     private async Task<IActionResult> GetRunProvenanceCoreAsync(Guid runId, CancellationToken ct)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        IActionResult? shareDenied = await EnsureRunShareReadAllowedAsync(scope, runId, ct);
+        if (shareDenied is not null)
+            return shareDenied;
+
         RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
 
         if (detail is null)
@@ -225,6 +237,11 @@ public sealed partial class AuthorityQueryController
     {
         try
         {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            IActionResult? shareDenied = await EnsureRunShareReadAllowedAsync(scope, runId, ct);
+            if (shareDenied is not null)
+                return shareDenied;
+
             RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
 
             if (detail is null)
