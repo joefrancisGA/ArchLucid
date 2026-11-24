@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Core;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
@@ -43,14 +44,30 @@ public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
         string[] quotes = citedQuotes.ToArray();
         var citationCheck = CheckCitations(findingId, artifactIds, quotes, sourceStore, claimedConclusion, cancellationToken);
         SemanticSupportAssessment? assessment = null;
+        string? deferredReason = null;
 
         if (citationCheck.Probe == CitationProbeOutcome.SurvivedWithinCitedSources && _llmGateway is not null)
         {
-            assessment = await _llmGateway.AssessSemanticSupportAsync(claimedConclusion, quotes, cancellationToken)
-                .ConfigureAwait(false);
+            try
+            {
+                assessment = await _llmGateway.AssessSemanticSupportAsync(claimedConclusion, quotes, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (SemanticVerificationDeferredException ex)
+            {
+                deferredReason = ex.Message;
+            }
+            catch (LlmTokenQuotaExceededException)
+            {
+                deferredReason = "The tenant AI spending or token allowance denied semantic verification.";
+            }
+            catch (CostLimitExceededException)
+            {
+                deferredReason = "The run AI spending or token allowance was exhausted during semantic verification.";
+            }
         }
 
-        return BuildResult(findingId, artifactIds, quotes, claimedConclusion, citationCheck, assessment);
+        return BuildResult(findingId, artifactIds, quotes, claimedConclusion, citationCheck, assessment, deferredReason);
     }
 
     private static (bool IntegrityPassed, CitationProbeOutcome Probe) CheckCitations(
@@ -84,7 +101,8 @@ public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
         IReadOnlyList<string> citedQuotes,
         string claimedConclusion,
         (bool IntegrityPassed, CitationProbeOutcome Probe) citationCheck,
-        SemanticSupportAssessment? llmSemanticAssessment)
+        SemanticSupportAssessment? llmSemanticAssessment,
+        string? deferredReason = null)
     {
         bool integrityPassed = citationCheck.IntegrityPassed;
         EvidenceValidationStageOutcome integrityStage = new()
@@ -108,15 +126,16 @@ public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
             IsDeterministic = false,
         };
 
-        SemanticSupportAssessment semanticAssessment = llmSemanticAssessment
-            ?? AssessSemanticSupportHeuristic(integrityPassed, claimAlignmentPassed, citedQuotes, claimedConclusion);
+        SemanticSupportAssessment semanticAssessment = deferredReason is not null
+            ? SemanticSupportAssessment.DoesNotEstablish
+            : llmSemanticAssessment ?? AssessSemanticSupportHeuristic(integrityPassed, claimAlignmentPassed, citedQuotes, claimedConclusion);
 
         bool hasVerifiedQuotes = citationCheck.Probe == CitationProbeOutcome.SurvivedWithinCitedSources;
-        string semanticDetail = !hasVerifiedQuotes
+        string semanticDetail = deferredReason ?? (!hasVerifiedQuotes
             ? "Semantic review skipped because no verified passage was available."
             : llmSemanticAssessment.HasValue
             ? $"Semantic support assessed as {semanticAssessment} via LLM (model reasoning; not deterministic)."
-            : $"Semantic support assessed as {semanticAssessment} via heuristic fallback (model reasoning; not deterministic).";
+            : $"Semantic support assessed as {semanticAssessment} via heuristic fallback (model reasoning; not deterministic).");
 
         EvidenceValidationStageOutcome semanticStage = new()
         {
@@ -165,7 +184,9 @@ public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
         {
             Stage = EvidenceValidationStage.Escalation,
             Passed = !escalated,
-            Detail = escalated
+            Detail = deferredReason is not null
+                ? "The claim remains unverified. Human review is required before relying on it."
+                : escalated
                 ? "Escalation required: integrity failure, high severity, or weak/contradictory semantic support."
                 : "No escalation required.",
             IsDeterministic = false,
@@ -185,7 +206,8 @@ public sealed class EvidenceValidationPipeline : IEvidenceValidationPipeline
             OverallPassedIntegrity = integrityPassed,
             SemanticAssessment = semanticAssessment,
             CitationProbe = citationCheck.Probe,
-            SemanticMethod = !hasVerifiedQuotes ? SemanticAssessmentMethod.NotPerformed
+            SemanticVerificationDeferredReason = deferredReason,
+            SemanticMethod = deferredReason is not null || !hasVerifiedQuotes ? SemanticAssessmentMethod.NotPerformed
                 : llmSemanticAssessment.HasValue ? SemanticAssessmentMethod.Model : SemanticAssessmentMethod.Heuristic,
             CompletenessNotes = completenessNotes,
             Escalated = escalated,

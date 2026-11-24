@@ -7,6 +7,15 @@ public sealed class ArchitectureIntelligencePipelineOptions
 {
     public const string SectionPath = "ArchitectureIntelligence";
 
+    /// <summary>Aggregate allowance reserved by semantic verification in one service scope.</summary>
+    public int SemanticVerificationTokenAllowance { get; set; } = 16_384;
+
+    /// <summary>Aggregate estimated USD allowance for semantic verification in one service scope.</summary>
+    public decimal SemanticVerificationEstimatedUsdAllowance { get; set; } = 0.25m;
+
+    /// <summary>Maximum elapsed time for each material semantic review call.</summary>
+    public TimeSpan SemanticVerificationCallTimeout { get; set; } = TimeSpan.FromSeconds(10);
+
     /// <summary>
     ///     When enabled, golden-cohort runs receive a closed-loop strengthening pass before artifact synthesis.
     /// </summary>

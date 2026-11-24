@@ -10,7 +10,7 @@ internal static class ArchitectureIntelligenceCacheVersions
 
     public const string ModelVersion = "ai-model-v1";
 
-    public const string PolicyPackVersion = "ai-policy-v1";
+    public const string PolicyPackVersion = "ai-policy-v2";
 
     public const string RubricVersion = "ai-rubric-v1";
 

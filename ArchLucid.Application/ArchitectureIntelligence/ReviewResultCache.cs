@@ -79,7 +79,8 @@ public sealed partial class ReviewResultCache : IReviewResultCache
         ArgumentNullException.ThrowIfNull(manifest);
         ArgumentNullException.ThrowIfNull(result);
 
-        if (IsRunIdTombstoned(result.RunId))
+        if (result.ValidationResults.Any(validation => validation.SemanticVerificationDeferredReason is not null) ||
+            IsRunIdTombstoned(result.RunId))
             return;
 
         ClosedLoopReasoningResult snapshot = ClosedLoopReasoningResultCloner.Clone(result);
