@@ -36,6 +36,8 @@ import {
   SECURENOW_DECISION_CYCLE_LOG_PATH,
   SECURENOW_DECISION_CYCLE_STALL_STEPS,
   SECURENOW_PILOT_DECISION_OUTCOMES,
+  SECURENOW_PILOT_DECISION_PROCEED_QUOTE_HREF,
+  SECURENOW_PILOT_DECISION_PROCEED_QUOTE_LABEL,
   SECURENOW_PILOT_DECISION_STEPS,
 } from "@/lib/product-line/securenow-pilot-decision-copy";
 import { SPONSOR_PATH_DISPOSITION_SAVE_UNCHANGED_LINE } from "@/lib/product-line/sponsor-path-disposition-save-error-honesty-copy";
@@ -271,6 +273,13 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
             </a>
           </p>
         </section>
+
+        <p className={OPERATOR_TYPOGRAPHY.body} data-testid="securenow-pilot-decision-quote-packet-static">
+          <Link className={OPERATOR_LINK.inline} href={SECURENOW_PILOT_DECISION_PROCEED_QUOTE_HREF}>
+            {SECURENOW_PILOT_DECISION_PROCEED_QUOTE_LABEL}
+          </Link>
+          {" — sales-led quote path; does not authorize commerce."}
+        </p>
 
         <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_PILOT_DECISION_GUARDRAIL}</p>
         <p className={OPERATOR_TYPOGRAPHY.body}>

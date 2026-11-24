@@ -19,7 +19,7 @@ describe("SecureNowQuotePacketPageView", () => {
     expect(snEvalSection).toHaveAttribute("id", PROCUREMENT_SN_EVAL_ANCHOR_FRAGMENT);
     expect(screen.getAllByText(/accepts SN-EVAL orders/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/NO_GO/).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("This page cannot authorize commerce.")).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-list-price-commerce-limit")).toBeInTheDocument();
 
     for (const sku of ["SN-EVAL", "SN-ANNUAL", "SN-SUB-ADD", "SN-SNAP-4"]) {
       expect(screen.getAllByText(sku).length).toBeGreaterThanOrEqual(1);

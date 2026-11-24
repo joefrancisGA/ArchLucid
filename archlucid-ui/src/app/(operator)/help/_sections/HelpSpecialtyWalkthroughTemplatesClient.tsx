@@ -24,6 +24,7 @@ import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-c
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
 import { isOperatorAuthorityMeLoadFailure } from "@/lib/operator/operator-authority-me-load-failure";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { SPECIALTY_TEMPLATE_EXECUTE_DENIED_LINE } from "@/lib/help/specialty-template-execute-denied-copy";
 import { SPECIALTY_WALKTHROUGHS_HELP_PARTIAL_CAPTURE_LINE } from "@/lib/help/specialty-walkthroughs-partial-capture-copy";
 import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
 import { ReviewStartNavigationStallNotice } from "@/components/review-intake/ReviewStartNavigationStallNotice";
@@ -396,7 +397,12 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
               <div className="flex flex-wrap items-center gap-2">
                 <StatusTag kind="neutral" label={SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_STATUS_LABEL} />
               </div>
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{SPECIALTY_REVIEW_TEMPLATES_READ_ONLY_USE_HINT}</p>
+              <p
+                className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="specialty-template-execute-denied"
+              >
+                {SPECIALTY_TEMPLATE_EXECUTE_DENIED_LINE}
+              </p>
             </div>
           ) : null}
 

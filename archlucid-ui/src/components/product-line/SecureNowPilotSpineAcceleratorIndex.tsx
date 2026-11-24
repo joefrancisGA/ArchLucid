@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildGoldenSponsorPackageWalkthroughHref } from "@/lib/golden-sponsor-package-walkthrough";
+import { buildRemediationFactoryEmptyFixtureBeatHref } from "@/lib/remediation-factory/remediation-factory-empty-fixture-beat-href";
 import {
   SECURENOW_PILOT_SPINE_ACCELERATOR_INDEX_LEAD,
   SECURENOW_PILOT_SPINE_ACCELERATOR_INDEX_TITLE,
@@ -27,7 +28,12 @@ export function SecureNowPilotSpineAcceleratorIndex(): React.JSX.Element {
       </p>
       <ul className={cn("m-0 mt-4 list-none space-y-3 p-0", OPERATOR_TYPOGRAPHY.body)} data-testid="securenow-pilot-spine-accelerator-index-list">
         {SECURENOW_PILOT_SPINE_ACCELERATOR_LINKS.map((link) => {
-          const href = link.id === "golden-sponsor" ? goldenHref : link.href;
+          const href =
+            link.id === "golden-sponsor"
+              ? goldenHref
+              : link.id === "remediation-factory-empty"
+                ? buildRemediationFactoryEmptyFixtureBeatHref()
+                : link.href;
 
           return (
             <li key={link.id} data-testid={`securenow-pilot-spine-accelerator-link-${link.id}`}>

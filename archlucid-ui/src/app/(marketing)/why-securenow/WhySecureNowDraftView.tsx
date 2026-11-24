@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { SecureNowBetaSkuContentsSection } from "@/components/product-line/SecureNowBetaSkuContentsSection";
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MARKETING_LAYOUT, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -56,6 +57,8 @@ export function WhySecureNowDraftView(): React.JSX.Element {
             ))}
           </ol>
         </section>
+
+        <SecureNowBetaSkuContentsSection showQuoteLink={false} />
 
         <section className="space-y-2" aria-labelledby="why-securenow-refusals-heading">
           <h2 id="why-securenow-refusals-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>

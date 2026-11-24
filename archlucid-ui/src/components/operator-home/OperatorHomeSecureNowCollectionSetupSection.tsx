@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { SecureNowBetaSkuContentsSection } from "@/components/product-line/SecureNowBetaSkuContentsSection";
+import { SecureNowPilotSpineAcceleratorIndex } from "@/components/product-line/SecureNowPilotSpineAcceleratorIndex";
 import { SecureNowCollectionSetupStatusSection } from "@/components/product-line/SecureNowCollectionSetupStatusSection";
 import { SecureNowWorkspaceApiUnreachableNotice } from "@/components/product-line/SecureNowWorkspaceApiUnreachableNotice";
 import { useSecureNowCollectionSetupInput } from "@/hooks/use-securenow-collection-setup-input";
@@ -64,6 +65,7 @@ export function OperatorHomeSecureNowCollectionSetupSection(): React.JSX.Element
     >
       <SecureNowCollectionSetupStatusSection testIdPrefix="operator-home" sectionId="operator-home-collection-setup" />
       <SecureNowBetaSkuContentsSection showQuoteLink />
+      <SecureNowPilotSpineAcceleratorIndex />
     </section>
   );
 }

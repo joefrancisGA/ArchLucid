@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/enterprise-table";
 
 import { MARKETING_TYPOGRAPHY, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SECURENOW_QUOTE_PACKET_COMMERCE_LIMIT } from "@/lib/product-line/securenow-quote-packet-copy";
 import {
   SECURENOW_PUBLISHED_LIST_PRICE_EVALUATION_CREDIT,
   SECURENOW_PUBLISHED_LIST_PRICE_HEADING,
@@ -84,6 +85,11 @@ export function SecureNowPublishedListPriceSection(
         {SECURENOW_PUBLISHED_LIST_PRICE_EVALUATION_CREDIT.replace(/\*\*/g, "")}
       </p>
       <p className={cn("m-0", helperClass)}>{SECURENOW_PUBLISHED_LIST_PRICE_POSTURE}</p>
+      {variant === "operator" ? (
+        <p className={cn("m-0", helperClass)} data-testid="securenow-list-price-commerce-limit">
+          {SECURENOW_QUOTE_PACKET_COMMERCE_LIMIT}
+        </p>
+      ) : null}
       <p className={cn("m-0", bodyClass)}>
         <Link href={SECURENOW_PUBLISHED_LIST_PRICE_PHILOSOPHY_HREF} className={linkClass}>
           Full conditions in the pricing philosophy (section 9)

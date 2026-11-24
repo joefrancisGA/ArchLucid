@@ -66,10 +66,7 @@ describe("SecureNow pilot decision preparation page", () => {
     fireEvent.change(screen.getByLabelText("Path disposition outcome"), { target: { value: "Proceed" } });
 
     expect(screen.getByTestId("securenow-pilot-decision-proceed-commercial")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open quote packet (SN-EVAL)" })).toHaveAttribute(
-      "href",
-      "/administration/securenow-quote-packet",
-    );
+    expect(screen.getAllByRole("link", { name: "Open quote packet (SN-EVAL)" })).toHaveLength(2);
   });
 
   it("shows synthetic ROI rehearsal when Extend is selected", () => {
