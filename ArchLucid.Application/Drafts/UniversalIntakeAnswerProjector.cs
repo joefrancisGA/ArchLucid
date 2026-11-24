@@ -87,7 +87,7 @@ public static class UniversalIntakeAnswerProjector
             return;
         }
 
-        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(effectiveAnswer, ignoreCase: true, out CloudProvider provider) && Enum.IsDefined(provider))
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(effectiveAnswer, ignoreCase: true, out CloudProvider provider))
             request.CloudProvider = provider;
     }
 

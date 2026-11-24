@@ -13,7 +13,7 @@ internal static class FindingVerificationFindingProjection
         bool sourceAgentStored = false;
 
         if (!string.IsNullOrWhiteSpace(finding.EngineType)
-            && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(finding.EngineType, ignoreCase: true, out AgentType parsedAgent) && Enum.IsDefined(parsedAgent))
+            && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(finding.EngineType, ignoreCase: true, out AgentType parsedAgent))
         {
             sourceAgent = parsedAgent;
             sourceAgentStored = true;

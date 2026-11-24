@@ -10,7 +10,7 @@ internal static class BackgroundJobPersistenceMapper
         if (row is null)
             return null;
 
-        if (!global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(row.State, ignoreCase: true, out BackgroundJobState state) || !Enum.IsDefined(state))
+        if (!global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(row.State, ignoreCase: true, out BackgroundJobState state))
             state = BackgroundJobState.Failed;
 
         return new BackgroundJobInfo(

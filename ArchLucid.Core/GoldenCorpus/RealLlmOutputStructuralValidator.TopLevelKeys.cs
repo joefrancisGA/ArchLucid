@@ -37,7 +37,7 @@ public static partial class RealLlmOutputStructuralValidator
         type = default;
         error = null;
 
-        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(input, true, out type) && Enum.IsDefined(type))
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(input, true, out type))
             return true;
 
         if (int.TryParse(input, System.Globalization.NumberStyles.Integer,
