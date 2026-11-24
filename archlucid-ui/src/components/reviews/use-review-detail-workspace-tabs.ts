@@ -103,6 +103,183 @@ import {
   TECHNOLOGY_BASELINE_ENTRY_PARAM,
 } from "@/lib/reviews/technology-baseline-rationale-url";
 import {
+  parseRunAuditIdentifiersOpenFromSearch,
+  RUN_AUDIT_IDENTIFIERS_OPEN_PARAM,
+} from "@/lib/runs/run-audit-identifiers-disclosure-url";
+import {
+  parseRunPipelineTimelineOpenFromSearch,
+  RUN_PIPELINE_TIMELINE_OPEN_PARAM,
+} from "@/lib/runs/run-pipeline-timeline-disclosure-url";
+import {
+  parseChangesSinceLastReviewOpenFromSearch,
+  CHANGES_SINCE_LAST_REVIEW_OPEN_PARAM,
+} from "@/lib/runs/changes-since-last-review-disclosure-url";
+import {
+  parsePipelineTimelineEventIdFromSearch,
+  PIPELINE_TIMELINE_EVENT_ID_PARAM,
+} from "@/lib/runs/pipeline-timeline-event-disclosure-url";
+import {
+  parseRunRetrievalGroundingOpenFromSearch,
+  RUN_RETRIEVAL_GROUNDING_OPEN_PARAM,
+} from "@/lib/runs/run-retrieval-grounding-disclosure-url";
+import {
+  parseRunDetailActivityTechnicalOpenFromSearch,
+  RUN_DETAIL_ACTIVITY_TECHNICAL_OPEN_PARAM,
+} from "@/lib/runs/run-detail-activity-technical-disclosure-url";
+import {
+  parseRunDetailActivityOutcomeMetricsOpenFromSearch,
+  RUN_DETAIL_ACTIVITY_OUTCOME_METRICS_OPEN_PARAM,
+} from "@/lib/runs/run-detail-activity-outcome-metrics-disclosure-url";
+import {
+  parseRunPipelineStagesTechnicalOpenFromSearch,
+  RUN_PIPELINE_STAGES_TECHNICAL_OPEN_PARAM,
+} from "@/lib/runs/run-pipeline-stages-technical-disclosure-url";
+import {
+  parseRunPipelineStagesOpenFromSearch,
+  RUN_PIPELINE_STAGES_OPEN_PARAM,
+} from "@/lib/runs/run-pipeline-stages-disclosure-url";
+import {
+  parseRunToolInvocationForensicsOpenFromSearch,
+  RUN_TOOL_INVOCATION_FORENSICS_OPEN_PARAM,
+} from "@/lib/runs/run-tool-invocation-forensics-disclosure-url";
+import {
+  parseRunToolInvocationForensicsTraceIdFromSearch,
+  RUN_TOOL_INVOCATION_FORENSICS_TRACE_ID_PARAM,
+} from "@/lib/runs/run-tool-invocation-forensics-trace-disclosure-url";
+import {
+  parseRunAgentForensicsOpenFromSearch,
+  RUN_AGENT_FORENSICS_OPEN_PARAM,
+} from "@/lib/runs/run-agent-forensics-disclosure-url";
+import {
+  parseRunAgentExecutionLogOpenFromSearch,
+  RUN_AGENT_EXECUTION_LOG_OPEN_PARAM,
+} from "@/lib/runs/run-agent-execution-log-disclosure-url";
+import {
+  parseRunEngineProvenanceOpenFromSearch,
+  RUN_ENGINE_PROVENANCE_OPEN_PARAM,
+} from "@/lib/runs/run-engine-provenance-disclosure-url";
+import {
+  parseRunExplanationProvenanceOpenFromSearch,
+  RUN_EXPLANATION_PROVENANCE_OPEN_PARAM,
+} from "@/lib/runs/run-explanation-provenance-disclosure-url";
+import {
+  parseRunAdvancedAnalysisOpenFromSearch,
+  RUN_ADVANCED_ANALYSIS_OPEN_PARAM,
+} from "@/lib/runs/run-advanced-analysis-disclosure-url";
+import {
+  parseRunRefineWithAiOpenFromSearch,
+  RUN_REFINE_WITH_AI_OPEN_PARAM,
+} from "@/lib/runs/run-detail-refine-with-ai-disclosure-url";
+import {
+  parseRunDeliverablesOpenFromSearch,
+  RUN_DELIVERABLES_OPEN_PARAM,
+} from "@/lib/runs/run-detail-deliverables-disclosure-url";
+import {
+  parseRunTechnicalDetailsOpenFromSearch,
+  RUN_TECHNICAL_DETAILS_OPEN_PARAM,
+} from "@/lib/runs/run-detail-operator-technical-disclosure-url";
+import {
+  parseRunDetailSponsorBriefingOpenFromSearch,
+  RUN_DETAIL_SPONSOR_BRIEFING_OPEN_PARAM,
+} from "@/lib/runs/run-detail-sponsor-briefing-disclosure-url";
+import {
+  parseRunDetailProvenanceIdentifiersOpenFromSearch,
+  RUN_DETAIL_PROVENANCE_IDENTIFIERS_OPEN_PARAM,
+} from "@/lib/runs/run-detail-provenance-identifiers-disclosure-url";
+import {
+  parseBulkEvidenceUploadErrorDiagnosticsOpenFromSearch,
+  BULK_EVIDENCE_UPLOAD_ERROR_DIAGNOSTICS_OPEN_PARAM,
+} from "@/lib/runs/bulk-evidence-upload-error-diagnostics-disclosure-url";
+import {
+  parseRunDetailBuyerSponsorBriefExportsOpenFromSearch,
+  RUN_DETAIL_BUYER_SPONSOR_BRIEF_EXPORTS_OPEN_PARAM,
+} from "@/lib/runs/run-detail-buyer-sponsor-brief-exports-disclosure-url";
+import {
+  parseRunDetailFirstScreenProofOpenFromSearch,
+  RUN_DETAIL_FIRST_SCREEN_PROOF_OPEN_PARAM,
+} from "@/lib/runs/run-detail-first-screen-proof-disclosure-url";
+import {
+  parseRunInspectorRelatedActionsOpenFromSearch,
+  RUN_INSPECTOR_RELATED_ACTIONS_OPEN_PARAM,
+} from "@/lib/runs/run-inspector-related-actions-disclosure-url";
+import {
+  parseRunInspectorOpenArtifactOpenFromSearch,
+  RUN_INSPECTOR_OPEN_ARTIFACT_OPEN_PARAM,
+} from "@/lib/runs/run-inspector-open-artifact-disclosure-url";
+import {
+  parseReviewPipelineDevTelemetryOpenFromSearch,
+  REVIEW_PIPELINE_DEV_TELEMETRY_OPEN_PARAM,
+} from "@/lib/runs/review-pipeline-dev-telemetry-disclosure-url";
+import {
+  parseRunDetailOutcomeCardsOpenFromSearch,
+  RUN_DETAIL_OUTCOME_CARDS_OPEN_PARAM,
+} from "@/lib/runs/run-detail-outcome-cards-disclosure-url";
+import {
+  parseRunDetailOutcomeDecisionKeyOpenFromSearch,
+  RUN_DETAIL_OUTCOME_DECISION_KEY_OPEN_PARAM,
+} from "@/lib/runs/run-detail-outcome-decision-key-disclosure-url";
+import {
+  parseRunDetailOutcomeMonitoredRiskOpenFromSearch,
+  RUN_DETAIL_OUTCOME_MONITORED_RISK_OPEN_PARAM,
+} from "@/lib/runs/run-detail-outcome-monitored-risk-disclosure-url";
+import {
+  parseRunLastFailureTechOpenFromSearch,
+  RUN_LAST_FAILURE_TECH_OPEN_PARAM,
+} from "@/lib/runs/run-last-failure-tech-details-url";
+import {
+  parseFindingEvidenceOpenFromSearch,
+  FINDING_EVIDENCE_OPEN_PARAM,
+  parseFindingAuditOpenFromSearch,
+  FINDING_AUDIT_OPEN_PARAM,
+  parseFindingRelatedAuditOpenFromSearch,
+  FINDING_RELATED_AUDIT_OPEN_PARAM,
+  parseFindingTechnicalMetadataOpenFromSearch,
+  FINDING_TECHNICAL_METADATA_OPEN_PARAM,
+  parseFindingEvidenceBasisOpenFromSearch,
+  FINDING_EVIDENCE_BASIS_OPEN_PARAM,
+  parseFindingFullEvidenceTraceOpenFromSearch,
+  FINDING_FULL_EVIDENCE_TRACE_OPEN_PARAM,
+  parseFindingWorkWithOpenFromSearch,
+  FINDING_WORK_WITH_OPEN_PARAM,
+} from "@/lib/findings/finding-detail-inspect-disclosure-url";
+import {
+  parseFindingExportOpenFromSearch,
+  FINDING_EXPORT_OPEN_PARAM,
+  parseFindingTechnicalIdsOpenFromSearch,
+  FINDING_TECHNICAL_IDS_OPEN_PARAM,
+  parseFindingTechnicalAuditOpenFromSearch,
+  FINDING_TECHNICAL_AUDIT_OPEN_PARAM,
+} from "@/lib/findings/finding-detail-actions-disclosure-url";
+import {
+  parseFindingViewEvidenceOpenFromSearch,
+  FINDING_VIEW_EVIDENCE_OPEN_PARAM,
+} from "@/lib/findings/finding-view-evidence-disclosure-url";
+import {
+  parseFindingInspectTechnicalRuleOpenFromSearch,
+  FINDING_INSPECT_TECHNICAL_RULE_OPEN_PARAM,
+} from "@/lib/findings/finding-inspect-technical-rule-disclosure-url";
+import {
+  parseFindingInspectEvidenceCitationArtifactIdFromSearch,
+  FINDING_INSPECT_EVIDENCE_CITATION_ARTIFACT_ID_PARAM,
+} from "@/lib/findings/finding-inspect-evidence-citation-disclosure-url";
+import {
+  parseFindingInspectEvaluationOpenFromSearch,
+  FINDING_INSPECT_EVALUATION_OPEN_PARAM,
+} from "@/lib/findings/finding-inspect-evaluation-disclosure-url";
+import { REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM } from "@/lib/findings/review-findings-last-visit-url";
+import {
+  parseTrustEvidenceFieldsOpenFromSearch,
+  parseTrustEvidenceTechOpenFromSearch,
+  TRUST_EVIDENCE_FIELDS_OPEN_PARAM,
+  TRUST_EVIDENCE_TECH_OPEN_PARAM,
+} from "@/lib/runs/run-trust-evidence-disclosure-url";
+
+import {
+  parseRunStoredEvidencePreviewShapeFromSearch,
+  RUN_STORED_EVIDENCE_PREVIEW_SHAPE_PARAM,
+} from "@/lib/runs/run-stored-evidence-preview-shape-url";
+
+import {
   parseRunImpactAnalysisOpenFromSearch,
   RUN_IMPACT_ANALYSIS_OPEN_PARAM,
 } from "@/lib/reviews/run-impact-analysis-disclosure-url";
@@ -146,6 +323,18 @@ import {
   parseQuickDecisionMuteFindingIdFromSearch,
   QUICK_DECISION_MUTE_FINDING_ID_PARAM,
 } from "@/lib/reviews/quick-decision-mute-panels-url";
+import {
+  parseQuickDecisionPolicyPackImpactOpenFromSearch,
+  QUICK_DECISION_POLICY_PACK_IMPACT_OPEN_PARAM,
+} from "@/lib/findings/quick-decision-policy-pack-impact-disclosure-url";
+import {
+  parseQuickDecisionSupportingDetailFindingIdFromSearch,
+  QUICK_DECISION_SUPPORTING_DETAIL_FINDING_ID_PARAM,
+} from "@/lib/findings/quick-decision-supporting-detail-disclosure-url";
+import {
+  parseQuickDecisionSecondaryFindingFindingIdFromSearch,
+  QUICK_DECISION_SECONDARY_FINDING_FINDING_ID_PARAM,
+} from "@/lib/findings/quick-decision-secondary-finding-disclosure-url";
 
 const WORKBENCH_TAB_IDS: readonly ReviewDetailTabId[] = ["architecture", "findings", "evidence"];
 
@@ -330,6 +519,149 @@ export function useReviewDetailWorkspaceTabs(
       parseTechnologyBaselineEvidenceRefEntryIdFromSearch(params.get(TECHNOLOGY_BASELINE_EVIDENCE_REF_ENTRY_ID_PARAM)).length > 0;
     const techEntryIdPresent =
       parseTechnologyBaselineEntryIdFromSearch(params.get(TECHNOLOGY_BASELINE_ENTRY_PARAM)).length > 0;
+    const runAuditIdentifiersOpenPresent = parseRunAuditIdentifiersOpenFromSearch(
+      params.get(RUN_AUDIT_IDENTIFIERS_OPEN_PARAM),
+    );
+    const runPipelineTimelineOpenPresent = parseRunPipelineTimelineOpenFromSearch(
+      params.get(RUN_PIPELINE_TIMELINE_OPEN_PARAM),
+    );
+    const changesSinceLastReviewOpenPresent = parseChangesSinceLastReviewOpenFromSearch(
+      params.get(CHANGES_SINCE_LAST_REVIEW_OPEN_PARAM),
+    );
+    const pipelineTimelineEventIdPresent =
+      parsePipelineTimelineEventIdFromSearch(params.get(PIPELINE_TIMELINE_EVENT_ID_PARAM)).length > 0;
+    const runRetrievalGroundingOpenPresent = parseRunRetrievalGroundingOpenFromSearch(
+      params.get(RUN_RETRIEVAL_GROUNDING_OPEN_PARAM),
+    );
+    const runDetailActivityTechnicalOpenPresent = parseRunDetailActivityTechnicalOpenFromSearch(
+      params.get(RUN_DETAIL_ACTIVITY_TECHNICAL_OPEN_PARAM),
+    );
+    const runDetailActivityOutcomeMetricsOpenPresent = parseRunDetailActivityOutcomeMetricsOpenFromSearch(
+      params.get(RUN_DETAIL_ACTIVITY_OUTCOME_METRICS_OPEN_PARAM),
+    );
+    const runPipelineStagesTechnicalOpenPresent = parseRunPipelineStagesTechnicalOpenFromSearch(
+      params.get(RUN_PIPELINE_STAGES_TECHNICAL_OPEN_PARAM),
+    );
+    const runPipelineStagesOpenPresent = parseRunPipelineStagesOpenFromSearch(
+      params.get(RUN_PIPELINE_STAGES_OPEN_PARAM),
+    );
+    const runToolInvocationForensicsOpenPresent = parseRunToolInvocationForensicsOpenFromSearch(
+      params.get(RUN_TOOL_INVOCATION_FORENSICS_OPEN_PARAM),
+    );
+    const runToolInvocationForensicsTraceIdPresent =
+      parseRunToolInvocationForensicsTraceIdFromSearch(params.get(RUN_TOOL_INVOCATION_FORENSICS_TRACE_ID_PARAM)).length > 0;
+    const runAgentForensicsOpenPresent = parseRunAgentForensicsOpenFromSearch(
+      params.get(RUN_AGENT_FORENSICS_OPEN_PARAM),
+    );
+    const runAgentExecutionLogOpenPresent = parseRunAgentExecutionLogOpenFromSearch(
+      params.get(RUN_AGENT_EXECUTION_LOG_OPEN_PARAM),
+    );
+    const runEngineProvenanceOpenPresent = parseRunEngineProvenanceOpenFromSearch(
+      params.get(RUN_ENGINE_PROVENANCE_OPEN_PARAM),
+    );
+    const runExplanationProvenanceOpenPresent = parseRunExplanationProvenanceOpenFromSearch(
+      params.get(RUN_EXPLANATION_PROVENANCE_OPEN_PARAM),
+    );
+    const runAdvancedAnalysisOpenPresent = parseRunAdvancedAnalysisOpenFromSearch(
+      params.get(RUN_ADVANCED_ANALYSIS_OPEN_PARAM),
+    );
+    const runRefineWithAiOpenPresent = parseRunRefineWithAiOpenFromSearch(
+      params.get(RUN_REFINE_WITH_AI_OPEN_PARAM),
+    );
+    const runDeliverablesOpenPresent =
+      parseRunDeliverablesOpenFromSearch(params.get(RUN_DELIVERABLES_OPEN_PARAM)) === true;
+    const runTechnicalDetailsOpenPresent = parseRunTechnicalDetailsOpenFromSearch(
+      params.get(RUN_TECHNICAL_DETAILS_OPEN_PARAM),
+    );
+    const runDetailSponsorBriefingOpenPresent = parseRunDetailSponsorBriefingOpenFromSearch(
+      params.get(RUN_DETAIL_SPONSOR_BRIEFING_OPEN_PARAM),
+    );
+    const runDetailProvenanceIdentifiersOpenPresent = parseRunDetailProvenanceIdentifiersOpenFromSearch(
+      params.get(RUN_DETAIL_PROVENANCE_IDENTIFIERS_OPEN_PARAM),
+    );
+    const bulkEvidenceUploadErrorDiagnosticsOpenPresent = parseBulkEvidenceUploadErrorDiagnosticsOpenFromSearch(
+      params.get(BULK_EVIDENCE_UPLOAD_ERROR_DIAGNOSTICS_OPEN_PARAM),
+    );
+    const runDetailBuyerSponsorBriefExportsOpenPresent = parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(
+      params.get(RUN_DETAIL_BUYER_SPONSOR_BRIEF_EXPORTS_OPEN_PARAM),
+    );
+    const runDetailFirstScreenProofOpenPresent = parseRunDetailFirstScreenProofOpenFromSearch(
+      params.get(RUN_DETAIL_FIRST_SCREEN_PROOF_OPEN_PARAM),
+    );
+    const runInspectorRelatedActionsOpenPresent = parseRunInspectorRelatedActionsOpenFromSearch(
+      params.get(RUN_INSPECTOR_RELATED_ACTIONS_OPEN_PARAM),
+    );
+    const runInspectorOpenArtifactOpenPresent = parseRunInspectorOpenArtifactOpenFromSearch(
+      params.get(RUN_INSPECTOR_OPEN_ARTIFACT_OPEN_PARAM),
+    );
+    const reviewPipelineDevTelemetryOpenPresent = parseReviewPipelineDevTelemetryOpenFromSearch(
+      params.get(REVIEW_PIPELINE_DEV_TELEMETRY_OPEN_PARAM),
+    );
+    const runDetailOutcomeCardsOpenPresent = parseRunDetailOutcomeCardsOpenFromSearch(
+      params.get(RUN_DETAIL_OUTCOME_CARDS_OPEN_PARAM),
+    );
+    const runDetailOutcomeDecisionKeyOpenPresent = parseRunDetailOutcomeDecisionKeyOpenFromSearch(
+      params.get(RUN_DETAIL_OUTCOME_DECISION_KEY_OPEN_PARAM),
+    );
+    const runDetailOutcomeMonitoredRiskOpenPresent = parseRunDetailOutcomeMonitoredRiskOpenFromSearch(
+      params.get(RUN_DETAIL_OUTCOME_MONITORED_RISK_OPEN_PARAM),
+    );
+    const runLastFailureTechOpenPresent = parseRunLastFailureTechOpenFromSearch(
+      params.get(RUN_LAST_FAILURE_TECH_OPEN_PARAM),
+    );
+    const findingEvidenceOpenPresent = parseFindingEvidenceOpenFromSearch(
+      params.get(FINDING_EVIDENCE_OPEN_PARAM),
+    );
+    const findingAuditOpenPresent = parseFindingAuditOpenFromSearch(
+      params.get(FINDING_AUDIT_OPEN_PARAM),
+    );
+    const findingRelatedAuditOpenPresent = parseFindingRelatedAuditOpenFromSearch(
+      params.get(FINDING_RELATED_AUDIT_OPEN_PARAM),
+    );
+    const findingTechnicalMetadataOpenPresent = parseFindingTechnicalMetadataOpenFromSearch(
+      params.get(FINDING_TECHNICAL_METADATA_OPEN_PARAM),
+    );
+    const findingEvidenceBasisOpenPresent = parseFindingEvidenceBasisOpenFromSearch(
+      params.get(FINDING_EVIDENCE_BASIS_OPEN_PARAM),
+    );
+    const findingFullEvidenceTraceOpenPresent = parseFindingFullEvidenceTraceOpenFromSearch(
+      params.get(FINDING_FULL_EVIDENCE_TRACE_OPEN_PARAM),
+    );
+    const findingWorkWithOpenPresent = parseFindingWorkWithOpenFromSearch(
+      params.get(FINDING_WORK_WITH_OPEN_PARAM),
+    );
+    const findingExportOpenPresent = parseFindingExportOpenFromSearch(
+      params.get(FINDING_EXPORT_OPEN_PARAM),
+    );
+    const findingTechnicalIdsOpenPresent = parseFindingTechnicalIdsOpenFromSearch(
+      params.get(FINDING_TECHNICAL_IDS_OPEN_PARAM),
+    );
+    const findingTechnicalAuditOpenPresent = parseFindingTechnicalAuditOpenFromSearch(
+      params.get(FINDING_TECHNICAL_AUDIT_OPEN_PARAM),
+    );
+    const runStoredEvidencePreviewShapePresent =
+      (parseRunStoredEvidencePreviewShapeFromSearch(params.get(RUN_STORED_EVIDENCE_PREVIEW_SHAPE_PARAM)) ?? "").length > 0;
+    const findingViewEvidenceOpenPresent = parseFindingViewEvidenceOpenFromSearch(
+      params.get(FINDING_VIEW_EVIDENCE_OPEN_PARAM),
+    );
+    const findingInspectTechnicalRuleOpenPresent = parseFindingInspectTechnicalRuleOpenFromSearch(
+      params.get(FINDING_INSPECT_TECHNICAL_RULE_OPEN_PARAM),
+    );
+    const findingInspectEvidenceCitationArtifactIdPresent =
+      parseFindingInspectEvidenceCitationArtifactIdFromSearch(
+        params.get(FINDING_INSPECT_EVIDENCE_CITATION_ARTIFACT_ID_PARAM),
+      ).length > 0;
+    const findingInspectEvaluationOpenPresent = parseFindingInspectEvaluationOpenFromSearch(
+      params.get(FINDING_INSPECT_EVALUATION_OPEN_PARAM),
+    );
+    const findingsClassificationBandPresent =
+      (params.get(REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM)?.trim() ?? "").length > 0;
+    const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
+      params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
+    );
+    const trustEvidenceTechOpenPresent = parseTrustEvidenceTechOpenFromSearch(
+      params.get(TRUST_EVIDENCE_TECH_OPEN_PARAM),
+    );
     const runImpactAnalysisOpenPresent = parseRunImpactAnalysisOpenFromSearch(
       params.get(RUN_IMPACT_ANALYSIS_OPEN_PARAM),
     );
@@ -360,6 +692,17 @@ export function useReviewDetailWorkspaceTabs(
       parseQuickDecisionReasoningFindingIdFromSearch(params.get(QUICK_DECISION_REASONING_FINDING_ID_PARAM)).length > 0;
     const quickDecisionMuteFindingIdPresent =
       parseQuickDecisionMuteFindingIdFromSearch(params.get(QUICK_DECISION_MUTE_FINDING_ID_PARAM)).length > 0;
+    const quickDecisionPolicyPackImpactOpenPresent = parseQuickDecisionPolicyPackImpactOpenFromSearch(
+      params.get(QUICK_DECISION_POLICY_PACK_IMPACT_OPEN_PARAM),
+    );
+    const quickDecisionSupportingDetailFindingIdPresent =
+      parseQuickDecisionSupportingDetailFindingIdFromSearch(
+        params.get(QUICK_DECISION_SUPPORTING_DETAIL_FINDING_ID_PARAM),
+      ).length > 0;
+    const quickDecisionSecondaryFindingFindingIdPresent =
+      parseQuickDecisionSecondaryFindingFindingIdFromSearch(
+        params.get(QUICK_DECISION_SECONDARY_FINDING_FINDING_ID_PARAM),
+      ).length > 0;
     const runRecordMetaOpenPresent = parseRunDetailRecordMetadataOpenFromSearch(params.get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM));
     const askDockOpenPresent = parseReviewAskDockOpenFromSearch(params.get(REVIEW_ASK_DOCK_OPEN_PARAM));
     const askThreadPresent =
@@ -403,6 +746,55 @@ export function useReviewDetailWorkspaceTabs(
       || workspaceAiProbeDebugMetadataOpenPresent
       || technologyBaselineEvidenceRefEntryIdPresent
       || techEntryIdPresent
+      || runAuditIdentifiersOpenPresent
+      || runPipelineTimelineOpenPresent
+      || changesSinceLastReviewOpenPresent
+      || pipelineTimelineEventIdPresent
+      || runRetrievalGroundingOpenPresent
+      || runDetailActivityTechnicalOpenPresent
+      || runDetailActivityOutcomeMetricsOpenPresent
+      || runPipelineStagesTechnicalOpenPresent
+      || runPipelineStagesOpenPresent
+      || runToolInvocationForensicsOpenPresent
+      || runToolInvocationForensicsTraceIdPresent
+      || runAgentForensicsOpenPresent
+      || runAgentExecutionLogOpenPresent
+      || runEngineProvenanceOpenPresent
+      || runExplanationProvenanceOpenPresent
+      || runAdvancedAnalysisOpenPresent
+      || runRefineWithAiOpenPresent
+      || runDeliverablesOpenPresent
+      || runTechnicalDetailsOpenPresent
+      || runDetailSponsorBriefingOpenPresent
+      || runDetailProvenanceIdentifiersOpenPresent
+      || bulkEvidenceUploadErrorDiagnosticsOpenPresent
+      || runDetailBuyerSponsorBriefExportsOpenPresent
+      || runDetailFirstScreenProofOpenPresent
+      || runInspectorRelatedActionsOpenPresent
+      || runInspectorOpenArtifactOpenPresent
+      || reviewPipelineDevTelemetryOpenPresent
+      || runDetailOutcomeCardsOpenPresent
+      || runDetailOutcomeDecisionKeyOpenPresent
+      || runDetailOutcomeMonitoredRiskOpenPresent
+      || runLastFailureTechOpenPresent
+      || findingEvidenceOpenPresent
+      || findingAuditOpenPresent
+      || findingRelatedAuditOpenPresent
+      || findingTechnicalMetadataOpenPresent
+      || findingEvidenceBasisOpenPresent
+      || findingFullEvidenceTraceOpenPresent
+      || findingWorkWithOpenPresent
+      || findingExportOpenPresent
+      || findingTechnicalIdsOpenPresent
+      || findingTechnicalAuditOpenPresent
+      || runStoredEvidencePreviewShapePresent
+      || findingViewEvidenceOpenPresent
+      || findingInspectTechnicalRuleOpenPresent
+      || findingInspectEvidenceCitationArtifactIdPresent
+      || findingInspectEvaluationOpenPresent
+      || findingsClassificationBandPresent
+      || trustEvidenceFieldsOpenPresent
+      || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent
       || runFindingExplainabilityOpenPresent
       || runCoverageCurationOpenPresent
@@ -414,6 +806,9 @@ export function useReviewDetailWorkspaceTabs(
       || quickDecisionAskFindingIdPresent
       || quickDecisionReasoningFindingIdPresent
       || quickDecisionMuteFindingIdPresent
+      || quickDecisionPolicyPackImpactOpenPresent
+      || quickDecisionSupportingDetailFindingIdPresent
+      || quickDecisionSecondaryFindingFindingIdPresent
       || runRecordMetaOpenPresent
       || askDockOpenPresent
       || askThreadPresent

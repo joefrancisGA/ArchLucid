@@ -399,6 +399,972 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
 
 
 
+  it("does not apply visit-default navigation when the URL only carries quickDecisionSecondaryFindingFindingId", () => {
+    searchParamsHarness.applyQuery("quickDecisionSecondaryFindingFindingId=finding-1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?quickDecisionSecondaryFindingFindingId=finding-1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?quickDecisionSecondaryFindingFindingId=finding-1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries runAuditIdentifiersOpen=1", () => {
+    searchParamsHarness.applyQuery("runAuditIdentifiersOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runAuditIdentifiersOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runAuditIdentifiersOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries runPipelineTimelineOpen=1", () => {
+    searchParamsHarness.applyQuery("runPipelineTimelineOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runPipelineTimelineOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runPipelineTimelineOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries runRetrievalGroundingOpen=1", () => {
+    searchParamsHarness.applyQuery("runRetrievalGroundingOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runRetrievalGroundingOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runRetrievalGroundingOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries runDetailActivityTechnicalOpen=1", () => {
+    searchParamsHarness.applyQuery("runDetailActivityTechnicalOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runDetailActivityTechnicalOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runDetailActivityTechnicalOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries runDetailActivityOutcomeMetricsOpen=1", () => {
+    searchParamsHarness.applyQuery("runDetailActivityOutcomeMetricsOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runDetailActivityOutcomeMetricsOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runDetailActivityOutcomeMetricsOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries runPipelineStagesTechnicalOpen=1", () => {
+    searchParamsHarness.applyQuery("runPipelineStagesTechnicalOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runPipelineStagesTechnicalOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runPipelineStagesTechnicalOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries runToolInvocationForensicsOpen=1", () => {
+    searchParamsHarness.applyQuery("runToolInvocationForensicsOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runToolInvocationForensicsOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runToolInvocationForensicsOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries trustEvidenceFieldsOpen=1", () => {
+    searchParamsHarness.applyQuery("trustEvidenceFieldsOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?trustEvidenceFieldsOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?trustEvidenceFieldsOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries trustEvidenceTechOpen=1", () => {
+    searchParamsHarness.applyQuery("trustEvidenceTechOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?trustEvidenceTechOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?trustEvidenceTechOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries runToolInvocationForensicsTraceId", () => {
+    searchParamsHarness.applyQuery("runToolInvocationForensicsTraceId=trace-1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runToolInvocationForensicsTraceId=trace-1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runToolInvocationForensicsTraceId=trace-1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries runAgentForensicsOpen=1", () => {
+    searchParamsHarness.applyQuery("runAgentForensicsOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runAgentForensicsOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runAgentForensicsOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries runAgentExecutionLogOpen=1", () => {
+    searchParamsHarness.applyQuery("runAgentExecutionLogOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runAgentExecutionLogOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runAgentExecutionLogOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries runEngineProvenanceOpen=1", () => {
+    searchParamsHarness.applyQuery("runEngineProvenanceOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runEngineProvenanceOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runEngineProvenanceOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries runExplanationProvenanceOpen=1", () => {
+    searchParamsHarness.applyQuery("runExplanationProvenanceOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runExplanationProvenanceOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runExplanationProvenanceOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries runAdvancedAnalysisOpen=1", () => {
+    searchParamsHarness.applyQuery("runAdvancedAnalysisOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runAdvancedAnalysisOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runAdvancedAnalysisOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries runPipelineStagesOpen=1", () => {
+    searchParamsHarness.applyQuery("runPipelineStagesOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runPipelineStagesOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runPipelineStagesOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries changesSinceLastReviewOpen=1", () => {
+    searchParamsHarness.applyQuery("changesSinceLastReviewOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?changesSinceLastReviewOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?changesSinceLastReviewOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries pipelineTimelineEventId", () => {
+    searchParamsHarness.applyQuery("pipelineTimelineEventId=evt-1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?pipelineTimelineEventId=evt-1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?pipelineTimelineEventId=evt-1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries runRefineWithAiOpen=1", () => {
+    searchParamsHarness.applyQuery("runRefineWithAiOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runRefineWithAiOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runRefineWithAiOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries runDeliverablesOpen=1", () => {
+    searchParamsHarness.applyQuery("runDeliverablesOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runDeliverablesOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runDeliverablesOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries runTechnicalDetailsOpen=1", () => {
+    searchParamsHarness.applyQuery("runTechnicalDetailsOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runTechnicalDetailsOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runTechnicalDetailsOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries runDetailSponsorBriefingOpen=1", () => {
+    searchParamsHarness.applyQuery("runDetailSponsorBriefingOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runDetailSponsorBriefingOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runDetailSponsorBriefingOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries runDetailProvenanceIdentifiersOpen=1", () => {
+    searchParamsHarness.applyQuery("runDetailProvenanceIdentifiersOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runDetailProvenanceIdentifiersOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runDetailProvenanceIdentifiersOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries bulkEvidenceUploadErrorDiagnosticsOpen=1", () => {
+    searchParamsHarness.applyQuery("bulkEvidenceUploadErrorDiagnosticsOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?bulkEvidenceUploadErrorDiagnosticsOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?bulkEvidenceUploadErrorDiagnosticsOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries runDetailBuyerSponsorBriefExportsOpen=1", () => {
+    searchParamsHarness.applyQuery("runDetailBuyerSponsorBriefExportsOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runDetailBuyerSponsorBriefExportsOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runDetailBuyerSponsorBriefExportsOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries runDetailFirstScreenProofOpen=1", () => {
+    searchParamsHarness.applyQuery("runDetailFirstScreenProofOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runDetailFirstScreenProofOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runDetailFirstScreenProofOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries runInspectorRelatedActionsOpen=1", () => {
+    searchParamsHarness.applyQuery("runInspectorRelatedActionsOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runInspectorRelatedActionsOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runInspectorRelatedActionsOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries runInspectorOpenArtifactOpen=1", () => {
+    searchParamsHarness.applyQuery("runInspectorOpenArtifactOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runInspectorOpenArtifactOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runInspectorOpenArtifactOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries reviewPipelineDevTelemetryOpen=1", () => {
+    searchParamsHarness.applyQuery("reviewPipelineDevTelemetryOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewPipelineDevTelemetryOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?reviewPipelineDevTelemetryOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries runDetailOutcomeCardsOpen=1", () => {
+    searchParamsHarness.applyQuery("runDetailOutcomeCardsOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runDetailOutcomeCardsOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runDetailOutcomeCardsOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries runDetailOutcomeDecisionKeyOpen=1", () => {
+    searchParamsHarness.applyQuery("runDetailOutcomeDecisionKeyOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runDetailOutcomeDecisionKeyOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runDetailOutcomeDecisionKeyOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries runDetailOutcomeMonitoredRiskOpen=1", () => {
+    searchParamsHarness.applyQuery("runDetailOutcomeMonitoredRiskOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runDetailOutcomeMonitoredRiskOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runDetailOutcomeMonitoredRiskOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries runLastFailureTechOpen=1", () => {
+    searchParamsHarness.applyQuery("runLastFailureTechOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?runLastFailureTechOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?runLastFailureTechOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries findingEvidenceOpen=1", () => {
+    searchParamsHarness.applyQuery("findingEvidenceOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?findingEvidenceOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?findingEvidenceOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries findingAuditOpen=1", () => {
+    searchParamsHarness.applyQuery("findingAuditOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?findingAuditOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?findingAuditOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries findingRelatedAuditOpen=1", () => {
+    searchParamsHarness.applyQuery("findingRelatedAuditOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?findingRelatedAuditOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?findingRelatedAuditOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries findingTechnicalMetadataOpen=1", () => {
+    searchParamsHarness.applyQuery("findingTechnicalMetadataOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?findingTechnicalMetadataOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?findingTechnicalMetadataOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries findingEvidenceBasisOpen=1", () => {
+    searchParamsHarness.applyQuery("findingEvidenceBasisOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?findingEvidenceBasisOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?findingEvidenceBasisOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries findingFullEvidenceTraceOpen=1", () => {
+    searchParamsHarness.applyQuery("findingFullEvidenceTraceOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?findingFullEvidenceTraceOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?findingFullEvidenceTraceOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries findingWorkWithOpen=1", () => {
+    searchParamsHarness.applyQuery("findingWorkWithOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?findingWorkWithOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?findingWorkWithOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries findingExportOpen=1", () => {
+    searchParamsHarness.applyQuery("findingExportOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?findingExportOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?findingExportOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries findingTechnicalIdsOpen=1", () => {
+    searchParamsHarness.applyQuery("findingTechnicalIdsOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?findingTechnicalIdsOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?findingTechnicalIdsOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries findingTechnicalAuditOpen=1", () => {
+    searchParamsHarness.applyQuery("findingTechnicalAuditOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?findingTechnicalAuditOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?findingTechnicalAuditOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries shape (stored evidence preview)", () => {
+    searchParamsHarness.applyQuery("shape=api");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?shape=api");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?shape=api");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries findingViewEvidenceOpen=1", () => {
+    searchParamsHarness.applyQuery("findingViewEvidenceOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?findingViewEvidenceOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?findingViewEvidenceOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries findingInspectTechnicalRuleOpen=1", () => {
+    searchParamsHarness.applyQuery("findingInspectTechnicalRuleOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?findingInspectTechnicalRuleOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?findingInspectTechnicalRuleOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries findingInspectEvidenceCitationArtifactId", () => {
+    searchParamsHarness.applyQuery("findingInspectEvidenceCitationArtifactId=diagram-1");
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?findingInspectEvidenceCitationArtifactId=diagram-1",
+    );
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?findingInspectEvidenceCitationArtifactId=diagram-1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries findingInspectEvaluationOpen=1", () => {
+    searchParamsHarness.applyQuery("findingInspectEvaluationOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?findingInspectEvaluationOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?findingInspectEvaluationOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+
+  it("does not apply visit-default navigation when the URL only carries findingsBand", () => {
+    searchParamsHarness.applyQuery("findingsBand=checklist");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?findingsBand=checklist");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?findingsBand=checklist");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries quickDecisionSupportingDetailFindingId", () => {
+    searchParamsHarness.applyQuery("quickDecisionSupportingDetailFindingId=finding-1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?quickDecisionSupportingDetailFindingId=finding-1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?quickDecisionSupportingDetailFindingId=finding-1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
+  it("does not apply visit-default navigation when the URL only carries quickDecisionPolicyPackImpactOpen=1", () => {
+    searchParamsHarness.applyQuery("quickDecisionPolicyPackImpactOpen=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?quickDecisionPolicyPackImpactOpen=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?quickDecisionPolicyPackImpactOpen=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
   it("does not apply visit-default navigation when the URL only carries muteFindingId", () => {
     searchParamsHarness.applyQuery("muteFindingId=finding-1");
     window.history.replaceState({}, "", "/architecture/reviews/run-abc?muteFindingId=finding-1");
