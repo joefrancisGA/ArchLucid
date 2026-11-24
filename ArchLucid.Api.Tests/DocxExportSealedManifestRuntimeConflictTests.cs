@@ -1,4 +1,7 @@
+using System.Security.Claims;
+
 using ArchLucid.Api.Controllers.Authority;
+using ArchLucid.Api.Support;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Explanation;
@@ -161,6 +164,46 @@ public sealed class DocxExportSealedManifestRuntimeConflictTests
         AssertSealedManifestConflict409(action);
     }
 
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public async Task ExportRunDocx_denied_share_prevents_all_run_detail_reads(
+        bool denyComparison, bool includeComparison)
+    {
+        Guid compareRunId = Guid.NewGuid();
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        Mock<IRunDetailQueryService> runDetailQuery = new(MockBehavior.Strict);
+        Mock<IArchitectureShareAccessGate> gate = new(MockBehavior.Strict);
+        NotFoundResult denial = new();
+        using CancellationTokenSource cancellation = new();
+        CancellationToken ct = cancellation.Token;
+
+        gate.Setup(g => g.EnsureRunReadAllowedAsync(
+                It.IsAny<ControllerBase>(), It.IsAny<ClaimsPrincipal>(), Scope, RunId, ct))
+            .ReturnsAsync(denyComparison ? null : (IActionResult)denial);
+        if (denyComparison)
+        {
+            gate.Setup(g => g.EnsureRunReadAllowedAsync(
+                    It.IsAny<ControllerBase>(), It.IsAny<ClaimsPrincipal>(), Scope, compareRunId, ct))
+                .ReturnsAsync((IActionResult)denial);
+        }
+
+        DocxExportController sut = BuildController(
+            authority.Object, runDetailQuery.Object, new ManifestHashService(), gate.Object);
+
+        IActionResult action = await sut.ExportRunDocx(
+            RunId, includeComparison ? compareRunId : null, true, true, ct);
+
+        action.Should().BeSameAs(denial);
+        gate.Verify(g => g.EnsureRunReadAllowedAsync(sut, sut.User, Scope, RunId, ct), Times.Once);
+        if (denyComparison)
+            gate.Verify(g => g.EnsureRunReadAllowedAsync(sut, sut.User, Scope, compareRunId, ct), Times.Once);
+        gate.VerifyNoOtherCalls();
+        authority.VerifyNoOtherCalls();
+        runDetailQuery.VerifyNoOtherCalls();
+    }
+
     private static void AssertSealedManifestConflict409(IActionResult action)
     {
         ObjectResult conflict = action.Should().BeOfType<ObjectResult>().Subject;
@@ -174,7 +217,8 @@ public sealed class DocxExportSealedManifestRuntimeConflictTests
     private static DocxExportController BuildController(
         IAuthorityQueryService authority,
         IRunDetailQueryService runDetailQuery,
-        IManifestHashService manifestHashService)
+        IManifestHashService manifestHashService,
+        IArchitectureShareAccessGate? shareGate = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(static provider => provider.GetCurrentScope()).Returns(Scope);
@@ -202,7 +246,8 @@ public sealed class DocxExportSealedManifestRuntimeConflictTests
             Mock.Of<IAuditService>(),
             NullLogger<DocxExportController>.Instance,
             Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
-            Mock.Of<IArchitectureInventoryBindingRepository>())
+            Mock.Of<IArchitectureInventoryBindingRepository>(),
+            shareGate ?? DocxExportControllerTestSupport.CreateAllowingShareGate())
         {
             ControllerContext = AnalysisReportsControllerAuditTests.CreateControllerContext(),
         };

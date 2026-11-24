@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs.Finalization;
@@ -36,7 +37,8 @@ public sealed partial class ComparisonController(
     ICompareRunsApplicationFacade compareRunsFacade,
     IAuthorityQueryService authorityQueryService,
     IScopeContextProvider scopeContextProvider,
-    IManifestHashService manifestHashService) : ControllerBase
+    IManifestHashService manifestHashService,
+    IArchitectureShareAccessGate architectureShareAccessGate) : ControllerBase
 {
     private readonly ICompareRunsApplicationFacade _compareRunsFacade =
         compareRunsFacade ?? throw new ArgumentNullException(nameof(compareRunsFacade));
@@ -49,6 +51,9 @@ public sealed partial class ComparisonController(
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+    private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
+        architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
+
     /// <summary>Structured <see cref="ManifestDocument" /> delta between two runs (base → target).</summary>
     /// <param name="baseRunId">Earlier or baseline run.</param>
     /// <param name="targetRunId">Later or candidate run.</param>
@@ -67,6 +72,17 @@ public sealed partial class ComparisonController(
         [FromQuery] Guid targetRunId,
         CancellationToken ct = default)
     {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IActionResult? baseDenial = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this, User, scope, baseRunId, ct);
+        if (baseDenial is not null)
+            return baseDenial;
+
+        IActionResult? targetDenial = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this, User, scope, targetRunId, ct);
+        if (targetDenial is not null)
+            return targetDenial;
+
         IActionResult? sealedGuardResult =
             await EnsureCompareRunsSealedManifestReadAllowedAsync(baseRunId, targetRunId, ct);
 
