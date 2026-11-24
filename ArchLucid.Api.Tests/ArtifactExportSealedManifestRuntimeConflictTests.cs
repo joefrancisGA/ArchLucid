@@ -526,6 +526,67 @@ public sealed class ArtifactExportSealedManifestRuntimeConflictTests
     }
 
     [Theory]
+    [InlineData("list", "missing")]
+    [InlineData("descriptor", "missing")]
+    [InlineData("artifact", "missing")]
+    [InlineData("bundle", "missing")]
+    [InlineData("list", "wrong-run")]
+    [InlineData("descriptor", "wrong-manifest")]
+    public async Task Authorized_manifest_with_missing_or_inconsistent_summary_never_reads_artifacts(
+        string route, string variant)
+    {
+        Guid manifestId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Guid artifactId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        Mock<IAuthorityQueryService> query = new(MockBehavior.Strict);
+        query.Setup(q => q.GetRunIdByManifestIdAsync(
+                Scope, manifestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid?)RunId);
+        ManifestSummaryDto? summary = variant == "missing" ? null : new ManifestSummaryDto
+        {
+            ManifestId = variant == "wrong-manifest" ? Guid.NewGuid() : manifestId,
+            RunId = variant == "wrong-run" ? Guid.NewGuid() : RunId,
+            ManifestHash = "sealed-valid",
+        };
+        query.Setup(q => q.GetManifestSummaryAsync(
+                Scope, manifestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(summary);
+        Mock<IArchitectureShareAccessGate> sharing = new(MockBehavior.Strict);
+        sharing.Setup(g => g.EnsureRunReadAllowedAsync(
+                It.IsAny<ControllerBase>(), It.IsAny<ClaimsPrincipal>(),
+                Scope, RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IActionResult?)null);
+        Mock<IArtifactQueryService> artifacts = new(MockBehavior.Strict);
+        Mock<IArtifactPackagingService> packaging = new(MockBehavior.Strict);
+        ArtifactExportController sut = BuildController(
+            authority: query.Object, artifactQueryService: artifacts.Object,
+            artifactPackagingService: packaging.Object,
+            architectureShareAccessGate: sharing.Object);
+
+        IActionResult result = route switch
+        {
+            "list" => await sut.ListArtifacts(manifestId, CancellationToken.None),
+            "descriptor" => await sut.GetArtifactDescriptor(manifestId, artifactId, CancellationToken.None),
+            "artifact" => await sut.DownloadArtifact(manifestId, artifactId, CancellationToken.None),
+            "bundle" => await sut.DownloadBundle(manifestId, CancellationToken.None),
+            _ => throw new InvalidOperationException(route)
+        };
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode
+            .Should().Be(StatusCodes.Status404NotFound);
+        query.Verify(q => q.GetRunIdByManifestIdAsync(
+            Scope, manifestId, It.IsAny<CancellationToken>()), Times.Once);
+        query.Verify(q => q.GetManifestSummaryAsync(
+            Scope, manifestId, It.IsAny<CancellationToken>()), Times.Once);
+        query.VerifyNoOtherCalls();
+        sharing.Verify(g => g.EnsureRunReadAllowedAsync(
+            It.IsAny<ControllerBase>(), It.IsAny<ClaimsPrincipal>(),
+            Scope, RunId, It.IsAny<CancellationToken>()), Times.Once);
+        sharing.VerifyNoOtherCalls();
+        artifacts.VerifyNoOtherCalls();
+        packaging.VerifyNoOtherCalls();
+    }
+
+    [Theory]
     [InlineData(false)]
     [InlineData(true)]
     public async Task Authorized_current_or_historical_manifest_reaches_artifact_lookup_only_after_both_seals(
