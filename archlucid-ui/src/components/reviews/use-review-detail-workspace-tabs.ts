@@ -266,6 +266,7 @@ import {
   parseFindingInspectEvaluationOpenFromSearch,
   FINDING_INSPECT_EVALUATION_OPEN_PARAM,
 } from "@/lib/findings/finding-inspect-evaluation-disclosure-url";
+import { REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM } from "@/lib/findings/review-findings-last-visit-url";
 import {
   parseTrustEvidenceFieldsOpenFromSearch,
   parseTrustEvidenceTechOpenFromSearch,
@@ -653,6 +654,8 @@ export function useReviewDetailWorkspaceTabs(
     const findingInspectEvaluationOpenPresent = parseFindingInspectEvaluationOpenFromSearch(
       params.get(FINDING_INSPECT_EVALUATION_OPEN_PARAM),
     );
+    const findingsClassificationBandPresent =
+      (params.get(REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM)?.trim() ?? "").length > 0;
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -789,6 +792,7 @@ export function useReviewDetailWorkspaceTabs(
       || findingInspectTechnicalRuleOpenPresent
       || findingInspectEvidenceCitationArtifactIdPresent
       || findingInspectEvaluationOpenPresent
+      || findingsClassificationBandPresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent
