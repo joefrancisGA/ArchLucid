@@ -396,6 +396,25 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
 
 
 
+
+  it("does not apply visit-default navigation when the URL only carries deliverableAudience", () => {
+    searchParamsHarness.applyQuery("deliverableAudience=sponsor");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?deliverableAudience=sponsor");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?deliverableAudience=sponsor");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
   it("does not apply visit-default navigation when the URL only carries deliverableOpen=1", () => {
     searchParamsHarness.applyQuery("deliverableOpen=1");
     window.history.replaceState({}, "", "/architecture/reviews/run-abc?deliverableOpen=1");
