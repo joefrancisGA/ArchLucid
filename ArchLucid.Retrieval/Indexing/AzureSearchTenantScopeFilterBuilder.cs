@@ -96,11 +96,17 @@ public static class AzureSearchTenantScopeFilterBuilder
             if (query.AuthorizedEvidenceRunIds is not null)
                 platformScope = $"({platformScope} and (corpusKind eq 'PlatformDoc' or corpusKind eq 'ReferenceArchitecture' or corpusKind eq 'AzureRetailPrice' or corpusKind eq 'PolicyPack'))";
 
-            return $"(({string.Join(" and ", clauses)}) or {platformScope})";
+            return ApplyCorpusFilter($"(({string.Join(" and ", clauses)}) or {platformScope})", query);
         }
 
-        return string.Join(" and ", clauses);
+        return ApplyCorpusFilter(string.Join(" and ", clauses), query);
     }
 
-    private static string EscapeODataString(string value) => value.Replace("'", "''", StringComparison.Ordinal);
+    private static string ApplyCorpusFilter(string scopeFilter, RetrievalQuery query) =>
+        query.CorpusKindFilter is CorpusKind kind
+            ? $"({scopeFilter}) and corpusKind eq '{kind}'"
+            : scopeFilter;
+
+    private static string EscapeODataString
+(string value) => value.Replace("'", "''", StringComparison.Ordinal);
 }
