@@ -56,7 +56,9 @@ describe("resolveGovernanceAssignedToMeOldestFinding", () => {
     ]);
 
     expect(target?.findingId).toBe("finding-1");
-  });it("uses soonest due date when aging days are not stored on a row", () => {
+  });
+
+  it("uses soonest due date when aging days are not stored on a row", () => {
     const target = resolveGovernanceAssignedToMeOldestFinding([
       baseRow({ findingId: "zero-aging", agingDays: 0, revisitDueUtc: "2026-12-01T00:00:00Z" }),
       baseRow({ findingId: "no-aging-sooner-due", agingDays: undefined, revisitDueUtc: "2026-01-01T00:00:00Z" }),
