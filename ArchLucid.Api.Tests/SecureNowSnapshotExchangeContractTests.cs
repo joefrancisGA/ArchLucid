@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Security.Claims;
 using ArchLucid.Api.Security;
+using ArchLucid.Api.Support;
 using ArchLucid.Api.Controllers.Planning;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Authorization;
@@ -34,7 +35,8 @@ public sealed class SecureNowSnapshotExchangeContractTests
     };
 
     private static (GraphController Controller, Mock<IRunRepository> Runs, Mock<IAuthorityQueryService> Authority)
-        Build(int nodeCount, int maxNodes, bool enabled)
+        Build(int nodeCount, int maxNodes, bool enabled, IArchitectureShareAccessGate? shareGate = null,
+            Guid? anchorArchitecture = null, RunRecord? historicalRun = null)
     {
         Mock<IFeatureFlags> flags = new();
         flags.Setup(x => x.IsEnabledAsync("SecureNow.ReadOnlySnapshotExchange", It.IsAny<CancellationToken>()))
@@ -50,6 +52,7 @@ public sealed class SecureNowSnapshotExchangeContractTests
             It.IsAny<ClaimsPrincipal>(), It.IsAny<EvidenceReadResource>(),
             It.IsAny<CancellationToken>())).ReturnsAsync(true);
         ServiceProvider services = new ServiceCollection()
+            .AddSingleton(shareGate ?? Mock.Of<IArchitectureShareAccessGate>())
             .AddSingleton(flags.Object)
             .AddSingleton(scope.Object)
             .AddSingleton(authorization.Object)
@@ -61,21 +64,22 @@ public sealed class SecureNowSnapshotExchangeContractTests
             .AddScoped<EvidenceReadAuthorizationGate>()
             .BuildServiceProvider();
         Mock<IRunRepository> runs = new();
-        RunRecord run = new() { RunId = Run, ProjectId = "proj-a", CreatedUtc = DateTime.UtcNow.AddMinutes(-10) };
+        RunRecord run = new() { RunId = Run, ProjectId = "proj-a", ArchitectureId = anchorArchitecture, CreatedUtc = DateTime.UtcNow.AddMinutes(-10) };
+        RunRecord resolved = historicalRun ?? run;
         runs.Setup(x => x.GetByIdAsync(Scope, Run, It.IsAny<CancellationToken>())).ReturnsAsync(run);
         runs.Setup(x => x.GetLatestWithGraphAtOrBeforeAsync(Scope, run.ProjectId,
-            It.IsAny<DateTime>(), It.IsAny<CancellationToken>())).ReturnsAsync(run);
+            It.IsAny<DateTime>(), It.IsAny<CancellationToken>())).ReturnsAsync(resolved);
 
         GraphSnapshot graph = new()
         {
-            SchemaVersion = 1, RunId = Run, GraphSnapshotId = Guid.NewGuid(),
+            SchemaVersion = 1, RunId = resolved.RunId, GraphSnapshotId = Guid.NewGuid(),
             ContextSnapshotId = Guid.NewGuid(), CreatedUtc = DateTime.UtcNow.AddMinutes(-5),
             Nodes = Enumerable.Range(0, nodeCount).Select(i => new GraphNode
                 { NodeId = $"n{i}", NodeType = "resource", Label = $"Resource {i}" }).ToList()
         };
         Mock<IAuthorityQueryService> authority = new();
-        authority.Setup(x => x.GetRunDetailAsync(Scope, Run, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunDetailDto { Run = run, GraphSnapshot = graph });
+        authority.Setup(x => x.GetRunDetailAsync(Scope, resolved.RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto { Run = resolved, GraphSnapshot = graph });
         authority.Setup(x => x.GetRunDetailForManifestCompareAsync(Scope, Run, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunDetailDto { Run = run });
         GraphController controller = new(authority.Object, runs.Object, scope.Object,
@@ -136,6 +140,50 @@ public sealed class SecureNowSnapshotExchangeContractTests
             Run, DateTimeOffset.UtcNow);
         response.Should().BeOfType<OkObjectResult>().Which.Value
             .Should().BeOfType<ArchLucid.Provenance.ArchitectureGraphTemporalSnapshotResponse>();
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public async Task Ordinary_snapshot_checks_sharing_before_reading_graph_details(
+        bool anchorAllowed, bool historyAllowed)
+    {
+        Guid anchorArchitecture = Guid.NewGuid();
+        Guid historicalArchitecture = Guid.NewGuid();
+        RunRecord historical = new()
+        {
+            RunId = Guid.NewGuid(), ProjectId = "proj-a", ArchitectureId = historicalArchitecture,
+            CreatedUtc = DateTime.UtcNow.AddDays(-1)
+        };
+        Mock<IArchitectureShareAccessGate> sharing = new(MockBehavior.Strict);
+        var (controller, runs, authority) = Build(1, 500, false, sharing.Object, anchorArchitecture, historical);
+        using CancellationTokenSource cancellation = new();
+        CancellationToken ct = cancellation.Token;
+        sharing.Setup(g => g.EnsureArchitectureReadAllowedAsync(controller, controller.User, Scope, anchorArchitecture, ct))
+            .ReturnsAsync(anchorAllowed ? null : (IActionResult)new NotFoundResult());
+        sharing.Setup(g => g.EnsureArchitectureReadAllowedAsync(controller, controller.User, Scope, historicalArchitecture, ct))
+            .ReturnsAsync(historyAllowed ? null : (IActionResult)new NotFoundResult());
+
+        IActionResult result = await controller.GetArchitectureGraphTemporalSnapshot(Run, DateTimeOffset.UtcNow, ct);
+
+        sharing.Verify(g => g.EnsureArchitectureReadAllowedAsync(controller, controller.User, Scope, anchorArchitecture, ct), Times.Once);
+        sharing.Verify(g => g.EnsureArchitectureReadAllowedAsync(controller, controller.User, Scope, historicalArchitecture, ct),
+            anchorAllowed ? Times.Once() : Times.Never());
+        runs.Verify(r => r.GetLatestWithGraphAtOrBeforeAsync(Scope, "proj-a", It.IsAny<DateTime>(), ct),
+            anchorAllowed ? Times.Once() : Times.Never());
+        if (anchorAllowed && historyAllowed)
+        {
+            result.Should().BeOfType<OkObjectResult>().Which.Value
+                .Should().BeOfType<ArchLucid.Provenance.ArchitectureGraphTemporalSnapshotResponse>()
+                .Which.ResolvedRunId.Should().Be(historical.RunId);
+        }
+        else
+        {
+            ObjectResult denial = result.Should().BeOfType<ObjectResult>().Subject;
+            denial.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+            authority.VerifyNoOtherCalls();
+        }
     }
 
     [Fact]
