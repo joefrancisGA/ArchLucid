@@ -1,3 +1,5 @@
+using System.Security.Claims;
+
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Support;
 using ArchLucid.Application;
@@ -43,6 +45,7 @@ public sealed class AuthorityQueryControllerDispositionTests
     private readonly Mock<IAuthorityQueryService> _queryService = new();
     private readonly Mock<IRunOperatorGovernanceDispositionService> _dispositionService = new();
     private readonly Mock<IScopeContextProvider> _scopeProvider = new();
+    private readonly Mock<IArchitectureShareAccessGate> _shareAccessGate = new(MockBehavior.Strict);
 
     public AuthorityQueryControllerDispositionTests()
     {
@@ -79,11 +82,57 @@ public sealed class AuthorityQueryControllerDispositionTests
             Mock.Of<IRunDetailQueryService>(),
             Mock.Of<IConfiguration>(),
             Mock.Of<IEffectiveAgentExecutionModeAccessor>(),
-            Mock.Of<IArchitectureShareAccessGate>(),
+            _shareAccessGate.Object,
             Mock.Of<ILogger<AuthorityQueryController>>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
+    }
+
+    [Theory]
+    [InlineData("summary")]
+    [InlineData("detail")]
+    [InlineData("buyer-summary")]
+    [InlineData("retrieval-grounding")]
+    [InlineData("pipeline-timeline")]
+    [InlineData("rationale")]
+    [InlineData("provenance")]
+    [InlineData("signed-review-record")]
+    public async Task Restricted_architecture_read_denied_before_any_authority_run_data_access(
+        string action)
+    {
+        _shareAccessGate.Setup(g => g.EnsureRunReadAllowedAsync(
+                It.IsAny<ControllerBase>(),
+                It.IsAny<ClaimsPrincipal>(),
+                Scope,
+                RunGuid,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new NotFoundResult());
+
+        AuthorityQueryController controller = BuildSut();
+
+        IActionResult response = action switch
+        {
+            "summary" => await controller.GetRunSummary(RunGuid, CancellationToken.None),
+            "detail" => await controller.GetRunDetail(RunGuid, CancellationToken.None),
+            "buyer-summary" => await controller.GetBuyerRunDetailSummary(RunGuid, CancellationToken.None),
+            "retrieval-grounding" => await controller.GetRunRetrievalGrounding(RunGuid, CancellationToken.None),
+            "pipeline-timeline" => await controller.GetRunPipelineTimeline(RunGuid, CancellationToken.None),
+            "rationale" => await controller.GetRunRationale(RunGuid, CancellationToken.None),
+            "provenance" => await controller.GetRunProvenance(RunGuid, CancellationToken.None),
+            "signed-review-record" => await controller.GetRunGoldenManifest(RunGuid, CancellationToken.None),
+            _ => throw new InvalidOperationException(action),
+        };
+
+        response.Should().BeOfType<NotFoundResult>();
+        _shareAccessGate.Verify(g => g.EnsureRunReadAllowedAsync(
+            It.IsAny<ControllerBase>(), It.IsAny<ClaimsPrincipal>(),
+            Scope, RunGuid, It.IsAny<CancellationToken>()), Times.Once);
+
+        // Both direct IAuthorityQueryService access and delegated readHandlers
+        // access would touch this query mock. Neither may run after denial.
+        _queryService.VerifyNoOtherCalls();
+        _dispositionService.VerifyNoOtherCalls();
     }
 
     [Fact]
