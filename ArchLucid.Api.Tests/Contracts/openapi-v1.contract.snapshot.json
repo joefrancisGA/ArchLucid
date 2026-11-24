@@ -27659,6 +27659,16 @@
             "format": "uuid",
             "type": "string"
           },
+          "evidence": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicNetworkAccessVerificationEvidence"
+              }
+            ]
+          },
           "outcome": {
             "$ref": "#/components/schemas/PublicNetworkAccessVerificationOutcome"
           },
@@ -27673,6 +27683,46 @@
         "required": [
           "cloudResourceId",
           "outcome"
+        ],
+        "type": "object"
+      },
+      "PublicNetworkAccessVerificationEvidence": {
+        "properties": {
+          "maximumCaptureAgeHours": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "projectId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "propertyKey": {
+            "type": "string"
+          },
+          "resourceRowId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "verifierVersion": {
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "maximumCaptureAgeHours",
+          "projectId",
+          "propertyKey",
+          "resourceRowId",
+          "tenantId",
+          "verifierVersion",
+          "workspaceId"
         ],
         "type": "object"
       },
