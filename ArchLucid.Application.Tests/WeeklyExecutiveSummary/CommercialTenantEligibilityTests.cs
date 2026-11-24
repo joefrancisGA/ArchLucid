@@ -84,4 +84,27 @@ public sealed class CommercialTenantEligibilityTests
 
         CommercialTenantEligibility.MeetsCommercialTenantTierGate(tenant, TenantTier.Standard).Should().BeTrue();
     }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(3)]
+    [InlineData(int.MaxValue)]
+    public void Undefined_tenant_tiers_are_ineligible(int rawTier)
+    {
+        TenantRecord tenant = new() { Tier = (TenantTier)rawTier };
+
+        CommercialTenantEligibility.MeetsCommercialTenantTierGate(tenant, TenantTier.Free).Should().BeFalse();
+        CommercialTenantEligibility.MeetsCommercialTenantTierGate(tenant, TenantTier.Enterprise).Should().BeFalse();
+        CommercialTenantEligibility.IsEligibleForWeeklySponsorReport(tenant).Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(3)]
+    public void Undefined_required_tiers_are_denied(int rawTier)
+    {
+        TenantRecord tenant = new() { Tier = TenantTier.Enterprise };
+
+        CommercialTenantEligibility.MeetsCommercialTenantTierGate(tenant, (TenantTier)rawTier).Should().BeFalse();
+    }
 }
