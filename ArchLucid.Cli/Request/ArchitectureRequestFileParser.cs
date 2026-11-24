@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 
@@ -21,7 +23,7 @@ internal static class ArchitectureRequestFileParser
         AllowTrailingCommas = true,
         Converters =
         {
-            new JsonStringEnumConverter<CloudProvider>(allowIntegerValues: true),
+            new ValidatedEnumJsonConverterFactory(new JsonStringEnumConverter<CloudProvider>(allowIntegerValues: true)),
         },
     };
 

@@ -2,14 +2,14 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ArchLucid.Api.Serialization;
+namespace ArchLucid.Contracts.Serialization;
 
 /// <summary>Preserves the existing enum wire format while rejecting undefined enum values on read.</summary>
-internal sealed class ValidatedEnumJsonConverterFactory(JsonStringEnumConverter inner) : JsonConverterFactory
+public sealed class ValidatedEnumJsonConverterFactory(JsonConverterFactory inner) : JsonConverterFactory
 {
-    private readonly JsonStringEnumConverter _inner = inner ?? throw new ArgumentNullException(nameof(inner));
+    private readonly JsonConverterFactory _inner = inner ?? throw new ArgumentNullException(nameof(inner));
 
-    public override bool CanConvert(Type typeToConvert) => _inner.CanConvert(typeToConvert);
+    public override bool CanConvert(Type typeToConvert) => typeToConvert.IsEnum && _inner.CanConvert(typeToConvert);
 
     public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
     {

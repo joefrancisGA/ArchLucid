@@ -1,5 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
+using ArchLucid.Contracts.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
 using ArchLucid.Contracts.Agents;
@@ -66,8 +68,8 @@ public static class AgentResultJsonSerialization
     {
         options.Converters.Add(new AgentResultClaimListJsonConverter());
         options.Converters.Add(new AgentTopologyProposalJsonConverter());
-        options.Converters.Add(new JsonStringEnumConverter<AgentType>(allowIntegerValues: true));
-        options.Converters.Add(new JsonStringEnumConverter<FindingConfidenceLevel>(allowIntegerValues: true));
+        options.Converters.Add(new ValidatedEnumJsonConverterFactory(new JsonStringEnumConverter<AgentType>(allowIntegerValues: true)));
+        options.Converters.Add(new ValidatedEnumJsonConverterFactory(new JsonStringEnumConverter<FindingConfidenceLevel>(allowIntegerValues: true)));
         options.Converters.Add(new EvalCorpusFindingSeverityJsonConverter());
     }
 }

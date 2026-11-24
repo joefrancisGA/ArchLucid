@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
@@ -18,13 +20,13 @@ public static class AgentResultMergeSchemaSerializer
         PropertyNameCaseInsensitive = true,
         Converters =
         {
-            new JsonStringEnumConverter(),
+            new ValidatedEnumJsonConverterFactory(new JsonStringEnumConverter()),
             new EvalCorpusFindingSeverityJsonConverter(),
             new ServiceTypeJsonConverter(),
             new RuntimePlatformJsonConverter(),
             new DatastoreTypeJsonConverter(),
             new RelationshipTypeJsonConverter(),
-            new JsonStringEnumConverter<FindingConfidenceLevel>(allowIntegerValues: true),
+            new ValidatedEnumJsonConverterFactory(new JsonStringEnumConverter<FindingConfidenceLevel>(allowIntegerValues: true)),
             new AgentResultClaimListJsonConverter(),
             new AgentTopologyProposalJsonConverter()
         }
