@@ -130,6 +130,10 @@ import {
   parseRunToolInvocationForensicsOpenFromSearch,
   RUN_TOOL_INVOCATION_FORENSICS_OPEN_PARAM,
 } from "@/lib/runs/run-tool-invocation-forensics-disclosure-url";
+import {
+  parseTrustEvidenceFieldsOpenFromSearch,
+  TRUST_EVIDENCE_FIELDS_OPEN_PARAM,
+} from "@/lib/runs/run-trust-evidence-disclosure-url";
 
 import {
   parseRunImpactAnalysisOpenFromSearch,
@@ -392,6 +396,9 @@ export function useReviewDetailWorkspaceTabs(
     const runToolInvocationForensicsOpenPresent = parseRunToolInvocationForensicsOpenFromSearch(
       params.get(RUN_TOOL_INVOCATION_FORENSICS_OPEN_PARAM),
     );
+    const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
+      params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
+    );
     const runImpactAnalysisOpenPresent = parseRunImpactAnalysisOpenFromSearch(
       params.get(RUN_IMPACT_ANALYSIS_OPEN_PARAM),
     );
@@ -483,6 +490,7 @@ export function useReviewDetailWorkspaceTabs(
       || runDetailActivityOutcomeMetricsOpenPresent
       || runPipelineStagesTechnicalOpenPresent
       || runToolInvocationForensicsOpenPresent
+      || trustEvidenceFieldsOpenPresent
       || runImpactAnalysisOpenPresent
       || runFindingExplainabilityOpenPresent
       || runCoverageCurationOpenPresent
