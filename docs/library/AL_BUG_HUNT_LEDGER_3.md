@@ -19678,8 +19678,8 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
 - **hunts:** 1
-- **bugs-found:**0
-- **consecutive-dry-hunts:**0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** never
 - **related-pd-tb:** none
