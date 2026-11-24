@@ -45,7 +45,7 @@ import {
 import { readPinRunIdFromSearchParams } from "@/lib/reviews/review-pin-run-url";
 import { parseReviewHeaderShareMenuOpenFromSearch, REVIEW_HEADER_SHARE_MENU_OPEN_PARAM } from "@/lib/reviews/review-header-share-menu-url";
 import { parseRunDetailRecordMetadataOpenFromSearch, RUN_DETAIL_RECORD_METADATA_OPEN_PARAM } from "@/lib/runs/run-detail-record-metadata-url";
-import { parseReviewAskDockOpenFromSearch, REVIEW_ASK_DOCK_OPEN_PARAM } from "@/lib/reviews/review-ask-dock-url";
+import { parseReviewAskDockOpenFromSearch, parseReviewAskDockThreadIdFromSearch, REVIEW_ASK_DOCK_OPEN_PARAM, REVIEW_ASK_DOCK_THREAD_PARAM } from "@/lib/reviews/review-ask-dock-url";
 import {
   parseRunDetailWorkspaceDisclosuresExpandedFromSearch,
   RUN_DETAIL_WORKSPACE_DISCLOSURES_EXPANDED_PARAM,
@@ -198,6 +198,8 @@ export function useReviewDetailWorkspaceTabs(
     const shareMenuOpenPresent = parseReviewHeaderShareMenuOpenFromSearch(params.get(REVIEW_HEADER_SHARE_MENU_OPEN_PARAM));
     const runRecordMetaOpenPresent = parseRunDetailRecordMetadataOpenFromSearch(params.get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM));
     const askDockOpenPresent = parseReviewAskDockOpenFromSearch(params.get(REVIEW_ASK_DOCK_OPEN_PARAM));
+    const askThreadPresent =
+      parseReviewAskDockThreadIdFromSearch(params.get(REVIEW_ASK_DOCK_THREAD_PARAM)).length > 0;
     const workspaceDisclosuresExpandedPresent =
       parseRunDetailWorkspaceDisclosuresExpandedFromSearch(
         params.get(RUN_DETAIL_WORKSPACE_DISCLOSURES_EXPANDED_PARAM),
@@ -216,6 +218,7 @@ export function useReviewDetailWorkspaceTabs(
       || shareMenuOpenPresent
       || runRecordMetaOpenPresent
       || askDockOpenPresent
+      || askThreadPresent
       || workspaceDisclosuresExpandedPresent
       || hashPresent
     ) {
