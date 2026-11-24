@@ -223,6 +223,10 @@ import {
   RUN_DETAIL_OUTCOME_MONITORED_RISK_OPEN_PARAM,
 } from "@/lib/runs/run-detail-outcome-monitored-risk-disclosure-url";
 import {
+  parseRunLastFailureTechOpenFromSearch,
+  RUN_LAST_FAILURE_TECH_OPEN_PARAM,
+} from "@/lib/runs/run-last-failure-tech-details-url";
+import {
   parseTrustEvidenceFieldsOpenFromSearch,
   parseTrustEvidenceTechOpenFromSearch,
   TRUST_EVIDENCE_FIELDS_OPEN_PARAM,
@@ -556,6 +560,9 @@ export function useReviewDetailWorkspaceTabs(
     const runDetailOutcomeMonitoredRiskOpenPresent = parseRunDetailOutcomeMonitoredRiskOpenFromSearch(
       params.get(RUN_DETAIL_OUTCOME_MONITORED_RISK_OPEN_PARAM),
     );
+    const runLastFailureTechOpenPresent = parseRunLastFailureTechOpenFromSearch(
+      params.get(RUN_LAST_FAILURE_TECH_OPEN_PARAM),
+    );
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -676,6 +683,7 @@ export function useReviewDetailWorkspaceTabs(
       || runDetailOutcomeCardsOpenPresent
       || runDetailOutcomeDecisionKeyOpenPresent
       || runDetailOutcomeMonitoredRiskOpenPresent
+      || runLastFailureTechOpenPresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent
