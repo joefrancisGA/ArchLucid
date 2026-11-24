@@ -5,6 +5,7 @@ provisioned correctly in a deployed tenant catalog. The SQL fixture test
 verifies effective permissions with EXECUTE AS when a test SQL Server exists.
 """
 from pathlib import Path
+import re
 import unittest
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -62,6 +63,28 @@ class RemediationSqlRolePermissionsTests(unittest.TestCase):
         helper = (ROOT / "ArchLucid.Host.Core/Startup/Validation/Rules/"
                   "SqlDatabaseImmutabilityProbeHelpers.cs").read_text()
         self.assertIn("IS_ROLEMEMBER(@RoleName)", helper)
+
+    def test_every_stored_procedure_parameter_uses_valid_tsql_at_prefix(self):
+        sql = PROCEDURES.read_text()
+        modules = re.findall(
+            r"CREATE OR ALTER PROCEDURE dbo\\.(\\w+)\\n(.*?)\\nWITH EXECUTE AS OWNER",
+            sql, flags=re.DOTALL,
+        )
+        self.assertEqual(3, len(modules), "validate every owner-context SQL procedure")
+        for name, declarations in modules:
+            lines = [line.strip().rstrip(",") for line in declarations.splitlines()
+                     if line.strip()]
+            self.assertGreater(len(lines), 5, name)
+            for line in lines:
+                with self.subTest(procedure=name, declaration=line):
+                    self.assertRegex(
+                        line,
+                        r"^@[A-Za-z][A-Za-z0-9_]*\\s+"
+                        r"(?:UNIQUEIDENTIFIER|VARBINARY\\(\\d+\\)|INT|"
+                        r"NVARCHAR\\((?:MAX|\\d+)\\)|DATETIME2)$",
+                        "bare identifiers in SQL procedure parameter declarations "
+                        "break DbUp migration 427 before any tests can execute",
+                    )
 
     def test_scoped_updates_have_single_db_authority_not_table_write(self):
         sql = PROCEDURES.read_text()
