@@ -2,6 +2,50 @@ namespace ArchLucid.Core.Resilience;
 
 public sealed partial class CircuitBreakerGate
 {
+    /// <summary>Atomically admits a call and binds its outcome to the current recovery generation.</summary>
+    public CallAdmission Admit()
+    {
+        lock (_sync)
+        {
+            ThrowIfBroken();
+            return new CallAdmission(this, _admissionGeneration, _state == State.HalfOpen);
+        }
+    }
+
+    /// <summary>Single-use, generation-bound outcome for one admitted provider call.</summary>
+    public sealed class CallAdmission
+    {
+        private readonly CircuitBreakerGate _gate;
+        private readonly long _generation;
+        private int _completed;
+
+        internal CallAdmission(CircuitBreakerGate gate, long generation, bool isHalfOpenProbe)
+        {
+            _gate = gate;
+            _generation = generation;
+            IsHalfOpenProbe = isHalfOpenProbe;
+        }
+
+        public bool IsHalfOpenProbe { get; }
+
+        public void RecordSuccess() => Complete(_gate.RecordSuccess);
+        public void RecordFailure() => Complete(_gate.RecordFailure);
+        public void RecordCallCancelled() => Complete(_gate.RecordCallCancelled);
+
+        private void Complete(Action record)
+        {
+            if (Interlocked.Exchange(ref _completed, 1) != 0)
+                return;
+
+            lock (_gate._sync)
+            {
+                // A previous closed call must not close or release a newer recovery probe.
+                if (_generation == _gate._admissionGeneration)
+                    record();
+            }
+        }
+    }
+
     /// <summary>
     ///     Throws <see cref="CircuitBreakerOpenException" /> if the circuit rejects the call; otherwise returns
     ///     so the caller may invoke the downstream operation (and then call <see cref="RecordSuccess" /> or

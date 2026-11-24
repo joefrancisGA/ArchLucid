@@ -663,4 +663,30 @@ public sealed class CircuitBreakingContentSafetyGuardTests
             provider.GetRequiredService<IServiceScopeFactory>(),
             provider.GetRequiredService<ILogger<CircuitBreakingContentSafetyGuard>>());
     }
+
+    [Fact]
+    public async Task Cancelled_half_open_safety_probe_releases_slot_for_next_request()
+    {
+        DateTimeOffset now = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        CircuitBreakerGate gate = new("content-safety-recovery-cancel",
+            new CircuitBreakerOptions { FailureThreshold = 1, DurationOfBreakSeconds = 30 },
+            () => now);
+        gate.Admit().RecordFailure();
+        now = now.AddSeconds(31);
+
+        Mock<IContentSafetyGuard> inner = new();
+        inner.SetupSequence(g => g.CheckInputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException())
+            .ReturnsAsync(new ContentSafetyResult(true, null, null, null));
+        CircuitBreakingContentSafetyGuard sut = CreateSut(
+            inner.Object, gate, new ContentSafetyOptions { FailClosedOnSdkError = true });
+
+        Func<Task> first = () => sut.CheckInputAsync("first", CancellationToken.None);
+        await first.Should().ThrowAsync<OperationCanceledException>();
+
+        ContentSafetyResult next = await sut.CheckInputAsync("next", CancellationToken.None);
+        next.IsAllowed.Should().BeTrue();
+        gate.CurrentState.Should().Be("Closed");
+        inner.Verify(g => g.CheckInputAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
 }

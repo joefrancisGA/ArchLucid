@@ -213,4 +213,105 @@ public sealed class CircuitBreakerGateTests
         gate.ThrowIfBroken();
         gate.RecordSuccess();
     }
+
+    [Fact]
+    public void Stale_closed_call_success_does_not_close_open_circuit()
+    {
+        MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+        CircuitBreakerGate gate = new("admission-generation", new CircuitBreakerOptions
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 30
+        }, clock.ToFunc());
+
+        CircuitBreakerGate.CallAdmission failing = gate.Admit();
+        CircuitBreakerGate.CallAdmission stale = gate.Admit();
+        failing.RecordFailure();
+        stale.RecordSuccess();
+
+        gate.CurrentState.Should().Be("Open");
+        Action rejected = () => gate.Admit();
+        rejected.Should().Throw<CircuitBreakerOpenException>();
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public void Stale_closed_outcome_cannot_mutate_new_half_open_probe(int outcome)
+    {
+        MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+        CircuitBreakerGate gate = new("admission-generation", new CircuitBreakerOptions
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 30
+        }, clock.ToFunc());
+
+        CircuitBreakerGate.CallAdmission failing = gate.Admit();
+        CircuitBreakerGate.CallAdmission stale = gate.Admit();
+        stale.IsHalfOpenProbe.Should().BeFalse();
+        failing.RecordFailure();
+
+        clock.Advance(TimeSpan.FromSeconds(31));
+        CircuitBreakerGate.CallAdmission probe = gate.Admit();
+        probe.IsHalfOpenProbe.Should().BeTrue();
+
+        if (outcome == 0)
+            stale.RecordSuccess();
+        else if (outcome == 1)
+            stale.RecordFailure();
+        else
+            stale.RecordCallCancelled();
+
+        gate.CurrentState.Should().Be("HalfOpen");
+        Action rejected = () => gate.Admit();
+        rejected.Should().Throw<CircuitBreakerOpenException>();
+        probe.RecordSuccess();
+        gate.CurrentState.Should().Be("Closed");
+    }
+
+    [Fact]
+    public void Admission_outcomes_are_single_use_during_multi_probe_recovery()
+    {
+        MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+        CircuitBreakerGate gate = new("admission-generation", new CircuitBreakerOptions
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 30,
+            HalfOpenSuccessThreshold = 2
+        }, clock.ToFunc());
+
+        gate.Admit().RecordFailure();
+        clock.Advance(TimeSpan.FromSeconds(31));
+        CircuitBreakerGate.CallAdmission first = gate.Admit();
+        first.RecordSuccess();
+        CircuitBreakerGate.CallAdmission second = gate.Admit();
+        first.RecordSuccess();
+
+        gate.CurrentState.Should().Be("HalfOpen");
+        second.RecordSuccess();
+        gate.CurrentState.Should().Be("Closed");
+    }
+
+    [Fact]
+    public void Neutral_probe_completion_releases_only_its_own_slot()
+    {
+        MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+        CircuitBreakerGate gate = new("admission-generation", new CircuitBreakerOptions
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 30
+        }, clock.ToFunc());
+
+        gate.Admit().RecordFailure();
+        clock.Advance(TimeSpan.FromSeconds(31));
+        CircuitBreakerGate.CallAdmission cancelled = gate.Admit();
+        cancelled.RecordCallCancelled();
+        CircuitBreakerGate.CallAdmission next = gate.Admit();
+        cancelled.RecordFailure();
+
+        gate.CurrentState.Should().Be("HalfOpen");
+        next.RecordSuccess();
+        gate.CurrentState.Should().Be("Closed");
+    }
 }

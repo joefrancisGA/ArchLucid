@@ -39,9 +39,10 @@ public sealed class CircuitBreakingAgentCompletionClient(
         float? temperature = null,
         CancellationToken cancellationToken = default)
     {
+        CircuitBreakerGate.CallAdmission admission;
         try
         {
-            _gate.ThrowIfBroken();
+            admission = _gate.Admit();
         }
         catch (CircuitBreakerOpenException ex)
         {
@@ -60,8 +61,8 @@ public sealed class CircuitBreakingAgentCompletionClient(
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            // Snapshot after ThrowIfBroken (HalfOpen probes may transition Open → HalfOpen there).
-            string stateBeforeOutcome = _gate.CurrentState;
+            // Use the admission-time state, not a later concurrent state snapshot.
+            string stateBeforeOutcome = admission.IsHalfOpenProbe ? "HalfOpen" : "Closed";
 
             // A half-open recovery probe must represent exactly one provider request.
             // Normal retries remain enabled while the breaker is closed.
@@ -71,7 +72,7 @@ public sealed class CircuitBreakingAgentCompletionClient(
                     async ct => await _inner.CompleteJsonAsync(systemPrompt, userPrompt, maxTokens, temperature, ct),
                     cancellationToken);
 
-            _gate.RecordSuccess();
+            admission.RecordSuccess();
 
             if (stateBeforeOutcome.Equals("HalfOpen", StringComparison.Ordinal) &&
                 _gate.CurrentState.Equals("Closed", StringComparison.Ordinal))
@@ -87,7 +88,7 @@ public sealed class CircuitBreakingAgentCompletionClient(
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            _gate.RecordCallCancelled();
+            admission.RecordCallCancelled();
             throw;
         }
         catch (Exception ex)
@@ -96,7 +97,7 @@ public sealed class CircuitBreakingAgentCompletionClient(
 
             if (LlmCompletionFailureClassifier.ShouldRecordCircuitBreakerFailure(ex))
             {
-                _gate.RecordFailure();
+                admission.RecordFailure();
 
                 if (_gate.CurrentState.Equals("Open", StringComparison.Ordinal) &&
                     (stateBeforeFailure.Equals("Closed", StringComparison.Ordinal) ||
@@ -114,7 +115,7 @@ public sealed class CircuitBreakingAgentCompletionClient(
             else
             {
                 // Neutral errors must release a half-open recovery probe without ticking the breaker.
-                _gate.RecordCallCancelled();
+                admission.RecordCallCancelled();
                 _logger.LogWarning(ex, "LLM completion call failed with semantic-terminal error; circuit breaker not ticked.");
             }
 
@@ -147,9 +148,10 @@ public sealed class CircuitBreakingAgentCompletionClient(
         float? temperature,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
+        CircuitBreakerGate.CallAdmission admission;
         try
         {
-            _gate.ThrowIfBroken();
+            admission = _gate.Admit();
         }
         catch (CircuitBreakerOpenException ex)
         {
@@ -164,7 +166,7 @@ public sealed class CircuitBreakingAgentCompletionClient(
             throw;
         }
 
-        string stateBeforeOutcome = _gate.CurrentState;
+        string stateBeforeOutcome = admission.IsHalfOpenProbe ? "HalfOpen" : "Closed";
         bool completed = false;
         Exception? streamFailure = null;
 
@@ -203,7 +205,7 @@ public sealed class CircuitBreakingAgentCompletionClient(
         {
             if (completed)
             {
-                _gate.RecordSuccess();
+                admission.RecordSuccess();
 
                 if (stateBeforeOutcome.Equals("HalfOpen", StringComparison.Ordinal) &&
                     _gate.CurrentState.Equals("Closed", StringComparison.Ordinal))
@@ -218,12 +220,12 @@ public sealed class CircuitBreakingAgentCompletionClient(
                      streamFailure is OperationCanceledException)
             {
                 // Early disposal and caller cancellation are not upstream failures.
-                _gate.RecordCallCancelled();
+                admission.RecordCallCancelled();
             }
             else if (LlmCompletionFailureClassifier.ShouldRecordCircuitBreakerFailure(streamFailure))
             {
                 string stateBeforeFailure = _gate.CurrentState;
-                _gate.RecordFailure();
+                admission.RecordFailure();
 
                 if (_gate.CurrentState.Equals("Open", StringComparison.Ordinal) &&
                     (stateBeforeFailure.Equals("Closed", StringComparison.Ordinal) ||
@@ -238,7 +240,7 @@ public sealed class CircuitBreakingAgentCompletionClient(
             else
             {
                 // Semantic-terminal errors do not tick the breaker.
-                _gate.RecordCallCancelled();
+                admission.RecordCallCancelled();
             }
         }
     }
