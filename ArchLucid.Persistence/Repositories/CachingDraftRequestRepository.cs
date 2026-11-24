@@ -87,10 +87,15 @@ public sealed class CachingDraftRequestRepository(
     public async Task<DraftRequestResponse?> TryBindConversationThreadAsync(
         DraftRequestResponse expected, Guid threadId, CancellationToken ct)
     {
-        DraftRequestResponse? updated = await _inner.TryBindConversationThreadAsync(expected, threadId, ct);
-        // Evict stale revisions on both success and compare-and-swap rejection.
-        await InvalidateDraftAsync(expected.TenantId, expected.WorkspaceId, expected.ProjectId, expected.DraftId);
-        return updated;
+        try
+        {
+            return await _inner.TryBindConversationThreadAsync(expected, threadId, ct);
+        }
+        finally
+        {
+            // Even if the write succeeded and the refresh was canceled, evict the prior revision.
+            await InvalidateDraftAsync(expected.TenantId, expected.WorkspaceId, expected.ProjectId, expected.DraftId);
+        }
     }
 
     /// <inheritdoc />
