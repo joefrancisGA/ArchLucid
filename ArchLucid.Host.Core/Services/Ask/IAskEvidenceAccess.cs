@@ -8,6 +8,8 @@ public interface IAskEvidenceAccess
     string? GetAuthorizedActorId();
     Task<bool> CanReadRunAsync(ScopeContext scope, Guid runId, CancellationToken ct);
 
+    string? GetAuthorizedDraftActorId() => null;
+
     // Draft reasoning persists state, so require the existing read/decide intersection.
     Task<bool> CanDecideArchitectureAsync(ScopeContext scope, Guid architectureId, CancellationToken ct) =>
         Task.FromResult(false);
