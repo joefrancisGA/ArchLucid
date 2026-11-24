@@ -21,16 +21,12 @@ public static class RequestActorMaterializer
         if (string.IsNullOrWhiteSpace(actorsJson))
             return [];
 
-        List<ActorDescriptor>? actors;
-
-        try
-        {
-            actors = JsonSerializer.Deserialize<List<ActorDescriptor>>(actorsJson, SerializerOptions);
-        }
-        catch (JsonException)
-        {
-            return [];
-        }
+        // Present but malformed actor evidence must fail the stage, not silently erase trust boundaries.
+        List<ActorDescriptor>? actors = JsonSerializer.Deserialize<List<ActorDescriptor>>(actorsJson, SerializerOptions);
+        if (actors is null)
+            throw new JsonException("Actor evidence must be an array when supplied.");
+        if (actors.Any(static actor => actor is null))
+            throw new JsonException("Actor evidence cannot contain null descriptors.");
 
         if (actors is not { Count: > 0 })
             return [];

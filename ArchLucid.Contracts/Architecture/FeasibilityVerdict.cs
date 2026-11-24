@@ -16,11 +16,14 @@ namespace ArchLucid.Contracts.Architecture;
 /// </remarks>
 public sealed class FeasibilityVerdict
 {
+    private FeasibilityVerdictKind kind = FeasibilityVerdictKind.SoftInfeasible;
+
     [JsonPropertyName("kind")]
+    [JsonRequired]
     public FeasibilityVerdictKind Kind
     {
-        get;
-        set;
+        get => kind;
+        set => kind = ContractCollectionDefaults.RequireDefinedEnum(value);
     }
 
     /// <summary>Operator-facing summary of the verdict.</summary>

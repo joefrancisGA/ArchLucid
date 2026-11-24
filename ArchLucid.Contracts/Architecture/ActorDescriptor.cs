@@ -42,6 +42,7 @@ public sealed class ActorDescriptor
 
     /// <summary>Whether this actor is a human, a machine, or a shared surface for both.</summary>
     [JsonPropertyName("kind")]
+    [JsonRequired]
     public ActorKind Kind
     {
         get;
@@ -50,6 +51,7 @@ public sealed class ActorDescriptor
 
     /// <summary>Where the actor originates relative to the system's trust boundary.</summary>
     [JsonPropertyName("trustOrigin")]
+    [JsonRequired]
     public TrustOrigin TrustOrigin
     {
         get;
@@ -58,6 +60,7 @@ public sealed class ActorDescriptor
 
     /// <summary>The communication pattern between this actor and the system.</summary>
     [JsonPropertyName("contract")]
+    [JsonRequired]
     public InteractionContract Contract
     {
         get;
@@ -71,6 +74,7 @@ public sealed class ActorDescriptor
     ///     Feeds the mandatory transparency trail (ADR 0050 / R4).
     /// </summary>
     [JsonPropertyName("origin")]
+    [JsonRequired]
     public ActorOrigin Origin
     {
         get;

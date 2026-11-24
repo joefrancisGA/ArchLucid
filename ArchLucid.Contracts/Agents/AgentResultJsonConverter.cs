@@ -23,6 +23,9 @@ public sealed class AgentResultJsonConverter : JsonConverter<AgentResult>
         if (payload is null)
             return null;
 
+        if (!Enum.IsDefined(payload.AgentType))
+            throw new JsonException("AgentResult agentType must be a declared role.");
+
         AgentResult result = payload.ToAgentResult();
         MergeClaimEvidenceRefs(root, result);
 
@@ -104,6 +107,7 @@ public sealed class AgentResultJsonConverter : JsonConverter<AgentResult>
 
         public string RunId { get; set; } = string.Empty;
 
+        [JsonRequired]
         public AgentType AgentType { get; set; }
 
         private List<string> claims = [];

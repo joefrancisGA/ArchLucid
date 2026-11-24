@@ -1,3 +1,7 @@
+using System.Text.Json.Serialization;
+
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>First-class waiver / risk exception linked to a finding (TB-059).</summary>
@@ -69,10 +73,13 @@ public sealed class RiskExceptionRecord
         init;
     }
 
+    private RiskExceptionStatus status = RiskExceptionStatus.Expired;
+
+    [JsonRequired]
     public RiskExceptionStatus Status
     {
-        get;
-        init;
+        get => status;
+        init => status = ContractCollectionDefaults.RequireDefinedEnum(value);
     }
 
     public DateTimeOffset CreatedAtUtc
