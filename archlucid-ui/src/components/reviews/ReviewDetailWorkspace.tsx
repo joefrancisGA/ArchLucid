@@ -186,6 +186,7 @@ export function useReviewDetailTabNavigation(): (tab: ReviewDetailTabId) => void
         hash: null,
         findingId: reviewDetailFindingIdClearForTabNavigation(tab),
         workbenchFocus: reviewDetailWorkbenchFocusForTabNavigation(tab),
+        presenter: null,
       });
     },
     [context],

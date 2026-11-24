@@ -37,4 +37,21 @@ describe("useReviewDetailTabNavigation", () => {
     expect(window.location.search).not.toContain("workbenchFocus=");
     expect(window.location.search).toContain("reviewTab=overview");
   });
+
+  it("clears presenter from the URL when tab context is absent and the destination is overview", () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/architecture/reviews/run-abc?reviewTab=findings&presenter=1",
+    );
+
+    const { result } = renderHook(() => useReviewDetailTabNavigation());
+
+    act(() => {
+      result.current("overview");
+    });
+
+    expect(window.location.search).not.toContain("presenter=");
+    expect(window.location.search).toContain("reviewTab=overview");
+  });
 });
