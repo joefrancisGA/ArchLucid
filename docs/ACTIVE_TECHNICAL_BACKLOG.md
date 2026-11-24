@@ -32,7 +32,7 @@
 | Priority | QA & stabilization | Release readiness | 2.0 foundations | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Immediate | 0 | 0 | 0 | 0 |
-| Critical | 15 | 5 | 0 | 20 |
+| Critical | 20 | 5 | 0 | 25 |
 | High | 262 | 141 | 0 | 403 |
 | Medium | 10 | 2 | 15 | 27 |
 | Low | 0 | 0 | 63 | 63 |
@@ -45,7 +45,7 @@ Each section is ordered **QA → release readiness → 2.0 foundations**. Within
 
 ### Critical
 
-#### QA & stabilization (15)
+#### QA & stabilization (20)
 
 | ID | Technical item | Origin / qualification |
 | --- | --- | --- |
@@ -64,6 +64,11 @@ Each section is ordered **QA → release readiness → 2.0 foundations**. Within
 | FND-066 | Evidence-bound AI-assisted finding deduplication | Critical distinct semantic-matching slice of FND-006; deterministic equivalence first, AI proposes evidence-backed matches, uncertain matches require human review; preserve originals and tenant/asset scope; no automatic transfer of dispositions or unsupported destructive merging; gate rollout. |
 | FND-067 | Canonical finding severity and remediation conflict resolution | Critical extension of FND-005/FND-007 and existing finding engines; shared typed severity/evidence standards, explicit conflict adjudication, source provenance and human review where necessary; preserve specialized analysis and separate finding streams; test contradictory recommendations. |
 | FND-068 | Persistence tenant and scope boundary enforcement audit | Critical targeted implementation slice of FND-047/TB-1418/TB-1232. Preserve ADR 0037 database-per-tenant topology; validate authorized connection resolution, workspace/project predicates, trusted background scopes and direct SQL bypasses; fail closed and add cross-scope tests; do not reinstate retired RLS. |
+| FND-069 | Mandatory independent factual verification of decision-grade AI findings | Critical hardening of TB-1981/TB-1221/TB-1230/TB-2034 and FND-005/FND-008; reuse existing grounding, authority and commit gates across both products. Resolve scoped evidence, verify claim semantics deterministically where feasible, distinguish unsupported or contradicted claims from confirmed facts; never grant decision-grade authority solely on model confidence, citation presence or model agreement. Test plausible false claims, missing evidence and bypass paths; revalidate current runtime coverage before enforcement. |
+| FND-070 | Executable adversarial falsification tests | Critical implementation slice of TB-1983/FND-026/TB-2409. Extend existing adversarial review to execute safe read-only deterministic counterexample probes where feasible; record refuted, survived within tested scope, untestable or human review required. Keep hypotheses outside authoritative findings; verify negative controls and incomplete coverage; no customer mutation. |
+| FND-071 | Per-finding verification independence, evidence scope and provenance classification | Critical extension of FND-005/FND-008/TB-1981 and existing provenance/verification reports. Record verifier kind, independence from generator, version, evidence references, tenant/asset scope, freshness, coverage and limitations; distinguish self-check, independent model, deterministic evidence and human adjudication. Surface in package, exports and audit without treating model agreement as proof; preserve historical compatibility. |
+| FND-072 | Risk-adjusted verification budgets and selective escalation | Critical extension of shared hallucination defense and FND-043; use deterministic checks first, bounded semantic or independent-model challenge for material uncertainty, human adjudication when necessary. Enforce time/token/cost limits, scope- and version-bound cache reuse, severity-aware policies and explicit unverified outcomes on budget exhaustion; benchmark latency and cost without weakening authority requirements. |
+| FND-073 | AI provider quality monitoring and quarantine circuit breaker | Critical extension of FND-065/FND-050 and existing provider health/resilience controls. Track independently adjudicated, severity-weighted unsupported/contradicted claim rates by provider/model/version with sample-size and uncertainty safeguards; distinguish unknown labels from successes, avoid self-graded quality signals. Quarantine or escalate suspect outputs with bounded recovery probes, audit and human override; validate false alarms, fallback and safe failure. |
 
 #### Release readiness (5)
 
