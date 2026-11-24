@@ -12891,6 +12891,10 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
+2026-11-24 seed hunt (hit): no rotation (shouldRotate false). Zero hunt-ready rows after cooldown; promoted embedded path=detailed panel losing mode=: the shared mode URL-sync collapsed to quick whenever mode= dropped, so Templates and imports showed quick-start chrome. isEmbeddedFullWizardPathQuery now skips that collapse for path=detailed and path=guided-intake. Mode vitest 8/8; pilot-url vitest 4/4. Private beta: clearing mode= on Templates and imports while that path tab stays selected keeps all-steps wizard chrome instead of flipping back to quick start.
+
+- [x] (proven) useNewRunWizardMode — mode= clear on path=detailed collapses to quick — hit 2026-11-24 seed hunt: regressions keeps full wizard mode when mode= is cleared on path=detailed and pilot probe keeps localStorage full when embedded detailed panel loses mode= from the URL.
+
 2026-11-24 thorough hunt (hit): no rotation (shouldRotate false). Cheap-disproof: zero-config one-shot matches policy-pack contract; example prefill gating on full+step2 matches accelerator forcing full mode; path switcher path= churn is guarded by persisted path and selectPath writes. Promoted modeChosenRef after transient mode=full: clearing mode= left the probe blocked so returning tenants stayed on quick; reset modeChosenRef when URL mode drops. Promoted empty session restore latching exampleTemplatePrefillAppliedRef: auto-restore on an empty snapshot still blocked template= prefill. Mode vitest 7/7; first-pilot vitest 14/14. Private beta: a fleeting mode=full link no longer prevents committed-manifest mode selection, and auto-resuming an empty quick-start draft still allows sample template prefills.
 
 - [x] (proven) useNewRunWizardMode — modeChosenRef blocks probe after transient mode=full — hit 2026-11-24 thorough hunt: regression re-applies committed-manifest probe after transient mode=full URL is cleared.
