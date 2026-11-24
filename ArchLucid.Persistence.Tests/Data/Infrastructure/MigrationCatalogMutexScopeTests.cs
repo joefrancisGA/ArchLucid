@@ -17,18 +17,27 @@ public sealed class MigrationCatalogMutexScopeTests
     }
 
     [SkippableFact]
-    public void Dispose_IsIdempotent_AndReleasesMutexForSameCatalog()
+    public async Task Dispose_IsIdempotent_AndReleasesMutexForSameCatalog()
     {
-        using (MigrationCatalogMutexScope.Acquire(SampleConnectionString, TimeSpan.FromMinutes(1)))
+        using (MigrationCatalogMutexScope first = MigrationCatalogMutexScope.Acquire(
+                   SampleConnectionString, TimeSpan.FromMinutes(1)))
         {
+            // The using statement calls Dispose a second time on the owning thread.
+            first.Dispose();
         }
 
-        using (MigrationCatalogMutexScope second = MigrationCatalogMutexScope.Acquire(
-                   SampleConnectionString,
-                   TimeSpan.FromMinutes(1)))
-        {
-            second.Should().NotBeNull();
-        }
+        // A mutex is recursive on its owning thread. Reacquiring on that thread
+        // cannot prove release; use a dedicated different thread instead.
+        await Task.Factory.StartNew(
+            () =>
+            {
+                using MigrationCatalogMutexScope second = MigrationCatalogMutexScope.Acquire(
+                    SampleConnectionString, TimeSpan.FromSeconds(5));
+                second.Should().NotBeNull();
+            },
+            CancellationToken.None,
+            TaskCreationOptions.LongRunning,
+            TaskScheduler.Default);
     }
 
     [SkippableFact]
