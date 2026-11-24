@@ -1,5 +1,6 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Security;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs.Finalization;
@@ -71,7 +72,7 @@ public sealed partial class GraphController
 
             RunRecord? anchor = await runRepository.GetByIdAsync(scope, runId, ct);
 
-            if (anchor is null)
+            if (anchor is null || (!secureNowExchange && !await CanReadSnapshotArchitectureAsync(anchor, scope, ct)))
                 return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
             DateTime boundaryUtc = DateTime.SpecifyKind(asOf.Value.UtcDateTime, DateTimeKind.Utc);
@@ -79,7 +80,10 @@ public sealed partial class GraphController
             RunRecord? resolved =
                 await runRepository.GetLatestWithGraphAtOrBeforeAsync(scope, anchor.ProjectId, boundaryUtc, ct);
 
-            if (resolved is null)
+            if (resolved is null || (!secureNowExchange &&
+                (resolved.ProjectId != anchor.ProjectId ||
+                 (resolved.ArchitectureId != anchor.ArchitectureId &&
+                  !await CanReadSnapshotArchitectureAsync(resolved, scope, ct)))))
             {
                 return this.NotFoundProblem(
                     $"No persisted architecture graph exists for project '{anchor.ProjectId}' at or before the requested instant.",
@@ -192,5 +196,14 @@ public sealed partial class GraphController
         {
             return MapGraphSealedManifestConflict(ex);
         }
+    }
+
+    private async Task<bool> CanReadSnapshotArchitectureAsync(RunRecord run, ScopeContext scope, CancellationToken ct)
+    {
+        if (run.ArchitectureId is not Guid architectureId)
+            return true;
+
+        var shareGate = HttpContext.RequestServices.GetRequiredService<IArchitectureShareAccessGate>();
+        return await shareGate.EnsureArchitectureReadAllowedAsync(this, User, scope, architectureId, ct) is null;
     }
 }
