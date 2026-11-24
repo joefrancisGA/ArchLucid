@@ -33,12 +33,19 @@ public sealed class EmailOtpAuthOptionsValidator(
                 "Auth:EmailOtp:HashPepper must be at least 32 characters when Email OTP is enabled in production-like environments.");
         }
 
-        if (options.RequireBotChallenge
-            && options.BotChallenge.Provider != EmailOtpBotChallengeProvider.None
-            && string.IsNullOrWhiteSpace(options.BotChallenge.SecretKey))
+        if (options.RequireBotChallenge)
         {
-            failures.Add(
-                "Auth:EmailOtp:BotChallenge:SecretKey is required when RequireBotChallenge is true and a bot challenge provider is configured.");
+            // The runtime verifier currently implements only Turnstile.
+            if (options.BotChallenge?.Provider != EmailOtpBotChallengeProvider.Turnstile)
+            {
+                failures.Add(
+                    "Auth:EmailOtp:BotChallenge:Provider must be Turnstile when RequireBotChallenge is true; other providers are not implemented.");
+            }
+            else if (string.IsNullOrWhiteSpace(options.BotChallenge.SecretKey))
+            {
+                failures.Add(
+                    "Auth:EmailOtp:BotChallenge:SecretKey is required when RequireBotChallenge is true and a bot challenge provider is configured.");
+            }
         }
 
         return failures.Count == 0
