@@ -62,7 +62,12 @@ type CursorPagedRunEnvelope = {
 };
 
 function isCursorPagedRunEnvelope(data: Record<string, unknown>): data is CursorPagedRunEnvelope {
-  return typeof data.requestedTake === "number" && Number.isFinite(data.requestedTake) && typeof data.hasMore === "boolean";
+  return (
+    typeof data.requestedTake === "number"
+    && Number.isFinite(data.requestedTake)
+    && Number.isInteger(data.requestedTake)
+    && typeof data.hasMore === "boolean"
+  );
 }
 
 function normalizeRunSummaryItems(rawItems: unknown): { ok: true; items: RunSummary[] } | { ok: false; message: string } {

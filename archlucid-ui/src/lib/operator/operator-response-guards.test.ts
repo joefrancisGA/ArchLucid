@@ -155,6 +155,19 @@ describe("coerceRunSummaryPaged", () => {
     }
   });
 
+
+  it("rejects keyset envelope when requestedTake is fractional", () => {
+    const result = coerceRunSummaryPaged({
+      items: [{ runId: "r1" }],
+      requestedTake: 20.5,
+      hasMore: false,
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toContain("requestedTake");
+    }
+  });
   it("rejects legacy offset envelope when pageSize is zero", () => {
     const result = coerceRunSummaryPaged({
       items: [],

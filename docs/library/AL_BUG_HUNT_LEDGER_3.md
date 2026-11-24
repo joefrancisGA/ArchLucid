@@ -10905,11 +10905,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `coerceRunComparison` — `manifestComparison` empty object without `diffs` array passes — **cheap-disproof 2026-11-17 thorough hunt #500:** manual path requires `diffs` array; regression above.
 - [x] (valid-no-repro) `coerceRunSummaryPaged` — keyset envelope preserves untrimmed `nextCursor` outer padding on valid tokens — **cheap-disproof 2026-11-17 thorough hunt #500:** hunt **#499** trim guard; regression `trims padding on keyset nextCursor tokens`.
 
-- [ ] (candidate) `coerceManifestSummary` — negative `warningCount` passes zod number check — locus: `operatorNonNegativeInteger` regression lane; input: `{ warningCount: -1, …required fields }`; monitor; pass 29 reseed.
-- [ ] (candidate) `coerceManifestSummary` — `Infinity` in `unresolvedIssueCount` passes counter guard — locus: finite integer counters; input: `{ unresolvedIssueCount: Infinity, … }`; monitor; pass 29 reseed.
-- [ ] (candidate) `coerceReplayResponse` — numeric `validation.notes` entries pass array guard — locus: replay notes string guard; input: `{ notes: [1], … }`; monitor; pass 29 reseed.
-- [ ] (candidate) `coerceRunSummaryPaged` — keyset envelope accepts fractional `requestedTake` as pageSize — locus: keyset take integer guard; input: `{ requestedTake: 20.5, items: [], hasMore: false }`; monitor; pass 29 reseed.
-- [ ] (candidate) `coerceRunSummaryPaged` — legacy offset `totalCount` `NaN` passes paging envelope — locus: legacy offset numeric guard; input: `{ totalCount: NaN, page: 1, pageSize: 20, hasMore: false, items: [] }`; monitor; pass 29 reseed.
+- [x] (valid-no-repro) `coerceManifestSummary` — negative `warningCount` — **cheap-disproof 2026-11-24 seed hunt:** `operatorNonNegativeInteger` `.min(0)`; regression `rejects fractional manifest counter values` class.
+- [x] (valid-no-repro) `coerceManifestSummary` — `Infinity` in `unresolvedIssueCount` — **cheap-disproof 2026-11-24 seed hunt:** `.finite()` on `operatorNonNegativeInteger`; regression `rejects non-finite manifest counter values`.
+- [x] (valid-no-repro) `coerceReplayResponse` — numeric `validation.notes` entries — **cheap-disproof 2026-11-24 seed hunt:** regression `rejects validation.notes entries that are not strings` (hunt **#500**).
+- [x] (proven) `coerceRunSummaryPaged` — fractional keyset `requestedTake` — **hit 2026-11-24 seed hunt:** integer guard on `requestedTake`; regression `rejects keyset envelope when requestedTake is fractional`.
+- [x] (valid-no-repro) `coerceReplayResponse` — numeric `validation.notes` entries — **cheap-disproof 2026-11-24 seed hunt:** regression `rejects validation.notes entries that are not strings` (hunt **#500**).
+- [ ] (candidate) `coerceRunSummaryPaged` — legacy offset envelope accepts fractional `pageSize` — monitor; pass-30 reseed.
+- [ ] (candidate) `coerceRunSummaryPaged` — legacy offset envelope accepts fractional `page` index — monitor; pass-30 reseed.
+- [ ] (candidate) `coerceManifestSummary` — negative `decisionCount` passes counter guard — monitor; pass-30 reseed.
+- [ ] (candidate) `coerceReplayResponse` — empty-string `validation.notes` entries pass trim guard — monitor; pass-30 reseed.
+- [ ] (candidate) `operator-scope-storage` — cross-tab refresh applies stale tenant id after rapid switch — monitor; pass-30 reseed.
+
 
 2026-11-17 thorough hunt #499 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**27** monitor rows from hunt **#498** reseed — **proven** keyset `coerceRunSummaryPaged` treating whitespace-only `nextCursor` as a live pagination token (`length > 0` without trim); **valid-no-repro** replay `mode` whitespace (hunt **#197** `operatorNonEmptyTrimmedString`; regression `rejects whitespace-only mode`); **invalid** optional `contentUrl` (field not in artifact descriptor contract) and golden `baseManifestId` (schema uses `baseRunId`/`targetRunId`); **invalid** graph node `id` whitespace (graph guard validates `nodes`/`edges` array shells only by design, hunt **#498**-class). Scoped `operator-response-guards.test.ts` **58/58**. Private beta: Invited operators no longer advance home runs pagination with a whitespace-only keyset cursor token when the API returns padded `nextCursor` values.
 
@@ -11641,8 +11647,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
