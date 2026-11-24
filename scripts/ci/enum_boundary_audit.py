@@ -8,6 +8,7 @@ from pathlib import Path
 import subprocess
 import sys
 from urllib.parse import unquote, urlparse
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[2]
 IDS = {"ENUM001", "ENUM002"}
@@ -70,6 +71,66 @@ def findings_from_reports(directory):
 def key(row):
     return tuple(row[name] for name in ("rule", "path", "line", "column", "sha256"))
 
+FOCUSED = {
+    "ArchLucid.Contracts.Tests": [
+        "DefinedEnumTests", "RunFindingCoverageSummaryDeserializationTests",
+        "ArchitectureFindingJsonConverterTests",
+    ],
+    "ArchLucid.Persistence.Tests": [
+        "FindingsSnapshotJsonFallbackMapperTests", "FindingsCoverageProjectionMapperTests",
+        "ArtifactBundleStatusParserTests", "SynthesizedArtifactSliceStatusParserTests",
+        "AgentModelCatalogRepositoryCoreTests", "BillingWebhookTrialActivatorTests",
+    ],
+    "ArchLucid.Application.Tests": [
+        "DraftRequestListStatusFilterTests", "AgentOutputQualityGateOptionsResolverTests",
+        "ArchitectureIntelligenceLlmResponseMapperMissingValueTests",
+        "TenantAzureOpenAiConnectionUpsertValidationTests",
+        "ItsmInboundExternalStatusMapperTests", "ItsmInboundHumanReviewMapHelperTests",
+    ],
+    "ArchLucid.AgentRuntime.Tests": [
+        "AgentModelTierResolverTests", "QuickScanServiceCoverageTests",
+        "AgentResultParserTests", "AgentHandlerFailureBudgetObserverTests",
+    ],
+    "ArchLucid.Cli.Tests": ["ArchitectureRequestFileParserTests"],
+    "ArchLucid.Architecture.Tests": ["ArchLucidApiJsonSourceGenerationTests"],
+    "ArchLucid.Analyzers.Tests": ["EnumBoundaryReviewAnalyzerTests"],
+}
+
+def check_report_coverage(directory):
+    projects = subprocess.check_output(
+        ["dotnet", "sln", "ArchLucid.sln", "list"], cwd=ROOT, text=True
+    )
+    expected = {
+        Path(line.strip().replace(chr(92), "/")).stem
+        for line in projects.splitlines() if line.strip().endswith(".csproj")
+    }
+    if not expected:
+        raise SystemExit("No C# projects resolved from the solution.")
+    missing = sorted(name for name in expected if not any(directory.glob(name + "-*.sarif")))
+    if missing:
+        raise SystemExit("Missing compiler reports for: " + ", ".join(missing))
+    return len(expected)
+
+def run_focused_tests(directory):
+    results = {}
+    for project, classes in FOCUSED.items():
+        target = directory / "tests" / project
+        target.mkdir(parents=True, exist_ok=False)
+        filter_text = "|".join("FullyQualifiedName~" + name for name in classes)
+        run("dotnet", "test", f"{project}/{project}.csproj", "-c", "Release", "--no-build",
+            "--filter", filter_text, "--logger", "trx", "--results-directory", str(target))
+        tests = []
+        for trx in target.glob("*.trx"):
+            tests.extend(ET.parse(trx).getroot().findall(".//{*}UnitTestResult"))
+        passed = [test for test in tests if test.get("outcome") == "Passed"]
+        for name in classes:
+            if not any(name in test.get("testName", "") for test in passed):
+                raise SystemExit(f"No passing focused test recorded for {project}/{name}")
+        if any(test.get("outcome") == "Failed" for test in tests):
+            raise SystemExit(f"Failed focused tests in {project}")
+        results[project] = {"passed": len(passed), "reported": len(tests)}
+    (directory / "focused-tests.json").write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--verify", action="store_true", help="Reject any finding without a specific reviewed exception.")
@@ -99,6 +160,9 @@ def main():
     print(f"{count} SARIF reports, {len(findings)} enum diagnostics; inventory written to {directory}")
     if result.returncode:
         return result.returncode
+    covered = check_report_coverage(directory)
+    print(f"Compiler report coverage: {covered} solution C# projects")
+    run_focused_tests(directory)
     if args.verify:
         if args.exceptions is None:
             raise SystemExit("--verify requires an explicitly reviewed --exceptions file (use [] for none).")
