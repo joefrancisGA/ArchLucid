@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 using ArchLucid.Contracts.Findings;
 
 namespace ArchLucid.Core.Findings;
@@ -5,7 +7,7 @@ namespace ArchLucid.Core.Findings;
 /// <summary>In-memory held-check collector threaded through <see cref="Contracts.Architecture.FindingAnalysisContext" />.</summary>
 public sealed class HeldCheckLedger : IHeldCheckLedger
 {
-    private readonly Dictionary<(string EngineType, HeldCheckInputCode InputCode), byte> _records = new();
+    private readonly ConcurrentDictionary<(string EngineType, HeldCheckInputCode InputCode), byte> _records = new();
 
     public void Record(string engineType, HeldCheckInputCode inputCode)
     {
@@ -19,14 +21,16 @@ public sealed class HeldCheckLedger : IHeldCheckLedger
 
     public IReadOnlyList<HeldCheckLedgerRollupEntry> BuildRollup()
     {
-        if (_records.Count == 0)
+        KeyValuePair<(string EngineType, HeldCheckInputCode InputCode), byte>[] snapshot = _records.ToArray();
+
+        if (snapshot.Length == 0)
         {
             return [];
         }
 
         Dictionary<HeldCheckInputCode, HashSet<string>> enginesByCode = new();
 
-        foreach (KeyValuePair<(string EngineType, HeldCheckInputCode InputCode), byte> pair in _records)
+        foreach (KeyValuePair<(string EngineType, HeldCheckInputCode InputCode), byte> pair in snapshot)
         {
             if (!enginesByCode.TryGetValue(pair.Key.InputCode, out HashSet<string>? engineTypes))
             {
