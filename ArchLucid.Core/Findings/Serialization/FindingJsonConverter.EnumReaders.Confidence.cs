@@ -37,7 +37,7 @@ public sealed partial class FindingJsonConverter
             return (FindingConfidenceLevel)numericFromString;
         }
 
-        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(raw, ignoreCase: true, out FindingConfidenceLevel parsed) && Enum.IsDefined(parsed))
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(raw, ignoreCase: true, out FindingConfidenceLevel parsed))
             return parsed;
 
         throw new JsonException($"Unknown finding confidence level value '{raw}'.");

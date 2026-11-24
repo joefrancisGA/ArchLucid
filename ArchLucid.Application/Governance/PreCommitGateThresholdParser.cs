@@ -14,8 +14,7 @@ public static class PreCommitGateThresholdParser
 
         string normalized = thresholdText.Trim();
 
-        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(normalized, ignoreCase: true, out FindingSeverity parsed)
-            && Enum.IsDefined(parsed))
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(normalized, ignoreCase: true, out FindingSeverity parsed))
             return parsed;
 
         // Enterprise questionnaires often say "High" where the product enum uses Error.

@@ -27,8 +27,7 @@ internal static class ItsmInboundHumanReviewMapHelper
 
         foreach (KeyValuePair<string, string> kv in rawMap.Where(kv => !string.IsNullOrWhiteSpace(kv.Key) && !string.IsNullOrWhiteSpace(kv.Value)).Where(kv => string.Equals(kv.Key.Trim(), normalizedIncoming, StringComparison.OrdinalIgnoreCase)))
         {
-            if (!global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(kv.Value.Trim(), ignoreCase: true, out FindingHumanReviewStatus parsed)
-                || !Enum.IsDefined(parsed))
+            if (!global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(kv.Value.Trim(), ignoreCase: true, out FindingHumanReviewStatus parsed))
             {
                 matchedKeyWithInvalidValue = true;
 
