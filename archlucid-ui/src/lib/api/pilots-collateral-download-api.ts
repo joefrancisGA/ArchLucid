@@ -27,6 +27,7 @@ export async function downloadSponsorReviewPacketMarkdown(runId: string): Promis
   await downloadScopedProxyFileGet(pilotRunCollateralUrl(normalizedRunId, "sponsor-review-packet"), {
     accept: "text/markdown, application/json",
     defaultFileName: `archlucid-sponsor-review-packet-${normalizedRunId}.md`,
+    expectedContentTypePrefixes: ["text/markdown"],
     resolveBlockedReason: pilotsCollateralMutationBlockedReason,
   });
 }
@@ -38,6 +39,7 @@ export async function downloadPilotFirstValueReportMarkdown(runId: string): Prom
   await downloadScopedProxyFileGet(pilotRunCollateralUrl(normalizedRunId, "first-value-report"), {
     accept: "text/markdown, application/json",
     defaultFileName: `archlucid-first-value-report-${normalizedRunId}.md`,
+    expectedContentTypePrefixes: ["text/markdown"],
     resolveBlockedReason: pilotsCollateralMutationBlockedReason,
   });
 }
