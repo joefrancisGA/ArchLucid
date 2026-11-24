@@ -830,6 +830,34 @@ public sealed class RetrievalQueryServiceTests
         recordingExpander.LastInputHitCount.Should().Be(0);
     }
 
+    [Fact]
+    public async Task Exact_corpus_and_run_constraints_survive_candidate_clone()
+    {
+        Guid allowed = Guid.NewGuid();
+        Mock<IEmbeddingService> embeddings = new();
+        embeddings.Setup(e => e.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new float[] { 1f, 0f });
+        RetrievalChunk prior = Chunk("prior", [0.5f, 0.5f], "prior");
+        prior.RunId = allowed;
+        prior.CorpusKind = CorpusKind.PriorManifest;
+        RetrievalChunk unrelated = Chunk("unrelated", [1f, 0f], "unrelated");
+        unrelated.RunId = allowed;
+        unrelated.CorpusKind = CorpusKind.TenantManifest;
+        RetrievalChunk restricted = Chunk("restricted", [1f, 0f], "restricted");
+        restricted.RunId = Guid.NewGuid();
+        restricted.CorpusKind = CorpusKind.PriorManifest;
+        InMemoryVectorIndex index = new();
+        await index.UpsertChunksAsync([prior, unrelated, restricted], CancellationToken.None);
+
+        RetrievalQuery query = ScopedQuery("prior", 1);
+        query.AuthorizedEvidenceRunIds = new HashSet<Guid> { allowed };
+        query.CorpusKindFilter = CorpusKind.PriorManifest;
+        RetrievalQueryService sut = CreateService(embeddings.Object, index);
+
+        (await sut.SearchAsync(query, CancellationToken.None))
+            .Should().ContainSingle().Which.ChunkId.Should().Be("prior");
+    }
+
     private static RetrievalQuery ScopedQuery(string queryText, int topK)
     {
         return new RetrievalQuery
