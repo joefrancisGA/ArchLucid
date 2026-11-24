@@ -68,4 +68,15 @@ public sealed class ItsmInboundExternalStatusMapperTests
 
         disposition.Should().Be(FindingDisposition.Remediated);
     }
+
+    [Theory]
+    [InlineData("2147483647")]
+    [InlineData("-2147483648")]
+    public void TryMapConfiguredDisposition_rejects_undefined_numeric_enum_values(string value)
+    {
+        Dictionary<string, string> map = new() { ["Done"] = value };
+
+        ItsmInboundExternalStatusMapper.TryMapConfiguredDisposition(
+            map, "Done", out _).Should().BeFalse();
+    }
 }
