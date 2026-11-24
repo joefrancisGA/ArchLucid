@@ -38,6 +38,10 @@ public sealed partial class AuthorityQueryController
         try
         {
             ScopeContext scope = scopeProvider.GetCurrentScope();
+            IActionResult? shareDenied = await EnsureRunShareReadAllowedAsync(scope, runId, ct);
+            if (shareDenied is not null)
+                return shareDenied;
+
             RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
 
             if (detail is not null)
@@ -77,15 +81,9 @@ public sealed partial class AuthorityQueryController
         {
             ScopeContext scope = scopeProvider.GetCurrentScope();
 
-            IActionResult? shareGuardResult = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
-                this,
-                User,
-                scope,
-                runId,
-                ct);
-
-            if (shareGuardResult is not null)
-                return shareGuardResult;
+            IActionResult? shareDenied = await EnsureRunShareReadAllowedAsync(scope, runId, ct);
+            if (shareDenied is not null)
+                return shareDenied;
 
             RunDetailDto? result = await readHandlers.GetRunDetailAsync(runId, ct);
 
@@ -119,6 +117,10 @@ public sealed partial class AuthorityQueryController
         try
         {
             ScopeContext scope = scopeProvider.GetCurrentScope();
+            IActionResult? shareDenied = await EnsureRunShareReadAllowedAsync(scope, runId, ct);
+            if (shareDenied is not null)
+                return shareDenied;
+
             RunDetailDto? result = await queryService.GetRunDetailForBuyerSummaryAsync(scope, runId, ct);
 
             if (result is null)
@@ -247,6 +249,10 @@ public sealed partial class AuthorityQueryController
         try
         {
             ScopeContext scope = scopeProvider.GetCurrentScope();
+            IActionResult? shareDenied = await EnsureRunShareReadAllowedAsync(scope, runId, ct);
+            if (shareDenied is not null)
+                return shareDenied;
+
             RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
 
             if (detail is null)
