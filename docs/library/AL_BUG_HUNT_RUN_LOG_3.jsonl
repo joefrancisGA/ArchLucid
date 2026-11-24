@@ -184,3 +184,4 @@
 {"productLine":"archlucid-shared","set":3,"zoneId":"ui-review-detail-workspace","at":"2026-11-24T16:03:00.4857785Z","outcome":"hit","note":"seed hunt: visit-default overwrote findingTechnicalAuditOpen=1-only URL"}
 {"productLine":"archlucid-shared","set":3,"zoneId":"ui-review-detail-workspace","at":"2026-11-24T16:04:38.3952195Z","outcome":"hit","note":"seed hunt: visit-default overwrote shape= api-only stored-evidence preview URL"}
 {"productLine":"archlucid-shared","set":3,"zoneId":"ui-review-detail-workspace","at":"2026-11-24T16:06:21.1782366Z","outcome":"hit","note":"seed hunt: visit-default overwrote findingViewEvidenceOpen=1-only URL"}
+{"productLine":"archlucid-shared","set":3,"zoneId":"ui-review-detail-workspace","at":"2026-11-24T16:08:16.1265894Z","outcome":"hit","note":"seed hunt: visit-default overwrote findingInspectTechnicalRuleOpen=1-only URL"}
