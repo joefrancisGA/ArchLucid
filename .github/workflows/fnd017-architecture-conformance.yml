@@ -18,11 +18,17 @@ jobs:
         run: python -m unittest discover -s scripts/tests -p 'test_fnd017_conformance.py' -v
       - name: Generate advisory architecture drift report
         run: python scripts/architecture/fnd017_conformance.py --output fnd017-conformance-report.json
+      - name: Verify FND-010 adoption census accounting
+        run: python -m unittest discover -s scripts/tests -p 'test_fnd010_adoption_census.py' -v
+      - name: Generate FND-010 source-pinned adoption report
+        run: python scripts/architecture/fnd010_adoption_census.py --output fnd010-adoption-report.json
       - name: Publish advisory report
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: fnd017-architecture-conformance
-          path: fnd017-conformance-report.json
+          path: |
+            fnd017-conformance-report.json
+            fnd010-adoption-report.json
           if-no-files-found: warn
           retention-days: 30
