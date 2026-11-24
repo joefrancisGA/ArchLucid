@@ -51,6 +51,11 @@ internal static class AskSealedManifestTestSupport
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _) => CreatePinnedRunHeader(runId));
 
+        runs.Setup(repository => repository.ListRecentInScopeKeysetAsync(
+                It.IsAny<ScopeContext>(), It.IsAny<DateTime?>(), It.IsAny<Guid?>(),
+                It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunListPage([], false));
+
         return runs.Object;
     }
 
