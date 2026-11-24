@@ -84,16 +84,35 @@ export function buildRequest(
   let sourceTexts: ClosedLoopReasoningSourceText[] = [];
 
   if (hydrated.length > 0) {
-    sourceTexts = hydrated.map((source, index) => {
-      if (index === 0) {
-        return {
-          ...source,
-          content: trimmedDescription.length > 0 ? trimmedDescription : source.content,
-        };
-      }
+    if (trimmedDescription.length > 0) {
+      const canonicalIndex = hydrated.findIndex(
+        (source) => source.fileName === DEFAULT_ARCHITECTURE_FILE_NAME,
+      );
 
-      return source;
-    });
+      if (canonicalIndex >= 0) {
+        sourceTexts = hydrated.map((source, index) => {
+          if (canonicalIndex === index) {
+            return {
+              ...source,
+              content: trimmedDescription,
+            };
+          }
+
+          return source;
+        });
+      } else {
+        sourceTexts = [
+          {
+            fileName: DEFAULT_ARCHITECTURE_FILE_NAME,
+            contentType: DEFAULT_CONTENT_TYPE,
+            content: trimmedDescription,
+          },
+          ...hydrated,
+        ];
+      }
+    } else {
+      sourceTexts = [...hydrated];
+    }
   } else if (trimmedDescription.length > 0) {
     sourceTexts = [
       {
@@ -116,6 +135,21 @@ export function buildRequest(
   };
 }
 
+
+export function shouldRequestGoldenFixtureForGoldenTest(
+  architectureDescription: string,
+  hydratedSourceTexts: readonly ClosedLoopReasoningSourceText[],
+): boolean {
+  if (architectureDescription.trim().length > 0) {
+    return false;
+  }
+
+  if (hydratedSourceTexts.length === 0) {
+    return true;
+  }
+
+  return primaryDescriptionFromSources(hydratedSourceTexts).length === 0;
+}
 export function primaryDescriptionFromSources(sources: readonly ClosedLoopReasoningSourceText[]): string {
   const descriptionSource = sources.find((source) => source.fileName === DEFAULT_ARCHITECTURE_FILE_NAME);
 
