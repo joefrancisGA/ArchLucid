@@ -107,11 +107,14 @@ public sealed class AgentHandlerFailureBudgetObserverTests
     }
 
     [Theory]
-    [InlineData(AgentHandlerFailureBudgetOutcome.CallerCancelled)]
-    [InlineData(AgentHandlerFailureBudgetOutcome.NotAdmitted)]
+    [InlineData(true)]
+    [InlineData(false)]
     public void Neutral_outcome_after_window_expiry_does_not_report_stale_exhaustion(
-        AgentHandlerFailureBudgetOutcome neutral)
+        bool callerCancelled)
     {
+        AgentHandlerFailureBudgetOutcome neutral = callerCancelled
+            ? AgentHandlerFailureBudgetOutcome.CallerCancelled
+            : AgentHandlerFailureBudgetOutcome.NotAdmitted;
         AgentHandlerFailureBudgetObserver observer = new();
 
         for (int i = 0; i < AgentHandlerFailureBudgetObserver.MaxFailures; i++)
@@ -141,11 +144,14 @@ public sealed class AgentHandlerFailureBudgetObserverTests
     }
 
     [Theory]
-    [InlineData(AgentHandlerFailureBudgetOutcome.CallerCancelled)]
-    [InlineData(AgentHandlerFailureBudgetOutcome.NotAdmitted)]
+    [InlineData(true)]
+    [InlineData(false)]
     public void Neutral_outcome_when_wall_clock_regresses_does_not_report_future_window(
-        AgentHandlerFailureBudgetOutcome neutral)
+        bool callerCancelled)
     {
+        AgentHandlerFailureBudgetOutcome neutral = callerCancelled
+            ? AgentHandlerFailureBudgetOutcome.CallerCancelled
+            : AgentHandlerFailureBudgetOutcome.NotAdmitted;
         AgentHandlerFailureBudgetObserver observer = new();
 
         for (int i = 0; i < AgentHandlerFailureBudgetObserver.MaxFailures; i++)
