@@ -5,6 +5,7 @@ using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Runs;
 using ArchLucid.Core.DevTesting;
@@ -28,6 +29,11 @@ public sealed partial class RunDetailPageBundleController
         {
             ScopeContext scope = _scopeProvider.GetCurrentScope();
 
+            IActionResult? denied = await EnsurePageBundleRunShareReadAllowedAsync(
+                scope, runId, cancellationToken);
+            if (denied is not null)
+                return denied;
+
             RunDetailDto? detail =
                 await _queryService.GetRunDetailForBuyerSummaryAsync(scope, runId, cancellationToken).ConfigureAwait(false);
 
@@ -43,25 +49,48 @@ public sealed partial class RunDetailPageBundleController
 
             BuyerRunDetailSummaryDto buyerSummary = await BuildBuyerSummaryAsync(detail, cancellationToken).ConfigureAwait(false);
 
-            Task<RunSummaryDto?> progressTask = _queryService.GetRunSummaryAsync(scope, runId, cancellationToken);
-
             Guid? manifestId = detail.Run.GoldenManifestId;
+            ManifestSummaryDto? manifest = null;
 
-            Task<ManifestSummaryDto?> manifestTask = manifestId.HasValue
-                ? _queryService.GetManifestSummaryAsync(scope, manifestId.Value, cancellationToken)
-                : Task.FromResult<ManifestSummaryDto?>(null);
+            if (manifestId is Guid pinnedId)
+            {
+                // A buyer-summary projection does not hydrate the manifest.
+                // Verify the exact pinned summary against the sealed document
+                // before starting artifact descriptor reads or exporting it.
+                Task<ManifestSummaryDto?> summaryTask =
+                    _queryService.GetManifestSummaryAsync(scope, pinnedId, cancellationToken);
+                Task<RunDetailDto?> pinnedTask =
+                    _queryService.GetRunDetailForManifestCompareAsync(scope, runId, cancellationToken);
+                await Task.WhenAll(summaryTask, pinnedTask).ConfigureAwait(false);
+
+                manifest = await summaryTask.ConfigureAwait(false);
+                RunDetailDto? pinnedDetail = await pinnedTask.ConfigureAwait(false);
+                if (manifest is null)
+                {
+                    throw new ConflictException(
+                        $"Run '{runId:D}' references a missing golden manifest '{pinnedId:D}'.");
+                }
+
+                SealedManifestReadGuard.EnsureManifestSummaryBindingAndHashesOrThrow(
+                    scope, pinnedId, manifest, pinnedDetail?.GoldenManifest,
+                    pinnedDetail, _manifestHashService);
+            }
+
+            Task<RunSummaryDto?> progressTask =
+                _queryService.GetRunSummaryAsync(scope, runId, cancellationToken);
 
             Task<IReadOnlyList<ArtifactDescriptor>> artifactsTask = manifestId.HasValue
                 ? _artifactQueryService.ListArtifactsByManifestIdAsync(scope, manifestId.Value, cancellationToken)
                 : Task.FromResult<IReadOnlyList<ArtifactDescriptor>>([]);
 
             Task<IReadOnlyList<ArtifactDescriptor>> verificationArtifactsTask =
-                _findingVerificationReportQueryService.ListArtifactDescriptorsByRunAsync(scope, runId, cancellationToken);
+                _findingVerificationReportQueryService.ListArtifactDescriptorsByRunAsync(
+                    scope, runId, cancellationToken);
 
-            await Task.WhenAll(progressTask, manifestTask, artifactsTask, verificationArtifactsTask).ConfigureAwait(false);
+            await Task.WhenAll(progressTask, artifactsTask, verificationArtifactsTask)
+                .ConfigureAwait(false);
 
             RunSummaryDto? progress = await progressTask.ConfigureAwait(false);
-            ManifestSummaryDto? manifest = await manifestTask.ConfigureAwait(false);
             IReadOnlyList<ArtifactDescriptor> artifacts = await artifactsTask.ConfigureAwait(false);
             IReadOnlyList<ArtifactDescriptor> verificationArtifacts =
                 await verificationArtifactsTask.ConfigureAwait(false);
