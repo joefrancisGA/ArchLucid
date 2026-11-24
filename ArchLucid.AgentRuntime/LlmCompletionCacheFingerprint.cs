@@ -1,5 +1,5 @@
 using System.Security.Cryptography;
-using System.Text;
+using System.Text.Json;
 
 using ArchLucid.Core.Scoping;
 
@@ -25,38 +25,31 @@ public static class LlmCompletionCacheFingerprint
         ArgumentNullException.ThrowIfNull(userPrompt);
         ArgumentNullException.ThrowIfNull(scope);
 
-        string scopePart = string.Empty;
-
-        if (partitionByScope)
-
-            scopePart =
-                $"{scope.TenantId:N}|{scope.WorkspaceId:N}|{scope.ProjectId:N}|";
-
-        string payload =
-            scopePart
-            + deploymentName
-            + '\0'
-            + systemPrompt
-            + '\0'
-            + userPrompt;
-
-        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(payload));
-
-        return Convert.ToHexString(hash);
+        return ComputeFramedHash(
+            "completion-v2",
+            partitionByScope ? FormatScopePartition(scope) : string.Empty,
+            deploymentName,
+            systemPrompt,
+            userPrompt);
     }
 
     /// <summary>
-    ///     SHA-256 hex digest over the full prompt text (system and user segments, separated by U+0000).
+    ///     SHA-256 hex digest over separately framed system and user prompt segments.
     /// </summary>
     public static string ComputePromptHash(string systemPrompt, string userPrompt)
     {
         ArgumentNullException.ThrowIfNull(systemPrompt);
         ArgumentNullException.ThrowIfNull(userPrompt);
 
-        string payload = systemPrompt + '\0' + userPrompt;
-        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(payload));
+        return ComputeFramedHash("prompt-v2", systemPrompt, userPrompt);
+    }
 
-        return Convert.ToHexString(hash);
+    private static string ComputeFramedHash(params string[] segments)
+    {
+        // Frame delimiters inside each segment and invalidate legacy ambiguous keys.
+        byte[] payload = JsonSerializer.SerializeToUtf8Bytes(segments);
+
+        return Convert.ToHexString(SHA256.HashData(payload));
     }
 
     /// <summary>
