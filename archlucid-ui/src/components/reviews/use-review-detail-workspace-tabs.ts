@@ -110,6 +110,10 @@ import {
   parseRunPipelineTimelineOpenFromSearch,
   RUN_PIPELINE_TIMELINE_OPEN_PARAM,
 } from "@/lib/runs/run-pipeline-timeline-disclosure-url";
+import {
+  parseRunRetrievalGroundingOpenFromSearch,
+  RUN_RETRIEVAL_GROUNDING_OPEN_PARAM,
+} from "@/lib/runs/run-retrieval-grounding-disclosure-url";
 
 import {
   parseRunImpactAnalysisOpenFromSearch,
@@ -357,6 +361,9 @@ export function useReviewDetailWorkspaceTabs(
     const runPipelineTimelineOpenPresent = parseRunPipelineTimelineOpenFromSearch(
       params.get(RUN_PIPELINE_TIMELINE_OPEN_PARAM),
     );
+    const runRetrievalGroundingOpenPresent = parseRunRetrievalGroundingOpenFromSearch(
+      params.get(RUN_RETRIEVAL_GROUNDING_OPEN_PARAM),
+    );
     const runImpactAnalysisOpenPresent = parseRunImpactAnalysisOpenFromSearch(
       params.get(RUN_IMPACT_ANALYSIS_OPEN_PARAM),
     );
@@ -443,6 +450,7 @@ export function useReviewDetailWorkspaceTabs(
       || techEntryIdPresent
       || runAuditIdentifiersOpenPresent
       || runPipelineTimelineOpenPresent
+      || runRetrievalGroundingOpenPresent
       || runImpactAnalysisOpenPresent
       || runFindingExplainabilityOpenPresent
       || runCoverageCurationOpenPresent
