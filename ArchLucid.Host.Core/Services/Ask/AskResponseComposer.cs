@@ -131,7 +131,7 @@ public sealed class AskResponseComposer(
         LlmAskShape? parsed,
         CancellationToken cancellationToken)
     {
-        string metadataJson = SerializeMetadata(response, parsed);
+        string metadataJson = SerializeMetadata(response, parsed, prepared.HistoryEvidenceScope);
 
         await _conversationService.AppendAssistantMessageAsync(
             prepared.Thread.ThreadId,
@@ -261,13 +261,15 @@ public sealed class AskResponseComposer(
         }
     }
 
-    private static string SerializeMetadata(AskResponse response, LlmAskShape? parsed = null) =>
+    private static string SerializeMetadata(AskResponse response, LlmAskShape? parsed = null,
+        AskHistoryEvidenceScope? historyEvidenceScope = null) =>
         JsonSerializer.Serialize(
             new
             {
                 response.ReferencedDecisions,
                 response.ReferencedFindings,
                 response.ReferencedArtifacts,
+                askEvidenceScopeV1 = historyEvidenceScope,
                 referencedDecisionsStoredEmpty = parsed?.ReferencedDecisions is { Count: 0 },
                 referencedDecisionsNotStored = parsed?.ReferencedDecisions is null,
                 referencedFindingsStoredEmpty = parsed?.ReferencedFindings is { Count: 0 },
