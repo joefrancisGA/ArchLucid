@@ -29,11 +29,7 @@ public static class ContractCollectionDefaults
     public static string CoalesceStringDefault(string? value, string legacyDefaultWhenNull) =>
         value ?? legacyDefaultWhenNull;
 
-    /// <summary>
-    ///     Substitutes <paramref name="legacyDefaultWhenInvalidZero" /> when JSON numeric <c>0</c> deserializes to
-    ///     <see langword="default" /> for enums with no zero member (property initializers do not apply on deserialize).
-    /// </summary>
-    public static TEnum CoalesceInvalidEnumZero<TEnum>(TEnum value, TEnum legacyDefaultWhenInvalidZero)
-        where TEnum : struct, Enum =>
-        EqualityComparer<TEnum>.Default.Equals(value, default) ? legacyDefaultWhenInvalidZero : value;
+    /// <summary>Rejects explicitly invalid enum values rather than converting them into a successful state.</summary>
+    public static TEnum RequireDefinedEnum<TEnum>(TEnum value) where TEnum : struct, Enum =>
+        Enum.IsDefined(value) ? value : throw new System.Text.Json.JsonException($"Undefined {typeof(TEnum).Name} value.");
 }

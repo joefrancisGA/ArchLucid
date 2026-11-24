@@ -245,7 +245,7 @@ internal static class CitationIntegrityEvaluator
 
     private static FindingSeverity ParseSeverity(string raw)
     {
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingSeverity parsed))
+        if (ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(raw, ignoreCase: true, out FindingSeverity parsed))
             return parsed;
 
         return FindingSeverity.Warning;

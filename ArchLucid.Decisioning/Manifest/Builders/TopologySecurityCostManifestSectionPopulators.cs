@@ -101,7 +101,7 @@ public sealed class TopologyManifestSectionPopulator : IManifestSectionPopulator
         if (string.IsNullOrWhiteSpace(raw))
             return default;
 
-        return Enum.TryParse(raw, true, out TEnum e) ? e : default;
+        return ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(raw, true, out TEnum e) ? e : default;
     }
 }
 

@@ -42,7 +42,7 @@ public static class PolicyExpectationCostGraphReader
       return null;
     }
 
-    if (!Enum.TryParse<FindingSeverity>(raw.Trim(), ignoreCase: true, out FindingSeverity severity))
+    if (!ArchLucid.Contracts.Serialization.DefinedEnum.TryParse<FindingSeverity>(raw.Trim(), ignoreCase: true, out FindingSeverity severity))
       return null;
 
     // Packs may raise severity but not hide breaches below Warning.

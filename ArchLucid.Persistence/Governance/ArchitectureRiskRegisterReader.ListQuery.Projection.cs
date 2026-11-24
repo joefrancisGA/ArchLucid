@@ -76,7 +76,7 @@ public sealed partial class ArchitectureRiskRegisterReader
         if (string.IsNullOrWhiteSpace(raw))
             return null;
 
-        return Enum.TryParse(raw, true, out FindingDisposition disposition) ? disposition : null;
+        return ArchLucid.Contracts.Serialization.DefinedEnum.Parse<FindingDisposition>(raw, ignoreCase: true);
     }
 
     private static string BuildStatusLabel(

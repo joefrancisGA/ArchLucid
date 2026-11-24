@@ -106,7 +106,7 @@ public sealed class ChatIntakeParserService(IAgentCompletionClient completionCli
         if (string.IsNullOrWhiteSpace(value))
             return CloudProvider.None;
 
-        return Enum.TryParse(value.Trim(), ignoreCase: true, out CloudProvider parsed)
+        return ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(value.Trim(), ignoreCase: true, out CloudProvider parsed)
             ? parsed
             : CloudProvider.None;
     }

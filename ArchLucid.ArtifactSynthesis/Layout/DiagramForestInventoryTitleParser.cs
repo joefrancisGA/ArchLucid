@@ -26,7 +26,7 @@ internal static class DiagramForestInventoryTitleParser
 
         string modeToken = title[Prefix.Length..close].Trim();
 
-        return Enum.TryParse(modeToken, ignoreCase: true, out mode);
+        return ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(modeToken, ignoreCase: true, out mode);
     }
 
     public static bool IsSubscriptionScopedMode(DiagramMode mode)

@@ -46,5 +46,6 @@ internal static class FindingsSnapshotJsonFallbackMapper
         snapshot.GraphSnapshotId = row.GraphSnapshotId;
         snapshot.CreatedUtc = row.CreatedUtc;
         snapshot.SchemaVersion = row.SchemaVersion;
+        snapshot.GenerationStatus = FindingsSnapshotGenerationStatusParser.Parse(row.GenerationStatus);
     }
 }

@@ -137,11 +137,11 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
             {
                 TaskId = r.TaskId,
                 RunId = SqlRunIdMapping.ToContractRunId(r.RunId),
-                AgentType = Enum.TryParse(r.AgentType, true, out AgentType agentType)
+                AgentType = ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(r.AgentType, true, out AgentType agentType)
                     ? agentType
                     : throw new InvalidOperationException($"Unknown AgentType '{r.AgentType}' for task '{r.TaskId}'."),
                 Objective = r.Objective,
-                Status = Enum.TryParse(r.Status, true, out AgentTaskStatus status)
+                Status = ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(r.Status, true, out AgentTaskStatus status)
                     ? status
                     : throw new InvalidOperationException(
                         $"Unknown AgentTaskStatus '{r.Status}' for task '{r.TaskId}'."),

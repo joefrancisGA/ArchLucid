@@ -219,7 +219,7 @@ public static class DiagramForestLegendSvgEmitter
 
     private static DiagramInventoryPictogramKind ParseKindLabel(string label)
     {
-        return Enum.TryParse(label, ignoreCase: true, out DiagramInventoryPictogramKind kind)
+        return ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(label, ignoreCase: true, out DiagramInventoryPictogramKind kind)
             ? kind
             : DiagramInventoryPictogramKind.Generic;
     }

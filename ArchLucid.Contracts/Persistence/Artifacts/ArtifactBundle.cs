@@ -52,7 +52,7 @@ public class ArtifactBundle
     public ArtifactBundleStatus Status
     {
         get => status;
-        set => status = ContractCollectionDefaults.CoalesceInvalidEnumZero(value, ArtifactBundleStatus.Available);
+        set => status = ContractCollectionDefaults.RequireDefinedEnum(value);
     }
 
     private List<SynthesizedArtifact> artifacts = [];

@@ -74,7 +74,7 @@ public sealed class FindingsCoverageProjectionMapperTests
     }
 
     [Fact]
-    public void Map_defaults_unknown_severity_to_info_and_blank_policy_rule_to_null()
+    public void Map_maps_blank_policy_rule_to_null()
     {
         FindingsCoverageFindingRow[] rows =
         [
@@ -84,7 +84,7 @@ public sealed class FindingsCoverageProjectionMapperTests
                 FindingType = "SecurityGap",
                 Category = "Security",
                 EngineType = "Compliance",
-                Severity = "NotASeverity",
+                Severity = "Info",
                 Title = "Unknown severity",
                 PolicyRuleId = "   ",
             },
@@ -96,6 +96,30 @@ public sealed class FindingsCoverageProjectionMapperTests
         snapshot.Findings[0].PolicyRuleId.Should().BeNull();
     }
 
+    [Theory]
+    [InlineData("NotASeverity")]
+    [InlineData("2147483647")]
+    [InlineData("-2147483648")]
+    public void Map_rejects_unknown_severity(string raw)
+    {
+        FindingsCoverageFindingRow[] rows = [new() { FindingId = "f-1", Severity = raw }];
+        Action act = () => FindingsCoverageProjectionMapper.Map(CreateHeader(), rows);
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("unknown")]
+    [InlineData("2147483647")]
+    public void Map_rejects_unknown_snapshot_generation_status(string? raw)
+    {
+        // The parser is called by the same projection that determines commit eligibility.
+        Action act = () => FindingsSnapshotGenerationStatusParser.Parse(raw);
+        act.Should().Throw<ArgumentException>();
+    }
+
     [Fact]
     public void Map_defaults_enrichment_skipped_to_false_when_column_is_null()
     {
@@ -105,6 +129,7 @@ public sealed class FindingsCoverageProjectionMapperTests
                 FindingsSnapshotId = Guid.NewGuid(),
                 RunId = Guid.NewGuid(),
                 SchemaVersion = 7,
+                GenerationStatus = nameof(FindingsSnapshotGenerationStatus.Complete),
                 EvaluationConfidenceEnrichmentSkipped = null,
             },
             []);

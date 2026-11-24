@@ -232,7 +232,7 @@ public sealed class ArchitectureIntelligenceLlmGateway : IArchitectureIntelligen
             return null;
         }
 
-        if (Enum.TryParse(shape.Assessment, ignoreCase: true, out SemanticSupportAssessment assessment))
+        if (ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(shape.Assessment, ignoreCase: true, out SemanticSupportAssessment assessment))
         {
             return assessment;
         }

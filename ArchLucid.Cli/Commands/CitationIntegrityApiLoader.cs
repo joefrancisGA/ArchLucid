@@ -60,25 +60,26 @@ internal static class CitationIntegrityApiLoader
     private static ArchitectureRunStatus ParseRunStatus(JsonElement run)
     {
         if (!run.TryGetProperty("status", out JsonElement statusEl))
-            return default;
+            throw new JsonException("Run status is missing.");
 
         if (statusEl.ValueKind == JsonValueKind.String)
         {
             string? statusRaw = statusEl.GetString();
 
             if (!string.IsNullOrWhiteSpace(statusRaw)
-                && Enum.TryParse(statusRaw, ignoreCase: true, out ArchitectureRunStatus parsed))
+                && ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(statusRaw, ignoreCase: true, out ArchitectureRunStatus parsed))
             {
                 return parsed;
             }
 
-            return default;
+            throw new JsonException("Run status is undefined.");
         }
 
-        if (statusEl.ValueKind == JsonValueKind.Number && statusEl.TryGetInt32(out int numericStatus))
+        if (statusEl.ValueKind == JsonValueKind.Number && statusEl.TryGetInt32(out int numericStatus)
+            && Enum.IsDefined(typeof(ArchitectureRunStatus), numericStatus))
             return (ArchitectureRunStatus)numericStatus;
 
-        return default;
+        throw new JsonException("Run status is undefined.");
     }
 }
 

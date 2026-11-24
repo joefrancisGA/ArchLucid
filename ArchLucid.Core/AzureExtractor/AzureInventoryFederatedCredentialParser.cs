@@ -91,7 +91,7 @@ public static class AzureInventoryFederatedCredentialParser
             return null;
         }
 
-        return Enum.TryParse(value, ignoreCase: true, out ProvenanceKind parsed) ? parsed : null;
+        return ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(value, ignoreCase: true, out ProvenanceKind parsed) ? parsed : null;
     }
 
     private static byte[]? TryReadEvidenceHash(JsonElement element)

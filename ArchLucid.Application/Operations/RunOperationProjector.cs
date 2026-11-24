@@ -44,10 +44,7 @@ internal static class RunOperationProjector
     if (string.IsNullOrWhiteSpace(legacyRunStatus))
       return ArchitectureRunStatus.Created;
 
-    if (!Enum.TryParse(legacyRunStatus, ignoreCase: true, out ArchitectureRunStatus parsed))
-      return ArchitectureRunStatus.Created;
-
-    return parsed;
+    return ArchLucid.Contracts.Serialization.DefinedEnum.Parse<ArchitectureRunStatus>(legacyRunStatus, ignoreCase: true);
   }
 
   private static OperationState MapState(

@@ -54,7 +54,7 @@ public sealed class ArchitectureRunExecuteQualityGateRetryStage(
     {
         ArgumentNullException.ThrowIfNull(rejection);
 
-        if (!Enum.TryParse(rejection.AgentLabel, ignoreCase: true, out AgentType agentType))
+        if (!ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(rejection.AgentLabel, ignoreCase: true, out AgentType agentType))
         {
             throw new InvalidOperationException(
                 $"Cannot auto-retry quality gate rejection: unknown agent label '{rejection.AgentLabel}'.");

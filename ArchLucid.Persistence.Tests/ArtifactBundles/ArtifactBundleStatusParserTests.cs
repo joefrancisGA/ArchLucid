@@ -21,11 +21,12 @@ public sealed class ArtifactBundleStatusParserTests
     [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]
-    [InlineData("not_a_known_status")]
-    public void Parse_defaults_to_available_when_invalid_or_missing(string? raw)
+    [InlineData("unknown")]
+    [InlineData("2147483647")]
+    [InlineData("-2147483648")]
+    public void Parse_rejects_missing_or_corrupt_status(string? raw)
     {
-        ArtifactBundleStatus actual = ArtifactBundleStatusParser.Parse(raw);
-
-        actual.Should().Be(ArtifactBundleStatus.Available);
+        Action act = () => ArtifactBundleStatusParser.Parse(raw);
+        act.Should().Throw<ArgumentException>();
     }
 }

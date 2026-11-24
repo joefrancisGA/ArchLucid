@@ -1,4 +1,5 @@
 using ArchLucid.Application.Governance.Coverage;
+using ArchLucid.Contracts.Serialization;
 using ArchLucid.Application.Governance.DefaultPolicyPacks;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance.Coverage;
@@ -219,7 +220,7 @@ public sealed class EffectiveGovernanceSnapshotBuilder
             .Where(row => row.SelectionState == CoverageSelectionState.RecommendedButExcluded.ToString())
             .Select(row => row.QualityDimension)
             .Where(dimension => !string.IsNullOrWhiteSpace(dimension))
-            .Select(dimension => Enum.Parse<QualityDimension>(dimension!))
+            .Select(dimension => DefinedEnum.Parse<QualityDimension>(dimension!))
             .ToHashSet();
 
         List<NotAssessedQualityDimensionSnapshot> notAssessedDimensions = Enum

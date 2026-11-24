@@ -21,7 +21,7 @@ public sealed class RunFindingCoverageSummaryDeserializationTests
               "isDegraded": false,
               "hasCommitBlockingFailures": false,
               "failedEngineLabels": null,
-              "generationStatus": 0
+              "generationStatus": 2
             }
             """;
 
@@ -33,7 +33,7 @@ public sealed class RunFindingCoverageSummaryDeserializationTests
     }
 
     [Fact]
-    public void Deserialize_omitted_generation_status_yields_complete_not_invalid_zero()
+    public void Deserialize_omitted_generation_status_does_not_claim_complete()
     {
         const string json = """
             {
@@ -49,27 +49,30 @@ public sealed class RunFindingCoverageSummaryDeserializationTests
             JsonSerializer.Deserialize<RunFindingCoverageSummary>(json, ContractJson.CamelCaseCompact);
 
         summary.Should().NotBeNull();
-        summary!.GenerationStatus.Should().Be(FindingsSnapshotGenerationStatus.Complete);
+        summary!.GenerationStatus.Should().Be(FindingsSnapshotGenerationStatus.Generating);
     }
 
-    [Fact]
-    public void Deserialize_explicit_zero_generation_status_yields_complete_not_invalid_zero()
+    [Theory]
+    [InlineData(0)]
+    [InlineData(2147483647)]
+    [InlineData(-1)]
+    public void Deserialize_explicit_invalid_generation_status_is_rejected(int raw)
     {
-        const string json = """
-            {
-              "enginesAttempted": 0,
-              "enginesSucceeded": 0,
-              "enginesFailed": 0,
-              "isDegraded": false,
-              "hasCommitBlockingFailures": false,
-              "generationStatus": 0
-            }
-            """;
+        string json = "{\"generationStatus\":" + raw.ToString(System.Globalization.CultureInfo.InvariantCulture) + "}";
+        Action read = () => JsonSerializer.Deserialize<RunFindingCoverageSummary>(json, ContractJson.CamelCaseCompact);
+        read.Should().Throw<JsonException>();
+    }
 
-        RunFindingCoverageSummary? summary =
-            JsonSerializer.Deserialize<RunFindingCoverageSummary>(json, ContractJson.CamelCaseCompact);
-
-        summary.Should().NotBeNull();
-        summary!.GenerationStatus.Should().Be(FindingsSnapshotGenerationStatus.Complete);
+    [Theory]
+    [InlineData(0)]
+    [InlineData(2147483647)]
+    public void Explicit_invalid_lifecycle_state_never_becomes_success(int raw)
+    {
+        Action snapshot = () => JsonSerializer.Deserialize<FindingsSnapshot>("{\"generationStatus\":" + raw + "}", ContractJson.CamelCaseCompact);
+        Action bundle = () => JsonSerializer.Deserialize<ArchLucid.Contracts.Persistence.Artifacts.ArtifactBundle>("{\"status\":" + raw + "}", ContractJson.CamelCaseCompact);
+        Action artifact = () => JsonSerializer.Deserialize<ArchLucid.Contracts.Persistence.Artifacts.SynthesizedArtifact>("{\"status\":" + raw + "}", ContractJson.CamelCaseCompact);
+        snapshot.Should().Throw<JsonException>();
+        bundle.Should().Throw<JsonException>();
+        artifact.Should().Throw<JsonException>();
     }
 }

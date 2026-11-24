@@ -9,16 +9,7 @@ internal static class DefinedEnumStringReader
 {
     public static bool TryParse<TEnum>(string raw, out TEnum value) where TEnum : struct, Enum
     {
-        value = default;
-
-        if (!Enum.TryParse(raw, ignoreCase: true, out TEnum candidate))
-            return false;
-
-        if (!Enum.IsDefined(candidate))
-            return false;
-
-        value = candidate;
-        return true;
+        return DefinedEnum.TryParse(raw, ignoreCase: true, out value);
     }
 
     public static void ThrowIfUndefinedNumericString<TEnum>(string raw, string unknownValueMessage) where TEnum : struct, Enum

@@ -90,7 +90,7 @@ public sealed class FindingLlmAuditService(
             cancellationToken).ConfigureAwait(false);
         if (traces.Count == 0)
             return null;
-        if (!Enum.TryParse(finding.EngineType, true, out AgentType engineAgent))
+        if (!ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(finding.EngineType, true, out AgentType engineAgent))
             return traces[0];
         AgentExecutionTrace? typed = traces.FirstOrDefault(t => t.AgentType == engineAgent);
         return typed ?? traces[0];
