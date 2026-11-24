@@ -46,7 +46,7 @@ import { readPinRunIdFromSearchParams } from "@/lib/reviews/review-pin-run-url";
 import { parseReviewHeaderShareMenuOpenFromSearch, REVIEW_HEADER_SHARE_MENU_OPEN_PARAM } from "@/lib/reviews/review-header-share-menu-url";
 import { parseReviewShareLinkOpenFromSearch, REVIEW_SHARE_LINK_OPEN_PARAM } from "@/lib/reviews/review-share-link-panels-url";
 import { parseReviewMeetingPacketOpenFromSearch, REVIEW_MEETING_PACKET_OPEN_PARAM } from "@/lib/reviews/review-meeting-packet-panels-url";
-import { parseReviewFinalizeConfirmOpenFromSearch, REVIEW_FINALIZE_CONFIRM_PARAM } from "@/lib/reviews/review-finalize-confirm-url";
+import { parseReviewFinalizeConfirmOpenFromSearch, parseReviewFinalizeSuccessOpenFromSearch, REVIEW_FINALIZE_CONFIRM_PARAM, REVIEW_FINALIZE_SUCCESS_PARAM } from "@/lib/reviews/review-finalize-confirm-url";
 import { parseRunDetailRecordMetadataOpenFromSearch, RUN_DETAIL_RECORD_METADATA_OPEN_PARAM } from "@/lib/runs/run-detail-record-metadata-url";
 import { parseReviewAskDockOpenFromSearch, parseReviewAskDockThreadIdFromSearch, REVIEW_ASK_DOCK_OPEN_PARAM, REVIEW_ASK_DOCK_THREAD_PARAM } from "@/lib/reviews/review-ask-dock-url";
 import {
@@ -206,6 +206,7 @@ export function useReviewDetailWorkspaceTabs(
     const shareLinkOpenPresent = parseReviewShareLinkOpenFromSearch(params.get(REVIEW_SHARE_LINK_OPEN_PARAM));
     const meetingPacketOpenPresent = parseReviewMeetingPacketOpenFromSearch(params.get(REVIEW_MEETING_PACKET_OPEN_PARAM));
     const finalizeConfirmOpenPresent = parseReviewFinalizeConfirmOpenFromSearch(params.get(REVIEW_FINALIZE_CONFIRM_PARAM));
+    const finalizeSuccessOpenPresent = parseReviewFinalizeSuccessOpenFromSearch(params.get(REVIEW_FINALIZE_SUCCESS_PARAM));
     const runRecordMetaOpenPresent = parseRunDetailRecordMetadataOpenFromSearch(params.get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM));
     const askDockOpenPresent = parseReviewAskDockOpenFromSearch(params.get(REVIEW_ASK_DOCK_OPEN_PARAM));
     const askThreadPresent =
@@ -231,6 +232,7 @@ export function useReviewDetailWorkspaceTabs(
       || shareLinkOpenPresent
       || meetingPacketOpenPresent
       || finalizeConfirmOpenPresent
+      || finalizeSuccessOpenPresent
       || runRecordMetaOpenPresent
       || askDockOpenPresent
       || askThreadPresent
