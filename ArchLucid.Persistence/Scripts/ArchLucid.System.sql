@@ -40,6 +40,8 @@ BEGIN
         CreatedUtc       DATETIMEOFFSET   NOT NULL CONSTRAINT DF_Tenants_CreatedUtc DEFAULT SYSUTCDATETIME(),
         SuspendedUtc     DATETIMEOFFSET   NULL,
         EntraTenantId    UNIQUEIDENTIFIER NULL,
+        TenantErasureApprovedUtc DATETIMEOFFSET(7) NULL,
+        TenantErasureApprovedByUserId NVARCHAR(256) NULL,
         TrialStartUtc    DATETIMEOFFSET   NULL,
         TrialExpiresUtc  DATETIMEOFFSET   NULL,
         TrialRunsLimit   INT              NULL,

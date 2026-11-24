@@ -4384,6 +4384,8 @@ BEGIN
         CreatedUtc       DATETIMEOFFSET   NOT NULL CONSTRAINT DF_Tenants_CreatedUtc2 DEFAULT SYSUTCDATETIME(),
         SuspendedUtc     DATETIMEOFFSET   NULL,
         EntraTenantId    UNIQUEIDENTIFIER NULL,
+        TenantErasureApprovedUtc DATETIMEOFFSET(7) NULL,
+        TenantErasureApprovedByUserId NVARCHAR(256) NULL,
         CONSTRAINT UQ_Tenants_Slug2 UNIQUE (Slug)
     );
 END;
