@@ -263,6 +263,10 @@ import {
   FINDING_INSPECT_EVIDENCE_CITATION_ARTIFACT_ID_PARAM,
 } from "@/lib/findings/finding-inspect-evidence-citation-disclosure-url";
 import {
+  parseFindingInspectEvaluationOpenFromSearch,
+  FINDING_INSPECT_EVALUATION_OPEN_PARAM,
+} from "@/lib/findings/finding-inspect-evaluation-disclosure-url";
+import {
   parseTrustEvidenceFieldsOpenFromSearch,
   parseTrustEvidenceTechOpenFromSearch,
   TRUST_EVIDENCE_FIELDS_OPEN_PARAM,
@@ -646,6 +650,9 @@ export function useReviewDetailWorkspaceTabs(
       parseFindingInspectEvidenceCitationArtifactIdFromSearch(
         params.get(FINDING_INSPECT_EVIDENCE_CITATION_ARTIFACT_ID_PARAM),
       ).length > 0;
+    const findingInspectEvaluationOpenPresent = parseFindingInspectEvaluationOpenFromSearch(
+      params.get(FINDING_INSPECT_EVALUATION_OPEN_PARAM),
+    );
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -781,6 +788,7 @@ export function useReviewDetailWorkspaceTabs(
       || findingViewEvidenceOpenPresent
       || findingInspectTechnicalRuleOpenPresent
       || findingInspectEvidenceCitationArtifactIdPresent
+      || findingInspectEvaluationOpenPresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent
