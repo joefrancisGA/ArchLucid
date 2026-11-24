@@ -170,6 +170,15 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 
 ## Zone: ui-lib-api
 
+2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`). Empty hypothesis list after cooldown; promoted pilot collateral markdown exports missing `text/markdown` content-type enforcement: a 200 `application/pdf` body was saved as `.md` while the shared guard only blocked html/plain/octet-stream. Sponsor review packet and first-value report now pass `expectedContentTypePrefixes: ["text/markdown"]`. `pilots-collateral-download-api` vitest **2/2**. Private beta: pilot sponsor review packet and first-value report exports fail fast instead of saving a bogus `.md` when the proxy returns a non-markdown content type.
+
+- [x] (proven) `downloadSponsorReviewPacketMarkdown` / `downloadPilotFirstValueReportMarkdown` — non-markdown 200 saved as `.md` — hit 2026-11-24 seed hunt: regressions reject `application/pdf`.
+- [ ] (candidate) `downloadScopedProxyFileGet` — `text/markdown; charset=utf-8` must match prefix guard — locus: `startsWith`; input: charset suffix; wrong outcome: false reject; reachability: markdown exports (monitor).
+- [ ] (candidate) `downloadComparisonReplayPdf` — missing `Content-Disposition` falls back to default name only — locus: filename parse; input: empty disposition; wrong outcome: generic download name; reachability: comparison replay PDF.
+- [ ] (candidate) `fetchBrowserDownload` — does not surface non-ok before blob on redirected 302 — locus: fetch follow; input: redirect to login HTML; wrong outcome: depends on caller; reachability: unscoped downloads (monitor).
+- [ ] (candidate) `downloadValueReportDocx` — 202 vs 200 branch confuses operators — locus: async job messaging; input: 202; wrong outcome: error not job UX; reachability: value report (monitor product intent).
+- [ ] (candidate) `triggerBrowserBlobDownload` — empty fileName on anchor download — locus: `a.download`; input: blank parsed name; wrong outcome: browser picks random save name; reachability: exports missing disposition.
+
 2026-11-24 thorough hunt (hit): no rotation (`shouldRotate: false`). Cheap-disproof: `parseFilenameFromContentDisposition` already stops unquoted legacy filenames at the next semicolon (regression `stops an unquoted legacy filename at the next semicolon`); `triggerBrowserBlobDownload` still uses the synchronous anchor pattern (monitor). Promoted omitted-prefix `application/octet-stream`: scoped JSON and markdown downloads without `expectedContentTypePrefixes` saved binary bodies. `rejectUnguardedHtmlOrProblemDownload` now blocks octet-stream; regression in scoped-proxy vitest. Pilot/sponsor markdown octet-stream gaps close via the shared guard (manifest still has an explicit `text/markdown` prefix). Scoped-proxy vitest **6/6**; browser disposition vitest **3/3**. Private beta: decision-receipt and other scoped JSON or markdown exports fail fast instead of saving mystery binary files when the proxy returns octet-stream.
 
 - [x] (proven) `rejectUnguardedHtmlOrProblemDownload` — `application/octet-stream` on JSON downloads — hit 2026-11-24 thorough hunt: regression above.
