@@ -207,8 +207,12 @@ def eligible_records(files: list[dict], ledger: list[dict]) -> tuple[dict, dict]
 
 
 def build_inventory(repo: Path, head: str, ledger: list[dict], *, next_limit: int = 20,
-                    review_id: str | None = None) -> dict:
+                    review_id: str | None = None, lane: str | None = None) -> dict:
+    if lane not in {None, 'production', 'test', 'tooling', 'infrastructure'}:
+        raise ValueError('Unknown source review lane')
     files = tree_sources(repo, head)
+    if lane is not None:
+        files = [item for item in files if item['lane'] == lane]
     counts = nonblank_counts(repo, [item['blob'] for item in files])
     ages = last_path_changes(repo, head, {item['path'] for item in files})
     tracks, observations = eligible_records(files, ledger)
@@ -244,7 +248,8 @@ def build_inventory(repo: Path, head: str, ledger: list[dict], *, next_limit: in
     queue.sort(key=lambda x: (x['systematic_reviewed_loc'] != 0,
                               x['known_verified_current_blob_loc'] != 0,
                               x['last_path_change']['utc'], x['path']))
-    summary = {'head_sha': head, 'source_scope': 'tracked eligible code, excluding generated/vendor/non-source; all lanes displayed',
+    summary = {'head_sha': head, 'source_scope': ('tracked eligible code, excluding generated/vendor/non-source; '
+                                + (f'{lane} lane only' if lane else 'all lanes displayed')),
                'coverage_provenance': 'exact current-blob verified systematic reviews only; not legacy workbook or historical cross-revision coverage',
                'lanes': lanes, 'observations': observations,
                'eligible_files': len(files),
@@ -284,7 +289,9 @@ def build_inventory(repo: Path, head: str, ledger: list[dict], *, next_limit: in
 def record_review(repo: Path, ledger_path: Path, baseline: str, path: str,
                   spans: list[str], review_id: str, track: str,
                   outcome: str, defect_id: str | None,
-                  architecture_status: str, architectural_control: str | None) -> bool:
+                  architecture_status: str, architectural_control: str | None, *,
+                  finding_category: str | None = None, finding_severity: str | None = None,
+                  review_notes: str | None = None) -> bool:
     if not review_id.strip() or track not in TRACKS or outcome not in {'clean', 'defect'}:
         raise ValueError('Explicit review ID, track, and clean/defect outcome required')
     if (outcome == 'clean') != (defect_id is None):
@@ -302,6 +309,12 @@ def record_review(repo: Path, ledger_path: Path, baseline: str, path: str,
                source_last_modified_before_review=age['last_modified'],
                first_seen_qualifier=age['first_seen_qualifier'],
                source_history_complete=age['history_complete'])
+    if finding_category is not None:
+        row['finding_category'] = finding_category
+    if finding_severity is not None:
+        row['finding_severity'] = finding_severity
+    if review_notes is not None:
+        row['review_notes'] = review_notes
     return record(ledger_path, row)
 
 

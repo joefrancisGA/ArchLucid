@@ -68,3 +68,13 @@ python -m unittest discover -s scripts/tests -p 'test_aspects_systematic_review.
 ```
 
 `.github/workflows/aspects-systematic-review.yml` runs these **Python unit tests only** on matching PRs targeting master. It does **not** initiate comprehensive builds against `master` or `RC49`, dispatch CI, alter branch protection, merge PRs, or change the manual-only full-build policy for RC49.
+
+
+## Named review commands (Nov 24, 2026)
+
+The owner-approved commands are **Aspects** (35 production files), **Test Aspects**
+(10 test files) and **Mutation Aspects** (one explicitly scoped critical kernel).
+See [ASPECTS_REVIEW_COMMANDS.md](ASPECTS_REVIEW_COMMANDS.md) for the executable
+entry points, evidence requirements, independent metrics and mutation cost controls.
+The legacy planner/ledger remain available for historical reconciliation and
+tooling or infrastructure reviews; the named commands do not combine their metrics.
