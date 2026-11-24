@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Serialization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -87,7 +88,7 @@ internal static class FindingsSnapshotRelationalRead
                 Category = rec.Category,
                 QualityDimension = rec.QualityDimension,
                 EngineType = rec.EngineType,
-                Severity = Enum.Parse<FindingSeverity>(rec.Severity, true),
+                Severity = DefinedEnum.Parse<FindingSeverity>(rec.Severity, true),
                 Title = rec.Title,
                 Rationale = rec.Rationale,
                 PayloadType = rec.PayloadType,
@@ -174,14 +175,14 @@ internal static class FindingsSnapshotRelationalRead
         if (string.IsNullOrWhiteSpace(raw))
             return null;
 
-        return Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingConfidenceLevel lvl) ? lvl : null;
+        return DefinedEnum.TryParse(raw.Trim(), ignoreCase: true, out FindingConfidenceLevel lvl) ? lvl : null;
     }
 
     private static FindingHumanReviewStatus ParseHumanReviewStatus(string? raw)
     {
-        if (!string.IsNullOrWhiteSpace(raw) && Enum.TryParse(raw.Trim(), true, out FindingHumanReviewStatus st))
-            return st;
+        if (string.IsNullOrWhiteSpace(raw))
+            return FindingHumanReviewStatus.NotRequired;
 
-        return FindingHumanReviewStatus.NotRequired;
+        return DefinedEnum.Parse<FindingHumanReviewStatus>(raw.Trim(), ignoreCase: true);
     }
 }
