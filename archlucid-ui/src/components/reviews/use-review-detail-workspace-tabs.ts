@@ -268,6 +268,23 @@ import {
 } from "@/lib/findings/finding-inspect-evaluation-disclosure-url";
 import { REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM } from "@/lib/findings/review-findings-last-visit-url";
 import {
+  parseReviewFindingsListViewFromSearch,
+  REVIEW_FINDINGS_LIST_VIEW_PARAM,
+} from "@/lib/findings/review-findings-list-view";
+import {
+  isFindingJobViewSearchParam,
+  REVIEW_FINDINGS_JOB_VIEW_PARAM,
+} from "@/lib/findings/review-findings-job-view-url";
+import { REVIEW_FINDINGS_TOOLBAR_FILTER_PARAM } from "@/lib/findings/review-findings-toolbar-filter-url";
+import {
+  parseReviewFindingsToolbarSearchQuery,
+  REVIEW_FINDINGS_TOOLBAR_SEARCH_PARAM,
+} from "@/lib/findings/review-findings-toolbar-search-url";
+import { REVIEW_FINDINGS_TOOLBAR_SORT_PARAM } from "@/lib/findings/review-findings-toolbar-sort-url";
+import { REVIEW_FINDINGS_DOMAIN_FILTER_PARAM, REVIEW_FINDINGS_OWNER_FILTER_PARAM } from "@/lib/findings/review-findings-toolbar-field-filters-url";
+import { REVIEW_FINDINGS_HIDE_GENERIC_PARAM, REVIEW_FINDINGS_SHOW_ADVISORY_PARAM, REVIEW_FINDINGS_SHOW_LOW_PARAM } from "@/lib/findings/review-findings-visibility-url";
+import { FINDINGS_FILTER_PANEL_OPEN_PARAM, parseFindingsFilterPanelOpenFromSearch } from "@/lib/findings/run-detail-findings-filter-disclosure-url";
+import {
   parseTrustEvidenceFieldsOpenFromSearch,
   parseTrustEvidenceTechOpenFromSearch,
   TRUST_EVIDENCE_FIELDS_OPEN_PARAM,
@@ -656,6 +673,24 @@ export function useReviewDetailWorkspaceTabs(
     );
     const findingsClassificationBandPresent =
       (params.get(REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM)?.trim() ?? "").length > 0;
+    const findingsListViewPresent =
+      parseReviewFindingsListViewFromSearch(params.get(REVIEW_FINDINGS_LIST_VIEW_PARAM)) !== null;
+    const findingJobViewPresent = isFindingJobViewSearchParam(params.get(REVIEW_FINDINGS_JOB_VIEW_PARAM));
+    const findingsToolbarSearchPresent =
+      parseReviewFindingsToolbarSearchQuery(params.get(REVIEW_FINDINGS_TOOLBAR_SEARCH_PARAM)).trim().length > 0;
+    const findingsToolbarFilterPresent =
+      (params.get(REVIEW_FINDINGS_TOOLBAR_FILTER_PARAM)?.trim() ?? "").length > 0;
+    const findingsToolbarSortPresent =
+      (params.get(REVIEW_FINDINGS_TOOLBAR_SORT_PARAM)?.trim() ?? "").length > 0;
+    const findingsToolbarOwnerFilterPresent =
+      (params.get(REVIEW_FINDINGS_OWNER_FILTER_PARAM)?.trim() ?? "").length > 0;
+    const findingsToolbarDomainFilterPresent =
+      (params.get(REVIEW_FINDINGS_DOMAIN_FILTER_PARAM)?.trim() ?? "").length > 0;
+    const findingsShowLowPresent = params.has(REVIEW_FINDINGS_SHOW_LOW_PARAM);
+    const findingsShowAdvisoryPresent = params.has(REVIEW_FINDINGS_SHOW_ADVISORY_PARAM);
+    const findingsHideGenericPresent = params.has(REVIEW_FINDINGS_HIDE_GENERIC_PARAM);
+    const findingsFilterPanelOpenPresent =
+      parseFindingsFilterPanelOpenFromSearch(params.get(FINDINGS_FILTER_PANEL_OPEN_PARAM)) !== null;
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -793,6 +828,17 @@ export function useReviewDetailWorkspaceTabs(
       || findingInspectEvidenceCitationArtifactIdPresent
       || findingInspectEvaluationOpenPresent
       || findingsClassificationBandPresent
+      || findingsListViewPresent
+      || findingJobViewPresent
+      || findingsToolbarSearchPresent
+      || findingsToolbarFilterPresent
+      || findingsToolbarSortPresent
+      || findingsToolbarOwnerFilterPresent
+      || findingsToolbarDomainFilterPresent
+      || findingsShowLowPresent
+      || findingsShowAdvisoryPresent
+      || findingsHideGenericPresent
+      || findingsFilterPanelOpenPresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent

@@ -10,6 +10,7 @@ export async function downloadManifestMarkdownExport(manifestVersion: string): P
     {
       accept: "text/markdown, application/json",
       defaultFileName: `architecture-export-${trimmed}.md`,
+      expectedContentTypePrefixes: ["text/markdown"],
     },
   );
 }

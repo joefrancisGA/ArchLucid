@@ -57,6 +57,10 @@ describe("readNonceFromPayload", () => {
     expect(readNonceFromPayload({ nonce: "n1\u000B", sub: "x" })).toBe("n1");
     expect(readNonceFromPayload({ nonce: "\u000C\u000C", sub: "x" })).toBeNull();
   });
+
+  it("strips soft hyphens from nonce claims before PKCE comparison", () => {
+    expect(readNonceFromPayload({ nonce: "n1\u00ad", sub: "x" })).toBe("n1");
+  });
 });
 
 describe("pickDisplayNameFromPayload", () => {
@@ -78,6 +82,13 @@ describe("pickDisplayNameFromPayload", () => {
     expect(pickDisplayNameFromPayload({ preferred_username: "\u200b" })).toBeNull();
   });
 
+  it("strips soft hyphens from display-name claims", () => {
+    expect(pickDisplayNameFromPayload({ name: "Jane\u00ad Operator" })).toBe("Jane Operator");
+    expect(pickDisplayNameFromPayload({ preferred_username: "ali\u00adce@contoso.com" })).toBe(
+      "alice@contoso.com",
+    );
+  });
+
   it("collapses interior zero-width characters in display-name claims instead of gluing words", () => {
     expect(pickDisplayNameFromPayload({ name: "John\u200bDoe" })).toBe("John Doe");
   });
@@ -94,3 +105,5 @@ describe("pickDisplayNameFromPayload", () => {
     expect(pickDisplayNameFromPayload({ name: familyEmoji })).toBe(familyEmoji);
   });
 });
+
+

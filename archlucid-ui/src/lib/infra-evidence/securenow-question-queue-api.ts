@@ -226,7 +226,8 @@ export function secureNowQuestionDispositionResponseQuestionKeyMatchesRequest(
     return false;
   }
 
-  return responseKey === requestKey;
+  // Application identity + disposition writes normalize question keys with ToLowerInvariant.
+  return responseKey.toLowerCase() === requestKey.toLowerCase();
 }
 
 /** Whether a POST disposition's evidence fingerprint matches the submitted write request after trim. */

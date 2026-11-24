@@ -599,6 +599,16 @@ describe("secureNowQuestionDispositionResponseQuestionKeyMatchesRequest", () => 
     ).toBe(true);
   });
 
+
+  it("treats case-only question key differences as matching the submitted request", () => {
+    expect(
+      secureNowQuestionDispositionResponseQuestionKeyMatchesRequest(
+        "subscription-ownership@v1",
+        "Subscription-Ownership@v1",
+      ),
+    ).toBe(true);
+  });
+
   it("rejects a different question key after trim", () => {
     expect(
       secureNowQuestionDispositionResponseQuestionKeyMatchesRequest(
@@ -2486,6 +2496,42 @@ describe("securenow-question-queue-api", () => {
     expect(disposition).toBeUndefined();
   });
 
+  it("accepts POST answer when response question key differs only by case from the submitted write", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "sub-1",
+      resourceId: "sub-1",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      expirationUtc: "2026-12-01T00:00:00.000Z",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: [],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "sub-1",
+      questionKey: "Subscription-Ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeDefined();
+    expect(disposition?.questionKey).toBe("subscription-ownership@v1");
+  });
   it("returns undefined when POST answer response question key differs from the submitted request", async () => {
     vi.mocked(proxyJsonPost).mockResolvedValueOnce({
       dispositionId: "00000000-0000-0000-0000-000000000001",

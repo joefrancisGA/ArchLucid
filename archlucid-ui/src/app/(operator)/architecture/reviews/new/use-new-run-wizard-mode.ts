@@ -15,6 +15,7 @@ import {
   parseNewRunWizardModeFromSearch,
 } from "@/lib/runs/new-run-wizard-mode-url";
 
+import { isEmbeddedFullWizardPathQuery } from "./reviews-new-path-switcher-state";
 import { WIZARD_MODE_STORAGE_KEY } from "./new-run-wizard-steps";
 
 export type NewRunWizardMode = "quick" | "full";
@@ -64,6 +65,8 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
   // A deep link (accelerator, preset) or a click has already decided the mode, so the first-run probe
   // below must not overwrite it when its request resolves.
   const modeChosenRef = useRef(false);
+  const previousUrlModeRef = useRef<NewRunWizardMode | null | undefined>(undefined);
+  const seenExplicitUrlModeRef = useRef(false);
   const storedMode = readStoredWizardMode();
   const committedProbeQuery = useNewRunWizardCommittedProbeQuery({
     enabled: !baselineFirst && storedMode === null,
@@ -88,7 +91,26 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
   );
 
   useEffect(() => {
+    const previousUrlMode = previousUrlModeRef.current;
+    previousUrlModeRef.current = urlMode;
+
     if (urlMode === null) {
+      const pathQuery = searchParams.get("path") ?? "";
+      const keepFullOnEmbeddedPath = isEmbeddedFullWizardPathQuery(pathQuery);
+
+      // Match step= URL sync: when the mode param is removed, collapse to quick start.
+      if (
+        previousUrlMode !== null &&
+        previousUrlMode !== undefined &&
+        wizardModeRef.current !== "quick" &&
+        !keepFullOnEmbeddedPath
+      ) {
+        wizardModeRef.current = "quick";
+        setWizardMode("quick");
+        writeStoredWizardMode("quick");
+        modeChosenRef.current = false;
+      }
+
       return;
     }
 
@@ -99,7 +121,8 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
     }
 
     modeChosenRef.current = true;
-  }, [urlMode]);
+    seenExplicitUrlModeRef.current = true;
+  }, [searchParams, urlMode]);
 
   useEffect(() => {
     const syncModeFromUrl = (): void => {
@@ -107,15 +130,25 @@ export function useNewRunWizardMode(baselineFirst: boolean) {
         searchParamFromRouterSearchParams(searchParamsRef.current, "mode"),
       );
 
-      if (nextMode !== null) {
-        if (wizardModeRef.current !== nextMode) {
-          wizardModeRef.current = nextMode;
-          setWizardMode(nextMode);
-          writeStoredWizardMode(nextMode);
+      if (nextMode === null) {
+        if (seenExplicitUrlModeRef.current && wizardModeRef.current !== "quick") {
+          wizardModeRef.current = "quick";
+          setWizardMode("quick");
+          writeStoredWizardMode("quick");
+          modeChosenRef.current = false;
         }
 
-        modeChosenRef.current = true;
+        return;
       }
+
+      if (wizardModeRef.current !== nextMode) {
+        wizardModeRef.current = nextMode;
+        setWizardMode(nextMode);
+        writeStoredWizardMode(nextMode);
+      }
+
+      modeChosenRef.current = true;
+      seenExplicitUrlModeRef.current = true;
     };
 
     syncModeFromUrl();

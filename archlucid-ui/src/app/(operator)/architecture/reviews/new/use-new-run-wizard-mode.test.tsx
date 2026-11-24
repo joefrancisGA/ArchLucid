@@ -1,4 +1,4 @@
-import { act, fireEvent, renderHook, type ReactNode } from "@testing-library/react";
+import { act, fireEvent, renderHook, waitFor, type ReactNode } from "@testing-library/react";
 import { createElement, useSyncExternalStore } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -168,4 +168,84 @@ describe("useNewRunWizardMode", () => {
     expect(result.current.wizardMode).toBe("quick");
     expect(result.current.committedManifestProbeFailed).toBe(true);
   });
+  it("keeps stored full mode when the URL omits mode on first mount", () => {
+    window.localStorage.setItem(WIZARD_MODE_STORAGE_KEY, "full");
+    wizardModeSearchParamsHarness.state.query = "";
+
+    const { result } = renderHook(() => useNewRunWizardMode(false), {
+      wrapper: WizardModeSearchParamsRerenderHost,
+    });
+
+    expect(result.current.wizardMode).toBe("full");
+  });
+
+
+  it("keeps full wizard mode when mode= is cleared on path=detailed", () => {
+    wizardModeSearchParamsHarness.state.query = "path=detailed&mode=full";
+
+    const { result, rerender } = renderHook(() => useNewRunWizardMode(false), {
+      wrapper: WizardModeSearchParamsRerenderHost,
+    });
+
+    expect(result.current.wizardMode).toBe("full");
+
+    wizardModeSearchParamsHarness.applySearchParamsQuery("path=detailed");
+    rerender();
+
+    expect(result.current.wizardMode).toBe("full");
+  });
+  it("resets wizard mode when mode= is cleared without a popstate event", () => {
+    wizardModeSearchParamsHarness.state.query = "mode=full";
+
+    const { result, rerender } = renderHook(() => useNewRunWizardMode(false), {
+      wrapper: WizardModeSearchParamsRerenderHost,
+    });
+
+    expect(result.current.wizardMode).toBe("full");
+
+    wizardModeSearchParamsHarness.applySearchParamsQuery("");
+    rerender();
+
+    expect(result.current.wizardMode).toBe("quick");
+  });
+
+
+  it("re-applies committed-manifest probe after transient mode=full URL is cleared", async () => {
+    let probeState: "pending" | "success" = "pending";
+
+    vi.mocked(useNewRunWizardCommittedProbeQuery).mockImplementation(() => {
+      if (probeState === "pending") {
+        return {
+          isPending: true,
+          isSuccess: false,
+          isError: false,
+          data: undefined,
+        } as ReturnType<typeof useNewRunWizardCommittedProbeQuery>;
+      }
+
+      return {
+        isPending: false,
+        isSuccess: true,
+        isError: false,
+        data: { hasCommittedManifest: true, latestCommittedRunId: "run-1", latestRunId: "run-1" },
+      } as ReturnType<typeof useNewRunWizardCommittedProbeQuery>;
+    });
+
+    wizardModeSearchParamsHarness.state.query = "mode=full";
+
+    const { result, rerender } = renderHook(() => useNewRunWizardMode(false), {
+      wrapper: WizardModeSearchParamsRerenderHost,
+    });
+
+    expect(result.current.wizardMode).toBe("full");
+
+    wizardModeSearchParamsHarness.applySearchParamsQuery("");
+    probeState = "success";
+    rerender();
+
+    await waitFor(() => {
+      expect(result.current.wizardMode).toBe("full");
+    });
+  });
+
 });

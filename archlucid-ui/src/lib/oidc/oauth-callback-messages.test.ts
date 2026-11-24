@@ -11,6 +11,9 @@ import {
 } from "@/lib/oidc/oauth-callback-messages";
 
 describe("normalizeOidcDisplayString", () => {
+  it("strips soft hyphens from human-readable OIDC display copy", () => {
+    expect(normalizeOidcDisplayString("Jane\u00ad Operator")).toBe("Jane Operator");
+  });
   it("collapses ZWSP-like glue characters to spaces without merging Latin words", () => {
     expect(normalizeOidcDisplayString("John\u200bDoe")).toBe("John Doe");
   });
@@ -1373,3 +1376,4 @@ describe("coerceAcceptedOidcEpochMsHint", () => {
     expect(parseOidcEpochMsHint(`${truncated}.25`)).toBe(truncated);
   });
 });
+

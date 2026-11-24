@@ -58,6 +58,7 @@ export function normalizeOptionalOidcOAuthFormTokenOrNull(
 /** Normalizes human-readable OIDC claim copy (names, titles) for session display. */
 export function normalizeOidcDisplayString(value: string): string {
   return value
+    .replace(/[\u00AD\uFE00-\uFE0F\uFFFC\uFFFD]/gu, "")
     .replace(OIDC_DISPLAY_GLUE_FORMAT_CHARS, " ")
     .replace(/[\u0000-\u001F\u007F\u2028\u2029\u0085]/gu, " ")
     .replace(/\s+/gu, " ")
