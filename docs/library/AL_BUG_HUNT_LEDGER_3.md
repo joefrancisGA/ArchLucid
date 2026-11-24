@@ -10895,7 +10895,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 134 · **Bugs found:** 133 · **Consecutive dry hunts:** 0
+**Hunts:** 135 · **Bugs found:** 134 · **Consecutive dry hunts:** 0
+
+2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`). Cheap-disproof closed three pass-**30** monitors — **valid-no-repro** negative manifest `decisionCount` (`operatorNonNegativeInteger.min(0)`); **valid-no-repro** empty-string replay `validation.notes` (`z.string()` allows `""` by design); **valid-no-repro** cross-tab scope storage rapid switch (`operator-scope-storage.cross-tab.test.ts`). **Proven** legacy offset `coerceRunSummaryPaged` accepted fractional `page` / `pageSize`; integer validation on legacy offset fields; regressions `rejects legacy offset envelope when pageSize is fractional` and `rejects legacy offset envelope when page index is fractional`. Scoped `operator-response-guards.test.ts` **65/65**. Reseeded five pass-**31** `(candidate)` rows below. Private beta: Invited operators on the home runs list no longer hydrate fractional legacy page or page-size values into the paging chrome when the API returns malformed offset metadata.
+
+- [x] (proven) `coerceRunSummaryPaged` — legacy offset envelope accepts fractional `pageSize` — **hit 2026-11-24 seed hunt:** integer guard; regression `rejects legacy offset envelope when pageSize is fractional`.
+- [x] (proven) `coerceRunSummaryPaged` — legacy offset envelope accepts fractional `page` index — **hit 2026-11-24 seed hunt:** same; regression `rejects legacy offset envelope when page index is fractional`.
+- [x] (valid-no-repro) `coerceManifestSummary` — negative `decisionCount` passes counter guard — **cheap-disproof 2026-11-24 seed hunt:** `operatorNonNegativeInteger`.
+- [x] (valid-no-repro) `coerceReplayResponse` — empty-string `validation.notes` entries — **cheap-disproof 2026-11-24 seed hunt:** empty strings valid.
+- [x] (valid-no-repro) `operator-scope-storage` — cross-tab refresh stale tenant — **cheap-disproof 2026-11-24 seed hunt:** cross-tab suite.
+
+- [ ] (candidate) `coerceRunSummaryPaged` — legacy offset `totalCount` fractional — monitor; pass 31 reseed.
+- [ ] (candidate) `coerceRunSummaryPaged` — legacy offset negative finite `pageSize` — monitor; pass 31 reseed.
+- [ ] (candidate) `coerceRunDetail` — whitespace-only `createdUtc` manual fallback — monitor; pass 31 reseed.
+- [ ] (candidate) `coerceGraphViewModel` — non-array `nodes` object shell — monitor; pass 31 reseed.
+- [ ] (candidate) `operator-shell-status-scope-cache` — tenant switch cache key leak — monitor; pass 31 reseed.
+
+- [x] (superseded) pass **#30** monitor queue — **superseded 2026-11-24 seed hunt (hit):** see header and pass **#31** reseed.
 
 2026-11-17 thorough hunt #500 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**28** monitor rows from hunt **#499** reseed — **proven** manifest summary fractional / non-finite counters (`z.number()` without integer guard) and replay `validation.notes` accepting non-string entries (would crash `sortReplayNotes` on replay panel render); **valid-no-repro** `manifestComparison` without `diffs` (manual fallback already rejects) and keyset `nextCursor` trim regression lane (hunt **#499** regression `trims padding on keyset nextCursor tokens`). Extended `operatorNonNegativeInteger` and `z.array(z.string())` on replay notes; regressions `rejects fractional manifest counter values`, `rejects non-finite manifest counter values`, `rejects validation.notes entries that are not strings`, and `rejects manifestComparison object without diffs array`. Scoped `operator-response-guards.test.ts` **62/62**. Private beta: Invited operators no longer see corrupted manifest header counts or a client crash when replay validation notes contain null entries.
 
@@ -10910,11 +10926,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `coerceReplayResponse` — numeric `validation.notes` entries — **cheap-disproof 2026-11-24 seed hunt:** regression `rejects validation.notes entries that are not strings` (hunt **#500**).
 - [x] (proven) `coerceRunSummaryPaged` — fractional keyset `requestedTake` — **hit 2026-11-24 seed hunt:** integer guard on `requestedTake`; regression `rejects keyset envelope when requestedTake is fractional`.
 - [x] (valid-no-repro) `coerceReplayResponse` — numeric `validation.notes` entries — **cheap-disproof 2026-11-24 seed hunt:** regression `rejects validation.notes entries that are not strings` (hunt **#500**).
-- [ ] (candidate) `coerceRunSummaryPaged` — legacy offset envelope accepts fractional `pageSize` — monitor; pass-30 reseed.
-- [ ] (candidate) `coerceRunSummaryPaged` — legacy offset envelope accepts fractional `page` index — monitor; pass-30 reseed.
-- [ ] (candidate) `coerceManifestSummary` — negative `decisionCount` passes counter guard — monitor; pass-30 reseed.
-- [ ] (candidate) `coerceReplayResponse` — empty-string `validation.notes` entries pass trim guard — monitor; pass-30 reseed.
-- [ ] (candidate) `operator-scope-storage` — cross-tab refresh applies stale tenant id after rapid switch — monitor; pass-30 reseed.
+- [x] (proven) `coerceRunSummaryPaged` — legacy fractional `pageSize` — **hit 2026-11-24 seed hunt.**
+- [x] (proven) `coerceRunSummaryPaged` — legacy fractional `page` — **hit 2026-11-24 seed hunt.**
+- [x] (valid-no-repro) `coerceManifestSummary` — negative `decisionCount` — **cheap-disproof 2026-11-24 seed hunt.**
+- [x] (valid-no-repro) `coerceReplayResponse` — empty-string notes — **cheap-disproof 2026-11-24 seed hunt.**
+- [x] (valid-no-repro) `operator-scope-storage` — cross-tab stale tenant — **cheap-disproof 2026-11-24 seed hunt.**
 
 
 2026-11-17 thorough hunt #499 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**27** monitor rows from hunt **#498** reseed — **proven** keyset `coerceRunSummaryPaged` treating whitespace-only `nextCursor` as a live pagination token (`length > 0` without trim); **valid-no-repro** replay `mode` whitespace (hunt **#197** `operatorNonEmptyTrimmedString`; regression `rejects whitespace-only mode`); **invalid** optional `contentUrl` (field not in artifact descriptor contract) and golden `baseManifestId` (schema uses `baseRunId`/`targetRunId`); **invalid** graph node `id` whitespace (graph guard validates `nodes`/`edges` array shells only by design, hunt **#498**-class). Scoped `operator-response-guards.test.ts` **58/58**. Private beta: Invited operators no longer advance home runs pagination with a whitespace-only keyset cursor token when the API returns padded `nextCursor` values.
@@ -11647,8 +11663,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24

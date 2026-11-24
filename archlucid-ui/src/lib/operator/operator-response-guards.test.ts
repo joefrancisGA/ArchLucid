@@ -183,6 +183,36 @@ describe("coerceRunSummaryPaged", () => {
     }
   });
 
+
+  it("rejects legacy offset envelope when pageSize is fractional", () => {
+    const result = coerceRunSummaryPaged({
+      items: [],
+      totalCount: 10,
+      page: 1,
+      pageSize: 20.5,
+      hasMore: false,
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toContain("pageSize");
+    }
+  });
+
+  it("rejects legacy offset envelope when page index is fractional", () => {
+    const result = coerceRunSummaryPaged({
+      items: [],
+      totalCount: 10,
+      page: 1.5,
+      pageSize: 20,
+      hasMore: false,
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toContain("pageSize");
+    }
+  });
   it("rejects legacy offset envelope when page is zero", () => {
     const result = coerceRunSummaryPaged({
       items: [],
