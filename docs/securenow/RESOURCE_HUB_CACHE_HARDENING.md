@@ -8,6 +8,8 @@ Every reusable cache key includes **authenticated OIDC subject + effective proxy
 
 When JWT mode, authenticated subject or any of the three scope identifiers is unavailable, **bypass both cache reuse and request coalescing**. This includes opaque API-key sessions, which do not expose a stable browser principal. These requests still reach the authoritative API. The key never stores access tokens. Server authorization remains mandatory; browser caching does not grant any permission and does not replace server-side scope checks. Cache identity does not encode every instantaneous permission or role revocation; entries have a 30-second TTL and are cleared when the local OIDC session transitions.
 
+Requests with a run ID always reach the API, including overlapping requests from the same principal. The API checks current architecture sharing in the caller's tenant, workspace and project before loading the run manifest or hub. HTTP responses carry `Cache-Control: no-store`, and run-scoped failures propagate to the UI.
+
 ## CACHE-02: bounded retention
 
 Retain a maximum of **64 entries**, at most **512 KiB estimated per entry**, and at most **4 MiB total estimated serialized UTF-16 payload**. A least-recently-used entry is promoted on hit; writes evict the oldest entries until both limits hold. Expired entries are pruned opportunistically at read/write, including stale entries that have not been individually read. These estimates are not exact JavaScript object-size or peak-memory measurements. No background timer, localStorage persistence, Redis dependency or tenant evidence logging was added.

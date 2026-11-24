@@ -46,6 +46,13 @@ describe("infra-evidence-hub-api", () => {
     ]);
   });
 
+  it("propagates a failed run read even for the workbook fixture resource", async () => {
+    vi.mocked(proxyJsonGet).mockRejectedValueOnce(new Error("access denied"));
+    await expect(fetchCloudResourceEvidenceHub("11111111-1111-1111-1111-111111111111", { runId: "run-1" }))
+      .rejects.toThrow();
+    expect(proxyJsonGet).toHaveBeenLastCalledWith(expect.stringContaining("runId=run-1"), { cache: "no-store" });
+  });
+
   it("preserves missing versus empty hub correspondence and stream values", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce({
       cloudResourceId: "resource-1",

@@ -159,11 +159,12 @@ export async function fetchCloudResourceEvidenceHub(
   try {
     const raw = await proxyJsonGet<Record<string, unknown>>(
       `${CLOUD_RESOURCES_PATH}/${encodeURIComponent(trimmedCloudResourceId)}/hub?${params.toString()}`,
+      { cache: "no-store" },
     );
 
     return mapHubResponse(raw);
   } catch (error: unknown) {
-    const demoFallback = tryWorkbookInfraResourceHubDemoFallback(trimmedCloudResourceId);
+    const demoFallback = params.has("runId") ? null : tryWorkbookInfraResourceHubDemoFallback(trimmedCloudResourceId);
 
     if (demoFallback !== null) {
       return demoFallback;

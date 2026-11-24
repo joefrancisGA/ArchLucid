@@ -17,22 +17,15 @@ public sealed partial class CloudResourceEvidenceHubController
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
-    private readonly IScopeContextProvider _scopeProvider =
-        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
-
     private async Task<IActionResult?> EnsureHubRunSealedManifestAllowedAsync(
-        Guid? runId,
+        ScopeContext scope,
+        Guid runId,
         CancellationToken cancellationToken)
     {
-        if (runId is not { } resolvedRunId || resolvedRunId == Guid.Empty)
-            return null;
-
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-
         try
         {
             await CloudResourceEvidenceHubSealedManifestHashGuard.EnsureRunSealedOrThrowAsync(
-                resolvedRunId,
+                runId,
                 scope,
                 _authorityQueryService,
                 _manifestHashService,

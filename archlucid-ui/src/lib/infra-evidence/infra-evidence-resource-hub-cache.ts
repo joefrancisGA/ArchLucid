@@ -78,6 +78,12 @@ function currentPartition(): string | null {
   return identity;
 }
 
+// Run sharing can change between calls without a principal or scope transition.
+function reusablePartition(context: HubQueryCacheIdentity): string | null {
+  const partition = currentPartition();
+  return normalizeCacheSegment(context.runId) ? null : partition;
+}
+
 function keyFor(identity: string, cloudResourceId: string, context: HubQueryCacheIdentity): string {
   return JSON.stringify([
     CACHE_KEY_VERSION,
@@ -107,7 +113,7 @@ export function buildInfraEvidenceResourceHubCacheKey(
   cloudResourceId: string,
   context: HubQueryCacheIdentity = {},
 ): string {
-  return keyFor(currentPartition() ?? "UNRESOLVED_NO_REUSE", cloudResourceId, context);
+  return keyFor(reusablePartition(context) ?? "UNRESOLVED_NO_REUSE", cloudResourceId, context);
 }
 
 function deleteEntry(cacheKey: string): void {
@@ -216,8 +222,7 @@ export async function fetchCachedInfraEvidenceResourceHub(
   cloudResourceId: string,
   options: HubQueryCacheIdentity = {},
 ): Promise<CloudResourceEvidenceHubResponse> {
-  const identity = currentPartition();
-  // Without a trustworthy principal and scope, bypass both cache and coalescing.
+  const identity = reusablePartition(options);
   if (identity === null) {
     return fetchCloudResourceEvidenceHub(cloudResourceId, options);
   }

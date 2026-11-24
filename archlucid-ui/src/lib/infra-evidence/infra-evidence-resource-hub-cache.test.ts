@@ -76,6 +76,24 @@ describe("SecureNow resource-hub cache CACHE-01 through CACHE-03", () => {
     expect(fetchCloudResourceEvidenceHub).toHaveBeenCalledTimes(1);
   });
 
+  it("rechecks run access on concurrent requests and after a successful read", async () => {
+    const cache = await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
+    const context = { runId: "run-1" };
+    const key = cache.buildInfraEvidenceResourceHubCacheKey(RESOURCE, context);
+    cache.writeCachedInfraEvidenceResourceHub(key, hub("previously authorized"));
+    expect(cache.readCachedInfraEvidenceResourceHub(key)).toBeNull();
+
+    fetchCloudResourceEvidenceHub.mockResolvedValueOnce(hub("allowed"))
+      .mockResolvedValueOnce(hub("allowed")).mockRejectedValueOnce(new Error("access denied"));
+    await Promise.all([
+      cache.fetchCachedInfraEvidenceResourceHub(RESOURCE, context),
+      cache.fetchCachedInfraEvidenceResourceHub(RESOURCE, context),
+    ]);
+    expect(cache.readCachedInfraEvidenceResourceHub(key)).toBeNull();
+    await expect(cache.fetchCachedInfraEvidenceResourceHub(RESOURCE, context)).rejects.toThrow("access denied");
+    expect(fetchCloudResourceEvidenceHub).toHaveBeenCalledTimes(3);
+  });
+
   it("bypasses all caching and coalescing when subject, scope or JWT identity is unresolved", async () => {
     const { fetchCachedInfraEvidenceResourceHub, buildInfraEvidenceResourceHubCacheKey,
       readCachedInfraEvidenceResourceHub } =
