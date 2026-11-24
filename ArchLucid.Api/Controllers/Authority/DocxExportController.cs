@@ -69,7 +69,8 @@ public sealed partial class DocxExportController(
     IAuditService auditService,
     ILogger<DocxExportController> logger,
     IRunRepository runRepository,
-    IArchitectureInventoryBindingRepository architectureInventoryBindingRepository)
+    IArchitectureInventoryBindingRepository architectureInventoryBindingRepository,
+    IArchitectureShareAccessGate architectureShareAccessGate)
     : ControllerBase
 {
     private readonly IAuthorityQueryService _authorityQueryService =
@@ -99,6 +100,9 @@ public sealed partial class DocxExportController(
     private readonly IArchitectureInventoryBindingRepository _architectureInventoryBindingRepository =
         architectureInventoryBindingRepository ?? throw new ArgumentNullException(nameof(architectureInventoryBindingRepository));
 
+    private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
+        architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
+
     /// <summary>Streams a DOCX architecture package for <paramref name="runId" />.</summary>
     /// <param name="runId">Primary run (must have golden manifest).</param>
     /// <param name="compareWithRunId">When set, embeds manifest comparison (and optional comparison narrative) vs this run.</param>
@@ -123,6 +127,20 @@ public sealed partial class DocxExportController(
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        // Authorize both resources before hydrating either run or invoking export services.
+        IActionResult? primaryDenial =
+            await _architectureShareAccessGate.EnsureRunReadAllowedAsync(this, User, scope, runId, ct);
+        if (primaryDenial is not null)
+            return primaryDenial;
+
+        if (compareWithRunId is Guid comparisonRunId)
+        {
+            IActionResult? comparisonDenial =
+                await _architectureShareAccessGate.EnsureRunReadAllowedAsync(this, User, scope, comparisonRunId, ct);
+            if (comparisonDenial is not null)
+                return comparisonDenial;
+        }
+
         Task<RunDetailDto?> runDetailTask = authorityQueryService.GetRunDetailAsync(scope, runId, ct);
         Task<RunDetailDto?> compareDetailTask = compareWithRunId is null
             ? Task.FromResult<RunDetailDto?>(null)

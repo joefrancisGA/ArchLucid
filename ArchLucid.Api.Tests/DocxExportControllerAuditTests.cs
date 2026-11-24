@@ -128,7 +128,8 @@ public sealed class DocxExportControllerAuditTests
             audit.Object,
             NullLogger<DocxExportController>.Instance,
             Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
-            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>())
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>(),
+            DocxExportControllerTestSupport.CreateAllowingShareGate())
         {
             ControllerContext = AnalysisReportsControllerAuditTests.CreateControllerContext(),
         };
