@@ -54,7 +54,7 @@ public static partial class AuthEmailDomainNormalizer
 
     private static bool IsValidDomain(string normalizedDomain)
     {
-        if (normalizedDomain.Contains(' ') || normalizedDomain.StartsWith("-", StringComparison.Ordinal))
+        if (normalizedDomain.Any(char.IsWhiteSpace) || normalizedDomain.StartsWith("-", StringComparison.Ordinal))
         {
             return false;
         }
@@ -64,7 +64,7 @@ public static partial class AuthEmailDomainNormalizer
             return false;
         }
 
-        string[] labels = normalizedDomain.Split('.', StringSplitOptions.TrimEntries);
+        string[] labels = normalizedDomain.Split('.');
 
         if (labels.Length < 2)
         {
