@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `findingJobView` deep links via `isFindingJobViewSearchParam`. Regression `does not apply visit-default navigation when the URL only carries findingJobView`. URL-sync vitest **113/113**. Private beta: shared review links that only set a findings job view in the query are no longer overwritten with visit-default tab or finding query keys on first load.
+> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Visit-default silent URL now honors bare `findingsFilter` deep links when `REVIEW_FINDINGS_TOOLBAR_FILTER_PARAM` is non-empty after trim. Regression `does not apply visit-default navigation when the URL only carries findingsFilter`. URL-sync vitest **114/114**. Private beta: shared review links that only set a findings toolbar filter in the query are no longer overwritten with visit-default tab or finding query keys on first load.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -11705,6 +11705,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-08-28 thorough hunt #191: proved billing paid-tier precedence over stale frictionless flag; cheap-disproved welcome/disclosure scope persistence and AI snapshot disposition crash; seeded frictionless session cleanup and LLM budget cache refresh candidates.
 
 ## Zone: ui-review-detail-workspace
+2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `findingsFilter` monitor: a deep link with only a non-empty toolbar filter was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `findingsFilter` when `REVIEW_FINDINGS_TOOLBAR_FILTER_PARAM` is non-empty after trim. Regression `does not apply visit-default navigation when the URL only carries findingsFilter`. URL-sync vitest **114/114**. Private beta: when an invited operator opens a shared review link that only names a findings filter in the query, visit-default tab navigation no longer replaces that query on first load.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `findingJobView` monitor: a deep link with only an allowlisted job view was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `findingJobView` via `isFindingJobViewSearchParam`. Regression `does not apply visit-default navigation when the URL only carries findingJobView`. URL-sync vitest **113/113**. Private beta: when an invited operator opens a shared review link that only names a findings job view in the query, visit-default tab navigation no longer replaces that query on first load.
 
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `findingsListView` monitor: a deep link with only allowlisted list view (`table`/`cards`) was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `findingsListView` via `parseReviewFindingsListViewFromSearch` !== null. Regression `does not apply visit-default navigation when the URL only carries findingsListView`. URL-sync vitest **112/112**. Private beta: when an invited operator opens a shared review link that only names findings list view in the query, visit-default tab navigation no longer replaces that query on first load.
@@ -11874,6 +11875,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 
+- [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `findingsFilter` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored non-empty findings toolbar filter deep links; regression above. Private beta: shared links that only set `findingsFilter` are no longer replaced with visit-default query keys on first load.
 - [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `findingJobView` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored allowlisted findings job-view deep links; regression above. Private beta: shared links that only set `findingJobView` are no longer replaced with visit-default query keys on first load.
 
 - [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `findingsListView` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored allowlisted findings list view deep links; regression above. Private beta: shared links that only set `findingsListView` are no longer replaced with visit-default query keys on first load.
@@ -12695,8 +12697,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 115
-- **bugs-found:** 114
+- **hunts:** 116
+- **bugs-found:** 115
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24

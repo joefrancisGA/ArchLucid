@@ -275,6 +275,7 @@ import {
   isFindingJobViewSearchParam,
   REVIEW_FINDINGS_JOB_VIEW_PARAM,
 } from "@/lib/findings/review-findings-job-view-url";
+import { REVIEW_FINDINGS_TOOLBAR_FILTER_PARAM } from "@/lib/findings/review-findings-toolbar-filter-url";
 import {
   parseTrustEvidenceFieldsOpenFromSearch,
   parseTrustEvidenceTechOpenFromSearch,
@@ -667,6 +668,8 @@ export function useReviewDetailWorkspaceTabs(
     const findingsListViewPresent =
       parseReviewFindingsListViewFromSearch(params.get(REVIEW_FINDINGS_LIST_VIEW_PARAM)) !== null;
     const findingJobViewPresent = isFindingJobViewSearchParam(params.get(REVIEW_FINDINGS_JOB_VIEW_PARAM));
+    const findingsToolbarFilterPresent =
+      (params.get(REVIEW_FINDINGS_TOOLBAR_FILTER_PARAM)?.trim() ?? "").length > 0;
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -806,6 +809,7 @@ export function useReviewDetailWorkspaceTabs(
       || findingsClassificationBandPresent
       || findingsListViewPresent
       || findingJobViewPresent
+      || findingsToolbarFilterPresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent
