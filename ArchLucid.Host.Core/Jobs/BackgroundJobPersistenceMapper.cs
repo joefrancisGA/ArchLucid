@@ -10,7 +10,7 @@ internal static class BackgroundJobPersistenceMapper
         if (row is null)
             return null;
 
-        if (!Enum.TryParse(row.State, ignoreCase: true, out BackgroundJobState state))
+        if (!Enum.TryParse(row.State, ignoreCase: true, out BackgroundJobState state) || !Enum.IsDefined(state))
             state = BackgroundJobState.Failed;
 
         return new BackgroundJobInfo(
