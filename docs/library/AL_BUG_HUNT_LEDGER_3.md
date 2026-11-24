@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (seed-only): `ui-architecture-intelligence` pass-51 reseed. Scoped vitest **15/15**. Private beta: n/a.
+> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (seed-only): `ui-governance-findings-queue` pass-36 reseed. Scoped vitest **17/17**. Private beta: n/a.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -13616,8 +13616,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ---
 
-## Zone: ui-governance-findings-queue
-2026-11-24 thorough hunt #498 (dry): no rotation (shouldRotate: false; reason: No low-yield streak; keep default picker choice.; streak zone infra-evidence-diagrams at run-log tail is 1/3 before this record). Attempted failing repro on five pass-34 monitor rows — **valid-no-repro** saved view load retaining hideGeneric (workspace/run-scoped href rebuild omits hideGeneric; hook resets from storage when param absent; use-governance-findings-queue-saved-views.test.ts clears stale runId), **valid-no-repro** clear-all retaining hideGeneric (distinct from show-all; intentional filter chrome; show-all regression clears hideGeneric), **valid-no-repro** pick-review retaining focusedFinding when switching runId (triage cursor preserved by design; pick-review clears confirm params; regression family), **valid-no-repro** clear review scope retaining q (intentional; regression removes runId while preserving register/facet/search), **valid-no-repro** whitespace scopedRunId in applyFindingsSavedViewFilters (saved-views hook requires trim().length > 0 before run-scoped navigation; run-scoped href trims). Reseeded five pass-35 (candidate) rows. Scoped vitest **35/35** across clear-all, clear-scope, pick-review, saved-views hook, saved-view helpers. Private beta: n/a.
+## Zone: ui-governance-findings-queue-11-24 thorough hunt #498 (dry): no rotation (shouldRotate: false; reason: No low-yield streak; keep default picker choice.; streak zone infra-evidence-diagrams at run-log tail is 1/3 before this record). Attempted failing repro on five pass-34 monitor rows — **valid-no-repro** saved view load retaining hideGeneric (workspace/run-scoped href rebuild omits hideGeneric; hook resets from storage when param absent; use-governance-findings-queue-saved-views.test.ts clears stale runId), **valid-no-repro** clear-all retaining hideGeneric (distinct from show-all; intentional filter chrome; show-all regression clears hideGeneric), **valid-no-repro** pick-review retaining focusedFinding when switching runId (triage cursor preserved by design; pick-review clears confirm params; regression family), **valid-no-repro** clear review scope retaining q (intentional; regression removes runId while preserving register/facet/search), **valid-no-repro** whitespace scopedRunId in applyFindingsSavedViewFilters (saved-views hook requires trim().length > 0 before run-scoped navigation; run-scoped href trims). Reseeded five pass-35 (candidate) rows. Scoped vitest **35/35** across clear-all, clear-scope, pick-review, saved-views hook, saved-view helpers. Private beta: n/a.
 
 
 2026-11-24 thorough hunt (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**33** monitor rows — **valid-no-repro** `governanceFindingsWorkspaceSavedViewHref` / `governanceFindingsRunScopedSavedViewHref` rebuild from saved filters only (`router.replace` replaces full href; regressions in `governance-findings-saved-view-helpers.test.ts` and `use-governance-findings-queue-saved-views.test.ts`); **valid-no-repro** `governanceFindingsClearAllFiltersHref` retaining `focusedFinding` (triage cursor, not a register/facet filter; regression `preserves focusedFinding triage cursor while clearing register and facet filters`); **valid-no-repro** `useGovernanceRecordCorrectionUrlSync` vs pick-review (`governanceFindingsPickReviewForTriageHref` deletes `govCorrection*`; pick-review suite **7/7**); **valid-no-repro** clear review scope + `focusedFinding` (cursor hook strips unknown ids; regression `preserves focusedFinding while clearing review scope`). Scoped vitest **31/31** across saved-view, clear-all, clear-scope, pick-review, saved-views hook. Reseeded five pass-**34** `(candidate)` rows below. Private beta: n/a.
@@ -13635,11 +13634,19 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (valid-no-repro) `applyFindingsSavedViewFilters` — malformed `scopedRunId` whitespace may load run scope — **cheap-disproof 2026-11-24 thorough hunt #498:** saved-views hook gates on trim; run-scoped href trims runId.
 - [x] (superseded) pass-34 `(candidate)` queue — **superseded 2026-11-24 thorough hunt #498 (dry):** closed at zone header; see pass-35 reseed.
 
-- [ ] (candidate) `useGovernanceFindingsHideGenericState` — saved-view navigation may leave checkbox on while URL omits hideGeneric — locus: visibility hook storage fallback; input: hideGeneric=1 then load workspace saved view; monitor; pass-35 reseed.
-- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may drop focusedFinding when architecture scope forces full query reset — locus: pick-review href; input: architectureId + focusedFinding + pick run-9; monitor; pass-35 reseed.
-- [ ] (candidate) `governanceFindingsWorkspaceSavedViewHref` — may retain stale kbDisp params from currentSearch if helper regresses to merge — locus: href builder; input: kbDisp + load saved view; monitor; pass-35 reseed.
-- [ ] (candidate) `useGovernanceFindingsQueueSavedViews` — clearAllFilters may leave hideGeneric in URL while resetting register state — locus: clear-all navigation; input: hideGeneric=1 + filter=open; monitor; pass-35 reseed.
-- [ ] (candidate) `applyFindingsSavedViewFilters` — non-string scopedRunId should not throw when persisted payload is malformed — locus: saved-view parse; input: scopedRunId number; monitor; pass-35 reseed.
+- [x] (valid-no-repro) `useGovernanceFindingsHideGenericState` — saved-view navigation may leave checkbox on while URL omits hideGeneric — **cheap-disproof 2026-11-24 seed hunt (seed-only):** storage fallback after param strip is intentional; URL-sync regression.
+- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may drop focusedFinding when architecture scope forces full query reset — **cheap-disproof 2026-11-24 seed hunt (seed-only):** architecture scope reset clears register/facet params by design; pick-review suite **7/7**.
+- [x] (valid-no-repro) `governanceFindingsWorkspaceSavedViewHref` — may retain stale kbDisp params from currentSearch if helper regresses to merge — **cheap-disproof 2026-11-24 seed hunt (seed-only):** helper rebuilds from saved filters only; saved-view helper regressions.
+- [x] (valid-no-repro) `useGovernanceFindingsQueueSavedViews` — clearAllFilters may leave hideGeneric in URL while resetting register state — **cheap-disproof 2026-11-24 seed hunt (seed-only):** clear-all vs show-all split; not a saved-view load path.
+- [x] (valid-no-repro) `applyFindingsSavedViewFilters` — non-string scopedRunId should not throw when persisted payload is malformed — **cheap-disproof 2026-11-24 seed hunt (seed-only):** `typeof` guard coerces to `null`; no throw path.
+
+- [x] (superseded) pass-35 `(candidate)` queue — **superseded 2026-11-24 seed hunt (seed-only):** closed at zone header; see pass-36 reseed.
+
+- [ ] (candidate) `governanceFindingsRunScopedSavedViewHref` — run-scoped saved view load may retain stale `focusedFinding` when `scopedRunId` changes — locus: run-scoped href builder; input: focusedFinding + prior runId + load run-scoped view for run-2; monitor; pass-36 reseed.
+- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may strip `hideGeneric` when clearing run scope (regression vs clear-all split) — locus: clear-review-scope helper; input: hideGeneric=1 + runId + clear scope; monitor; pass-36 reseed.
+- [ ] (candidate) `applyFindingsSavedViewFilters` — non-string `registerFilter` may coerce to unsafe register chip — locus: saved-view parse; input: registerFilter number; wrong outcome: non-`all` filter without string token; monitor; pass-36 reseed.
+- [ ] (candidate) `normalizeFindingsNaturalLanguageFacets` — unknown `severity` string may survive as active facet — locus: NL facet normalization; input: severity `URGENT`; wrong outcome: matcher drift vs chip; monitor; pass-36 reseed.
+- [ ] (candidate) `GovernanceFindingsQueueClient` — full client Vitest selection VM heap blocks new router-replace ordering repros — locus: large client suite; input: isolated regression harness; monitor; pass-36 reseed.
 
 
 - [x] (superseded) pass **#33** monitor `(candidate)` queue — **superseded 2026-11-24 thorough hunt:** see hunt header above and pass **#34** reseed.
@@ -13713,9 +13720,9 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 4
+- **hunts:** 5
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
 - **related-pd-tb:** none
