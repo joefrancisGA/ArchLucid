@@ -331,30 +331,57 @@ public sealed class SecureNowAnalysisRunTests
         repository.Verify(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), ids[0], It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
+    private static AzureInventoryResourceRecord[] OversizedResources() =>
+        Enumerable.Range(0, 17_000)
+            .Select(i => new AzureInventoryResourceRecord { AzureResourceId = $"resource-{i}" })
+            .ToArray();
+
     [Fact]
-    public async Task Oversized_snapshot_coalesces_in_run_without_lru_retention()
+    public async Task Oversized_snapshot_is_shared_while_loading_and_reloaded_after_completion()
     {
         ScopeContext scope = CreateScope();
         Guid id = Guid.NewGuid();
-        AzureInventoryResourceRecord[] resources = Enumerable.Range(0, 17_000)
-            .Select(i => new AzureInventoryResourceRecord { AzureResourceId = $"resource-{i}" })
-            .ToArray();
+        TaskCompletionSource<AzureInventorySnapshotDetailReadModel?> reply =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
         Mock<IAzureInventorySnapshotRepository> repository = CreateRepository();
         repository.Setup(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new AzureInventorySnapshotDetailReadModel
+            .Returns(reply.Task);
+
+        using IDisposable run = SecureNowAnalysisRun.Begin();
+        var first = SecureNowAnalysisRun.LoadAsync(repository.Object, scope, id, default);
+        var follower = SecureNowAnalysisRun.LoadAsync(repository.Object, scope, id, default);
+        reply.SetResult(new() { Header = new() { SnapshotId = id }, Resources = OversizedResources() });
+
+        var loaded = await first;
+        loaded!.Snapshot.Resources.Should().HaveCount(17_000);
+        (await follower).Should().BeSameAs(loaded);
+        repository.Verify(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), id, It.IsAny<CancellationToken>()), Times.Once);
+
+        (await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, id, default)).Should().NotBeSameAs(loaded);
+        repository.Verify(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), id, It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task Completed_oversized_keys_do_not_displace_a_retained_small_snapshot()
+    {
+        ScopeContext scope = CreateScope();
+        Guid smallId = Guid.NewGuid();
+        var largeRows = OversizedResources();
+        Mock<IAzureInventorySnapshotRepository> repository = CreateRepository();
+        repository.Setup(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), It.Is<Guid>(id => id != smallId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext _, Guid id, CancellationToken _) => new AzureInventorySnapshotDetailReadModel
             {
                 Header = new() { SnapshotId = id },
-                Resources = resources,
+                Resources = largeRows,
             });
 
         using IDisposable run = SecureNowAnalysisRun.Begin();
-        SecureNowAnalysisSnapshot? first =
-            await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, id, default);
-        SecureNowAnalysisSnapshot? second =
-            await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, id, default);
-        first!.Snapshot.Resources.Should().HaveCount(17_000);
-        second.Should().BeSameAs(first);
-        repository.Verify(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), id, It.IsAny<CancellationToken>()), Times.Once);
+        var small = await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, smallId, default);
+        for (int i = 0; i < SecureNowAnalysisRun.MaxTrackedKeys + 1; i++)
+            await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, Guid.NewGuid(), default);
+
+        (await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, smallId, default)).Should().BeSameAs(small);
+        repository.Verify(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), smallId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

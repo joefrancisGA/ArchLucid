@@ -1,4 +1,5 @@
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
