@@ -222,6 +222,11 @@ public sealed class InMemoryVectorIndex : IVectorIndex, IVectorIndexEmbeddingMet
 
     private static bool MatchesQueryScope(RetrievalChunk chunk, RetrievalQuery query)
     {
+        // Legacy finding conversations were incorrectly tagged as platform documents.
+        if (chunk.TenantId == CorpusKindSentinels.PlatformSentinelTenantId &&
+            chunk.CorpusKind == CorpusKind.Conversation)
+            return false;
+
         bool tenantMatch = chunk.TenantId == query.TenantId
             && chunk.WorkspaceId == query.WorkspaceId
             && chunk.ProjectId == query.ProjectId
