@@ -191,6 +191,10 @@ import {
   BULK_EVIDENCE_UPLOAD_ERROR_DIAGNOSTICS_OPEN_PARAM,
 } from "@/lib/runs/bulk-evidence-upload-error-diagnostics-disclosure-url";
 import {
+  parseRunDetailBuyerSponsorBriefExportsOpenFromSearch,
+  RUN_DETAIL_BUYER_SPONSOR_BRIEF_EXPORTS_OPEN_PARAM,
+} from "@/lib/runs/run-detail-buyer-sponsor-brief-exports-disclosure-url";
+import {
   parseTrustEvidenceFieldsOpenFromSearch,
   parseTrustEvidenceTechOpenFromSearch,
   TRUST_EVIDENCE_FIELDS_OPEN_PARAM,
@@ -500,6 +504,9 @@ export function useReviewDetailWorkspaceTabs(
     const bulkEvidenceUploadErrorDiagnosticsOpenPresent = parseBulkEvidenceUploadErrorDiagnosticsOpenFromSearch(
       params.get(BULK_EVIDENCE_UPLOAD_ERROR_DIAGNOSTICS_OPEN_PARAM),
     );
+    const runDetailBuyerSponsorBriefExportsOpenPresent = parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(
+      params.get(RUN_DETAIL_BUYER_SPONSOR_BRIEF_EXPORTS_OPEN_PARAM),
+    );
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -612,6 +619,7 @@ export function useReviewDetailWorkspaceTabs(
       || runDetailSponsorBriefingOpenPresent
       || runDetailProvenanceIdentifiersOpenPresent
       || bulkEvidenceUploadErrorDiagnosticsOpenPresent
+      || runDetailBuyerSponsorBriefExportsOpenPresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent
