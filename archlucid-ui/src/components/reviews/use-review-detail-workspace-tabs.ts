@@ -154,6 +154,10 @@ import {
   parseQuickDecisionSupportingDetailFindingIdFromSearch,
   QUICK_DECISION_SUPPORTING_DETAIL_FINDING_ID_PARAM,
 } from "@/lib/findings/quick-decision-supporting-detail-disclosure-url";
+import {
+  parseQuickDecisionSecondaryFindingFindingIdFromSearch,
+  QUICK_DECISION_SECONDARY_FINDING_FINDING_ID_PARAM,
+} from "@/lib/findings/quick-decision-secondary-finding-disclosure-url";
 
 const WORKBENCH_TAB_IDS: readonly ReviewDetailTabId[] = ["architecture", "findings", "evidence"];
 
@@ -375,6 +379,10 @@ export function useReviewDetailWorkspaceTabs(
       parseQuickDecisionSupportingDetailFindingIdFromSearch(
         params.get(QUICK_DECISION_SUPPORTING_DETAIL_FINDING_ID_PARAM),
       ).length > 0;
+    const quickDecisionSecondaryFindingFindingIdPresent =
+      parseQuickDecisionSecondaryFindingFindingIdFromSearch(
+        params.get(QUICK_DECISION_SECONDARY_FINDING_FINDING_ID_PARAM),
+      ).length > 0;
     const runRecordMetaOpenPresent = parseRunDetailRecordMetadataOpenFromSearch(params.get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM));
     const askDockOpenPresent = parseReviewAskDockOpenFromSearch(params.get(REVIEW_ASK_DOCK_OPEN_PARAM));
     const askThreadPresent =
@@ -431,6 +439,7 @@ export function useReviewDetailWorkspaceTabs(
       || quickDecisionMuteFindingIdPresent
       || quickDecisionPolicyPackImpactOpenPresent
       || quickDecisionSupportingDetailFindingIdPresent
+      || quickDecisionSecondaryFindingFindingIdPresent
       || runRecordMetaOpenPresent
       || askDockOpenPresent
       || askThreadPresent
