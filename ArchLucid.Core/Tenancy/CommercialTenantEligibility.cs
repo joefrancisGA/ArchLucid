@@ -11,6 +11,9 @@ public static class CommercialTenantEligibility
     {
         ArgumentNullException.ThrowIfNull(tenant);
 
+        if (!Enum.IsDefined(tenant.Tier) || !Enum.IsDefined(minimumTier))
+            return false;
+
         if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Active)
             && (int)minimumTier >= (int)TenantTier.Standard)
         {
@@ -23,6 +26,9 @@ public static class CommercialTenantEligibility
     public static bool IsEligibleForWeeklySponsorReport(TenantRecord tenant)
     {
         ArgumentNullException.ThrowIfNull(tenant);
+
+        if (!Enum.IsDefined(tenant.Tier))
+            return false;
 
         if (tenant.SuspendedUtc is not null || tenant.OffboardedUtc is not null)
             return false;
