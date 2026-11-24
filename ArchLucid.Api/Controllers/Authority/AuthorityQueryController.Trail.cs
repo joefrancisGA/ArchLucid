@@ -132,14 +132,15 @@ public sealed partial class AuthorityQueryController
             if (sharingDenied is not null)
                 return this.NotFoundProblem($"Manifest '{manifestId}' was not found.", ProblemTypes.ManifestNotFound);
 
-            // Verify the exact requested manifest, not merely the run header's
-            // current golden manifest. Prior sealed manifest IDs remain valid
-            // when they belong to the authorized run and pass integrity.
-            var requestedManifest =
-                await queryService.GetManifestForSummaryVerificationAsync(scope, manifestId, ct);
-
             RunDetailDto? manifestDetail =
                 await queryService.GetRunDetailForManifestCompareAsync(scope, result.RunId, ct);
+
+            // The common current-manifest case already has the exact document;
+            // avoid an unnecessary second repository read. For a historical
+            // manifest ID, independently load and seal-verify that exact row.
+            var requestedManifest = manifestDetail?.GoldenManifest?.ManifestId == manifestId
+                ? manifestDetail.GoldenManifest
+                : await queryService.GetManifestForSummaryVerificationAsync(scope, manifestId, ct);
 
             IActionResult? sealedGuardResult = EnsureManifestSummarySealedReadAllowed(
                 scope, manifestId, result, requestedManifest, manifestDetail);
