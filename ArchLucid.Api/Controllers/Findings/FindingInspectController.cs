@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Findings;
@@ -34,8 +35,12 @@ public sealed partial class FindingInspectController(
     IFindingTrustLabelMapper findingTrustLabelMapper,
     IScopeContextProvider scopeContextProvider,
     IAuthorityQueryService authorityQueryService,
-    IManifestHashService manifestHashService) : ControllerBase
+    IManifestHashService manifestHashService,
+    IArchitectureShareAccessGate architectureShareAccessGate) : ControllerBase
 {
+    private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
+        architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
+
     private readonly IFindingInspectReadRepository _findingInspectReadRepository =
         findingInspectReadRepository ?? throw new ArgumentNullException(nameof(findingInspectReadRepository));
 
@@ -83,18 +88,35 @@ public sealed partial class FindingInspectController(
         try
         {
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-            FindingInspectReadOptions options = includeTypedPayload
-                ? FindingInspectReadOptions.Full
-                : FindingInspectReadOptions.MetadataOnly;
-            FindingInspectResponse? body = await _findingInspectReadRepository.GetInspectAsync(scope, findingId, ct, options);
+            string trimmedFindingId = findingId.Trim();
+            IActionResult MissingFinding() => this.NotFoundProblem(
+                $"Finding '{trimmedFindingId}' was not found in the current scope.",
+                ProblemTypes.ResourceNotFound);
 
-            if (body is null)
-                return this.NotFoundProblem(
-                    $"Finding '{findingId.Trim()}' was not found in the current scope.",
-                    ProblemTypes.ResourceNotFound);
+            Guid? owner = await _findingInspectReadRepository.GetRunIdByFindingIdAsync(scope, trimmedFindingId, ct);
+            if (owner is not Guid runId || runId == Guid.Empty)
+                return MissingFinding();
+
+            IActionResult? shareDenied = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+                this, User, scope, runId, ct);
+            if (shareDenied is not null)
+                return MissingFinding();
+
+            // Bind both projections to the authorized owner, not a fresh latest-run selection.
+            FindingInspectReadOptions options = new()
+            {
+                IncludeTypedPayload = includeTypedPayload,
+                ExpectedRunId = runId,
+            };
+            FindingInspectResponse? body = await _findingInspectReadRepository.GetInspectAsync(
+                scope, trimmedFindingId, ct, options);
+
+            if (body is null || body.RunId != runId ||
+                !string.Equals(body.FindingId, trimmedFindingId, StringComparison.OrdinalIgnoreCase))
+                return MissingFinding();
 
             IActionResult? sealedGuardResult =
-                await EnsureFindingInspectSealedManifestReadAllowedAsync(body.RunId, ct);
+                await EnsureFindingInspectSealedManifestReadAllowedAsync(scope, runId, ct);
 
             if (sealedGuardResult is not null)
                 return sealedGuardResult;
@@ -105,14 +127,9 @@ public sealed partial class FindingInspectController(
                 _authorityQueryService,
                 ct);
 
-            string trimmedFindingId = findingId.Trim();
-
             IReadOnlyDictionary<string, RunFindingExternalTrackingProjection> trackingByFindingId =
-                await _runFindingExternalTrackingEnrichmentService.LoadForFindingsAsync(
-                    scope.TenantId,
-                    findingsSnapshotId: null,
-                    [trimmedFindingId],
-                    ct);
+                await _runFindingExternalTrackingEnrichmentService.LoadForAuthorizedRunFindingsAsync(
+                    scope, runId, [trimmedFindingId], ct);
 
             trackingByFindingId.TryGetValue(trimmedFindingId, out RunFindingExternalTrackingProjection? tracking);
 
