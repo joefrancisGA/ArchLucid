@@ -1,6 +1,7 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Authorization;
@@ -38,11 +39,15 @@ public sealed partial class ProvenanceController(
     IProvenanceQueryService service,
     IScopeContextProvider scopeProvider,
     IAuthorityQueryService authorityQueryService,
-    IManifestHashService manifestHashService)
+    IManifestHashService manifestHashService,
+    IArchitectureShareAccessGate architectureShareAccessGate)
     : ControllerBase
 {
     private readonly IManifestHashService manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+    private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
+        architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
+
     /// <summary>Returns the full provenance graph for a run.</summary>
     /// <param name="runId">Architecture run id.</param>
     /// <param name="ct">Cancellation token.</param>
