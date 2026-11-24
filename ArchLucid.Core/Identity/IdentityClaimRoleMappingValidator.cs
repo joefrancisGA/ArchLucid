@@ -39,6 +39,16 @@ public static class IdentityClaimRoleMappingValidator
                 $"RoleClaimName is '{roleClaimName}'."));
         }
 
+        if (mapping.Mappings is null)
+        {
+            results.Add(new SamlTestConfigComponentResult(
+                "claimMapping.mappings",
+                SamlTestConfigComponentStatus.Fail,
+                "Mappings must be an array, not null."));
+
+            return results;
+        }
+
         if (mapping.Mappings.Count == 0)
         {
             results.Add(new SamlTestConfigComponentResult(
@@ -58,6 +68,16 @@ public static class IdentityClaimRoleMappingValidator
 
         foreach (IdentityClaimRoleMappingEntry entry in mapping.Mappings)
         {
+            if (entry is null)
+            {
+                results.Add(new SamlTestConfigComponentResult(
+                    "claimMapping.mappings",
+                    SamlTestConfigComponentStatus.Fail,
+                    "Mapping entries must not be null."));
+
+                continue;
+            }
+
             string idpValue = entry.IdpValue?.Trim() ?? string.Empty;
             string archLucidRole = entry.ArchLucidRole?.Trim() ?? string.Empty;
             string component = $"claimMapping.mappings['{idpValue}']";
