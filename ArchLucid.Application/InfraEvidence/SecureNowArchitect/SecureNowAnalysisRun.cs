@@ -129,12 +129,11 @@ internal static class SecureNowAnalysisRun
                 }
                 else
                 {
-                    // Oversized snapshots skip LRU retention but stay in the run index so
-                    // subsequent engines coalesce on the same in-memory load.
-                    entry.EstimatedBytes = 0;
+                    // Existing waiters still own the completion. Release the run's reference.
+                    run.Remove(entry);
                 }
+                entry.Completion.TrySetResult(loaded);
             }
-            entry.Completion.TrySetResult(loaded);
         }
         catch (OperationCanceledException ex)
         {

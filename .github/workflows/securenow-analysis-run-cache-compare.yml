@@ -5,6 +5,7 @@ on:
     branches: [master, main]
     paths:
       - 'ArchLucid.Application/InfraEvidence/SecureNowArchitect/SecureNowAnalysisRun.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/SecureNowAnalysisRunTests.cs'
       - 'tools/SecureNow.AnalysisRunCacheBench/**'
       - 'scripts/ci/compare_securenow_analysis_run_cache.py'
       - 'scripts/ci/test_compare_securenow_analysis_run_cache.py'
@@ -27,6 +28,11 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
+      - name: Run focused cache lifetime and concurrency tests
+        run: >-
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~SecureNowAnalysisRunTests'
+          --logger 'console;verbosity=normal'
       - name: Build isolated cache benchmark host (Release)
         run: dotnet build tools/SecureNow.AnalysisRunCacheBench/SecureNow.AnalysisRunCacheBench.csproj -c Release
       - name: Validate offline comparison artifact contract
