@@ -232,6 +232,35 @@ public sealed class ConversationControllerShareAccessTests
         h.Messages.VerifyNoOtherCalls();
     }
 
+    [Fact]
+    public async Task Listing_does_not_let_a_full_page_of_hidden_threads_crowd_out_a_visible_thread()
+    {
+        Harness h = new();
+        ConversationThread[] denied = Enumerable.Range(0, PaginationDefaults.MaxPageSize)
+            .Select(_ => Thread(B)).ToArray();
+        ConversationThread visible = Thread(A);
+        h.CanRead(B, false);
+        h.CanRead(A, true);
+        h.Project(A, B);
+        h.Threads.Setup(t => t.ListByScopePagedAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId,
+                0, PaginationDefaults.MaxPageSize, CancellationToken.None))
+            .ReturnsAsync(((IReadOnlyList<ConversationThread>)denied, denied.Length + 1));
+        h.Threads.Setup(t => t.ListByScopePagedAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId,
+                denied.Length, PaginationDefaults.MaxPageSize, CancellationToken.None))
+            .ReturnsAsync(((IReadOnlyList<ConversationThread>)new[] { visible }, denied.Length + 1));
+        h.ListingMessages(visible, Turn(visible, "allowed", Actor, [A], 1));
+
+        IActionResult result = await h.Controller.ListThreads(page: 1, pageSize: 1, ct: CancellationToken.None);
+        PagedResponse<ConversationThread> response = result.Should().BeOfType<OkObjectResult>().Which.Value
+            .Should().BeOfType<PagedResponse<ConversationThread>>().Subject;
+
+        response.TotalCount.Should().Be(1);
+        response.Items.Should().ContainSingle().Which.ThreadId.Should().Be(visible.ThreadId);
+        h.Access.Verify(a => a.CanReadRunAsync(Scope, B, CancellationToken.None), Times.Once);
+        h.Messages.Verify(m => m.GetByThreadIdAsync(visible.ThreadId, 40, CancellationToken.None), Times.Once);
+        h.Messages.VerifyNoOtherCalls();
+    }
+
     private static ConversationThread Thread(Guid? runId) => new()
     {
         ThreadId = Guid.NewGuid(), TenantId = Scope.TenantId, WorkspaceId = Scope.WorkspaceId,
