@@ -3101,7 +3101,8 @@ export function DiagramsWorkbenchClient() {
           ) : null}
           {evidenceFamilyFilterEnabled
             && effectiveEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
-            && familyFilteredOutline?.edges.length === 0 ? (
+            && familyFilteredOutline?.edges.length === 0
+            && loadError == null ? (
             <>
               <p
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

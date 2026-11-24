@@ -560,6 +560,8 @@ export function ResourcesExplorerClient() {
         </div>
       ) : null}
 
+      {loadError == null ? (
+        <>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <StatusTag kind="neutral" label={pageRangeLabel} data-testid="infra-resource-explorer-page-range" />
@@ -945,6 +947,8 @@ export function ResourcesExplorerClient() {
           })}
         </EnterpriseTableBody>
       </EnterpriseTable>
+        </>
+      ) : null}
 
         <ResourcesExplorerClaimOrientationStrip />
         <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-resource-explorer-build-provenance-limitation" />

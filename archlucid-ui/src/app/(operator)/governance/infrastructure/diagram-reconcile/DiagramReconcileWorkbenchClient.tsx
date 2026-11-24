@@ -2052,7 +2052,7 @@ export function DiagramReconcileWorkbenchClient() {
         />
       ) : null}
 
-      {reconciliation != null ? (
+      {reconciliation != null && reconciliationLoadState !== "error" ? (
         <section className="flex flex-col gap-4" aria-label="Reconciliation results">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
