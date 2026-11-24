@@ -56,4 +56,44 @@ describe("applyArchitectureDiagramOverrides", () => {
     expect(applied.edges.some((edge) => edge.sourceId === "system_gamma" && edge.targetId === "system_alpha" && !edge.removed)).toBe(true);
     expect(applied.edges.some((edge) => edge.sourceId === "system_alpha" && edge.targetId === "system_beta")).toBe(false);
   });
+
+  it("applies node removal by entity fingerprint when positional node ids shift after reorder", () => {
+    function buildQueuesModel(
+      order: readonly { readonly label: string; readonly detail: string | null }[],
+    ) {
+      return buildArchitectureDiagramModel(
+        {
+          sections: [
+            {
+              key: "systems-and-services",
+              title: "Systems",
+              narrativeMarkdown: null,
+              entities: order.map((entity) => ({ ...entity, provenance: "asserted" as const })),
+              provenance: "asserted",
+            },
+          ],
+          hasPartialParseFailure: false,
+          suppressedArtifactCount: 0,
+          sourceText: "diagram",
+        },
+        "Test",
+      );
+    }
+
+    const original = buildQueuesModel([
+      { label: "Queue", detail: "first" },
+      { label: "Queue", detail: "second" },
+    ]);
+    const removedTarget = original.nodes[1];
+
+    expect(removedTarget.id).toBe("system_queue_1");
+
+    const shifted = buildQueuesModel([
+      { label: "Queue", detail: "second" },
+      { label: "Queue", detail: "first" },
+    ]);
+    const applied = applyArchitectureDiagramOverrides(shifted, [{ ...removedTarget, removed: true }], []);
+
+    expect(applied.nodes.filter((node) => !node.removed).map((node) => node.id)).toEqual(["system_queue_1"]);
+  });
 });
