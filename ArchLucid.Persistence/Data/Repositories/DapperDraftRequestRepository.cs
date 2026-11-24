@@ -1,3 +1,4 @@
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
@@ -117,7 +118,9 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
     {
         ArgumentNullException.ThrowIfNull(expected);
         PersistenceTenantScope.RequireEntityTenant(expected.TenantId);
-        if (threadId == Guid.Empty ||
+        if (threadId == Guid.Empty || expected.DocumentContentHashSha256 is null ||
+            !DraftDocumentContentFingerprint.SequenceEqual(expected.DocumentContentHashSha256,
+                DraftDocumentContentFingerprint.Compute(expected.Document)) ||
             expected.Status is not (DraftRequestStatus.Drafting or DraftRequestStatus.Admitted))
             return null;
 
@@ -137,21 +140,22 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
               AND Status = @Status
               AND UpdatedUtc = @UpdatedUtc
               AND ((ArchitectureId IS NULL AND @ArchitectureId IS NULL) OR ArchitectureId = @ArchitectureId)
-              AND ((DocumentContentHashSha256 IS NULL AND @ExpectedHash IS NULL)
-                   OR DocumentContentHashSha256 = @ExpectedHash);
+              AND DocumentContentHashSha256 = @ExpectedHash;
             SELECT @@ROWCOUNT;
             """;
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
-        int rows = await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, new
+        DynamicParameters parameters = new(new
         {
             expected.DraftId, expected.TenantId, expected.WorkspaceId, expected.ProjectId,
-            Status = expected.Status.ToString(),
-            expected.UpdatedUtc, expected.ArchitectureId,
+            Status = expected.Status.ToString(), expected.ArchitectureId,
             ExpectedHash = expected.DocumentContentHashSha256,
             DocumentJson = JsonSerializer.Serialize(document, JsonOptions),
             NewHash = DraftDocumentContentFingerprint.Compute(document),
-            Now = TimeProvider.System.GetUtcNow().UtcDateTime,
-        }, cancellationToken: ct, commandTimeout: InteractiveDraftCommandTimeoutSeconds));
+        });
+        parameters.Add("UpdatedUtc", expected.UpdatedUtc, DbType.DateTime2);
+        parameters.Add("Now", TimeProvider.System.GetUtcNow().UtcDateTime, DbType.DateTime2);
+        int rows = await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, parameters,
+            cancellationToken: ct, commandTimeout: InteractiveDraftCommandTimeoutSeconds));
 
         return rows == 1
             ? await GetAsync(expected.TenantId, expected.WorkspaceId, expected.ProjectId, expected.DraftId, ct)
