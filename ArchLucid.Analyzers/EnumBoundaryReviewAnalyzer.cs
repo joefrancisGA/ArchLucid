@@ -20,7 +20,8 @@ public sealed class EnumBoundaryReviewAnalyzer : DiagnosticAnalyzer
         "Raw enum conversion '{0}' requires declared-value or flags-mask validation",
         "Architecture",
         DiagnosticSeverity.Info,
-        isEnabledByDefault: true);
+        isEnabledByDefault: true,
+        customTags: new[] { WellKnownDiagnosticTags.NotConfigurable });
 
     internal static readonly DiagnosticDescriptor BlockingRule = new(
         BlockingDiagnosticId,
@@ -28,7 +29,8 @@ public sealed class EnumBoundaryReviewAnalyzer : DiagnosticAnalyzer
         "Raw enum conversion '{0}' must use an explicitly validated boundary parser",
         "Architecture",
         DiagnosticSeverity.Error,
-        isEnabledByDefault: true);
+        isEnabledByDefault: true,
+        customTags: new[] { WellKnownDiagnosticTags.NotConfigurable });
 
     internal static readonly DiagnosticDescriptor CoverageRule = new(
         CoverageDiagnosticId,
@@ -37,7 +39,7 @@ public sealed class EnumBoundaryReviewAnalyzer : DiagnosticAnalyzer
         "Architecture",
         DiagnosticSeverity.Info,
         isEnabledByDefault: true,
-        customTags: new[] { WellKnownDiagnosticTags.CompilationEnd });
+        customTags: new[] { WellKnownDiagnosticTags.CompilationEnd, WellKnownDiagnosticTags.NotConfigurable });
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(Rule, BlockingRule, CoverageRule);
