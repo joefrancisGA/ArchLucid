@@ -131,4 +131,25 @@ public sealed class AzureOpenAiHealthCheckTests
 
     private static IConfiguration BuildConfiguration(Dictionary<string, string?> values) =>
         new ConfigurationBuilder().AddInMemoryCollection(values).Build();
+
+    [Theory]
+    [InlineData("file:///tmp/example")]
+    [InlineData("mailto:operator@example.invalid")]
+    [InlineData("ftp://example.invalid/")]
+    [InlineData("https://user:password@example.invalid/")]
+    public async Task CheckHealthAsync_rejects_unsupported_authorities_without_network_probe(string endpoint)
+    {
+        IConfiguration configuration = BuildConfiguration(
+            new Dictionary<string, string?>
+            {
+                ["AgentExecution:Mode"] = "Real",
+                ["AzureOpenAI:Endpoint"] = endpoint
+            });
+        AzureOpenAiHealthCheck check = new(configuration);
+        HealthCheckResult result = await check.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
+
+        result.Status.Should().Be(HealthStatus.Unhealthy);
+        result.Description.Should().Contain("valid absolute URL");
+        result.Exception.Should().BeNull();
+    }
 }
