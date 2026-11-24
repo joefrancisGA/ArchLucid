@@ -60,6 +60,12 @@ public static class ConfigurationKeyRequirement
 
                 reason = "AgentExecution:Mode is Real and completion client is not Echo.";
                 return true;
+            case ConfigKeyRequirementKind.WhenRealLlmNotEchoWithApiKey:
+                if (!IsRealMode(c) || IsEchoClient(c) || AzureOpenAiConfigurationProbe.UsesManagedIdentity(c))
+                    return false;
+
+                reason = "Real non-Echo completion requires an API key when managed identity is not selected.";
+                return true;
             case ConfigKeyRequirementKind.WhenApiKeyEnabled:
 
                 if (!IsConfigurationBooleanEnabled(c, "Authentication:ApiKey:Enabled"))
