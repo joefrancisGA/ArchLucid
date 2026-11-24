@@ -251,4 +251,37 @@ public sealed class InfrastructureCostSummaryNotesTests
         note.Should().NotContain("No billable topology rows");
         note.Should().Contain("Illustrative Azure");
     }
+
+    [Theory]
+    [InlineData(RuntimePlatform.Ec2, "AWS")]
+    [InlineData(RuntimePlatform.Gke, "GCP")]
+    [InlineData(RuntimePlatform.AppService, "Azure")]
+    public void ComposeRetailBlendNote_all_fallback_reports_no_live_matches(RuntimePlatform platform, string cloud)
+    {
+        InfrastructureCostEstimateTotals totals = new(
+            [new InfrastructureCostLine("topology", "app", platform, "product", 45m, InfrastructureCostPriceSource.Estimated)],
+            45m,
+            AnyRetailPricing: false,
+            AllRetailPricing: false);
+
+        string note = InfrastructureCostSummaryNotes.ComposeRetailBlendNote(totals);
+
+        note.Should().Contain(cloud).And.Contain("no live pricing matches").And.NotContain("Blend");
+    }
+
+    [Fact]
+    public void ComposeRetailBlendNote_multicloud_all_fallback_reports_no_live_matches()
+    {
+        InfrastructureCostEstimateTotals totals = new(
+            [
+                new InfrastructureCostLine("topology", "web", RuntimePlatform.Ec2, "EC2", 85m, InfrastructureCostPriceSource.Estimated),
+                new InfrastructureCostLine("topology", "app", RuntimePlatform.Gke, "GKE", 120m, InfrastructureCostPriceSource.Estimated)
+            ],
+            205m,
+            AnyRetailPricing: false,
+            AllRetailPricing: false);
+
+        InfrastructureCostSummaryNotes.ComposeRetailBlendNote(totals)
+            .Should().Contain("no live pricing matches").And.NotContain("Blend");
+    }
 }
