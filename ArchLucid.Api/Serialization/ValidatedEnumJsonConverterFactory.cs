@@ -18,9 +18,16 @@ internal sealed class ValidatedEnumJsonConverterFactory(JsonStringEnumConverter 
             typeof(ValidatedEnumConverter<>).MakeGenericType(typeToConvert), converter)!;
     }
 
-    private sealed class ValidatedEnumConverter<TEnum>(JsonConverter<TEnum> inner) : JsonConverter<TEnum>
+    private sealed class ValidatedEnumConverter<TEnum> : JsonConverter<TEnum>
         where TEnum : struct, Enum
     {
+        private readonly JsonConverter<TEnum> _inner;
+
+        public ValidatedEnumConverter(JsonConverter<TEnum> inner)
+        {
+            _inner = inner ?? throw new ArgumentNullException(nameof(inner));
+        }
+
         private static readonly bool IsFlags = typeof(TEnum).IsDefined(typeof(FlagsAttribute), inherit: false);
         private static readonly ulong AllowedBits = IsFlags
             ? Enum.GetValues<TEnum>().Aggregate(0UL, static (mask, value) => mask | Bits(value))
@@ -29,25 +36,25 @@ internal sealed class ValidatedEnumJsonConverterFactory(JsonStringEnumConverter 
         public override TEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             RejectCompositeOrdinaryEnum(ref reader);
-            return Validate(inner.Read(ref reader, typeToConvert, options));
+            return Validate(_inner.Read(ref reader, typeToConvert, options));
         }
 
         public override TEnum ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             RejectCompositeOrdinaryEnum(ref reader);
-            return Validate(inner.ReadAsPropertyName(ref reader, typeToConvert, options));
+            return Validate(_inner.ReadAsPropertyName(ref reader, typeToConvert, options));
         }
 
         // Keep established response serialization, including legacy sentinel values, byte-compatible.
         public override void Write(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options) =>
-            inner.Write(writer, value, options);
+            _inner.Write(writer, value, options);
 
         public override void WriteAsPropertyName(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options) =>
-            inner.WriteAsPropertyName(writer, value, options);
+            _inner.WriteAsPropertyName(writer, value, options);
 
         private static void RejectCompositeOrdinaryEnum(ref Utf8JsonReader reader)
         {
-            if (!IsFlags && reader.TokenType is JsonTokenType.String or JsonTokenType.PropertyName
+            if (!IsFlags && (reader.TokenType is JsonTokenType.String or JsonTokenType.PropertyName)
                 && reader.GetString()?.Contains(',') == true)
             {
                 throw new JsonException($"Composite values are not valid for {typeof(TEnum).Name}.");
