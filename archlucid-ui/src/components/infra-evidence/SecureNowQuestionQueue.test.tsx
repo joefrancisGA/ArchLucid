@@ -577,7 +577,10 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByTestId("infra-diagrams-question-resource-name")).toHaveTextContent(
       "Resource group question",
     );
-    expect(screen.getByText("Scope: Question scope was not stored.")).toBeInTheDocument();
+    // The known PolicyPack prompt yields an explicitly marked inferred scope.
+    expect(screen.getByText(
+      "Scope: This resource group. Scope kind was not stored; inferred from pack prompt.",
+    )).toBeInTheDocument();
     expect(screen.queryByText("Resource type was not stored")).not.toBeInTheDocument();
   });
 

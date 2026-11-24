@@ -12,14 +12,18 @@ describe("operator-only preference provider route boundary (RC49 first-load budg
     const root = read("app/layout.tsx");
     expect(root).not.toContain("SampleReviewsOnOverviewPreferenceProvider");
     expect(root).not.toContain("WhereToGoNextPreferenceProvider");
-    // These shared dependencies and the Working/Rehearsal context remain in place.
+    // Color mode, workspace mode and the Working/Rehearsal context remain global.
+    // TanStack Query persistence and its operator-only seal effect must not hydrate
+    // in public marketing routes.
     expect(root).toContain("<WorkspaceModeProvider>");
-    expect(root).toContain("<OperatorQueryProvider>");
     expect(root).toContain("<WorkingCareerRehearsalIntentProvider>");
+    expect(root).not.toContain("OperatorQueryProvider");
   });
 
   it("retains the same ordered preference wrappers inside operator routes", () => {
     const layout = read("app/(operator)/layout.tsx");
+    expect(layout).toMatch(/<OperatorQueryProvider>\s*<WhereToGoNextPreferenceProvider>/u);
+    expect(layout).toMatch(/<\/WhereToGoNextPreferenceProvider>\s*<\/OperatorQueryProvider>/u);
     expect(layout).toMatch(
       /<WhereToGoNextPreferenceProvider>\s*<SampleReviewsOnOverviewPreferenceProvider>\s*<OperatorLayoutClient>/u,
     );

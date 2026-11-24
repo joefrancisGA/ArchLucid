@@ -1,0 +1,37 @@
+# Focused create-home navigation check only; never dispatch full master CI.
+name: RC49 Create Home Activity navigation
+
+on:
+  pull_request:
+    branches: [RC49]
+    paths:
+      - "archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailCreateHomeActivityPanel.tsx"
+      - "archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailCreateHomeActivityPanel.test.tsx"
+      - ".github/workflows/rc49-ci19968-create-home-activity.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  create-home-navigation:
+    name: "RC49: preserve Create Home Activity intent"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+      - name: Run focused navigation contract tests
+        working-directory: archlucid-ui
+        env:
+          CI: "true"
+        run: |
+          npm ci
+          npm run test:vitest-single-worker -- \
+            'src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailCreateHomeActivityPanel.test.tsx' \
+            src/lib/run-detail-create-home-activity-band.test.ts \
+            src/lib/unified-review-workspace-tabs.test.ts
+          npm run typecheck

@@ -438,7 +438,7 @@ describe("ReviewsHubReviewInventory", () => {
         createdUtc: "2026-08-01T12:00:00.000Z",
         isArchived: true,
       } satisfies RunSummary,
-    ]);
+    ], archivedReviewsClientCacheKey(archiveScope));
 
     render(
       <ReviewsHubReviewInventory
@@ -456,6 +456,7 @@ describe("ReviewsHubReviewInventory", () => {
 
     expect(screen.getByRole("button", { name: "Filter reviews: All (1)" })).toBeInTheDocument();
 
+    expect(screen.getByRole("button", { name: "Filter reviews: Archived (1)" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Filter reviews: Archived/ }));
 
     expect(screen.getByRole("button", { name: "Filter reviews: All (2)" })).toBeInTheDocument();

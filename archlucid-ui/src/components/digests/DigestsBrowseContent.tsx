@@ -208,6 +208,22 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
                 </div>
               }
             />
+          ) : setupChecklist !== null ? (
+            <>
+              <DigestsBrowseSetupChecklist items={setupChecklist} />
+              <DigestsBrowseSetupEmptyPartialHonesty />
+              {subscriptionListOnlyEmpty ? (
+                <div className="space-y-2" data-testid="digests-browse-subscription-list-only-empty">
+                  <p
+                    className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="digests-browse-subscription-list-only-empty-not-load-failure"
+                  >
+                    {DIGESTS_BROWSE_SUBSCRIPTION_LIST_ONLY_EMPTY_NOT_LOAD_FAILURE_LINE}
+                  </p>
+                  <DigestsBrowseSubscriptionListOnlyEmptyPartialHonesty />
+                </div>
+              ) : null}
+            </>
           ) : subscriptionListOnlyEmpty ? (
             <EnterpriseCompactEmptyState
               testId="digests-empty-state"
@@ -225,22 +241,6 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
                 </div>
               }
             />
-          ) : setupChecklist !== null ? (
-            <>
-              <DigestsBrowseSetupChecklist items={setupChecklist} />
-              <DigestsBrowseSetupEmptyPartialHonesty />
-              {subscriptionListOnlyEmpty ? (
-                <div className="space-y-2" data-testid="digests-browse-subscription-list-only-empty">
-                  <p
-                    className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-                    data-testid="digests-browse-subscription-list-only-empty-not-load-failure"
-                  >
-                    {DIGESTS_BROWSE_SUBSCRIPTION_LIST_ONLY_EMPTY_NOT_LOAD_FAILURE_LINE}
-                  </p>
-                  <DigestsBrowseSubscriptionListOnlyEmptyPartialHonesty />
-                </div>
-              ) : null}
-            </>
           ) : (
             <EnterpriseCompactEmptyState
               testId="digests-empty-state"

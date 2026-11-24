@@ -1,4 +1,4 @@
-# Diagnostic current-RC49 regression recheck for exact files that failed in
+# Revalidate current RC49 integration after the original regression repairs; exact files failed in
 # completed full CI #19670 at older head 90c1612. No full CI or master build.
 name: RC49 historical Vitest failure recheck
 

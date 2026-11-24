@@ -12,8 +12,8 @@ public sealed class SecretsLifecycleInventoryParserTests
         "arn:aws:secretsmanager:us-east-1:111122223333:secret:prod-payment-key-AbC123",
         "prod-payment-key")]
     [InlineData(
-        "arn:aws:secretsmanager:us-east-1:111122223333:secret:prod-abcdef-ZyX987",
-        "prod-abcdef")]
+        "arn:aws:secretsmanager:us-east-1:111122223333:secret:prod-aaaaaa-Aa0000",
+        "prod-aaaaaa")]
     [InlineData(
         "arn:aws:secretsmanager:us-east-1:111122223333:secret:prod-payment-key",
         "prod-payment-key")]

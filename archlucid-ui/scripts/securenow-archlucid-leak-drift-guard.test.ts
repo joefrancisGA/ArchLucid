@@ -19,6 +19,11 @@ describe("securenow ArchLucid leak drift guard (SN-07)", () => {
   it("loads the CI allowlist with strict migrated paths", () => {
     expect(allowlist.strictPaths).toContain("src/lib/security-trust-product-copy.ts");
     expect(allowlist.fileExclusions.length).toBeGreaterThan(0);
+    // The architecture-only commercial quote copy is not a SecureNow shell surface.
+    // Preserve strict scanning of shared and Security-specific modules.
+    expect(allowlist.fileExclusions.some(({ path }) =>
+      path === "src/lib/buyer-copy/archlucid-commercial-order-acceptance-copy.ts",
+    )).toBe(true);
     expect(allowlist.linePatterns.length).toBeGreaterThan(0);
   });
 

@@ -21,7 +21,6 @@ import { buildColorModeBootstrapInlineScript } from "@/lib/color-mode-bootstrap"
 import { resolveAuthorityThemeFromEnv } from "@/lib/ui-authority-theme";
 
 import { ColorModePreferenceProvider } from "@/components/ColorModePreferenceProvider";
-import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
 import { WorkspaceModeProvider } from "@/components/WorkspaceModeProvider";
 import { WorkingCareerRehearsalIntentProvider } from "@/components/governance/WorkingCareerRehearsalIntentProvider";
 
@@ -85,9 +84,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="min-h-screen font-sans">
         <ColorModePreferenceProvider>
           <WorkspaceModeProvider>
-            <OperatorQueryProvider>
-              <WorkingCareerRehearsalIntentProvider>{children}</WorkingCareerRehearsalIntentProvider>
-            </OperatorQueryProvider>
+            <WorkingCareerRehearsalIntentProvider>{children}</WorkingCareerRehearsalIntentProvider>
           </WorkspaceModeProvider>
         </ColorModePreferenceProvider>
       </body>

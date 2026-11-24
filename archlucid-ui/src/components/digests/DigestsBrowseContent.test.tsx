@@ -123,6 +123,9 @@ describe("DigestsBrowseContent", () => {
 
     // Exactly one next-step story: the checklist. No competing summary empty state.
     expect(within(empty).getByTestId("digests-browse-setup-checklist")).toBeInTheDocument();
+    // When subscriptions are absent, setup remains actionable while explicitly
+    // distinguishing missing recipients from a digest catalog read failure.
+    expect(within(empty).getByTestId("digests-browse-subscription-list-only-empty")).toBeInTheDocument();
     expect(screen.queryByTestId("digests-empty-state")).not.toBeInTheDocument();
 
     // Includes preview stays behind disclosure until the operator expands it (TB-1480).

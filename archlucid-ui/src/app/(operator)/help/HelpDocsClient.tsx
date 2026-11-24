@@ -272,6 +272,13 @@ export function HelpDocsClient() {
     });
   }, [mergedEntries, query, localize]);
 
+  // The built-in index already links to the path chooser. Do not render an
+  // identical introductory anchor on top of that entry; keep the fallback CTA
+  // only when the index really lacks this destination.
+  const showPathChooserIntroduction = !mergedEntries.some(
+    (entry) => docIndexMergeDedupeKey(entry.url) === docIndexMergeDedupeKey(PATH_CHOOSER_HELP_PATH),
+  );
+
   const grouped = useMemo(() => {
     const map = new Map<string, DocIndexEntry[]>();
 
@@ -301,13 +308,15 @@ export function HelpDocsClient() {
         <strong>Shortcuts</strong> — Use the command palette or search in the shell header where available; shortcut hints appear
         on nav items when configured.
       </p>
-      <p className={OPERATOR_TYPOGRAPHY.body}>
-        Not sure where to begin?{" "}
-        <Link href={PATH_CHOOSER_HELP_PATH} className={OPERATOR_LINK.inline}>
-          Choose your next step
-        </Link>
-        .
-      </p>
+      {showPathChooserIntroduction ? (
+        <p className={OPERATOR_TYPOGRAPHY.body}>
+          Not sure where to begin?{" "}
+          <Link href={PATH_CHOOSER_HELP_PATH} className={OPERATOR_LINK.inline}>
+            Choose your next step
+          </Link>
+          .
+        </p>
+      ) : null}
       {indexRefreshWarning !== null ? (
         <p className={cn(OPERATOR_TYPOGRAPHY.body, "text-amber-800 dark:text-amber-200")} role="status">
           {loadError !== null
