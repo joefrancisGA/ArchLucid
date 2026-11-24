@@ -122,6 +122,10 @@ import {
   parseTransparencyTrailOpenFromSearch,
   TRANSPARENCY_TRAIL_OPEN_PARAM,
 } from "@/lib/reviews/transparency-trail-open-url";
+import {
+  parseRunAssessmentNarrativeOpenFromSearch,
+  RUN_ASSESSMENT_NARRATIVE_OPEN_PARAM,
+} from "@/lib/reviews/run-assessment-narrative-url";
 
 const WORKBENCH_TAB_IDS: readonly ReviewDetailTabId[] = ["architecture", "findings", "evidence"];
 
@@ -321,6 +325,9 @@ export function useReviewDetailWorkspaceTabs(
     const transparencyTrailOpenPresent = parseTransparencyTrailOpenFromSearch(
       params.get(TRANSPARENCY_TRAIL_OPEN_PARAM),
     );
+    const runAssessmentNarrativeOpenPresent = parseRunAssessmentNarrativeOpenFromSearch(
+      params.get(RUN_ASSESSMENT_NARRATIVE_OPEN_PARAM),
+    );
     const runRecordMetaOpenPresent = parseRunDetailRecordMetadataOpenFromSearch(params.get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM));
     const askDockOpenPresent = parseReviewAskDockOpenFromSearch(params.get(REVIEW_ASK_DOCK_OPEN_PARAM));
     const askThreadPresent =
@@ -369,6 +376,7 @@ export function useReviewDetailWorkspaceTabs(
       || runCoverageCurationOpenPresent
       || runDetailStickyActionsTechnicalDetailOpenPresent
       || transparencyTrailOpenPresent
+      || runAssessmentNarrativeOpenPresent
       || runRecordMetaOpenPresent
       || askDockOpenPresent
       || askThreadPresent
