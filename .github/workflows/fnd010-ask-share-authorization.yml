@@ -1,0 +1,67 @@
+name: FND-010 Ask Share Authorization
+on:
+  pull_request:
+    branches: [master, main, audit/fnd010-retrieval-prefilter-share-20261124]
+    paths:
+      - 'ArchLucid.Api/Support/*ShareAccessGate.cs'
+      - 'ArchLucid.Api/Support/AskEvidenceAccess.cs'
+      - 'ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs'
+      - 'ArchLucid.Api/Controllers/Planning/RetrievalController*.cs'
+      - 'ArchLucid.Application/Architecture/AuthorizedEvidenceRunResolver.cs'
+      - 'ArchLucid.Host.Core/Services/Ask/**'
+      - 'ArchLucid.Host.Core.Tests/Ask/**'
+      - 'ArchLucid.Host.Composition/Startup/Modules/CoordinatorArtifactsCompositionModule.Explanation.Services.cs'
+      - 'ArchLucid.Core/Persistence/ApplicationPorts/Interfaces/FindingInspectReadOptions.cs'
+      - 'ArchLucid.Core/Persistence/ApplicationPorts/Interfaces/IFindingInspectReadRepository.cs'
+      - 'ArchLucid.Persistence/Findings/**'
+      - 'ArchLucid.Persistence/Sql/FindingInspectReadSql.cs'
+      - 'ArchLucid.Persistence.Tests/Findings/FindingInspectReadSqlTests.cs'
+      - 'ArchLucid.Retrieval/**'
+      - 'ArchLucid.Retrieval.Tests/**'
+      - '.github/workflows/fnd010-ask-share-authorization.yml'
+permissions:
+  contents: read
+concurrency:
+  group: fnd010-ask-share-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  ask-service:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Verify Ask service authorization, history, finding and existing behavior
+        run: >-
+          dotnet test ArchLucid.Host.Core.Tests/ArchLucid.Host.Core.Tests.csproj
+          --filter "FullyQualifiedName~AskServiceShareAccessTests|FullyQualifiedName~AskServiceWorkspaceScopedTests|FullyQualifiedName~AskServiceConversationCompressionTests|FullyQualifiedName~AskServiceComparisonNarrativeTests|FullyQualifiedName~AskServiceAskAboutFindingTests|FullyQualifiedName~AskResponseComposerTests"
+  ask-api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Verify canonical HTTP share adapter and parent retrieval authorization
+        run: >-
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj
+          --filter "FullyQualifiedName~ArchitectureShareAccessGateNotFoundPolicyTests|FullyQualifiedName~ArchitectureFindingAskControllerTests|FullyQualifiedName~RetrievalControllerShareAccessTests|FullyQualifiedName~RetrievalControllerTests"
+  retrieval-and-finding:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Verify constrained vector filtering
+        run: >-
+          dotnet test ArchLucid.Retrieval.Tests/ArchLucid.Retrieval.Tests.csproj
+          --filter "FullyQualifiedName~AzureSearchTenantScopeFilterBuilderTests|FullyQualifiedName~InMemoryVectorIndexTests|FullyQualifiedName~RetrievalQueryServiceTests"
+      - name: Verify scoped finding identity and read binding
+        run: >-
+          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj
+          --filter "FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~InMemoryFindingInspectReadRepositoryValidationTests|FullyQualifiedName~InMemoryFindingInspectReadRepositoryNormalizationTests"
