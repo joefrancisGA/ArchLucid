@@ -160,8 +160,8 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 20
-- **bugs-found:** 19
+- **hunts:** 21
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -9072,7 +9072,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **bugs-found:** 192- **consecutive-dry-hunts:** 0
+- **bugs-found:** 202- **consecutive-dry-hunts:** 0
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11706,6 +11706,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Extended `useReviewDetailTabNavigation` fallback parity: after the prior `findingId` fix, the out-of-context path still omitted `workbenchFocus`, so overview CTAs left a stale column in the query. Fallback now passes `reviewDetailWorkbenchFocusForTabNavigation(tab)`. Regression `clears workbenchFocus from the URL when tab context is absent and the destination is overview`. Tab-navigation vitest **2/2**. Private beta: overview CTAs that navigate outside the workspace shell clear leftover workbench column queries from the shared link.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `useReviewDetailTabNavigation` fallback: without workspace tab context it called `writeReviewDetailTabToUrl(tab, { hash: null })`, leaving `findingId` when navigating to package tabs. Fallback now passes `reviewDetailFindingIdClearForTabNavigation(tab)`. Regression `clears findingId from the URL when tab context is absent and the destination is overview`. Tab-navigation vitest **1/1**; URL-sync **20/20**. Private beta: when an invited operator follows an overview CTA that navigates tabs outside the main workspace context, the shared link no longer keeps a stale finding id.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `reviewMoreTabsOpen` monitor: a bare `reviewMoreTabsOpen=1` deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats the More-sections open flag as an explicit deep-link signal. Regression `does not apply visit-default navigation when the URL only carries reviewMoreTabsOpen=1`. URL-sync vitest **20/20**. Private beta: when an invited operator opens a shared review link with the More-sections menu open in the query, visit-default tab navigation no longer replaces that query on first load.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `roomElicitation` monitor: a bare `roomElicitation=1` deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats room elicitation as an explicit deep-link signal via `readRoomElicitationFromSearchParams`. Regression `does not apply visit-default navigation when the URL only carries roomElicitation=1`. URL-sync vitest **19/19**. Private beta: when an invited operator opens a shared review link that only enables room elicitation, visit-default tab navigation no longer replaces that query on first load.
@@ -12450,8 +12451,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 20
-- **bugs-found:** 19
+- **hunts:** 21
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
