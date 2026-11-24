@@ -1880,6 +1880,8 @@ export function DiagramsWorkbenchClient() {
 
     if (blockedReason != null) {
       setDependencySeedBlockedDialog(blockedReason);
+    } else {
+      setDependencySeedBlockedDialog(null);
     }
   }, [
     appliedSeedNodeId,

@@ -909,6 +909,59 @@ describe("DiagramsWorkbenchClient", () => {
       expect(screen.queryByTestId("infra-diagrams-dependency-seed-blocked-dialog")).not.toBeInTheDocument();
     });
   });
+  it("dismisses the dependency seed blocked dialog after a successful render retry", async () => {
+    let renderCalls = 0;
+
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => {
+      renderCalls += 1;
+
+      if (renderCalls === 1) {
+        return {
+          snapshotId: "11111111-1111-1111-1111-111111111111",
+          mode: query.mode ?? "dependencyNeighborhood",
+          fallbackKey: query.fallbackKey ?? null,
+          status: "Failed",
+          mermaid: null,
+          failureReason: "Simulated neighborhood render failure.",
+          metrics: null,
+          fallbackArtifacts: [],
+        };
+      }
+
+      return {
+        snapshotId: "11111111-1111-1111-1111-111111111111",
+        mode: query.mode ?? "dependencyNeighborhood",
+        fallbackKey: query.fallbackKey ?? null,
+        status: "Succeeded",
+        mermaid: 'flowchart TD\n    n1["vnet"]',
+        metrics: {
+          nodeCount: 1,
+          edgeCount: 0,
+          subgraphCount: 0,
+          maxDegree: 1,
+          crossSubgraphEdgeCount: 0,
+          textSizeBytes: 100,
+          layoutEstimate: 50,
+        },
+        fallbackArtifacts: [],
+      };
+    });
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=dependencyNeighborhood&seedNodeId=good-seed",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagrams-dependency-seed-blocked-dialog")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-diagrams-render-failed")).toBeInTheDocument();
+
+  fireEvent.click(screen.getAllByText("Retry render")[0]!);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("infra-diagrams-dependency-seed-blocked-dialog")).not.toBeInTheDocument();
+    });
+    await screen.findByTestId("architecture-diagram-viewer-mock");
+  });
   it("shows honest empty content when render succeeds with no drawable nodes", async () => {
     fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => ({
       snapshotId: "11111111-1111-1111-1111-111111111111",
