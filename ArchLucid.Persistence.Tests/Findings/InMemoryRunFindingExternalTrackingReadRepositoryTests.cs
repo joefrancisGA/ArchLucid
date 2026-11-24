@@ -1,4 +1,5 @@
 using ArchLucid.Core.Persistence.ApplicationPorts.Findings;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.Integrations;
 
@@ -11,6 +12,21 @@ namespace ArchLucid.Persistence.Tests.Findings;
 [Trait("Category", "Unit")]
 public sealed class InMemoryRunFindingExternalTrackingReadRepositoryTests
 {
+    [Fact]
+    public async Task Authorized_run_projection_does_not_fall_back_to_unproven_logical_id_correlations()
+    {
+        Mock<IItsmFindingCorrelationRepository> correlations = new(MockBehavior.Strict);
+        IRunFindingExternalTrackingReadRepository repository =
+            new InMemoryRunFindingExternalTrackingReadRepository(correlations.Object);
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+
+        var result = await repository.ListForAuthorizedRunFindingsAsync(
+            scope, Guid.NewGuid(), ["finding-1"], CancellationToken.None);
+
+        result.Should().BeEmpty();
+        correlations.VerifyNoOtherCalls();
+    }
+
     [Fact]
     public async Task ListForFindings_orders_linked_ticket_summary_by_creation_time()
     {
