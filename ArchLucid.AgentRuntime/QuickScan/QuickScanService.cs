@@ -151,7 +151,8 @@ public sealed class QuickScanService(
                 FindingSeverity severity = default;
                 FindingSeverity parsedSeverity = default;
                 bool severityParsed = severityOnWire
-                    && Enum.TryParse(severityStr, true, out parsedSeverity);
+                    && Enum.TryParse(severityStr, true, out parsedSeverity)
+                    && Enum.IsDefined(parsedSeverity);
 
                 if (severityParsed)
                 {
@@ -205,7 +206,7 @@ public sealed class QuickScanService(
         if (string.IsNullOrWhiteSpace(raw))
             return null;
 
-        if (!Enum.TryParse(raw, true, out FindingConfidenceLevel level))
+        if (!Enum.TryParse(raw, true, out FindingConfidenceLevel level) || !Enum.IsDefined(level))
             return null;
 
         return level;
@@ -245,6 +246,7 @@ public sealed class QuickScanService(
         string? raw = element.GetString();
 
         return !string.IsNullOrWhiteSpace(raw)
-            && Enum.TryParse(raw, true, out agentType);
+            && Enum.TryParse(raw, true, out agentType)
+            && Enum.IsDefined(agentType);
     }
 }
