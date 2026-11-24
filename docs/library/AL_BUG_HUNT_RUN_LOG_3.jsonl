@@ -97,3 +97,4 @@
 {"at":"2026-11-24T00:38:16.8990921Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: tab nav fallback left presenter"}
 {"at":"2026-11-24T00:45:55.4708731Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote pinRunId-only URL"}
 {"at":"2026-11-24T00:50:39.0395456Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote shareMenuOpen-only URL"}
+{"at":"2026-11-24T00:53:53.9493050Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote runRecordMetaOpen-only URL"}
