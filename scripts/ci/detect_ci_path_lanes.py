@@ -65,6 +65,7 @@ FORCE_ALL_PREFIXES: tuple[str, ...] = (
 FORCE_ALL_EXACT_FILES: frozenset[str] = frozenset(
     {
         "ArchLucid.sln",
+        ".editorconfig",
         "global.json",
         "Directory.Build.props",
         "Directory.Build.targets",
