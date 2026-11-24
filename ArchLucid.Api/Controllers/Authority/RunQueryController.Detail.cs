@@ -29,17 +29,8 @@ public sealed partial class RunQueryController
     {
         try
         {
-            if (!Guid.TryParse(runId, out Guid runGuid))
-                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-            ScopeContext scope = scopeProvider.GetCurrentScope();
-
-            IActionResult? shareGuardResult = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
-                this,
-                User,
-                scope,
-                runGuid,
-                cancellationToken);
+            IActionResult? shareGuardResult =
+                await EnsureRunShareReadAllowedAsync(runId, cancellationToken);
 
             if (shareGuardResult is not null)
                 return shareGuardResult;
@@ -75,6 +66,12 @@ public sealed partial class RunQueryController
     {
         try
         {
+            IActionResult? shareGuardResult =
+                await EnsureRunShareReadAllowedAsync(runId, cancellationToken);
+
+            if (shareGuardResult is not null)
+                return shareGuardResult;
+
             IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
 
             if (sealedGuardResult is not null)
@@ -103,6 +100,12 @@ public sealed partial class RunQueryController
     {
         try
         {
+            IActionResult? shareGuardResult =
+                await EnsureRunShareReadAllowedAsync(runId, cancellationToken);
+
+            if (shareGuardResult is not null)
+                return shareGuardResult;
+
             IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
 
             if (sealedGuardResult is not null)
@@ -186,4 +189,25 @@ public sealed partial class RunQueryController
 
         return this.OkWithConditionalEtag(result.Body, result.Etag);
     }
+
+    /// <summary>
+    /// Reuse the same scoped run-ownership/share authorization across detail,
+    /// ROI and stage-timeline responses. A sealed hash guard protects integrity,
+    /// not the caller's right to view a restricted architecture.
+    /// </summary>
+    private Task<IActionResult?> EnsureRunShareReadAllowedAsync(
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(runId, out Guid runGuid))
+        {
+            return Task.FromResult<IActionResult?>(
+                this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound));
+        }
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        return _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this, User, scope, runGuid, cancellationToken);
+    }
+
 }
