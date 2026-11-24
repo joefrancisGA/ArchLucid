@@ -26,4 +26,20 @@ public sealed class ExaminationStateResolutionDeserializationTests
         result.Should().NotBeNull();
         result!.ReasonText.Should().BeEmpty();
     }
+
+    [Theory]
+    [InlineData("{}", PillarExaminationState.Unavailable)]
+    [InlineData("{\"state\":0}", PillarExaminationState.Examined)]
+    [InlineData("{\"state\":1}", PillarExaminationState.PartiallyExamined)]
+    [InlineData("{\"state\":2}", PillarExaminationState.NotExamined)]
+    [InlineData("{\"state\":3}", PillarExaminationState.Unavailable)]
+    public void Deserialize_state_defaults_to_unavailable_only_when_missing(
+        string json, PillarExaminationState expected)
+    {
+        ExaminationStateResolution? result =
+            JsonSerializer.Deserialize<ExaminationStateResolution>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.State.Should().Be(expected);
+    }
 }
