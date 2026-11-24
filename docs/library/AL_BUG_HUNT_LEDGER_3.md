@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 thorough hunt (dry): `cli-terraform-evidence` pass-4 reseed. Scoped tests **48/48** (+ compose guards **55/55** expanded). Private beta: n/a.
+> **Scope:** Contributor-reference — hunt 2026-11-24 thorough hunt (dry): `ui-lib-remediation-factory` pass-2 reseed. Scoped vitest **12/12**. Private beta: n/a.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -343,6 +343,9 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-24 thorough hunt #2 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on eight open `(candidate)` rows — **valid-no-repro** metrics flag parse (`trim().toLowerCase()` accepts padded `true`/`1`; no failing repro for `TRUE` with spaces), **valid-no-repro** `remediationFactoryHrefFromSearch` misuse (disclosure-only empty `mutate`; monitor), **valid-no-repro** negative percent display (`formatRemediationFactoryPercentPoints` on executive tiles; lineage caller guards non-finite before `formatRemediationFactoryPercentDisplay`), **valid-no-repro** short path chip labels (`formatAttackPathReportPathChipLabel` returns trimmed ids <=28 chars; honesty regressions in round-63/74), **valid-no-repro** duplicate stub monitors (same four themes as detailed rows). Scoped vitest **12/12** (`remediation-factory` **8/8**, `governance-lineage-metric-format` **4/4**). Reseeded five pass-2 `(candidate)` monitors below. Private beta: n/a.
+
+
 2026-11-20 thorough hunt #1 (hit): cheap-disproof closed four seed monitors outside lib URL/metrics scope — **valid-no-repro** pattern catalog defaulting lives in app/API layers not `src/lib/remediation-factory`, **valid-no-repro** wave grouping keys are server persistence not lib, **valid-no-repro** `buildRemediationFactoryExecutiveMetricTiles` always returns a tile array with `null` cell values when metrics are unloaded (no null aggregate object), **valid-no-repro** route/product-line policy is enforced via `remediationFactoryPathForProductLine` in app hooks not `remediationFactoryHrefFromSearch` (disclosure-only operator writer). Promoted `remediationFactoryUrlStateToSearchParams`: padded or whitespace-only `selectedFindingId` wrote raw query values while parse trimmed on read — symmetric `normalizeUuidQueryValue` + `setUuidParam` on write for all selection UUID params; regressions trim padding and drop whitespace-only ids; `remediation-factory-url-state` vitest **4/4**. Reseeded four `(candidate)` monitors below. Private beta: selection URL no longer retains blank `selectedFinding` tokens.
 
 - [x] (fixed) finding id trim at factory boundary — padded/whitespace `selectedFindingId` on write — **promoted 2026-11-20 thorough hunt #1:** `normalizeUuidQueryValue` on write.
@@ -351,19 +354,31 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (valid-no-repro) factory metrics aggregation empty catalog null — **cheap-disproof 2026-11-20 thorough hunt #1:** tiles array always defined.
 - [x] (valid-no-repro) route safety cross product line — **cheap-disproof 2026-11-20 thorough hunt #1:** pathname resolution in app `useRemediationFactoryUrlState`.
 
-- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — padded metrics disclosure flag variants beyond `1`/`true` — locus: boolean parse; input: `TRUE` with spaces; wrong outcome: panel closed; reachability: metrics summary drawer URL.
-- [ ] (candidate) `remediationFactoryHrefFromSearch` — mutates selection params when used with non-disclosure switch — locus: operator writer contract; input: misuse from new caller; wrong outcome: dropped facets; reachability: future deep links (monitor).
-- [ ] (candidate) `formatRemediationFactoryPercentDisplay` — negative API percent may round oddly — locus: non-finite guard; input: negative fraction; wrong outcome: misleading `-%` tile; reachability: executive metrics strip.
-- [ ] (candidate) `attack-path-report-path-chip-label` — extremely short path ids after trim — locus: ellipsis threshold; input: 3-char id; wrong outcome: odd chip label; reachability: attack path report chips.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — padded metrics disclosure flag variants beyond `1`/`true` — **cheap-disproof 2026-11-24 thorough hunt #2:** `trim().toLowerCase()` on parse.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — mutates selection params when used with non-disclosure switch — **cheap-disproof 2026-11-24 thorough hunt #2:** disclosure-only writer; monitor.
+- [x] (valid-no-repro) `formatRemediationFactoryPercentDisplay` — negative API percent may round oddly — **cheap-disproof 2026-11-24 thorough hunt #2:** executive tiles use `formatRemediationFactoryPercentPoints`; lineage guards non-finite.
+- [x] (valid-no-repro) `attack-path-report-path-chip-label` — extremely short path ids after trim — **cheap-disproof 2026-11-24 thorough hunt #2:** short ids pass through by design.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — metrics disclosure boolean parse edge — **cheap-disproof 2026-11-24 thorough hunt #2:** duplicate stub; see detailed row.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — operator writer misuse guard — **cheap-disproof 2026-11-24 thorough hunt #2:** duplicate stub; see detailed row.
+- [x] (valid-no-repro) `formatRemediationFactoryPercentDisplay` — negative percent display — **cheap-disproof 2026-11-24 thorough hunt #2:** duplicate stub; see detailed row.
+- [x] (valid-no-repro) `attack-path-report-path-chip-label` — short path id chip label — **cheap-disproof 2026-11-24 thorough hunt #2:** duplicate stub; see detailed row.
+
+- [x] (superseded) post-#1 `(candidate)` queue (eight rows) — **superseded 2026-11-24 thorough hunt #2 (dry):** closed at zone header; see pass-2 reseed.
+
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — `yes`/`on` metrics open tokens may disagree with writer `1` — locus: boolean parse; input: `remediationFactoryMetricsOpen=yes`; monitor; pass-2 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — stale metrics param when toggling open off with foreign query — locus: delete on false; input: base search retains param; monitor; pass-2 reseed.
+- [ ] (candidate) `formatRemediationFactoryPercentPoints` — non-finite percent may render `NaN%` — locus: Math.round; input: NaN; wrong outcome: literal NaN chip; reachability: misuse without lineage guard (monitor).
+- [ ] (candidate) `formatAttackPathReportPathChipLabel` — whitespace-only path id may render empty chip — locus: trim; input: `   `; monitor; pass-2 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — undefined metrics with loaded flag true — locus: tile builder; input: loaded without payload; monitor; pass-2 reseed.
 
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/remediation-factory`. Seeded five `(hunt-ready)` rows; no production change.
 
 ### Hypotheses
 
-- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — metrics disclosure boolean parse edge — monitor; thorough hunt #1 reseed.
-- [ ] (candidate) `remediationFactoryHrefFromSearch` — operator writer misuse guard — monitor; thorough hunt #1 reseed.
-- [ ] (candidate) `formatRemediationFactoryPercentDisplay` — negative percent display — monitor; thorough hunt #1 reseed.
-- [ ] (candidate) `attack-path-report-path-chip-label` — short path id chip label — monitor; thorough hunt #1 reseed.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — metrics disclosure boolean parse edge — **superseded 2026-11-24 thorough hunt #2:** closed above.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — operator writer misuse guard — **superseded 2026-11-24 thorough hunt #2:** closed above.
+- [x] (valid-no-repro) `formatRemediationFactoryPercentDisplay` — negative percent display — **superseded 2026-11-24 thorough hunt #2:** closed above.
+- [x] (valid-no-repro) `attack-path-report-path-chip-label` — short path id chip label — **superseded 2026-11-24 thorough hunt #2:** closed above.
 
 - **id:** ui-lib-remediation-factory
 - **status:** open
@@ -371,9 +386,9 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
 - **related-pd-tb:** none
