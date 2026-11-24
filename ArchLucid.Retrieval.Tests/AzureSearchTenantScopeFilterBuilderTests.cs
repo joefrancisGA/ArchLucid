@@ -168,6 +168,38 @@ public sealed class AzureSearchTenantScopeFilterBuilderTests
         filter.Should().NotContain("corpusKind eq 'Conversation'");
     }
 
+    [Theory]
+    [InlineData(CorpusKind.PolicyPack)]
+    [InlineData(CorpusKind.AzureRetailPrice)]
+    public void Platform_tool_corpus_filter_applies_after_the_scope_union(CorpusKind kind)
+    {
+        RetrievalQuery query = BaseQuery(includePlatform: true);
+        query.AuthorizedEvidenceRunIds = new HashSet<Guid>();
+        query.AllowedPolicyPackRulePackIds = ["pack-a"];
+        query.CorpusKindFilter = kind;
+
+        string filter = AzureSearchTenantScopeFilterBuilder.BuildRequiredScopeFilter(query);
+
+        filter.Should().StartWith("(").And.EndWith($") and corpusKind eq '{kind}'");
+        filter.Should().Contain("and false");
+        filter.Should().Contain("policyPackRulePackId eq 'pack-a'");
+    }
+
+    [Fact]
+    public void Prior_decision_corpus_filter_intersects_authorized_tenant_run()
+    {
+        Guid runId = Guid.NewGuid();
+        RetrievalQuery query = BaseQuery(includePlatform: false);
+        query.AuthorizedEvidenceRunIds = new HashSet<Guid> { runId };
+        query.CorpusKindFilter = CorpusKind.PriorManifest;
+
+        string filter = AzureSearchTenantScopeFilterBuilder.BuildRequiredScopeFilter(query);
+
+        filter.Should().Contain($"search.in(runId, '{runId:D}', ',')");
+        filter.Should().EndWith(") and corpusKind eq 'PriorManifest'");
+        filter.Should().NotContain(CorpusKindSentinels.PlatformSentinelTenantId.ToString("D"));
+    }
+
     private static RetrievalQuery BaseQuery(bool includePlatform) => new()
     {
         TenantId = TenantId,

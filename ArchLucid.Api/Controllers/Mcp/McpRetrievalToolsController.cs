@@ -1,4 +1,7 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Architecture;
+using ArchLucid.Host.Core.Services.Ask;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -18,7 +21,9 @@ namespace ArchLucid.Api.Controllers.Mcp;
 [Route("v{version:apiVersion}/mcp/retrieval")]
 public sealed class McpRetrievalToolsController(
     RetrievalTools retrievalTools,
-    IScopeContextProvider scopeContextProvider) : ControllerBase
+    IScopeContextProvider scopeContextProvider,
+    IAskEvidenceAccess evidenceAccess,
+    IRunRepository runRepository) : ControllerBase
 {
     private readonly RetrievalTools _retrievalTools =
         retrievalTools ?? throw new ArgumentNullException(nameof(retrievalTools));
@@ -30,38 +35,54 @@ public sealed class McpRetrievalToolsController(
     [HttpPost("policy-pack-search")]
     [MutatingAuditExcluded("Read-only retrieval tool.")]
     [ProducesResponseType(typeof(IReadOnlyList<RetrievalMcpToolHit>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public Task<IActionResult> PolicyPackSearchAsync(
         [FromBody] McpRetrievalSearchBody body,
         CancellationToken cancellationToken) =>
-        SearchAsync(body, _retrievalTools.PolicyPackSearchAsync, cancellationToken);
+        SearchAsync(body, async (_, request, ct) => await _retrievalTools.PolicyPackSearchAsync(request, ct), cancellationToken);
 
     // idempotency-posture: dry-run-no-persist
     [HttpPost("prior-decision-search")]
     [MutatingAuditExcluded("Read-only retrieval tool.")]
     [ProducesResponseType(typeof(IReadOnlyList<RetrievalMcpToolHit>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public Task<IActionResult> PriorDecisionSearchAsync(
         [FromBody] McpRetrievalSearchBody body,
         CancellationToken cancellationToken) =>
-        SearchAsync(body, _retrievalTools.PriorDecisionSearchAsync, cancellationToken);
+        SearchAsync(body, async (scope, request, ct) =>
+        {
+            HashSet<Guid>? allowed = await AuthorizedEvidenceRunResolver.ResolveProjectAsync(
+                runRepository, scope, (id, token) => evidenceAccess.CanReadRunAsync(scope, id, token), ct);
+            if (allowed is null)
+                return null;
+
+            return await _retrievalTools.PriorDecisionSearchAsync(request, allowed, ct);
+        }, cancellationToken);
 
     // idempotency-posture: dry-run-no-persist
     [HttpPost("price-row-lookup")]
     [MutatingAuditExcluded("Read-only retrieval tool.")]
     [ProducesResponseType(typeof(IReadOnlyList<RetrievalMcpToolHit>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public Task<IActionResult> PriceRowLookupAsync(
         [FromBody] McpRetrievalSearchBody body,
         CancellationToken cancellationToken) =>
-        SearchAsync(body, _retrievalTools.PriceRowLookupAsync, cancellationToken);
+        SearchAsync(body, async (_, request, ct) => await _retrievalTools.PriceRowLookupAsync(request, ct), cancellationToken);
 
     private async Task<IActionResult> SearchAsync(
         McpRetrievalSearchBody? body,
-        Func<RetrievalMcpToolRequest, CancellationToken, Task<IReadOnlyList<RetrievalMcpToolHit>>> search,
+        Func<ScopeContext, RetrievalMcpToolRequest, CancellationToken, Task<IReadOnlyList<RetrievalMcpToolHit>?>> search,
         CancellationToken cancellationToken)
     {
         if (body is null || string.IsNullOrWhiteSpace(body.QueryText))
             return this.BadRequestProblem("queryText is required.", ProblemTypes.ValidationFailed);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        if (scope.TenantId == Guid.Empty || scope.WorkspaceId == Guid.Empty || scope.ProjectId == Guid.Empty ||
+            string.IsNullOrWhiteSpace(evidenceAccess.GetAuthorizedActorId()))
+            return this.NotFoundProblem("Retrieval evidence is not available for the current caller.",
+                ProblemTypes.ResourceNotFound);
 
         RetrievalMcpToolRequest request = new()
         {
@@ -72,7 +93,9 @@ public sealed class McpRetrievalToolsController(
             TopK = body.TopK ?? 8
         };
 
-        IReadOnlyList<RetrievalMcpToolHit> hits = await search(request, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<RetrievalMcpToolHit>? hits = await search(scope, request, cancellationToken).ConfigureAwait(false);
+        if (hits is null)
+            return this.ConflictProblem("Project-wide retrieval authorization budget exceeded.", ProblemTypes.Conflict);
 
         return Ok(hits);
     }

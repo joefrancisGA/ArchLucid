@@ -1,0 +1,44 @@
+name: FND-010 MCP Retrieval Share Authorization
+on:
+  pull_request:
+    branches: [master, main, audit/fnd010-ask-evidence-share-20261124]
+    paths:
+      - 'ArchLucid.Mcp/Tools/Retrieval*.cs'
+      - 'ArchLucid.Api/Controllers/Mcp/McpRetrievalToolsController.cs'
+      - 'ArchLucid.Api.Tests/McpRetrievalToolsControllerTests.cs'
+      - 'ArchLucid.Api.Tests/RetrievalToolsTests.cs'
+      - 'ArchLucid.Core/Retrieval/RetrievalQuery.cs'
+      - 'ArchLucid.Retrieval/**'
+      - 'ArchLucid.Retrieval.Tests/**'
+      - 'ArchLucid.Application/Architecture/AuthorizedEvidenceRunResolver.cs'
+      - '.github/workflows/fnd010-mcp-retrieval-share-authorization.yml'
+permissions:
+  contents: read
+concurrency:
+  group: fnd010-mcp-retrieval-share-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  mcp-http:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Verify MCP and canonical share authorization
+        run: >-
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj
+          --filter "FullyQualifiedName~McpRetrievalToolsControllerTests|FullyQualifiedName~RetrievalToolsTests|FullyQualifiedName~ArchitectureShareAccessGateNotFoundPolicyTests|FullyQualifiedName~RetrievalControllerShareAccessTests"
+  retrieval-index:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Verify scope and exact corpus constraints before ranking
+        run: >-
+          dotnet test ArchLucid.Retrieval.Tests/ArchLucid.Retrieval.Tests.csproj
+          --filter "FullyQualifiedName~AzureSearchTenantScopeFilterBuilderTests|FullyQualifiedName~InMemoryVectorIndexTests|FullyQualifiedName~RetrievalQueryServiceTests"

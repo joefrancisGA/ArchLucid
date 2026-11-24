@@ -360,6 +360,59 @@ public sealed class InMemoryVectorIndexTests
             .Should().ContainSingle().Which.ChunkId.Should().Be("public-doc");
     }
 
+    [Theory]
+    [InlineData(CorpusKind.PolicyPack)]
+    [InlineData(CorpusKind.AzureRetailPrice)]
+    public async Task Platform_tool_filters_unrelated_private_and_unassigned_corpora_before_ranking(CorpusKind kind)
+    {
+        InMemoryVectorIndex index = new();
+        RetrievalChunk policy = MakePlatformPolicyPackChunk("policy", "pack-a", [0.5f, 0.5f]);
+        RetrievalChunk unassigned = MakePlatformPolicyPackChunk("unassigned", "pack-b", [1f, 0f]);
+        RetrievalChunk price = MakeChunk("price", Guid.Empty, Guid.Empty, Guid.Empty, [0.5f, 0.5f]);
+        price.CorpusKind = CorpusKind.AzureRetailPrice;
+        RetrievalChunk privateChunk = MakeChunk("private", TenantId, WorkspaceId, ProjectId, [1f, 0f]);
+        privateChunk.RunId = Guid.NewGuid();
+        privateChunk.CorpusKind = kind;
+        RetrievalChunk other = MakeChunk("platform-doc", Guid.Empty, Guid.Empty, Guid.Empty, [1f, 0f]);
+        other.CorpusKind = CorpusKind.PlatformDoc;
+        await index.UpsertChunksAsync([policy, unassigned, price, privateChunk, other], CancellationToken.None);
+
+        RetrievalQuery query = BaseQuery();
+        query.IncludePlatformCorpora = true;
+        query.AllowedPolicyPackRulePackIds = ["pack-a"];
+        query.AuthorizedEvidenceRunIds = new HashSet<Guid>();
+        query.CorpusKindFilter = kind;
+        query.TopK = 1;
+
+        (await index.SearchAsync(query, [1f, 0f], CancellationToken.None))
+            .Should().ContainSingle().Which.ChunkId.Should().Be(kind == CorpusKind.PolicyPack ? "policy" : "price");
+    }
+
+    [Fact]
+    public async Task Prior_tool_filters_wrong_run_and_wrong_corpus_before_ranking()
+    {
+        Guid allowed = Guid.NewGuid();
+        InMemoryVectorIndex index = new();
+        RetrievalChunk prior = MakeChunk("prior", TenantId, WorkspaceId, ProjectId, [0.5f, 0.5f]);
+        prior.RunId = allowed;
+        prior.CorpusKind = CorpusKind.PriorManifest;
+        RetrievalChunk otherCorpus = MakeChunk("manifest", TenantId, WorkspaceId, ProjectId, [1f, 0f]);
+        otherCorpus.RunId = allowed;
+        otherCorpus.CorpusKind = CorpusKind.TenantManifest;
+        RetrievalChunk otherRun = MakeChunk("restricted", TenantId, WorkspaceId, ProjectId, [1f, 0f]);
+        otherRun.RunId = Guid.NewGuid();
+        otherRun.CorpusKind = CorpusKind.PriorManifest;
+        await index.UpsertChunksAsync([prior, otherCorpus, otherRun], CancellationToken.None);
+
+        RetrievalQuery query = BaseQuery();
+        query.AuthorizedEvidenceRunIds = new HashSet<Guid> { allowed };
+        query.CorpusKindFilter = CorpusKind.PriorManifest;
+        query.TopK = 1;
+
+        (await index.SearchAsync(query, [1f, 0f], CancellationToken.None))
+            .Should().ContainSingle().Which.ChunkId.Should().Be("prior");
+    }
+
     private static RetrievalChunk MakePlatformPolicyPackChunk(string chunkId, string rulePackId, float[] embedding)
     {
         RetrievalChunk chunk = MakeChunk(
