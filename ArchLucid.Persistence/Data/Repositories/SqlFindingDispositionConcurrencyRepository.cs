@@ -362,7 +362,7 @@ public sealed class SqlFindingDispositionConcurrencyRepository(ISqlConnectionFac
                 transaction,
                 cancellationToken: cancellationToken));
 
-        Enum.TryParse(row.Disposition, true, out FindingDisposition disposition);
+        FindingDisposition disposition = ArchLucid.Contracts.Serialization.DefinedEnum.Parse<FindingDisposition>(row.Disposition, ignoreCase: true);
 
         return new FindingDispositionConflictDetail
         {

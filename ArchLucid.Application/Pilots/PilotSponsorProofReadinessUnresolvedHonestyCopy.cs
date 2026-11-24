@@ -9,7 +9,7 @@ internal static class PilotSponsorProofReadinessUnresolvedHonestyCopy
 
     internal static string FormatProofPackageCell(string? sponsorProofReadiness)
     {
-        return Enum.TryParse(sponsorProofReadiness, ignoreCase: false, out SponsorProofReadinessClassification readiness)
+        return ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(sponsorProofReadiness, ignoreCase: false, out SponsorProofReadinessClassification readiness)
             ? SponsorProofReadinessClassifier.DescribeForMarkdownTable(readiness)
             : UnresolvedPlain;
     }

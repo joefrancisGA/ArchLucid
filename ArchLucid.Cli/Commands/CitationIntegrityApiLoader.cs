@@ -67,7 +67,7 @@ internal static class CitationIntegrityApiLoader
             string? statusRaw = statusEl.GetString();
 
             if (!string.IsNullOrWhiteSpace(statusRaw)
-                && Enum.TryParse(statusRaw, ignoreCase: true, out ArchitectureRunStatus parsed))
+                && ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(statusRaw, ignoreCase: true, out ArchitectureRunStatus parsed))
             {
                 return parsed;
             }

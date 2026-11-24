@@ -98,7 +98,7 @@ public sealed partial class InMemoryValueReportJobQueue
                 state.FromUtcInclusive,
                 state.ToUtcExclusive);
 
-            if (!Enum.TryParse(state.Phase, ignoreCase: true, out JobPhase phase))
+            if (!ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(state.Phase, ignoreCase: true, out JobPhase phase))
             {
                 return new DistributedStateReadResult(
                     new JobEntry(

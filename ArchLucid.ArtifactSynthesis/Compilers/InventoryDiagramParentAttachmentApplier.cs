@@ -436,7 +436,7 @@ internal static class InventoryDiagramParentAttachmentApplier
         if (graphNode.Properties.TryGetValue(
                 InventoryDiagramParentAttachmentPropertyKeys.EvidenceCurrency,
                 out string? currencyValue)
-            && Enum.TryParse(currencyValue, ignoreCase: true, out InventoryDiagramEvidenceCurrency parsed))
+            && ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(currencyValue, ignoreCase: true, out InventoryDiagramEvidenceCurrency parsed))
         {
             return parsed;
         }

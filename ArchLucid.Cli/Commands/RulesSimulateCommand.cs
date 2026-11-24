@@ -40,7 +40,7 @@ internal static class RulesSimulateCommand
 
             if (string.Equals(a, "--severity", StringComparison.Ordinal) && i + 1 < args.Length)
             {
-                if (!Enum.TryParse(args[++i].Trim(), true, out FindingSeverity _))
+                if (!ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(args[++i].Trim(), true, out FindingSeverity _))
                 {
                     await Console.Error.WriteLineAsync("Invalid --severity. Use Critical, Error, Warning, Info.");
                     return CliExitCode.UsageError;
