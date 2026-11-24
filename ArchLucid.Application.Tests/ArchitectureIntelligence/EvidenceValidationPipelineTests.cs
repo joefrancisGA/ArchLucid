@@ -130,6 +130,7 @@ public sealed class EvidenceValidationPipelineTests
         result.SemanticAssessment.Should().Be(SemanticSupportAssessment.DoesNotEstablish);
         result.Escalated.Should().BeTrue();
         result.SemanticMethod.Should().Be(SemanticAssessmentMethod.NotPerformed);
+        result.CitationProbe.Should().Be(CitationProbeOutcome.Refuted);
         gateway.SemanticCalls.Should().Be(0);
     }
 
@@ -145,6 +146,7 @@ public sealed class EvidenceValidationPipelineTests
         result.OverallPassedIntegrity.Should().BeTrue();
         result.SemanticAssessment.Should().Be(SemanticSupportAssessment.PartiallySupports);
         result.SemanticMethod.Should().Be(SemanticAssessmentMethod.Model);
+        result.CitationProbe.Should().Be(CitationProbeOutcome.SurvivedWithinCitedSources);
         gateway.SemanticCalls.Should().Be(1);
     }
 
@@ -157,8 +159,17 @@ public sealed class EvidenceValidationPipelineTests
             "f", [source.ArtifactId], [], _store, "All endpoints are private");
 
         result.OverallPassedIntegrity.Should().BeTrue();
+        result.CitationProbe.Should().Be(CitationProbeOutcome.Untestable);
         result.SemanticAssessment.Should().Be(SemanticSupportAssessment.DoesNotEstablish);
         gateway.SemanticCalls.Should().Be(0);
+    }
+
+    [Fact]
+    public void Unavailable_source_leaves_citation_probe_untestable()
+    {
+        var result = _pipeline.Validate("f", ["absent"], ["an attributed passage"], _store, "Private endpoint");
+        result.OverallPassedIntegrity.Should().BeFalse();
+        result.CitationProbe.Should().Be(CitationProbeOutcome.Untestable);
     }
 
     private sealed class FixedSemanticGateway : IArchitectureIntelligenceLlmGateway

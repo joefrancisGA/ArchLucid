@@ -28,6 +28,7 @@ internal static partial class ClosedLoopReasoningResultCloner
             OverallPassedIntegrity = result.OverallPassedIntegrity,
             SemanticAssessment = result.SemanticAssessment,
             SemanticMethod = result.SemanticMethod,
+            CitationProbe = result.CitationProbe,
             CompletenessNotes = result.CompletenessNotes,
             Escalated = result.Escalated,
             SupportTier = result.SupportTier,
