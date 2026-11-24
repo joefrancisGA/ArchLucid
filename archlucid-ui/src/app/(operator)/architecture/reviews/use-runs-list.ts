@@ -5,6 +5,8 @@ import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent, typ
 
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
+
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { useViewportNarrow } from "@/hooks/useViewportNarrow";
@@ -107,7 +109,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
         return false;
       }
 
-      if (!Number.isFinite(Date.parse(run.createdUtc))) {
+      if (!Number.isFinite(parseIsoUtcMs(run.createdUtc))) {
         return false;
       }
 
@@ -561,8 +563,8 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
         return 1;
       }
 
-      const leftTime = new Date(left.createdUtc).getTime();
-      const rightTime = new Date(right.createdUtc).getTime();
+      const leftTime = parseIsoUtcMs(left.createdUtc);
+      const rightTime = parseIsoUtcMs(right.createdUtc);
 
       return sortOrder === "createdDesc" ? rightTime - leftTime : leftTime - rightTime;
     });

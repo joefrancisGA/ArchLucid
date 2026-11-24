@@ -29,25 +29,11 @@ public sealed partial class RunQueryController
     {
         try
         {
-            if (!Guid.TryParse(runId, out Guid runGuid))
-                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+            IActionResult? readGuardResult =
+                await EnsureRunReadBoundaryAsync(runId, cancellationToken);
 
-            ScopeContext scope = scopeProvider.GetCurrentScope();
-
-            IActionResult? shareGuardResult = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
-                this,
-                User,
-                scope,
-                runGuid,
-                cancellationToken);
-
-            if (shareGuardResult is not null)
-                return shareGuardResult;
-
-            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
-
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
+            if (readGuardResult is not null)
+                return readGuardResult;
 
             RunGraphDetailQueryResult result = await runGraphQueryService.GetRunDetailAsync(runId, cancellationToken);
 
@@ -75,10 +61,11 @@ public sealed partial class RunQueryController
     {
         try
         {
-            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+            IActionResult? readGuardResult =
+                await EnsureRunReadBoundaryAsync(runId, cancellationToken);
 
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
+            if (readGuardResult is not null)
+                return readGuardResult;
 
             RunRoiEstimateQueryResult result = await runGraphQueryService.GetRunRoiEstimateAsync(runId, cancellationToken);
 
@@ -103,10 +90,11 @@ public sealed partial class RunQueryController
     {
         try
         {
-            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+            IActionResult? readGuardResult =
+                await EnsureRunReadBoundaryAsync(runId, cancellationToken);
 
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
+            if (readGuardResult is not null)
+                return readGuardResult;
 
             RunStageTimelineQueryResult result =
                 await runGraphQueryService.GetRunStageTimelineAsync(runId, cancellationToken);
@@ -186,4 +174,6 @@ public sealed partial class RunQueryController
 
         return this.OkWithConditionalEtag(result.Body, result.Etag);
     }
+
+
 }

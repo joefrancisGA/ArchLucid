@@ -23,7 +23,7 @@ public static partial class ArchLucidGrowthFunnelMeters
             "archlucid_email_otp_delivery_failed_total",
             description: "Email OTP sign-in code delivery failures.");
 
-    /// <summary>Email OTP rate-limit triggers (labels: <c>scope</c>=email|ip|email_verification_hourly).</summary>
+    /// <summary>Email OTP rate-limit triggers (labels: <c>scope</c>=email|ip|email_request_hourly|ip_request_hourly|email_verification_hourly|unknown).</summary>
     public static readonly Counter<long> EmailOtpRateLimitTriggeredTotal =
         ArchLucidAppMeter.Instance.CreateCounter<long>(
             "archlucid_email_otp_rate_limit_triggered_total",
@@ -54,7 +54,11 @@ public static partial class ArchLucidGrowthFunnelMeters
     /// <summary>Increments <see cref="EmailOtpRateLimitTriggeredTotal" />.</summary>
     public static void RecordEmailOtpRateLimitTriggered(string scope)
     {
-        TagList tags = new() { { "scope", string.IsNullOrWhiteSpace(scope) ? "unknown" : scope.Trim() } };
+        string normalized = scope?.Trim() ?? string.Empty;
+        string label = normalized is "email" or "ip" or "email_request_hourly" or "ip_request_hourly" or "email_verification_hourly"
+            ? normalized
+            : "unknown";
+        TagList tags = new() { { "scope", label } };
 
         EmailOtpRateLimitTriggeredTotal.Add(1, tags);
     }

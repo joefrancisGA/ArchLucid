@@ -16,13 +16,15 @@ namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 /// </summary>
 internal static class SqlSealedEvidenceImmutabilityRules
 {
-    // App runtime uses owned procedures for updates: direct instance UPDATE/DELETE is denied.
+    // App runtime uses owned procedures for writes: direct remediation DML is denied.
     // Kept separate from migration-247 registry parity (these objects are
     // created later by migration 360 and secured in migration 426).
     private static readonly (string TableName, string Permission)[] RemediationDenyPermissions =
     [
         ("dbo.RemediationInstances", "DELETE"),
         ("dbo.RemediationInstances", "UPDATE"),
+        ("dbo.RemediationInstances", "INSERT"),
+        ("dbo.RemediationEvidence", "INSERT"),
         ("dbo.RemediationEvidence", "UPDATE"),
         ("dbo.RemediationEvidence", "DELETE"),
     ];
@@ -30,9 +32,7 @@ internal static class SqlSealedEvidenceImmutabilityRules
     private static readonly (string TableName, string Permission)[] RemediationRequiredPermissions =
     [
         ("dbo.RemediationInstances", "SELECT"),
-        ("dbo.RemediationInstances", "INSERT"),
         ("dbo.RemediationEvidence", "SELECT"),
-        ("dbo.RemediationEvidence", "INSERT"),
     ];
 
     private static readonly string[] RemediationRequiredProcedures =
@@ -40,6 +40,8 @@ internal static class SqlSealedEvidenceImmutabilityRules
         "dbo.uspRemediationUpdateScoped",
         "dbo.uspRemediationCommitApproval",
         "dbo.uspRemediationCommitVerification",
+        "dbo.uspRemediationCreateScoped",
+        "dbo.uspRemediationAppendEvidenceScoped",
     ];
 
     internal static bool ShouldValidate(
@@ -103,7 +105,7 @@ internal static class SqlSealedEvidenceImmutabilityRules
                                  permissionName))
                     {
                         errors.Add(
-                            $"Remediation SQL permissions: DENY {permissionName} on {tableName} for [ArchLucidApp] is missing (migrations 426/427).");
+                            $"Remediation SQL permissions: DENY {permissionName} on {tableName} for [ArchLucidApp] is missing (migrations 426/427/428).");
                     }
                 }
             }
@@ -120,7 +122,7 @@ internal static class SqlSealedEvidenceImmutabilityRules
             foreach (string procedureName in RemediationRequiredProcedures)
             {
                 if (!SqlDatabaseImmutabilityProbeHelpers.ProcedureExists(connection, procedureName))
-                    errors.Add($"Remediation SQL permissions: required procedure {procedureName} is missing (migration 427).");
+                    errors.Add($"Remediation SQL permissions: required procedure {procedureName} is missing (migrations 427/428).");
                 else if (!SqlDatabaseImmutabilityProbeHelpers.HasEffectivePermission(connection, procedureName, "EXECUTE"))
                     errors.Add($"Remediation SQL permissions: runtime principal lacks EXECUTE on {procedureName}.");
             }
@@ -145,7 +147,7 @@ internal static class SqlSealedEvidenceImmutabilityRules
                 {
                     errors.Add(
                         $"Remediation SQL permissions: the runtime principal lacks required {permissionName} on {tableName}. "
-                        + "Preserve repository SELECT/INSERT and stored-procedure EXECUTE rights.");
+                        + "Preserve repository SELECT and stored-procedure EXECUTE rights.");
                 }
             }
         }

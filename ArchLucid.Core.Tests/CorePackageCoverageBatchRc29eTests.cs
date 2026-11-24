@@ -147,6 +147,28 @@ public sealed class CorePackageCoverageBatchRc29eTests
         capture.LongMeasures.Should().Contain(m => m.Name == "archlucid_email_otp_delivery_failed_total");
     }
 
+    [Theory]
+    [InlineData("email", "email")]
+    [InlineData("ip", "ip")]
+    [InlineData("email_request_hourly", "email_request_hourly")]
+    [InlineData("ip_request_hourly", "ip_request_hourly")]
+    [InlineData("email_verification_hourly", "email_verification_hourly")]
+    [InlineData(" ip ", "ip")]
+    [InlineData("arbitrary-unrecognized-scope", "unknown")]
+    [InlineData("", "unknown")]
+    public void Record_email_otp_rate_limit_scope_is_bounded(string scope, string expected)
+    {
+        _ = ArchLucidInstrumentation.EmailOtpRateLimitTriggeredTotal;
+        using LongCounterCapture capture = LongCounterCapture.Start("archlucid_email_otp_rate_limit_triggered_total");
+
+        ArchLucidInstrumentation.RecordEmailOtpRateLimitTriggered(scope);
+
+        capture.LongMeasures.Should().ContainSingle(m =>
+            m.Name == "archlucid_email_otp_rate_limit_triggered_total"
+            && m.Value == 1
+            && m.Tags.Any(t => t.Key == "scope" && (string?)t.Value == expected));
+    }
+
     [Fact]
     public void Record_audit_write_failure_and_orphan_counters_emit()
     {
@@ -209,6 +231,19 @@ public sealed class CorePackageCoverageBatchRc29eTests
         capture.LongMeasures.Should().Contain(m =>
             m.Name == "archlucid_retrieval_corpus_startup_indexer_failure_total"
             && m.Tags.Any(t => t.Key == "corpus_kind" && (string?)t.Value == "TenantManifest"));
+    }
+
+    [Theory]
+    [InlineData("unrecognized-event")]
+    [InlineData("")]
+    [InlineData(" signup ")]
+    public void Record_first_tenant_funnel_event_rejects_outside_catalog(string eventName)
+    {
+        Action record = () => ArchLucidInstrumentation.RecordFirstTenantFunnelEvent(
+            eventName, recordPerTenant: false, tenantIdNormalized: null);
+
+        record.Should().Throw<ArgumentOutOfRangeException>()
+            .WithParameterName("eventName");
     }
 
     [Fact]

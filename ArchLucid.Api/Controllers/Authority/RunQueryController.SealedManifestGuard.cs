@@ -20,6 +20,29 @@ public sealed partial class RunQueryController
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
+    /// <summary>
+    /// Shared run-read authorization for every run-specific detail, evidence,
+    /// provenance, findings, trace and export route in this controller.
+    /// Architecture-share access is distinct from sealed-manifest integrity;
+    /// both must succeed before any protected query can run.
+    /// </summary>
+    private async Task<IActionResult?> EnsureRunReadBoundaryAsync(
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        IActionResult? shareFailure = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this, User, scope, runGuid, cancellationToken);
+
+        if (shareFailure is not null)
+            return shareFailure;
+
+        return await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+    }
+
     private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
         string runId,
         CancellationToken cancellationToken)

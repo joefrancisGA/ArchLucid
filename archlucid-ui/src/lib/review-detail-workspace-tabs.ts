@@ -58,10 +58,16 @@ export function readReviewDetailFindingIdFromWindowLocation(): string | null {
     return null;
   }
 
-  const trimmed =
-    new URL(window.location.href).searchParams.get(REVIEW_DETAIL_FINDING_PARAM)?.trim() ?? "";
+  const params = new URL(window.location.href).searchParams;
+  const trimmed = params.get(REVIEW_DETAIL_FINDING_PARAM)?.trim() ?? "";
 
-  return trimmed.length > 0 ? trimmed : null;
+  if (trimmed.length > 0) {
+    return trimmed;
+  }
+
+  const legacyAlias = params.get(ARCHITECTURE_DIAGRAM_FINDING_PARAM)?.trim() ?? "";
+
+  return legacyAlias.length > 0 ? legacyAlias : null;
 }
 
 export const REVIEW_DETAIL_TAB_IDS = [
@@ -78,6 +84,28 @@ export const REVIEW_DETAIL_TAB_IDS = [
 export type ReviewDetailTabId = (typeof REVIEW_DETAIL_TAB_IDS)[number];
 
 export const REVIEW_DETAIL_DEFAULT_TAB: ReviewDetailTabId = "overview";
+/** Clears finding selection when tab navigation leaves findings unless the destination still owns selection. */
+
+/** Sets workbench column focus for workbench destination tabs; clears it for package tabs. */
+export function reviewDetailWorkbenchFocusForTabNavigation(
+  tabId: ReviewDetailTabId,
+): ReviewWorkbenchFocusColumnId | null {
+  if (isReviewWorkbenchFocusColumnId(tabId)) {
+    return tabId;
+  }
+
+  return null;
+}
+export function reviewDetailFindingIdClearForTabNavigation(
+  tabId: ReviewDetailTabId,
+): null | undefined {
+  if (tabId === "findings" || isReviewWorkbenchFocusColumnId(tabId)) {
+    return undefined;
+  }
+
+  return null;
+}
+
 
 export const REVIEW_DETAIL_TAB_LABELS: Record<ReviewDetailTabId, string> = {
   overview: "Overview",
@@ -213,13 +241,16 @@ export function writeReviewDetailTabToUrl(
 
   if (options?.findingId === null) {
     url.searchParams.delete(REVIEW_DETAIL_FINDING_PARAM);
+    url.searchParams.delete(ARCHITECTURE_DIAGRAM_FINDING_PARAM);
   } else if (options?.findingId !== undefined) {
     const trimmed = options.findingId.trim();
 
     if (trimmed.length > 0) {
       url.searchParams.set(REVIEW_DETAIL_FINDING_PARAM, trimmed);
+      url.searchParams.delete(ARCHITECTURE_DIAGRAM_FINDING_PARAM);
     } else {
       url.searchParams.delete(REVIEW_DETAIL_FINDING_PARAM);
+      url.searchParams.delete(ARCHITECTURE_DIAGRAM_FINDING_PARAM);
     }
   }
 
