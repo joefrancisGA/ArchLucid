@@ -103,6 +103,11 @@ import {
   TECHNOLOGY_BASELINE_ENTRY_PARAM,
 } from "@/lib/reviews/technology-baseline-rationale-url";
 import {
+  parseRunAuditIdentifiersOpenFromSearch,
+  RUN_AUDIT_IDENTIFIERS_OPEN_PARAM,
+} from "@/lib/runs/run-audit-identifiers-disclosure-url";
+
+import {
   parseRunImpactAnalysisOpenFromSearch,
   RUN_IMPACT_ANALYSIS_OPEN_PARAM,
 } from "@/lib/reviews/run-impact-analysis-disclosure-url";
@@ -342,6 +347,9 @@ export function useReviewDetailWorkspaceTabs(
       parseTechnologyBaselineEvidenceRefEntryIdFromSearch(params.get(TECHNOLOGY_BASELINE_EVIDENCE_REF_ENTRY_ID_PARAM)).length > 0;
     const techEntryIdPresent =
       parseTechnologyBaselineEntryIdFromSearch(params.get(TECHNOLOGY_BASELINE_ENTRY_PARAM)).length > 0;
+    const runAuditIdentifiersOpenPresent = parseRunAuditIdentifiersOpenFromSearch(
+      params.get(RUN_AUDIT_IDENTIFIERS_OPEN_PARAM),
+    );
     const runImpactAnalysisOpenPresent = parseRunImpactAnalysisOpenFromSearch(
       params.get(RUN_IMPACT_ANALYSIS_OPEN_PARAM),
     );
@@ -426,6 +434,7 @@ export function useReviewDetailWorkspaceTabs(
       || workspaceAiProbeDebugMetadataOpenPresent
       || technologyBaselineEvidenceRefEntryIdPresent
       || techEntryIdPresent
+      || runAuditIdentifiersOpenPresent
       || runImpactAnalysisOpenPresent
       || runFindingExplainabilityOpenPresent
       || runCoverageCurationOpenPresent
