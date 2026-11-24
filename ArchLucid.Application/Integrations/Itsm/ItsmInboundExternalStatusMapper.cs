@@ -33,7 +33,8 @@ internal static class ItsmInboundExternalStatusMapper
 
         foreach (KeyValuePair<string, string> kv in rawMap.Where(kv => !string.IsNullOrWhiteSpace(kv.Key) && !string.IsNullOrWhiteSpace(kv.Value)).Where(kv => string.Equals(kv.Key.Trim(), normalizedIncoming, StringComparison.OrdinalIgnoreCase)))
         {
-            if (!Enum.TryParse(kv.Value.Trim(), ignoreCase: true, out FindingDisposition parsed))
+            if (!Enum.TryParse(kv.Value.Trim(), ignoreCase: true, out FindingDisposition parsed)
+                || !Enum.IsDefined(parsed))
                 return false;
 
             disposition = parsed;
