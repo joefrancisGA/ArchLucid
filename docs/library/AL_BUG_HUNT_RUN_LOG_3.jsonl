@@ -91,3 +91,4 @@
 {"at":"2026-11-24T00:15:46.1977811Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote presenter-only URL"}
 {"at":"2026-11-24T00:18:54.1916723Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote archTab-only URL"}
 {"at":"2026-11-24T00:21:52.1557061Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote roomElicitation-only URL"}
+{"at":"2026-11-24T00:25:16.7964777Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote reviewMoreTabsOpen-only URL"}
