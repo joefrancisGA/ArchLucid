@@ -151,6 +151,10 @@ import {
   RUN_EXPLANATION_PROVENANCE_OPEN_PARAM,
 } from "@/lib/runs/run-explanation-provenance-disclosure-url";
 import {
+  parseRunAdvancedAnalysisOpenFromSearch,
+  RUN_ADVANCED_ANALYSIS_OPEN_PARAM,
+} from "@/lib/runs/run-advanced-analysis-disclosure-url";
+import {
   parseTrustEvidenceFieldsOpenFromSearch,
   parseTrustEvidenceTechOpenFromSearch,
   TRUST_EVIDENCE_FIELDS_OPEN_PARAM,
@@ -432,6 +436,9 @@ export function useReviewDetailWorkspaceTabs(
     const runExplanationProvenanceOpenPresent = parseRunExplanationProvenanceOpenFromSearch(
       params.get(RUN_EXPLANATION_PROVENANCE_OPEN_PARAM),
     );
+    const runAdvancedAnalysisOpenPresent = parseRunAdvancedAnalysisOpenFromSearch(
+      params.get(RUN_ADVANCED_ANALYSIS_OPEN_PARAM),
+    );
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -534,6 +541,7 @@ export function useReviewDetailWorkspaceTabs(
       || runAgentExecutionLogOpenPresent
       || runEngineProvenanceOpenPresent
       || runExplanationProvenanceOpenPresent
+      || runAdvancedAnalysisOpenPresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent
