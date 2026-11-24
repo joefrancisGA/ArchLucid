@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 thorough hunt (dry): `ui-lib-remediation-factory` pass-2 reseed. Scoped vitest **12/12**. Private beta: n/a.
+> **Scope:** Contributor-reference — hunt 2026-11-24 thorough hunt (dry): `ui-host-gate` pass-2 reseed. Scoped vitest **27/27**. Private beta: n/a.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -3926,6 +3926,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `WebhooksSettingsClient` subscriptions section — stale `webhookRows` after failed refresh still drive count subtitle and create enable-step checklist — **hit 2026-09-26 seed hunt (seed→hit):** count helper and enable step treated stale inventory as verified; fixed by gating subtitle and `subscriptionEnabled` checklist input on `hasLoadedSuccessfully`; regression `hides stale subscription count subtitle when manual refresh fails`.
 
 ## Zone: ui-host-gate
+
+2026-11-24 thorough hunt #2 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-1 `(candidate)` rows — **valid-no-repro** sitemap vs `isMarketingOnlyPath` drift (`isMarketingOnlyPath` includes `MARKETING_SITEMAP_PATHNAMES` directly), **valid-no-repro** `EXTRA_MARKETING_PREFIXES` registration gap (process monitor for new `/campaign/` trees), **valid-no-repro** retired shim import drift (`RETIRED_*` bookmarks already in `LEGACY_OPERATOR_PATH_PREFIXES`), **valid-no-repro** `www.` redirect port drop (`appOrigin`/`publicOrigin` full URLs; regression `matches split hosts that differ only by port`), **valid-no-repro** backslash pathname segments (`normalizeHostGatePathname` URL resolution + monitor for malformed bookmarks). Scoped vitest **27/27** (`host-gate.test.ts`). Reseeded five pass-2 `(candidate)` monitors below. Private beta: n/a.
+
 2026-11-24 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `MARKETING_SITEMAP_PATHNAMES` class `(candidate)` — live `(marketing)` SecureNow and digest sponsor routes were absent from `isMarketingOnlyPath`, so split-site visitors on the app host saw marketing pages without public-host redirect. Added SecureNow path constants and a `/digest/` prefix to the extra marketing classifier lists. Regressions `treats SecureNow and digest sponsor marketing paths as marketing-only` and `redirects app-host SecureNow marketing paths to the public origin` failed first; host-gate vitest **27/27**. Cheap-disproof closed four pass-1 monitors — **valid-no-repro** encoded tab/newline pathname (`URL` pathname resolution + existing percent-encoded segment regression), **valid-no-repro** bare `?` search on redirect (intentional query preservation), **valid-no-repro** punycode Host vs Unicode origin (defer; no split-host IDN fixture), **valid-no-repro** `LEGACY_OPERATOR_PATH_PREFIXES` workbook drift (retired shim paths already wired in `LEGACY_OPERATOR_PATH_PREFIXES` + focused legacy regressions). Reseeded five pass-2 `(candidate)` monitors. Private beta: invited buyers who open SecureNow SKU, sample, Why SecureNow, or sponsor digest links on the app host are redirected to the public marketing site instead of staying on operator-host routing.
 
 - [x] (proven) `isMarketingOnlyPath` — SecureNow and digest marketing App Router paths omitted from classifier — **hit 2026-11-24 seed hunt:** extra exact paths + `/digest/` prefix; regressions above.
@@ -3934,11 +3937,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `hostsMatch` — punycode vs Unicode apex — **cheap-disproof 2026-11-24 seed hunt:** defer until IDN split-host fixture.
 - [x] (valid-no-repro) `LEGACY_OPERATOR_PATH_PREFIXES` — workbook-only retired path drift — **cheap-disproof 2026-11-24 seed hunt:** shims imported; legacy bookmark regressions cover handoff.
 
-- [ ] (candidate) `MARKETING_SITEMAP_PATHNAMES` — indexable marketing paths still missing from `isMarketingOnlyPath` when not duplicated in EXTRA lists — locus: sitemap constant vs `isMarketingOnlyPath`; input: newly shipped marketing page only in sitemap; wrong outcome: app host `next`; reachability: audit on marketing route add (monitor).
-- [ ] (candidate) `EXTRA_MARKETING_PREFIXES` — new marketing subtree without prefix registration — locus: prefix list; input: `/campaign/foo` marketing segment; wrong outcome: operator shell; reachability: new App Router marketing folders (monitor).
-- [ ] (candidate) `isOperatorPath` — retired shim added to traffic module but not `LEGACY_OPERATOR_PATH_PREFIXES` — locus: prefix import drift; input: marketing-host bookmark to new retired path; wrong outcome: marketing chrome; reachability: shim constant audit (process).
-- [ ] (candidate) `decideHostGateRedirect` — `www.` app host marketing redirect location preserves port — locus: `publicOrigin` + non-default port; input: local dual-origin with `www.app`; wrong outcome: location drops port; reachability: local split-host with www alias (monitor).
-- [ ] (candidate) `normalizeHostGatePathname` — backslash segments after decode — locus: `URL` pathname on Windows-style input; input: `/architecture\\reviews`; wrong outcome: handoff mismatch; reachability: malformed bookmarks (monitor).
+- [x] (valid-no-repro) `MARKETING_SITEMAP_PATHNAMES` — indexable marketing paths still missing from `isMarketingOnlyPath` when not duplicated in EXTRA lists — **cheap-disproof 2026-11-24 thorough hunt #2:** sitemap array included in classifier.
+- [x] (valid-no-repro) `EXTRA_MARKETING_PREFIXES` — new marketing subtree without prefix registration — **cheap-disproof 2026-11-24 thorough hunt #2:** process monitor; `/digest/` covered in hunt #1 hit.
+- [x] (valid-no-repro) `isOperatorPath` — retired shim added to traffic module but not `LEGACY_OPERATOR_PATH_PREFIXES` — **cheap-disproof 2026-11-24 thorough hunt #2:** shim imports in legacy prefix list.
+- [x] (valid-no-repro) `decideHostGateRedirect` — `www.` app host marketing redirect location preserves port — **cheap-disproof 2026-11-24 thorough hunt #2:** non-default port regression.
+- [x] (valid-no-repro) `normalizeHostGatePathname` — backslash segments after decode — **cheap-disproof 2026-11-24 thorough hunt #2:** URL pathname resolution; monitor.
+
+- [x] (superseded) pass-1 `(candidate)` queue — **superseded 2026-11-24 thorough hunt #2 (dry):** closed at zone header; see pass-2 reseed.
+
+- [ ] (candidate) `isMarketingOnlyPath` — sitemap paths with trailing slash may diverge from canonical strip — locus: trailing slash trim; input: `/welcome/`; monitor; pass-2 reseed.
+- [ ] (candidate) `decideHostGateRedirect` — marketing redirect on app host may drop encoded search — locus: `pathAndQuery` preservation; input: percent-encoded query; monitor; pass-2 reseed.
+- [ ] (candidate) `isOperatorPath` — `/api/proxy` handoff contract — locus: proxy exclusion; input: API proxy path; monitor; pass-2 reseed.
+- [ ] (candidate) `hostsMatch` — IPv6 literal Host header — locus: URL host parse; input: bracketed IPv6; defer; pass-2 reseed.
+- [ ] (candidate) `normalizeHostGatePathname` — dot-segment collapse after decode — locus: URL resolution; input: `/architecture/./reviews`; monitor; pass-2 reseed.
+
 
 
 2026-11-01 seed hunt (seed-only): zone cooled but hypothesis list empty (cooldown waived). Reread `decideHostGateRedirect`, `normalizeHostGatePathname`, marketing/operator prefix matrices, trailing-dot host parity, `/api/proxy` marketing stay-put contract, and legacy bookmark coverage against traffic workbook exports. No new reachable mechanism-backed row met the hunt-ready bar; existing regressions cover duplicate-slash, dot-segment, percent-decode, casing, trailing-slash marketing handoff, and query preservation. Host-gate vitest passed **25/25**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
@@ -4067,9 +4079,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host gate; split site host
 - **paths:** archlucid-ui/src/lib/host-gate.ts
 - **test-filter:** host-gate
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
 - **related-pd-tb:** none
