@@ -73,4 +73,20 @@ describe("useBooleanSearchParamUrlSync", () => {
 
     pushState.mockRestore();
   });
+  it("syncs closed when the search param is removed from the URL", () => {
+    window.history.replaceState(null, "", "/operator/test?panel=1");
+
+    const { result } = renderHook(() =>
+      useBooleanSearchParamUrlSync("panel", parseOpenFromSearch, disclosureHrefFromSearch),
+    );
+
+    expect(result.current[0]).toBe(true);
+
+    act(() => {
+      window.history.replaceState(null, "", "/operator/test");
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    });
+
+    expect(result.current[0]).toBe(false);
+  });
 });

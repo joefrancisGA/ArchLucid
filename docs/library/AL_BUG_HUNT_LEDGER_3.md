@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (seed-only): `ui-lib-governance` pass-3 reseed. Scoped vitest **10/10**. Private beta: n/a.
+> **Scope:** Contributor-reference — hunt 2026-11-24 thorough hunt (hit): `ui-hooks-shared` boolean URL sync on param removal. Scoped vitest **15/15**. Private beta: disclosure panels close when URL param is stripped.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -379,6 +379,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ## Zone: ui-hooks-shared
+2026-11-24 thorough hunt #3 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). **Invalid** hunt-ready reseed stub (no locus/input/wrong outcome). Attempted failing repro on five post-#2 `(candidate)` rows — **proven** `useBooleanSearchParamUrlSync` ignored `popstate` when the boolean param was removed (`fromUrl === null` early return left disclosure open); sync now applies `parseOpenFromSearch(null)`; regression `syncs closed when the search param is removed from the URL`; **valid-no-repro** wizard debounce unmount (intentional cancel without flush; regression `cancels a pending debounced persist on unmount without flushing later writes`), **valid-no-repro** `useViewportNarrow` first paint (documented `false` until `matchMedia`), **valid-no-repro** run-summary visibility resume double-fetch (`ensureFallbackInterval` no-ops when interval exists; poll-policy regressions), **valid-no-repro** wrong wizard snapshot version (`readWizardSessionSnapshot` version gate returns null). Scoped vitest **15/15** (`use-boolean-search-param-url-sync`, `useViewportNarrow`, `use-wizard-session-persistence`, `run-summary-stream-poll-policy`). Reseeded five pass-3 `(candidate)` monitors below. Private beta: invited operators no longer see disclosure chrome stay open when a sibling navigation strips the boolean query param from the URL.
 
 2026-11-21 thorough hunt #2 (dry): cheap-disproved five seed `(hunt-ready)` rows — **valid-no-repro** boolean URL-sync hooks commit via `commitHrefIfChanged` (`replaceState` only, open-ref dedupe, popstate resync; `use-boolean-search-param-url-sync.test.ts`), **valid-no-repro** debounced wizard persist clears pending timeout on unmount without post-navigation flush (`use-wizard-session-persistence` unmount regression; restore URL uses same commit helper with href equality guard), **valid-no-repro** `useViewportNarrow` intentionally defaults `false` until `matchMedia` effect runs (`useViewportNarrow.test.ts`), **valid-no-repro** run-summary HTTP fallback gated by `shouldRunRunSummaryFallbackPoll` (no poll while SSE connected, hidden, or complete; visibility resume does not overlap SSE — extended poll-policy regression), **valid-no-repro** corrupted wizard session JSON returns `null` from `readWizardSessionSnapshot` (parse catch; lib + hook layers). Scoped vitest **18/18** across new hook tests, wizard persist, poll policy. Reseeded five `(candidate)` monitor rows below. Private beta: n/a.
 
@@ -388,17 +389,25 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (valid-no-repro) polling visibility duplicate fetch — cheap-disproof 2026-11-21 thorough hunt #2.
 - [x] (valid-no-repro) session storage JSON parse stale mount — cheap-disproof 2026-11-21 thorough hunt #2.
 
-- [ ] (candidate) `useBooleanSearchParamUrlSync` — missing search param vs explicit `panel=0` may disagree when `parseOpenFromSearch` treats empty as closed — locus: null param branch; input: delete param while UI open; wrong outcome: stale open UI; reachability: operator disclosure chips.
-- [ ] (candidate) `useWizardSessionPersistence` — debounced unmount cancel may drop last keystroke before navigation — locus: no unmount flush; input: navigate mid-debounce; wrong outcome: lost draft; reachability: reviews-new wizards (monitor product intent).
-- [ ] (candidate) `useViewportNarrow` — wide-default-first paint on narrow devices — locus: initial false; input: phone inspector; wrong outcome: layout flash; reachability: docked vs sheet inspector (monitor).
-- [ ] (candidate) `useRunSummaryStream` — visibility resume immediate `tickFallback` may double-fetch with in-flight interval tick — locus: ensureFallbackInterval; input: refocus during poll-fallback; wrong outcome: duplicate GET; reachability: run status banners (monitor).
-- [ ] (candidate) `readWizardSessionSnapshot` — schema-valid JSON with wrong `v` may leave hook pending restore empty while storage still populated — locus: version gate; input: manual v0 blob; wrong outcome: confusing empty restore; reachability: wizard resume strip.
+- [x] (proven) `useBooleanSearchParamUrlSync` — missing search param vs explicit `panel=0` may disagree when `parseOpenFromSearch` treats empty as closed — **hit 2026-11-24 thorough hunt #3:** apply `parseOpenFromSearch(null)` when param absent on popstate sync; regression above.
+- [x] (valid-no-repro) `useWizardSessionPersistence` — debounced unmount cancel may drop last keystroke before navigation — **cheap-disproof 2026-11-24 thorough hunt #3:** intentional unmount cancel regression.
+- [x] (valid-no-repro) `useViewportNarrow` — wide-default-first paint on narrow devices — **cheap-disproof 2026-11-24 thorough hunt #3:** documented initial `false`.
+- [x] (valid-no-repro) `useRunSummaryStream` — visibility resume immediate `tickFallback` may double-fetch with in-flight interval tick — **cheap-disproof 2026-11-24 thorough hunt #3:** poll-policy guard; monitor.
+- [x] (valid-no-repro) `readWizardSessionSnapshot` — schema-valid JSON with wrong `v` may leave hook pending restore empty while storage still populated — **cheap-disproof 2026-11-24 thorough hunt #3:** version gate returns null by design.
+
+- [x] (invalid) reseed after hunt #2 — **cheap-disproof 2026-11-24 thorough hunt #3:** no locus, input, or wrong outcome.
+
+- [x] (superseded) post-#2 `(candidate)` queue — **superseded 2026-11-24 thorough hunt #3 (mixed dry + hit):** closed at zone header; see pass-3 reseed.
+
+- [ ] (candidate) `useBooleanSearchParamUrlSync` — `parseOpenFromSearch(null)` default may disagree with param-absent first paint — locus: initial state vs popstate; input: mount with no param while default open; monitor; pass-3 reseed.
+- [ ] (candidate) `useWizardSessionPersistence` — remote draft load error may skip local restore — locus: non-transient API failure branch; input: denied draft fetch; monitor; pass-3 reseed.
+- [ ] (candidate) `useViewportNarrow` — resize without `matchMedia` event on zoom — locus: listener lifecycle; input: desktop zoom; monitor; pass-3 reseed.
+- [ ] (candidate) `useRunSummaryStream` — SSE error may leave `fallbackStartedRef` set blocking restart — locus: fallbackStartedRef; input: SSE fail then retry token; monitor; pass-3 reseed.
+- [ ] (candidate) `commitHrefIfChanged` — `notify: false` may skip popstate listeners on same-tab replace — locus: restore URL sync; input: wizard restore confirm; monitor; pass-3 reseed.
 
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/hooks`. Seeded five `(hunt-ready)` rows; no production change.
 
 ### Hypotheses
-
-- [ ] (hunt-ready) reseed after hunt #2; prior queue closed in zone header diary.
 
 - **id:** ui-hooks-shared
 - **status:** open
@@ -406,8 +415,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** shared React hooks
 - **paths:** archlucid-ui/src/hooks/
 - **test-filter:** src/hooks
-- **hunts:** 24
-- **bugs-found:** 8
+- **hunts:** 25
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
