@@ -125,7 +125,7 @@ export function coerceRunSummaryPaged(
       return { ok: false, message: "Paged runs response has invalid page or pageSize." };
     }
 
-    if (data.page < 1 || data.pageSize < 1) {
+    if (data.page < 1 || data.pageSize < 1 || data.totalCount < 0) {
       return { ok: false, message: "Paged runs response has invalid page or pageSize." };
     }
 

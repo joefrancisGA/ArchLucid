@@ -10895,8 +10895,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 135 · **Bugs found:** 134 · **Consecutive dry hunts:** 0
+**Hunts:** 136 · **Bugs found:** 135 · **Consecutive dry hunts:** 0
 
+2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`). Attempted failing repro on five pass-**31** monitors — **proven** legacy offset `coerceRunSummaryPaged` accepted negative `totalCount` (integer guard only); **valid-no-repro** fractional `totalCount` (same integer gate as hunt prior); **valid-no-repro** negative `pageSize` (`pageSize < 1`); **valid-no-repro** `coerceRunDetail` whitespace `createdUtc` (regression `rejects missing string createdUtc`); **valid-no-repro** `coerceGraphViewModel` non-array `nodes` (zod array schema); **valid-no-repro** `operator-shell-status-scope-cache` (regression `clears scope-agnostic shell caches when operator scope changes`). Reject `totalCount < 0` in legacy offset branch; regressions `rejects legacy offset envelope when totalCount is negative` and `rejects legacy offset envelope when totalCount is fractional`. Scoped `operator-response-guards.test.ts` **67/67**. Reseeded five pass-**32** `(candidate)` rows below. Private beta: Invited operators no longer see negative total-run counts in home pagination when the API returns malformed legacy offset metadata.
+
+- [x] (proven) `coerceRunSummaryPaged` — legacy offset negative `totalCount` — **hit 2026-11-24 seed hunt:** `totalCount < 0` guard; regression `rejects legacy offset envelope when totalCount is negative`.
+- [x] (valid-no-repro) `coerceRunSummaryPaged` — legacy offset `totalCount` fractional — **cheap-disproof 2026-11-24 seed hunt:** integer gate; regression `rejects legacy offset envelope when totalCount is fractional`.
+- [x] (valid-no-repro) `coerceRunSummaryPaged` — legacy offset negative finite `pageSize` — **cheap-disproof 2026-11-24 seed hunt:** existing `pageSize < 1`.
+- [x] (valid-no-repro) `coerceRunDetail` — whitespace-only `createdUtc` — **cheap-disproof 2026-11-24 seed hunt:** manual fallback trim guard.
+- [x] (valid-no-repro) `coerceGraphViewModel` — non-array `nodes` — **cheap-disproof 2026-11-24 seed hunt:** zod rejects; regression `rejects missing nodes`.
+- [x] (valid-no-repro) `operator-shell-status-scope-cache` — tenant switch cache leak — **cheap-disproof 2026-11-24 seed hunt:** scope-cache suite.
+
+- [ ] (candidate) `coerceRunSummaryPaged` — keyset `hasMore` true with empty items and null cursor — monitor; pass 32 reseed.
+- [ ] (candidate) `coerceRunSummaryList` — padded `runId` on list row passes trim schema — monitor; pass 32 reseed.
+- [ ] (candidate) `coerceManifestSummary` — whitespace-only `ruleSetVersion` — monitor; pass 32 reseed.
+- [ ] (candidate) `coerceReplayResponse` — `hasValidationNotes` false while notes non-empty — monitor; pass 32 reseed.
+- [ ] (candidate) `operator-recent-views` — pathname label maps unknown governance subpath — monitor; pass 32 reseed.
+
+- [x] (superseded) pass **#31** monitor queue — **superseded 2026-11-24 seed hunt (hit):** see header and pass **#32** reseed.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`). Cheap-disproof closed three pass-**30** monitors — **valid-no-repro** negative manifest `decisionCount` (`operatorNonNegativeInteger.min(0)`); **valid-no-repro** empty-string replay `validation.notes` (`z.string()` allows `""` by design); **valid-no-repro** cross-tab scope storage rapid switch (`operator-scope-storage.cross-tab.test.ts`). **Proven** legacy offset `coerceRunSummaryPaged` accepted fractional `page` / `pageSize`; integer validation on legacy offset fields; regressions `rejects legacy offset envelope when pageSize is fractional` and `rejects legacy offset envelope when page index is fractional`. Scoped `operator-response-guards.test.ts` **65/65**. Reseeded five pass-**31** `(candidate)` rows below. Private beta: Invited operators on the home runs list no longer hydrate fractional legacy page or page-size values into the paging chrome when the API returns malformed offset metadata.
 
 - [x] (proven) `coerceRunSummaryPaged` — legacy offset envelope accepts fractional `pageSize` — **hit 2026-11-24 seed hunt:** integer guard; regression `rejects legacy offset envelope when pageSize is fractional`.
@@ -10905,11 +10921,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `coerceReplayResponse` — empty-string `validation.notes` entries — **cheap-disproof 2026-11-24 seed hunt:** empty strings valid.
 - [x] (valid-no-repro) `operator-scope-storage` — cross-tab refresh stale tenant — **cheap-disproof 2026-11-24 seed hunt:** cross-tab suite.
 
-- [ ] (candidate) `coerceRunSummaryPaged` — legacy offset `totalCount` fractional — monitor; pass 31 reseed.
-- [ ] (candidate) `coerceRunSummaryPaged` — legacy offset negative finite `pageSize` — monitor; pass 31 reseed.
-- [ ] (candidate) `coerceRunDetail` — whitespace-only `createdUtc` manual fallback — monitor; pass 31 reseed.
-- [ ] (candidate) `coerceGraphViewModel` — non-array `nodes` object shell — monitor; pass 31 reseed.
-- [ ] (candidate) `operator-shell-status-scope-cache` — tenant switch cache key leak — monitor; pass 31 reseed.
+- [x] (proven) pass-31 fractional totalCount — **closed 2026-11-24 seed hunt (second pass).**
+- [x] (valid-no-repro) pass-31 negative pageSize — **closed 2026-11-24 seed hunt (second pass).**
+- [x] (valid-no-repro) pass-31 createdUtc — **closed 2026-11-24 seed hunt (second pass).**
+- [x] (valid-no-repro) pass-31 graph nodes — **closed 2026-11-24 seed hunt (second pass).**
+- [x] (valid-no-repro) pass-31 scope cache — **closed 2026-11-24 seed hunt (second pass).**
 
 - [x] (superseded) pass **#30** monitor queue — **superseded 2026-11-24 seed hunt (hit):** see header and pass **#31** reseed.
 
@@ -11663,8 +11679,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 4
-- **bugs-found:** 4
+- **hunts:** 5
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
