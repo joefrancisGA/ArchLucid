@@ -1,0 +1,84 @@
+name: Finding verification regressions
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.Application/ArchitectureIntelligence/**'
+      - 'ArchLucid.Contracts/ArchitectureIntelligence/**'
+      - 'ArchLucid.Application.Tests/ArchitectureIntelligence/**'
+      - '.github/workflows/fnd069-finding-verification.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - name: Require finding verification and publish regressions to pass
+        run: >-
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~EvidenceValidationPipelineTests|FullyQualifiedName~EvidenceValidationSourceRereadTests|FullyQualifiedName~TrustPublishGateTests|FullyQualifiedName~AdversarialReviewServiceTests|FullyQualifiedName~AdversarialReviewRouterServiceTests|FullyQualifiedName~ArchitectureIntelligenceBatch45Tests|FullyQualifiedName~ArchitectureIntelligenceLlmResponseMapperMissingValueTests|FullyQualifiedName~ArchitectureIntelligenceProductBridge|FullyQualifiedName~ClosedLoopReReviewPublishIntegratorTests|FullyQualifiedName~ClosedLoopReasoningResultClonerTests'
+          --logger 'console;verbosity=normal'
+      - name: Check the wider architecture intelligence suite for new failures
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          project=ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj
+          suite='FullyQualifiedName~ArchLucid.Application.Tests.ArchitectureIntelligence.'
+          if dotnet test "$project" -c Release --no-build --filter "$suite" \
+              --results-directory "$RUNNER_TEMP/pr-results" --logger 'trx;LogFileName=suite.trx'; then
+            exit 0
+          fi
+          git worktree add --detach "$RUNNER_TEMP/finding-verification-base" "$BASE_SHA"
+          (cd "$RUNNER_TEMP/finding-verification-base" && dotnet test "$project" -c Release \
+              --filter "$suite" --results-directory "$RUNNER_TEMP/base-results" --logger 'trx;LogFileName=suite.trx') || base_status=$?
+          python3 - "$RUNNER_TEMP" "${base_status:-0}" <<'PY'
+          import collections
+          import pathlib
+          import re
+          import sys
+          import xml.etree.ElementTree as ET
+
+          root = pathlib.Path(sys.argv[1])
+          def failures(which):
+              doc = ET.parse(root / which / "suite.trx")
+              counters = doc.find(".//{*}ResultSummary/{*}Counters")
+              summary = doc.find(".//{*}ResultSummary")
+              if counters is None or int(counters.get("passed", 0)) == 0 or summary.get("outcome") not in {"Completed", "Passed", "Failed"}:
+                  sys.exit(f"Incomplete test execution in {which}")
+              if any(int(counters.get(key, 0)) for key in ("error", "timeout", "aborted", "disconnected")):
+                  sys.exit(f"Test execution errors in {which}")
+              # VSTest can emit RunInfo errors for ordinary failing runs. Compare these
+              # with the base as well, while treating incomplete or aborted runs as errors.
+              errors = collections.Counter(
+                  re.sub(r"^\[xUnit\.net \d+:\d+:\d+\.\d+\]\s*", "", item.findtext("{*}Text") or "")
+                  .replace(str(root / "finding-verification-base"), "<checkout>")
+                  .replace(str(pathlib.Path.cwd()), "<checkout>").strip()
+                  for item in doc.findall(".//{*}RunInfo[@outcome='Error']")
+              )
+              failed = collections.Counter(r.attrib["testName"] for r in doc.findall(".//{*}UnitTestResult") if r.get("outcome") == "Failed")
+              if sum(failed.values()) != int(counters.get("failed", 0)):
+                  sys.exit(f"Inconsistent failure count in {which}")
+              return failed, errors
+
+          head, head_errors = failures("pr-results")
+          base, base_errors = failures("base-results")
+          if not head or (int(sys.argv[2]) and not base):
+              sys.exit("Test command failed without attributable test failures")
+          new = head - base
+          print(f"PR failures: {sum(head.values())}. Base failures: {sum(base.values())}. New failures: {sum(new.values())}.")
+          new_errors = head_errors - base_errors
+          if new or new_errors:
+              sys.exit("\n".join(sorted(new) + sorted(new_errors)))
+          PY

@@ -2386,6 +2386,8 @@ export interface components {
         };
         /** @enum {string} */
         CitationKind: "Manifest" | "Finding" | "DecisionTrace" | "EvidenceBundle" | "GraphSnapshot" | "ContextSnapshot";
+        /** @enum {string} */
+        CitationProbeOutcome: "Unknown" | "Untestable" | "Refuted" | "SurvivedWithinCitedSources";
         CitationReference: {
             id: string;
             kind: components["schemas"]["CitationKind"];
@@ -4173,11 +4175,13 @@ export interface components {
         /** @enum {string} */
         EvidenceSupportTier: "Unverified" | "SemanticInferenceFromPartialEvidence" | "IntegrityVerified";
         EvidenceValidationResult: {
+            citationProbe?: components["schemas"]["CitationProbeOutcome"];
             completenessNotes?: null | string;
             escalated?: boolean;
             findingId?: string;
             overallPassedIntegrity?: boolean;
             semanticAssessment?: null | components["schemas"]["SemanticSupportAssessment"];
+            semanticMethod?: components["schemas"]["SemanticAssessmentMethod"];
             stageResults?: components["schemas"]["EvidenceValidationStageOutcome"][];
             supportTier?: components["schemas"]["EvidenceSupportTier"];
         };
@@ -10529,6 +10533,8 @@ export interface components {
             includeDependents?: boolean;
             taskIds?: null | string[];
         };
+        /** @enum {string} */
+        SemanticAssessmentMethod: "Unknown" | "NotPerformed" | "Heuristic" | "Model";
         SemanticSupportAssessment: number;
         ServiceCatalogEvidence: {
             category?: string;

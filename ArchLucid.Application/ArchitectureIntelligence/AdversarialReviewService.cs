@@ -17,14 +17,10 @@ public sealed class AdversarialReviewService : IAdversarialReviewService
 
         List<SpecialistReviewFinding> substantiatedFindings = [];
         List<AdversarialChallenge> challenges = [];
-        int challengeCandidates = 0;
-        int suppressedChallenges = 0;
 
         foreach (SpecialistReviewFinding finding in findings)
         {
-            bool substantiated = integrityPassedFindingIds is null
-                ? finding.EvidenceArtifactIds.Count > 0
-                : integrityPassedFindingIds.Contains(finding.FindingId);
+            bool substantiated = integrityPassedFindingIds?.Contains(finding.FindingId) == true;
 
             if (substantiated)
             {
@@ -38,33 +34,19 @@ public sealed class AdversarialReviewService : IAdversarialReviewService
                 continue;
             }
 
-            challengeCandidates++;
             AdversarialChallenge challenge = CreateChallenge(finding);
 
             if (AdversarialChallengeLaneGuard.ShouldDropChallenge(challenge))
-            {
-                suppressedChallenges++;
                 continue;
-            }
 
             challenges.Add(challenge);
         }
-
-        double challengeFalsePositiveEstimate = challengeCandidates == 0
-            ? 0.0
-            : (double)suppressedChallenges / challengeCandidates;
 
         return new AdversarialReviewResult
         {
             SubstantiatedFindings = substantiatedFindings,
             Challenges = challenges,
-            FalsePositiveRateByLane = new Dictionary<AdversarialLane, double>
-            {
-                // Substantiated lane FP is unknown without human labels; report 0 until measured.
-                [AdversarialLane.SubstantiatedFinding] = 0.0,
-                // Challenge lane: suppressed challenges are treated as avoided false positives.
-                [AdversarialLane.AdversarialChallenge] = challengeFalsePositiveEstimate,
-            },
+            // No independently adjudicated labels are available for this review.
         };
     }
 

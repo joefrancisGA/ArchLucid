@@ -30,6 +30,11 @@ public class EvidenceValidationResult
         set;
     }
 
+    public CitationProbeOutcome CitationProbe { get; set; }
+
+    /// <summary>Source of the semantic assessment. Historical records default to Unknown.</summary>
+    public SemanticAssessmentMethod SemanticMethod { get; set; }
+
     public string? CompletenessNotes
     {
         get;

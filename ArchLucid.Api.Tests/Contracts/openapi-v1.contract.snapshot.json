@@ -8122,6 +8122,15 @@
         ],
         "type": "string"
       },
+      "CitationProbeOutcome": {
+        "enum": [
+          "Unknown",
+          "Untestable",
+          "Refuted",
+          "SurvivedWithinCitedSources"
+        ],
+        "type": "string"
+      },
       "CitationReference": {
         "properties": {
           "id": {
@@ -14302,6 +14311,9 @@
       },
       "EvidenceValidationResult": {
         "properties": {
+          "citationProbe": {
+            "$ref": "#/components/schemas/CitationProbeOutcome"
+          },
           "completenessNotes": {
             "type": [
               "null",
@@ -14326,6 +14338,9 @@
                 "$ref": "#/components/schemas/SemanticSupportAssessment"
               }
             ]
+          },
+          "semanticMethod": {
+            "$ref": "#/components/schemas/SemanticAssessmentMethod"
           },
           "stageResults": {
             "items": {
@@ -35990,6 +36005,15 @@
           }
         },
         "type": "object"
+      },
+      "SemanticAssessmentMethod": {
+        "enum": [
+          "Unknown",
+          "NotPerformed",
+          "Heuristic",
+          "Model"
+        ],
+        "type": "string"
       },
       "SemanticSupportAssessment": {
         "type": "integer"

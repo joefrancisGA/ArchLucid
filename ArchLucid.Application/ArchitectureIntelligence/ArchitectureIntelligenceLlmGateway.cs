@@ -88,8 +88,7 @@ public sealed class ArchitectureIntelligenceLlmGateway : IArchitectureIntelligen
             JsonOnlyInstruction + " " +
             "Respond with JSON: {\"dimension\":\"Reliability|Security|Cost|...\", \"findings\":[{\"title\":\"...\", " +
             "\"rationale\":\"...\", \"conclusion\":\"Pass|Fail|Indeterminate|NotApplicable\", " +
-            "\"evidenceCondition\":\"Sufficient|Insufficient|Conflicting\", " +
-            "\"severity\":\"Critical|High|Medium|Low\", \"confidence\":0.0, \"supportStatus\":\"...\", \"notes\":\"...\"}], " +
+            "\"severity\":\"Critical|High|Medium|Low\", \"confidence\":0.0, \"notes\":\"...\"}], " +
             "\"openQuestions\":[\"...\"]}";
 
         string userPrompt = BuildModelSummaryPrompt(model, dimension);

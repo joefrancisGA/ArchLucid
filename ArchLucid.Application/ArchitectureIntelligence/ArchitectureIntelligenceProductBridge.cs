@@ -173,6 +173,8 @@ public static class ArchitectureIntelligenceProductBridge
             && validationByFindingId.TryGetValue(finding.FindingId, out EvidenceValidationResult? validation)
             && validation is not null)
         {
+            properties["architectureIntelligence.citationProbe"] = validation.CitationProbe.ToString();
+            properties["architectureIntelligence.semanticAssessmentMethod"] = validation.SemanticMethod.ToString();
             properties["architectureIntelligence.integrityPassed"] = validation.OverallPassedIntegrity.ToString();
             properties["architectureIntelligence.evidenceSupportTier"] = validation.SupportTier.ToString();
             properties["architectureIntelligence.escalated"] = validation.Escalated.ToString();

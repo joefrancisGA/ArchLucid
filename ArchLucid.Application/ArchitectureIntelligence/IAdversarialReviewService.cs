@@ -7,8 +7,8 @@ public interface IAdversarialReviewService
     AdversarialReviewResult Review(IReadOnlyList<SpecialistReviewFinding> findings);
 
     /// <summary>
-    /// Two-lane split using TB-1981 integrity-passed finding ids when provided.
-    /// When <paramref name="integrityPassedFindingIds"/> is null, falls back to artifact-id presence.
+    /// Only findings that the caller supplies as substantiated can enter that lane.
+    /// When <paramref name="integrityPassedFindingIds"/> is null, findings remain candidates for challenge.
     /// </summary>
     AdversarialReviewResult Review(
         IReadOnlyList<SpecialistReviewFinding> findings,

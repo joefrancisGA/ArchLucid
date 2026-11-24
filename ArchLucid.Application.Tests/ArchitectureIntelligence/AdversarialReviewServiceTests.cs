@@ -49,6 +49,20 @@ public sealed class AdversarialReviewServiceTests
     }
 
     [Fact]
+    public void Citation_ids_alone_neither_substantiate_a_finding_nor_measure_provider_quality()
+    {
+        SpecialistReviewFinding finding = new()
+        {
+            FindingId = "f", Title = "Unconfirmed observation", Rationale = "Review required",
+            Conclusion = ReviewConclusion.Fail, Confidence = 1, EvidenceArtifactIds = ["source-1"],
+        };
+        var result = _service.Review([finding]);
+        result.SubstantiatedFindings.Should().BeEmpty();
+        result.Challenges.Should().ContainSingle();
+        result.FalsePositiveRateByLane.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Review_uses_integrity_pass_set_for_substantiated_lane()
     {
         SpecialistReviewFinding withArtifactsButFailedIntegrity = new()
