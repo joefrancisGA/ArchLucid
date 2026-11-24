@@ -203,6 +203,10 @@ import {
   RUN_INSPECTOR_RELATED_ACTIONS_OPEN_PARAM,
 } from "@/lib/runs/run-inspector-related-actions-disclosure-url";
 import {
+  parseRunInspectorOpenArtifactOpenFromSearch,
+  RUN_INSPECTOR_OPEN_ARTIFACT_OPEN_PARAM,
+} from "@/lib/runs/run-inspector-open-artifact-disclosure-url";
+import {
   parseTrustEvidenceFieldsOpenFromSearch,
   parseTrustEvidenceTechOpenFromSearch,
   TRUST_EVIDENCE_FIELDS_OPEN_PARAM,
@@ -521,6 +525,9 @@ export function useReviewDetailWorkspaceTabs(
     const runInspectorRelatedActionsOpenPresent = parseRunInspectorRelatedActionsOpenFromSearch(
       params.get(RUN_INSPECTOR_RELATED_ACTIONS_OPEN_PARAM),
     );
+    const runInspectorOpenArtifactOpenPresent = parseRunInspectorOpenArtifactOpenFromSearch(
+      params.get(RUN_INSPECTOR_OPEN_ARTIFACT_OPEN_PARAM),
+    );
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -636,6 +643,7 @@ export function useReviewDetailWorkspaceTabs(
       || runDetailBuyerSponsorBriefExportsOpenPresent
       || runDetailFirstScreenProofOpenPresent
       || runInspectorRelatedActionsOpenPresent
+      || runInspectorOpenArtifactOpenPresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent
