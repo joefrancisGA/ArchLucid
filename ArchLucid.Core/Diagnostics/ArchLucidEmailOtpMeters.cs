@@ -54,11 +54,10 @@ public static partial class ArchLucidGrowthFunnelMeters
     /// <summary>Increments <see cref="EmailOtpRateLimitTriggeredTotal" />.</summary>
     public static void RecordEmailOtpRateLimitTriggered(string scope)
     {
-        string label = scope?.Trim() switch
-        {
-            "email" or "ip" or "email_request_hourly" or "ip_request_hourly" or "email_verification_hourly" => scope.Trim(),
-            _ => "unknown"
-        };
+        string normalized = scope?.Trim() ?? string.Empty;
+        string label = normalized is "email" or "ip" or "email_request_hourly" or "ip_request_hourly" or "email_verification_hourly"
+            ? normalized
+            : "unknown";
         TagList tags = new() { { "scope", label } };
 
         EmailOtpRateLimitTriggeredTotal.Add(1, tags);
