@@ -107,6 +107,5 @@ public static class AzureSearchTenantScopeFilterBuilder
             ? $"({scopeFilter}) and corpusKind eq '{kind}'"
             : scopeFilter;
 
-    private static string EscapeODataString
-(string value) => value.Replace("'", "''", StringComparison.Ordinal);
+    private static string EscapeODataString(string value) => value.Replace("'", "''", StringComparison.Ordinal);
 }
