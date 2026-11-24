@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Ask;
 using ArchLucid.Core.Ask;
@@ -45,10 +47,18 @@ public sealed class AskServiceConversationCompressionTests
         List<ConversationMessage> history = [];
         for (int i = 0; i < 8; i++)
         {
+            bool assistant = i % 2 != 0;
+            AskHistoryEvidenceScope? proof = assistant
+                ? AskHistoryEvidenceScope.Create(thread.ThreadId, "operator@test",
+                    new HashSet<Guid> { runId }, $"message-{i - 1}", false)
+                : null;
             history.Add(new ConversationMessage
             {
-                Role = i % 2 == 0 ? ConversationMessageRole.User : ConversationMessageRole.Assistant,
-                Content = $"message-{i}"
+                ThreadId = thread.ThreadId,
+                Role = assistant ? ConversationMessageRole.Assistant : ConversationMessageRole.User,
+                Content = $"message-{i}",
+                MetadataJson = JsonSerializer.Serialize(new { askEvidenceScopeV1 = proof },
+                    new JsonSerializerOptions(JsonSerializerDefaults.Web))
             });
         }
 
