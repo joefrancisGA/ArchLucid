@@ -22,6 +22,15 @@ public sealed class FixedTimeHexEqualsTests
         Assert.False(FixedTimeHexEquals.Equals(left, right));
     }
 
+    [Theory]
+    [InlineData("not-hex")]
+    [InlineData("ABC")]
+    [InlineData("ZZ")]
+    public void Equals_rejects_identical_malformed_hex(string digest)
+    {
+        Assert.False(FixedTimeHexEquals.Equals(digest, digest));
+    }
+
     [Fact]
     public void Equals_returns_false_for_null_or_empty()
     {
