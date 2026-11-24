@@ -272,6 +272,10 @@ import {
   REVIEW_FINDINGS_LIST_VIEW_PARAM,
 } from "@/lib/findings/review-findings-list-view";
 import {
+  isFindingJobViewSearchParam,
+  REVIEW_FINDINGS_JOB_VIEW_PARAM,
+} from "@/lib/findings/review-findings-job-view-url";
+import {
   parseTrustEvidenceFieldsOpenFromSearch,
   parseTrustEvidenceTechOpenFromSearch,
   TRUST_EVIDENCE_FIELDS_OPEN_PARAM,
@@ -662,6 +666,7 @@ export function useReviewDetailWorkspaceTabs(
       (params.get(REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM)?.trim() ?? "").length > 0;
     const findingsListViewPresent =
       parseReviewFindingsListViewFromSearch(params.get(REVIEW_FINDINGS_LIST_VIEW_PARAM)) !== null;
+    const findingJobViewPresent = isFindingJobViewSearchParam(params.get(REVIEW_FINDINGS_JOB_VIEW_PARAM));
     const trustEvidenceFieldsOpenPresent = parseTrustEvidenceFieldsOpenFromSearch(
       params.get(TRUST_EVIDENCE_FIELDS_OPEN_PARAM),
     );
@@ -800,6 +805,7 @@ export function useReviewDetailWorkspaceTabs(
       || findingInspectEvaluationOpenPresent
       || findingsClassificationBandPresent
       || findingsListViewPresent
+      || findingJobViewPresent
       || trustEvidenceFieldsOpenPresent
       || trustEvidenceTechOpenPresent
       || runImpactAnalysisOpenPresent

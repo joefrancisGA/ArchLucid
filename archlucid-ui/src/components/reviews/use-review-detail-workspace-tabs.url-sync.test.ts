@@ -1348,6 +1348,25 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
     expect(window.location.search).not.toContain("visit-default-finding");
     expect(window.location.search).not.toContain("reviewTab=findings");
   });
+
+  it("does not apply visit-default navigation when the URL only carries findingJobView", () => {
+    searchParamsHarness.applyQuery("findingJobView=deferred");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?findingJobView=deferred");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?findingJobView=deferred");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
   it("does not apply visit-default navigation when the URL only carries quickDecisionSupportingDetailFindingId", () => {
     searchParamsHarness.applyQuery("quickDecisionSupportingDetailFindingId=finding-1");
     window.history.replaceState({}, "", "/architecture/reviews/run-abc?quickDecisionSupportingDetailFindingId=finding-1");
