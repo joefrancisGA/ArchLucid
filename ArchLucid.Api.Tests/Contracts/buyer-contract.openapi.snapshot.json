@@ -24041,6 +24041,9 @@
             "type": "boolean"
           }
         },
+        "required": [
+          "restrictToShares"
+        ],
         "type": "object"
       },
       "PatchDraftRequest": {
