@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
+using ArchLucid.Contracts.Telemetry;
+
 namespace ArchLucid.Core.Diagnostics;
 
 public static partial class ArchLucidGrowthFunnelMeters
@@ -184,7 +186,8 @@ public static partial class ArchLucidGrowthFunnelMeters
         bool recordPerTenant,
         string? tenantIdNormalized)
     {
-        if (_firstTenantFunnelEventNameValidator != null && !_firstTenantFunnelEventNameValidator(eventName))
+        Func<string, bool>? validator = Volatile.Read(ref _firstTenantFunnelEventNameValidator);
+        if (!FirstTenantFunnelEventNames.IsValid(eventName) || (validator is not null && !validator(eventName)))
             throw new ArgumentOutOfRangeException(
                 nameof(eventName),
                 eventName,

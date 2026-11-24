@@ -121,10 +121,9 @@ public sealed class MeterListenerCounterSnapshotProvider : IInstrumentationCount
         {
             if (!string.Equals(tag.Key, SeverityTag, StringComparison.Ordinal))
                 continue;
-            if (tag.Value is string s && !string.IsNullOrWhiteSpace(s))
-                return s;
-            if (tag.Value is { } o)
-                return o.ToString() ?? UnknownSeverity;
+            string? value = tag.Value?.ToString();
+            if (!string.IsNullOrWhiteSpace(value))
+                return value;
         }
 
         return UnknownSeverity;
@@ -136,10 +135,9 @@ public sealed class MeterListenerCounterSnapshotProvider : IInstrumentationCount
         {
             if (!string.Equals(tag.Key, TaskTag, StringComparison.Ordinal))
                 continue;
-            if (tag.Value is string s && !string.IsNullOrWhiteSpace(s))
-                return s;
-            if (tag.Value is { } o)
-                return o.ToString() ?? UnknownTask;
+            string? value = tag.Value?.ToString();
+            if (!string.IsNullOrWhiteSpace(value))
+                return value;
         }
 
         return UnknownTask;

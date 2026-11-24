@@ -23,6 +23,7 @@ export async function RunDetailPackageChangesSinceFinalizeSection(
 
   return (
     <PackageChangesSinceFinalizePanel
+      timelineLoadFailure={pipeline.pipelineTimelineFailure}
       events={pipeline.pipelineTimelineAllForPackageChanges}
       finalizeUtc={props.finalizeUtc}
     />

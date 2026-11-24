@@ -47,14 +47,16 @@ public sealed class InMemoryAuditRetryQueue : IAuditRetryQueue
 
         AuditEvent copy = CopyAuditEvent(auditEvent);
 
+        // Account for the event before making it visible to the consumer.
+        _ = Interlocked.Increment(ref _pending);
+
         if (!_channel.Writer.TryWrite(copy))
         {
+            _ = Interlocked.Decrement(ref _pending);
             ArchLucidInstrumentation.AuditRetryEnqueueDroppedTotal.Add(1);
 
             return false;
         }
-
-        _ = Interlocked.Increment(ref _pending);
 
         return true;
     }
