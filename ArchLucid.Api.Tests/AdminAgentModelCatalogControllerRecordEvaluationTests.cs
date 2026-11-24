@@ -518,4 +518,31 @@ public sealed class AdminAgentModelCatalogControllerRecordEvaluationTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Theory]
+    [InlineData("NotEvaluated,Evaluated")]
+    [InlineData("Evaluated,Evaluated")]
+    public async Task RecordEvaluation_rejects_composite_state_without_recording(string raw)
+    {
+        Mock<IAgentModelCatalogEvaluationRecorder> recorder = new(MockBehavior.Strict);
+        AdminAgentModelCatalogController controller = new(
+            Mock.Of<IAgentModelCatalogRepository>(),
+            recorder.Object,
+            Mock.Of<IAgentModelCatalogFaithfulnessHarnessImporter>(),
+            Mock.Of<IAgentModelCatalogCacheInvalidator>(),
+            Mock.Of<IActorContext>(),
+            Mock.Of<IAuditService>(),
+            Mock.Of<IScopeContextProvider>())
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await controller.RecordEvaluation(
+            "gpt-test", "Primary",
+            new RecordAgentModelCatalogEvaluationRequest { EvaluationState = raw },
+            CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        recorder.VerifyNoOtherCalls();
+    }
 }

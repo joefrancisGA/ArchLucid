@@ -156,8 +156,7 @@ public static class ArchitectureRunStatusTransitionTable
             return false;
         }
 
-        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(trimmed, ignoreCase: true, out ArchitectureRunStatus parsed)
-            && Enum.IsDefined(parsed))
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(trimmed, ignoreCase: true, out ArchitectureRunStatus parsed))
         {
             status = parsed;
 

@@ -13,8 +13,7 @@ public static class DecisionConfidenceSourceMapper
 
         string trimmed = confidenceSource.Trim();
 
-        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(trimmed, ignoreCase: true, out DecisionConfidenceSource parsed)
-            && Enum.IsDefined(parsed))
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(trimmed, ignoreCase: true, out DecisionConfidenceSource parsed))
         {
             return ToBuyerLabel(parsed);
         }

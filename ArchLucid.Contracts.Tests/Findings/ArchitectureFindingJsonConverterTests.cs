@@ -697,4 +697,16 @@ public sealed class ArchitectureFindingJsonConverterTests
             Converters = { new ArchitectureFindingJsonConverter() }
         };
     }
+
+    [Theory]
+    [InlineData("Warning,Error")]
+    [InlineData("Info,Warning")]
+    public void Deserialize_rejects_composite_severity_even_when_result_is_defined(string severity)
+    {
+        string json = "{\"severity\":" + JsonSerializer.Serialize(severity)
+            + ",\"enforcementTier\":\"PolicyViolation\",\"message\":\"Finding\"}";
+
+        Action read = () => JsonSerializer.Deserialize<ArchitectureFinding>(json, CreateOptions());
+        read.Should().Throw<JsonException>();
+    }
 }

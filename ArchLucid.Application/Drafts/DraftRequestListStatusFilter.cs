@@ -23,7 +23,7 @@ public static class DraftRequestListStatusFilter
 
         foreach (string token in raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
-            if (!global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(token, ignoreCase: true, out DraftRequestStatus status) || !Enum.IsDefined(status))
+            if (!global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(token, ignoreCase: true, out DraftRequestStatus status))
             {
                 throw new InvalidOperationException(
                     $"Unsupported draft status '{token}'. Expected one of: {string.Join(", ", Enum.GetNames<DraftRequestStatus>())}.");

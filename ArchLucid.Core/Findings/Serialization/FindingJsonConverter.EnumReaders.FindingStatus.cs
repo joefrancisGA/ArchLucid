@@ -34,7 +34,7 @@ public sealed partial class FindingJsonConverter
             return (FindingTreatment)numericFromString;
         }
 
-        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(raw, ignoreCase: true, out FindingTreatment parsed) && Enum.IsDefined(parsed))
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(raw, ignoreCase: true, out FindingTreatment parsed))
             return parsed;
 
         throw new JsonException($"Unknown finding treatment value '{raw}'.");
@@ -67,7 +67,7 @@ public sealed partial class FindingJsonConverter
             return (FindingHumanReviewStatus)numericFromString;
         }
 
-        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(raw, ignoreCase: true, out FindingHumanReviewStatus parsed) && Enum.IsDefined(parsed))
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(raw, ignoreCase: true, out FindingHumanReviewStatus parsed))
             return parsed;
 
         throw new JsonException($"Unknown finding human review status value '{raw}'.");

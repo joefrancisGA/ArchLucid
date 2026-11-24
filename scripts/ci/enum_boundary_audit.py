@@ -94,6 +94,7 @@ FOCUSED = {
         "AgentModelTierResolverTests", "QuickScanServiceCoverageTests",
         "AgentResultParserTests", "AgentHandlerFailureBudgetObserverTests",
     ],
+    "ArchLucid.Api.Tests": ["AdminAgentModelCatalogControllerRecordEvaluationTests"],
     "ArchLucid.Cli.Tests": ["ArchitectureRequestFileParserTests"],
     "ArchLucid.Architecture.Tests": ["ArchLucidApiJsonSourceGenerationTests"],
     "ArchLucid.KnowledgeGraph.Tests": ["RequestActorMaterializerTests"],

@@ -129,8 +129,7 @@ public static class PolicyPackExpectationFacetParser
 
     string trimmed = raw.Trim();
 
-    if (Enum.TryParse<FindingSeverity>(trimmed, ignoreCase: true, out FindingSeverity parsed)
-        && Enum.IsDefined(parsed))
+    if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse<FindingSeverity>(trimmed, ignoreCase: true, out FindingSeverity parsed))
     {
       return parsed.ToString();
     }

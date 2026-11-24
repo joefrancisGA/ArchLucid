@@ -296,8 +296,7 @@ internal static class FindingInspectReadRepositoryCore
         string? normalizedOverlay = NormalizeInspectEnumToken(overlayBandStorage);
 
         if (normalizedOverlay is not null
-            && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(normalizedOverlay, ignoreCase: true, out FindingSemanticSupportBand overlayBand)
-            && Enum.IsDefined(overlayBand))
+            && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(normalizedOverlay, ignoreCase: true, out FindingSemanticSupportBand overlayBand))
         {
             return overlayBand;
         }
@@ -348,8 +347,7 @@ internal static class FindingInspectReadRepositoryCore
             string? normalized = NormalizeInspectEnumToken(raw);
 
             if (normalized is not null
-                && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(normalized, ignoreCase: true, out FindingClassification parsed)
-                && Enum.IsDefined(parsed))
+                && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(normalized, ignoreCase: true, out FindingClassification parsed))
             {
                 return parsed;
             }
@@ -383,8 +381,7 @@ internal static class FindingInspectReadRepositoryCore
             string? normalized = NormalizeInspectEnumToken(raw);
 
             if (normalized is not null
-                && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(normalized, ignoreCase: true, out FindingTreatment parsed)
-                && Enum.IsDefined(parsed))
+                && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(normalized, ignoreCase: true, out FindingTreatment parsed))
             {
                 return parsed;
             }
@@ -418,8 +415,7 @@ internal static class FindingInspectReadRepositoryCore
             string? normalized = NormalizeInspectEnumToken(raw);
 
             if (normalized is not null
-                && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(normalized, ignoreCase: true, out FindingSemanticSupportBand parsed)
-                && Enum.IsDefined(parsed))
+                && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(normalized, ignoreCase: true, out FindingSemanticSupportBand parsed))
             {
                 return parsed;
             }

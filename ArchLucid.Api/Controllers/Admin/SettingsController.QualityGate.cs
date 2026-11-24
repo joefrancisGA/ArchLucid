@@ -37,8 +37,7 @@ public sealed partial class SettingsController
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        if (!global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(request.Mode, ignoreCase: true, out AgentOutputQualityGateMode mode)
-            || !Enum.IsDefined(mode))
+        if (!global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(request.Mode, ignoreCase: true, out AgentOutputQualityGateMode mode))
         {
             return this.BadRequestProblem(
                 "Mode must be WarnOnly or PilotStrict.",

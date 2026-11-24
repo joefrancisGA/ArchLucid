@@ -94,8 +94,7 @@ public static class InventoryDiagramIndirectRelationshipResolver
                 InventoryDiagramIndirectRelationshipPropertyKeys.EvidenceCurrency,
                 out string? edgeCurrency))
         {
-            if (Enum.TryParse(edgeCurrency, ignoreCase: true, out InventoryDiagramEvidenceCurrency parsedEdgeCurrency)
-                && Enum.IsDefined(parsedEdgeCurrency))
+            if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(edgeCurrency, ignoreCase: true, out InventoryDiagramEvidenceCurrency parsedEdgeCurrency))
             {
                 return parsedEdgeCurrency;
             }
@@ -121,8 +120,7 @@ public static class InventoryDiagramIndirectRelationshipResolver
             && fromNode.Properties.TryGetValue(
                 InventoryDiagramIndirectRelationshipPropertyKeys.EvidenceCurrency,
                 out string? nodeCurrency)
-            && Enum.TryParse(nodeCurrency, ignoreCase: true, out InventoryDiagramEvidenceCurrency parsedNodeCurrency)
-            && Enum.IsDefined(parsedNodeCurrency))
+            && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(nodeCurrency, ignoreCase: true, out InventoryDiagramEvidenceCurrency parsedNodeCurrency))
         {
             return parsedNodeCurrency;
         }

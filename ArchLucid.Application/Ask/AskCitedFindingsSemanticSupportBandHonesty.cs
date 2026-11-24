@@ -182,8 +182,7 @@ public static class AskCitedFindingsSemanticSupportBandHonesty
             string? raw = bandElement.GetString();
 
             if (!string.IsNullOrWhiteSpace(raw)
-                && Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingSemanticSupportBand parsed)
-                && Enum.IsDefined(parsed))
+                && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(raw.Trim(), ignoreCase: true, out FindingSemanticSupportBand parsed))
             {
                 return parsed;
             }

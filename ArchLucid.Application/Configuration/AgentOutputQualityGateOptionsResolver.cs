@@ -47,7 +47,7 @@ public sealed class AgentOutputQualityGateOptionsResolver(
         if (string.IsNullOrWhiteSpace(raw))
             return false;
 
-        return global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(raw.Trim(), ignoreCase: true, out mode) && Enum.IsDefined(mode);
+        return global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(raw.Trim(), ignoreCase: true, out mode);
     }
 
     internal static string FormatMode(AgentOutputQualityGateMode mode) => mode.ToString();

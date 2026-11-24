@@ -140,14 +140,12 @@ public sealed class InfraEvidenceSecureNowQuestionsController(
     {
         mapped = null;
         error = null;
-if (!Enum.TryParse(request.Source, true, out SecureNowQuestionSource source)
-    || !Enum.IsDefined(source))
+if (!global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(request.Source, true, out SecureNowQuestionSource source))
         {
             error = "Source is invalid.";
             return false;
         }
-if (!Enum.TryParse(request.ScopeKind, true, out SecureNowQuestionScopeKind scopeKind)
-    || !Enum.IsDefined(scopeKind))
+if (!global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(request.ScopeKind, true, out SecureNowQuestionScopeKind scopeKind))
         {
             error = "ScopeKind is invalid.";
             return false;

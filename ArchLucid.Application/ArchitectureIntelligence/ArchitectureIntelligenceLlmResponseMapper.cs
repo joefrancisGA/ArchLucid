@@ -34,7 +34,7 @@ internal static class ArchitectureIntelligenceLlmResponseMapper
             return null;
         }
 
-        if (!global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(item.Kind, ignoreCase: true, out ArchitectureElementKind kind) || !Enum.IsDefined(kind))
+        if (!global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(item.Kind, ignoreCase: true, out ArchitectureElementKind kind))
         {
             kind = ArchitectureElementKind.Assumption;
         }
@@ -160,7 +160,7 @@ internal static class ArchitectureIntelligenceLlmResponseMapper
 
     private static SupportStatus ParseSupportStatus(string? value)
     {
-        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(value, ignoreCase: true, out SupportStatus parsed) && Enum.IsDefined(parsed))
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(value, ignoreCase: true, out SupportStatus parsed))
         {
             return parsed;
         }
@@ -170,7 +170,7 @@ internal static class ArchitectureIntelligenceLlmResponseMapper
 
     private static ClaimOrigin ParseClaimOrigin(string? value)
     {
-        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(value, ignoreCase: true, out ClaimOrigin parsed) && Enum.IsDefined(parsed))
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(value, ignoreCase: true, out ClaimOrigin parsed))
         {
             return parsed;
         }
@@ -180,7 +180,7 @@ internal static class ArchitectureIntelligenceLlmResponseMapper
 
     private static ReviewConclusion ParseReviewConclusion(string? value)
     {
-        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(value, ignoreCase: true, out ReviewConclusion parsed) && Enum.IsDefined(parsed))
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(value, ignoreCase: true, out ReviewConclusion parsed))
         {
             return parsed;
         }

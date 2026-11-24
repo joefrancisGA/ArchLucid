@@ -110,7 +110,7 @@ public sealed class AgentModelTierResolver(IConfiguration configuration, IOption
     {
         tier = LlmModelTier.Standard;
 
-        return !string.IsNullOrWhiteSpace(value) && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(value.Trim(), ignoreCase: true, out tier) && Enum.IsDefined(tier);
+        return !string.IsNullOrWhiteSpace(value) && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(value.Trim(), ignoreCase: true, out tier);
     }
 
     private static string? FirstNonEmpty(string? primary, string? fallback)

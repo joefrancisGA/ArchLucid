@@ -94,8 +94,7 @@ public sealed class RemediationPrioritizationController(
 
         foreach (KeyValuePair<string, decimal> entry in weights)
         {
-            if (!Enum.TryParse(entry.Key, ignoreCase: true, out RemediationRiskFactor factor)
-                || !Enum.IsDefined(factor))
+            if (!global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(entry.Key, ignoreCase: true, out RemediationRiskFactor factor))
             {
                 return this.BadRequestProblem(
                     $"Unknown factor '{entry.Key}'.",

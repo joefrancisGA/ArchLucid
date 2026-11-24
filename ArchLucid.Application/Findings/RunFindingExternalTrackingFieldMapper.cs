@@ -7,8 +7,7 @@ internal static class RunFindingExternalTrackingFieldMapper
     public static FindingHumanReviewStatus ParseHumanReview(string? raw)
     {
         if (!string.IsNullOrWhiteSpace(raw)
-            && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(raw.Trim(), true, out FindingHumanReviewStatus status)
-            && Enum.IsDefined(status))
+            && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(raw.Trim(), true, out FindingHumanReviewStatus status))
             return status;
 
         return FindingHumanReviewStatus.NotRequired;
@@ -20,7 +19,6 @@ internal static class RunFindingExternalTrackingFieldMapper
             return null;
 
         return global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(raw.Trim(), ignoreCase: true, out FindingDisposition disposition)
-            && Enum.IsDefined(disposition)
             ? disposition
             : null;
     }

@@ -452,8 +452,7 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         if (string.IsNullOrWhiteSpace(raw))
             return FindingSeverity.Info;
 
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingSeverity parsed)
-            && Enum.IsDefined(parsed))
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(raw, ignoreCase: true, out FindingSeverity parsed))
         {
             severityStored = true;
             return parsed;

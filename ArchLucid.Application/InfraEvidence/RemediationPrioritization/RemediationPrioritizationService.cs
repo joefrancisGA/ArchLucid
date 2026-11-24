@@ -264,8 +264,7 @@ public sealed class RemediationPrioritizationService(
 
         foreach (KeyValuePair<string, decimal> entry in parsed)
         {
-            if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(entry.Key, ignoreCase: true, out RemediationRiskFactor factor)
-                && Enum.IsDefined(factor))
+            if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(entry.Key, ignoreCase: true, out RemediationRiskFactor factor))
                 weights[factor] = entry.Value;
         }
 

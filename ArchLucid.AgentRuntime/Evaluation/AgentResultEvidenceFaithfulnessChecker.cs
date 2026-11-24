@@ -193,8 +193,7 @@ public sealed class AgentResultEvidenceFaithfulnessChecker(IOptions<AgentFaithfu
         if (string.IsNullOrWhiteSpace(category))
             return false;
 
-        if (Enum.TryParse(category, ignoreCase: true, out Contracts.Common.AgentType parsedAgentType)
-            && Enum.IsDefined(parsedAgentType))
+        if (global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(category, ignoreCase: true, out Contracts.Common.AgentType parsedAgentType))
             return true;
 
         List<string> categoryTokens = CollectTokens(category);
