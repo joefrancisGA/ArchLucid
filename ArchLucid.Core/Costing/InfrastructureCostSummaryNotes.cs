@@ -31,6 +31,17 @@ internal static class InfrastructureCostSummaryNotes
 
         CloudProvider? soleFamily = ResolveSoleCloudFamily(totals.Lines);
 
+        if (!totals.AnyRetailPricing)
+        {
+            return soleFamily switch
+            {
+                CloudProvider.Aws => "Illustrative AWS USD/month (no live pricing matches).",
+                CloudProvider.Gcp => "Illustrative GCP USD/month (no live pricing matches).",
+                CloudProvider.Azure => "Illustrative Azure infrastructure USD/month (no live pricing matches).",
+                _ => "Illustrative infrastructure USD/month (no live pricing matches).",
+            };
+        }
+
         if (totals.AllRetailPricing)
         {
             if (soleFamily == CloudProvider.Aws)
