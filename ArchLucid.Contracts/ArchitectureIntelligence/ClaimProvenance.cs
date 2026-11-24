@@ -12,7 +12,7 @@ public class ClaimProvenance
     {
         get;
         set;
-    }
+    } = SupportStatus.NotYetEvaluated;
 
     /// <summary>Confidence in [0, 1].</summary>
     public double Confidence
