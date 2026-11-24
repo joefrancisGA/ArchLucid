@@ -4,6 +4,8 @@ using System.Text.Json.Serialization;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Serialization;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Pagination;
 
@@ -126,6 +128,73 @@ public sealed class ArchLucidApiJsonSourceGenerationTests
         };
 
         AssertWireParity(sample);
+    }
+
+    public enum SampleEnum { First = 1, Second = 2, Third = 3 }
+
+    [Flags]
+    public enum SampleFlags { None = 0, Read = 1, Write = 2 }
+
+    [Theory]
+    [InlineData("2147483647")]
+    [InlineData("\"2147483647\"")]
+    [InlineData("\"First,Second\"")]
+    [InlineData("0")]
+    public void Undefined_or_composite_ordinary_enum_json_is_rejected(string json)
+    {
+        Action read = () => JsonSerializer.Deserialize<SampleEnum>(json, ArchLucidApiJsonSerializerOptions.Web);
+        read.Should().Throw<JsonException>();
+    }
+
+    [Theory]
+    [InlineData("1", SampleEnum.First)]
+    [InlineData("\"second\"", SampleEnum.Second)]
+    [InlineData("\"3\"", SampleEnum.Third)]
+    public void Defined_enum_wire_forms_remain_compatible(string json, SampleEnum expected)
+    {
+        JsonSerializer.Deserialize<SampleEnum>(json, ArchLucidApiJsonSerializerOptions.Web).Should().Be(expected);
+        JsonSerializer.Serialize(expected, ArchLucidApiJsonSerializerOptions.Web)
+            .Should().Be(JsonSerializer.Serialize(expected, ReflectionBaselineOptions));
+    }
+
+    [Fact]
+    public void Nullable_and_dictionary_key_enums_are_validated()
+    {
+        JsonSerializer.Deserialize<SampleEnum?>("null", ArchLucidApiJsonSerializerOptions.Web).Should().BeNull();
+        Action nullable = () => JsonSerializer.Deserialize<SampleEnum?>("99", ArchLucidApiJsonSerializerOptions.Web);
+        Action dictionary = () => JsonSerializer.Deserialize<Dictionary<SampleEnum, int>>(
+            """{"99":1}""", ArchLucidApiJsonSerializerOptions.Web);
+        nullable.Should().Throw<JsonException>();
+        dictionary.Should().Throw<JsonException>();
+    }
+
+    [Fact]
+    public void Flags_accept_declared_bit_combinations_but_reject_unknown_bits()
+    {
+        JsonSerializer.Deserialize<SampleFlags>("3", ArchLucidApiJsonSerializerOptions.Web)
+            .Should().Be(SampleFlags.Read | SampleFlags.Write);
+        Action read = () => JsonSerializer.Deserialize<SampleFlags>("4", ArchLucidApiJsonSerializerOptions.Web);
+        read.Should().Throw<JsonException>();
+    }
+
+    [Fact]
+    public void Source_generated_run_summary_rejects_undefined_lifecycle_phase()
+    {
+        Action read = () => JsonSerializer.Deserialize<RunSummary>(
+            """{"authorityLifecyclePhase":2147483647}""", ArchLucidApiJsonSerializerOptions.Web);
+        read.Should().Throw<JsonException>();
+    }
+
+    [Fact]
+    public void Operator_disposition_requires_explicit_decision()
+    {
+        Action missing = () => JsonSerializer.Deserialize<RecordRunOperatorGovernanceDispositionRequest>(
+            """{"rationale":"reason"}""", ArchLucidApiJsonSerializerOptions.Web);
+        missing.Should().Throw<JsonException>();
+
+        JsonSerializer.Deserialize<RecordRunOperatorGovernanceDispositionRequest>(
+                """{"decision":0,"rationale":"reason"}""", ArchLucidApiJsonSerializerOptions.Web)!
+            .Decision.Should().Be(RunOperatorGovernanceDecision.Approved);
     }
 
     private static void AssertWireParity<T>(T sample)

@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
@@ -36,7 +38,7 @@ public sealed class AgentResultParser : IAgentResultParser
             new RuntimePlatformJsonConverter(),
             new DatastoreTypeJsonConverter(),
             new RelationshipTypeJsonConverter(),
-            new JsonStringEnumConverter<FindingConfidenceLevel>(allowIntegerValues: true),
+            new ValidatedEnumJsonConverterFactory(new JsonStringEnumConverter<FindingConfidenceLevel>(allowIntegerValues: true)),
             new ArchitectureFindingJsonConverter(),
             new AgentResultClaimListJsonConverter()
         }

@@ -71,4 +71,16 @@ public sealed class ArchitectureRequestFileParserTests
         outcome.FailureCode.Should().Be(ArchitectureRequestFileParseFailureCode.BadRequest);
         outcome.Message.Should().Contain("systemName");
     }
+
+    [Theory]
+    [InlineData("2147483647")]
+    [InlineData("\"2147483647\"")]
+    [InlineData("\"Azure,Aws\"")]
+    public void ParseFromUtf8_rejects_undefined_or_composite_cloud_provider(string provider)
+    {
+        string json = "{\"systemName\":\"Svc\",\"description\":\"1234567890ab\",\"cloudProvider\":" + provider + "}";
+        var result = ArchitectureRequestFileParser.ParseFromUtf8(Encoding.UTF8.GetBytes(json), "inline");
+        result.IsSuccess.Should().BeFalse();
+        result.FailureCode.Should().Be(ArchitectureRequestFileParseFailureCode.BadRequest);
+    }
 }
