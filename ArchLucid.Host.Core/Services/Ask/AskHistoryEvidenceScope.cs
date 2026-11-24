@@ -31,9 +31,39 @@ public sealed record AskHistoryEvidenceScope(string ActorKey, string[] RunKeys, 
                 Digest(threadId, "question", question));
     }
 
+    public static AskHistoryEvidenceScope? CreateForDraft(
+        Guid threadId, Guid draftId, Guid? architectureId, string actorId,
+        IReadOnlySet<Guid> authorizedRuns, string question)
+    {
+        if (draftId == Guid.Empty || ActorKeyFor(threadId, actorId) is null)
+            return null;
+
+        return Create(threadId, DraftActor(draftId, architectureId, actorId),
+            authorizedRuns, question, platformCorporaRequested: false);
+    }
+
+    public static IReadOnlyList<ConversationMessage> SelectVerifiedDraftTurns(
+        IReadOnlyList<ConversationMessage> messages, Guid threadId, Guid draftId,
+        Guid? architectureId, string actorId, IReadOnlySet<Guid> authorizedRuns)
+    {
+        if (draftId == Guid.Empty || ActorKeyFor(threadId, actorId) is null)
+            return [];
+
+        return SelectVerifiedTurnsCore(messages, threadId, DraftActor(draftId, architectureId, actorId),
+            authorizedRuns, "draftIntakeEvidenceScopeV1");
+    }
+
+    private static string DraftActor(Guid draftId, Guid? architectureId, string actorId) =>
+        $"draft:{draftId:N}:{architectureId:N}:{actorId}";
+
     public static IReadOnlyList<ConversationMessage> SelectVerifiedTurns(
         IReadOnlyList<ConversationMessage> messages, Guid threadId,
-        string actorId, IReadOnlySet<Guid> authorizedRuns)
+        string actorId, IReadOnlySet<Guid> authorizedRuns) =>
+        SelectVerifiedTurnsCore(messages, threadId, actorId, authorizedRuns, "askEvidenceScopeV1");
+
+    private static IReadOnlyList<ConversationMessage> SelectVerifiedTurnsCore(
+        IReadOnlyList<ConversationMessage> messages, Guid threadId,
+        string actorId, IReadOnlySet<Guid> authorizedRuns, string proofProperty)
     {
         string? key = ActorKeyFor(threadId, actorId);
         if (key is null)
@@ -65,7 +95,7 @@ public sealed record AskHistoryEvidenceScope(string ActorKey, string[] RunKeys, 
             {
                 using JsonDocument json = JsonDocument.Parse(message.MetadataJson);
                 if (json.RootElement.ValueKind != JsonValueKind.Object ||
-                    !json.RootElement.TryGetProperty("askEvidenceScopeV1", out JsonElement proof) ||
+                    !json.RootElement.TryGetProperty(proofProperty, out JsonElement proof) ||
                     proof.ValueKind != JsonValueKind.Object)
                     continue;
 
