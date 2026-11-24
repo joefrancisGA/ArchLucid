@@ -186,9 +186,7 @@ public sealed partial class SqlTenantGcpConnectionRepository
                 ProjectId = ProjectId,
                 WorkloadIdentityPoolProvider = WorkloadIdentityPoolProvider,
                 ServiceAccountEmail = ServiceAccountEmail,
-                Status = Enum.TryParse<GcpConnectionStatus>(Status, out GcpConnectionStatus parsed)
-                    ? parsed
-                    : GcpConnectionStatus.Connected,
+                Status = ArchLucid.Contracts.Serialization.DefinedEnum.Parse<GcpConnectionStatus>(Status),
                 LastPolledUtc = LastPolledUtc,
                 CreatedUtc = CreatedUtc,
                 UpdatedUtc = UpdatedUtc,

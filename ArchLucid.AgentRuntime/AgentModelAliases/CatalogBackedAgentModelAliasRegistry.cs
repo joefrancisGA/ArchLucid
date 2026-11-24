@@ -172,7 +172,7 @@ public sealed class CatalogBackedAgentModelAliasRegistry(
         }
 
         if (!string.IsNullOrWhiteSpace(row.TierBinding)
-            && Enum.TryParse(row.TierBinding, true, out LlmModelTier tier))
+            && ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(row.TierBinding, true, out LlmModelTier tier))
         {
             return _tierResolver.ResolveDeploymentName(tier);
         }

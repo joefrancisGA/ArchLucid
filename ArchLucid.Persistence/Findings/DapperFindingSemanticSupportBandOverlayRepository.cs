@@ -142,7 +142,7 @@ public sealed class DapperFindingSemanticSupportBandOverlayRepository(ISqlConnec
             if (string.IsNullOrWhiteSpace(row.FindingId))
                 continue;
 
-            if (!Enum.TryParse(row.SemanticSupportBand, ignoreCase: true, out FindingSemanticSupportBand band))
+            if (!ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(row.SemanticSupportBand, ignoreCase: true, out FindingSemanticSupportBand band))
                 continue;
 
             map[row.FindingId.Trim()] = new FindingSemanticSupportBandOverlayRecord

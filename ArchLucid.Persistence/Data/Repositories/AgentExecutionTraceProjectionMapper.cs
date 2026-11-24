@@ -147,7 +147,7 @@ internal static class AgentExecutionTraceProjectionMapper
     {
         ArgumentNullException.ThrowIfNull(row);
 
-        if (!Enum.TryParse(row.AgentType, ignoreCase: true, out AgentType agentType))
+        if (!ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(row.AgentType, ignoreCase: true, out AgentType agentType))
 
             throw new InvalidOperationException(
                 $"AgentExecutionTraces.AgentType value '{row.AgentType}' is not a known AgentType.");

@@ -58,12 +58,12 @@ public static class AuthorityFindingToSpecialistMapper
         {
             string[] parts = policyRuleId.Split('.');
 
-            if (parts.Length >= 3 && Enum.TryParse(parts[1], ignoreCase: true, out QualityDimension parsed))
+            if (parts.Length >= 3 && ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(parts[1], ignoreCase: true, out QualityDimension parsed))
                 return parsed;
         }
 
         if (!string.IsNullOrWhiteSpace(qualityDimension)
-            && Enum.TryParse(qualityDimension, ignoreCase: true, out QualityDimension fromStorage))
+            && ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(qualityDimension, ignoreCase: true, out QualityDimension fromStorage))
             return fromStorage;
 
         return QualityDimension.Security;
