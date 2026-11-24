@@ -43,6 +43,25 @@ public sealed class TenantAzureOpenAiConnectionUpsertValidationTests
         command!.Endpoint.Should().Be("https://contoso.openai.azure.com");
         command.ApiKeyKeyVaultSecretName.Should().Be("tenant-contoso-azure-openai-api-key");
     }
+
+    [Theory]
+    [InlineData("2147483647")]
+    [InlineData("-2147483648")]
+    public void TryBuildCommand_RejectsUndefinedAuthModes(string authMode)
+    {
+        TenantAzureOpenAiConnectionUpsertRequest request = new()
+        {
+            Endpoint = "https://contoso.openai.azure.com",
+            ApiKeyKeyVaultSecretName = "tenant-contoso-azure-openai-api-key",
+            DeploymentsJson = """{"default":"gpt-4o"}""",
+            AuthMode = authMode,
+        };
+
+        TenantAzureOpenAiConnectionUpsertValidation.TryBuildCommand(request, out _, out string? error)
+            .Should().BeFalse();
+        error.Should().Contain("AuthMode");
+    }
+
 }
 
 [Trait("Category", "Unit")]
