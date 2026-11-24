@@ -175,3 +175,4 @@
 {"productLine":"archlucid-shared","set":3,"zoneId":"ui-review-detail-workspace","at":"2026-11-24T15:44:30.2595783Z","outcome":"hit","note":"seed hunt: visit-default overwrote findingEvidenceOpen=1-only URL"}
 {"productLine":"archlucid-shared","set":3,"zoneId":"ui-review-detail-workspace","at":"2026-11-24T15:46:22.1913432Z","outcome":"hit","note":"seed hunt: visit-default overwrote findingAuditOpen=1-only URL"}
 {"productLine":"archlucid-shared","set":3,"zoneId":"ui-review-detail-workspace","at":"2026-11-24T15:48:37.1988065Z","outcome":"hit","note":"seed hunt: visit-default overwrote findingRelatedAuditOpen=1-only URL"}
+{"productLine":"archlucid-shared","set":3,"zoneId":"ui-review-detail-workspace","at":"2026-11-24T15:50:35.8875027Z","outcome":"hit","note":"seed hunt: visit-default overwrote findingTechnicalMetadataOpen=1-only URL"}
