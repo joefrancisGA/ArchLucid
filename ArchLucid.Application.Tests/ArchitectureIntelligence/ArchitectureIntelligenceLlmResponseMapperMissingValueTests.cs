@@ -30,6 +30,24 @@ public sealed class ArchitectureIntelligenceLlmResponseMapperMissingValueTests
     }
 
     [Fact]
+    public void A_model_reported_pass_cannot_accept_its_own_claim()
+    {
+        var finding = ArchitectureIntelligenceLlmResponseMapper.MapReviewFinding(
+            new ArchitectureIntelligenceLlmResponseShapes.ReviewFindingShape
+            {
+                Title = "All replicas satisfy the policy",
+                Conclusion = "Pass", Confidence = 1,
+                EvidenceCondition = "Sufficient", SupportStatus = "DirectlyEstablished",
+            }, QualityDimension.Reliability);
+
+        finding.Conclusion.Should().Be(ReviewConclusion.Pass);
+        finding.Provenance.Origin.Should().Be(ClaimOrigin.ModelInferred);
+        finding.Provenance.SupportStatus.Should().Be(SupportStatus.NotYetEvaluated);
+        finding.EvidenceCondition.Should().Be(EvidenceCondition.Unverified);
+        finding.GovernanceDisposition.Should().Be(GovernanceDisposition.Open);
+    }
+
+    [Fact]
     public void MapReviewFinding_labels_missing_severity_without_defaulting_to_medium()
     {
         SpecialistReviewFinding finding = ArchitectureIntelligenceLlmResponseMapper.MapReviewFinding(

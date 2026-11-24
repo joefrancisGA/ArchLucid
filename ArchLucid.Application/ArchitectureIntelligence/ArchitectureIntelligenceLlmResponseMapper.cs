@@ -64,7 +64,6 @@ internal static class ArchitectureIntelligenceLlmResponseMapper
     internal static SpecialistReviewFinding MapReviewFinding(ReviewFindingShape item, QualityDimension dimension)
     {
         ReviewConclusion conclusion = ParseReviewConclusion(item.Conclusion);
-        EvidenceCondition evidenceCondition = ParseEvidenceCondition(item.EvidenceCondition);
 
         return new SpecialistReviewFinding
         {
@@ -73,16 +72,14 @@ internal static class ArchitectureIntelligenceLlmResponseMapper
             Title = item.Title?.Trim() ?? string.Empty,
             Rationale = item.Rationale?.Trim() ?? string.Empty,
             Conclusion = conclusion,
-            EvidenceCondition = evidenceCondition,
-            GovernanceDisposition = conclusion == ReviewConclusion.Pass
-                ? GovernanceDisposition.Accepted
-                : GovernanceDisposition.Open,
+            EvidenceCondition = EvidenceCondition.Unverified,
+            GovernanceDisposition = GovernanceDisposition.Open,
             Confidence = ClampConfidence(item.Confidence),
             Severity = string.IsNullOrWhiteSpace(item.Severity) ? "Severity was not stored." : item.Severity.Trim(),
             Provenance = new ClaimProvenance
             {
-                Origin = ClaimOrigin.SystemProposed,
-                SupportStatus = ParseSupportStatus(item.SupportStatus),
+                Origin = ClaimOrigin.ModelInferred,
+                SupportStatus = SupportStatus.NotYetEvaluated,
                 Confidence = ClampConfidence(item.Confidence),
                 Notes = item.Notes?.Trim(),
             },
@@ -185,13 +182,4 @@ internal static class ArchitectureIntelligenceLlmResponseMapper
         return ReviewConclusion.Indeterminate;
     }
 
-    private static EvidenceCondition ParseEvidenceCondition(string? value)
-    {
-        if (Enum.TryParse(value, ignoreCase: true, out EvidenceCondition parsed))
-        {
-            return parsed;
-        }
-
-        return EvidenceCondition.Insufficient;
-    }
 }
