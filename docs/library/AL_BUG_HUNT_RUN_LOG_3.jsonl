@@ -86,3 +86,4 @@
 {"at":"2026-11-23T23:54:18.9573891Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: diagramFindingId survived tab navigation clear"}
 {"at":"2026-11-23T23:58:16.7645392Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: legacy diagramFindingId did not hydrate finding selection"}
 {"at":"2026-11-24T00:01:16.6998500Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: searchParams reconcile cleared legacy diagramFindingId"}
+{"at":"2026-11-24T00:07:54.5263096Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","set":3,"note":"seed hunt: visit-default overwrote diagramFindingId-only URL"}
