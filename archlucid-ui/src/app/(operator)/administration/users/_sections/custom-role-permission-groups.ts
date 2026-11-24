@@ -44,7 +44,6 @@ export const CUSTOM_ROLE_PERMISSION_GROUPS: readonly PermissionGroup[] = [
     permissions: [
       { id: "Tenants.ReadOwn", label: "Read own tenant" },
       { id: "Tenants.ManageOwn", label: "Manage own tenant" },
-      { id: "Tenants.ManageAny", label: "Manage any tenant" },
     ],
   },
   {
