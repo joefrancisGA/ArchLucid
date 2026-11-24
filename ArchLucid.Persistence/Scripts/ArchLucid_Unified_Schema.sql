@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 425_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 429_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -4577,6 +4577,8 @@ BEGIN
         CreatedUtc       DATETIMEOFFSET   NOT NULL CONSTRAINT DF_Tenants_CreatedUtc2 DEFAULT SYSUTCDATETIME(),
         SuspendedUtc     DATETIMEOFFSET   NULL,
         EntraTenantId    UNIQUEIDENTIFIER NULL,
+        TenantErasureApprovedUtc DATETIMEOFFSET(7) NULL,
+        TenantErasureApprovedByUserId NVARCHAR(256) NULL,
         CONSTRAINT UQ_Tenants_Slug2 UNIQUE (Slug)
     );
 END;
