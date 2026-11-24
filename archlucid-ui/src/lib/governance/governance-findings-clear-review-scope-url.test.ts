@@ -77,4 +77,13 @@ describe("governanceFindingsClearReviewScopeHref", () => {
     expect(href).not.toContain(`${GOVERNANCE_RECORD_CORRECTION_SUBJECT_ID_PARAM}=`);
     expect(href).not.toContain(`${GOVERNANCE_RECORD_CORRECTION_RUN_ID_PARAM}=`);
   });
+  it("preserves focusedFinding while clearing review scope", () => {
+    const href = governanceFindingsClearReviewScopeHref(
+      "runId=run-1&filter=open&focusedFinding=finding-1",
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings?filter=open&focusedFinding=finding-1");
+    expect(href).not.toContain("runId=");
+  });
 });

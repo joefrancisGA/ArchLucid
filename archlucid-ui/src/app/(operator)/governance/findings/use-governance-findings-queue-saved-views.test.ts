@@ -106,4 +106,15 @@ describe("useGovernanceFindingsQueueSavedViews", () => {
 
     expect(routerReplaceMock).toHaveBeenLastCalledWith("/governance/findings?runId=run-1", { scroll: false });
   });
+  it("replaces URL without govCorrection params when loading a workspace saved view", () => {
+    const { result } = renderSavedViewsHook(
+      `runId=run-1&filter=expiring-soon&govCorrectionKind=governance_quick_approve&govCorrectionSubjectId=sub-1&govCorrectionRunId=run-1`,
+    );
+
+    result.current.onLoadFindingsSavedView(workspaceSavedView);
+
+    expect(routerReplaceMock).toHaveBeenCalledWith("/governance/findings?filter=open", { scroll: false });
+    const href = String(routerReplaceMock.mock.calls.at(-1)?.[0] ?? "");
+    expect(href).not.toContain("govCorrection");
+  });
 });

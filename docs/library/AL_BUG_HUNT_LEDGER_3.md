@@ -41,7 +41,7 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 - **aliases:** governance lib; findings URL helpers
 - **paths:** archlucid-ui/src/lib/governance/
 - **test-filter:** lib/governance
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
@@ -160,7 +160,7 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 21
+- **hunts:** 31
 - **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
@@ -4075,7 +4075,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
@@ -8909,7 +8909,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
@@ -10017,7 +10017,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
@@ -10764,7 +10764,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
@@ -13539,6 +13539,21 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-11-24 thorough hunt (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**33** monitor rows — **valid-no-repro** `governanceFindingsWorkspaceSavedViewHref` / `governanceFindingsRunScopedSavedViewHref` rebuild from saved filters only (`router.replace` replaces full href; regressions in `governance-findings-saved-view-helpers.test.ts` and `use-governance-findings-queue-saved-views.test.ts`); **valid-no-repro** `governanceFindingsClearAllFiltersHref` retaining `focusedFinding` (triage cursor, not a register/facet filter; regression `preserves focusedFinding triage cursor while clearing register and facet filters`); **valid-no-repro** `useGovernanceRecordCorrectionUrlSync` vs pick-review (`governanceFindingsPickReviewForTriageHref` deletes `govCorrection*`; pick-review suite **7/7**); **valid-no-repro** clear review scope + `focusedFinding` (cursor hook strips unknown ids; regression `preserves focusedFinding while clearing review scope`). Scoped vitest **31/31** across saved-view, clear-all, clear-scope, pick-review, saved-views hook. Reseeded five pass-**34** `(candidate)` rows below. Private beta: n/a.
+
+- [x] (valid-no-repro) `governanceFindingsWorkspaceSavedViewHref` — saved workspace view load may retain `govCorrection*` from prior URL — **cheap-disproof 2026-11-24 thorough hunt:** href builder ignores current query; hook `router.replace` uses rebuilt href only; regressions above.
+- [x] (valid-no-repro) `governanceFindingsRunScopedSavedViewHref` — run-scoped saved view may retain stale `kbDisp*` — **cheap-disproof 2026-11-24 thorough hunt:** same full-href replace path; saved-view helper regression above.
+- [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — may retain `focusedFinding` when clearing filters — **cheap-disproof 2026-11-24 thorough hunt:** intentional triage cursor; regression above.
+- [x] (valid-no-repro) `useGovernanceRecordCorrectionUrlSync` — correction dialog vs pick-review navigation ordering — **cheap-disproof 2026-11-24 thorough hunt:** pick-review href clears confirm params before navigation; pick-review suite.
+- [x] (valid-no-repro) `GovernanceFindingsQueueScopeSection` — clear review scope link vs `focusedFinding` triage cursor — **cheap-disproof 2026-11-24 thorough hunt:** `governanceFindingsClearReviewScopeHref` preserves cursor; unknown ids stripped after scope change via triage hook.
+
+- [ ] (candidate) `useGovernanceFindingsQueueSavedViews` — loading saved view may retain `hideGeneric` from prior URL — locus: saved view load `router.replace`; input: hideGeneric=1 + load workspace saved view; monitor; pass 34 reseed.
+- [ ] (candidate) `governanceFindingsClearAllFiltersHref` — may retain `hideGeneric` when clearing register/facet filters (distinct from show-all) — locus: clear-all helper; input: hideGeneric=1 + filter=open + clear all; monitor; pass 34 reseed.
+- [ ] (candidate) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when switching `runId` without architecture scope — locus: pick-review href; input: run-1 + focusedFinding + pick run-9; monitor; pass 34 reseed.
+- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may retain `q` search when clearing run scope — locus: clear-scope helper; input: runId + q=phi + clear review scope; monitor; pass 34 reseed.
+- [ ] (candidate) `applyFindingsSavedViewFilters` — malformed `scopedRunId` whitespace may load run scope — locus: saved-view filter apply; input: scopedRunId `   ` in payload; monitor; pass 34 reseed.
+
+- [x] (superseded) pass **#33** monitor `(candidate)` queue — **superseded 2026-11-24 thorough hunt:** see hunt header above and pass **#34** reseed.
 2026-11-17 thorough hunt #508 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**32** monitor rows — **proven** `governanceFindingsClearReviewScopeHref` still left `govCorrection*` after Clear review scope (hunt **#507** clear-all class incomplete on scope clear); **proven** `governanceFindingsPickReviewForTriageHref` retained keyboard + record-correction confirm params when switching `runId` (hunt **#1375** bulk-clear class); **valid-no-repro** `showAllFilteredFindings` + `govCorrection*` (delegates to clear-all helper fixed hunt **#507**); **valid-no-repro** `focusedFinding` surviving clear-all with open triage (triage cursor URL sync rewrites when panel open); **valid-no-repro** keyboard host pending after URL `kbDisp` strip (`FindingKeyboardTriageHost` effect clears pending when params empty). Regressions `clears record-correction confirm params when clearing review scope` and `clears stale keyboard and record-correction confirm params when picking a review`; pick-review **6/6** + clear-review-scope **6/6**. Reseeded five pass-**33** `(candidate)` rows below. Private beta: picking another review or clearing review scope on the governance findings queue no longer keeps record-correction or keyboard disposition confirms tied to the prior run.
 
 - [x] (proven) `governanceFindingsPickReviewForTriageHref` — stale `govCorrection*` / `kbDisp*` on pick review — **hit 2026-11-17 thorough hunt #508:** delete confirm param families on pick-review navigation; regression above.
@@ -13547,11 +13562,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (valid-no-repro) `GovernanceFindingsQueueClient` — `focusedFinding` survives clear-all with open triage — **cheap-disproof 2026-11-17 thorough hunt #508:** triage cursor sync owns `focusedFinding` while open.
 - [x] (valid-no-repro) `FindingKeyboardTriageHost` — pending confirm after scope clear strips `kbDisp` — **cheap-disproof 2026-11-17 thorough hunt #508:** URL sync effect nulls pending when params absent.
 
-- [ ] (candidate) `governanceFindingsWorkspaceSavedViewHref` — saved workspace view load may retain `govCorrection*` from prior URL — locus: saved-view href builder; input: correction params + load view; monitor; pass 33 reseed.
-- [ ] (candidate) `governanceFindingsRunScopedSavedViewHref` — run-scoped saved view may retain stale `kbDisp*` — locus: run-scoped saved-view href; input: keyboard confirm + saved run scope; monitor; pass 33 reseed.
-- [ ] (candidate) `governanceFindingsClearAllFiltersHref` — may retain `focusedFinding` when clearing filters — locus: clear-all helper; input: open triage deep link + clear all; monitor; pass 33 reseed.
-- [ ] (candidate) `useGovernanceRecordCorrectionUrlSync` — correction dialog vs pick-review navigation ordering — locus: run change with open correction; input: pick review while correction armed; monitor; pass 33 reseed.
-- [ ] (candidate) `GovernanceFindingsQueueScopeSection` — clear review scope link vs `focusedFinding` triage cursor — locus: scope clear + triage URL; input: scoped run + focusedFinding; monitor; pass 33 reseed.
+- [x] (valid-no-repro) `governanceFindingsWorkspaceSavedViewHref` — pass 33 monitor — **superseded 2026-11-24 thorough hunt:** closed in hunt header above.
+- [x] (valid-no-repro) `governanceFindingsRunScopedSavedViewHref` — pass 33 monitor — **superseded 2026-11-24 thorough hunt:** closed in hunt header above.
+- [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — pass 33 monitor — **superseded 2026-11-24 thorough hunt:** closed in hunt header above.
+- [x] (valid-no-repro) `useGovernanceRecordCorrectionUrlSync` — pass 33 monitor — **superseded 2026-11-24 thorough hunt:** closed in hunt header above.
+- [x] (valid-no-repro) `GovernanceFindingsQueueScopeSection` — pass 33 monitor — **superseded 2026-11-24 thorough hunt:** closed in hunt header above.
 
 - [x] (superseded) pass **#32** monitor `(candidate)` queue — **superseded 2026-11-17 thorough hunt #508:** see hunt **#508** header and pass **#33** reseed.
 
@@ -13609,9 +13624,9 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
 - **related-pd-tb:** none
@@ -13797,7 +13812,7 @@ ABQ-09 churn hotspot.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
@@ -16801,7 +16816,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
@@ -16979,7 +16994,7 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
@@ -19545,7 +19560,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
@@ -19701,7 +19716,7 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
