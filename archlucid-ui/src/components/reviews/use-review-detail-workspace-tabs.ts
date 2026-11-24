@@ -23,7 +23,8 @@ import { type ResolveReviewDetailVisibleTabsInput } from "@/lib/resolve-review-d
 import type { ReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-lifecycle";
 import {
   resolveReviewWorkspaceTabFromSearchParams,
-  resolveReviewWorkspaceVisibleTabs} from "@/lib/resolve-review-workspace-visible-tabs";
+  resolveReviewWorkspaceVisibleTabs,
+  hasExplicitLegacyArchTabParam} from "@/lib/resolve-review-workspace-visible-tabs";
 import { scheduleScrollToReviewDetailSection, scheduleScrollToReviewFinding } from "@/lib/review-detail-section-scroll";
 import type { ReviewWorkbenchColumnId } from "@/components/reviews/ReviewWorkbenchLayout";
 import { useReviewWorkbenchShortcuts } from "@/hooks/use-review-workbench-shortcuts";
@@ -179,9 +180,17 @@ export function useReviewDetailWorkspaceTabs(
     const workbenchFocusPresent =
       (params.get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM)?.trim() ?? "").length > 0;
     const presenterPresent = readPresenterModeFromSearchParams(params);
+    const legacyArchTabPresent = hasExplicitLegacyArchTabParam(params.get("archTab"));
     const hashPresent = window.location.hash.replace(/^#/, "").trim().length > 0;
 
-    if (reviewTabPresent || findingPresent || workbenchFocusPresent || presenterPresent || hashPresent) {
+    if (
+      reviewTabPresent
+      || findingPresent
+      || workbenchFocusPresent
+      || presenterPresent
+      || legacyArchTabPresent
+      || hashPresent
+    ) {
       visitDefaultAppliedRef.current = true;
 
       return;
