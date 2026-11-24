@@ -54,15 +54,24 @@
                 Condition="$([System.String]::Copy('%(Identity)').IndexOf('Humanizer.Analyzers', System.StringComparison.OrdinalIgnoreCase)) &gt;= 0" />
     </ItemGroup>
   </Target>
-  <!-- Opt-in only: RC49 enum audit records a separate SARIF file for every compiled project. -->
+  <!-- Reuse existing explicit analyzer references and fill gaps for the other product projects. -->
+  <PropertyGroup>
+    <_ArchLucidEnumProduct Condition="$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('ArchLucid.')) And !$([System.String]::Copy('$(MSBuildProjectName)').EndsWith('.Tests')) And '$(MSBuildProjectName)' != 'ArchLucid.Analyzers'">true</_ArchLucidEnumProduct>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(_ArchLucidEnumProduct)' == 'true'">
+    <_ArchLucidExistingAnalyzerReference Include="@(ProjectReference)"
+        Condition="'%(ProjectReference.Filename)' == 'ArchLucid.Analyzers'" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)ArchLucid.Analyzers/ArchLucid.Analyzers.csproj"
+        OutputItemType="Analyzer" ReferenceOutputAssembly="false"
+        Condition="'@(_ArchLucidExistingAnalyzerReference)' == ''" />
+    <CompilerVisibleProperty Include="EnumAuditInventory" />
+  </ItemGroup>
+  <!-- Capture a separate SARIF file during the existing compiler invocation; no second build. -->
   <Target Name="ArchLucidEnumAuditDiagnostics" BeforeTargets="CoreCompile"
           Condition="'$(EnumAuditInventory)' == 'true' and '$(EnumAuditLogDirectory)' != ''">
     <MakeDir Directories="$(EnumAuditLogDirectory)" />
     <PropertyGroup>
       <ErrorLog>$(EnumAuditLogDirectory)/$(MSBuildProjectName)-$(TargetFramework).sarif,version=2.1</ErrorLog>
     </PropertyGroup>
-    <ItemGroup Condition="'$(EnumAuditAnalyzerPath)' != '' and '$(MSBuildProjectName)' != 'ArchLucid.Analyzers'">
-      <Analyzer Include="$(EnumAuditAnalyzerPath)" Condition="!Exists('$(MSBuildProjectDirectory)/ArchLucid.Analyzers.csproj')" />
-    </ItemGroup>
   </Target>
 </Project>
