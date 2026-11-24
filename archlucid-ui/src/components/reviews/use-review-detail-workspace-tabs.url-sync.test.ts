@@ -377,6 +377,25 @@ describe("useReviewDetailWorkspaceTabs URL sync", () => {
     expect(window.location.search).not.toContain("findingId=");
   });
 
+
+  it("does not apply visit-default navigation when the URL only carries presenter=1", () => {
+    searchParamsHarness.applyQuery("presenter=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?presenter=1");
+
+    renderHook(
+      () =>
+        useReviewDetailWorkspaceTabs({
+          ...baseProps,
+          visitDefaultReviewTabWhenUrlSilent: "findings",
+          visitDefaultFindingIdWhenUrlSilent: "visit-default-finding",
+        }),
+      { wrapper: SearchParamsRerenderHost },
+    );
+
+    expect(window.location.search).toBe("?presenter=1");
+    expect(window.location.search).not.toContain("visit-default-finding");
+    expect(window.location.search).not.toContain("reviewTab=findings");
+  });
   it("does not apply visit-default navigation when the URL only carries workbenchFocus", () => {
     searchParamsHarness.applyQuery("workbenchFocus=evidence");
     window.history.replaceState({}, "", "/architecture/reviews/run-abc?workbenchFocus=evidence");

@@ -9072,7 +9072,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **bugs-found:** 142- **consecutive-dry-hunts:** 0
+- **bugs-found:** 152- **consecutive-dry-hunts:** 0
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11706,6 +11706,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-review-detail-workspace
 
+2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `presenter=1` monitor: a presenter-only deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats presenter mode as an explicit deep-link signal. Regression `does not apply visit-default navigation when the URL only carries presenter=1`. URL-sync vitest **17/17**. Private beta: when an invited operator opens a shared review link that only enables presenter mode, visit-default tab navigation no longer replaces that query on first load.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default `workbenchFocus` monitor: a bare `workbenchFocus` deep link was treated as URL-silent, so visit-default findings navigation rewrote the query. Silent-URL detection now treats `workbenchFocus` as an explicit deep-link signal. Regression `does not apply visit-default navigation when the URL only carries workbenchFocus`. URL-sync vitest **16/16**. Private beta: when an invited operator opens a shared review link that only sets a workbench column, visit-default tab navigation no longer replaces that query on first load.
 2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted visit-default silent URL: `visitDefaultAppliedRef` treated only canonical `findingId`, so a bare legacy `diagramFindingId` deep link looked URL-silent and `writeReviewDetailTabToUrl` overwrote it with visit-default findings navigation. Silent-URL detection now uses `parseArchitectureDiagramFindingIdFromSearch` on the live query. Regression `does not apply visit-default finding navigation when the URL only carries legacy diagramFindingId`. URL-sync vitest **15/15**. Private beta: when an invited operator opens an older shared findings link that only names `diagramFindingId`, the workspace no longer replaces that link with visit-default tab or finding query keys on first load.
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reseeded after the tab-write alias fix. `readReviewDetailFindingIdFromWindowLocation` read only `findingId`, so a findings deep link that still used `diagramFindingId` did not warm workbench selection. The reader now hydrates the LS-01 alias when the canonical param is absent. Regression `hydrates finding selection from legacy diagramFindingId when findingId is absent` failed first (null), then tab URL tests 14/14 and workbench selection tests 3/3. Private beta: when an invited operator opens an older findings link that still names a finding with the legacy diagram query, the review workspace restores that finding selection instead of starting with nothing selected.
@@ -11724,7 +11725,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `useReviewDetailWorkspacePresenter` — presenter href vs `popstate` — **cheap-disproof 2026-11-23 thorough hunt:** `enterPresenter` uses `useSearchParams`; regression `enters presenter mode from useSearchParams when window.location.search lags`; reseed monitor.
 
 - [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried legacy `diagramFindingId` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored the LS-01 alias; regression above. Private beta: older shared findings links that only name `diagramFindingId` are no longer replaced with visit-default query keys on first load.
-- [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `workbenchFocus` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored column deep links; regression above. Private beta: shared links that only set a workbench column are no longer replaced with visit-default query keys on first load. — locus: `visitDefaultAppliedRef` mount effect; input: deep link with only `workbenchFocus`; wrong outcome: visit-default tab write strips operator column intent (monitor; hunt 2026-11-24 reseed).
+- [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `workbenchFocus` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored column deep links; regression above. Private beta: shared links that only set a workbench column are no longer replaced with visit-default query keys on first load.
+- [x] (proven) `useReviewDetailWorkspaceTabs` — visit-default rewrite when URL only carried `presenter=1` — **hit 2026-11-24 seed hunt:** silent-URL gate ignored presenter deep links; regression above. Private beta: shared links that only enable presenter mode are no longer replaced with visit-default query keys on first load.
+- [ ] (candidate) `useReviewDetailWorkspaceTabs` — visit-default silent URL may ignore legacy `archTab` without `reviewTab` — locus: `visitDefaultAppliedRef` mount effect; input: deep link with only `archTab`; wrong outcome: visit-default tab write drops legacy tab selection (monitor; hunt 2026-11-24 reseed).
+
 - [ ] (candidate) `useReviewDetailWorkspaceTabs` — `reviewTab=overview` with a bookmarked `findingId` may keep selection in provider while findings chrome is hidden — locus: `initialFindingId` from `useSearchParams`; input: deep link to overview with `findingId`; wrong outcome: selection state warm before operator opens findings (monitor; hunt 2026-11-23 reseed).
 - [x] (invalid) `useReviewDetailWorkspaceTabs.navigateTab` — explicit `findingId` on a package-tab call — **cheap-disproof 2026-11-23 thorough hunt:** no production caller passes `findingId` into `navigateTab`.
 - [x] (valid-no-repro) `ReviewWorkspaceTabStrip` — keyboard tab change may not call `navigateTab` with the same `findingId` clear contract as pointer clicks — **cheap-disproof 2026-11-23 thorough hunt:** pointer and keyboard both use `onValueChange` into `navigateTab`.
@@ -12439,8 +12443,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 15
-- **bugs-found:** 14
+- **hunts:** 16
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24

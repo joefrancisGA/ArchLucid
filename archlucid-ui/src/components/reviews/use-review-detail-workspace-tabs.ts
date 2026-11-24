@@ -178,9 +178,10 @@ export function useReviewDetailWorkspaceTabs(
       ).length > 0;
     const workbenchFocusPresent =
       (params.get(REVIEW_DETAIL_WORKBENCH_FOCUS_PARAM)?.trim() ?? "").length > 0;
+    const presenterPresent = readPresenterModeFromSearchParams(params);
     const hashPresent = window.location.hash.replace(/^#/, "").trim().length > 0;
 
-    if (reviewTabPresent || findingPresent || workbenchFocusPresent || hashPresent) {
+    if (reviewTabPresent || findingPresent || workbenchFocusPresent || presenterPresent || hashPresent) {
       visitDefaultAppliedRef.current = true;
 
       return;
