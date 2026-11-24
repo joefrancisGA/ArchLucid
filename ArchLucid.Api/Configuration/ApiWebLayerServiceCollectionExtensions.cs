@@ -111,6 +111,7 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddScoped<IImportRequestFileService, ImportRequestFileService>();
         services.AddScoped<IDocumentTextExtractionService, DocumentTextExtractionService>();
         services.AddScoped<IArchitectureDefinitionCsvImportDryRunService, ArchitectureDefinitionCsvImportDryRunService>();
+        services.AddScoped<ArchLucid.Persistence.Queries.AuthorityRunInventoryQuery>();
         services.AddScoped<Support.AuthorityRunReadHandlers>();
         services.AddScoped<Services.Authority.IRunGraphQueryService, Services.Authority.RunGraphQueryService>();
         services.AddScoped<Services.Authority.IRunProvenanceQueryService, Services.Authority.RunProvenanceQueryService>();

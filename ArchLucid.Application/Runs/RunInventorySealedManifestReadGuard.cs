@@ -1,4 +1,8 @@
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Posture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
@@ -25,4 +29,28 @@ public static class RunInventorySealedManifestReadGuard
             authorityQueryService,
             manifestHashService,
             cancellationToken);
+
+    /// <summary>Verifies the first visible committed run within the recent inventory window.</summary>
+    public static async Task EnsureVisibleRunInventoryReadAllowedOrThrowAsync(
+        IAsyncEnumerable<RunRecord> visibleRuns,
+        int windowSize,
+        ScopeContext scope,
+        IAuthorityQueryService authorityQueryService,
+        IManifestHashService manifestHashService,
+        CancellationToken ct)
+    {
+        int inspected = 0;
+        await foreach (RunRecord run in visibleRuns.WithCancellation(ct))
+        {
+            if (string.Equals(run.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
+            {
+                await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                    run.RunId, scope, authorityQueryService, manifestHashService, ct);
+                return;
+            }
+
+            if (++inspected == windowSize)
+                return;
+        }
+    }
 }

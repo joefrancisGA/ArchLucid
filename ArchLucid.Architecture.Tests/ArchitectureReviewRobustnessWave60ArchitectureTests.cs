@@ -40,9 +40,8 @@ public sealed class ArchitectureReviewRobustnessWave60ArchitectureTests
     public void Suggestion708_710_run_inventory_preview_and_coverage_preview_openapi_409()
     {
         string authorityReadsController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs");
-        string authorityReadsGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityReadsController.SealedManifestGuard.cs");
+        string inventoryHandler = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Support/AuthorityRunReadHandlers.cs");
         string authorityQueryList = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.List.cs");
-        string authorityQueryGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Authority/AuthorityQueryController.SealedManifestGuard.cs");
         string runInventoryGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/RunInventorySealedManifestReadGuard.cs");
         string previewController = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernancePreviewController.cs");
         string previewGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Api/Controllers/Governance/GovernancePreviewController.SealedManifestGuard.cs");
@@ -50,13 +49,12 @@ public sealed class ArchitectureReviewRobustnessWave60ArchitectureTests
         string coveragePreviewGuard = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/Coverage/GovernanceCoveragePreviewSealedManifestHashGuard.cs");
 
         authorityReadsController.Should().Contain("ListRuns");
-        authorityReadsController.Should().Contain("EnsureRunInventorySealedManifestReadAllowedAsync");
+        authorityReadsController.Should().Contain("ReadInventoryAsync");
         authorityReadsController.Should().Contain("Status409Conflict");
-        authorityReadsGuard.Should().Contain("RunInventorySealedManifestReadGuard");
         authorityQueryList.Should().Contain("ListRunsByProject");
         authorityQueryList.Should().Contain("ListRunsInScope");
-        authorityQueryList.Should().Contain("EnsureRunInventorySealedManifestReadAllowedAsync");
-        authorityQueryGuard.Should().Contain("RunInventorySealedManifestReadGuard");
+        authorityQueryList.Should().Contain("ReadInventoryAsync");
+        inventoryHandler.Should().Contain("RunInventorySealedManifestReadGuard.EnsureVisibleRunInventoryReadAllowedOrThrowAsync");
         runInventoryGuard.Should().Contain("GovernancePostureSealedManifestHashGuard");
         previewController.Should().Contain("EnsureGovernancePreviewRunSealedManifestReadAllowedAsync");
         previewController.Should().NotContain("EnsureGovernancePreviewScopeSealedManifestReadAllowedAsync");
