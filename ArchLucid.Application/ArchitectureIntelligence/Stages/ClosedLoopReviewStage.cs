@@ -153,6 +153,23 @@ public sealed class ClosedLoopReviewStage(
             EvidenceValidationMaxConcurrent,
             async (finding, ct) =>
             {
+                if (TrustPublishGate.RequiresStorageTlsVerification(finding))
+                {
+                    Guid storageId = finding.StorageMinimumTls12ResourceId.GetValueOrDefault();
+                    StorageMinimumTlsVerification observation = publicNetworkAccessVerifier is null ||
+                        finding.PublicNetworkAccessDisabledResourceId.HasValue
+                        ? new(storageId, StorageMinimumTlsOutcome.Unverified)
+                        : await publicNetworkAccessVerifier.VerifyStorageTlsAsync(context.TenantId, context.EffectiveRequest.WorkspaceId,
+                            context.EffectiveRequest.ProjectId, context.RunId, storageId, ct);
+                    return new EvidenceValidationResult
+                    {
+                        FindingId = finding.FindingId,
+                        StorageMinimumTls = observation,
+                        Escalated = observation.Outcome != StorageMinimumTlsOutcome.Verified,
+                        SemanticMethod = SemanticAssessmentMethod.NotPerformed,
+                    };
+                }
+
                 if (finding.PublicNetworkAccessDisabledResourceId is Guid resourceId)
                 {
                     PublicNetworkAccessVerification observation = publicNetworkAccessVerifier is null

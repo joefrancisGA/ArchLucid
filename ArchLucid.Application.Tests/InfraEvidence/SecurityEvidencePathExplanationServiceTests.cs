@@ -322,6 +322,86 @@ public sealed class SecurityEvidencePathExplanationServiceTests
                 Times.Never);
     }
 
+    [Theory]
+    [InlineData("TLS1_2", false, false, true, true, null)]
+    [InlineData("TLS1_1", false, false, true, true, "contradicts")]
+    [InlineData(null, false, false, true, true, "remains unverified")]
+    [InlineData("TLS1_2", true, false, true, true, "remains unverified")]
+    [InlineData("TLS1_2", false, true, true, true, "remains unverified")]
+    [InlineData("TLS1_2", false, false, false, true, "remains unverified")]
+    [InlineData("TLS1_2", false, false, true, false, "remains unverified")]
+    public async Task Storage_tls_is_rendered_only_from_the_scoped_path_snapshot(
+        string? value, bool stale, bool wrongProject, bool typedClaim, bool citesHop, string? rejection)
+    {
+        ScopeContext scope = CreateScope();
+        Guid pathId = Guid.NewGuid(), resourceId = Guid.NewGuid(), rowId = Guid.NewGuid();
+        SecurityEvidencePathRecord path = CreatePath(pathId, PathConfidenceBand.Probable);
+        InMemoryPathRepository paths = new();
+        paths.StoredPaths.Add(path);
+        paths.StoredHops.Add(CreateHop(pathId, 1, "evidence-1", resourceId));
+
+        string modelJson = BuildPathExplanationLlmJson(
+            pathId, citesHop ? ["evidence-1"] : [$"path:{pathId:D}"],
+            "Minimum TLS is 1.2 and the asset is unreachable.");
+        if (typedClaim)
+            modelJson = modelJson.Insert(modelJson.IndexOf('{') + 1, "\"storageMinimumTls12HopOrdinal\":1,");
+        Mock<IAgentCompletionClient> llm = new();
+        llm.Setup(client => client.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(),
+                It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(modelJson);
+
+        DateTime captured = DateTime.UtcNow.AddHours(stale ? -25 : -1);
+        Mock<IAzureInventorySnapshotRepository> snapshots = new();
+        snapshots.Setup(repo => repo.TryGetBySnapshotIdAsync(scope, path.SnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AzureInventorySnapshotRecord
+            {
+                SnapshotId = path.SnapshotId, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId,
+                ProjectId = wrongProject ? Guid.NewGuid() : scope.ProjectId,
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded, CapturedUtc = captured,
+            });
+        IReadOnlyList<AzureInventoryResourceRecord> resources = [new()
+        {
+            SnapshotId = path.SnapshotId, TenantId = scope.TenantId, CloudResourceId = resourceId, ResourceRowId = rowId,
+            ResourceType = "Microsoft.Storage/storageAccounts",
+        }];
+        IReadOnlyList<AzureInventoryResourcePropertyReadModel> properties = [new()
+        {
+            ResourceRowId = rowId, PropertyKey = "properties.minimumTlsVersion", PropertyValue = value,
+        }];
+        snapshots.Setup(repo => repo.ListResourcesAndPropertiesByCloudResourceIdsAsync(
+                scope, path.SnapshotId, It.Is<IReadOnlyList<Guid>>(ids => ids.Count == 1 && ids[0] == resourceId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((resources, properties));
+
+        CapturingExplanationRepository persisted = new();
+        var sut = CreateSut(paths, persisted, llm.Object, CreatePassthroughRedactor(), snapshots: snapshots.Object);
+        var result = await sut.TryBuildExplanationAsync(scope, pathId, useSimulator: false, allowInsufficientEvidence: false);
+
+        result.Succeeded.Should().BeTrue();
+        var explanation = persisted.LastInserted!;
+        explanation.ProvenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
+        explanation.ExecutiveSummary.Should().NotContain("the asset is unreachable");
+        if (rejection is null)
+        {
+            explanation.ModelOutputRejection.Should().BeNull();
+            explanation.ExecutiveSummary.Should().Contain("has configured minimum TLS 1.2")
+                .And.Contain(StorageMinimumTlsVerification.VerifierVersion)
+                .And.Contain(path.SnapshotId.ToString("D"))
+                .And.Contain(rowId.ToString("D"))
+                .And.Contain("Live protocol enforcement was not tested.");
+        }
+        else
+        {
+            explanation.ModelOutputRejection.Should().Contain(rejection);
+            explanation.ExecutiveSummary.Should().NotContain("has configured minimum TLS 1.2");
+        }
+
+        if (stale || wrongProject || !typedClaim || !citesHop)
+            snapshots.Verify(repo => repo.ListResourcesAndPropertiesByCloudResourceIdsAsync(
+                It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<IReadOnlyList<Guid>>(), It.IsAny<CancellationToken>()),
+                Times.Never);
+    }
+
     [Fact]
     public async Task TryBuildExplanationAsync_rejected_model_output_falls_back_to_stored_path()
     {
