@@ -552,11 +552,60 @@ public sealed class AzureInventorySnapshotMaterializerTests
         captured.SubscriptionName.Should().Be("Contoso Production");
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task TryMaterializePackageAsync_preserves_collection_completeness(bool partial)
+    {
+        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        Guid snapshotId = Guid.NewGuid();
+        AzureInventorySnapshotMaterializeWriteRequest? captured = null;
+        AzureInventorySnapshotMaterializer sut = new(
+            CreateSnapshotRepository(scope, snapshotId, request => captured = request).Object,
+            CreateIdentityDirectory(scope, snapshotId).Object,
+            CreateNoOpPostMaterializeCoordinator(),
+            NullLogger<AzureInventorySnapshotMaterializer>.Instance);
+
+        string warning = AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration;
+        byte[] zip = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventGrid/topics/topic1",
+                "resourceType": "Microsoft.EventGrid/topics",
+                "name": "topic1",
+                "location": "eastus",
+                "properties": {}
+              }
+            ]
+            """,
+            warningsJson: partial ? JsonSerializer.Serialize(new[] { warning, warning }) : "[]");
+
+        AzureInventorySnapshotMaterializeResult result = await sut.TryMaterializePackageAsync(
+            scope, snapshotId, Guid.NewGuid(), zip, AzureInventoryCaptureMethod.HostedReader,
+            "test", CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        AzureInventoryCaptureStatus expected = partial
+            ? AzureInventoryCaptureStatus.Partial
+            : AzureInventoryCaptureStatus.Succeeded;
+        result.CaptureStatus.Should().Be(expected);
+        captured.Should().NotBeNull();
+        captured!.CaptureStatus.Should().Be(expected);
+        captured.ResourceCount.Should().Be(1);
+        captured.CompletenessScore.Should().Be(partial ? 0m : 1m);
+        IReadOnlyList<string> warnings = AzureInventorySnapshotCompletenessWarningsJson.Deserialize(
+            captured.CompletenessWarningsJson);
+        warnings.Count(value => value == warning).Should().Be(partial ? 1 : 0);
+        captured.WarningCount.Should().Be(warnings.Count);
+    }
+
     private static byte[] BuildZip(
         string resourcesJson,
         string subscriptionId = "sub",
         string? subscriptionName = null,
-        string? networkAssociationsJson = null)
+        string? networkAssociationsJson = null,
+        string warningsJson = "[]")
     {
         using MemoryStream ms = new();
 
@@ -573,7 +622,8 @@ public sealed class AzureInventorySnapshotMaterializerTests
                       "collectionTimestamp": "2026-01-01T00:00:00Z",
                       "subscriptionId": "{{subscriptionId}}",
                       "subscriptionName": {{(subscriptionName is null ? "null" : $"\"{subscriptionName}\"")}},
-                      "scope": "/subscriptions/{{subscriptionId}}"
+                      "scope": "/subscriptions/{{subscriptionId}}",
+                      "warnings": {{warningsJson}}
                     }
                     """);
             }

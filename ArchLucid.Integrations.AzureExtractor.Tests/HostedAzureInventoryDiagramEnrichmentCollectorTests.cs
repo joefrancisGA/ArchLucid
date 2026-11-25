@@ -133,6 +133,78 @@ public sealed class HostedAzureInventoryDiagramEnrichmentCollectorTests
             result.CollectionWarnings);
     }
 
+    [Theory]
+    [InlineData(403)]
+    [InlineData(500)]
+    [InlineData(0)]
+    public async Task EventGrid_collection_failure_is_not_an_empty_success(int status)
+    {
+        const string topicId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventGrid/topics/topic1";
+
+        using HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => status == 0
+                ? Task.FromException<HttpResponseMessage>(new HttpRequestException("Collection failed"))
+                : Task.FromResult(new HttpResponseMessage((HttpStatusCode)status)));
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient,
+            NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureArmResourceRecord topic = new(
+            "Microsoft.EventGrid/topics", topicId, "topic1", "eastus",
+            null, null, new Dictionary<string, object?>());
+
+        HostedAzureInventoryEventGridSubscriptionCollectResult result =
+            await HostedAzureInventoryEventGridSubscriptionCollector.CollectAsync(
+                client, "token", null, [topic], NullLogger.Instance, CancellationToken.None);
+
+        Assert.Empty(result.Subscriptions);
+        Assert.Contains(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration,
+            result.CollectionWarnings);
+    }
+
+    [Theory]
+    [InlineData(403)]
+    [InlineData(500)]
+    public async Task EventGrid_subscription_scope_failure_is_reported(int status)
+    {
+        using HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(new HttpResponseMessage((HttpStatusCode)status)));
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient,
+            NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        HostedAzureInventoryEventGridSubscriptionCollectResult result =
+            await HostedAzureInventoryEventGridSubscriptionCollector.CollectAsync(
+                client, "token", "sub", [], NullLogger.Instance, CancellationToken.None);
+
+        Assert.Empty(result.Subscriptions);
+        Assert.Contains(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration,
+            result.CollectionWarnings);
+    }
+
+    [Fact]
+    public async Task EventGrid_successful_empty_list_has_no_completeness_warning()
+    {
+        using HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("{\"value\":[]}")
+            }));
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient,
+            NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        HostedAzureInventoryEventGridSubscriptionCollectResult result =
+            await HostedAzureInventoryEventGridSubscriptionCollector.CollectAsync(
+                client, "token", "sub", [], NullLogger.Instance, CancellationToken.None);
+
+        Assert.Empty(result.Subscriptions);
+        Assert.Empty(result.CollectionWarnings);
+    }
+
     private sealed class RecordingHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> responder)
         : HttpMessageHandler
     {
