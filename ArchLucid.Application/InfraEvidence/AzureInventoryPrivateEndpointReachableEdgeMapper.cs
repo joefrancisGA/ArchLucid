@@ -32,7 +32,8 @@ internal static class AzureInventoryPrivateEndpointReachableEdgeMapper
     public static void MapPeReachableTargets(
         List<AzureInventoryResourceRelationshipWrite> relationships,
         HashSet<string> relationshipKeys,
-        List<string> warnings)
+        List<string> warnings,
+        IReadOnlyList<AzureExtractorExtendedResourceRow>? resources = null)
     {
         ArgumentNullException.ThrowIfNull(relationships);
         ArgumentNullException.ThrowIfNull(relationshipKeys);
@@ -54,6 +55,11 @@ internal static class AzureInventoryPrivateEndpointReachableEdgeMapper
                         relationship.ToAzureResourceId,
                         relationship.InferenceSource)));
 
+        var propertiesByEndpoint = (resources ?? [])
+            .GroupBy(resource => ArmResourceIdNormalizer.Normalize(resource.AzureResourceId), StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(group => group.Key, group => group.Count() == 1 ? group.Single().Properties : null,
+                StringComparer.OrdinalIgnoreCase);
+
         HashSet<string> warnedPairs = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> targetArmIds = dnsJoinIndex.PrivateEndpointToTargetArmIds.Values
             .SelectMany(targets => targets).ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -65,6 +71,20 @@ internal static class AzureInventoryPrivateEndpointReachableEdgeMapper
             {
                 if (dnsJoinIndex.HasConfigurationDnsJoin(computeArmId, targetArmId))
                 {
+                    var approvals = dnsJoinIndex.MatchingEndpointIds(computeArmId, targetArmId)
+                        .Select(endpoint => AzurePrivateConnectivityEvidence.ResolveApproval(targetArmId,
+                            propertiesByEndpoint.GetValueOrDefault(endpoint))).ToArray();
+                    if (!approvals.Contains(AzurePrivateConnectivityCheck.Supported))
+                    {
+                        if (HasUsageIntent(computeArmId, targetArmId, usageIntentTargetsBySource))
+                        {
+                            string state = approvals.Length > 0 && approvals.All(value => value == AzurePrivateConnectivityCheck.Blocked)
+                                ? "blocked" : "unverified";
+                            warnings.Add($"private-endpoint-approval-{state}:{computeArmId}:{targetArmId}");
+                        }
+                        continue;
+                    }
+
                     AddRelationship(
                         relationships,
                         relationshipKeys,
