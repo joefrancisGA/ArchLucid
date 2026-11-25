@@ -168,7 +168,7 @@ Treat every proposed remediation as a graph transformation in an isolated, pinne
 
 **Invariant:** Every step in an attack path must be achievable from the security state established by preceding steps.
 
-**Backlog:** Related foundations FND-069/071/077/083/086/112–116/130–135. Dedicated logical path feasibility requirements have not yet been separately checked or added for this question; implementation coverage is unverified.
+**Backlog:** FND-151–156, [PR #8188](https://github.com/joefrancisGA/ArchLucid/pull/8188), added as Critical QA/stabilization. FND-151 defines evidence-bound security state and transition contracts; FND-152 validates identity continuity and effective authorization; FND-153 checks whole-path feasibility; FND-154 covers bounded state-aware traversal, sound pruning and incremental reuse; FND-155 enforces path authority and evidence-linked reporting; FND-156 supplies independent reference-oracle regression assurance. Reuse existing SA-03/05/06/07/13, SecurityEvidencePath/hop, synthetic Azure worlds and FND-069/071/077/083/086/112–116/130–135. The documented SA-06 shared-identity/resource join and weakest-hop confidence are not by themselves proof of logical feasibility; current runtime coverage requires verification. Backlog requirements only, not implementation or test results.
 
 ## Earlier architecture exam topics — reconstructed appendix
 
