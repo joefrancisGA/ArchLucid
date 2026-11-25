@@ -455,7 +455,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **test-filter:** remediation-factory
 - **hunts:** 29
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
 - **related-pd-tb:** none
@@ -2557,6 +2557,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-terraform-evidence
 
+2026-11-25 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone `ui-runs-list` 1/3). Cheap-disproof on five pass-5 `(candidate)` rows — **valid-no-repro** git dirty tri-state (`Compose_maps_git_dirty_tri_state_to_working_tree_lines`; new monitor), **valid-no-repro** documentation path (`DocumentationRelativePath_points_to_existing_reference_doc`), **valid-no-repro** consumption APIM ordering (`DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring`), **valid-no-repro** OpenAPI break-glass row (`Compose_records_openapi_break_glass_when_allow_missing_open_api_is_true`; new monitor), **valid-no-repro** orchestrator legacy suffix (`DefaultApplyOrderRoots_orchestrator_line_cites_legacy_leaf_roots_annotation`). Scoped deployment-evidence terraform + report markdown vitest **57/57**. Reseeded pass-6 below. Private beta: n/a.
+
+- [x] (superseded) pass-5 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed-only):** pass-6 reseed.
+- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — default OpenAPI break-glass row may omit `off (default)` when flag false — locus: posture table; input: allowMissingOpenApi false; monitor; pass-6 reseed.
+- [ ] (candidate) `DefaultApplyOrderRoots` — composition wave ordering may invert foundation/platform/app metadata rows — locus: static list head; input: reorder composition lines; monitor `DefaultApplyOrderRoots_lists_three_composition_waves_in_foundation_platform_app_order`; pass-6 reseed.
+- [ ] (candidate) `DeploymentEvidenceTerraformReference.ExtractLeafPaths` — metadata-only rows may leak into leaf extract when annotation missing — locus: ExtractLeafPaths filter; input: strip em dash; monitor `DefaultApplyOrderRoots_extract_leaf_paths_omits_metadata_only_rows_for_leaf_planners`; pass-6 reseed.
+- [ ] (candidate) `infra/apply-saas.ps1` — `$multiRootSequence` length may diverge from twenty-entry evidence list — locus: ps1 parse vs C# list; input: append root; monitor `DefaultApplyOrderRoots_lists_exactly_twenty_entries`; pass-6 reseed.
+- [ ] (candidate) `REFERENCE_SAAS_STACK_ORDER.md` — advanced table may list fewer than sixteen hosted leaves — locus: backtick table scrape; input: drop row; monitor `DefaultApplyOrderRoots_reference_doc_advanced_table_lists_exactly_sixteen_leaves`; pass-6 reseed.
 2026-11-01 thorough hunt #169 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `cli-draft-new` (dry **#166**, **#167**, **#168** / run log). Picker applied **`-AvoidZoneId cli-draft-new`** and returned `cli-terraform-evidence` (`shouldRotate: true`; reason: *3 consecutive low-yield hunt(s) on 'cli-draft-new' (outcomes: dry, dry, dry).*). Cheap-disproof closed five header `(candidate)` monitor rows from hunt #157 reseed — **valid-no-repro** composition metadata cites `no Azure apply` (regression `DefaultApplyOrderRoots_composition_metadata_lines_cite_no_azure_apply`), **valid-no-repro** metadata-only rows omitted from leaf extract (regression `DefaultApplyOrderRoots_extract_leaf_paths_omits_metadata_only_rows_for_leaf_planners`), **valid-no-repro** em-dash split preserves path suffix (regression `ExtractLeafPaths_splits_only_on_first_em_dash_for_annotated_lines`), **valid-no-repro** consumption APIM ordering between edge and monitoring (regression `DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring`), **valid-no-repro** reference doc orchestrator legacy row (regression `Reference_doc_advanced_table_documents_orchestrator_as_legacy_only_multi_root_row`). Reseeded five `(candidate)` monitor rows below (hunt **#169**). `DeploymentEvidenceTerraformReferenceTests` and `DeploymentEvidenceReportMarkdownTests` passed **55/55**; `assert_terraform_root_ordering_sync.py` OK. Run-log low-yield streak on `cli-terraform-evidence` is **0/3** before this record (rotation from `cli-draft-new`). **This dry starts 1/3** on `cli-terraform-evidence` in the run log. Private beta: n/a.
 
 2026-11-24 thorough hunt #171 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-169 `(candidate)` monitor rows — all **valid-no-repro** via existing regression locks: zero-based compose indices (`Compose_terraform_section_never_uses_zero_based_list_index` in `DeploymentEvidenceReportMarkdownTests`), hosted-wave partition parity (`DefaultApplyOrderRoots_hosted_wave_partitions_match_apply_saas_ps1_wave_arrays`), hosted concat vs `$multiRootSequence` minus orchestrator (`ReadApplySaasHostedWaveLeaves_concatenation_equals_multi_root_sequence_minus_orchestrator`), verbatim numbered apply-order lines (`Compose_numbered_list_includes_every_default_apply_order_root_line_verbatim`), twenty-entry evidence list (`DefaultApplyOrderRoots_lists_exactly_twenty_entries`). `DeploymentEvidenceTerraformReferenceTests` **48/48**; paired compose guards **55/55** with `DeploymentEvidenceReportMarkdownTests`. Reseeded five pass-4 `(candidate)` monitors below. Private beta: n/a.
@@ -2577,11 +2585,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (superseded) pass-4 `(candidate)` queue — **superseded 2026-11-25 seed hunt #31 (seed-only):** closed at zone header; see pass-5 reseed.
 
-- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — git dirty tri-state may mislabel clean trees — locus: gitDirty switch; input: null vs false; wrong outcome: ambiguous working-tree line; reachability: compose output contract; pass-5 reseed.
-- [ ] (candidate) `DeploymentEvidenceTerraformReference.DocumentationRelativePath` — path may drift from on-disk REFERENCE doc location — locus: const vs repo layout; input: doc rename; wrong outcome: broken citation; reachability: CLI evidence command; pass-5 reseed.
-- [ ] (candidate) `DefaultApplyOrderRoots` — consumption APIM index may drift if edge/monitoring leaves reorder — locus: leaf ordering; input: swap edge and monitoring; wrong outcome: wave guard failure; reachability: monitor `DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring`; pass-5 reseed.
-- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — allowMissingOpenApi flag may omit break-glass wording — locus: openAPI break-glass row; input: true flag; wrong outcome: missing audit trail; reachability: deployment evidence export; pass-5 reseed.
-- [ ] (candidate) `DefaultApplyOrderRoots` — orchestrator legacy annotation suffix may drop `-LegacyLeafRoots` — locus: orchestrator line; input: annotation edit; wrong outcome: apply-saas mode drift; reachability: monitor `DefaultApplyOrderRoots_orchestrator_line_cites_legacy_leaf_roots_annotation`; pass-5 reseed.
+- [x] (valid-no-repro) `DeploymentEvidenceReportMarkdown.Compose` — git dirty tri-state may mislabel clean trees — **cheap-disproof 2026-11-25 seed hunt (seed-only):** `Compose_maps_git_dirty_tri_state_to_working_tree_lines`. — locus: gitDirty switch; input: null vs false; wrong outcome: ambiguous working-tree line; reachability: compose output contract; pass-5 reseed.
+- [x] (valid-no-repro) `DeploymentEvidenceTerraformReference.DocumentationRelativePath` — path may drift from on-disk REFERENCE doc location — **cheap-disproof 2026-11-25 seed hunt (seed-only):** `DocumentationRelativePath_points_to_existing_reference_doc`. — locus: const vs repo layout; input: doc rename; wrong outcome: broken citation; reachability: CLI evidence command; pass-5 reseed.
+- [x] (valid-no-repro) `DefaultApplyOrderRoots` — consumption APIM index may drift if edge/monitoring leaves reorder — **cheap-disproof 2026-11-25 seed hunt (seed-only):** `DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring`. — locus: leaf ordering; input: swap edge and monitoring; wrong outcome: wave guard failure; reachability: monitor `DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring`; pass-5 reseed.
+- [x] (valid-no-repro) `DeploymentEvidenceReportMarkdown.Compose` — allowMissingOpenApi flag may omit break-glass wording — **cheap-disproof 2026-11-25 seed hunt (seed-only):** `Compose_records_openapi_break_glass_when_allow_missing_open_api_is_true`. — locus: openAPI break-glass row; input: true flag; wrong outcome: missing audit trail; reachability: deployment evidence export; pass-5 reseed.
+- [x] (valid-no-repro) `DefaultApplyOrderRoots` — orchestrator legacy annotation suffix may drop `-LegacyLeafRoots` — **cheap-disproof 2026-11-25 seed hunt (seed-only):** `DefaultApplyOrderRoots_orchestrator_line_cites_legacy_leaf_roots_annotation`. — locus: orchestrator line; input: annotation edit; wrong outcome: apply-saas mode drift; reachability: monitor `DefaultApplyOrderRoots_orchestrator_line_cites_legacy_leaf_roots_annotation`; pass-5 reseed.
 
 
 
@@ -2782,9 +2790,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-24
 - **related-pd-tb:** none
@@ -3779,7 +3787,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
@@ -14294,7 +14302,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
 - **hunts:** 5
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
 - **related-pd-tb:** none
@@ -17526,7 +17534,7 @@ ABQ-09 churn hotspot.
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **hunts:** 6
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-24
 2026-10-20 seed hunt (seed→hit): promoted failed reload stale hub candidate; regression `clears_hub_evidence_when_a_newer_URL_selection_fails_to_load`; 55 scoped ResourceHubClient tests passed.
