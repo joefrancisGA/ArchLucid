@@ -9,11 +9,13 @@ namespace ArchLucid.Persistence.Tests.Tenancy;
 [Trait("Category", "Unit")]
 public sealed class SqlTenantCatalogConnectionStringFactoryTests
 {
-    [Fact]
-    public void FromTemplate_sets_initial_catalog_and_retry_policy()
+    [Theory]
+    [InlineData("True")]
+    [InlineData("False")]
+    public void FromTemplate_sets_initial_catalog_and_retry_policy(string encrypt)
     {
-        const string template =
-            "Server=tcp:localhost;Database=ArchLucid;Encrypt=True;TrustServerCertificate=True";
+        string template =
+            $"Server=tcp:localhost;Database=ArchLucid;Encrypt={encrypt};TrustServerCertificate=True";
 
         string connectionString = SqlTenantCatalogConnectionStringFactory.FromTemplate(template, "tenant-catalog");
 
@@ -23,6 +25,9 @@ public sealed class SqlTenantCatalogConnectionStringFactoryTests
         builder.ConnectRetryCount.Should().Be(3);
         builder.ConnectRetryInterval.Should().Be(10);
         builder.Encrypt.Should().Be(SqlConnectionEncryptOption.Mandatory);
+        builder.DataSource.Should().Be("tcp:localhost");
+        builder.TrustServerCertificate.Should().BeTrue(
+            "this factory preserves the template certificate trust setting");
     }
 
     [Fact]

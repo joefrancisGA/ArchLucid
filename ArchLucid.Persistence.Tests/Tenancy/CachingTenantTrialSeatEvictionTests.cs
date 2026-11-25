@@ -34,11 +34,11 @@ public sealed class CachingTenantTrialSeatEvictionTests
     {
         Guid tenantId = Guid.NewGuid();
         using CancellationTokenSource request = new();
+        TaskCompletionSource<bool> committed = new(TaskCreationOptions.RunContinuationsAsynchronously);
         Mock<ITenantRepository> inner = new(MockBehavior.Strict);
         inner.Setup(repository => repository.TryClaimTrialSeatAsync(
                 tenantId, "owner", request.Token))
-            .Callback(request.Cancel)
-            .Returns(Task.CompletedTask);
+            .Returns(committed.Task);
 
         Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
         string key = HotPathCacheKeys.TenantById(tenantId);
@@ -47,8 +47,20 @@ public sealed class CachingTenantTrialSeatEvictionTests
             .Returns(Task.CompletedTask);
         CachingTenantRepository sut = new(inner.Object, cache.Object);
 
-        await sut.TryClaimTrialSeatAsync(tenantId, "owner", request.Token);
+        Task pending = sut.TryClaimTrialSeatAsync(tenantId, "owner", request.Token);
+        try
+        {
+            cache.Verify(store => store.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+            pending.IsCompleted.Should().BeFalse();
+        }
+        finally
+        {
+            request.Cancel();
+            committed.TrySetResult(true);
+        }
 
+        await pending;
+        inner.VerifyAll();
         request.IsCancellationRequested.Should().BeTrue();
         cache.Verify(store => store.RemoveAsync(key, CancellationToken.None), Times.Once);
     }
