@@ -1,15 +1,18 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
 import { SecureNowInvestigationEffortMissingFieldLabelsLine } from "@/components/product-line/SecureNowInvestigationEffortMissingFieldLabelsLine";
 import { SecureNowInvestigationEffortScopeLine } from "@/components/product-line/SecureNowInvestigationEffortScopeLine";
 import { SecureNowInvestigationEffortSyntheticExamplePanel } from "@/components/product-line/SecureNowInvestigationEffortSyntheticExamplePanel";
 import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { cn } from "@/lib/utils";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   SECURENOW_INVESTIGATION_EFFORT_GUARDRAIL,
@@ -112,9 +115,13 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
       <OperatorPageHeader
         title={SECURENOW_INVESTIGATION_EFFORT_HEADING}
         subtitle={SECURENOW_INVESTIGATION_EFFORT_LEAD}
+        claimDiscipline={SECURENOW_INVESTIGATION_EFFORT_GUARDRAIL}
+        claimDisciplineTestId="securenow-investigation-effort-claim-discipline"
+        titleTestId="securenow-investigation-effort-heading"
+        subtitleTestId="securenow-investigation-effort-lead"
       />
 
-      <div className="mt-6 max-w-3xl space-y-6">
+      <main id="main-content" tabIndex={-1} className="mt-6 max-w-3xl space-y-6">
         {partialCapture ? (
           <div
             className={`${DESIGN_TOKENS.callout.warn} space-y-1 p-3`}
@@ -243,11 +250,25 @@ export function SecureNowInvestigationEffortPageView(): React.JSX.Element {
             ))}
           </ul>
         </section>
+        <SecureNowFixtureWorkspaceNotEntitlementLine />
+
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-investigation-effort-sources">
+          <span className="font-medium text-al-text-primary">Sources:</span> Operator-entered hours and
+          workspace-stored inputs when eligible — not customer-verified savings, pricing, or a timed SLA.
+        </p>
 
         <p className={OPERATOR_TYPOGRAPHY.body}>
-          {SECURENOW_INVESTIGATION_EFFORT_GUARDRAIL}
+          <Link className={OPERATOR_LINK.inline} href="/administration">
+            Administration hub
+          </Link>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href="/">
+            Home
+          </Link>
         </p>
-      </div>
+      </main>
     </OperatorPageContainer>
   );
 }
+
+
