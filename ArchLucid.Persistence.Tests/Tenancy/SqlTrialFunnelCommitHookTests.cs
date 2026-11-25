@@ -1,4 +1,6 @@
-﻿using ArchLucid.Core.Audit;
+using System.Text.Json;
+
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 
@@ -74,14 +76,25 @@ public sealed class SqlTrialFunnelCommitHookTests
             .ReturnsAsync(
                 new TenantWorkspaceLink { WorkspaceId = workspaceId, DefaultProjectId = projectId });
         Mock<IAuditService> audit = new();
+        AuditEvent? captured = null;
+        audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), CancellationToken.None))
+            .Callback<AuditEvent, CancellationToken>((value, _) => captured = value)
+            .Returns(Task.CompletedTask);
         SqlTrialFunnelCommitHook sut = new(tenants.Object, audit.Object);
 
         await sut.OnTrialTenantManifestCommittedAsync(tenantId, committed, CancellationToken.None);
 
-        audit.Verify(
-            a => a.LogAsync(
-                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TrialFirstRunCompleted),
-                It.IsAny<CancellationToken>()),
-            Times.Once);
+        audit.Verify(a => a.LogAsync(It.IsAny<AuditEvent>(), CancellationToken.None), Times.Once);
+        audit.VerifyNoOtherCalls();
+        captured.Should().NotBeNull();
+        captured!.EventType.Should().Be(AuditEventTypes.TrialFirstRunCompleted);
+        captured.TenantId.Should().Be(tenantId);
+        captured.WorkspaceId.Should().Be(workspaceId);
+        captured.ProjectId.Should().Be(projectId);
+        captured.ActorUserId.Should().Be("system:trial-funnel");
+        captured.ActorUserName.Should().Be("system:trial-funnel");
+        using JsonDocument payload = JsonDocument.Parse(captured.DataJson!);
+        payload.RootElement.GetProperty("signupToCommitSeconds").GetDouble().Should().Be(3600);
+        payload.RootElement.GetProperty("trialRunUsageRatio").GetDouble().Should().Be(0.5);
     }
 }
