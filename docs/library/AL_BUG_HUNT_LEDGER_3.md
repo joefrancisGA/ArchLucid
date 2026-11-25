@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed-only): `ui-hooks-shared` pass-6 reseed. Scoped vitest **259/259**. Private beta: n/a.
+> **Scope:** Contributor-reference — hunt 2026-11-25 thorough hunt (hit): `ui-marketing-surfaces`. Scoped vitest **11/11** on touched marketing suites. Private beta: marketing mailto links and FAQ category navigation behave correctly for public visitors.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -10641,10 +10641,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-11-25 thorough hunt (hit): no rotation (`shouldRotate: false`). Attempted failing repro on two pass-1 `(candidate)` rows — **proven** `renderInline` treated `mailto:` like HTTP externals and set `target="_blank"`; HTTP-only blank-target attrs; regression `does not open mailto links in a new tab`; **proven** `MarketingFaqPageToc` `pushState` left `MarketingFaqPageClient` hash listeners stale; dispatch `HashChangeEvent` after category navigation; regression `dispatches a hashchange event when a category link is selected`. Scoped vitest **11/11**. Pass-2 reseed below. Private beta: public marketing visitors following mailto links no longer get an extra blank tab, and FAQ category TOC clicks refresh hash-driven disclosure state after deep-linking to a question.
+
+
 2026-10-30 seed hunt #81 (seed-only): re-read marketing markdown link rendering, FAQ hash synchronization, privacy-policy navigation, and pricing quote interactions; no additional hypothesis met the hunt-ready reachability bar without a failing repro. Seeded two bounded candidates for a future thorough hunt.
 
-- [ ] (candidate) `renderInline` — `mailto:` markdown links are classified as external and receive `target="_blank"`; input: a buyer selects an email link rendered from a privacy/help markdown document; monitor whether browser mail-client handoff opens an unnecessary blank browsing context.
-- [ ] (candidate) `MarketingFaqPageToc` + `MarketingFaqPageClient` — category navigation uses `history.pushState` without a `hashchange` event; input: a visitor deep-links to an FAQ item, then selects a different category in the TOC; monitor whether the client’s hash-driven disclosure state remains stale.
+- [x] (proven) `renderInline` — `mailto:` received `target="_blank"` — **hit 2026-11-25 thorough hunt:** HTTP-only new-tab attrs; regression above.
+- [x] (proven) `MarketingFaqPageToc` — `pushState` without `hashchange` — **hit 2026-11-25 thorough hunt:** dispatch `hashchange`; regression above.
+
+- [ ] (candidate) `MarketingFaqItemPanel` — forced-open state may linger after hash target changes — locus: `forceOpen` vs local `open`; input: TOC after item deep link; monitor; pass-2 reseed.
+- [ ] (candidate) `MarketingPricingQuotePanel` — quote hash listener vs header client navigation — locus: click fallback; input: pricing CTA without hashchange; monitor; pass-2 reseed.
+- [ ] (candidate) `privacy-policy` TOC — `replaceState` hash sync without `hashchange` on mobile variant — locus: mobile details TOC; input: section jump; monitor; pass-2 reseed.
+- [ ] (candidate) `WalkthroughRequestCta` — booking URL opens new tab while mailto fallback same-tab — locus: CTA mode switch; input: missing booking URL; monitor; pass-2 reseed.
+- [ ] (candidate) `CtaButton` — `opensNewTab` default for mixed mailto/http href — locus: prop contract; input: composite CTA config; monitor; pass-2 reseed.
+
 
 2026-10-30 seed hunt #80 (hit): proved `MarketingPricingQuotePanel` marked its email input `type="email"` but disabled native validation with `noValidate`, and the submit handler only checked presence, so malformed addresses could reach the quote API; added a format guard and `does not submit when the work email is malformed` in `MarketingPricingQuotePanel.test.tsx`. Focused quote-panel suite passed 3/3. Private beta: invited buyers who enter an invalid work email now receive immediate correction guidance instead of sending an unusable pricing request to the quote service.
 
@@ -10916,11 +10926,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 3
-- **bugs-found:** 2
+- **hunts:** 4
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-24
-- **last-bug:** 2026-11-24
+- **last-hunt:** 2026-11-25
+- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

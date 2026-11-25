@@ -119,8 +119,8 @@ export function renderInline(text: string, keyPrefix: string, options: RenderInl
 
     const label = remaining.slice(next.at + 1, closeBracket);
     const href = remaining.slice(openParen + 1, closeParen);
-    const isExternal =
-      href.startsWith("https://") || href.startsWith("http://") || href.startsWith("mailto:");
+    const isHttpExternal = href.startsWith("https://") || href.startsWith("http://");
+    const isExternal = isHttpExternal || href.startsWith("mailto:");
     const isInAppHelp = options.linkMode === "help" && href.startsWith("/help");
     const isSamePageAnchor = options.linkMode === "help" && href.startsWith("#") && href.length > 1;
     const isInternalOperatorRoute =
@@ -152,7 +152,7 @@ export function renderInline(text: string, keyPrefix: string, options: RenderInl
               ? inAppLinkClassName
               : MARKETING_SURFACES.inlineLink
           }
-          {...(isExternal ? { rel: "noopener noreferrer", target: "_blank" } : {})}
+          {...(isHttpExternal ? { rel: "noopener noreferrer", target: "_blank" } : {})}
         >
           {renderInline(label, `${keyPrefix}-al-${i}`, options)}
         </Link>,
