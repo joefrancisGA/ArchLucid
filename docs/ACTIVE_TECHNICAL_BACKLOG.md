@@ -33,8 +33,8 @@
 | --- | ---: | ---: | ---: | ---: |
 | Immediate | 0 | 0 | 0 | 0 |
 | Critical | 45 | 5 | 0 | 50 |
-| High | 262 | 141 | 0 | 403 |
-| Medium | 10 | 2 | 15 | 27 |
+| High | 265 | 141 | 0 | 406 |
+| Medium | 11 | 2 | 15 | 28 |
 | Low | 0 | 0 | 63 | 63 |
 
 ## Ordered active backlog
@@ -107,10 +107,13 @@ Each section is ordered **QA → release readiness → 2.0 foundations**. Within
 
 ### High
 
-#### QA & stabilization (262)
+#### QA & stabilization (265)
 
 | ID | Technical item | Origin / qualification |
 | --- | --- | --- |
+| FND-099 | Event Grid evidence completeness and security posture | Advisory-driven validation slice of AX-DE-11/FND-077/FND-086; [MSRC CVE-2026-62841](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-62841). Revalidate current collector and downstream completeness first; reuse shared contracts. Test denied/failed enumeration, missing properties, local authentication, network exposure, publisher permissions, destinations and logging; incomplete evidence must never imply compliance. Defense in depth, not a substitute for provider fixes. |
+| FND-100 | Entra privileged identity evidence and phishing-resistant MFA coverage | Extend SA-19/SA-20 and shared evidence plane; [Microsoft admin MFA guidance](https://learn.microsoft.com/en-us/entra/identity/conditional-access/policy-admin-phish-resistant-mfa). Verify existing coverage before extending sec-base-001; least-privilege read-only Graph collection, policy state, privileged roles and exclusions, explicit freshness/scope/permission uncertainty; test compliant, noncompliant and insufficient evidence. No enforcement. |
+| FND-101 | APIM credential handling and security posture coverage | Advisory-driven review of existing extraction, policy and remediation planning; [Microsoft APIM security policy reference](https://learn.microsoft.com/en-us/azure/api-management/policy-reference). Validate existing coverage, distinguish service tiers, management endpoint exposure, Key Vault references versus inline credentials without reading secret values, managed identity and subscription scope. Test applicability and incomplete evidence; generate issuer-level rotation recommendations only, never execute or expose credentials. |
 | TB-876 | Customer-controlled Tier 1 AWS/GCP inventory ZIP | TECH_BACKLOG_OPEN.md; Multi-cloud P1 **V1** |
 | TB-877 | Community summarization Graph-RAG (RAG-V2-001 remainder) | TECH_BACKLOG_OPEN.md; AI/Agent P1 **V1** |
 | TB-891 | Showcase render-mode telemetry | TECH_BACKLOG_OPEN.md; Traceability P1 **V1** |
@@ -522,10 +525,11 @@ Each section is ordered **QA → release readiness → 2.0 foundations**. Within
 
 ### Medium
 
-#### QA & stabilization (10)
+#### QA & stabilization (11)
 
 | ID | Technical item | Origin / qualification |
 | --- | --- | --- |
+| FND-102 | Azure ML network and identity isolation coverage review | Advisory-driven investigation; [Microsoft managed network isolation](https://learn.microsoft.com/en-us/azure/machine-learning/how-to-managed-network). Map existing shared controls to workspace isolation, outbound approval and identity permissions with implementation/test evidence; identify only demonstrable gaps and extend existing controls where warranted. No automatic enforcement or migration. |
 | Extractor parity | Cost, Advisor, orphans, NIC/PE inventory depth | securenow/TECHNICAL_BACKLOG.md; Same extractor discipline; SecureNow inventory workbenches consume output. |
 | IDA / IDL / IDS / IDT | Inventory diagram layout and Graphviz forest | securenow/TECHNICAL_BACKLOG.md; Executive forest packing — see `.cursor/prompts/inventory-diagram-*-00-index.md`. Not a SecureNow-only codepath but blocks “all-day” diagram UX. |
 | IE-RF | Relationship-first topology (network associations) | securenow/TECHNICAL_BACKLOG.md; Catalog-driven associations; complements diagrams — see [`SecureNow technical backlog`](securenow/TECHNICAL_BACKLOG.md) for extractor follow-ups. |
