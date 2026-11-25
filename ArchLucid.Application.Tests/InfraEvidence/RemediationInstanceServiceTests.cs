@@ -167,7 +167,8 @@ public sealed class RemediationInstanceServiceTests
         RemediationInstanceOperationResult result = await sut.ExecuteAsync(scope, instanceId, SnapshotA, "executor", "corr-1");
 
         result.Succeeded.Should().BeFalse();
-        result.Blockers.Should().ContainSingle().Which.Should().Be("Execution evidence is not available in the current scope.");
+        result.ErrorMessage.Should().Be("Execution evidence is not available in the current scope.");
+        result.Blockers.Should().BeEmpty("execution denial is an error, not a preflight blocker");
         instances.Evidence.Should().BeEmpty();
         instances.Instances.Single().Status.Should().Be(RemediationInstanceStatus.WaveAssigned);
         instances.Instances.Single().ExecutionSnapshotId.Should().BeNull();
