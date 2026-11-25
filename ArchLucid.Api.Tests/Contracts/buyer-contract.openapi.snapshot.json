@@ -14380,6 +14380,16 @@
             },
             "type": "array"
           },
+          "storageMinimumTls": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/StorageMinimumTlsVerification"
+              }
+            ]
+          },
           "supportTier": {
             "$ref": "#/components/schemas/EvidenceSupportTier"
           }
@@ -36667,6 +36677,13 @@
           "severity": {
             "type": "string"
           },
+          "storageMinimumTls12ResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "title": {
             "type": "string"
           }
@@ -37531,6 +37548,81 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "StorageMinimumTlsOutcome": {
+        "enum": [
+          "Unverified",
+          "Verified",
+          "Contradicted"
+        ],
+        "type": "string"
+      },
+      "StorageMinimumTlsVerification": {
+        "properties": {
+          "capturedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "observedVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/StorageMinimumTlsOutcome"
+          },
+          "projectId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "resourceRowId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "version": {
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "cloudResourceId",
+          "outcome"
+        ],
         "type": "object"
       },
       "StringSegment": {

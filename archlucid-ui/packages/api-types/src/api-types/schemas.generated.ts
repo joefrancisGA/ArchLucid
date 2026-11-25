@@ -4186,6 +4186,7 @@ export interface components {
             semanticMethod?: components["schemas"]["SemanticAssessmentMethod"];
             semanticVerificationDeferredReason?: null | string;
             stageResults?: components["schemas"]["EvidenceValidationStageOutcome"][];
+            storageMinimumTls?: null | components["schemas"]["StorageMinimumTlsVerification"];
             supportTier?: components["schemas"]["EvidenceSupportTier"];
         };
         /** @enum {string} */
@@ -10724,6 +10725,8 @@ export interface components {
             relatedModelElementIds?: string[];
             relatedRequirementElementIds?: string[];
             severity?: string;
+            /** Format: uuid */
+            storageMinimumTls12ResourceId?: null | string;
             title?: string;
         };
         SpecialistReviewResult: {
@@ -10985,6 +10988,27 @@ export interface components {
         };
         StartTenantCatalogMigrationRequest: {
             correlationId?: string;
+        };
+        /** @enum {string} */
+        StorageMinimumTlsOutcome: "Unverified" | "Verified" | "Contradicted";
+        StorageMinimumTlsVerification: {
+            /** Format: date-time */
+            capturedUtc?: null | string;
+            /** Format: uuid */
+            cloudResourceId: string;
+            observedVersion?: null | string;
+            outcome: components["schemas"]["StorageMinimumTlsOutcome"];
+            /** Format: uuid */
+            projectId?: null | string;
+            /** Format: uuid */
+            resourceRowId?: null | string;
+            /** Format: uuid */
+            snapshotId?: null | string;
+            /** Format: uuid */
+            tenantId?: null | string;
+            version?: string;
+            /** Format: uuid */
+            workspaceId?: null | string;
         };
         StringSegment: {
             buffer?: null | string;
