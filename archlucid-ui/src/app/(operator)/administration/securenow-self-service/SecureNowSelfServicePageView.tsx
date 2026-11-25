@@ -4,6 +4,7 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
 import { SecureNowCollectionSetupStatusSection } from "@/components/product-line/SecureNowCollectionSetupStatusSection";
+import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   SECURENOW_SELF_SERVICE_GUARDRAIL,
@@ -12,13 +13,21 @@ import {
   SECURENOW_SELF_SERVICE_STEPS,
 } from "@/lib/product-line/securenow-self-service-copy";
 import { SECURENOW_SELF_SERVICE_RANK_STORED_PATH_LINE } from "@/lib/product-line/securenow-self-service-rank-stored-path-copy";
+import { cn } from "@/lib/utils";
 
 export function SecureNowSelfServicePageView(): React.JSX.Element {
   return (
     <OperatorPageContainer variant="full" data-testid="securenow-self-service-page">
-      <OperatorPageHeader title={SECURENOW_SELF_SERVICE_HEADING} subtitle={SECURENOW_SELF_SERVICE_LEAD} />
+      <OperatorPageHeader
+        title={SECURENOW_SELF_SERVICE_HEADING}
+        subtitle={SECURENOW_SELF_SERVICE_LEAD}
+        claimDiscipline={SECURENOW_SELF_SERVICE_GUARDRAIL}
+        claimDisciplineTestId="securenow-self-service-claim-discipline"
+        titleTestId="securenow-self-service-heading"
+        subtitleTestId="securenow-self-service-lead"
+      />
 
-      <main className="mt-6 max-w-3xl space-y-6">
+      <main id="main-content" tabIndex={-1} className="mt-6 max-w-3xl space-y-6">
         <SecureNowAdminPartialCaptureStrip
           testId="securenow-self-service-partial-capture"
           cloudConnectionsTestId="securenow-self-service-partial-capture-cloud-connections"
@@ -75,7 +84,22 @@ export function SecureNowSelfServicePageView(): React.JSX.Element {
           </ol>
         </section>
 
-        <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_SELF_SERVICE_GUARDRAIL}</p>
+        <SecureNowFixtureWorkspaceNotEntitlementLine />
+
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-self-service-sources">
+          <span className="font-medium text-al-text-primary">Sources:</span> Collection setup status and self-service
+          checklist links — ranked path from workspace storage when eligible; not unattended remediation.
+        </p>
+
+        <p className={OPERATOR_TYPOGRAPHY.body}>
+          <Link className={OPERATOR_LINK.inline} href="/administration">
+            Administration hub
+          </Link>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href="/">
+            Home
+          </Link>
+        </p>
       </main>
     </OperatorPageContainer>
   );

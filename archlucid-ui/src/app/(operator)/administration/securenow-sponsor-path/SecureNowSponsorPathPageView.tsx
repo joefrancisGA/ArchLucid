@@ -35,6 +35,7 @@ import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPage
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
 import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
 import { cn } from "@/lib/utils";
 
@@ -133,8 +134,12 @@ function SecureNowSponsorPathContent({ pathId }: { readonly pathId: string }): R
       <OperatorPageHeader
         title="Sponsor path"
         subtitle="Internal preparation for a human sponsor readout. SecureNow beta remains NO_GO."
+        claimDiscipline={SECURENOW_PILOT_DECISION_GUARDRAIL}
+        claimDisciplineTestId="securenow-sponsor-path-claim-discipline"
+        titleTestId="securenow-sponsor-path-heading"
+        subtitleTestId="securenow-sponsor-path-lead"
       />
-      <main className="mt-6 max-w-4xl space-y-6">
+      <main id="main-content" tabIndex={-1} className="mt-6 max-w-4xl space-y-6">
         <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="securenow-sponsor-path-roi-non-summing">
           {SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE}
         </p>
@@ -293,6 +298,22 @@ function SecureNowSponsorPathContent({ pathId }: { readonly pathId: string }): R
             <SecureNowProcurementTrustStrip />
           </>
         )}
+        <SecureNowFixtureWorkspaceNotEntitlementLine />
+
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-sponsor-path-sources">
+          <span className="font-medium text-al-text-primary">Sources:</span> Path inspect and saved disposition when
+          pathId is set — operator-entered rationale; not billing, verified remediation, or beta GO clearance.
+        </p>
+
+        <p className={OPERATOR_TYPOGRAPHY.body}>
+          <Link className={OPERATOR_LINK.inline} href="/administration">
+            Administration hub
+          </Link>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href="/">
+            Home
+          </Link>
+        </p>
       </main>
     </OperatorPageContainer>
   );
