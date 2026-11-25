@@ -292,6 +292,56 @@ public sealed class HostedAzureInventoryResourcePropertyExpanderTests
         Assert.DoesNotContain("container.image[0]", runtimeProperties.Keys);
     }
 
+    [Theory]
+    [InlineData("Microsoft.Web/sites")]
+    [InlineData("Microsoft.Web/sites/slots")]
+    public void Expand_captures_runtime_configuration_without_claiming_observation(string resourceType)
+    {
+        using JsonDocument document = JsonDocument.Parse("""
+            {"siteConfig":{"linuxFxVersion":" JAVA|17 ","javaVersion":"17",
+            "javaContainer":"TOMCAT","javaContainerVersion":"10.1",
+            "appSettings":[{"name":"SECRET","value":"do-not-store"}]}}
+            """);
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            resourceType, document.RootElement, []);
+
+        Assert.Equal("JAVA|17", properties["runtime.configured.linuxFxVersion"]);
+        Assert.Equal("17", properties["runtime.configured.javaVersion"]);
+        Assert.Equal("TOMCAT", properties["runtime.configured.javaContainer"]);
+        Assert.Equal("10.1", properties["runtime.configured.javaContainerVersion"]);
+        Assert.All(properties.Keys.Where(key => key.StartsWith("runtime.", StringComparison.Ordinal)),
+            key => Assert.StartsWith("runtime.configured.", key));
+        Assert.DoesNotContain(properties.Values,
+            value => value?.ToString()?.Contains("do-not-store", StringComparison.Ordinal) == true);
+    }
+
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("{\"siteConfig\":null}")]
+    [InlineData("{\"siteConfig\":{\"javaVersion\":17,\"nodeVersion\":\" \"}}")]
+    [InlineData("{\"siteConfig\":{\"linuxFxVersion\":\"DOCKER|registry.example/app:1\"}}")]
+    public void Expand_does_not_invent_runtime_configuration_or_observation(string json)
+    {
+        using JsonDocument document = JsonDocument.Parse(json);
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.Web/sites", document.RootElement, []);
+        Assert.DoesNotContain(properties.Keys, key => key.StartsWith("runtime.", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Expand_captures_windows_stack_configuration_only()
+    {
+        using JsonDocument document = JsonDocument.Parse("""
+            {"siteConfig":{"windowsFxVersion":"JAVA|17","netFrameworkVersion":"v8.0","nodeVersion":"~22"}}
+            """);
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.Web/sites", document.RootElement, []);
+        Assert.Equal("JAVA|17", properties["runtime.configured.windowsFxVersion"]);
+        Assert.Equal("v8.0", properties["runtime.configured.netFrameworkVersion"]);
+        Assert.Equal("~22", properties["runtime.configured.nodeVersion"]);
+        Assert.DoesNotContain("runtime.executing.version", properties.Keys);
+    }
+
     [Fact]
     public void Expand_persists_restore_point_collection_source_id()
     {
