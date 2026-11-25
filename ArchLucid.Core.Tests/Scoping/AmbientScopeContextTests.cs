@@ -61,7 +61,9 @@ public sealed class AmbientScopeContextTests
 
         ScopeContext afterInner = AmbientScopeContext.CurrentOverride;
         afterInner.Should().NotBeNull();
-        afterInner.TenantId.Should().Be(outerScope.TenantId);
+        afterInner.Should().BeSameAs(outerScope);
+        afterInner.WorkspaceId.Should().Be(outerScope.WorkspaceId);
+        afterInner.ProjectId.Should().Be(outerScope.ProjectId);
 
         outer.Dispose();
 
@@ -81,7 +83,63 @@ public sealed class AmbientScopeContextTests
         AmbientScopeContext.CurrentOverride.Should().NotBeNull();
 
         handle.Dispose();
-        handle.Dispose();
+        AmbientScopeContext.CurrentOverride.Should().BeNull();
+
+        ScopeContext replacement = new()
+        {
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+        };
+        using (AmbientScopeContext.Push(replacement))
+        {
+            // A second disposal must not overwrite a later, unrelated scope.
+            handle.Dispose();
+            AmbientScopeContext.CurrentOverride.Should().BeSameAs(replacement);
+        }
+
+        AmbientScopeContext.CurrentOverride.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Concurrent_child_scope_does_not_overwrite_parent_scope()
+    {
+        ScopeContext parent = new()
+        {
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+        };
+        ScopeContext child = new()
+        {
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+        };
+        TaskCompletionSource<bool> ready = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource<bool> release = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        using (AmbientScopeContext.Push(parent))
+        {
+            Task worker = Task.Run(async () =>
+            {
+                using (AmbientScopeContext.Push(child))
+                {
+                    ready.TrySetResult(true);
+                    await release.Task.WaitAsync(TimeSpan.FromSeconds(10));
+                    AmbientScopeContext.CurrentOverride.Should().BeSameAs(child);
+                }
+
+                AmbientScopeContext.CurrentOverride.Should().BeSameAs(parent);
+            });
+
+            try
+            {
+                await ready.Task.WaitAsync(TimeSpan.FromSeconds(10));
+                AmbientScopeContext.CurrentOverride.Should().BeSameAs(parent);
+            }
+            finally
+            {
+                release.TrySetResult(true);
+                await worker;
+            }
+
+            AmbientScopeContext.CurrentOverride.Should().BeSameAs(parent);
+        }
 
         AmbientScopeContext.CurrentOverride.Should().BeNull();
     }
