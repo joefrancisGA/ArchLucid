@@ -1,24 +1,32 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class AdversarialChallenge
 {
+    private string challengeId = string.Empty;
+
     public string ChallengeId
     {
-        get;
-        set;
-    } = null!;
+        get => challengeId;
+        set => challengeId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string hypothesis = string.Empty;
 
     public string Hypothesis
     {
-        get;
-        set;
-    } = null!;
+        get => hypothesis;
+        set => hypothesis = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string falsificationEvidenceNeeded = string.Empty;
 
     public string FalsificationEvidenceNeeded
     {
-        get;
-        set;
-    } = null!;
+        get => falsificationEvidenceNeeded;
+        set => falsificationEvidenceNeeded = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>Recorded read-only probe. Older and unstructured challenges may omit it.</summary>
     public InventoryFalsificationProbe? InventoryProbe { get; set; }

@@ -599,6 +599,47 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+
+  it("renders the base external url when doc-index lists a query variant before the https row", async () => {
+    const data = [
+      {
+        title: "External alpha (utm first)",
+        summary: "Tracked vendor url listed before https base.",
+        category: "API",
+        url: "https://example.com/docs/alpha?utm_source=doc-index",
+      },
+      {
+        title: "External alpha",
+        summary: "Https base vendor path.",
+        category: "API",
+        url: "https://example.com/docs/alpha",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "External alpha (utm first)" })).toHaveAttribute(
+      "href",
+      "https://example.com/docs/alpha?utm_source=doc-index",
+    );
+    expect(await screen.findByRole("link", { name: "External alpha" })).toHaveAttribute(
+      "href",
+      "https://example.com/docs/alpha",
+    );
+
+    vi.unstubAllGlobals();
+  });
+
   it("renders fetched external doc links when only a hash fragment differs on the same https url", async () => {
     const data = [
       {
@@ -1504,7 +1545,7 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
-  it("does not duplicate fetched external doc links when two rows differ only by query string on the same https url", async () => {
+  it("renders fetched external doc links when only a query string differs on the same https url", async () => {
     const data = [
       {
         title: "External alpha",
@@ -1532,12 +1573,14 @@ describe("HelpDocsClient", () => {
 
     renderWithOperatorQuery(<HelpDocsClient />);
 
-    expect(await screen.findByRole("link", { name: "External alpha" })).toBeInTheDocument();
-
-    await waitFor(() => {
-      expect(screen.queryByRole("link", { name: "External alpha (utm variant)" })).toBeNull();
-    });
-
+    expect(await screen.findByRole("link", { name: "External alpha" })).toHaveAttribute(
+      "href",
+      "https://example.com/docs/alpha",
+    );
+    expect(await screen.findByRole("link", { name: "External alpha (utm variant)" })).toHaveAttribute(
+      "href",
+      "https://example.com/docs/alpha?utm_source=doc-index",
+    );
     vi.unstubAllGlobals();
   });
 

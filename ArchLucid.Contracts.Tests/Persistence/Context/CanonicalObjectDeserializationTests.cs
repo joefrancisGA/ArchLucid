@@ -48,4 +48,44 @@ public sealed class CanonicalObjectDeserializationTests
         result.Should().NotBeNull();
         result!.Properties.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_identity_columns_yield_empty_strings_not_null()
+    {
+        const string json = """
+            {
+              "objectType": null,
+              "name": "api",
+              "sourceType": null,
+              "sourceId": null
+            }
+            """;
+
+        CanonicalObject? result =
+            JsonSerializer.Deserialize<CanonicalObject>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.ObjectType.Should().BeEmpty();
+        result.SourceType.Should().BeEmpty();
+        result.SourceId.Should().BeEmpty();
+    }
+    [Fact]
+    public void Deserialize_null_object_id_yields_empty_string_not_null()
+    {
+        const string json = """
+            {
+              "objectId": null,
+              "objectType": "service",
+              "name": "api",
+              "sourceType": "arm",
+              "sourceId": "/x"
+            }
+            """;
+
+        CanonicalObject? result =
+            JsonSerializer.Deserialize<CanonicalObject>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.ObjectId.Should().BeEmpty();
+    }
 }

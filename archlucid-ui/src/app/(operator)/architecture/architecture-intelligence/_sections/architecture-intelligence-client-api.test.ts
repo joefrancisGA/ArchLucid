@@ -4,6 +4,8 @@ import { writeOperatorScopeToStorage } from "@/lib/operator/operator-scope-stora
 
 import {
   buildRequest,
+  canAnalyzeHydratedReviewFromIntake,
+  requiresArchitectureDescriptionForMutation,
   getJson,
   postJson,
   primaryDescriptionFromSources,
@@ -107,4 +109,98 @@ describe("architecture-intelligence-client-api", () => {
       ]),
     ).toBe(true);
   });
-});
+
+  it("drops whitespace-only hydrated sources when the architecture description field is empty", () => {
+    const request = buildRequest(
+      "   ",
+      "",
+      {},
+      {
+        hydratedSourceTexts: [
+          {
+            fileName: "architecture-description.txt",
+            contentType: "text/plain",
+            content: "   \n",
+          },
+          {
+            fileName: "network-diagram.png",
+            contentType: "image/png",
+            content: "Attachment body",
+          },
+        ],
+      },
+    );
+
+    expect(request.sourceTexts).toEqual([
+      {
+        fileName: "network-diagram.png",
+        contentType: "image/png",
+        content: "Attachment body",
+      },
+    ]);
+  });
+
+
+  it("canAnalyzeHydratedReviewFromIntake is true for attachment-only hydrated intake with an active run", () => {
+    expect(
+      canAnalyzeHydratedReviewFromIntake("loaded", "run-1", "", [
+        {
+          fileName: "network-diagram.png",
+          contentType: "image/png",
+          content: "attachment body",
+        },
+      ]),
+    ).toBe(true);
+  });
+  it("requiresArchitectureDescriptionForMutation is true when textarea and hydrated rows are blank", () => {
+    expect(
+      requiresArchitectureDescriptionForMutation("  ", [
+        {
+          fileName: "architecture-description.txt",
+          contentType: "text/plain",
+          content: "  ",
+        },
+      ]),
+    ).toBe(true);
+  });
+  it("drops whitespace-only non-canonical hydrated rows when operator overrides canonical description", () => {
+    const request = buildRequest(
+      "Operator brief.",
+      "",
+      {},
+      {
+        hydratedSourceTexts: [
+          {
+            fileName: "architecture-description.txt",
+            contentType: "text/plain",
+            content: "   ",
+          },
+          {
+            fileName: "stale-notes.txt",
+            contentType: "text/plain",
+            content: "\n\t",
+          },
+          {
+            fileName: "network-diagram.png",
+            contentType: "image/png",
+            content: "Attachment body",
+          },
+        ],
+      },
+    );
+
+    expect(request.sourceTexts).toEqual([
+      {
+        fileName: "architecture-description.txt",
+        contentType: "text/plain",
+        content: "Operator brief.",
+      },
+      {
+        fileName: "network-diagram.png",
+        contentType: "image/png",
+        content: "Attachment body",
+      },
+    ]);
+  });
+})
+

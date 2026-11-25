@@ -41,4 +41,22 @@ public sealed class ContextIngestionRequestDeserializationTests
         result.Constraints.Should().NotBeNull().And.BeEmpty();
         result.Assumptions.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_project_id_yields_empty_string_not_null()
+    {
+        const string json = """
+            {
+              "projectId": null,
+              "inlineRequirements": [],
+              "documents": []
+            }
+            """;
+
+        ContextIngestionRequest? result =
+            JsonSerializer.Deserialize<ContextIngestionRequest>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.ProjectId.Should().BeEmpty();
+    }
 }

@@ -90,4 +90,26 @@ public sealed class ArchitectureTradeoffDeserializationTests
         tradeoff.EvidenceNodeIds.Should().NotBeNull().And.BeEmpty();
         tradeoff.EvidenceFindingIds.Should().NotBeNull().And.BeEmpty();
     }
+    [Fact]
+    public void Deserialize_null_mechanism_and_tradeoff_id_yield_empty_strings_not_null()
+    {
+        const string json = """
+            {
+              "tradeoffId": null,
+              "gainedPillar": 0,
+              "sacrificedPillar": 1,
+              "mechanism": null,
+              "status": 0,
+              "consequence": 0,
+              "reversibility": 0
+            }
+            """;
+
+        ArchitectureTradeoff? tradeoff =
+            JsonSerializer.Deserialize<ArchitectureTradeoff>(json, ContractJson.Default);
+
+        tradeoff.Should().NotBeNull();
+        tradeoff!.TradeoffId.Should().BeEmpty();
+        tradeoff.Mechanism.Should().BeEmpty();
+    }
 }

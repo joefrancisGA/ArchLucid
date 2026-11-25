@@ -17,11 +17,13 @@ public class ContextSnapshot
     }
 
     /// <summary>Logical project/system key (used for latest snapshot queries).</summary>
+    private string projectId = string.Empty;
+
     public string ProjectId
     {
-        get;
-        set;
-    } = "";
+        get => projectId;
+        set => projectId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public DateTime CreatedUtc
     {
