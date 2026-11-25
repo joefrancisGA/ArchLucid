@@ -230,6 +230,19 @@ public static class AzureInventorySecurityEdgeMaterializer
         AddPolicyAssignmentEdges(policyAssignments, relationships, relationshipKeys);
         AddDiagnosticEdges(diagnosticSettings, inventoriedArmIds, relationships, relationshipKeys, warnings);
 
+        foreach (AzureExtractorExtendedResourceRow resource in resources.Where(resource =>
+                     AzureInventoryEventGridDiagnosticEvidence.IsApplicable(resource.ResourceType)))
+        {
+            if (!AzureInventoryEventGridDiagnosticEvidence.HasRoutedCategory(
+                    resource.AzureResourceId, "DeliveryFailures", diagnosticSettings))
+                warnings.Add("eventgrid-delivery-failure-logging-unverified");
+
+            if (!resource.ResourceType.Equals("Microsoft.EventGrid/systemTopics", StringComparison.OrdinalIgnoreCase)
+                && !AzureInventoryEventGridDiagnosticEvidence.HasRoutedCategory(
+                    resource.AzureResourceId, "PublishFailures", diagnosticSettings))
+                warnings.Add("eventgrid-publish-failure-logging-unverified");
+        }
+
         HashSet<string> directionalFactoryTargetPairs = new(StringComparer.OrdinalIgnoreCase);
 
         AzureInventoryAdfPipelineFlowEdgeMapper.MapPipelineFlows(
