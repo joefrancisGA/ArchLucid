@@ -437,13 +437,13 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 25
-- **bugs-found:** 8
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-24
-- **last-bug:** 2026-11-24
+- **hunts:** 26
+- **bugs-found:** 9
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-25
+- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 ## Zone: ui-hooks-shared
 
 2026-11-25 seed hunt #4 (seed-only): no rotation (`shouldRotate: false`). After shipping deferred `archlucid-contracts` hit (`739037b3a9`). Cheap-disproof on five pass-5 `(candidate)` rows — **valid-no-repro** incremental findings refresh (`summary.runId !== options.runId` guard), **valid-no-repro** pinned review auto-close (404 gated on `notFound` + loading semantics; monitor), **valid-no-repro** `useAskStream.reset` clears `pendingRef` and flush timer, **valid-no-repro** marketing early-access double-submit (`canSubmit` requires `!busy`), **valid-no-repro** pin URL desync (monitor; `commitHrefIfChanged` pattern). **3× seed-only streak** — zone parks from automatic picks until hint. Scoped vitest **259/259** (one transient failure on first pass, green on retry). Pass-6 reseed below. Private beta: n/a.
