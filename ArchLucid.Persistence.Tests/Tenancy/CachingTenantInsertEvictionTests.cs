@@ -18,16 +18,12 @@ public sealed class CachingTenantInsertEvictionTests
     {
         Guid tenantId = Guid.NewGuid();
         using CancellationTokenSource request = new();
+        TaskCompletionSource<bool> committed = new(TaskCreationOptions.RunContinuationsAsynchronously);
         Mock<ITenantRepository> inner = new(MockBehavior.Strict);
         inner.Setup(repository => repository.InsertTenantAsync(
                 tenantId, "New tenant", "new-tenant", TenantTier.Free,
                 null, "us-east", request.Token, null))
-            .Callback(() =>
-            {
-                if (cancelAfterCommit)
-                    request.Cancel();
-            })
-            .Returns(Task.CompletedTask);
+            .Returns(committed.Task);
         string key = HotPathCacheKeys.TenantById(tenantId);
         Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
         cache.Setup(store => store.RemoveAsync(key, It.IsAny<CancellationToken>()))
@@ -35,10 +31,22 @@ public sealed class CachingTenantInsertEvictionTests
             .Returns(Task.CompletedTask);
 
         CachingTenantRepository sut = new(inner.Object, cache.Object);
-        await sut.InsertTenantAsync(
+        Task pending = sut.InsertTenantAsync(
             tenantId, "New tenant", "new-tenant", TenantTier.Free,
             null, "us-east", request.Token);
+        try
+        {
+            cache.Verify(store => store.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+            pending.IsCompleted.Should().BeFalse();
+        }
+        finally
+        {
+            if (cancelAfterCommit)
+                request.Cancel();
+            committed.TrySetResult(true);
+        }
 
+        await pending;
         request.IsCancellationRequested.Should().Be(cancelAfterCommit);
         inner.VerifyAll();
         cache.Verify(store => store.RemoveAsync(key, CancellationToken.None), Times.Once);

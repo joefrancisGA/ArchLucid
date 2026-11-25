@@ -73,6 +73,41 @@ public sealed class ScopeResolutionGuardTests
         ScopeResolutionGuard.RequiresTrustedScopeRejection(resolution).Should().BeTrue();
     }
 
+    [Theory]
+    [InlineData(ScopeSource.Claim, 0)]
+    [InlineData(ScopeSource.Claim, 1)]
+    [InlineData(ScopeSource.Claim, 2)]
+    [InlineData(ScopeSource.Ambient, 0)]
+    [InlineData(ScopeSource.Ambient, 1)]
+    [InlineData(ScopeSource.Ambient, 2)]
+    public void RequiresTrustedScopeRejection_rejects_each_individual_development_default(
+        ScopeSource source, int dimension)
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = dimension == 0 ? ScopeIds.DefaultTenant : Guid.NewGuid(),
+            WorkspaceId = dimension == 1 ? ScopeIds.DefaultWorkspace : Guid.NewGuid(),
+            ProjectId = dimension == 2 ? ScopeIds.DefaultProject : Guid.NewGuid(),
+        };
+
+        ScopeResolutionGuard.RequiresTrustedScopeRejection(
+            ScopeResolution.FromUniformSource(scope, source)).Should().BeTrue();
+    }
+
+    [Fact]
+    public void RequiresTrustedScopeRejection_accepts_explicit_nondefault_ambient_scope()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        ScopeResolutionGuard.RequiresTrustedScopeRejection(
+            ScopeResolution.FromUniformSource(scope, ScopeSource.Ambient)).Should().BeFalse();
+    }
+
     [Fact]
     public void RequiresTrustedScopeRejection_true_when_workspace_from_header()
     {
