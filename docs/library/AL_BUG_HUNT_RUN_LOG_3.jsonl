@@ -244,3 +244,4 @@
 {"set":3,"zoneId":"cli-terraform-evidence","outcome":"dry","note":"thorough hunt #171 pass-4 reseed","productLine":"archlucid-shared","at":"2026-11-24T21:16:15.3487203Z","paths":["docs/library/AL_BUG_HUNT_LEDGER_3.md"]}
 {"set":3,"zoneId":"ui-lib-remediation-factory","outcome":"dry","note":"thorough hunt #2 pass-2 reseed","productLine":"archlucid-shared","at":"2026-11-24T21:18:22.8477934Z","paths":["docs/library/AL_BUG_HUNT_LEDGER_3.md"]}
 {"set":3,"zoneId":"ui-host-gate","outcome":"dry","note":"thorough hunt #2 pass-2 reseed","productLine":"archlucid-shared","at":"2026-11-24T21:19:43.8341072Z","paths":["docs/library/AL_BUG_HUNT_LEDGER_3.md"]}
+{"set":3,"zoneId":"ui-hooks-shared","outcome":"seed-only","note":"seed hunt #2 pass-4 reseed","productLine":"archlucid-shared","at":"2026-11-25T01:58:14.9998169Z","paths":["docs/library/AL_BUG_HUNT_LEDGER_3.md"]}
