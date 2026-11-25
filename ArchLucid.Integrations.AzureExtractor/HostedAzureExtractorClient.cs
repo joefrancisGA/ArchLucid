@@ -207,6 +207,8 @@ public sealed class HostedAzureExtractorClient(
         {
             collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
         }
+        if (policyAssignments is HostedAzureArmPolicyCollection<HostedAzureArmPolicyAssignmentRecord> { PartialCollection: true })
+            collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
 
         if (diagnosticSettingsResult.PartialCollection)
         {
@@ -253,6 +255,10 @@ public sealed class HostedAzureExtractorClient(
         IReadOnlyList<JsonElement> policyAssignmentDocuments = await _armReadClient
             .ListSubscriptionPolicyAssignmentDocumentsAsync(accessToken.Token, subscriptionId, cancellationToken)
             .ConfigureAwait(false);
+
+        if (policyDefinitionDocuments is HostedAzureArmPolicyCollection<JsonElement> { PartialCollection: true }
+            || policyAssignmentDocuments is HostedAzureArmPolicyCollection<JsonElement> { PartialCollection: true })
+            collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
 
         IReadOnlyList<AzureInventoryEntraGroupMembershipRow> entraGroupMemberships =
             await TryReadEntraGroupMembershipsAsync(
@@ -391,10 +397,12 @@ public sealed class HostedAzureExtractorClient(
                 .ListManagementGroupRoleEligibilitySchedulesAsync(accessTokenValue, managementGroupId, cancellationToken)
                 .ConfigureAwait(false));
 
-        policyAssignments.AddRange(
-            await _armReadClient
-                .ListManagementGroupPolicyAssignmentsAsync(accessTokenValue, managementGroupId, cancellationToken)
-                .ConfigureAwait(false));
+        IReadOnlyList<HostedAzureArmPolicyAssignmentRecord> groupPolicyAssignments = await _armReadClient
+            .ListManagementGroupPolicyAssignmentsAsync(accessTokenValue, managementGroupId, cancellationToken)
+            .ConfigureAwait(false);
+        bool policyAssignmentsPartial = groupPolicyAssignments is
+            HostedAzureArmPolicyCollection<HostedAzureArmPolicyAssignmentRecord> { PartialCollection: true };
+        policyAssignments.AddRange(groupPolicyAssignments);
 
         bool subscriptionResourceCollectionPartial = false;
 
@@ -441,10 +449,12 @@ public sealed class HostedAzureExtractorClient(
                     .ListSubscriptionRoleEligibilitySchedulesAsync(accessTokenValue, subscriptionId, cancellationToken)
                     .ConfigureAwait(false));
 
-            policyAssignments.AddRange(
-                await _armReadClient
-                    .ListSubscriptionPolicyAssignmentsAsync(accessTokenValue, subscriptionId, cancellationToken)
-                    .ConfigureAwait(false));
+            IReadOnlyList<HostedAzureArmPolicyAssignmentRecord> subscriptionPolicyAssignments = await _armReadClient
+                .ListSubscriptionPolicyAssignmentsAsync(accessTokenValue, subscriptionId, cancellationToken)
+                .ConfigureAwait(false);
+            policyAssignmentsPartial |= subscriptionPolicyAssignments is
+                HostedAzureArmPolicyCollection<HostedAzureArmPolicyAssignmentRecord> { PartialCollection: true };
+            policyAssignments.AddRange(subscriptionPolicyAssignments);
 
             defenderSummaries.AddRange(
                 await _armReadClient
@@ -560,6 +570,8 @@ public sealed class HostedAzureExtractorClient(
         {
             collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
         }
+        if (policyAssignmentsPartial)
+            collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
 
         if (diagnosticSettingsResult.PartialCollection)
         {
@@ -794,7 +806,9 @@ public sealed class HostedAzureExtractorClient(
             merged.Add(definition);
         }
 
-        return merged;
+        return new HostedAzureArmPolicyCollection<JsonElement>(merged,
+            builtInDefinitions is HostedAzureArmPolicyCollection<JsonElement> { PartialCollection: true }
+            || subscriptionDefinitions is HostedAzureArmPolicyCollection<JsonElement> { PartialCollection: true });
     }
 
     private static string? TryReadJsonStringProperty(JsonElement element, string propertyName)
