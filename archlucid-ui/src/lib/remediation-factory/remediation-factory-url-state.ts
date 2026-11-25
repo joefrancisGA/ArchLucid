@@ -50,6 +50,16 @@ function remediationFactoryDisclosureNumericOneOpenToken(normalized: string): bo
     return Number.isFinite(numeric) && numeric === 1;
   }
 
+  if (/^\d+,\d+$/.test(unsigned)) {
+    const [, fractional] = unsigned.split(",");
+    const looksLikeThousandsGrouping =
+      fractional !== undefined && fractional.length >= 3 && /^0+$/.test(fractional);
+    const numeric = Number(unsigned.replace(",", "."));
+
+    if (!looksLikeThousandsGrouping && Number.isFinite(numeric) && numeric === 1) {
+      return true;
+    }
+  }
   if (/^0[bBoO]/.test(unsigned)) {
     const numeric = Number(unsigned);
 

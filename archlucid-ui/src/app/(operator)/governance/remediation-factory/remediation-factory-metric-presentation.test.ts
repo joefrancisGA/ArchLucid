@@ -464,6 +464,19 @@ describe("remediation-factory-metric-presentation", () => {
   });
 
 
+  it("keeps risk-weighted-open ruleLine when value is zero", () => {
+    const metrics = { riskWeightedOpen: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "risk-weighted-open")?.ruleLine).toContain("weighted sum");
+  });
+
+  it("keeps net-burn valueFootnote when net burn and weekly counts are zero", () => {
+    const metrics = { netBurn: 0, createdThisWeek: 0, remediatedThisWeek: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "net-burn")?.valueFootnote).toContain("Created 0");
+  });
   it("keeps open-findings-factory scopeLine when count is zero", () => {
     const metrics = { openFindings: 0 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);

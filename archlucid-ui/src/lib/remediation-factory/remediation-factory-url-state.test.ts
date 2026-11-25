@@ -185,6 +185,17 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+  it("treats locale comma-decimal one metrics disclosure token as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1,0`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats comma-separated thousands-style token as closed on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1,000`).metricsSummaryOpen,
+    ).toBe(false);
+  });
   it("treats radix-prefixed one metrics disclosure token as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=0b1`).metricsSummaryOpen,
