@@ -270,6 +270,18 @@ public static class AzureInventorySecurityEdgeMaterializer
             relationshipKeys,
             warnings);
 
+        foreach (AzureInventoryEventGridSubscriptionRow subscription in eventGridSubscriptionRows)
+        {
+            if (subscription.CollectionStatus.Equals(AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+                    StringComparison.OrdinalIgnoreCase)
+                && subscription.DeliveryAuthentication is AzureInventoryEventGridDeliveryAuthentication.SystemAssigned
+                    or AzureInventoryEventGridDeliveryAuthentication.UserAssigned
+                && !AzureInventoryEventGridDestinationAuthorization.HasMatchingAssignment(subscription, resources, roleAssignments))
+            {
+                warnings.Add("eventgrid-destination-rbac-unverified");
+            }
+        }
+
         AzureInventoryLogicAppConnectionEdgeMapper.MapConnections(
             logicAppConnectionRows,
             relationships,
