@@ -131,9 +131,16 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
 
   return (
     <OperatorPageContainer variant="full" data-testid="securenow-pilot-decision-page">
-      <OperatorPageHeader title={SECURENOW_PILOT_DECISION_HEADING} subtitle={SECURENOW_PILOT_DECISION_LEAD} />
+      <OperatorPageHeader
+        title={SECURENOW_PILOT_DECISION_HEADING}
+        subtitle={SECURENOW_PILOT_DECISION_LEAD}
+        claimDiscipline={SECURENOW_PILOT_DECISION_GUARDRAIL}
+        claimDisciplineTestId="securenow-pilot-decision-claim-discipline"
+        titleTestId="securenow-pilot-decision-heading"
+        subtitleTestId="securenow-pilot-decision-lead"
+      />
 
-      <main className="mt-6 max-w-3xl space-y-6">
+      <main id="main-content" tabIndex={-1} className="mt-6 max-w-3xl space-y-6">
         {partialCapture ? (
           <SecureNowPartialCaptureRecoveryParagraph
             testId="securenow-pilot-decision-partial-capture"
@@ -280,8 +287,6 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
           </Link>
           {" — sales-led quote path; does not authorize commerce."}
         </p>
-
-        <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_PILOT_DECISION_GUARDRAIL}</p>
         <p className={OPERATOR_TYPOGRAPHY.body}>
           <Link className={OPERATOR_LINK.inline} href="/why-securenow#pilot-decision">
             Read the sponsor-facing decision path
@@ -290,8 +295,24 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
         <SecureNowBetaSkuContentsSection />
         <SecureNowFixtureWorkspaceNotEntitlementLine />
         <SecureNowPilotSpineAcceleratorIndex />
-        <SecureNowProcurementTrustStrip />
+                <SecureNowProcurementTrustStrip />
+
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-pilot-decision-sources">
+          <span className="font-medium text-al-text-primary">Sources:</span> Operator-entered path disposition and
+          tenant audit when save succeeds — not billing authorization, verified remediation, or beta GO clearance.
+        </p>
+
+        <p className={OPERATOR_TYPOGRAPHY.body}>
+          <Link className={OPERATOR_LINK.inline} href="/administration">
+            Administration hub
+          </Link>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href="/">
+            Home
+          </Link>
+        </p>
       </main>
     </OperatorPageContainer>
   );
 }
+

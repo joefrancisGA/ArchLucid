@@ -2,7 +2,7 @@ name: FND-061 Evidence Authorization
 
 on:
   pull_request:
-    branches: [master, main, RC49]
+    branches: [master, main, RC49, fnd061/retrieval-indexing-authorization]
   merge_group:
     branches: [master, main, RC49]
 
@@ -23,6 +23,14 @@ jobs:
         run: >-
           dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release
           --filter 'FullyQualifiedName~EvidenceReadAuthorizationGateTests|FullyQualifiedName~SecureNowSnapshotHttpBoundaryTests|FullyQualifiedName~TerraformAdvisoryCitedRunHttpTests|FullyQualifiedName~AuthorityRunEventsControllerShareAccessTests|FullyQualifiedName~OutboundExportShareDenial|FullyQualifiedName~BlobExportRequesterBinding'
+      - name: Verify indexing and replication jobs check committed scope and seal
+        run: >-
+          dotnet test ArchLucid.Host.Composition.Tests/ArchLucid.Host.Composition.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~RetrievalIndexingOutboxAuthorizationTests|FullyQualifiedName~RetrievalIndexingOutboxProcessorCorrelationTests|FullyQualifiedName~RetrievalIndexingOutboxProcessorReplayIdempotencyTests|FullyQualifiedName~CosmosGraphSnapshotOutboxAuthorizationTests|FullyQualifiedName~CosmosGraphSnapshotOutboxProcessorTests'
+      - name: Verify retrieval adapters consume only bound evidence
+        run: >-
+          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~GetRunDetailForRetrievalIndexingAsync_reads_only_bound_evidence'
       - name: Verify warm graph projections cannot cross scope
         run: >-
           dotnet test ArchLucid.KnowledgeGraph.Tests/ArchLucid.KnowledgeGraph.Tests.csproj -c Release

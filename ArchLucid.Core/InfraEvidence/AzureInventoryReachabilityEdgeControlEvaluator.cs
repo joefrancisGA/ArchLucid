@@ -55,6 +55,47 @@ public static class AzureInventoryReachabilityEdgeControlEvaluator
             DefaultProtocol);
     }
 
+    /// <summary>Evaluates a concrete private flow using an already-effective route set.
+    /// The caller must establish completeness and bind the route set to the source NIC.</summary>
+    public static AzurePrivateConnectivityCheck EvaluatePrivateFlowRoute(
+        IReadOnlyList<AzureInventoryRouteTableRoute>? effectiveRoutes,
+        bool complete,
+        string sourceAddress,
+        string destinationAddress,
+        int destinationPort,
+        string protocol,
+        IReadOnlyDictionary<string, AzureInventoryReachabilityResourceProperties> resourcesByArmId)
+    {
+        if (!System.Net.IPAddress.TryParse(sourceAddress, out _)
+            || destinationPort is < 1 or > 65535
+            || !(string.Equals(protocol, "TCP", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(protocol, "UDP", StringComparison.OrdinalIgnoreCase)))
+            return AzurePrivateConnectivityCheck.Unknown;
+
+        AzurePrivateConnectivityCheck routeDecision = AzureInventoryDestinationRouteEvaluator.Evaluate(
+            effectiveRoutes, destinationAddress, complete, out AzureInventoryRouteTableRoute? selected);
+        if (routeDecision != AzurePrivateConnectivityCheck.Unknown)
+            return routeDecision;
+        if (selected is null || !string.Equals(selected.NextHopType, "VirtualAppliance", StringComparison.OrdinalIgnoreCase)
+            || string.IsNullOrWhiteSpace(selected.NextHopArmId))
+            return AzurePrivateConnectivityCheck.Unknown;
+
+        string firewallId = ArmResourceIdNormalizer.Normalize(selected.NextHopArmId);
+        if (!resourcesByArmId.TryGetValue(firewallId, out AzureInventoryReachabilityResourceProperties? firewall)
+            || !string.Equals(firewall.ResourceType, "Microsoft.Network/azureFirewalls", StringComparison.OrdinalIgnoreCase)
+            || !AzureInventoryAzureFirewallNetworkRuleParser.HasNetworkRuleCollections(firewall.Properties))
+            return AzurePrivateConnectivityCheck.Unknown;
+
+        // A modeled deny can block this path. An allow at this hop is not proof
+        // of onward routing, return routing, NSG permission, or connectivity.
+        AzureInventoryNetworkEdgeControlDecision firewallDecision = AzureInventoryAzureFirewallNetworkRuleEvaluator.Evaluate(
+            AzureInventoryAzureFirewallNetworkRuleParser.Parse(firewall.Properties),
+            AzureInventoryAzureFirewallNetworkRuleParser.HasApplicationRuleCollections(firewall.Properties),
+            sourceAddress, destinationAddress, destinationPort, protocol);
+        return firewallDecision == AzureInventoryNetworkEdgeControlDecision.Deny
+            ? AzurePrivateConnectivityCheck.Blocked : AzurePrivateConnectivityCheck.Unknown;
+    }
+
     public static AzureInventoryNetworkEdgeControlDecision EvaluateApplicationGateway(
         IReadOnlyDictionary<string, string> applicationGatewayProperties,
         string backendAssetArmId) =>

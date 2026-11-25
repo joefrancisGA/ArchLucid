@@ -1,0 +1,50 @@
+name: FND-061 Cosmos Graph Outbox SQL
+
+on:
+  pull_request:
+    branches: [master, main, RC49, fnd061/retrieval-indexing-authorization]
+    paths:
+      - 'ArchLucid.Core/Persistence/ApplicationPorts/Cosmos/ICosmosGraphSnapshotOutboxRepository.cs'
+      - 'ArchLucid.Persistence/Cosmos/*CosmosGraphSnapshotOutboxRepository.cs'
+      - 'ArchLucid.Persistence.Tests/Coordination/CosmosGraphSnapshotOutboxDeferralSqlTests.cs'
+      - '.github/workflows/fnd061-cosmos-graph-outbox-sql.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lease-deferral-sql:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - name: Verify Cosmos outbox lease deferral on isolated SQL Server
+        shell: bash
+        run: |
+          set -euo pipefail
+          pw="Fnd061!$(openssl rand -hex 20)"
+          echo "::add-mask::$pw"
+          trap 'docker rm -f fnd061-cosmos-outbox-sql >/dev/null 2>&1 || true' EXIT
+          export MSSQL_SA_PASSWORD="$pw"
+          docker run -d --name fnd061-cosmos-outbox-sql -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD \
+            -e MSSQL_PID=Developer -p 127.0.0.1:1433:1433 mcr.microsoft.com/mssql/server:2022-latest
+          ready=false
+          for attempt in {1..45}; do
+            if docker exec fnd061-cosmos-outbox-sql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$pw" \
+                -C -b -Q "SELECT 1" >/dev/null 2>&1; then
+              ready=true
+              break
+            fi
+            sleep 2
+          done
+          if [[ "$ready" != true ]]; then
+            docker logs --tail 40 fnd061-cosmos-outbox-sql
+            exit 1
+          fi
+          export ARCHLUCID_SQL_TEST="Server=127.0.0.1,1433;Database=ArchLucidFnd061CosmosOutboxTests;User ID=sa;Password=$pw;Encrypt=True;TrustServerCertificate=True"
+          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release \
+            --filter 'FullyQualifiedName~CosmosGraphSnapshotOutboxDeferralSqlTests'

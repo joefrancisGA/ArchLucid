@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
+import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   SECURENOW_COMPLIANCE_NOTES_DUTIES,
@@ -13,13 +15,27 @@ import {
   SECURENOW_COMPLIANCE_NOTES_NAMED_EXPECTATION_KEYS,
   SECURENOW_COMPLIANCE_NOTES_PACKS,
 } from "@/lib/product-line/securenow-compliance-notes-copy";
+import { cn } from "@/lib/utils";
 
 export function SecureNowComplianceNotesPageView(): React.JSX.Element {
   return (
     <OperatorPageContainer variant="full" data-testid="securenow-compliance-notes-page">
-      <OperatorPageHeader title={SECURENOW_COMPLIANCE_NOTES_HEADING} subtitle={SECURENOW_COMPLIANCE_NOTES_LEAD} />
+      <OperatorPageHeader
+        title={SECURENOW_COMPLIANCE_NOTES_HEADING}
+        subtitle={SECURENOW_COMPLIANCE_NOTES_LEAD}
+        claimDiscipline={SECURENOW_COMPLIANCE_NOTES_GUARDRAIL}
+        claimDisciplineTestId="securenow-compliance-notes-claim-discipline"
+        titleTestId="securenow-compliance-notes-heading"
+        subtitleTestId="securenow-compliance-notes-lead"
+      />
 
-      <main className="mt-6 max-w-3xl space-y-6">
+      <main id="main-content" tabIndex={-1} className="mt-6 max-w-3xl space-y-6">
+        <SecureNowAdminPartialCaptureStrip
+          testId="securenow-compliance-notes-partial-capture"
+          cloudConnectionsTestId="securenow-compliance-notes-partial-capture-cloud-connections"
+          extractUploadTestId="securenow-compliance-notes-partial-capture-extract-upload"
+        />
+
         <section aria-labelledby="securenow-compliance-duties-heading" className="space-y-2">
           <h2 id="securenow-compliance-duties-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
             Responsibility
@@ -76,7 +92,22 @@ export function SecureNowComplianceNotesPageView(): React.JSX.Element {
           </ul>
         </section>
 
-        <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_COMPLIANCE_NOTES_GUARDRAIL}</p>
+        <SecureNowFixtureWorkspaceNotEntitlementLine />
+
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-compliance-notes-sources">
+          <span className="font-medium text-al-text-primary">Sources:</span> Internal duty-split and pack-label notes for
+          SecureNow pilots — framework themes are labels, not control attestations; beta remains NO_GO.
+        </p>
+
+        <p className={OPERATOR_TYPOGRAPHY.body}>
+          <Link className={OPERATOR_LINK.inline} href="/administration">
+            Administration hub
+          </Link>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href="/">
+            Home
+          </Link>
+        </p>
       </main>
     </OperatorPageContainer>
   );

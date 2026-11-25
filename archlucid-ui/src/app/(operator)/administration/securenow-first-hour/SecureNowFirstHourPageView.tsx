@@ -19,13 +19,21 @@ import {
   SECURENOW_FIRST_USEFUL_ANSWER_DIAGRAMS_PATH,
   SECURENOW_FIRST_USEFUL_ANSWER_HEADING,
 } from "@/lib/product-line/securenow-first-hour-copy";
+import { cn } from "@/lib/utils";
 
 export function SecureNowFirstHourPageView(): React.JSX.Element {
   return (
     <OperatorPageContainer variant="full" data-testid="securenow-first-hour-page">
-      <OperatorPageHeader title={SECURENOW_FIRST_HOUR_HEADING} subtitle={SECURENOW_FIRST_HOUR_LEAD} />
+      <OperatorPageHeader
+        title={SECURENOW_FIRST_HOUR_HEADING}
+        subtitle={SECURENOW_FIRST_HOUR_LEAD}
+        claimDiscipline={SECURENOW_FIRST_HOUR_GUARDRAIL}
+        claimDisciplineTestId="securenow-first-hour-claim-discipline"
+        titleTestId="securenow-first-hour-heading"
+        subtitleTestId="securenow-first-hour-lead"
+      />
 
-      <main className="mt-6 max-w-3xl space-y-6">
+      <main id="main-content" tabIndex={-1} className="mt-6 max-w-3xl space-y-6">
         <SecureNowAdminPartialCaptureStrip
           testId="securenow-first-hour-partial-capture"
           cloudConnectionsTestId="securenow-first-hour-partial-capture-cloud-connections"
@@ -100,14 +108,22 @@ export function SecureNowFirstHourPageView(): React.JSX.Element {
 
         <SecureNowPilotSpineAcceleratorIndex />
 
-        <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_FIRST_HOUR_GUARDRAIL}</p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-first-hour-sources">
+          <span className="font-medium text-al-text-primary">Sources:</span> Internal first-hour checklist and collection
+          recovery links — Reader capture still required; first useful answer is not a timed SLA.
+        </p>
+
         <p className={OPERATOR_TYPOGRAPHY.body}>
           <Link className={OPERATOR_LINK.inline} href={SECURENOW_PILOT_SPINE_PATH}>
             Six-beat pilot walkthrough
           </Link>
           {" · "}
+          <Link className={OPERATOR_LINK.inline} href="/administration">
+            Administration hub
+          </Link>
+          {" · "}
           <Link className={OPERATOR_LINK.inline} href="/">
-            Back to Home
+            Home
           </Link>
         </p>
       </main>

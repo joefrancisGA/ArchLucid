@@ -77,7 +77,7 @@ public sealed class AzureInventoryReachabilityEdgeControlIndexTests
     }
 
     [Fact]
-    public void SubnetRequiresEdgeControlEvidence_false_when_routes_json_virtual_appliance_next_hop_is_in_snapshot()
+    public void SubnetRequiresEdgeControlEvidence_true_when_routes_json_virtual_appliance_next_hop_is_in_snapshot()
     {
         string vnet = BuildVnet("vnet");
         string subnet = BuildSubnet(vnet, "app");
@@ -118,11 +118,11 @@ public sealed class AzureInventoryReachabilityEdgeControlIndexTests
             new AzureInventoryRelationshipArmTriple(subnet, routeTable, "inventory-subnet-route-table"),
         ], resources);
 
-        index.SubnetRequiresEdgeControlEvidence(subnet).Should().BeFalse();
+        index.SubnetRequiresEdgeControlEvidence(subnet).Should().BeTrue("an inventoried appliance without modeled controls requires evidence");
     }
 
     [Fact]
-    public void SubnetRequiresEdgeControlEvidence_false_when_virtual_appliance_next_hop_is_in_snapshot()
+    public void SubnetRequiresEdgeControlEvidence_true_when_virtual_appliance_next_hop_is_in_snapshot()
     {
         string vnet = BuildVnet("vnet");
         string subnet = BuildSubnet(vnet, "app");
@@ -154,8 +154,7 @@ public sealed class AzureInventoryReachabilityEdgeControlIndexTests
             new AzureInventoryRelationshipArmTriple(subnet, routeTable, "inventory-subnet-route-table"),
         ], resources);
 
-        index.SubnetRequiresEdgeControlEvidence(subnet).Should().BeFalse(
-            "a modeled virtual appliance next hop should not force indeterminate edge-control evidence");
+        index.SubnetRequiresEdgeControlEvidence(subnet).Should().BeTrue("an inventoried appliance without modeled controls requires evidence");
     }
 
     [Fact]
@@ -883,7 +882,7 @@ public sealed class AzureInventoryReachabilityEdgeControlIndexTests
     }
 
     [Fact]
-    public void SubnetRequiresEdgeControlEvidence_false_when_routes_json_next_hop_uses_pascal_case_id_property()
+    public void SubnetRequiresEdgeControlEvidence_true_when_routes_json_next_hop_uses_pascal_case_id_property()
     {
         string vnet = BuildVnet("vnet");
         string subnet = BuildSubnet(vnet, "app");
@@ -923,8 +922,7 @@ public sealed class AzureInventoryReachabilityEdgeControlIndexTests
             new AzureInventoryRelationshipArmTriple(subnet, routeTable, "inventory-subnet-route-table"),
         ], resources);
 
-        index.SubnetRequiresEdgeControlEvidence(subnet).Should().BeFalse(
-            "routes JSON nextHop objects must accept Id casing variants from ARM exports");
+        index.SubnetRequiresEdgeControlEvidence(subnet).Should().BeTrue("an inventoried appliance without modeled controls requires evidence");
     }
 
     [Fact]
@@ -7208,6 +7206,34 @@ public sealed class AzureInventoryReachabilityEdgeControlIndexTests
         ], new Dictionary<string, AzureInventoryReachabilityResourceProperties>());
 
         index.AssetDeclaredBehindApplicationGateway(app).Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Modeled_firewall_does_not_hide_unmodeled_gateway_route(bool reverse)
+    {
+        string subnet = BuildSubnet(BuildVnet("vnet"), "app");
+        string table = BuildRouteTable("routes");
+        string firewall = $"/subscriptions/{SubscriptionId}/resourceGroups/rg/providers/Microsoft.Network/azureFirewalls/fw";
+        var modeled = new { properties = new { addressPrefix = "10.1.0.0/16", nextHopType = "VirtualAppliance", nextHop = new { id = firewall } } };
+        var gateway = new { properties = new { addressPrefix = "10.2.0.0/16", nextHopType = "VirtualNetworkGateway", nextHop = new { id = "" } } };
+        var routes = reverse ? new[] { gateway, modeled } : new[] { modeled, gateway };
+        var resources = new Dictionary<string, AzureInventoryReachabilityResourceProperties>
+        {
+            [table] = new() { ResourceType = "Microsoft.Network/routeTables",
+                Properties = new Dictionary<string, string> { ["routes"] = System.Text.Json.JsonSerializer.Serialize(routes) } },
+            [firewall] = new() { ResourceType = "Microsoft.Network/azureFirewalls",
+                Properties = new Dictionary<string, string>
+                {
+                    [AzureInventoryAzureFirewallNetworkRuleParser.NetworkRuleCollectionsPropertyKey] = """
+                        [{"properties":{"priority":200,"rules":[{"properties":{"name":"allow","priority":100,"action":{"type":"Allow"},"sourceAddresses":["*"],"destinationAddresses":["*"],"destinationPorts":["*"],"ipProtocols":["TCP"]}}]}}]
+                        """,
+                } },
+        };
+        var index = AzureInventoryReachabilityEdgeControlIndex.Build(
+            [new(subnet, table, "inventory-subnet-route-table")], resources);
+        index.SubnetRequiresEdgeControlEvidence(subnet).Should().BeTrue();
     }
 
     private static string BuildVnet(string name) =>
