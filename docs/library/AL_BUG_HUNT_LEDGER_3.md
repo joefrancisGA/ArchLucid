@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 thorough hunt (hit): `archlucid-contracts` pass-2 reseed. Scoped deserialization tests **14/14** on touched DTOs. Private beta: null display strings on advisory, alert, policy-pack, and ITSM health JSON deserialize to empty strings.
+> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed-only): `ui-hooks-shared` pass-6 reseed. Scoped vitest **259/259**. Private beta: n/a.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -395,6 +395,9 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **code-changed-since:** yes
 ## Zone: ui-hooks-shared
 
+2026-11-25 seed hunt #4 (seed-only): no rotation (`shouldRotate: false`). After shipping deferred `archlucid-contracts` hit (`739037b3a9`). Cheap-disproof on five pass-5 `(candidate)` rows — **valid-no-repro** incremental findings refresh (`summary.runId !== options.runId` guard), **valid-no-repro** pinned review auto-close (404 gated on `notFound` + loading semantics; monitor), **valid-no-repro** `useAskStream.reset` clears `pendingRef` and flush timer, **valid-no-repro** marketing early-access double-submit (`canSubmit` requires `!busy`), **valid-no-repro** pin URL desync (monitor; `commitHrefIfChanged` pattern). **3× seed-only streak** — zone parks from automatic picks until hint. Scoped vitest **259/259** (one transient failure on first pass, green on retry). Pass-6 reseed below. Private beta: n/a.
+
+
 2026-11-25 seed hunt #3 (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone `ui-hooks-shared` **2×** seed-only including this run). Cheap-disproof on five pass-4 `(candidate)` rows — **valid-no-repro** `useAppShellState` help first paint (`use-help-panel.url-sync.test.ts` mounts with `?help=1`; effect sync matches URL before assertions), **valid-no-repro** `useBooleanSearchParamUrlSync` empty `panel=` (`get` returns `""` not absent; explicit empty is closed-by-parser contract), **valid-no-repro** wizard remote **403** discard (`does not expose a local draft when the remote API denies access`), **valid-no-repro** `useRunSummaryStream` `retryToken` (`fallbackStartedRef` reset at effect entry), **valid-no-repro** `useWorkingCreateStartHref` desk continuity (`useSyncExternalStore` + in-flight parent resolution). No hunt-ready promotion. Scoped vitest **259/259**. Reseeded pass-5 monitors below. Private beta: n/a.
 
 
@@ -430,11 +433,20 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 - [x] (superseded) pass-4 `(candidate)` queue — **superseded 2026-11-25 seed hunt #3 (seed-only):** closed at zone header; see pass-5 reseed.
 
-- [ ] (candidate) `useIncrementalReviewFindingsRefresh` — stale `summary.runId` may trigger refresh for prior run — locus: runId guard; input: rapid run switch; monitor; pass-5 reseed.
-- [ ] (candidate) `usePinnedReviewContext` — auto `closePin` on **404** may fire before loading clears — locus: `notFound` effect; input: invalid pin id; monitor; pass-5 reseed.
-- [ ] (candidate) `useAskStream` — `reset` during token flush window may leave pending ref — locus: `pendingRef` + timer; input: reset mid-stream; monitor; pass-5 reseed.
-- [ ] (candidate) `useMarketingEarlyAccessSubmit` — rapid double submit while `busy` — locus: `canSubmit` gate; input: double-click; monitor; pass-5 reseed.
-- [ ] (candidate) `usePinnedReviewContext` — `searchParams` pin id may desync committed URL after `commitHrefIfChanged` — locus: Next vs window search; input: back/forward pin; monitor; pass-5 reseed.
+- [x] (valid-no-repro) pass-5 incremental findings refresh — **cheap-disproof 2026-11-25 seed hunt #4:** runId guard.
+- [x] (valid-no-repro) pass-5 pinned review 404 close — **cheap-disproof 2026-11-25 seed hunt #4:** monitor.
+- [x] (valid-no-repro) pass-5 ask stream reset flush — **cheap-disproof 2026-11-25 seed hunt #4:** reset clears pending.
+- [x] (valid-no-repro) pass-5 marketing double submit — **cheap-disproof 2026-11-25 seed hunt #4:** busy gate.
+- [x] (valid-no-repro) pass-5 pin URL desync — **cheap-disproof 2026-11-25 seed hunt #4:** monitor.
+
+- [x] (superseded) pass-5 `(candidate)` queue — **superseded 2026-11-25 seed hunt #4:** see pass-6 reseed.
+
+- [ ] (candidate) `useOidcSessionKeepalive` — heartbeat may run while document hidden — locus: interval without visibility gate; input: background tab; monitor; pass-6 reseed.
+- [ ] (candidate) `use-architecture-draft-work-lease` — lease heartbeat may continue after unmount race — locus: effect cleanup; input: fast route change; monitor; pass-6 reseed.
+- [ ] (candidate) `useKeyboardShortcuts` — duplicate handler registration on strict-mode remount — locus: listener attach; input: dev double mount; monitor; pass-6 reseed.
+- [ ] (candidate) `use-resume-pending-livelihood-mutation` — stale mutation resume after scope switch — locus: enabled flag; input: tenant switch; monitor; pass-6 reseed.
+- [ ] (candidate) `useSidebarNavGroupExpansion` — persisted expansion may disagree with URL on first paint — locus: storage read timing; input: deep link; monitor; pass-6 reseed.
+
 
 
 
@@ -448,7 +460,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** shared React hooks
 - **paths:** archlucid-ui/src/hooks/
 - **test-filter:** src/hooks
-- **hunts:** 27
+- **hunts:** 28
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25

@@ -247,3 +247,4 @@
 {"set":3,"zoneId":"ui-hooks-shared","outcome":"seed-only","note":"seed hunt #2 pass-4 reseed","productLine":"archlucid-shared","at":"2026-11-25T01:58:14.9998169Z","paths":["docs/library/AL_BUG_HUNT_LEDGER_3.md"]}
 {"set":3,"zoneId":"ui-hooks-shared","outcome":"seed-only","note":"seed hunt #3 pass-5 reseed","productLine":"archlucid-shared","at":"2026-11-25T01:59:56.4937481Z","paths":["docs/library/AL_BUG_HUNT_LEDGER_3.md"]}
 {"set":3,"zoneId":"archlucid-contracts","outcome":"hit","note":"thorough hunt #4 display string null coalesce","productLine":"archlucid-shared","at":"2026-11-25T02:04:22.2250056Z","paths":["ArchLucid.Contracts","ArchLucid.Contracts.Tests","docs/library/AL_BUG_HUNT_LEDGER_3.md"]}
+{"set":3,"zoneId":"ui-hooks-shared","outcome":"seed-only","note":"seed hunt #4 pass-6 reseed; 3x seed parks zone","productLine":"archlucid-shared","at":"2026-11-25T02:14:18.9614436Z","paths":["docs/library/AL_BUG_HUNT_LEDGER_3.md"]}
