@@ -72,8 +72,14 @@ public sealed class InMemoryTenantWorkspaceIntegrityTests
         Guid tenantB = await CreateTenantAsync(repository);
         Guid workspace = Guid.NewGuid();
 
+        TaskCompletionSource<bool> ready = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource<bool> release = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        int waiting = 0;
         Task<bool>[] attempts = Enumerable.Range(0, 32).Select(i => Task.Run(async () =>
         {
+            if (Interlocked.Increment(ref waiting) == 32)
+                ready.TrySetResult(true);
+            await release.Task.WaitAsync(TimeSpan.FromSeconds(10));
             try
             {
                 await repository.InsertWorkspaceAsync(
@@ -86,6 +92,15 @@ public sealed class InMemoryTenantWorkspaceIntegrityTests
                 return false;
             }
         })).ToArray();
+
+        try
+        {
+            await ready.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        }
+        finally
+        {
+            release.TrySetResult(true);
+        }
 
         bool[] results = await Task.WhenAll(attempts);
         results.Count(success => success).Should().Be(1);
