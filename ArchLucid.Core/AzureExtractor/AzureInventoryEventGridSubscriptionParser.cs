@@ -54,6 +54,8 @@ public static class AzureInventoryEventGridSubscriptionParser
             DestinationKind = destinationKind ?? string.Empty,
             DeliveryAuthentication = AzureInventoryEventGridDeliveryAuthentication.Normalize(
                 TryReadBoundedString(element, "deliveryAuthentication", MaxNameLength)),
+            DeliveryUserAssignedIdentityResourceId = AzureInventoryEventGridDeliveryAuthentication.ValidateIdentityResourceId(
+                TryReadBoundedString(element, "deliveryUserAssignedIdentityResourceId", MaxIdentifierLength)),
             CollectionStatus = collectionStatus.Trim(),
             WarningCode = TryReadBoundedString(element, "warningCode", MaxNameLength),
         };
