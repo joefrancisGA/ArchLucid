@@ -16,6 +16,11 @@ public interface IScimUserRepository
 
     Task<ScimUserRecord?> GetByExternalIdAsync(Guid tenantId, string externalId, CancellationToken cancellationToken);
 
+    /// <summary>Reads the current directory record without a cache when evaluating revocable worker access.</summary>
+    Task<ScimUserRecord?> GetByExternalIdForAuthorizationAsync(
+        Guid tenantId, string externalId, CancellationToken cancellationToken) =>
+        GetByExternalIdAsync(tenantId, externalId, cancellationToken);
+
     Task<ScimUserRecord?> GetByUserNameAsync(Guid tenantId, string userName, CancellationToken cancellationToken);
 
     Task<ScimUserRecord> InsertAsync(

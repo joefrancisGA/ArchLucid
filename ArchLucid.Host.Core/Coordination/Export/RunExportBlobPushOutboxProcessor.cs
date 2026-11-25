@@ -97,10 +97,6 @@ public sealed class RunExportBlobPushOutboxProcessor(
         RunExportBlobPushOutboxProcessorOptions opts,
         CancellationToken cancellationToken)
     {
-        IRunExportPackageBuilder packageBuilder =
-            scope.ServiceProvider.GetRequiredService<IRunExportPackageBuilder>();
-        IRunExportBlobPushService pushService =
-            scope.ServiceProvider.GetRequiredService<IRunExportBlobPushService>();
         IAuditService auditService = scope.ServiceProvider.GetRequiredService<IAuditService>();
 
         using Activity? activity = ArchLucidInstrumentation.AuthorityRun.StartActivity(
@@ -121,6 +117,12 @@ public sealed class RunExportBlobPushOutboxProcessor(
 
         using IDisposable _ = LogContext.PushProperty("CorrelationId", correlationId);
         using IDisposable ambientScope = AmbientScopeContext.Push(scopeContext);
+
+        IRunExportBlobPushAuthorization authorization =
+            scope.ServiceProvider.GetRequiredService<IRunExportBlobPushAuthorization>();
+        if (!await EnsureRequesterAuthorizedAsync(
+                authorization, scopeContext, outbox, auditService, entry, cancellationToken).ConfigureAwait(false))
+            return;
 
         IAuthorityQueryService authorityQueryService =
             scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
@@ -182,6 +184,8 @@ public sealed class RunExportBlobPushOutboxProcessor(
             return;
         }
 
+        IRunExportPackageBuilder packageBuilder =
+            scope.ServiceProvider.GetRequiredService<IRunExportPackageBuilder>();
         RunExportPackageResult packageResult = await packageBuilder.BuildAsync(
             scopeContext,
             entry.RunId,
@@ -254,6 +258,12 @@ public sealed class RunExportBlobPushOutboxProcessor(
             return;
         }
 
+        if (!await EnsureRequesterAuthorizedAsync(
+                authorization, scopeContext, outbox, auditService, entry, cancellationToken).ConfigureAwait(false))
+            return;
+
+        IRunExportBlobPushService pushService =
+            scope.ServiceProvider.GetRequiredService<IRunExportBlobPushService>();
         try
         {
             await pushService.PushAsync(
@@ -333,6 +343,27 @@ public sealed class RunExportBlobPushOutboxProcessor(
             RetryBackoffMaxSeconds = maxSecs,
             MaxConcurrentBatchEntries = maxConcurrent,
         };
+    }
+
+    private async Task<bool> EnsureRequesterAuthorizedAsync(
+        IRunExportBlobPushAuthorization authorization,
+        ScopeContext scopeContext,
+        IRunExportBlobPushOutboxRepository outbox,
+        IAuditService auditService,
+        RunExportBlobPushOutboxEntry entry,
+        CancellationToken ct)
+    {
+        if (entry.RequestedByDirectoryUserId is Guid requesterId && requesterId != Guid.Empty &&
+            !string.IsNullOrWhiteSpace(entry.RequestedByActorKey) &&
+            await authorization.AuthorizeAsync(scopeContext, entry.RunId, entry.RequestedByActorKey, requesterId, ct)
+                .ConfigureAwait(false) == requesterId)
+            return true;
+
+        await RecordDirectDeadLetterAsync(
+            outbox, auditService, entry, "Run export requester is no longer authorized.",
+            () => Logger.LogWarning("Run export authorization denied for outbox {OutboxId}.", entry.OutboxId), ct)
+            .ConfigureAwait(false);
+        return false;
     }
 
     private async Task RecordDirectDeadLetterAsync(

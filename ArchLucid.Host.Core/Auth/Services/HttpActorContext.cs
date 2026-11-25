@@ -75,14 +75,15 @@ public sealed class HttpActorContext(IHttpContextAccessor httpContextAccessor) :
     }
 
     /// <inheritdoc/>
-    public string GetActorId()
+    public string GetActorId() => TryGetJwtActorId(_httpContextAccessor.HttpContext?.User) ?? GetActor();
+
+    /// <summary>Returns the canonical JWT actor key without falling back to a display name.</summary>
+    public static string? TryGetJwtActorId(ClaimsPrincipal? user)
     {
-        HttpContext? httpContext = _httpContextAccessor.HttpContext;
-        ClaimsPrincipal? user = httpContext?.User;
         string? oid = TryGetClaimValue(user, OidShortClaimType) ?? TryGetClaimValue(user, OidLongClaimType);
 
         if (string.IsNullOrWhiteSpace(oid))
-            return GetActor();
+            return null;
 
         string oidNormalized = oid.Trim();
         string? tid = TryGetClaimValue(user, TidClaimType);

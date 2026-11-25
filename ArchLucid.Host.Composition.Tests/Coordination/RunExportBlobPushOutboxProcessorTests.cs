@@ -29,6 +29,20 @@ namespace ArchLucid.Host.Composition.Tests.Coordination;
 [Trait("Suite", "Core")]
 public sealed class RunExportBlobPushOutboxProcessorTests
 {
+    private const string ActorKey = "jwt:aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    private static readonly Guid RequesterId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+    private static ServiceCollection CreateServices()
+    {
+        ServiceCollection services = [];
+        Mock<IRunExportBlobPushAuthorization> access = new();
+        access.Setup(a => a.AuthorizeAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), ActorKey,
+                RequesterId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RequesterId);
+        services.AddScoped(_ => access.Object);
+        return services;
+    }
+
     [Fact]
     public async Task ProcessPendingBatchAsync_pushes_ambient_scope_before_dead_letter_audit()
     {
@@ -51,6 +65,8 @@ public sealed class RunExportBlobPushOutboxProcessorTests
                     TenantId = entryTenantId,
                     WorkspaceId = entryWorkspaceId,
                     ProjectId = entryProjectId,
+                    RequestedByActorKey = ActorKey,
+                    RequestedByDirectoryUserId = RequesterId,
                     DestinationSasUrl = "https://127.0.0.1/evil?sas=token",
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 }
@@ -74,7 +90,7 @@ public sealed class RunExportBlobPushOutboxProcessorTests
         HttpScopeContextProvider scopeProvider = new(httpContextAccessor);
         AuditService auditService = new(auditRepository.Object, httpContextAccessor, scopeProvider);
 
-        ServiceCollection services = [];
+        ServiceCollection services = CreateServices();
         services.AddScoped(_ => outbox.Object);
         services.AddScoped<IAuditService>(_ => auditService);
         services.AddScoped(_ => Mock.Of<IRunExportPackageBuilder>());
@@ -120,6 +136,8 @@ public sealed class RunExportBlobPushOutboxProcessorTests
                     TenantId = entryTenantId,
                     WorkspaceId = entryWorkspaceId,
                     ProjectId = entryProjectId,
+                    RequestedByActorKey = ActorKey,
+                    RequestedByDirectoryUserId = RequesterId,
                     DestinationSasUrl = "https://acct.blob.core.windows.net/c/b?sas=token",
                     CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     AttemptCount = 47
@@ -160,7 +178,7 @@ public sealed class RunExportBlobPushOutboxProcessorTests
         HttpScopeContextProvider scopeProvider = new(httpContextAccessor);
         AuditService auditService = new(auditRepository.Object, httpContextAccessor, scopeProvider);
 
-        ServiceCollection services = [];
+        ServiceCollection services = CreateServices();
         services.AddScoped(_ => outbox.Object);
         services.AddScoped<IAuditService>(_ => auditService);
         services.AddScoped(_ => builder.Object);
@@ -203,6 +221,8 @@ public sealed class RunExportBlobPushOutboxProcessorTests
                     TenantId = Guid.NewGuid(),
                     WorkspaceId = Guid.NewGuid(),
                     ProjectId = Guid.NewGuid(),
+                    RequestedByActorKey = ActorKey,
+                    RequestedByDirectoryUserId = RequesterId,
                     DestinationSasUrl = "https://127.0.0.1/evil?sas=token",
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 }
@@ -216,7 +236,7 @@ public sealed class RunExportBlobPushOutboxProcessorTests
             .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        ServiceCollection services = [];
+        ServiceCollection services = CreateServices();
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => audit.Object);
         services.AddScoped(_ => Mock.Of<IRunExportPackageBuilder>());
@@ -260,6 +280,8 @@ public sealed class RunExportBlobPushOutboxProcessorTests
                     TenantId = Guid.NewGuid(),
                     WorkspaceId = Guid.NewGuid(),
                     ProjectId = Guid.NewGuid(),
+                    RequestedByActorKey = ActorKey,
+                    RequestedByDirectoryUserId = RequesterId,
                     DestinationSasUrl = "https://127.0.0.1/evil?sas=token",
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 }
@@ -280,7 +302,7 @@ public sealed class RunExportBlobPushOutboxProcessorTests
             .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("audit sink unavailable"));
 
-        ServiceCollection services = [];
+        ServiceCollection services = CreateServices();
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => audit.Object);
         services.AddScoped(_ => Mock.Of<IRunExportPackageBuilder>());
@@ -325,6 +347,8 @@ public sealed class RunExportBlobPushOutboxProcessorTests
                     TenantId = Guid.NewGuid(),
                     WorkspaceId = Guid.NewGuid(),
                     ProjectId = Guid.NewGuid(),
+                    RequestedByActorKey = ActorKey,
+                    RequestedByDirectoryUserId = RequesterId,
                     DestinationSasUrl = "https://127.0.0.1/evil?sas=token",
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 }
@@ -340,7 +364,7 @@ public sealed class RunExportBlobPushOutboxProcessorTests
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        ServiceCollection services = [];
+        ServiceCollection services = CreateServices();
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => Mock.Of<IAuditService>());
         services.AddScoped(_ => Mock.Of<IRunExportPackageBuilder>());
@@ -387,6 +411,8 @@ public sealed class RunExportBlobPushOutboxProcessorTests
                     TenantId = Guid.NewGuid(),
                     WorkspaceId = Guid.NewGuid(),
                     ProjectId = Guid.NewGuid(),
+                    RequestedByActorKey = ActorKey,
+                    RequestedByDirectoryUserId = RequesterId,
                     DestinationSasUrl = "https://acct.blob.core.windows.net/c/b?sas=token",
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 }
@@ -409,7 +435,7 @@ public sealed class RunExportBlobPushOutboxProcessorTests
                 "Run no longer exists.",
                 "https://archlucid.example.org/errors#run-not-found"));
 
-        ServiceCollection services = [];
+        ServiceCollection services = CreateServices();
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => authorityQuery.Object);
         services.AddScoped(_ => packageBuilder.Object);
@@ -452,6 +478,8 @@ public sealed class RunExportBlobPushOutboxProcessorTests
                     TenantId = Guid.NewGuid(),
                     WorkspaceId = Guid.NewGuid(),
                     ProjectId = Guid.NewGuid(),
+                    RequestedByActorKey = ActorKey,
+                    RequestedByDirectoryUserId = RequesterId,
                     DestinationSasUrl = "https://acct.blob.core.windows.net/c/b?sas=token",
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 }
@@ -463,7 +491,7 @@ public sealed class RunExportBlobPushOutboxProcessorTests
             .Setup(q => q.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunDetailDto?)null);
 
-        ServiceCollection services = [];
+        ServiceCollection services = CreateServices();
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => authorityQuery.Object);
         services.AddScoped(_ => Mock.Of<IRunExportPackageBuilder>());
@@ -507,6 +535,8 @@ public sealed class RunExportBlobPushOutboxProcessorTests
                     TenantId = Guid.NewGuid(),
                     WorkspaceId = Guid.NewGuid(),
                     ProjectId = Guid.NewGuid(),
+                    RequestedByActorKey = ActorKey,
+                    RequestedByDirectoryUserId = RequesterId,
                     DestinationSasUrl = "https://acct.blob.core.windows.net/c/b?sas=token",
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 }
@@ -518,7 +548,7 @@ public sealed class RunExportBlobPushOutboxProcessorTests
             .Setup(b => b.BuildAsync(It.IsAny<ScopeContext>(), runId, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(RunExportPackageResult.NotFound("missing", "https://archlucid.example.org/errors#run-not-found"));
 
-        ServiceCollection services = [];
+        ServiceCollection services = CreateServices();
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => builder.Object);
         services.AddScoped(_ => Mock.Of<IRunExportBlobPushService>());
@@ -554,6 +584,8 @@ public sealed class RunExportBlobPushOutboxProcessorTests
                     TenantId = Guid.NewGuid(),
                     WorkspaceId = Guid.NewGuid(),
                     ProjectId = Guid.NewGuid(),
+                    RequestedByActorKey = ActorKey,
+                    RequestedByDirectoryUserId = RequesterId,
                     DestinationSasUrl = "https://acct.blob.core.windows.net/c/b?sas=token",
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 }
@@ -569,7 +601,7 @@ public sealed class RunExportBlobPushOutboxProcessorTests
                 "blocked",
                 "https://archlucid.example.org/errors#decision-receipt-sealed-hash-mismatch"));
 
-        ServiceCollection services = [];
+        ServiceCollection services = CreateServices();
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => builder.Object);
         services.AddScoped(_ => Mock.Of<IRunExportBlobPushService>());
@@ -608,6 +640,8 @@ public sealed class RunExportBlobPushOutboxProcessorTests
                     TenantId = Guid.NewGuid(),
                     WorkspaceId = Guid.NewGuid(),
                     ProjectId = Guid.NewGuid(),
+                    RequestedByActorKey = ActorKey,
+                    RequestedByDirectoryUserId = RequesterId,
                     DestinationSasUrl = "https://acct.blob.core.windows.net/c/b?sas=token",
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 }
@@ -631,7 +665,7 @@ public sealed class RunExportBlobPushOutboxProcessorTests
             .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        ServiceCollection services = [];
+        ServiceCollection services = CreateServices();
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => builder.Object);
         services.AddScoped(_ => pushService.Object);
@@ -687,6 +721,8 @@ public sealed class RunExportBlobPushOutboxProcessorTests
                     TenantId = tenantId,
                     WorkspaceId = workspaceId,
                     ProjectId = Guid.NewGuid(),
+                    RequestedByActorKey = ActorKey,
+                    RequestedByDirectoryUserId = RequesterId,
                     DestinationSasUrl = "https://acct.blob.core.windows.net/c/b?sas=token",
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 }
@@ -698,7 +734,7 @@ public sealed class RunExportBlobPushOutboxProcessorTests
             .Setup(b => b.BuildAsync(It.IsAny<ScopeContext>(), runId, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(RunExportPackageResult.NotFound("missing", "https://archlucid.example.org/errors#run-not-found"));
 
-        ServiceCollection services = [];
+        ServiceCollection services = CreateServices();
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => builder.Object);
         services.AddScoped(_ => Mock.Of<IRunExportBlobPushService>());

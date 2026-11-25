@@ -63,6 +63,11 @@ public sealed class CachingScimUserRepository(IScimUserRepository inner, IHotPat
         return _inner.GetByUserNameAsync(tenantId, userName, cancellationToken);
     }
 
+    /// <inheritdoc />
+    public Task<ScimUserRecord?> GetByExternalIdForAuthorizationAsync(
+        Guid tenantId, string externalId, CancellationToken cancellationToken) =>
+        _inner.GetByExternalIdForAuthorizationAsync(tenantId, externalId, cancellationToken);
+
     // After a successful write, eviction must finish even if the caller has disconnected.
     /// <inheritdoc />
     public async Task<ScimUserRecord> InsertAsync(

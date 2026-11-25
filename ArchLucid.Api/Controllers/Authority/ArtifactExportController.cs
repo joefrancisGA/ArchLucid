@@ -14,6 +14,7 @@ using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Host.Core.Coordination.Export;
 using ArchLucid.Persistence.Coordination.Export;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -64,7 +65,8 @@ public sealed partial class ArtifactExportController(
     IGraphSnapshotRepository graphSnapshotRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IRunRepository runRepository,
-    IArchitectureInventoryBindingRepository architectureInventoryBindingRepository)
+    IArchitectureInventoryBindingRepository architectureInventoryBindingRepository,
+    IRunExportBlobPushAuthorization blobPushAuthorization)
     : ControllerBase
 {
     private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
