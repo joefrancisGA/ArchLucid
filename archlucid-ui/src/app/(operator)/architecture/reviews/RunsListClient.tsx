@@ -134,11 +134,11 @@ export function RunsListClient(props: RunsListClientProps) {
   const syncRunsListFilterOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        runsListFilterDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        runsListFilterDisclosureHrefFromSearch(navigationSearch, open, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [navigationSearch, pathname],
   );
 
   const setRunsListFilterOpen = useCallback(

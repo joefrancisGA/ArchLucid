@@ -3151,11 +3151,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) pass-8 continue-last pending q — **cheap-disproof 2026-11-25 seed hunt (seed-only):** continue-last row tests.
 - [x] (valid-no-repro) pass-8 buyer card compare URL — **cheap-disproof 2026-11-25 seed hunt (seed-only):** clears stale compareRuns regression.
 
-- [ ] (candidate) `RunsListClient` filter disclosure write — use `navigationSearch` overlay vs `readWindowLocationSearch` only — locus: syncRunsListFilterOpenToUrl; input: toggle with split router/committed sort; pass-9 reseed.
-- [ ] (candidate) `useRunsList` `projectId` pagination href — default project strip vs committed — locus: nextHref builder; pass-9 reseed.
-- [ ] (candidate) `RunsListClient` mobile inspector — narrow viewport popstate compare — locus: shell ref; pass-9 reseed.
-- [ ] (candidate) `useRunsList` `listContextFilter` — deep link `filter=` trim — locus: parse; pass-9 reseed.
-- [ ] (candidate) `RunsListWorkQueueTable` — section headers with compare + scope — locus: partition; pass-9 reseed.
+- [x] (valid) pass-9 filter disclosure pending `q=` — **proven 2026-11-25 seed hunt (seed→hit):** `navigationSearch` on disclosure write; regression cited in hunt note.
+- [ ] (candidate) `useRunsList` `projectId` pagination href — default project strip vs committed — locus: nextHref builder; pass-10 reseed.
+- [ ] (candidate) `RunsListClient` mobile inspector — narrow viewport popstate compare — locus: shell ref; pass-10 reseed.
+- [ ] (candidate) `useRunsList` `listContextFilter` — deep link `filter=` trim — locus: parse; pass-10 reseed.
+- [ ] (candidate) `RunsListWorkQueueTable` — section headers with compare + scope — locus: partition; pass-10 reseed.
 
 - **id:** ui-runs-list
 - **status:** open
@@ -3163,9 +3163,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 8
+- **hunts:** 9
 - **last-hunt:** 2026-11-25
-- **bugs-found:** 5
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-bug:** never
 - **code-changed-since:** yes

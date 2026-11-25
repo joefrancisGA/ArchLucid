@@ -170,7 +170,28 @@ function renderRunsList(ui: ReactElement, searchQuery = "") {
 }
 
 describe("RunsListClient inspector", () => {
-    it("preserves committed sort= when filter disclosure opens while useSearchParams lags", () => {
+      it("preserves pending q= when filter disclosure toggles before debounce completes", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
+      "scope=finalized",
+    );
+
+    fireEvent.change(screen.getByLabelText(/Search reviews by title or description/i), {
+      target: { value: "Demo" },
+    });
+
+    const details = screen.getByText("Filter reviews", { selector: "summary" }).closest("details") as HTMLDetailsElement;
+    details.open = true;
+    fireEvent(details, new Event("toggle", { bubbles: true }));
+
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("q=Demo");
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("runsListFilterOpen=1");
+  });
+
+it("preserves committed sort= when filter disclosure opens while useSearchParams lags", () => {
     buyerPolishedShellVitestOverride.value = true;
     runsListWorkspaceModeHarness.mode = "guided";
 
