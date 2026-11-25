@@ -157,80 +157,89 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             agentLoopStage);
 
         string actor = actorContext.GetActor();
-        ArchitectureRun? run =
-            await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(
-                runRepository,
-                scopeContextProvider,
-                taskRepository,
-                runId,
-                cancellationToken);
 
-        if (run is null)
-            throw new RunNotFoundException(runId);
-
-        await _scopeResolveStage.ThrowIfAuthorityPipelineCompleteAsync(run, runId, cancellationToken);
-
-        if (run.Status is ArchitectureRunStatus.Committed)
+        try
         {
-            throw new ConflictException(
-                $"Run '{runId}' is already committed and cannot be selectively re-executed.");
-        }
-
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        IReadOnlyList<AgentTask> scheduledTasks = await LoadScheduledTasksForExecuteAsync(scope, runId, cancellationToken);
-
-        if (scheduledTasks.Count == 0)
-            throw new NoScheduledAgentTasksException(runId);
-
-        SelectiveAgentExecutePlanner.ResolveTasksToForce(scheduledTasks, request);
-
-        await EnsureSelectiveExecuteStillEligibleAsync(runId, cancellationToken).ConfigureAwait(false);
-        await EnsureSelectiveForcedTasksStillResolvableAsync(scope, runId, request, cancellationToken).ConfigureAwait(false);
-
-        if (ArchitectureRunExecuteRunIdHelper.TryParseRunGuid(runId, out Guid runGuid)
-            && _runExecuteOwnershipLeaseService.IsEnabled)
-        {
-            await EnsureSelectiveExecuteStillEligibleAsync(runId, cancellationToken).ConfigureAwait(false);
-            await EnsureSelectiveForcedTasksStillResolvableAsync(scope, runId, request, cancellationToken).ConfigureAwait(false);
-            await EnsureSelectiveExecuteStillEligibleAsync(runId, cancellationToken).ConfigureAwait(false);
-            await EnsureSelectiveForcedTasksStillResolvableAsync(scope, runId, request, cancellationToken).ConfigureAwait(false);
-            await EnsureSelectiveExecuteStillEligibleAsync(runId, cancellationToken).ConfigureAwait(false);
-            await EnsureSelectiveForcedTasksStillResolvableAsync(scope, runId, request, cancellationToken).ConfigureAwait(false);
-            await _runExecuteOwnershipLeaseService.AcquireAsync(runGuid, cancellationToken).ConfigureAwait(false);
-            EnsureExecuteOwnershipAcquiredLocally(runGuid);
-
-            using CancellationTokenSource executeCancellation =
-                CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-
-            IAsyncDisposable renewalScope = _runExecuteOwnershipLeaseService.BeginRenewalScope(
-                runGuid,
-                executeCancellation);
-
-            try
-            {
-                return await ExecuteSelectiveRunOwnedCoreAsync(
+            ArchitectureRun? run =
+                await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(
+                    runRepository,
+                    scopeContextProvider,
+                    taskRepository,
                     runId,
-                    actor,
-                    request,
-                    executeCancellation.Token).ConfigureAwait(false);
-            }
-            finally
+                    cancellationToken);
+
+            if (run is null)
+                throw new RunNotFoundException(runId);
+
+            await _scopeResolveStage.ThrowIfAuthorityPipelineCompleteAsync(run, runId, cancellationToken);
+
+            if (run.Status is ArchitectureRunStatus.Committed)
             {
-                await renewalScope.DisposeAsync().ConfigureAwait(false);
-
-                await _runExecuteOwnershipLeaseService
-                    .ReleaseAsync(runGuid, CancellationToken.None)
-                    .ConfigureAwait(false);
+                throw new ConflictException(
+                    $"Run '{runId}' is already committed and cannot be selectively re-executed.");
             }
+
+            ScopeContext scope = scopeContextProvider.GetCurrentScope();
+            IReadOnlyList<AgentTask> scheduledTasks = await LoadScheduledTasksForExecuteAsync(scope, runId, cancellationToken);
+
+            if (scheduledTasks.Count == 0)
+                throw new NoScheduledAgentTasksException(runId);
+
+            SelectiveAgentExecutePlanner.ResolveTasksToForce(scheduledTasks, request);
+
+            await EnsureSelectiveExecuteStillEligibleAsync(runId, cancellationToken).ConfigureAwait(false);
+            await EnsureSelectiveForcedTasksStillResolvableAsync(scope, runId, request, cancellationToken).ConfigureAwait(false);
+
+            if (ArchitectureRunExecuteRunIdHelper.TryParseRunGuid(runId, out Guid runGuid)
+                && _runExecuteOwnershipLeaseService.IsEnabled)
+            {
+                await EnsureSelectiveExecuteStillEligibleAsync(runId, cancellationToken).ConfigureAwait(false);
+                await EnsureSelectiveForcedTasksStillResolvableAsync(scope, runId, request, cancellationToken).ConfigureAwait(false);
+                await EnsureSelectiveExecuteStillEligibleAsync(runId, cancellationToken).ConfigureAwait(false);
+                await EnsureSelectiveForcedTasksStillResolvableAsync(scope, runId, request, cancellationToken).ConfigureAwait(false);
+                await EnsureSelectiveExecuteStillEligibleAsync(runId, cancellationToken).ConfigureAwait(false);
+                await EnsureSelectiveForcedTasksStillResolvableAsync(scope, runId, request, cancellationToken).ConfigureAwait(false);
+                await _runExecuteOwnershipLeaseService.AcquireAsync(runGuid, cancellationToken).ConfigureAwait(false);
+                EnsureExecuteOwnershipAcquiredLocally(runGuid);
+
+                using CancellationTokenSource executeCancellation =
+                    CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+                IAsyncDisposable renewalScope = _runExecuteOwnershipLeaseService.BeginRenewalScope(
+                    runGuid,
+                    executeCancellation);
+
+                try
+                {
+                    return await ExecuteSelectiveRunOwnedCoreAsync(
+                        runId,
+                        actor,
+                        request,
+                        executeCancellation.Token).ConfigureAwait(false);
+                }
+                finally
+                {
+                    await renewalScope.DisposeAsync().ConfigureAwait(false);
+
+                    await _runExecuteOwnershipLeaseService
+                        .ReleaseAsync(runGuid, CancellationToken.None)
+                        .ConfigureAwait(false);
+                }
+            }
+
+            return await ExecuteSelectiveRunOwnedCoreAsync(
+                runId,
+                actor,
+                request,
+                cancellationToken).ConfigureAwait(false);
+
         }
-
-        return await ExecuteSelectiveRunOwnedCoreAsync(
-            runId,
-            actor,
-            request,
-            cancellationToken).ConfigureAwait(false);
+        catch (RunNotFoundException)
+        {
+            await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunFailed, actor, runId, "Run not found.", cancellationToken);
+            throw;
+        }
     }
-
     private async Task<ExecuteRunResult> ExecuteSelectiveRunOwnedCoreAsync(
         string runId,
         string actor,
