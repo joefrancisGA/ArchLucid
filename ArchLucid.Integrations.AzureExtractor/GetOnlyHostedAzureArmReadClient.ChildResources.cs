@@ -159,126 +159,19 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
 
         string trimmedPath = relativePath.Trim().TrimStart('/');
         List<JsonElement> childResources = [];
-        string? nextLink = $"https://management.azure.com/{trimmedPath}?api-version={apiVersion}";
-        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
-        int requestCount = 0;
-        bool partialCollection = false;
+        ArmPaginationResult result = await ReadArmObjectPagesAsync(
+            accessToken,
+            $"https://management.azure.com/{trimmedPath}?api-version={apiVersion}",
+            candidate => HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(candidate, trimmedPath),
+            item => childResources.Add(item.Clone()),
+            cancellationToken).ConfigureAwait(false);
 
-        while (!string.IsNullOrWhiteSpace(nextLink))
+        if (result.PartialCollection && _logger.IsEnabled(LogLevel.Debug))
         {
-            if (!visitedLinks.Add(nextLink))
-            {
-                partialCollection = true;
-                break;
-            }
-
-            requestCount++;
-
-            if (ShouldBreakForPageCap(requestCount))
-            {
-                partialCollection = true;
-
-                break;
-            }
-
-            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            using HttpResponseMessage response =
-                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                if (_logger.IsEnabled(LogLevel.Debug))
-                {
-                    _logger.LogDebug(
-                        "Hosted Azure extractor skipped {LogLabel} list for {Path}; HTTP {StatusCode}.",
-                        logLabel,
-                        // ARM resource paths are operational identifiers, not credentials or secrets.
-
-                        // codeql[cs/cleartext-storage-of-sensitive-information]
-                        trimmedPath,
-                        (int)response.StatusCode);
-                }
-
-                partialCollection = true;
-
-                break;
-            }
-
-            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-
-            // A successful HTTP status does not establish a complete collection if the body is invalid.
-            using JsonDocument? document = await TryParseChildCollectionPageAsync(stream, cancellationToken)
-                .ConfigureAwait(false);
-
-            if (document is null)
-            {
-                partialCollection = true;
-
-                break;
-            }
-
-            if (document.RootElement.ValueKind != JsonValueKind.Object
-                || !document.RootElement.TryGetProperty("value", out JsonElement valueElement)
-                || valueElement.ValueKind != JsonValueKind.Array)
-            {
-                partialCollection = true;
-                break;
-            }
-
-            foreach (JsonElement item in valueElement.EnumerateArray())
-            {
-                if (item.ValueKind != JsonValueKind.Object)
-                {
-                    partialCollection = true;
-                    continue;
-                }
-
-                childResources.Add(item.Clone());
-            }
-
-            nextLink = null;
-
-            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement))
-            {
-                if (nextLinkElement.ValueKind == JsonValueKind.Null)
-                {
-                    break;
-                }
-
-                if (nextLinkElement.ValueKind != JsonValueKind.String)
-                {
-                    partialCollection = true;
-                    break;
-                }
-
-                string? candidateNextLink = nextLinkElement.GetString();
-
-                if (!string.IsNullOrWhiteSpace(candidateNextLink))
-                {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
-                        candidateNextLink,
-                        trimmedPath);
-                    nextLink = candidateNextLink;
-                }
-            }
+            _logger.LogDebug("Hosted Azure extractor retained incomplete {LogLabel} list: {Reason}.",
+                logLabel, result.FailureReason);
         }
 
-        return (childResources, partialCollection);
-    }
-
-    private static async Task<JsonDocument?> TryParseChildCollectionPageAsync(
-        Stream stream,
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            return await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
-        }
-        catch (JsonException)
-        {
-            return null;
-        }
+        return (childResources, result.PartialCollection);
     }
 }

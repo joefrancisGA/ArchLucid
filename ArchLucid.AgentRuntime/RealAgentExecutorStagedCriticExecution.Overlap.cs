@@ -86,7 +86,11 @@ internal static partial class RealAgentExecutorStagedCriticExecution
             if (phase1Task.IsFaulted)
                 throw phase1Task.Exception!;
 
-            throw phase2Task.Exception!;
+            if (phase2Task.IsFaulted)
+                throw phase2Task.Exception!;
+
+            // A cancelled task has no Exception property. Let WhenAll's cancellation propagate.
+            throw;
         }
 
         double overlapWallMilliseconds = Stopwatch.GetElapsedTime(overlapStartTicks).TotalMilliseconds;

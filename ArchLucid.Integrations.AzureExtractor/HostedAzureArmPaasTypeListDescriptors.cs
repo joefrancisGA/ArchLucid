@@ -18,6 +18,8 @@ internal static class HostedAzureArmPaasTypeListDescriptors
 
     internal const string ContainerRegistryApiVersion = "2023-07-01";
 
+    internal const string EventGridApiVersion = "2025-02-15";
+
     internal static readonly HostedAzureArmTypeListDescriptor[] SubscriptionLists =
     [
         new("Microsoft.Sql/servers", $"providers/Microsoft.Sql/servers?api-version={SqlApiVersion}"),
@@ -25,6 +27,8 @@ internal static class HostedAzureArmPaasTypeListDescriptors
         new("Microsoft.Storage/storageAccounts", $"providers/Microsoft.Storage/storageAccounts?api-version={StorageApiVersion}"),
         new("Microsoft.ContainerRegistry/registries", $"providers/Microsoft.ContainerRegistry/registries?api-version={ContainerRegistryApiVersion}"),
         new("Microsoft.ContainerService/managedClusters", $"providers/Microsoft.ContainerService/managedClusters?api-version={ContainerServiceApiVersion}"),
+        new("Microsoft.EventGrid/topics", $"providers/Microsoft.EventGrid/topics?api-version={EventGridApiVersion}"),
+        new("Microsoft.EventGrid/domains", $"providers/Microsoft.EventGrid/domains?api-version={EventGridApiVersion}"),
         new("Microsoft.Databricks/workspaces", $"providers/Microsoft.Databricks/workspaces?api-version={DatabricksApiVersion}"),
     ];
 }

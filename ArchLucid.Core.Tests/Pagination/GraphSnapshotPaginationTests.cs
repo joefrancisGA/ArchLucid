@@ -39,6 +39,25 @@ public sealed class GraphSnapshotPaginationTests
     }
 
     [Fact]
+    public void CreatePage_ExactlyFullLastPage_DoesNotReportMoreNodes()
+    {
+        GraphSnapshot snapshot = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "n1" }, new GraphNode { NodeId = "n2" },
+                new GraphNode { NodeId = "n3" }, new GraphNode { NodeId = "n4" },
+            ],
+        };
+
+        GraphSnapshotNodesPage page = GraphSnapshotPagination.CreatePage(snapshot, 2, 2);
+
+        page.Nodes.Select(static node => node.NodeId).Should().Equal("n3", "n4");
+        page.TotalNodes.Should().Be(4);
+        page.HasMore.Should().BeFalse();
+    }
+
+    [Fact]
     public void CreatePage_ExtremePage_DoesNotReportMoreNodes()
     {
         GraphSnapshot snapshot = new()
