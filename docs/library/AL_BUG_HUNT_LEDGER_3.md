@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 `ui-lib-remediation-factory` pass-20 executive table NaN guards. **142/142**. — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-infra-resource-hub` pass-496 cheap-disproof. ResourceHubClient **148/148**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 `ui-lib-remediation-factory` pass-21 negative decimal risk-weighted. **143/143**. — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-infra-resource-hub` pass-496 cheap-disproof. ResourceHubClient **148/148**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -381,6 +381,21 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-21 (`shouldRotate: false`; hint override). **proven** `remediationFactoryDecimalMetricPresentation` — negative risk-weighted open decimals rendered as `-1.50` in the executive table while tile chrome already rejected non-finite negatives; use `parseNonNegativeFiniteNumber`. Regression `renders negative risk-weighted open as not measured`. **valid-no-repro** selection identity href foreign params, **valid-no-repro** disclosure parse rejects `NaN` string, **valid-no-repro** tile formatter rejects negative open findings, **valid-no-repro** tab-only path overflow list. Pass-22 reseed below. Scoped vitest **143/143**. Private beta: invited operators no longer see negative risk-weighted open decimals in the remediation factory executive metrics table when the API returns invalid values.
+
+- [x] (superseded) pass-21 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-22 reseed.
+- [x] (proven) `remediationFactoryDecimalMetricPresentation` — negative risk-weighted — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactorySelectionIdentityDisclosureHrefFromSearch` — preserves foreign params — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** disclosure-only writer.
+- [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects NaN string token — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** not in open allowlist.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — negative count when loaded — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `parseNonNegativeFiniteNumber` on counts.
+- [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — tab-only path id list — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** existing whitespace regression.
+
+- [ ] (candidate) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — drops legacy yes on close — locus: boolean href writer; input: toggle closed; monitor; pass-22 reseed.
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects padded false — locus: shared parse; input: false token; monitor; pass-22 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — pattern hint when percent absent — locus: static table hint; input: null metrics; monitor; pass-22 reseed.
+- [ ] (candidate) `remediationFactoryPercentMetricPresentation` — fraction percent above 100 — locus: points scale; input: 150; monitor; pass-22 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — metrics open padded true — locus: disclosure parse; input: padded true; monitor; pass-22 reseed.
+
 2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-20 (`shouldRotate: false`; hint override). **proven** executive metrics table presentation — `remediationFactoryCountMetricPresentation` and siblings stringified non-finite API numbers as literal `NaN` in the SecureNow remediation factory table; normalize through `parseFiniteNumber` / `parseNonNegativeFiniteNumber`, treat invalid counts as **Not measured**, and keep signed net burn via `signedCount`; gate critical-exposure zero hint on parsed count. Regressions `renders non-finite critical exposure counts as not measured`, `keeps signed net burn values in the executive table`. **valid-no-repro** selection identity href canonical writer, **valid-no-repro** snapshot identity href foreign params, **valid-no-repro** duplicate `toSnapshot` first-wins, **invalid** snapshot identity url-state writer (param not in lib url-state). Pass-21 reseed below. Scoped vitest **142/142**. Private beta: invited operators no longer see `NaN` in remediation factory executive metrics table cells when the factory metrics payload returns non-finite values.
 
 - [x] (superseded) pass-20 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-21 reseed.
@@ -389,12 +404,6 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (valid-no-repro) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — preserves foreign params — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** disclosure-only selection switch.
 - [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate toSnapshot first-wins — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** existing first-wins regression.
 - [x] (invalid) `remediationFactoryUrlStateToSearchParams` — snapshot identity open writes canonical `1` — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** snapshot identity param not in url-state writer.
-
-- [ ] (candidate) `remediationFactorySelectionIdentityDisclosureHrefFromSearch` — preserves foreign params — locus: disclosure writer; input: foreign query; monitor; pass-21 reseed.
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects NaN string token — locus: shared parse; input: NaN; monitor; pass-21 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — negative count when loaded — locus: count format; input: -1 openFindings; monitor; pass-21 reseed.
-- [ ] (candidate) `remediationFactoryDecimalMetricPresentation` — negative risk-weighted — locus: decimal format; input: -1.5; monitor; pass-21 reseed.
-- [ ] (candidate) `attackPathReportPathChipOverflowLine` — tab-only path id list — locus: trim honesty; input: tab; monitor; pass-21 reseed.
 
 2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-19 (`shouldRotate: false`; hint override). **proven** executive metric footnotes — `buildRemediationFactoryExecutiveMetricTiles` interpolated missing `exceptionsExpiringSoon` / weekly burn counts as the literal word `undefined` when the API omitted optional fields; gate with `parseNonNegativeFiniteNumber` helpers and omit the footnote; mirror exceptions table hint in `buildRemediationFactoryExecutiveMetricPresentations`. Regressions `omits exceptions-active footnote when expiring-soon count is not returned`, `omits net-burn footnote when weekly counts are not returned`, `omits exceptions-active table hint when expiring-soon count is not returned`. **valid-no-repro** snapshot identity href closed/open writer (`operatorBooleanDisclosureHrefFromSearch`), **valid-no-repro** `remediationFactoryHrefFromSearch` foreign params, **valid-no-repro** snapshot identity duplicate param first-wins, **invalid** metric label when unloaded (labels required under loading). Pass-20 reseed below. Scoped vitest **140/140**. Private beta: invited operators no longer see helper lines with the text `undefined` under net burn or exceptions active tiles when the factory metrics payload omits optional weekly counts.
 
@@ -637,8 +646,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 42
-- **bugs-found:** 20
+- **hunts:** 43
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25

@@ -88,7 +88,7 @@ export function remediationFactoryDecimalMetricPresentation(input: {
   readonly fractionDigits?: number;
   readonly scopeNote: string;
 }): RemediationFactoryMetricPresentation {
-  const normalized = parseFiniteNumber(input.value);
+  const normalized = parseNonNegativeFiniteNumber(input.value);
 
   if (normalized === null) {
     return {
@@ -170,7 +170,8 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
         value: metrics?.criticalExposureCount,
         scopeNote: REMEDIATION_FACTORY_CRITICAL_EXPOSURE_HELPER,
         href: buildGovernanceFindingsQueueHref({ filter: "critical-error" }),
-      }),      hint: (() => {
+      }),
+      hint: (() => {
         const count = parseNonNegativeFiniteNumber(metrics?.criticalExposureCount);
 
         if (count === 0) {

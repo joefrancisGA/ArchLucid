@@ -23,6 +23,20 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "automation")?.value).toBe("1%");
   });
 
+  it("renders negative risk-weighted open as not measured", () => {
+    const metrics = { riskWeightedOpen: -1.5 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics,
+      openFindingsHref: "/security/findings",
+    });
+
+    expect(tiles.find((tile) => tile.key === "risk-weighted-open")?.presentation).toEqual(
+      expect.objectContaining({
+        displayValue: "Not measured",
+        state: "notMeasured",
+      }),
+    );
+  });
   it("renders non-finite critical exposure counts as not measured", () => {
     const metrics = { criticalExposureCount: Number.NaN } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricPresentations({
