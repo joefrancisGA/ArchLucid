@@ -276,8 +276,8 @@ class CandidateLineageTests(unittest.TestCase):
         self.assertEqual(reviews[9]["newly_independently_verified_reviewed_loc"], 0)
 
     def test_edit_revert_row_proof_does_not_count_unstable_text(self):
-        self.commit("alpha\\nmutated\\nrepeat\\nrepeat\\nnovel\\n", "middle mutation")
-        self.commit("alpha\\nunique\\nrepeat\\nrepeat\\nnovel\\n", "text restored")
+        self.commit("alpha\nmutated\nrepeat\nrepeat\nnovel\n", "middle mutation")
+        self.commit("alpha\nunique\nrepeat\nrepeat\nnovel\n", "text restored")
         current = git(self.repo, "rev-parse", "HEAD")
         def relocate(pins, pin_report, candidates, candidate_report):
             pins[1]["reviewed_master_sha"] = current
