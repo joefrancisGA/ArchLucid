@@ -17,7 +17,8 @@ public sealed class AzureInventoryDriftClassificationService(
     IArchitectureDiagramReconciliationRepository reconciliationRepository,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
-    ILogger<AzureInventoryDriftClassificationService> logger) : IAzureInventoryDriftClassificationService
+    ILogger<AzureInventoryDriftClassificationService> logger,
+    IInfraEvidenceRunReadAccess? runReadAccess = null) : IAzureInventoryDriftClassificationService
 {
     private readonly IArchitectureDiagramReconciliationRepository _reconciliationRepository =
         reconciliationRepository ?? throw new ArgumentNullException(nameof(reconciliationRepository));
@@ -38,7 +39,6 @@ public sealed class AzureInventoryDriftClassificationService(
         try
         {
             DateTime asOfUtc = TimeProvider.System.UtcNowDateTime();
-            await driftApprovalRepository.MarkExpiredAsync(scope.TenantId, asOfUtc, cancellationToken);
 
             AzureInventoryDiffSummaryRecord? summary =
                 await diffRepository.TryGetByDiffIdAsync(scope, diffId, cancellationToken);
@@ -52,6 +52,7 @@ public sealed class AzureInventoryDriftClassificationService(
                 _reconciliationRepository,
                 _authorityQueryService,
                 _manifestHashService,
+                (runId, ct) => runReadAccess?.CanReadRunAsync(scope, runId, ct) ?? Task.FromResult(false),
                 cancellationToken);
 
             await InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync(
@@ -60,11 +61,13 @@ public sealed class AzureInventoryDriftClassificationService(
                 _reconciliationRepository,
                 _authorityQueryService,
                 _manifestHashService,
+                (runId, ct) => runReadAccess?.CanReadRunAsync(scope, runId, ct) ?? Task.FromResult(false),
                 cancellationToken);
 
             IReadOnlyList<AzureInventoryChangeRecord> changes =
                 await diffRepository.ListChangesByDiffIdAsync(scope, diffId, cancellationToken);
 
+            // The scoped query excludes expired approvals as of this report, without changing persisted status.
             IReadOnlyList<AzureInventoryDriftApprovalRecord> activeApprovals =
                 await driftApprovalRepository.ListActiveForDiffAsync(scope, diffId, asOfUtc, cancellationToken);
 
