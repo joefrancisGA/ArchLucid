@@ -10,6 +10,24 @@ namespace ArchLucid.Core.Tests.Costing;
 public sealed class MultiCloudIllustrativeCostTests
 {
     [Fact]
+    public async Task EstimateNodesAsync_prices_known_quantities_and_uses_one_unit_for_an_unknown_quantity()
+    {
+        InfrastructureMonthlyUsdCostEstimator estimator = new(null);
+        InfrastructureCostEstimateTotals totals = await estimator.EstimateNodesAsync(
+            [
+                new("Service", "api", RuntimePlatform.AppService, null, null, 2),
+                new("Service", "worker", RuntimePlatform.Ec2, null, null, 0),
+            ],
+            attemptRetailPricing: false, retailPrices: null, CancellationToken.None);
+
+        totals.Lines.Select(static line => line.EstimatedUsdPerMonth).Should().Equal(90m, 110m);
+        totals.Lines.Should().OnlyContain(line => line.PriceSource == InfrastructureCostPriceSource.Estimated);
+        totals.TotalUsdPerMonth.Should().Be(200m);
+        totals.AnyRetailPricing.Should().BeFalse();
+        totals.AllRetailPricing.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task EstimateNodesAsync_aws_terraform_rows_use_aws_product_labels()
     {
         List<InfrastructureCostQueryNode> nodes = ManifestInfrastructureCostNodes.FromTerraformResourceRows([

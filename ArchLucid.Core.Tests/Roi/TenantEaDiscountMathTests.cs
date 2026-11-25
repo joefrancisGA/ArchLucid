@@ -7,6 +7,13 @@ namespace ArchLucid.Core.Tests.Roi;
 [Trait("Category", "Unit")]
 public sealed class TenantEaDiscountMathTests
 {
+    [Fact]
+    public void ApplyToRetailPrice_rounds_at_the_four_decimal_midpoint()
+    {
+        TenantEaDiscountMath.ApplyToRetailPrice(1.23444m, 1m).Should().Be(1.2344m);
+        TenantEaDiscountMath.ApplyToRetailPrice(1.23445m, 1m).Should().Be(1.2345m);
+    }
+
     [Theory]
     [InlineData(0, 1.0)]
     [InlineData(15, 0.85)]

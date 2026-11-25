@@ -12,6 +12,23 @@ namespace ArchLucid.Core.Tests.Costing;
 public sealed class AzureRetailPricesCatalogClientCacheTests
 {
     [Fact]
+    public async Task TryGetConsumptionMonthlyUsdAsync_caches_each_requested_quantity_separately()
+    {
+        using RecoveringRetailHandler handler = new(failFirstRequest: false);
+        using HttpClient httpClient = new(handler, disposeHandler: false);
+        AzureRetailPricesCatalogClient retailPrices = new(() => httpClient, TimeProvider.System, logger: null);
+
+        Task<decimal?> LookupAsync(int quantity) => retailPrices.TryGetConsumptionMonthlyUsdAsync(
+            "Virtual Machines", "eastus", "Standard_D2s_v3", quantity, CancellationToken.None);
+
+        (await LookupAsync(1)).Should().Be(730m);
+        (await LookupAsync(3)).Should().Be(2190m);
+        (await LookupAsync(1)).Should().Be(730m);
+        (await LookupAsync(3)).Should().Be(2190m);
+        handler.RequestCount.Should().Be(2);
+    }
+
+    [Fact]
     public async Task TryGetConsumptionMonthlyUsdAsync_skips_null_price_rows()
     {
         using RecoveringRetailHandler handler = new(failFirstRequest: false, includeNullRow: true);

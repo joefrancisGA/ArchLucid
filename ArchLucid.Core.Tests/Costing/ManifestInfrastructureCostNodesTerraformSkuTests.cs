@@ -31,5 +31,7 @@ public sealed class ManifestInfrastructureCostNodesTerraformSkuTests
         node.Platform.Should().Be(RuntimePlatform.Ec2);
         node.ArmRegion.Should().Be("us-east-1");
         node.SkuOrTier.Should().BeNull("TerraformInfrastructureCostResourceRow carries no instance-type/sku field yet");
+        node.Quantity.Should().Be(1);
+        node.InstanceCountWasNotStored.Should().BeTrue("the one-unit assumption is not a measured instance count");
     }
 }
