@@ -26,10 +26,10 @@ internal static class MaliciousDependencyMatcher
         ArgumentNullException.ThrowIfNull(advisories);
         var ecosystem = observation.Ecosystem.Trim().ToLowerInvariant();
         var package = NormalizePackage(ecosystem, observation.Package);
-        var version = observation.Version?.Trim();
+        var version = NormalizeVersion(observation.Version);
         DependencyMatch Result(DependencyMatchState state, string[]? ids = null) =>
             new(state, ids ?? [], observation.EvidenceId);
-        if (package is null || !IsExactVersion(version) ||
+        if (package is null || version is null ||
             observation.Kind is not (DependencyEvidenceKind.Resolved or DependencyEvidenceKind.Installed) ||
             string.IsNullOrWhiteSpace(observation.EvidenceId) || observation.ObservedAt > now)
             return Result(DependencyMatchState.Unknown);
@@ -40,9 +40,9 @@ internal static class MaliciousDependencyMatcher
         bool Current(VerifiedMaliciousVersion a) =>
             a.Source is { IsAbsoluteUri: true } && a.Source.Scheme == Uri.UriSchemeHttps &&
             !string.IsNullOrWhiteSpace(a.AdvisoryId) && a.VerifiedAt <= now &&
-            a.ValidUntil >= now && IsExactVersion(a.Version);
+            a.ValidUntil >= now && NormalizeVersion(a.Version) is not null;
         var ids = relevant.Where(a => Current(a) &&
-                string.Equals(a.Version, version, StringComparison.Ordinal))
+                string.Equals(NormalizeVersion(a.Version), version, StringComparison.Ordinal))
             .Select(a => a.AdvisoryId.Trim().ToUpperInvariant())
             .Distinct(StringComparer.Ordinal).OrderBy(a => a, StringComparer.Ordinal).ToArray();
         if (ids.Length > 0) return Result(DependencyMatchState.Affected, ids);
@@ -52,11 +52,20 @@ internal static class MaliciousDependencyMatcher
         return Result(DependencyMatchState.NotMatched);
     }
 
-    private static bool IsExactVersion(string? value) =>
-        !string.IsNullOrWhiteSpace(value) &&
-        System.Text.RegularExpressions.Regex.IsMatch(value,
-            @"\A[0-9][0-9A-Za-z.+!_-]{0,127}\z",
-            System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+    // Deliberately support only the numeric PEP 440 release subset.
+    // Other valid PEP 440 forms require a full comparator and remain unknown.
+    private static string? NormalizeVersion(string? value)
+    {
+        if (value is null || value.Length > 128 ||
+            !System.Text.RegularExpressions.Regex.IsMatch(value,
+                @"\A[0-9]+(?:\.[0-9]+)*\z",
+                System.Text.RegularExpressions.RegexOptions.CultureInvariant))
+            return null;
+        var parts = value.Split('.').Select(p => p.TrimStart('0'))
+            .Select(p => p.Length == 0 ? "0" : p).ToList();
+        while (parts.Count > 1 && parts[^1] == "0") parts.RemoveAt(parts.Count - 1);
+        return string.Join(".", parts);
+    }
 
     private static string? NormalizePackage(string ecosystem, string name)
     {
