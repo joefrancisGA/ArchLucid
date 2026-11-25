@@ -28,6 +28,16 @@ function readUuidParam(params: URLSearchParams, key: string): string | null {
   return normalizeUuidQueryValue(params.get(key));
 }
 
+
+function remediationFactoryDisclosureNumericOneOpenToken(normalized: string): boolean {
+  if (!/^\d+$/.test(normalized)) {
+    return false;
+  }
+
+  const numeric = Number(normalized);
+
+  return Number.isInteger(numeric) && numeric === 1;
+}
 function setUuidParam(params: URLSearchParams, key: string, value: string | null): void {
   const normalized = normalizeUuidQueryValue(value);
 
@@ -49,7 +59,8 @@ export function parseRemediationFactoryDisclosureOpenFromSearch(raw: string | nu
     normalized === "1" ||
     normalized === "true" ||
     normalized === "yes" ||
-    normalized === "on"
+    normalized === "on" ||
+    remediationFactoryDisclosureNumericOneOpenToken(normalized)
   );
 }
 

@@ -58,6 +58,12 @@ function exceptionsExpiringFootnoteWhenLoaded(
     return null;
   }
 
+  const active = parseNonNegativeFiniteNumber(metrics.exceptionsActive);
+
+  if (active === null || !Number.isInteger(active)) {
+    return null;
+  }
+
   const expiringSoon = parseNonNegativeFiniteNumber(metrics.exceptionsExpiringSoon);
 
   if (expiringSoon === null || !Number.isInteger(expiringSoon)) {

@@ -289,6 +289,41 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "exceptions-active")?.valueFootnote).toBeNull();
   });
 
+
+  it("omits exceptions-active footnote when active count is not returned even if expiring-soon is zero", () => {
+    const metrics = { exceptionsExpiringSoon: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "exceptions-active")?.value).toBeNull();
+    expect(tiles.find((tile) => tile.id === "exceptions-active")?.valueFootnote).toBeNull();
+  });
+
+  it("keeps exceptions-active expiring footnote when active and expiring counts are zero", () => {
+    const metrics = { exceptionsActive: 0, exceptionsExpiringSoon: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "exceptions-active")?.value).toBe("0");
+    expect(tiles.find((tile) => tile.id === "exceptions-active")?.valueFootnote).toContain("0 expiring soon");
+  });
+
+  it("omits critical-exposure table hint when count is fractional", () => {
+    const metrics = { criticalExposureCount: 0.4 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics,
+      openFindingsHref: "/security/findings",
+    });
+    const row = tiles.find((tile) => tile.key === "critical-exposure");
+
+    expect(row?.presentation.state).toBe("notMeasured");
+    expect(row?.hint).toBeUndefined();
+  });
+
+  it("open-findings-queue tile never carries a valueFootnote", () => {
+    const metrics = { automationPercent: 5 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "open-findings-queue")?.valueFootnote).toBeUndefined();
+  });
   it("omits exceptions-active footnote when expiring-soon count is not returned", () => {
     const metrics = { exceptionsActive: 3 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);

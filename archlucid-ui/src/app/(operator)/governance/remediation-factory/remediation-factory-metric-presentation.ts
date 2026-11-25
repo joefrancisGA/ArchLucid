@@ -156,6 +156,12 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
     plainScopeNote: true,
   });
 
+  const criticalExposurePresentation = remediationFactoryCountMetricPresentation({
+    value: metrics?.criticalExposureCount,
+    scopeNote: REMEDIATION_FACTORY_CRITICAL_EXPOSURE_HELPER,
+    href: buildGovernanceFindingsQueueHref({ filter: "critical-error" }),
+  });
+
   const openFindingsPresentation = remediationFactoryCountMetricPresentation({
     value: metrics?.openFindings,
     scopeNote: REMEDIATION_FACTORY_OPEN_FINDINGS_HELPER,
@@ -179,20 +185,11 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
     {
       key: "critical-exposure",
       label: "Critical exposure",
-      presentation: remediationFactoryCountMetricPresentation({
-        value: metrics?.criticalExposureCount,
-        scopeNote: REMEDIATION_FACTORY_CRITICAL_EXPOSURE_HELPER,
-        href: buildGovernanceFindingsQueueHref({ filter: "critical-error" }),
-      }),
-      hint: (() => {
-        const count = parseNonNegativeFiniteNumber(metrics?.criticalExposureCount);
-
-        if (count === 0) {
-          return "No critical-or-error findings in this metric for the current scope.";
-        }
-
-        return undefined;
-      })(),
+      presentation: criticalExposurePresentation,
+      hint:
+        criticalExposurePresentation.state === "measuredZero"
+          ? "No critical-or-error findings in this metric for the current scope."
+          : undefined,
     },
     {
       key: "recurrence",

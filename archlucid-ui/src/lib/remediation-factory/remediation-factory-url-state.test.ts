@@ -84,6 +84,28 @@ describe("remediation-factory-url-state", () => {
 
     expect(params.get(REMEDIATION_FACTORY_SELECTED_FINDING_PARAM)).toBeNull();
   });
+
+  it("treats leading-zero one metrics disclosure token as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=01`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("drops padded true metrics token from base search when writing closed state", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: false,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=  true  &foreign=keep`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBeNull();
+    expect(params.get("foreign")).toBe("keep");
+  });
   it("treats mixed-case YES metrics disclosure token as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(
