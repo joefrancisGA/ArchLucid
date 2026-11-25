@@ -556,6 +556,11 @@ public sealed class HostedAzureExtractorClient(
             collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
         }
 
+        if (subscriptionIds is HostedAzureManagementGroupSubscriptionCollection { PartialCollection: true })
+        {
+            collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+        }
+
         if (diagnosticSettingsResult.PartialCollection)
         {
             collectionWarnings.Add(AzureInventoryDiagnosticCompletenessWarningCodes.PartialCollection);
