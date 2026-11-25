@@ -114,6 +114,11 @@ public sealed class AzureInventorySnapshotMaterializer(
 
                 foreach (KeyValuePair<string, string> property in row.Properties)
                 {
+                    if (!IsAllowedImportedRuntimeProperty(row.ResourceType, property.Key))
+                    {
+                        continue;
+                    }
+
                     bool redacted = AzureExtractorSensitivePropertyRedactor.IsSensitiveKey(property.Key);
 
                     properties.Add(new AzureInventoryResourcePropertyWrite
@@ -136,7 +141,9 @@ public sealed class AzureInventorySnapshotMaterializer(
                         AzureResourceId = normalizedArmId,
                         ResourceType = row.ResourceType,
                         ResourceGroup = row.ResourceGroup,
-                        CappedPropertiesJson = JsonSerializer.Serialize(row.Properties),
+                        CappedPropertiesJson = JsonSerializer.Serialize(row.Properties
+                            .Where(property => IsAllowedImportedRuntimeProperty(row.ResourceType, property.Key))
+                            .ToDictionary(property => property.Key, property => property.Value)),
                         SourceEvidenceReference = AzureExtractorPackageZipEntryNames.Resources,
                     });
                 }
@@ -400,6 +407,31 @@ public sealed class AzureInventorySnapshotMaterializer(
                 ErrorMessage = ex.Message,
             };
         }
+    }
+
+    // Imported inventory properties are not an authenticated runtime observation channel.
+    // Reserve the runtime namespace; allow only the configuration fields collected from ARM.
+    private static bool IsAllowedImportedRuntimeProperty(string resourceType, string key)
+    {
+        string normalized = key.Trim();
+        if (!normalized.Equals("runtime", StringComparison.OrdinalIgnoreCase)
+            && !normalized.StartsWith("runtime.", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        if (!resourceType.Equals("Microsoft.Web/sites", StringComparison.OrdinalIgnoreCase)
+            && !resourceType.Equals("Microsoft.Web/sites/slots", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        // Reject noncanonical spellings rather than letting different consumers normalize differently.
+        return key is "runtime.configured.linuxFxVersion" or "runtime.configured.windowsFxVersion"
+            or "runtime.configured.javaVersion" or "runtime.configured.javaContainer"
+            or "runtime.configured.javaContainerVersion" or "runtime.configured.netFrameworkVersion"
+            or "runtime.configured.nodeVersion" or "runtime.configured.pythonVersion"
+            or "runtime.configured.phpVersion" or "runtime.configured.powerShellVersion";
     }
 
     private static byte[] ComputeContentHash(
