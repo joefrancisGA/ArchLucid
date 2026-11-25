@@ -25,7 +25,14 @@ public static class TrustedApiLinkBaseResolver
         string scheme = string.IsNullOrWhiteSpace(requestScheme) ? Uri.UriSchemeHttps : requestScheme.Trim();
         string host = string.IsNullOrWhiteSpace(requestHost) ? "localhost" : requestHost.Trim();
 
-        if (PrivateNetworkAddressGuard.IsForbiddenHostLiteral(host))
+        // Request.Host.Value is an authority, not just a hostname. Parse it before
+        // applying the shared literal guard so a port cannot hide a private address.
+        if ((!string.Equals(scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase)
+             && !string.Equals(scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+            || host.IndexOfAny(['/', '\\', '?', '#', '@']) >= 0
+            || !Uri.TryCreate($"{scheme}://{host}", UriKind.Absolute, out Uri? authority)
+            || EmbeddedCredentialUrlGuard.HasEmbeddedCredentials(authority)
+            || PrivateNetworkAddressGuard.IsForbiddenHostLiteral(authority.IdnHost.TrimEnd('.')))
             return "http://localhost:5000";
 
         return $"{scheme}://{host}".TrimEnd('/');

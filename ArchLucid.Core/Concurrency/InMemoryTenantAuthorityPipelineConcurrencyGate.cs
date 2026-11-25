@@ -67,9 +67,13 @@ public sealed class InMemoryTenantAuthorityPipelineConcurrencyGate(IOptionsMonit
         private readonly SemaphoreSlim _semaphore =
             semaphore ?? throw new ArgumentNullException(nameof(semaphore));
 
+        private int _disposed;
+
         public ValueTask DisposeAsync()
         {
-            _semaphore.Release();
+            // A lease owns exactly one slot, even if disposed repeatedly or concurrently.
+            if (Interlocked.Exchange(ref _disposed, 1) == 0)
+                _semaphore.Release();
 
             return ValueTask.CompletedTask;
         }

@@ -43,6 +43,35 @@ public sealed class InMemoryTenantAuthorityPipelineConcurrencyGateTests
         await act.Should().ThrowAsync<AuthorityTenantConcurrencyLimitExceededException>();
     }
 
+    [Fact]
+    public async Task Disposing_old_lease_twice_does_not_release_the_current_holder_slot()
+    {
+        Guid tenant = Guid.NewGuid();
+        InMemoryTenantAuthorityPipelineConcurrencyGate sut = new(CreateMonitor(maxConcurrent: 1).Object);
+        IAsyncDisposable first = await sut.AcquireExecutionSlotAsync(tenant, Guid.NewGuid(), true);
+        await first.DisposeAsync();
+
+        await using IAsyncDisposable second = await sut.AcquireExecutionSlotAsync(tenant, Guid.NewGuid(), true);
+        await first.DisposeAsync();
+        Func<Task> acquire = () => sut.AcquireExecutionSlotAsync(tenant, Guid.NewGuid(), true);
+
+        await acquire.Should().ThrowAsync<AuthorityTenantConcurrencyLimitExceededException>();
+    }
+
+    [Fact]
+    public async Task Disposing_lease_twice_without_a_new_holder_is_harmless()
+    {
+        Guid tenant = Guid.NewGuid();
+        InMemoryTenantAuthorityPipelineConcurrencyGate sut = new(CreateMonitor(maxConcurrent: 1).Object);
+        IAsyncDisposable first = await sut.AcquireExecutionSlotAsync(tenant, Guid.NewGuid(), true);
+        await first.DisposeAsync();
+        await first.DisposeAsync();
+
+        await using IAsyncDisposable next = await sut.AcquireExecutionSlotAsync(tenant, Guid.NewGuid(), true);
+        Func<Task> acquire = () => sut.AcquireExecutionSlotAsync(tenant, Guid.NewGuid(), true);
+        await acquire.Should().ThrowAsync<AuthorityTenantConcurrencyLimitExceededException>();
+    }
+
     private static Mock<IOptionsMonitor<AuthorityPipelineOptions>> CreateMonitor(int maxConcurrent)
     {
         Mock<IOptionsMonitor<AuthorityPipelineOptions>> mock = new();
