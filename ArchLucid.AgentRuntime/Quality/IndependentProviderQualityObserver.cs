@@ -25,12 +25,18 @@ public sealed class IndependentProviderQualityObserver(IProviderQualityMonitor m
         {
             string response = await complete(cancellationToken).ConfigureAwait(false);
             Attribution? attribution = Volatile.Read(ref capture.AttributedResponse);
-            if (attribution is null || !ReferenceEquals(response, attribution.Response))
+            ProviderQualityRecoveryResponse.Lease? lease = null;
+            if (attribution is null)
+                return (response, null);
+
+            // The recovery decorator returns its own stamped copy of the exact live transport response.
+            if (!ReferenceEquals(response, attribution.Response)
+                && (!ProviderQualityRecoveryResponse.TryTake(response, out lease) || lease?.Key != attribution.Key))
                 return (response, null);
 
             string sampleId = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(
                 "securenow:inventory-public-network-access:v1\n" + response)));
-            return (response, new Sample(monitor, auditService, attribution.Key, sampleId));
+            return (response, new Sample(monitor, auditService, attribution.Key, sampleId, lease));
         }
         finally
         {
@@ -56,17 +62,19 @@ public sealed class IndependentProviderQualityObserver(IProviderQualityMonitor m
     private sealed record Attribution(ProviderQualityKey Key, string Response);
 
     private sealed class Sample(
-        IProviderQualityMonitor monitor, IAuditService auditService, ProviderQualityKey key, string sampleId)
+        IProviderQualityMonitor monitor, IAuditService auditService, ProviderQualityKey key, string sampleId,
+        ProviderQualityRecoveryResponse.Lease? lease)
         : IIndependentProviderQualitySample
     {
         private int _recorded;
 
         public async Task RecordAsync(
-            ScopeContext scope, IndependentProviderClaimOutcome outcome, bool material, CancellationToken cancellationToken)
+            ScopeContext scope, Guid storedExplanationId, IndependentProviderClaimOutcome outcome, bool material,
+            CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(scope);
             cancellationToken.ThrowIfCancellationRequested();
-            if (Interlocked.Exchange(ref _recorded, 1) != 0)
+            if (storedExplanationId == Guid.Empty || Interlocked.Exchange(ref _recorded, 1) != 0)
                 return;
 
             ProviderQualityLabel label = outcome switch
@@ -75,11 +83,22 @@ public sealed class IndependentProviderQualityObserver(IProviderQualityMonitor m
                 IndependentProviderClaimOutcome.Contradicted => ProviderQualityLabel.Contradicted,
                 _ => ProviderQualityLabel.Unknown,
             };
+            string? traceId = null;
+            if (lease is not null)
+            {
+                traceId = $"securenow:{storedExplanationId:N}";
+                await monitor.BindRecoveryTraceAsync(key, lease.Id, traceId, cancellationToken).ConfigureAwait(false);
+
+                // A scoped contradiction can reject a probe, but supporting one property does not verify the full response.
+                if (label == ProviderQualityLabel.Supported)
+                    label = ProviderQualityLabel.Unknown;
+            }
+
             const string method = "securenow_scoped_inventory_public_network_access_v1";
             ProviderQualityRecordResult result = await monitor.RecordAsync(
                 new ProviderQualityAdjudication(
                     sampleId, key, label, material ? 4 : 1, label != ProviderQualityLabel.Unknown,
-                    method, TimeProvider.System.GetUtcNow()),
+                    method, TimeProvider.System.GetUtcNow(), traceId),
                 cancellationToken).ConfigureAwait(false);
 
             if (!result.StateChanged)
@@ -97,6 +116,9 @@ public sealed class IndependentProviderQualityObserver(IProviderQualityMonitor m
                         key.ModelId,
                         key.ModelVersion,
                         result.Transition,
+                        explanationId = storedExplanationId,
+                        claimOutcome = outcome.ToString(),
+                        recoveryAttempt = lease is not null,
                         result.Snapshot.KnownSampleCount,
                         result.Snapshot.UnknownSampleCount,
                         result.Snapshot.BadSampleCount,

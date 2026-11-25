@@ -13,7 +13,9 @@ public enum IndependentProviderClaimOutcome
 /// <summary>One observation of a response whose actual provider and version are available.</summary>
 public interface IIndependentProviderQualitySample
 {
-    Task RecordAsync(ScopeContext scope, IndependentProviderClaimOutcome outcome, bool material, CancellationToken cancellationToken);
+    Task RecordAsync(
+        ScopeContext scope, Guid storedExplanationId, IndependentProviderClaimOutcome outcome, bool material,
+        CancellationToken cancellationToken);
 }
 
 /// <summary>Captures trusted attribution within the normal completion path, without issuing an extra call.</summary>

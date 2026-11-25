@@ -5,6 +5,8 @@ using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Options;
+
 using Moq;
 
 namespace ArchLucid.AgentRuntime.Tests.Quality;
@@ -63,9 +65,69 @@ public sealed class IndependentProviderQualityObserverTests
         }, ct);
 
         result.Sample.Should().NotBeNull();
-        await result.Sample!.RecordAsync(scope, IndependentProviderClaimOutcome.Contradicted, true, ct);
-        await result.Sample.RecordAsync(scope, IndependentProviderClaimOutcome.Contradicted, true, ct);
+        await result.Sample!.RecordAsync(scope, Guid.NewGuid(), IndependentProviderClaimOutcome.Contradicted, true, ct);
+        await result.Sample.RecordAsync(scope, Guid.NewGuid(), IndependentProviderClaimOutcome.Contradicted, true, ct);
         monitor.Verify(x => x.RecordAsync(It.IsAny<ProviderQualityAdjudication>(), ct), Times.Once);
         audit.Verify(x => x.LogAsync(It.IsAny<AuditEvent>(), ct), Times.Once);
+    }
+
+    [Theory]
+    [InlineData(IndependentProviderClaimOutcome.Supported, 5, 1)]
+    [InlineData(IndependentProviderClaimOutcome.Contradicted, 6, 0)]
+    [InlineData(IndependentProviderClaimOutcome.Unknown, 5, 1)]
+    public async Task Exact_recovery_attempt_cannot_be_cleared_by_a_partial_inventory_check(
+        IndependentProviderClaimOutcome outcome, int expectedKnown, int expectedUnknown)
+    {
+        ProviderQualityKey key = ProviderQualityKey.Create("azure-openai", "primary", "v7");
+        ManualClock clock = new();
+        ProviderQualityMonitor monitor = new(Options.Create(new ProviderQualityOptions
+        {
+            MinimumIndependentKnownSamples = 5,
+            QuarantineSeconds = 30,
+        }), clock);
+        for (int i = 0; i < 5; i++)
+            monitor.Record(new ProviderQualityAdjudication(
+                $"bad-{i}", key, ProviderQualityLabel.Contradicted, 4, true, "deterministic", clock.GetUtcNow()));
+
+        clock.Advance(TimeSpan.FromSeconds(31));
+        ProviderQualityAdmission admission = monitor.Admit("azure-openai", "primary");
+        admission.RecoveryProbe.Should().BeTrue();
+        Guid explanationId = Guid.NewGuid();
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+        audit.Setup(x => x.LogAsync(It.Is<AuditEvent>(item => item.TenantId == scope.TenantId
+                && item.EventType == "AiProviderQualityQuarantined"
+                && item.DataJson.Contains("reopened", StringComparison.Ordinal)
+                && item.DataJson.Contains(explanationId.ToString(), StringComparison.Ordinal)),
+            It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        IndependentProviderQualityObserver observer = new(monitor, audit.Object);
+        CancellationToken ct = CancellationToken.None;
+
+        var observed = await observer.ObserveAsync(_ =>
+        {
+            string providerResponse = new("recovery response".AsSpan());
+            using ProviderQualityRecoveryResponse.Capture? capture = ProviderQualityRecoveryResponse.Begin(admission);
+            ProviderQualityRecoveryResponse.ConfirmTransport("primary", "v7", providerResponse);
+            IndependentProviderQualityObserver.ConfirmHostedTransport("primary", "v7", providerResponse);
+            return Task.FromResult(capture!.Attach(providerResponse));
+        }, ct);
+
+        observed.Sample.Should().NotBeNull();
+        await observed.Sample!.RecordAsync(scope, explanationId, outcome, true, ct);
+        ProviderQualitySnapshot state = monitor.GetSnapshot(key);
+        state.Quarantined.Should().BeTrue();
+        state.RecoveryProbeInFlight.Should().BeFalse();
+        state.KnownSampleCount.Should().Be(expectedKnown);
+        state.UnknownSampleCount.Should().Be(expectedUnknown);
+        audit.Verify(x => x.LogAsync(It.IsAny<AuditEvent>(), ct), Times.Once);
+    }
+
+    private sealed class ManualClock : TimeProvider
+    {
+        private DateTimeOffset _now = DateTimeOffset.UnixEpoch;
+
+        public override DateTimeOffset GetUtcNow() => _now;
+
+        internal void Advance(TimeSpan interval) => _now += interval;
     }
 }
