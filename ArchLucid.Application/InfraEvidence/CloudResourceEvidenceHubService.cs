@@ -25,7 +25,8 @@ public sealed class CloudResourceEvidenceHubService(
     IArchitectureDiagramReconciliationRepository reconciliationRepository,
     IAuthorityQueryService authorityQueryService,
     ICloudResourceAuditLineageResolver auditLineageResolver,
-    IManifestHashService manifestHashService) : ICloudResourceEvidenceHubService
+    IManifestHashService manifestHashService,
+    ICloudResourceHubRunReadAccess? runReadAccess = null) : ICloudResourceEvidenceHubService
 {
     private const int RecentChangeTake = 25;
 
@@ -80,6 +81,7 @@ public sealed class CloudResourceEvidenceHubService(
                 reconciliationRepository,
                 authorityQueryService,
                 manifestHashService,
+                (runId, ct) => runReadAccess?.CanReadRunAsync(scope, runId, ct) ?? Task.FromResult(false),
                 cancellationToken);
         }
 

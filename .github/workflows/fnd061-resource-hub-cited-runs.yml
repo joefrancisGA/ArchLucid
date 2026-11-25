@@ -1,0 +1,31 @@
+name: FND-061 Evidence Hub cited run authorization
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.Application/InfraEvidence/CloudResourceEvidenceHubService.cs'
+      - 'ArchLucid.Application/InfraEvidence/ICloudResourceHubRunReadAccess.cs'
+      - 'ArchLucid.Application/InfraEvidence/Mermaid/InfraEvidenceSnapshotSealedManifestHashGuard.cs'
+      - 'ArchLucid.Api/Support/*ShareAccessGate.cs'
+      - 'ArchLucid.Api/Support/AskEvidenceAccess.cs'
+      - 'ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs'
+      - 'ArchLucid.Api.Tests/InfraEvidence/RunScopedEvidenceHubHttpTests.cs'
+      - '.github/workflows/fnd061-resource-hub-cited-runs.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  cited-run-http:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - run: >-
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~RunScopedEvidenceHubHttpTests'
+          --logger 'console;verbosity=normal'

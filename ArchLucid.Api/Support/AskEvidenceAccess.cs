@@ -1,6 +1,7 @@
 using System.Security.Claims;
 
 using ArchLucid.Application.Common;
+using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Services.Ask;
 
@@ -8,9 +9,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace ArchLucid.Api.Support;
 
-/// <summary>Bridges Ask to the same HTTP principal and run-share decision used by API controllers.</summary>
+/// <summary>Bridges Ask and Evidence Hub citation reads to the same HTTP principal and run-share decision used by API controllers.</summary>
 public sealed class AskEvidenceAccess(
-    ArchitectureShareAccessGate gate, IHttpContextAccessor context, IActorContext actor) : IAskEvidenceAccess
+    ArchitectureShareAccessGate gate, IHttpContextAccessor context, IActorContext actor) : IAskEvidenceAccess, ICloudResourceHubRunReadAccess
 {
     public string? GetAuthorizedActorId()
     {
