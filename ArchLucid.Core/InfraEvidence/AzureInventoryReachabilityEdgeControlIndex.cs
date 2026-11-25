@@ -196,15 +196,15 @@ public sealed class AzureInventoryReachabilityEdgeControlIndex
                 return true;
             }
 
-            if (nextHopResource.ResourceType.Contains("azureFirewalls", StringComparison.OrdinalIgnoreCase))
+            if (nextHopResource.ResourceType.Contains("azureFirewalls", StringComparison.OrdinalIgnoreCase)
+                && AzureInventoryAzureFirewallNetworkRuleParser.HasNetworkRuleCollections(nextHopResource.Properties))
             {
-                if (AzureInventoryAzureFirewallNetworkRuleParser.HasNetworkRuleCollections(nextHopResource.Properties))
-                {
-                    return false;
-                }
-
-                return true;
+                // This route is modeled; other routes may still require evidence.
+                continue;
             }
+
+            // An inventoried appliance is not necessarily a modeled appliance.
+            return true;
         }
 
         return false;
