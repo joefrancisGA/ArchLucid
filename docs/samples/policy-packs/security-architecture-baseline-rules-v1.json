@@ -1159,6 +1159,16 @@
         }
       ],
       "priority": "P2"
+    },
+    {
+      "id": "sec-base-036",
+      "title": "Event Grid local authentication disabled",
+      "description": "Custom topics and domains should disable local authentication after migrating publishers to Microsoft Entra authentication. Missing or conflicting evidence is insufficient to verify this control.",
+      "severity": "High",
+      "remediationGuidance": "Verify publisher identity and Event Grid Data Sender permissions, validate delivery, then disable local authentication through an approved change.",
+      "evidenceHints": ["resources.json properties.disableLocalAuth"],
+      "frameworkMappings": [],
+      "priority": "P0"
     }
   ]
 }
