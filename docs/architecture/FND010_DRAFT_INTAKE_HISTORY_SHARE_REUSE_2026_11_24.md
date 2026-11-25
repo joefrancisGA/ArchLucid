@@ -22,3 +22,5 @@ Reconcile branch to current master using a verified nonoverlapping file diff; ta
 The shared `DraftRequestsController` preflight now supplies the existing run-share decision before manifest hydration. It selects the first readable committed run within the existing 50-summary window. Missing or unshared candidates are skipped, and an eligible run still goes through the same sealed-hash verification and conflict mapping. The callback uses the current principal, scope, exact run ID and cancellation token.
 
 Focused API coverage exercises questions, answer, skip and reason without readable committed candidates, fallback to an older readable candidate, and seal mismatch on that candidate.
+
+The wizard draft GET and PUT reuse the same authorization callback and hash verifier. Regression cases cover both actions when all candidates are inaccessible, when an older readable run has a valid seal, and when that readable seal is invalid. A failed seal prevents draft reads and writes.

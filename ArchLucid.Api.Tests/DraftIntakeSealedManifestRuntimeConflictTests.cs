@@ -84,7 +84,8 @@ public sealed class DraftIntakeSealedManifestRuntimeConflictTests
             service.Object,
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
             SealedManifestHashTestSupport.CreateManifestHashService(),
-            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
+            Mock.Of<IArchitectureShareAccessGate>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
