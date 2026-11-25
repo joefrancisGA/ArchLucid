@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
+import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   SECURENOW_READOUT_PACK_DRAFT_PATTERNS,
@@ -20,9 +22,22 @@ import { cn } from "@/lib/utils";
 export function SecureNowReadoutPackPageView(): React.JSX.Element {
   return (
     <OperatorPageContainer variant="full" data-testid="securenow-readout-pack-page">
-      <OperatorPageHeader title={SECURENOW_READOUT_PACK_HEADING} subtitle={SECURENOW_READOUT_PACK_LEAD} />
+      <OperatorPageHeader
+        title={SECURENOW_READOUT_PACK_HEADING}
+        subtitle={SECURENOW_READOUT_PACK_LEAD}
+        claimDiscipline={SECURENOW_READOUT_PACK_GUARDRAIL}
+        claimDisciplineTestId="securenow-readout-pack-claim-discipline"
+        titleTestId="securenow-readout-pack-heading"
+        subtitleTestId="securenow-readout-pack-lead"
+      />
 
-      <main className="mt-6 max-w-4xl space-y-6">
+      <main id="main-content" tabIndex={-1} className="mt-6 max-w-4xl space-y-6">
+        <SecureNowAdminPartialCaptureStrip
+          testId="securenow-readout-pack-partial-capture"
+          cloudConnectionsTestId="securenow-readout-pack-partial-capture-cloud-connections"
+          extractUploadTestId="securenow-readout-pack-partial-capture-extract-upload"
+        />
+
         <section
           aria-labelledby="securenow-readout-pack-filled-fixture-heading"
           className="space-y-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-800"
@@ -86,14 +101,24 @@ export function SecureNowReadoutPackPageView(): React.JSX.Element {
           </ul>
         </section>
 
-        <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_READOUT_PACK_GUARDRAIL}</p>
+        <SecureNowFixtureWorkspaceNotEntitlementLine />
+
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-readout-pack-sources">
+          <span className="font-medium text-al-text-primary">Sources:</span> Fixture readout anchors and draft pattern
+          links — synthetic until subscription capture; not certification, commerce authorization, or Azure change.
+        </p>
+
         <p className={OPERATOR_TYPOGRAPHY.body}>
           <Link className={OPERATOR_LINK.inline} href="/securenow-sample">
             Public sample beats
           </Link>
           {" · "}
+          <Link className={OPERATOR_LINK.inline} href="/administration">
+            Administration hub
+          </Link>
+          {" · "}
           <Link className={OPERATOR_LINK.inline} href="/">
-            Back to Home
+            Home
           </Link>
         </p>
       </main>
