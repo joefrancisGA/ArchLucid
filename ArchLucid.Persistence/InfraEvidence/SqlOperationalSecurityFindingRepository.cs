@@ -604,7 +604,8 @@ public sealed partial class SqlOperationalSecurityFindingRepository(ISqlConnecti
                                      WHERE TenantId = @TenantId
                                        AND WorkspaceId = @WorkspaceId
                                        AND ProjectId = @ProjectId
-                                       AND FindingId = @FindingId;
+                                       AND FindingId = @FindingId
+                                       AND LastObservedUtc <= @LastObservedUtc;
                                      """;
 
             int affected = await conn.ExecuteAsync(
@@ -644,7 +645,7 @@ public sealed partial class SqlOperationalSecurityFindingRepository(ISqlConnecti
                     cancellationToken: cancellationToken));
 
             if (affected != 1)
-                throw new InvalidOperationException("Scoped operational finding mutation did not update exactly one record.");
+                throw new InvalidOperationException("Scoped operational finding mutation did not update exactly one record (scope or observation changed).");
 
             const string metadataSql = """
                                        MERGE dbo.OperationalSecurityFindingMetadata AS target

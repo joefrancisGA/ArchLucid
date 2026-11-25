@@ -203,7 +203,10 @@ public sealed class FourRealityDriftEngineTests
             reconciliationRecords:
             [
                 new ArchitectureDiagramReconciliationPersistRecord { ResultJson = "null" },
-                new ArchitectureDiagramReconciliationPersistRecord { ResultJson = JsonSerializer.Serialize(validReconciliation) },
+                new ArchitectureDiagramReconciliationPersistRecord
+                {
+                    ResultJson = JsonSerializer.Serialize(validReconciliation, new JsonSerializerOptions(JsonSerializerDefaults.Web)),
+                },
             ]);
 
         PrivilegePathEngineResult result = await sut.RunAsync(

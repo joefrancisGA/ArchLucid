@@ -31,10 +31,11 @@ public sealed class SecureNowAnalysisPipelineTests(ITestOutputHelper output)
     private const string StorageArm = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa0";
 
     [Theory]
-    [InlineData(1000)]
-    [InlineData(10000)]
-    [InlineData(50000)]
-    public async Task Full_pipeline_reads_once_and_preserves_paths_scores_and_cuts(int resourceCount)
+    [InlineData(1000, 1)]
+    [InlineData(10000, 1)]
+    [InlineData(50000, 6)] // Above the per-snapshot retention budget: fall back to authoritative reads.
+    public async Task Full_pipeline_respects_cache_budget_and_preserves_paths_scores_and_cuts(
+        int resourceCount, int expectedReadsPerRun)
     {
         AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot(resourceCount);
         Harness baseline = new(snapshot);
@@ -51,7 +52,7 @@ public sealed class SecureNowAnalysisPipelineTests(ITestOutputHelper output)
         long reusedBytes = GC.GetTotalAllocatedBytes() - allocationStart;
 
         baseline.ReadCount.Should().Be(6);
-        reused.ReadCount.Should().Be(1);
+        reused.ReadCount.Should().Be(expectedReadsPerRun);
         reused.Paths.Should().NotBeEmpty();
         reused.PathSignatures().Should().Equal(baseline.PathSignatures());
         reused.RankSignatures().Should().Equal(baseline.RankSignatures());
@@ -62,7 +63,7 @@ public sealed class SecureNowAnalysisPipelineTests(ITestOutputHelper output)
 
         // A separate invocation must reload enriched evidence even in the same service scope.
         await reused.Coordinator.OnSnapshotMaterializedAsync(Scope, SnapshotId, null);
-        reused.ReadCount.Should().Be(2);
+        reused.ReadCount.Should().Be(2 * expectedReadsPerRun);
     }
 
     [Fact]
