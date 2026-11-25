@@ -3610,6 +3610,60 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.Contains(result.Warnings, warning => warning.Contains("defender-pricings.json collection failed; invalid JSON", StringComparison.Ordinal));
     }
 
+    [Theory]
+    [InlineData("cycle")]
+    [InlineData("http")]
+    [InlineData("malformed")]
+    [InlineData("invalid-next-link")]
+    public async Task CollectSubscriptionDefenderCompanionsAsync_reports_incomplete_assessment_listing(string failure)
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        string next = $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Security/assessments?api-version=2021-06-01&$skiptoken=page2";
+        int requests = 0;
+        using HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            if (!request.RequestUri!.AbsolutePath.EndsWith("/assessments", StringComparison.Ordinal))
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+
+            int count = Interlocked.Increment(ref requests);
+            if (count > 2)
+                throw new InvalidOperationException("Pagination did not terminate.");
+
+            if (count == 2 && failure == "http")
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+
+            string body = count == 1
+                ? $"""
+                    {"value":[{"name":"assessment-1","properties":{"displayName":"Test","status":{"code":"Healthy"}}}],"nextLink":"{{next}}"}
+                    """
+                : failure switch
+                {
+                    "cycle" => "{\"value\":[],\"nextLink\":\"" + next + "\"}",
+                    "malformed" => "{}",
+                    "invalid-next-link" => """{"value":[],"nextLink":42}""",
+                    _ => throw new InvalidOperationException("Unexpected scenario."),
+                };
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        HostedAzureDefenderCompanionCollectResult result = await client.CollectSubscriptionDefenderCompanionsAsync(
+            "token-abc", subscriptionId, CancellationToken.None);
+
+        Assert.Equal(2, requests);
+        Assert.Single(result.AssessmentCounts);
+        Assert.Contains("defender-assessments-truncated", result.Warnings);
+    }
+
     [Fact]
     public async Task CollectSubscriptionDefenderCompanionsAsync_warns_when_defender_assessments_pagination_hits_page_cap()
     {
