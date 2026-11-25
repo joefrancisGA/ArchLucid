@@ -156,4 +156,28 @@ public sealed class SpecialistReviewFindingDeserializationTests
         finding!.Conclusion.Should().Be(conclusion);
         finding.EvidenceCondition.Should().Be(evidenceCondition);
     }
+
+    [Fact]
+    public void Deserialize_null_finding_id_yields_empty_string_not_null()
+    {
+        const string json = """
+            {
+              "findingId": null,
+              "title": "t",
+              "rationale": "r",
+              "dimension": 0,
+              "conclusion": 0,
+              "evidenceCondition": 0,
+              "governanceDisposition": 0,
+              "confidence": 0.5,
+              "severity": "High"
+            }
+            """;
+
+        SpecialistReviewFinding? finding =
+            JsonSerializer.Deserialize<SpecialistReviewFinding>(json, ContractJson.CamelCaseCompact);
+
+        finding.Should().NotBeNull();
+        finding!.FindingId.Should().BeEmpty();
+    }
 }

@@ -4,41 +4,53 @@ namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class ArchitectureRecommendation
 {
+    private string recommendationId = string.Empty;
+
     public string RecommendationId
     {
-        get;
-        set;
-    } = null!;
+        get => recommendationId;
+        set => recommendationId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string problem = string.Empty;
 
     public string Problem
     {
-        get;
-        set;
-    } = null!;
+        get => problem;
+        set => problem = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string evidence = string.Empty;
 
     public string Evidence
     {
-        get;
-        set;
-    } = null!;
+        get => evidence;
+        set => evidence = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string affectedRequirementOrQualityAttribute = string.Empty;
 
     public string AffectedRequirementOrQualityAttribute
     {
-        get;
-        set;
-    } = null!;
+        get => affectedRequirementOrQualityAttribute;
+        set => affectedRequirementOrQualityAttribute = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string consequenceOfInaction = string.Empty;
 
     public string ConsequenceOfInaction
     {
-        get;
-        set;
-    } = null!;
+        get => consequenceOfInaction;
+        set => consequenceOfInaction = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string proposedChange = string.Empty;
 
     public string ProposedChange
     {
-        get;
-        set;
-    } = null!;
+        get => proposedChange;
+        set => proposedChange = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     private List<string> alternatives = [];
 
@@ -88,11 +100,13 @@ public class ArchitectureRecommendation
         set => dependencies = ContractCollectionDefaults.Coalesce(value);
     }
 
+    private string validationMethod = string.Empty;
+
     public string ValidationMethod
     {
-        get;
-        set;
-    } = null!;
+        get => validationMethod;
+        set => validationMethod = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public double Confidence
     {

@@ -4,11 +4,13 @@ namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class SpecialistReviewFinding
 {
+    private string findingId = string.Empty;
+
     public string FindingId
     {
-        get;
-        set;
-    } = null!;
+        get => findingId;
+        set => findingId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public QualityDimension Dimension
     {

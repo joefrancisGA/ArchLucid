@@ -55,21 +55,25 @@ public class PolicyPack
         set => description = ContractCollectionDefaults.CoalesceRequired(value);
     }
 
+    private string packType = PolicyPackType.BuiltIn;
+
     public string PackType
     {
-        get;
-        set;
-    } = PolicyPackType.BuiltIn;
+        get => packType;
+        set => packType = ContractCollectionDefaults.CoalesceStringDefault(value, PolicyPackType.BuiltIn);
+    }
 
     /// <summary>
     ///     Who may see or install this pack (<see cref="PolicyPackDistributionScope" />).
     ///     Orthogonal to <see cref="PackType" /> (authorship origin).
     /// </summary>
+    private string distributionScope = PolicyPackDistributionScope.Platform;
+
     public string DistributionScope
     {
-        get;
-        set;
-    } = PolicyPackDistributionScope.Platform;
+        get => distributionScope;
+        set => distributionScope = ContractCollectionDefaults.CoalesceStringDefault(value, PolicyPackDistributionScope.Platform);
+    }
 
     public string Status
     {

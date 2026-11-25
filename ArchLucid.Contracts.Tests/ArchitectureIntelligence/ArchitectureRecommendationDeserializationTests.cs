@@ -67,4 +67,33 @@ public sealed class ArchitectureRecommendationDeserializationTests
         recommendation.RiskReduction.Should().NotBeNull();
         recommendation.Provenance.Should().NotBeNull();
     }
+
+    [Fact]
+    public void Deserialize_null_narrative_strings_yield_empty_strings_not_null()
+    {
+        const string json = """
+            {
+              "recommendationId": null,
+              "problem": null,
+              "evidence": null,
+              "affectedRequirementOrQualityAttribute": null,
+              "consequenceOfInaction": null,
+              "proposedChange": null,
+              "validationMethod": null,
+              "confidence": 0.5
+            }
+            """;
+
+        ArchitectureRecommendation? recommendation =
+            JsonSerializer.Deserialize<ArchitectureRecommendation>(json, ContractJson.CamelCaseCompact);
+
+        recommendation.Should().NotBeNull();
+        recommendation!.RecommendationId.Should().BeEmpty();
+        recommendation.Problem.Should().BeEmpty();
+        recommendation.Evidence.Should().BeEmpty();
+        recommendation.AffectedRequirementOrQualityAttribute.Should().BeEmpty();
+        recommendation.ConsequenceOfInaction.Should().BeEmpty();
+        recommendation.ProposedChange.Should().BeEmpty();
+        recommendation.ValidationMethod.Should().BeEmpty();
+    }
 }

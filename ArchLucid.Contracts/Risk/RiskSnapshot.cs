@@ -11,17 +11,21 @@ public sealed class RiskSnapshot
         set;
     } = Guid.NewGuid().ToString("N");
 
+    private string reviewRunId = string.Empty;
+
     public string ReviewRunId
     {
-        get;
-        set;
-    } = null!;
+        get => reviewRunId;
+        set => reviewRunId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string tenantId = string.Empty;
 
     public string TenantId
     {
-        get;
-        set;
-    } = null!;
+        get => tenantId;
+        set => tenantId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public DateTimeOffset CreatedAt
     {

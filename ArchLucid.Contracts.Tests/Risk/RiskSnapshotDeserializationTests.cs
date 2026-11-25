@@ -32,4 +32,22 @@ public sealed class RiskSnapshotDeserializationTests
         snapshot.Concerns.Should().NotBeNull().And.BeEmpty();
         snapshot.ExecutionContext.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_review_run_id_and_tenant_id_yield_empty_strings_not_null()
+    {
+        const string json = """
+            {
+              "reviewRunId": null,
+              "tenantId": null,
+              "createdAt": "2026-10-14T00:00:00Z"
+            }
+            """;
+
+        RiskSnapshot? snapshot = JsonSerializer.Deserialize<RiskSnapshot>(json, ContractJson.Default);
+
+        snapshot.Should().NotBeNull();
+        snapshot!.ReviewRunId.Should().BeEmpty();
+        snapshot.TenantId.Should().BeEmpty();
+    }
 }
