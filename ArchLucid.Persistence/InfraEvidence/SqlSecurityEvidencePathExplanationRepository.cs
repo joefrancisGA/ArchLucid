@@ -93,6 +93,55 @@ public sealed class SqlSecurityEvidencePathExplanationRepository(ISqlConnectionF
         return rows.Select(row => Map(row, scope)).ToList();
     }
 
+    public async Task<IReadOnlyList<SecurityEvidencePathVerificationRecord>> ListLatestVerificationByPathsAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        IReadOnlyList<Guid> pathIds,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(pathIds);
+        cancellationToken.ThrowIfCancellationRequested();
+        if (snapshotId == Guid.Empty || pathIds.Count == 0)
+            return [];
+
+        // Select the latest explanation first. A newer legacy, invalid or absent observation is
+        // unknown, not permission to fall back to an older successful verification.
+        const string sql = """
+                           SELECT p.PathId, p.SnapshotId AS PathSnapshotId,
+                                  latest.ExplanationId, latest.CreatedUtc, latest.InventoryFalsificationJson
+                           FROM dbo.SecurityEvidencePaths AS p
+                           CROSS APPLY
+                           (
+                               SELECT TOP (1) e.ExplanationId, e.CreatedUtc, e.InventoryFalsificationJson
+                               FROM dbo.SecurityEvidencePathExplanations AS e
+                               WHERE e.TenantId = p.TenantId AND e.PathId = p.PathId
+                               ORDER BY e.CreatedUtc DESC, e.ExplanationId DESC
+                           ) AS latest
+                           WHERE p.TenantId = @TenantId AND p.WorkspaceId = @WorkspaceId
+                             AND p.ProjectId = @ProjectId AND p.SnapshotId = @SnapshotId
+                             AND p.PathId IN @PathIds AND latest.InventoryFalsificationJson IS NOT NULL;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        List<SecurityEvidencePathVerificationRecord> result = [];
+        const int PathIdBatchSize = 500;
+        foreach (Guid[] batch in pathIds.Distinct().Chunk(PathIdBatchSize))
+        {
+            IEnumerable<ExplanationRow> rows = await conn.QueryAsync<ExplanationRow>(
+                new CommandDefinition(sql,
+                    new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, SnapshotId = snapshotId, PathIds = batch },
+                    cancellationToken: cancellationToken));
+            foreach (ExplanationRow row in rows)
+            {
+                if (ReadInventoryFalsification(row, scope) is { } observation)
+                    result.Add(new(row.PathId, row.ExplanationId, DateTime.SpecifyKind(row.CreatedUtc, DateTimeKind.Utc), observation));
+            }
+        }
+
+        return result;
+    }
+
     private static SecurityEvidencePathExplanationRecord Map(ExplanationRow row, ScopeContext scope)
     {
         IReadOnlyList<string> hypotheses = [];

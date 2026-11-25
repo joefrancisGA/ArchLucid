@@ -21,4 +21,14 @@ public sealed class NoOpSecurityEvidencePathExplanationRepository : ISecurityEvi
 
         return Task.FromResult<IReadOnlyList<SecurityEvidencePathExplanationRecord>>([]);
     }
+
+    public Task<IReadOnlyList<SecurityEvidencePathVerificationRecord>> ListLatestVerificationByPathsAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        IReadOnlyList<Guid> pathIds,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult<IReadOnlyList<SecurityEvidencePathVerificationRecord>>([]);
+    }
 }

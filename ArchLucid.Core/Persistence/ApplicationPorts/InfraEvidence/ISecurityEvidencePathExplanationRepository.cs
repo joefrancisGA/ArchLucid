@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.InfraEvidence;
@@ -10,7 +11,17 @@ public interface ISecurityEvidencePathExplanationRepository
         ScopeContext scope,
         Guid pathId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>Reads one latest observation per requested path, in the specified project and snapshot.</summary>
+    Task<IReadOnlyList<SecurityEvidencePathVerificationRecord>> ListLatestVerificationByPathsAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        IReadOnlyList<Guid> pathIds,
+        CancellationToken cancellationToken = default);
 }
+
+public sealed record SecurityEvidencePathVerificationRecord(
+    Guid PathId, Guid ExplanationId, DateTime RecordedUtc, InventoryFalsificationProbe Verification);
 
 public interface ISecurityEvidencePathExplanationService
 {

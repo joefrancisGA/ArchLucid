@@ -9,7 +9,8 @@ public sealed class SecurityEvidencePathReportQueryService(
     IAzureInventorySnapshotRepository snapshotRepository,
     ISecurityEvidencePathRepository pathRepository,
     ISecurityEvidencePathRankRepository rankRepository,
-    ISecurityEvidencePathSearchCoverageRepository searchCoverageRepository) : ISecurityEvidencePathReportQueryService
+    ISecurityEvidencePathSearchCoverageRepository searchCoverageRepository,
+    ISecurityEvidencePathExplanationRepository explanationRepository) : ISecurityEvidencePathReportQueryService
 {
     public async Task<SecurityEvidencePathReportResponse?> TryGetReportAsync(
         ScopeContext scope,
@@ -26,7 +27,8 @@ public sealed class SecurityEvidencePathReportQueryService(
         AzureInventorySnapshotRecord? snapshot =
             await snapshotRepository.TryGetBySnapshotIdAsync(scope, snapshotId, cancellationToken);
 
-        if (snapshot is null)
+        if (snapshot is null || snapshot.SnapshotId != snapshotId || snapshot.TenantId != scope.TenantId ||
+            snapshot.WorkspaceId != scope.WorkspaceId || snapshot.ProjectId != scope.ProjectId)
         {
             return null;
         }
@@ -45,11 +47,35 @@ public sealed class SecurityEvidencePathReportQueryService(
         IReadOnlyList<SecurityEvidencePathSearchCoverageRecord> searchCoverage =
             await searchCoverageRepository.ListBySnapshotAsync(scope, snapshotId, cancellationToken);
 
-        return SecurityEvidencePathReportAssembler.Assemble(
+        SecurityEvidencePathReportResponse report = SecurityEvidencePathReportAssembler.Assemble(
             snapshotId,
             paths,
             hopEdgeTypes,
             ranks,
             searchCoverage);
+
+        Guid[] pathIds = report.VulnerableAttackPaths.Select(path => path.PathId).Distinct().ToArray();
+        if (pathIds.Length == 0)
+            return report;
+
+        IReadOnlyList<SecurityEvidencePathVerificationRecord> observations =
+            await explanationRepository.ListLatestVerificationByPathsAsync(scope, snapshotId, pathIds, cancellationToken);
+        HashSet<Guid> allowedPathIds = [.. pathIds];
+        return new SecurityEvidencePathReportResponse
+        {
+            SnapshotId = report.SnapshotId,
+            VulnerableAttackPaths = report.VulnerableAttackPaths,
+            UnevaluatedGroups = report.UnevaluatedGroups,
+            InventoryVerifications = observations
+                .Where(row => allowedPathIds.Contains(row.PathId) && BelongsToSnapshot(row, scope, snapshotId))
+                .OrderBy(row => row.PathId)
+                .Select(row => new SecurityEvidencePathReportVerificationResponse(
+                    row.PathId, row.ExplanationId, row.RecordedUtc, row.Verification)).ToList(),
+        };
     }
+
+    private static bool BelongsToSnapshot(SecurityEvidencePathVerificationRecord row, ScopeContext scope, Guid snapshotId) =>
+        row.Verification.Verification is not { } observation ||
+        (observation.SnapshotId == snapshotId && observation.Evidence is { } evidence &&
+         evidence.TenantId == scope.TenantId && evidence.WorkspaceId == scope.WorkspaceId && evidence.ProjectId == scope.ProjectId);
 }

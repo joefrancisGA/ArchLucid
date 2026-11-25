@@ -35954,6 +35954,12 @@
       },
       "SecurityEvidencePathReportResponse": {
         "properties": {
+          "inventoryVerifications": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityEvidencePathReportVerificationResponse"
+            },
+            "type": "array"
+          },
           "snapshotId": {
             "format": "uuid",
             "type": "string"
@@ -36016,6 +36022,32 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "SecurityEvidencePathReportVerificationResponse": {
+        "properties": {
+          "explanationId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "pathId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "recordedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "verification": {
+            "$ref": "#/components/schemas/InventoryFalsificationProbe"
+          }
+        },
+        "required": [
+          "explanationId",
+          "pathId",
+          "recordedUtc",
+          "verification"
+        ],
         "type": "object"
       },
       "SecurityEvidencePathRoutingResponse": {
@@ -187696,6 +187728,14 @@
             "schema": {
               "format": "uuid",
               "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "download",
+            "schema": {
+              "default": false,
+              "type": "boolean"
             }
           },
           {
