@@ -66,7 +66,10 @@ describe("attack-path-report-path-chip-label", () => {
     expect(attackPathReportPathChipOverflowLine(["   ", "\t"])).toBeNull();
   });
 
-  it("returns null overflow line for an empty path id list", () => {
+
+  it("returns null overflow line for a single short path id in the list", () => {
+    expect(attackPathReportPathChipOverflowLine(["short-path"])).toBeNull();
+  });  it("returns null overflow line for an empty path id list", () => {
     expect(attackPathReportPathChipOverflowLine([])).toBeNull();
   });
 });

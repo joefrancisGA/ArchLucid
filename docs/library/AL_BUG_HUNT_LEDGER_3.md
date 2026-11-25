@@ -378,6 +378,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-11-25 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with figure-space separators inside words (e.g. `o` + U+2007 + `n`) stayed closed because only Cf characters were stripped; strip Unicode Zs alongside Cf before script-digit and word matching. **valid-no-repro** pass-66 monitors (combining marks inside true, literal zero drop on close, empty metrics param, single-id overflow null, href preserves toSnapshot). Pass-67 reseed below. Scoped vitest **338/338**. Private beta: Invited operators who deep-link with odd Unicode space inside `remediationFactoryMetricsOpen` yes/on tokens open the executive metrics summary instead of landing with the panel closed.
 2026-11-25 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — metrics tokens with combining marks after ASCII one (e.g. `1` + U+0301) stayed closed because only Cf stripping ran before digit/word matching; strip marks via NFKD after preserving script-digit and enclosed-one probes on the format-stripped surface. **valid-no-repro** pass-65 monitors (ZWSP-only closed, duplicate toSnapshot first-wins, critical-exposure hint absent, path chip trim-only, href preserves finding). Pass-66 reseed below. Scoped vitest **333/333**. Private beta: Invited operators who deep-link with combining-mark variants on `remediationFactoryMetricsOpen` open the executive metrics summary instead of landing with the panel closed.
 2026-11-25 thorough hunt (hit): no rotation (shouldRotate: false; hint override; low-yield streak 2/3). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — metrics disclosure tokens with trailing zero-width format characters (e.g. `1` + U+200B) stayed closed after `trim()` because format-category scalars were not stripped;  strip `\p{Cf}` before matching. **valid-no-repro** pass-64 writer monitors (stale zero, padded one, true base, selection/snapshot href). Pass-65 reseed below. Scoped vitest **327/327**. Private beta: Invited operators who deep-link with invisible format characters on `remediationFactoryMetricsOpen` (or other remediation-factory disclosure params using the shared parser) open the executive metrics summary instead of landing with the panel closed.
 2026-11-25 thorough hunt (dry): no rotation (shouldRotate: false; hint override; low-yield streak 1/3). Attempted failing repro on five pass-63 `(candidate)` monitors after decimal-run saturation — **valid-no-repro** Pau Cin Hau decimal two, Myanmar Shan decimal-one drop on close, lone fullwidth `Ｏ` closed, Bhaiksuki decimal-one writer canonical `1`; **invalid** automation `valueFootnote` at measuredZero (tile never exposes that field). Pass-64 reseed below. Scoped vitest **323/323**. Private beta: n/a.
@@ -591,11 +592,11 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves finding param on pathname-only href — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `remediationFactoryHrefFromSearch preserves selectedFinding on pathname-only href`.
 
 - [x] (superseded) pass-65 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (hit):** pass-66 reseed.
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — opens token with combining marks inside true — locus: disclosure parse; input: t + mark + rue; monitor; pass-66 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops literal 0 token — locus: delete on false; monitor; pass-66 reseed.
-- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — empty metrics param — locus: default closed; monitor; pass-66 reseed.
-- [ ] (candidate) `attackPathReportPathChipOverflowLine` — single id list — locus: overflow helper; monitor; pass-66 reseed.
-- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves toSnapshot param — locus: disclosure writer; monitor; pass-66 reseed.
+- [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — opens token with combining marks inside true — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `treats true metrics disclosure token with combining mark inside the word as open on read`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics close drops literal 0 token — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `drops literal zero metrics token from base search when writing closed state`.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — empty metrics param — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `treats empty metrics disclosure param as closed on read`.
+- [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — single id list — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `returns null overflow line for a single short path id in the list`.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves toSnapshot param — **cheap-disproof 2026-11-25 thorough hunt (hit):** existing regression `remediationFactoryHrefFromSearch preserves a toSnapshot query param`.
 - [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects unicode decimal two token — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** existing regression.
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics close drops unicode decimal one from base — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
 - [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — treats fullwidth FALSE metrics disclosure token as closed — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
@@ -1060,8 +1061,8 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 86
-- **bugs-found:** 74
+- **hunts:** 87
+- **bugs-found:** 75
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
