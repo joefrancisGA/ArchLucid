@@ -3196,6 +3196,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `onSubmit` — `fetch` rejection after `invalidateInFlightSubmit` may leave `submitting` true on reopen — **cheap-disproof 2026-11-25 thorough hunt #32:** dismiss clears `submitting`; stale generation ignored in catch.
 - [x] (valid-no-repro) `cloudPlatformFocus` — optional NBSP-only focus may POST non-null trimmed string — **cheap-disproof 2026-11-25 thorough hunt #32:** ECMAScript `trim()` includes NBSP; same coalesce as tabs test.
 - [x] (invalid) `duplicate_recent` — HTTP `409` after rate-limit-shaped body may show duplicate copy when work email differs only by peripheral spaces — **cheap-disproof 2026-11-25 thorough hunt #32:** duplicate UI is status-driven; trimming happens in POST body build.
+- [x] (superseded) pass-2 (candidate) queue — **superseded 2026-11-25 thorough hunt #32 (dry):** closed at zone header; see pass-3 reseed.
+
+- [ ] (candidate) onSubmit — HTTP 429 rate-limit body may need distinct operator copy — locus: status branch; input: 429 JSON from API; wrong outcome: generic vs rate-limit message; pass-3 reseed.
+- [ ] (candidate) containsUnsupportedAccessRequestText — ZWJ in name may pass Unicode property test — locus: \p{Cf} regex; input: ZWJ-only embellishment; pass-3 reseed.
+- [ ] (candidate) dismissAccessRequestForm — error cleared on cancel but not on request-access toggle — locus: toggle vs cancel; input: duplicate error then toggle close; pass-3 reseed.
+- [ ] (candidate) onSubmit — success path may retain honeypot value in state after 204 — locus: post-success form state; input: filled honeypot then success; pass-3 reseed.
+- [ ] (candidate) 	echnicalDetail — RTL override characters may render without normalization — locus: detail paragraph; input: RLO prefix in prop; pass-3 reseed.
+
 
 
 2026-11-25 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; `ui-claim-discipline-policy` parked at 3/3 dry). Reread `AuthCallbackAccessPanel` submit generation guards, honeypot posting contract, and unsupported-text rejection; no hunt-ready row promoted — **valid-no-repro** whitespace-only required fields round-trip API `validation_failed` with generic client error (`posts whitespace-only name when native validation is bypassed`; `shows generic submit error when the API returns validation_failed`); **valid-no-repro** honeypot peripheral whitespace (`posts honeypot websiteUrl without client-side trim`; `posts empty honeypot websiteUrl string for server trimOptional normalization`); **valid-no-repro** stale `204` after dismiss (`dismisses the form via request access toggle while submit is in flight`); **valid-no-repro** non-JSON failure bodies (`shows generic submit error when the API returns an HTML error body`). Pass-1 reseed below. Scoped `AuthCallbackAccessPanel` **101/101**. Private beta: n/a.
