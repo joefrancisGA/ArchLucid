@@ -21,6 +21,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 public sealed partial class RunCoverageController
 {
     [HttpGet("{runId:guid}/coverage/acknowledgement")]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     [ProducesResponseType(typeof(RunAcknowledgedCoverageDocument), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
@@ -29,6 +30,12 @@ public sealed partial class RunCoverageController
         try
         {
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+            IActionResult? accessResult =
+                await _architectureShareAccessGate.EnsureRunReadAllowedAsync(this, User, scope, runId, cancellationToken);
+
+            if (accessResult is not null)
+                return accessResult;
 
             IActionResult? sealedGuardResult =
                 await EnsureSealedManifestReadAllowedAsync(scope, runId, cancellationToken);
@@ -98,6 +105,12 @@ public sealed partial class RunCoverageController
         try
         {
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+            IActionResult? accessResult =
+                await _architectureShareAccessGate.EnsureRunDecideAllowedAsync(this, User, scope, runId, cancellationToken);
+
+            if (accessResult is not null)
+                return accessResult;
 
             IActionResult? sealedGuardResult =
                 await EnsureSealedManifestReadAllowedAsync(scope, runId, cancellationToken);
@@ -171,6 +184,12 @@ public sealed partial class RunCoverageController
         try
         {
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+            IActionResult? accessResult =
+                await _architectureShareAccessGate.EnsureRunDecideAllowedAsync(this, User, scope, runId, cancellationToken);
+
+            if (accessResult is not null)
+                return accessResult;
 
             IActionResult? sealedGuardResult =
                 await EnsureSealedManifestReadAllowedAsync(scope, runId, cancellationToken);

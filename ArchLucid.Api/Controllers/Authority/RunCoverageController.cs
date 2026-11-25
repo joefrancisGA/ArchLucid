@@ -1,6 +1,7 @@
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models.Coverage;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Governance.Coverage;
 using ArchLucid.Application.Runs.Finalization;
@@ -36,7 +37,8 @@ public sealed partial class RunCoverageController(
     IPolicyPackRepository policyPackRepository,
     IScopeContextProvider scopeContextProvider,
     IAuthorityQueryService authorityQueryService,
-    IManifestHashService manifestHashService) : ControllerBase
+    IManifestHashService manifestHashService,
+    IArchitectureShareAccessGate architectureShareAccessGate) : ControllerBase
 {
     private readonly IScopeContextProvider scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -44,10 +46,14 @@ public sealed partial class RunCoverageController(
     private readonly IRunCoverageAcknowledgementService acknowledgementService =
         acknowledgementService ?? throw new ArgumentNullException(nameof(acknowledgementService));
 
+    private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
+        architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
+
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     [HttpGet("{runId:guid}/coverage")]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     [ProducesResponseType(typeof(RunCoverageResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
@@ -56,6 +62,12 @@ public sealed partial class RunCoverageController(
         try
         {
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+            IActionResult? accessResult =
+                await _architectureShareAccessGate.EnsureRunReadAllowedAsync(this, User, scope, runId, cancellationToken);
+
+            if (accessResult is not null)
+                return accessResult;
 
             IActionResult? sealedGuardResult =
                 await EnsureSealedManifestReadAllowedAsync(scope, runId, cancellationToken);
