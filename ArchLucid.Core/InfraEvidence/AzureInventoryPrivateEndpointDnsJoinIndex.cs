@@ -42,7 +42,11 @@ public sealed class AzureInventoryPrivateEndpointDnsJoinIndex
     {
         string pairKey = BuildPairKey(computeArmId, targetArmId);
 
-        return _peReachablePairs.Contains(pairKey);
+        return _peReachablePairs.Contains(pairKey)
+            && _computeToVnetArmId.TryGetValue(ArmResourceIdNormalizer.Normalize(computeArmId), out string? vnet)
+            && _peToTargetArmId.Any(pair =>
+                string.Equals(pair.Value, ArmResourceIdNormalizer.Normalize(targetArmId), StringComparison.OrdinalIgnoreCase)
+                && TryHasDnsJoin(pair.Key, vnet));
     }
 
     public bool HasPrivateEndpointTarget(string targetArmId) =>
@@ -192,8 +196,9 @@ public sealed class AzureInventoryPrivateEndpointDnsJoinIndex
         return map;
     }
 
-    private static Dictionary<string, HashSet<string>> BuildZoneToVnetMap(
-        IEnumerable<AzureInventoryRelationshipArmTriple> relationships)
+    private static Dictionary<string, HashSet<string>> BuildMultiMap(
+        IEnumerable<AzureInventoryRelationshipArmTriple> relationships,
+        string inferenceSource)
     {
         Dictionary<string, HashSet<string>> map = new(StringComparer.OrdinalIgnoreCase);
 
