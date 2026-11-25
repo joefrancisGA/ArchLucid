@@ -168,6 +168,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         {
             if (!visitedLinks.Add(nextLink))
             {
+                partialCollection = true;
                 break;
             }
 
@@ -175,10 +176,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
 
             if (ShouldBreakForPageCap(requestCount))
             {
-                if (childResources.Count > 0)
-                {
-                    partialCollection = true;
-                }
+                partialCollection = true;
 
                 break;
             }
@@ -203,43 +201,58 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
                         (int)response.StatusCode);
                 }
 
-                if (childResources.Count > 0)
-                {
-                    partialCollection = true;
-                }
+                partialCollection = true;
 
                 break;
             }
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument? document =
-                await TryParseArmPaginationPageAsync(stream, childResources.Count, cancellationToken).ConfigureAwait(false);
+            // A successful HTTP status does not establish a complete collection if the body is invalid.
+            using JsonDocument? document = await TryParseChildCollectionPageAsync(stream, cancellationToken)
+                .ConfigureAwait(false);
 
             if (document is null)
             {
-                if (childResources.Count > 0)
-                {
-                    partialCollection = true;
-                }
+                partialCollection = true;
 
                 break;
             }
 
-            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
-                && valueElement.ValueKind == JsonValueKind.Array)
+            if (document.RootElement.ValueKind != JsonValueKind.Object
+                || !document.RootElement.TryGetProperty("value", out JsonElement valueElement)
+                || valueElement.ValueKind != JsonValueKind.Array)
             {
-                foreach (JsonElement item in valueElement.EnumerateArray())
+                partialCollection = true;
+                break;
+            }
+
+            foreach (JsonElement item in valueElement.EnumerateArray())
+            {
+                if (item.ValueKind != JsonValueKind.Object)
                 {
-                    childResources.Add(item.Clone());
+                    partialCollection = true;
+                    continue;
                 }
+
+                childResources.Add(item.Clone());
             }
 
             nextLink = null;
 
-            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
-                && nextLinkElement.ValueKind == JsonValueKind.String)
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement))
             {
+                if (nextLinkElement.ValueKind == JsonValueKind.Null)
+                {
+                    break;
+                }
+
+                if (nextLinkElement.ValueKind != JsonValueKind.String)
+                {
+                    partialCollection = true;
+                    break;
+                }
+
                 string? candidateNextLink = nextLinkElement.GetString();
 
                 if (!string.IsNullOrWhiteSpace(candidateNextLink))
@@ -253,5 +266,19 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         }
 
         return (childResources, partialCollection);
+    }
+
+    private static async Task<JsonDocument?> TryParseChildCollectionPageAsync(
+        Stream stream,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 }
