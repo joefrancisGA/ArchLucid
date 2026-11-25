@@ -12,6 +12,10 @@ describe("formatRemediationFactoryPercentDisplay", () => {
     expect(formatRemediationFactoryPercentDisplay(1.0)).toBe("100%");
   });
 
+  it("renders zero percent as 0%", () => {
+    expect(formatRemediationFactoryPercentDisplay(0)).toBe("0%");
+  });
+
   it("keeps 0–100 values as whole percents", () => {
     expect(formatRemediationFactoryPercentDisplay(87)).toBe("87%");
   });

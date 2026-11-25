@@ -162,4 +162,43 @@ describe("remediation-factory-url-state", () => {
       "/governance/remediation-factory",
     );
   });
+  it("treats mixed-case false metrics disclosure token as closed on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=FaLsE`,
+      ).metricsSummaryOpen,
+    ).toBe(false);
+  });
+
+  it("drops tab-only finding id instead of writing blank param", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: "		",
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: false,
+      },
+      `${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=stale`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_SELECTED_FINDING_PARAM)).toBeNull();
+  });
+
+  it("preserves foreign params when clearing snapshot selection", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: false,
+      },
+      `${REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM}=cccccccc-cccc-cccc-cccc-cccccccccccc&foreign=keep`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM)).toBeNull();
+    expect(params.get(REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM)).toBeNull();
+    expect(params.get("foreign")).toBe("keep");
+  });
 });
