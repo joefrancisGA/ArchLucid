@@ -8,6 +8,8 @@ on:
       - 'ArchLucid.Persistence/Scripts/ArchLucid*.sql'
       - '**/SqlSecurityEvidencePathExplanationRepository.cs'
       - '**/SecurityEvidencePathExplanationRecord.cs'
+      - '**/SecurityEvidencePathReport*Service*.cs'
+      - '**/SecurityEvidencePathReportResponse.cs'
       - '**/SqlSecurityEvidencePathRepositorySqlIntegrationTests.cs'
       - 'scripts/ci/tests/test_security_evidence_path_explanations_greenfield_parity.py'
       - '.github/workflows/fnd071-inventory-provenance.yml'
@@ -71,3 +73,16 @@ jobs:
       - name: Remove disposable SQL Server
         if: always()
         run: docker rm -f inventory-provenance-sql || true
+
+  focused-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - run: >-
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~SecurityEvidencePathReportQueryServiceTests|FullyQualifiedName~SecurityEvidencePathReportAssemblerTests|FullyQualifiedName~SecurityEvidencePathExplanationServiceTests'
+          --logger 'console;verbosity=normal'

@@ -15,8 +15,13 @@ reachability nor establishes current configuration.
   Scoped reads bind the record to the path's tenant, workspace, project and snapshot.
   Legacy or malformed observations stay unknown. Provider quality events retain the
   existing labels and explanation ID link. Rejection text remains bounded.
+- The SecureNow attack path report carries the latest recorded observation for each
+  reported vulnerable path, with its source explanation and recorded time. Missing,
+  legacy or unreadable latest records are unknown; the report does not search history
+  for an older supported claim. Neither the observation nor its omission changes the
+  path verdict. The SQL retrieval is bounded in batches of path IDs.
 - No historical rows are rewritten and no external probes are introduced.
 
 FND-071 remains partial. SecureNow's structured provenance is persisted but not yet
-carried into external packages, exports or durable audit payloads. Other verification
+carried into external packages or exports. The report is the first structured read consumer. Durable audit propagation is tracked separately. Other verification
 modes and claim families remain outside this slice.
