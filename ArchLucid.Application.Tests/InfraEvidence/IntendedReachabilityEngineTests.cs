@@ -683,9 +683,17 @@ public sealed class IntendedReachabilityEngineTests
                 {
                     ResourceRowId = sqlRowId,
                     PropertyKey = "privateEndpointConnections",
-                    PropertyValue = $$"""
-                        [{"id":"/subscriptions/sub/.../privateEndpointConnections/peconn1","properties":{"privateLinkServiceConnectionState":{"status":"{{approvalStatus}}"}}}]
-                        """,
+                    PropertyValue = System.Text.Json.JsonSerializer.Serialize(new[]
+                    {
+                        new
+                        {
+                            id = "/subscriptions/sub/.../privateEndpointConnections/peconn1",
+                            properties = new
+                            {
+                                privateLinkServiceConnectionState = new { status = approvalStatus },
+                            },
+                        },
+                    }),
                 },
                 new AzureInventoryResourcePropertyReadModel
                 {
