@@ -120,6 +120,25 @@ public sealed class TenantTrialLifecycleCoreTests
     }
 
     [Fact]
+    public void IsTrialLifecycleAutomationCandidate_rejects_active_trial_without_expiry()
+    {
+        TenantRecord tenant = CreateTenant(trialStatus: TrialLifecycleStatus.Active);
+        TenantTrialLifecycleCore.IsTrialLifecycleAutomationCandidate(tenant).Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void IsTrialLifecycleAutomationCandidate_rejects_expiry_without_status(string? status)
+    {
+        TenantRecord tenant = CreateTenant(
+            trialStatus: status,
+            trialExpiresUtc: DateTimeOffset.Parse("2026-12-01T00:00:00Z"));
+        TenantTrialLifecycleCore.IsTrialLifecycleAutomationCandidate(tenant).Should().BeFalse();
+    }
+
+    [Fact]
     public void IsTrialLifecycleAutomationCandidate_excludes_offboarded_tenants()
     {
         TenantRecord offboarded = new()

@@ -17,6 +17,16 @@ public sealed class SqlTenantSettingsRepositoryValidationTests
     private const int MigrationSettingKeyMaxLength = 128;
 
     [Fact]
+    public void Write_guard_limit_matches_migration_173_literal()
+    {
+        TenantSettingsSchemaLimits.SettingValueMaxLength.Should().Be(512);
+        Action exact = () => TenantSettingsWriteGuard.EnsureSettingValueLength(new string('x', 512));
+        Action over = () => TenantSettingsWriteGuard.EnsureSettingValueLength(new string('x', 513));
+        exact.Should().NotThrow();
+        over.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
     public void Tenant_settings_merge_holds_key_range_lock_for_concurrent_first_writes()
     {
         // The composite PK (TenantId, SettingKey) does not itself serialize the
@@ -117,19 +127,6 @@ public sealed class SqlTenantSettingsRepositoryValidationTests
         Action act = () => TenantSettingsWriteGuard.EnsureSettingValueLength("   ");
 
         act.Should().Throw<ArgumentException>();
-    }
-
-    [Fact]
-    public void TryGetCoreAsync_maps_whitespace_only_setting_value_scalar_to_null()
-    {
-        // Mirrors SqlTenantSettingsRepository.TryGetCoreAsync post-query normalization for legacy SQL rows.
-        static string? NormalizeReadScalar(string? value) =>
-            string.IsNullOrWhiteSpace(value) ? null : value.Trim();
-
-        NormalizeReadScalar(null).Should().BeNull();
-        NormalizeReadScalar(string.Empty).Should().BeNull();
-        NormalizeReadScalar("   ").Should().BeNull();
-        NormalizeReadScalar("  enabled  ").Should().Be("enabled");
     }
 
     [Fact]

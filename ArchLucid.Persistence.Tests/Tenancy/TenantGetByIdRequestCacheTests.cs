@@ -115,6 +115,29 @@ public sealed class TenantGetByIdRequestCacheTests
     }
 
     [Fact]
+    public async Task Faulted_read_is_not_cached_and_waiting_caller_can_retry()
+    {
+        Guid tenantId = Guid.NewGuid();
+        TenantRecord recovered = new() { Id = tenantId, Name = "Recovered", Slug = "recovered" };
+        TaskCompletionSource<TenantRecord?> pending = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<ITenantRepository> inner = new(MockBehavior.Strict);
+        inner.SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .Returns(pending.Task)
+            .ReturnsAsync(recovered);
+        TenantGetByIdRequestCache cache = new(inner.Object);
+
+        Task<TenantRecord?> leader = cache.GetByIdAsync(tenantId, CancellationToken.None);
+        Task<TenantRecord?> follower = cache.GetByIdAsync(tenantId, CancellationToken.None);
+        pending.SetException(new InvalidOperationException("temporary failure"));
+
+        Func<Task> observeLeader = () => leader;
+        await observeLeader.Should().ThrowAsync<InvalidOperationException>().WithMessage("temporary failure");
+        (await follower.WaitAsync(TimeSpan.FromSeconds(10))).Should().BeSameAs(recovered);
+        (await cache.GetByIdAsync(tenantId, CancellationToken.None)).Should().BeSameAs(recovered);
+        inner.Verify(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
+    [Fact]
     public async Task Independent_tenant_ids_can_load_concurrently()
     {
         Guid tenantA = Guid.NewGuid();

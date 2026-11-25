@@ -22,6 +22,7 @@ public sealed class CachingTenantPostCommitEvictionTests
         Guid tenantId = Guid.NewGuid();
         DateTimeOffset now = new(2026, 11, 22, 15, 0, 0, TimeSpan.Zero);
         using CancellationTokenSource request = new();
+        TaskCompletionSource<bool> committed = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
         Mock<ITenantRepository> inner = new(MockBehavior.Strict);
         Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
@@ -36,38 +37,38 @@ public sealed class CachingTenantPostCommitEvictionTests
         {
             case "enterprise-increment":
                 inner.Setup(x => x.TryIncrementEnterpriseScimSeatAsync(tenantId, request.Token))
-                    .Callback(request.Cancel).ReturnsAsync(true);
+                    .Returns(committed.Task);
                 call = async () => (await repository.TryIncrementEnterpriseScimSeatAsync(
                     tenantId, request.Token)).Should().BeTrue();
                 break;
             case "enterprise-decrement":
                 inner.Setup(x => x.DecrementEnterpriseScimSeatAsync(tenantId, request.Token))
-                    .Callback(request.Cancel).Returns(Task.CompletedTask);
+                    .Returns(committed.Task);
                 call = () => repository.DecrementEnterpriseScimSeatAsync(tenantId, request.Token);
                 break;
             case "erasure-approve":
                 inner.Setup(x => x.TryApproveTenantErasureAsync(
                         tenantId, now, "approver", request.Token))
-                    .Callback(request.Cancel).ReturnsAsync(true);
+                    .Returns(committed.Task);
                 call = async () => (await repository.TryApproveTenantErasureAsync(
                     tenantId, now, "approver", request.Token)).Should().BeTrue();
                 break;
             case "erasure-revert":
                 inner.Setup(x => x.TryRevertTenantErasureApprovalAsync(tenantId, request.Token))
-                    .Callback(request.Cancel).ReturnsAsync(true);
+                    .Returns(committed.Task);
                 call = async () => (await repository.TryRevertTenantErasureApprovalAsync(
                     tenantId, request.Token)).Should().BeTrue();
                 break;
             case "erasure-offboard":
                 inner.Setup(x => x.TryStartTenantErasureOffboardAsync(
                         tenantId, now, now.AddDays(30), request.Token))
-                    .Callback(request.Cancel).ReturnsAsync(true);
+                    .Returns(committed.Task);
                 call = async () => (await repository.TryStartTenantErasureOffboardAsync(
                     tenantId, now, now.AddDays(30), request.Token)).Should().BeTrue();
                 break;
             case "erasure-restore":
                 inner.Setup(x => x.TryRestoreTenantErasureQuarantineAsync(tenantId, request.Token))
-                    .Callback(request.Cancel).ReturnsAsync(true);
+                    .Returns(committed.Task);
                 call = async () => (await repository.TryRestoreTenantErasureQuarantineAsync(
                     tenantId, request.Token)).Should().BeTrue();
                 break;
@@ -75,8 +76,19 @@ public sealed class CachingTenantPostCommitEvictionTests
                 throw new ArgumentOutOfRangeException(nameof(operation));
         }
 
-        await call();
+        Task pending = call();
+        try
+        {
+            cache.Verify(store => store.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+            pending.IsCompleted.Should().BeFalse();
+        }
+        finally
+        {
+            request.Cancel();
+            committed.TrySetResult(true);
+        }
 
+        await pending;
         request.IsCancellationRequested.Should().BeTrue();
         inner.VerifyAll();
         cache.Verify(store => store.RemoveAsync(key, CancellationToken.None), Times.Once);
