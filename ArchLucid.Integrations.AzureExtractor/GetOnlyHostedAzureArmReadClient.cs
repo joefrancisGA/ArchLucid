@@ -1109,96 +1109,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         bool validateSubscriptionNextLink,
         CancellationToken cancellationToken)
     {
-        List<HostedAzureArmPolicyAssignmentRecord> assignments = [];
-        string? nextLink = initialUrl;
-        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
-        int requestCount = 0;
-
-        while (!string.IsNullOrWhiteSpace(nextLink))
-        {
-            if (!visitedLinks.Add(nextLink))
-            {
-                break;
-            }
-
-            requestCount++;
-
-            if (ShouldBreakForPageCap(requestCount))
-            {
-                break;
-            }
-
-            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            using HttpResponseMessage response =
-                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                if (_logger.IsEnabled(LogLevel.Debug))
-                {
-                    _logger.LogDebug(
-                        "Hosted Azure extractor skipped policy assignment listing for scope {ScopeKey}; HTTP {StatusCode}.",
-                        scopeKey,
-                        (int)response.StatusCode);
-                }
-
-                break;
-            }
-
-            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-
-            using JsonDocument? document =
-                await TryParseArmPaginationPageAsync(stream, assignments.Count, cancellationToken).ConfigureAwait(false);
-
-            if (document is null)
-            {
-                break;
-            }
-
-            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
-                && valueElement.ValueKind == JsonValueKind.Array)
-            {
-                foreach (JsonElement item in valueElement.EnumerateArray())
-                {
-                    HostedAzureArmPolicyAssignmentRecord? mapped = MapPolicyAssignment(item);
-
-                    if (mapped is not null)
-                    {
-                        assignments.Add(mapped);
-                    }
-                }
-            }
-
-            nextLink = null;
-
-            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
-                && nextLinkElement.ValueKind == JsonValueKind.String)
-            {
-                string? candidateNextLink = nextLinkElement.GetString();
-
-                if (!string.IsNullOrWhiteSpace(candidateNextLink))
-                {
-                    if (validateSubscriptionNextLink)
-                    {
-                        HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
-                            candidateNextLink,
-                            listingRelativePath);
-                    }
-                    else
-                    {
-                        HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
-                            candidateNextLink,
-                            listingRelativePath);
-                    }
-
-                    nextLink = candidateNextLink;
-                }
-            }
-        }
-
-        return assignments;
+        return await ListPolicyPagesWithCompletenessAsync<HostedAzureArmPolicyAssignmentRecord>(
+            accessToken,
+            initialUrl,
+            MapPolicyAssignment,
+            candidate => HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                candidate, listingRelativePath),
+            cancellationToken).ConfigureAwait(false);
     }
 
     private async Task<(IReadOnlyList<HostedAzureArmDiagnosticSettingRecord> Settings, bool PartialCollection)>
