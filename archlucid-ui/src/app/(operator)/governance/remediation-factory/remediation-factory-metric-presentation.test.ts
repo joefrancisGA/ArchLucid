@@ -1096,3 +1096,9 @@ describe("remediation-factory-metric-presentation", () => {
 
     expect(tiles.find((tile) => tile.id === "open-findings-factory")?.valueFootnote).toContain("compare");
   });});
+
+  it("keeps critical-exposure valueFootnote when count is measuredZero", () => {
+    const tiles = buildRemediationFactoryExecutiveMetricTiles({ criticalExposureCount: 0 } as RemediationFactoryMetrics, true);
+
+    expect(tiles.find((tile) => tile.id === "critical-exposure")?.valueFootnote).toContain("No critical");
+  });

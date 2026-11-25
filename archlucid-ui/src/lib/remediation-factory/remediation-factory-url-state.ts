@@ -40,6 +40,12 @@ const REMEDIATION_FACTORY_DISCLOSURE_DECIMAL_ONE_CODEPOINTS = new Set<number>([
   0x0c67, // ౧ TELUGU DIGIT ONE
   0x1041, // ၁ MYANMAR DIGIT ONE
   0x17e1, // ១ KHMER DIGIT ONE
+  0x0ae7, // ૧ GUJARATI DIGIT ONE
+  0x0d67, // ൧ MALAYALAM DIGIT ONE
+  0x0ce7, // ೧ KANNADA DIGIT ONE
+  0x0b67, // ୧ ORIYA DIGIT ONE
+  0x0ed1, // ໑ LAO DIGIT ONE
+  0x0f21, // ༡ TIBETAN DIGIT ONE
 ]);
 
 function remediationFactoryDisclosureUnicodeDecimalOne(trimmed: string): boolean {
