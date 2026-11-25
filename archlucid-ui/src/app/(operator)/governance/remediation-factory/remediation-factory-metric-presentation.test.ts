@@ -118,7 +118,21 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.key === "critical-exposure")?.hint).toBeUndefined();
   });
 
-  it("keeps signed net burn values in the executive table", () => {
+
+  it("renders fractional critical exposure counts as not measured", () => {
+    const metrics = { criticalExposureCount: 1.9 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics,
+      openFindingsHref: "/security/findings",
+    });
+
+    expect(tiles.find((tile) => tile.key === "critical-exposure")?.presentation).toEqual(
+      expect.objectContaining({
+        displayValue: "Not measured",
+        state: "notMeasured",
+      }),
+    );
+  });  it("keeps signed net burn values in the executive table", () => {
     const metrics = { netBurn: -3 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricPresentations({
       metrics,

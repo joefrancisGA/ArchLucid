@@ -67,6 +67,13 @@ export function remediationFactoryCountMetricPresentation(input: {
     };
   }
 
+  if (!Number.isInteger(normalized)) {
+    return {
+      displayValue: REVIEW_SCORECARD_EMPTY_VALUE,
+      scopeNote: REVIEW_SCORECARD_NOT_MEASURED_LABEL,
+      state: "notMeasured",
+    };
+  }
   if (input.signedCount !== true && normalized < 0) {
     return {
       displayValue: REVIEW_SCORECARD_EMPTY_VALUE,
@@ -269,7 +276,7 @@ export function architectOutcomeDeltaScopeNote(input: {
 }): string {
   const normalizedDenominator = parseNonNegativeFiniteNumber(input.denominator);
 
-  if (normalizedDenominator === null || !Number.isInteger(normalizedDenominator)) {
+  if (normalizedDenominator === null || !Number.isInteger(normalizedDenominator) || normalizedDenominator === 0) {
     return REVIEW_SCORECARD_NOT_MEASURED_LABEL;
   }
 
