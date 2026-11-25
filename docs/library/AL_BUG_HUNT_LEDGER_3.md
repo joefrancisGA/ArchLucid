@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt #2 (seed→hit): `ui-lib-remediation-factory` NaN percent tiles. `remediation-factory` **88/88**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt #3 (seed-only): `ui-lib-remediation-factory` pass-4 cheap-disproof. `remediation-factory` **88/88**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -425,11 +425,19 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 - [x] (superseded) pass-3 `(candidate)` queue — **superseded 2026-11-25 seed hunt #2 (seed→hit):** see pass-4 reseed.
 
-- [ ] (candidate) `formatPercentPoints` — negative API percent — locus: non-negative guard; monitor; pass-4 reseed.
-- [ ] (candidate) `parseRemediationFactoryMetricsSummaryOpen` — literal `false` token — locus: open parse; monitor; pass-4 reseed.
-- [ ] (candidate) `formatRemediationFactoryPercentDisplay` — values above 100 on points scale — locus: fraction branch; monitor; pass-4 reseed.
-- [ ] (candidate) `attackPathReportPathChipOverflowLine` — empty path id list — locus: `.some` on empty; monitor; pass-4 reseed.
-- [ ] (candidate) `remediationFactoryHrefFromSearch` — pathname override vs caller pathname — locus: href builder; monitor; pass-4 reseed.
+- [x] (valid-no-repro) `formatPercentPoints` — negative API percent — **cheap-disproof 2026-11-25 seed hunt #3:** `parseNonNegativeFiniteNumber` guard.
+- [x] (valid-no-repro) `parseRemediationFactoryMetricsSummaryOpen` — literal `false` token — **cheap-disproof 2026-11-25 seed hunt #3:** positive-token open parse only.
+- [x] (valid-no-repro) `formatRemediationFactoryPercentDisplay` — values above 100 on points scale — **cheap-disproof 2026-11-25 seed hunt #3:** points-scale display contract.
+- [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — empty path id list — **cheap-disproof 2026-11-25 seed hunt #3:** returns null on empty.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — pathname override vs caller pathname — **cheap-disproof 2026-11-25 seed hunt #3:** caller threads pathname.
+
+- [x] (superseded) pass-4 `(candidate)` queue — **superseded 2026-11-25 seed hunt #3 (seed-only):** see pass-5 reseed.
+
+- [ ] (candidate) `formatPercentPoints` — percent above 100 buyer cap — locus: tile cap; monitor; pass-5 reseed.
+- [ ] (candidate) `parseRemediationFactoryMetricsSummaryOpen` — `OFF` uppercase token — locus: open parse; monitor; pass-5 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open with all selections cleared — locus: URL write; monitor; pass-5 reseed.
+- [ ] (candidate) `formatAttackPathReportPathChipLabel` — lone ellipsis path id — locus: chip label; monitor; pass-5 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — metricsLoaded false with object present — locus: tile null cells; monitor; pass-5 reseed.
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/remediation-factory`. Seeded five `(hunt-ready)` rows; no production change.
 
 ### Hypotheses
@@ -445,9 +453,9 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 27
+- **hunts:** 28
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
 - **related-pd-tb:** none
