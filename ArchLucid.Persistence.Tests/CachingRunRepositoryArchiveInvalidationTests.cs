@@ -72,20 +72,28 @@ public sealed class CachingRunRepositoryArchiveInvalidationTests
                 ScopeProjectId = scope.ProjectId,
             }],
         };
+        TaskCompletionSource<RunArchiveBatchResult> pendingCommit = new(TaskCreationOptions.RunContinuationsAsynchronously);
         Mock<IRunRepository> inner = new();
         inner.Setup(r => r.ArchiveRunsCreatedBeforeAsync(cutoff, caller.Token))
-            .Returns(() =>
-            {
-                caller.Cancel();
-                return Task.FromResult(committed);
-            });
+            .Returns(pendingCommit.Task);
         Mock<IHotPathReadCache> cache = new();
         cache.Setup(c => c.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .Returns((string _, CancellationToken token) =>
                 token.IsCancellationRequested ? Task.FromCanceled(token) : Task.CompletedTask);
         CachingRunRepository repo = new(inner.Object, cache.Object);
 
-        RunArchiveBatchResult result = await repo.ArchiveRunsCreatedBeforeAsync(cutoff, caller.Token);
+        Task<RunArchiveBatchResult> pending = repo.ArchiveRunsCreatedBeforeAsync(cutoff, caller.Token);
+        try
+        {
+            cache.VerifyNoOtherCalls();
+            pending.IsCompleted.Should().BeFalse();
+        }
+        finally
+        {
+            caller.Cancel();
+            pendingCommit.TrySetResult(committed);
+        }
+        RunArchiveBatchResult result = await pending;
 
         result.Should().BeSameAs(committed);
         cache.Verify(c => c.RemoveAsync(HotPathCacheKeys.Run(scope, runId), CancellationToken.None), Times.Once);

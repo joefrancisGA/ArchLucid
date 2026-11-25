@@ -33,7 +33,7 @@ public sealed class ArtifactDescriptorMapperTests
         Guid idB = Guid.Parse("00000000-0000-0000-0000-000000000001");
         SynthesizedArtifact[] input =
         [
-            Artifact(idA, "same"),
+            Artifact(idA, "SAME"),
             Artifact(idB, "same"),
             Artifact(Guid.Parse("00000000-0000-0000-0000-000000000003"), "Alpha")
         ];
@@ -42,7 +42,7 @@ public sealed class ArtifactDescriptorMapperTests
 
         ordered[0].Name.Should().Be("Alpha");
         ordered[1].Name.Should().Be("same");
-        ordered[2].Name.Should().Be("same");
+        ordered[2].Name.Should().Be("SAME");
         ordered[1].ArtifactId.Should().Be(idB);
         ordered[2].ArtifactId.Should().Be(idA);
     }
@@ -61,5 +61,13 @@ public sealed class ArtifactDescriptorMapperTests
         descriptors[1].Name.Should().Be("z");
         descriptors[0].ArtifactId.Should().Be(id1);
         descriptors[1].ArtifactId.Should().Be(id2);
+        for (int i = 0; i < descriptors.Count; i++)
+        {
+            SynthesizedArtifact source = input.Single(artifact => artifact.ArtifactId == descriptors[i].ArtifactId);
+            descriptors[i].ArtifactType.Should().Be(source.ArtifactType);
+            descriptors[i].Format.Should().Be(source.Format);
+            descriptors[i].CreatedUtc.Should().Be(source.CreatedUtc);
+            descriptors[i].ContentHash.Should().Be(source.ContentHash);
+        }
     }
 }
