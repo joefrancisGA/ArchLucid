@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Core.Retrieval;
@@ -86,9 +87,7 @@ public static class RetrievalGroundingTraceBuilder
         if (hits.Count == 0)
             return null;
 
-        List<object> scores = hits
-            .Select(static h => new { chunkId = h.ChunkId, score = Math.Round(h.Score, 4) })
-            .ToList<object>();
+        var scores = hits.Select(static h => new { chunkId = h.ChunkId, score = Math.Round(h.Score, 4) });
 
         return SerializeBounded(scores, RetrievalGroundingTraceBounds.MaxScoresJsonLength);
     }
@@ -110,14 +109,24 @@ public static class RetrievalGroundingTraceBuilder
         return SerializeBounded(documentIds, RetrievalGroundingTraceBounds.MaxDocumentIdsJsonLength);
     }
 
-    private static string? SerializeBounded<T>(T value, int maxLength)
+    private static string SerializeBounded<T>(IEnumerable<T> values, int maxLength)
     {
-        string json = JsonSerializer.Serialize(value, JsonOptions);
+        StringBuilder json = new("[");
 
-        if (json.Length <= maxLength)
-            return json;
+        foreach (T value in values)
+        {
+            string item = JsonSerializer.Serialize(value, JsonOptions);
+            bool needsComma = json.Length > 1;
+            int separatorLength = needsComma ? 1 : 0;
+            if (item.Length > maxLength - json.Length - separatorLength - 1)
+                break; // Keep room for the closing bracket and retain only whole rows.
 
-        return json[..maxLength];
+            if (needsComma)
+                json.Append(',');
+            json.Append(item);
+        }
+
+        return json.Append(']').ToString();
     }
 
     private static string? Truncate(string? text, int maxLength)

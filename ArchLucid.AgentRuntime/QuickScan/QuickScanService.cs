@@ -33,7 +33,6 @@ public sealed class QuickScanService(
 
         string userPrompt = JsonSerializer.Serialize(files);
         string? jsonResponse = null;
-        Exception? lastError = null;
 
         // The configured hard timeout covers the whole scan, including retries.
         // Creating a new timer for each attempt would multiply the admitted budget.
@@ -45,10 +44,7 @@ public sealed class QuickScanService(
             cancellationToken.ThrowIfCancellationRequested();
 
             if (scanBudget.IsCancellationRequested)
-            {
-                lastError = new TimeoutException("Quick scan processing timed out.");
                 break;
-            }
 
             try
             {
@@ -64,49 +60,30 @@ public sealed class QuickScanService(
                 scanBudget.Token.ThrowIfCancellationRequested();
                 break;
             }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            catch (Exception)
             {
-                // Caller cancellation must never be swallowed or retried.
-                throw;
-            }
-            catch (OperationCanceledException) when (scanBudget.IsCancellationRequested)
-            {
-                lastError = new TimeoutException("Quick scan processing timed out.");
-                break;
-            }
-            catch (OperationCanceledException ex) when (attempt < maxAttempts - 1)
-            {
-                // Provider cancellation without our deadline/caller cancellation is not a timeout.
-                lastError = ex;
-            }
-            catch (OperationCanceledException ex)
-            {
-                lastError = ex;
-            }
-            catch (Exception) when (scanBudget.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
-            {
-                lastError = new TimeoutException("Quick scan processing timed out.");
-                break;
-            }
-            catch (Exception ex) when (attempt < maxAttempts - 1)
-            {
-                lastError = ex;
+                // A provider can fail with a non-cancellation exception after the caller stops the scan.
+                cancellationToken.ThrowIfCancellationRequested();
+                if (scanBudget.IsCancellationRequested)
+                    break;
+
+                // Retry within the remaining budget, or return a bounded failure after the final attempt.
             }
         }
 
         cancellationToken.ThrowIfCancellationRequested();
-        if (scanBudget.IsCancellationRequested)
+        bool deadlineReached = scanBudget.IsCancellationRequested;
+        if (deadlineReached)
         {
             // The deadline is authoritative even when an upstream client ignores cancellation.
             jsonResponse = null;
-            lastError = new TimeoutException("Quick scan processing timed out.");
         }
 
         if (jsonResponse is null)
         {
             return new QuickScanResult
             {
-                Summary = lastError is TimeoutException
+                Summary = deadlineReached
                     ? "Quick scan timed out before a result could be produced."
                     : "Quick scan could not be completed.",
                 CompletedUtc = timeProvider.GetUtcNow().UtcDateTime,
@@ -120,10 +97,10 @@ public sealed class QuickScanService(
         {
             using JsonDocument doc = JsonDocument.Parse(jsonResponse);
             JsonElement root = doc.RootElement;
+            if (root.ValueKind != JsonValueKind.Object)
+                return UnparseableResponse();
 
-            string summary = root.TryGetProperty("summary", out JsonElement summaryElement)
-                ? summaryElement.GetString() ?? string.Empty
-                : string.Empty;
+            string summary = ReadStringProperty(root, "summary") ?? string.Empty;
 
             List<ArchitectureFinding> findings = [];
 
@@ -132,31 +109,15 @@ public sealed class QuickScanService(
 
             foreach (JsonElement findingElement in findingsElement.EnumerateArray())
             {
-                bool categoryStored = findingElement.TryGetProperty("category", out JsonElement categoryElement)
-                    && !string.IsNullOrWhiteSpace(categoryElement.GetString());
-                string category = categoryStored
-                    ? categoryElement.GetString()!.Trim()
-                    : "Category was not stored.";
+                if (findingElement.ValueKind != JsonValueKind.Object)
+                    continue;
 
-                bool messageStored = findingElement.TryGetProperty("message", out JsonElement messageElement)
-                    && !string.IsNullOrWhiteSpace(messageElement.GetString());
-                string message = messageStored
-                    ? messageElement.GetString()!.Trim()
-                    : "Finding message was not stored.";
-
-                bool severityOnWire = findingElement.TryGetProperty("severity", out JsonElement severityElement)
-                    && !string.IsNullOrWhiteSpace(severityElement.GetString());
-                string severityStr = severityOnWire ? severityElement.GetString()! : string.Empty;
-
+                string? category = ReadStringProperty(findingElement, "category");
+                string? message = ReadStringProperty(findingElement, "message");
+                string? severityText = ReadStringProperty(findingElement, "severity");
                 FindingSeverity severity = default;
-                FindingSeverity parsedSeverity = default;
-                bool severityParsed = severityOnWire
-                    && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(severityStr, true, out parsedSeverity);
-
-                if (severityParsed)
-                {
-                    severity = parsedSeverity;
-                }
+                bool severityParsed = !string.IsNullOrWhiteSpace(severityText)
+                    && global::ArchLucid.Contracts.Serialization.DefinedEnum.TryParse(severityText, true, out severity);
 
                 double? confidenceScore = TryReadConfidenceScore(findingElement);
                 FindingConfidenceLevel? confidenceLevel = TryReadConfidenceLevel(findingElement);
@@ -167,8 +128,8 @@ public sealed class QuickScanService(
 
                 findings.Add(new ArchitectureFinding
                 {
-                    Category = category,
-                    Message = message,
+                    Category = string.IsNullOrWhiteSpace(category) ? "Category was not stored." : category.Trim(),
+                    Message = string.IsNullOrWhiteSpace(message) ? "Finding message was not stored." : message.Trim(),
                     Severity = severity,
                     SeverityStored = severityParsed,
                     SourceAgentStored = sourceAgentStored,
@@ -191,16 +152,21 @@ public sealed class QuickScanService(
         }
         catch (JsonException)
         {
-            return new QuickScanResult { Summary = "Failed to parse LLM response as JSON." };
+            return UnparseableResponse();
         }
     }
 
+    private static QuickScanResult UnparseableResponse() =>
+        new() { Summary = "Failed to parse LLM response as JSON." };
+
+    private static string? ReadStringProperty(JsonElement element, string propertyName) =>
+        element.TryGetProperty(propertyName, out JsonElement value) && value.ValueKind == JsonValueKind.String
+            ? value.GetString()
+            : null;
+
     private static FindingConfidenceLevel? TryReadConfidenceLevel(JsonElement findingElement)
     {
-        if (!findingElement.TryGetProperty("confidenceLevel", out JsonElement levelElement))
-            return null;
-
-        string raw = levelElement.GetString() ?? string.Empty;
+        string? raw = ReadStringProperty(findingElement, "confidenceLevel");
 
         if (string.IsNullOrWhiteSpace(raw))
             return null;
@@ -221,13 +187,15 @@ public sealed class QuickScanService(
             return null;
 
 
-        if (scoreElement.ValueKind == JsonValueKind.Number && scoreElement.TryGetDouble(out double value))
+        if (scoreElement.ValueKind == JsonValueKind.Number && scoreElement.TryGetDouble(out double value)
+            && double.IsFinite(value))
             return value;
 
 
         if (scoreElement.ValueKind == JsonValueKind.String
             && double.TryParse(scoreElement.GetString(), System.Globalization.NumberStyles.Float,
-                System.Globalization.CultureInfo.InvariantCulture, out double parsed))
+                System.Globalization.CultureInfo.InvariantCulture, out double parsed)
+            && double.IsFinite(parsed))
             return parsed;
 
         return null;

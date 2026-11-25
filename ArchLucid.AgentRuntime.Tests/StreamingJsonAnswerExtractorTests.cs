@@ -38,4 +38,33 @@ public sealed class StreamingJsonAnswerExtractorTests
 
         value.Should().Be("Line1\nLine2");
     }
+
+    [Fact]
+    public void AppendChunk_buffers_unicode_escapes_and_surrogate_pairs_across_chunks()
+    {
+        StreamingJsonAnswerExtractor extractor = new();
+
+        extractor.AppendChunkAndTakeAnswerDelta("""{"answer":"left \u00""").Should().Be("left ");
+        extractor.AppendChunkAndTakeAnswerDelta("""e9\uD83D""").Should().Be("é");
+        extractor.AppendChunkAndTakeAnswerDelta("""\uDE03!""").Should().Be("😃!");
+        extractor.AppendChunkAndTakeAnswerDelta("\"}").Should().BeEmpty();
+    }
+
+    [Fact]
+    public void AppendChunk_waits_for_the_top_level_answer()
+    {
+        StreamingJsonAnswerExtractor extractor = new();
+
+        extractor.AppendChunkAndTakeAnswerDelta("""{"metadata":[{"answer":"not the answer"}],""")
+            .Should().BeEmpty();
+        extractor.AppendChunkAndTakeAnswerDelta(""" "answer":"the answer"}""").Should().Be("the answer");
+    }
+
+    [Fact]
+    public void AppendChunk_does_not_emit_half_of_a_raw_surrogate_pair()
+    {
+        StreamingJsonAnswerExtractor extractor = new();
+        extractor.AppendChunkAndTakeAnswerDelta("{\"answer\":\"\uD83D").Should().BeEmpty();
+        extractor.AppendChunkAndTakeAnswerDelta("\uDE03\"}").Should().Be("😃");
+    }
 }
