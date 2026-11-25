@@ -1,5 +1,3 @@
-using System.Collections.Concurrent;
-
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
@@ -7,10 +5,14 @@ namespace ArchLucid.AgentRuntime;
 /// </summary>
 public sealed class AzureOpenAiCompletionClientCache : IDisposable
 {
-    private readonly ConcurrentDictionary<string, AzureOpenAiCompletionClient> _clients =
+    private readonly Lock _gate = new();
+
+    private readonly Dictionary<string, AzureOpenAiCompletionClient> _clients =
         new(StringComparer.OrdinalIgnoreCase);
 
     private readonly Func<string, AzureOpenAiCompletionClient> _clientFactory;
+
+    private bool _disposed;
 
     /// <summary>Creates a cache using a minimal client factory (endpoint, key, max tokens only).</summary>
     public AzureOpenAiCompletionClientCache(string endpoint, string apiKey, int maxCompletionTokens)
@@ -31,7 +33,19 @@ public sealed class AzureOpenAiCompletionClientCache : IDisposable
 
         string key = deploymentName.Trim();
 
-        return _clients.GetOrAdd(key, _clientFactory);
+        lock (_gate)
+        {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+
+            if (!_clients.TryGetValue(key, out AzureOpenAiCompletionClient? client))
+            {
+                // The factory creates an owned client. Do not construct competing instances and discard the losers.
+                client = _clientFactory(key);
+                _clients.Add(key, client);
+            }
+
+            return client;
+        }
     }
 
     /// <summary>Removes and disposes a cached client for <paramref name="deploymentName" />, if present.</summary>
@@ -41,9 +55,11 @@ public sealed class AzureOpenAiCompletionClientCache : IDisposable
 
         string key = deploymentName.Trim();
 
-        if (!_clients.TryRemove(key, out AzureOpenAiCompletionClient? client))
+        AzureOpenAiCompletionClient? client;
+        lock (_gate)
         {
-            return false;
+            if (!_clients.Remove(key, out client))
+                return false;
         }
 
         client.Dispose();
@@ -54,7 +70,18 @@ public sealed class AzureOpenAiCompletionClientCache : IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
-        foreach (AzureOpenAiCompletionClient client in _clients.Values)
+        AzureOpenAiCompletionClient[] clients;
+        lock (_gate)
+        {
+            if (_disposed)
+                return;
+
+            _disposed = true;
+            clients = [.. _clients.Values];
+            _clients.Clear();
+        }
+
+        foreach (AzureOpenAiCompletionClient client in clients)
         {
             client.Dispose();
         }
