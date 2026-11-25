@@ -164,9 +164,9 @@ public interface IAuthorityQueryService
 
     /// <summary>
     ///     Load graph, findings, trace, and artifact metadata only for the scoped, committed run header and
-    ///     sealed manifest already verified by the retrieval indexing worker. Do not re-resolve cached run anchors.
+    ///     sealed manifest already verified by a committed-run worker. Do not re-resolve cached run anchors.
     /// </summary>
-    Task<RunDetailDto?> GetRunDetailForRetrievalIndexingAsync(
+    Task<RunDetailDto?> GetRunDetailForCommittedProjectionAsync(
         ScopeContext scope,
         RunRecord authorizedRun,
         ManifestDocument verifiedManifest,

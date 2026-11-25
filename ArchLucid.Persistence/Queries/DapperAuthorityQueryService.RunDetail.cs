@@ -193,7 +193,7 @@ public sealed partial class DapperAuthorityQueryService
     }
 
     /// <inheritdoc />
-    public async Task<RunDetailDto?> GetRunDetailForRetrievalIndexingAsync(
+    public async Task<RunDetailDto?> GetRunDetailForCommittedProjectionAsync(
         ScopeContext scope, RunRecord authorizedRun, ManifestDocument verifiedManifest, CancellationToken ct)
     {
         RunRecord run = authorizedRun;

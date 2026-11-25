@@ -76,7 +76,7 @@ public sealed class RetrievalIndexingOutboxProcessorReplayIdempotencyTests
 
         Mock<IAuthorityQueryService> query = new();
         query
-            .Setup(q => q.GetRunDetailForRetrievalIndexingAsync(
+            .Setup(q => q.GetRunDetailForCommittedProjectionAsync(
                 It.IsAny<ScopeContext>(), It.IsAny<RunRecord>(), It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
         ManifestDocument manifest = detail.GoldenManifest!;

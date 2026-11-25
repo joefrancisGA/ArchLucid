@@ -4,6 +4,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Decisioning.Merge;
@@ -70,18 +71,13 @@ public sealed class DecisionEngineV2NodeMaterializer(
     private readonly ILogger<DecisionEngineV2NodeMaterializer> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
-    /// <inheritdoc />
     public async Task MaterializeIfMissingAsync(string runId, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
         string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
 
-        IReadOnlyList<DecisionNodeRecord> existingRecords = await AnalysisRunIdCanonicalization
-            .LoadDecisionNodesByRunIdAsync(_decisionNodeRepository, lookupRunId, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (existingRecords.Count > 0)
+        if (await HasExistingNodesAsync(lookupRunId, cancellationToken).ConfigureAwait(false))
             return;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
@@ -91,12 +87,34 @@ public sealed class DecisionEngineV2NodeMaterializer(
 
         RunRecord? run = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
 
-        if (run is null || string.IsNullOrWhiteSpace(run.ArchitectureRequestId))
+        if (run is not null)
+            await MaterializeAsync(scope, run, lookupRunId, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task MaterializeForCommittedRunAsync(ScopeContext scope, RunRecord run, CancellationToken cancellationToken)
+    {
+        if (!CommittedRunEvidenceBinding.MatchesRun(scope, run.RunId, run))
+            return;
+
+        string lookupRunId = run.RunId.ToString("N");
+        if (!await HasExistingNodesAsync(lookupRunId, cancellationToken).ConfigureAwait(false))
+            await MaterializeAsync(scope, run, lookupRunId, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task<bool> HasExistingNodesAsync(string runId, CancellationToken cancellationToken) =>
+        (await AnalysisRunIdCanonicalization.LoadDecisionNodesByRunIdAsync(
+            _decisionNodeRepository, runId, cancellationToken).ConfigureAwait(false)).Count > 0;
+
+    private async Task MaterializeAsync(
+        ScopeContext scope, RunRecord run, string lookupRunId, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(run.ArchitectureRequestId))
             return;
 
         ArchitectureRequest request = await _requestRepository.GetByIdAsync(run.ArchitectureRequestId, cancellationToken)
             ?? throw new InvalidOperationException(
-                $"Architecture request '{run.ArchitectureRequestId}' not found for run '{runId}'.");
+                $"Architecture request '{run.ArchitectureRequestId}' not found for run '{lookupRunId}'.");
 
         IReadOnlyList<AgentTask> tasks = await AnalysisRunIdCanonicalization
             .LoadAgentTasksByRunIdAsync(_taskRepository, scope, lookupRunId, cancellationToken)

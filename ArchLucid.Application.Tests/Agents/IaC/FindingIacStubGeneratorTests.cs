@@ -437,7 +437,7 @@ public sealed class FindingIacStubGeneratorTests
 
         Mock<IRunRepository> runRepository = new();
         runRepository
-            .Setup(r => r.GetByRunIdAdminAsync(runGuid, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord
             {
                 RunId = runGuid,
@@ -924,7 +924,7 @@ public sealed class FindingIacStubGeneratorTests
 
         Mock<IRunRepository> runRepository = new();
         runRepository
-            .Setup(r => r.GetByRunIdAdminAsync(runGuid, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord
             {
                 RunId = runGuid,
@@ -987,7 +987,7 @@ public sealed class FindingIacStubGeneratorTests
 
         Mock<IRunRepository> runRepository = new();
         runRepository
-            .Setup(r => r.GetByRunIdAdminAsync(runGuid, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord
             {
                 RunId = runGuid,
@@ -1113,10 +1113,16 @@ public sealed class FindingIacStubGeneratorTests
             .Callback<string, string, CancellationToken>((_, json, _) => persistedJson = json)
             .Returns(Task.CompletedTask);
 
+        Mock<IRunRepository> runs = new();
+        runs.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), Guid.Parse(canonicalRunId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = Guid.Parse(canonicalRunId) });
+
         FindingIacStubGenerator sut = CreateSut(
             completionClient.Object,
             resultRepository.Object,
-            enrichmentRepository.Object);
+            enrichmentRepository.Object,
+            runRepository: runs.Object);
 
         await sut.GenerateAndPersistStubsForRunAsync(canonicalRunId, CancellationToken.None);
 

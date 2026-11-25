@@ -116,7 +116,7 @@ public sealed partial class InMemoryAuthorityQueryService
     }
 
     /// <inheritdoc />
-    public async Task<RunDetailDto?> GetRunDetailForRetrievalIndexingAsync(
+    public async Task<RunDetailDto?> GetRunDetailForCommittedProjectionAsync(
         ScopeContext scope, RunRecord authorizedRun, ManifestDocument verifiedManifest, CancellationToken ct)
     {
         RunRecord run = authorizedRun;

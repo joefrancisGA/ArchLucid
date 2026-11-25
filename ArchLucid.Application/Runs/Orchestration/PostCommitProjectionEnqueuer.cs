@@ -63,7 +63,7 @@ public sealed class PostCommitProjectionEnqueuer(IPostCommitProjectionOutboxRepo
             tasks.Add(EnqueueAsync(
                 PostCommitProjectionWorkTypes.SampleRunPurgeForTenant,
                 scope,
-                runId: null,
+                runId: runGuid,
                 payloadJson: null,
                 cancellationToken));
         }

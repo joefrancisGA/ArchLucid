@@ -53,5 +53,8 @@ public sealed class PostCommitProjectionEnqueuerTests
             PostCommitProjectionWorkTypes.FindingPriorityRerank,
             PostCommitProjectionWorkTypes.SampleRunPurgeForTenant
         ]);
+        outbox.Verify(o => o.EnqueueAsync(
+            PostCommitProjectionWorkTypes.SampleRunPurgeForTenant,
+            scope.TenantId, scope.WorkspaceId, scope.ProjectId, runId, null, CancellationToken.None), Times.Once);
     }
 }
