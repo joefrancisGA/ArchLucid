@@ -3,7 +3,6 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.ArchitectureIntelligence;
-using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Audit;
@@ -43,8 +42,7 @@ public sealed partial class ArchitectureIntelligenceController(
     IManifestHashService manifestHashService,
     IAuditService auditService,
     IArchitectureShareAccessGate architectureShareAccessGate,
-    IArchitectureIntelligenceStandaloneRunStore standaloneRunStore,
-    IActorContext actorContext) : ControllerBase
+    IArchitectureIntelligenceStandaloneRunStore standaloneRunStore) : ControllerBase
 {
     private readonly IClosedLoopArchitectureReasoningOrchestrator _reasoningOrchestrator =
         reasoningOrchestrator ?? throw new ArgumentNullException(nameof(reasoningOrchestrator));
@@ -80,9 +78,6 @@ public sealed partial class ArchitectureIntelligenceController(
 
     private readonly IArchitectureIntelligenceStandaloneRunStore _standaloneRunStore =
         standaloneRunStore ?? throw new ArgumentNullException(nameof(standaloneRunStore));
-
-    private readonly IActorContext _actorContext =
-        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     private bool TryPrepareRequest(
         ClosedLoopReasoningRequest? request,

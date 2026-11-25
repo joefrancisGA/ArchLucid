@@ -1,8 +1,9 @@
+using System.Security.Claims;
+
 using ArchLucid.Api.Controllers.ArchitectureIntelligence;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
 using ArchLucid.Application.ArchitectureIntelligence;
-using ArchLucid.Application.Common;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -161,7 +162,7 @@ public sealed class ArchitectureIntelligenceControllerTests
 
         Mock<IArchitectureShareAccessGate> gate = new();
         gate.Setup(g => g.EvaluateRunReadAsync(
-                It.IsAny<System.Security.Claims.ClaimsPrincipal>(), It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                It.IsAny<ClaimsPrincipal>(), It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((true, true));
 
         return new ArchitectureIntelligenceController(
@@ -176,10 +177,15 @@ public sealed class ArchitectureIntelligenceControllerTests
             SealedManifestHashTestSupport.CreateManifestHashService(),
             auditService.Object,
             gate.Object,
-            new InMemoryArchitectureIntelligenceStandaloneRunStore(),
-            Mock.Of<IActorContext>(actor => actor.GetActorId() == "actor"))
+            new InMemoryArchitectureIntelligenceStandaloneRunStore())
         {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "actor")], "Test")),
+                },
+            },
         };
     }
 }

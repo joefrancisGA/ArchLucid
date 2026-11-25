@@ -1,8 +1,13 @@
+using System.Security.Claims;
+using System.Text.Json;
+
+using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Drafts;
-using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Application.Governance;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Queries;
 
@@ -76,13 +81,16 @@ public sealed partial class ArchitectureIntelligenceController
                 return decideDenied;
         }
 
-        RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
-        if (detail?.GoldenManifest is not null)
+        RunDetailDto? detail = await _authorityQueryService.GetRunDetailForManifestCompareAsync(
+            scope, runId, cancellationToken);
+        if (detail is null)
+            return ArchitectureShareNotVisibleAsNotFoundResponsePolicy.RunNotFound(this, runId);
+
+        if (detail.Run.GoldenManifestId.HasValue || detail.GoldenManifest is not null
+            || string.Equals(detail.Run.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
         {
-            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                detail.GoldenManifest,
-                runId.ToString("D"),
-                _manifestHashService);
+            GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrow(
+                detail.GoldenManifest, runId.ToString("D"), _manifestHashService);
         }
 
         return null;
@@ -90,10 +98,29 @@ public sealed partial class ArchitectureIntelligenceController
 
     private string? GetStandaloneRunActorId()
     {
-        string actorId = _actorContext.GetActorId();
-        return string.IsNullOrWhiteSpace(actorId) || string.Equals(actorId, "api-user", StringComparison.OrdinalIgnoreCase)
+        if (User.Identity is not ClaimsIdentity { IsAuthenticated: true } identity)
+            return null;
+
+        // API keys identify a configured service principal. A display name from a
+        // bearer or SAML identity is not a unique ownership key.
+        if (identity.AuthenticationType == AuthServiceCollectionExtensions.ApiKeySchemeName)
+            return string.IsNullOrWhiteSpace(identity.Name) ? null : JsonSerializer.Serialize(new[] { "api-key", identity.Name });
+
+        Claim? objectId = identity.FindFirst("oid")
+            ?? identity.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier");
+        if (!string.IsNullOrWhiteSpace(objectId?.Value))
+        {
+            return JsonSerializer.Serialize(new[]
+            {
+                "object", identity.FindFirst("iss")?.Value ?? objectId.Issuer,
+                identity.FindFirst("tid")?.Value ?? string.Empty, objectId.Value,
+            });
+        }
+
+        Claim? subject = identity.FindFirst("sub") ?? identity.FindFirst(ClaimTypes.NameIdentifier);
+        return string.IsNullOrWhiteSpace(subject?.Value)
             ? null
-            : actorId;
+            : JsonSerializer.Serialize(new[] { "subject", identity.FindFirst("iss")?.Value ?? subject.Issuer, subject.Value });
     }
 
     /// <summary>

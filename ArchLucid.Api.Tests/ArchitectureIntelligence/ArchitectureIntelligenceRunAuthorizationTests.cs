@@ -4,7 +4,6 @@ using ArchLucid.Api.Controllers.ArchitectureIntelligence;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
 using ArchLucid.Application.ArchitectureIntelligence;
-using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Common;
@@ -26,7 +25,7 @@ namespace ArchLucid.Api.Tests.ArchitectureIntelligence;
 [Trait("Suite", "Core")]
 public sealed class ArchitectureIntelligenceRunAuthorizationTests
 {
-    private const string Actor = "jwt:tenant:owner";
+    private const string Actor = """["subject","https://issuer.example","owner"]""";
     private static readonly CancellationToken Ct = CancellationToken.None;
     private readonly ScopeContext _scope = new()
     {
@@ -35,7 +34,7 @@ public sealed class ArchitectureIntelligenceRunAuthorizationTests
         ProjectId = Guid.NewGuid(),
     };
     private readonly ClaimsPrincipal _principal = new(new ClaimsIdentity(
-        [new Claim(ClaimTypes.Name, Actor)], "Test"));
+        [new Claim(ClaimTypes.NameIdentifier, "owner"), new Claim("iss", "https://issuer.example")], "Test"));
     private readonly InMemoryArchitectureIntelligenceStandaloneRunStore _standalone = new();
     private readonly Mock<IArchitectureShareAccessGate> _gate = new(MockBehavior.Strict);
     private readonly Mock<IAuthorityQueryService> _authority = new(MockBehavior.Strict);
@@ -113,13 +112,61 @@ public sealed class ArchitectureIntelligenceRunAuthorizationTests
                 .ReturnsAsync((IActionResult?)null);
         }
 
-        _authority.InSequence(sequence).Setup(q => q.GetRunDetailAsync(_scope, runId, Ct, It.IsAny<bool>()))
+        _authority.InSequence(sequence).Setup(q => q.GetRunDetailForManifestCompareAsync(_scope, runId, Ct))
             .ReturnsAsync(SealedDetail(runId, "invalid"));
 
         IActionResult result = await InvokeAsync(controller, action, runId.ToString("N"));
 
         AssertProblem(result, StatusCodes.Status409Conflict, ProblemTypes.Conflict);
-        _authority.Verify(q => q.GetRunDetailAsync(_scope, runId, Ct, It.IsAny<bool>()), Times.Once);
+        _authority.Verify(q => q.GetRunDetailForManifestCompareAsync(_scope, runId, Ct), Times.Once);
+        _model.VerifyNoOtherCalls();
+        _orchestrator.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Missing_seal_on_authorized_committed_run_is_a_conflict()
+    {
+        Guid runId = Guid.NewGuid();
+        _gate.Setup(g => g.EvaluateRunReadAsync(_principal, _scope, runId, Ct)).ReturnsAsync((true, true));
+        _authority.Setup(q => q.GetRunDetailForManifestCompareAsync(_scope, runId, Ct))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = runId, LegacyRunStatus = nameof(ArchitectureRunStatus.Committed) },
+            });
+
+        IActionResult result = await CreateController().GetRunModelAsync(runId.ToString("D"), Ct);
+
+        AssertProblem(result, StatusCodes.Status409Conflict, ProblemTypes.Conflict);
+        _model.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Missing_run_after_authorization_does_not_fall_back_to_model_storage()
+    {
+        Guid runId = Guid.NewGuid();
+        _gate.Setup(g => g.EvaluateRunReadAsync(_principal, _scope, runId, Ct)).ReturnsAsync((true, true));
+        _authority.Setup(q => q.GetRunDetailForManifestCompareAsync(_scope, runId, Ct))
+            .ReturnsAsync((RunDetailDto?)null);
+
+        IActionResult result = await CreateController().GetRunModelAsync(runId.ToString("D"), Ct);
+
+        AssertProblem(result, StatusCodes.Status404NotFound, ProblemTypes.RunNotFound);
+        _model.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Authenticated_display_name_without_a_stable_subject_cannot_claim_standalone_ownership()
+    {
+        Guid runId = Guid.NewGuid();
+        ArchitectureIntelligenceController controller = CreateController();
+        ClaimsPrincipal displayNameOnly = new(new ClaimsIdentity([new Claim(ClaimTypes.Name, Actor)], "Test"));
+        controller.HttpContext.User = displayNameOnly;
+        await _standalone.BindNewAsync(_scope, runId, Actor, Ct);
+        _gate.Setup(g => g.EvaluateRunReadAsync(displayNameOnly, _scope, runId, Ct)).ReturnsAsync((false, false));
+
+        AssertProblem(await controller.GetRunModelAsync(runId.ToString("D"), Ct),
+            StatusCodes.Status404NotFound, ProblemTypes.RunNotFound);
+        (await controller.PostRunAsync(CreateBody(), Ct)).Should().BeOfType<ForbidResult>();
         _model.VerifyNoOtherCalls();
         _orchestrator.VerifyNoOtherCalls();
     }
@@ -132,14 +179,14 @@ public sealed class ArchitectureIntelligenceRunAuthorizationTests
         MockSequence sequence = new();
         _gate.InSequence(sequence).Setup(g => g.EvaluateRunReadAsync(_principal, _scope, runId, Ct))
             .ReturnsAsync((true, true));
-        _authority.InSequence(sequence).Setup(q => q.GetRunDetailAsync(_scope, runId, Ct, It.IsAny<bool>()))
+        _authority.InSequence(sequence).Setup(q => q.GetRunDetailForManifestCompareAsync(_scope, runId, Ct))
             .ReturnsAsync(SealedDetail(runId, SealedManifestHashTestSupport.DefaultHash));
         _model.InSequence(sequence).Setup(m => m.GetForRunAsync(_scope, runId, Ct)).ReturnsAsync(model);
 
         IActionResult result = await CreateController().GetRunModelAsync(runId.ToString("B"), Ct);
 
         result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeSameAs(model);
-        _authority.Verify(q => q.GetRunDetailAsync(_scope, runId, Ct, It.IsAny<bool>()), Times.Once);
+        _authority.Verify(q => q.GetRunDetailForManifestCompareAsync(_scope, runId, Ct), Times.Once);
     }
 
     [Theory]
@@ -264,8 +311,7 @@ public sealed class ArchitectureIntelligenceRunAuthorizationTests
             SealedManifestHashTestSupport.CreateManifestHashService(),
             Mock.Of<IAuditService>(),
             _gate.Object,
-            _standalone,
-            Mock.Of<IActorContext>(actor => actor.GetActorId() == Actor))
+            _standalone)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext { User = _principal } },
         };
