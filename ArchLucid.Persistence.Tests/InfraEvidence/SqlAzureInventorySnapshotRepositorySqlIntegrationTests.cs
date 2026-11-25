@@ -10,7 +10,9 @@ using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Tests.Support;
 
+using Dapper;
 using FluentAssertions;
+using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Tests.InfraEvidence;
 
@@ -321,6 +323,150 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
 
     second.CloudResourceId.Should().Be(first.CloudResourceId);
     second.LastSeenSnapshotId.Should().Be(snapshotB);
+  }
+
+  [SkippableFact]
+  public async Task CloudResourceExplorer_work_counts_and_queues_exclude_other_workspaces_and_projects()
+  {
+    Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+    SqlConnectionFactory factory = new(fixture.ConnectionString);
+    SqlCloudResourceIdentityDirectory directory = new(factory);
+    SqlAzureExtractorPackageRepository packages = new(factory);
+    SqlAzureInventorySnapshotRepository snapshots = new(factory);
+    SqlAzureInventoryDiffRepository diffs = new(factory);
+    ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+    ScopeContext foreignWorkspace = new() { TenantId = scope.TenantId, WorkspaceId = Guid.NewGuid(), ProjectId = scope.ProjectId };
+    ScopeContext foreignProject = new() { TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = Guid.NewGuid() };
+    DateTime now = DateTime.UtcNow;
+    string armId = $"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/{Guid.NewGuid():N}";
+    CloudResourceIdentityRecord identity = await directory.UpsertOnSnapshotAsync(
+      scope, CloudProvider.Azure, armId, Guid.NewGuid(), "Microsoft.Storage/storageAccounts",
+      "sub", "rg", "eastus", "shared-resource", CancellationToken.None);
+    Guid resourceId = identity.CloudResourceId;
+    Guid patternId = Guid.NewGuid();
+    Guid versionId = Guid.NewGuid();
+    string patternKey = $"test.explorer.{patternId:N}";
+
+    await using SqlConnection connection = new(fixture.ConnectionString);
+    await connection.OpenAsync();
+    await connection.ExecuteAsync(
+      """
+      INSERT INTO dbo.RemediationPatterns
+        (PatternId, TenantId, PatternKey, DisplayName, CreatedByActorKey, CreatedUtc, UpdatedUtc)
+      VALUES (@PatternId, @TenantId, @PatternKey, N'Explorer test', N'author', @Now, @Now);
+      INSERT INTO dbo.RemediationPatternVersions
+        (VersionId, PatternId, TenantId, Version, Status, ControlObjective, ContentJson,
+         AutomationLevel, AuthorActorKey, ApprovedByActorKey, ApprovedUtc, CreatedUtc, UpdatedUtc)
+      VALUES (@VersionId, @PatternId, @TenantId, N'1.0.0', @ApprovedStatus, N'Fixture', N'{}',
+              0, N'author', N'approver', @Now, @Now, @Now);
+      """,
+      new { patternId, versionId, scope.TenantId, patternKey, now,
+        ApprovedStatus = (int)RemediationPatternStatus.Approved });
+
+    // Identity deduplication is tenant-wide; the same resource can have work
+    // items in independently scoped projects/workspaces.
+    await AddWorkAsync(foreignWorkspace);
+    await AddWorkAsync(foreignProject);
+    await AssertVisibleWorkAsync(0);
+
+    await AddWorkAsync(scope);
+    await AssertVisibleWorkAsync(1);
+
+    async Task AssertVisibleWorkAsync(int expected)
+    {
+      var (all, total) = await directory.ListForExplorerAsync(
+        scope, null, null, null, CloudResourceExplorerWorkQueue.All, 1, 10);
+      total.Should().Be(1);
+      CloudResourceExplorerListItem item = all.Should().ContainSingle().Which;
+      item.Identity.CloudResourceId.Should().Be(resourceId);
+      item.WorkCounts.OpenOperationalFindingsCount.Should().Be(expected);
+      item.WorkCounts.OpenRemediationInstancesCount.Should().Be(expected);
+      item.WorkCounts.InventoryDriftChangeCount.Should().Be(expected);
+
+      foreach (CloudResourceExplorerWorkQueue queue in new[]
+        {
+          CloudResourceExplorerWorkQueue.OpenFindings,
+          CloudResourceExplorerWorkQueue.OpenRemediation,
+          CloudResourceExplorerWorkQueue.RecentDrift,
+        })
+      {
+        var (rows, count) = await directory.ListForExplorerAsync(scope, null, null, null, queue, 1, 10);
+        count.Should().Be(expected);
+        rows.Should().HaveCount(expected);
+        if (expected != 0)
+          rows.Single().Identity.CloudResourceId.Should().Be(resourceId);
+      }
+    }
+
+    async Task AddWorkAsync(ScopeContext owner)
+    {
+      Guid findingId = Guid.NewGuid();
+      await connection.ExecuteAsync(
+        """
+        INSERT INTO dbo.OperationalSecurityFindings
+          (FindingId, TenantId, WorkspaceId, ProjectId, Provider, SourceSystem, SourceFindingId,
+           CloudResourceId, Title, FirstObservedUtc, LastObservedUtc, Status, PayloadHashSha256,
+           CreatedUtc, UpdatedUtc)
+        VALUES (@FindingId, @TenantId, @WorkspaceId, @ProjectId, @Provider, N'explorer-test',
+                @SourceFindingId, @ResourceId, N'Fixture', @Now, @Now, @OpenStatus, @Hash, @Now, @Now);
+        INSERT INTO dbo.RemediationInstances
+          (InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, PatternVersionId,
+           PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId,
+           CreatedByActorKey, CreatedUtc, UpdatedUtc)
+        VALUES (NEWID(), @TenantId, @WorkspaceId, @ProjectId, @FindingId, @PatternId, @VersionId,
+                @PatternKey, N'1.0.0', 0, @ClassifiedStatus, @ResourceId, N'creator', @Now, @Now);
+        """,
+        new
+        {
+          findingId, owner.TenantId, owner.WorkspaceId, owner.ProjectId,
+          Provider = (int)CloudProvider.Azure, SourceFindingId = findingId.ToString("N"),
+          resourceId, now, OpenStatus = (int)OperationalSecurityFindingStatus.Open,
+          Hash = new byte[32], patternId, versionId, patternKey,
+          ClassifiedStatus = (int)RemediationInstanceStatus.Classified,
+        });
+
+      Guid snapshotA = await InsertSnapshotAsync(owner);
+      Guid snapshotB = await InsertSnapshotAsync(owner);
+      Guid diffId = Guid.NewGuid();
+      await diffs.InsertDiffAsync(owner, new AzureInventoryDiffPersistRequest
+      {
+        DiffId = diffId,
+        SnapshotAId = snapshotA,
+        SnapshotBId = snapshotB,
+        Summary = new AzureInventoryDiffSummaryRecord
+        {
+          DiffId = diffId, SnapshotAId = snapshotA, SnapshotBId = snapshotB, TotalChanges = 1,
+        },
+        Changes =
+        [
+          new AzureInventoryChangeRecord
+          {
+            ChangeId = Guid.NewGuid(), SnapshotAId = snapshotA, SnapshotBId = snapshotB,
+            CloudResourceId = resourceId, AzureResourceId = armId,
+            ChangeType = AzureInventoryChangeType.ResourceModified,
+          },
+        ],
+      });
+    }
+
+    async Task<Guid> InsertSnapshotAsync(ScopeContext owner)
+    {
+      Guid packageId = Guid.NewGuid();
+      await packages.InsertAsync(new AzureExtractorPackageRecord
+      {
+        PackageId = packageId, TenantId = owner.TenantId, WorkspaceId = owner.WorkspaceId,
+        ProjectId = owner.ProjectId, CreatedUtc = now, SchemaVersion = 1,
+        OriginalFileName = "explorer-scope.zip", ManifestJson = "{}", PackageBytes = [0x50, 0x4B],
+      });
+      Guid snapshotId = Guid.NewGuid();
+      await snapshots.InsertHeaderAsync(new AzureInventorySnapshotRecord
+      {
+        SnapshotId = snapshotId, TenantId = owner.TenantId, WorkspaceId = owner.WorkspaceId,
+        ProjectId = owner.ProjectId, PackageId = packageId, CaptureStatus = AzureInventoryCaptureStatus.Pending,
+        CreatedUtc = now, UpdatedUtc = now,
+      });
+      return snapshotId;
+    }
   }
 
   [SkippableFact]
