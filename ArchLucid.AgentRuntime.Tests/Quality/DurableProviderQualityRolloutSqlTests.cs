@@ -114,7 +114,7 @@ public sealed class DurableProviderQualityRolloutSqlTests(ITestOutputHelper outp
 
                 for (int i = 0; i < observationsPerCohort; i++)
                 {
-                    ReplayObservation observation = profile.Observation(i);
+                    ReplayObservation observation = profile.Observation(i + cohort * 5);
                     long started = Stopwatch.GetTimestamp();
                     ProviderQualityRecordResult recorded = await writer.RecordAsync(
                         Sample(key, $"case-{i}", observation.Label, clock, observation.SeverityWeight), ct);
