@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed→hit): `ui-lib-remediation-factory` metrics disclosure `yes`/`on` parse. `remediation-factory-url-state` **6/6**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 thorough hunt #28 (hit): `ui-help-docs` unique category section ids. `HelpDocsClient` **66/66**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -3515,6 +3515,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-help-docs
 
+
+
+- [x] (superseded) pass-3 `(candidate)` queue — **superseded 2026-11-25 thorough hunt #28 (hit):** closed at zone header; see pass-4 reseed.
+
+- [ ] (candidate) `helpHubSearchHrefFromSearch` — compare pathname+search strings vs canonical query params — locus: debounced replace guard; monitor; pass-4 reseed.
+- [ ] (candidate) `mergeDocIndex` — unrelated category string matching known label after NFKC normalize — locus: exact category key; monitor; pass-4 reseed.
+- [ ] (candidate) `HelpDocsClient` — pending index hides empty-index warning until success — locus: `isPending`; monitor; pass-4 reseed.
+- [ ] (candidate) `filtered` memo — search matches localized summary only when canonical title empty — locus: haystack build; monitor; pass-4 reseed.
+- [ ] (candidate) `helpDocCategoriesForDisplay` — empty known category sections still render headings — locus: zero-row sections; monitor; pass-4 reseed.
+
 2026-11-25 thorough hunt #27 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-2 `(candidate)` monitors — **valid-no-repro** percent-encoding dedupe collision (`does not duplicate fetched doc links when two rows differ only by percent-encoding on the same path`; `filters rows when the search query matches uppercase percent-encoding in the doc-index url`), **valid-no-repro** hash deep-link vs static base (`renders fetched doc-index deep links when only a hash fragment differs from a static quick link path`), **valid-no-repro** pending fetch shows static quick links (`keeps static quick links visible while the doc-index refresh is pending`; fetched-only categories appear after merge by design), **valid-no-repro** trailing-slash search normalization (`filters entries when the search query ends with a trailing slash on the url path token`), **valid-no-repro** Escape clear preserves non-`q` params (`preserves non-q URL parameters when Escape clears the search box`). Pass-3 reseed below. Scoped HelpDocsClient **65/65**. Private beta: n/a.
 
 - [x] (superseded) pass-2 `(candidate)` queue — **superseded 2026-11-25 thorough hunt #27 (dry):** pass-3 reseed.
@@ -3524,11 +3534,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) pass-2 trailing-slash filter — **cheap-disproof 2026-11-25 thorough hunt #27:** regression `filters entries when the search query ends with a trailing slash on the url path token`.
 - [x] (valid-no-repro) pass-2 Escape drops unrelated params — **cheap-disproof 2026-11-25 thorough hunt #27:** regression `preserves non-q URL parameters when Escape clears the search box`.
 
-- [ ] (candidate) `helpHubSearchHrefFromSearch` — debounced replace may loop when query unchanged but param order differs — locus: pathname+search compare; input: `q` before `tab`; wrong outcome: repeat `router.replace`; monitor; pass-3 reseed.
-- [ ] (candidate) `mergeDocIndex` — static `https` external in quick links may block unrelated vendor pathname — locus: merge dedupe keys; input: static unrelated external + fetched vendor; monitor; pass-3 reseed.
-- [ ] (candidate) `HelpDocsClient` — empty successful index may omit warning while static links duplicate index — locus: `emptyIndexWarning`; input: `[]` index response; monitor; pass-3 reseed.
-- [ ] (candidate) `filtered` memo — localized title may be omitted from haystack when `localize` returns trimmed empty — locus: filter haystack build; input: localized copy edge; monitor; pass-3 reseed.
-- [ ] (candidate) `helpDocCategoryDomId` — unknown category slug may collide with fixed CATEGORY_ORDER slug — locus: `slugifyHelpHeading`; input: category name matching slug of known section; monitor; pass-3 reseed.
+- [x] (valid-no-repro) `helpHubSearchHrefFromSearch` — debounced replace vs param order — **cheap-disproof 2026-11-25 thorough hunt #28:** regressions `does not reschedule the debounced q sync when unrelated URL params change but q is unchanged` / `preserves non-q URL parameters when debounced search sync updates q`.
+- [x] (valid-no-repro) `mergeDocIndex` — static https vs unrelated vendor pathname — **cheap-disproof 2026-11-25 thorough hunt #28:** dedupe keys are normalized path only; external merge regressions.
+- [x] (valid-no-repro) `HelpDocsClient` — empty successful index warning — **cheap-disproof 2026-11-25 thorough hunt #28:** regression `documentation index response was empty`.
+- [x] (valid-no-repro) `filtered` memo — localized haystack — **cheap-disproof 2026-11-25 thorough hunt #28:** raw title remains in haystack; identity localize regression.
+- [x] (proven) `helpDocCategoryDomId` — category labels sharing slug — **hit 2026-11-25 thorough hunt #28:** `createHelpHeadingSlugAllocator`; regression above.
 
 
 2026-11-25 thorough hunt #26 (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-1 `(candidate)` monitors — **proven** bare trailing `?` external urls were not deep-link suffixes because `URL.search` is empty, so `mergeDocIndex` dropped the base row when the bare-`?` variant listed first; `docIndexFetchedUrlHasDeepLinkSuffix` now treats leftover `?` in the raw url as a suffix; regressions `renders the base external url when doc-index lists a bare trailing query suffix before the https row` and `renders the base external url when doc-index lists a bare trailing query on scheme-relative url before the base row`. **valid-no-repro** scheme-relative query-with-params before base (`renders the base external url when doc-index lists a query variant before the https row`), **valid-no-repro** unknown category ordering (`renders unknown categories after the fixed CATEGORY_ORDER sections`), **valid-no-repro** product-line static memo (`resolveHelpDocsStaticEntries` + `[productLine]` memo), **valid-no-repro** path-chooser intro (`docIndexMergeDedupeKey` strips internal queries; static chooser row always present). Pass-2 reseed below. Scoped HelpDocsClient **65/65**. Private beta: help hub keeps base vendor links when doc-index lists bare `?` tracking rows before the canonical url.

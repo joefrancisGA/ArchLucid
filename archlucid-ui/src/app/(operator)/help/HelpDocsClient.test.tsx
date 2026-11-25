@@ -1145,6 +1145,43 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+
+  it("assigns unique category section ids when two category labels slug to the same anchor", async () => {
+    const data = [
+      {
+        title: "Alias getting started doc",
+        summary: "Doc-index row uses a different spelling for Getting Started.",
+        category: "getting started",
+        url: "/help/getting-started-alias",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    await screen.findByRole("link", { name: "Alias getting started doc" });
+
+    const headings = screen.getAllByRole("heading", { level: 2 });
+    const canonicalHeading = headings.find((heading) => heading.textContent === "Getting Started");
+    const aliasHeading = headings.find((heading) => heading.textContent === "getting started");
+
+    expect(canonicalHeading).toBeDefined();
+    expect(aliasHeading).toBeDefined();
+    expect(canonicalHeading!.id).not.toBe(aliasHeading!.id);
+    expect(aliasHeading!.id).toBe("help-cat-getting-started-2");
+
+    vi.unstubAllGlobals();
+  });
+
   it("renders unknown categories after the fixed CATEGORY_ORDER sections", async () => {
     const data = [
       {

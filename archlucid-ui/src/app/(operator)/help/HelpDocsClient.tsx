@@ -17,7 +17,7 @@ import {
   helpHubSearchHrefFromSearch,
   parseHelpHubSearchQuery,
 } from "@/lib/help/help-hub-search-url";
-import { slugifyHelpHeading } from "@/lib/help/help-heading-slug";
+import { createHelpHeadingSlugAllocator } from "@/lib/help/help-heading-slug";
 import type { DocIndexEntry } from "@/lib/help-docs-index";
 
 export type { DocIndexEntry } from "@/lib/help-docs-index";
@@ -30,10 +30,6 @@ const CATEGORY_ORDER = [
   "API",
   "Go-to-Market",
 ] as const;
-
-function helpDocCategoryDomId(category: string): string {
-  return `help-cat-${slugifyHelpHeading(category)}`;
-}
 
 function normalizeHelpHubFilterQuery(query: string): string {
   let normalized = query.trim().toLowerCase();
@@ -295,6 +291,16 @@ export function HelpDocsClient() {
 
     return map;
   }, [filtered]);
+  const categoryDomIdByName = useMemo(() => {
+    const allocate = createHelpHeadingSlugAllocator();
+    const domIds = new Map<string, string>();
+
+    for (const category of helpDocCategoriesForDisplay(grouped)) {
+      domIds.set(category, `help-cat-${allocate(category)}`);
+    }
+
+    return domIds;
+  }, [grouped]);
 
   function linkProps(url: string): { rel?: string; target?: "_blank" } {
     const trimmed = url.trim();
@@ -359,15 +365,16 @@ export function HelpDocsClient() {
 
       {helpDocCategoriesForDisplay(grouped).map((cat) => {
         const rows = grouped.get(cat);
+        const categoryDomId = categoryDomIdByName.get(cat);
 
-        if (!rows || rows.length === 0) {
+        if (!rows || rows.length === 0 || categoryDomId === undefined) {
           return null;
         }
 
         return (
-          <section key={cat} aria-labelledby={helpDocCategoryDomId(cat)} className={OPERATOR_LAYOUT.sectionHeadingStack}>
+          <section key={cat} aria-labelledby={categoryDomId} className={OPERATOR_LAYOUT.sectionHeadingStack}>
             <h2
-              id={helpDocCategoryDomId(cat)}
+              id={categoryDomId}
               className={OPERATOR_TYPOGRAPHY.sectionTitle}
             >
               {cat}

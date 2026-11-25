@@ -281,3 +281,4 @@
 {"at":"2026-11-25T13:50:10.7579121Z","zoneId":"ui-auth-callback","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx"]}
 {"at":"2026-11-25T13:56:19.464Z","zoneId":"ui-lib-remediation-factory","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/remediation-factory/remediation-factory-url-state.ts"]}
 {"at":"2026-11-25T13:56:27.4839085Z","zoneId":"ui-lib-remediation-factory","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-11-25T14:03:53.217Z","zoneId":"ui-help-docs","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx"]}
