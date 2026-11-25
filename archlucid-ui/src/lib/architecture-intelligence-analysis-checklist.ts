@@ -1,5 +1,7 @@
 import type { IntegrationConnectChecklistStep } from "@/components/integrations/IntegrationConnectChecklist";
 import type { RunState } from "@/app/(operator)/architecture/architecture-intelligence/_sections/architecture-intelligence-types";
+import { requiresArchitectureDescriptionForMutation } from "@/app/(operator)/architecture/architecture-intelligence/_sections/architecture-intelligence-client-api";
+import type { ClosedLoopReasoningSourceText } from "@/app/(operator)/architecture/architecture-intelligence/_sections/architecture-intelligence-types";
 
 export function hasActionableArchitectureIntelligenceResult(runState: RunState | null): boolean {
   if (runState?.kind !== "reasoning") {
@@ -20,6 +22,17 @@ export function hasActionableArchitectureIntelligenceResult(runState: RunState |
   );
 }
 
+
+export function architectureIntelligenceDescriptionStepComplete(
+  architectureDescription: string,
+  hydratedSourceTexts: readonly ClosedLoopReasoningSourceText[],
+): boolean {
+  if (architectureDescription.trim().length > 0) {
+    return true;
+  }
+
+  return !requiresArchitectureDescriptionForMutation(architectureDescription, hydratedSourceTexts);
+}
 export function resolveArchitectureIntelligenceAnalysisSteps(input: {
   readonly reviewPicked: boolean;
   readonly descriptionWritten: boolean;

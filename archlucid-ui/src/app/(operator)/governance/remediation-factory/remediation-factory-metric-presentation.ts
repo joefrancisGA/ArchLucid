@@ -1,5 +1,6 @@
 import { buildGovernanceFindingsQueueHref } from "@/lib/metric-count-presentation";
 import type { RemediationFactoryMetrics } from "@/lib/remediation-factory-types";
+import { parseFiniteNumber, parseNonNegativeFiniteNumber } from "@/lib/parse-finite-number";
 import {
   formatRemediationFactoryPercentPoints,
   REMEDIATION_FACTORY_PERCENT_POPULATION_LINE,
@@ -54,8 +55,19 @@ export function remediationFactoryCountMetricPresentation(input: {
   readonly value: number | null | undefined;
   readonly scopeNote: string;
   readonly href?: string;
+  readonly signedCount?: boolean;
 }): RemediationFactoryMetricPresentation {
-  if (input.value === null || input.value === undefined) {
+  const normalized = parseFiniteNumber(input.value);
+
+  if (normalized === null) {
+    return {
+      displayValue: REVIEW_SCORECARD_EMPTY_VALUE,
+      scopeNote: REVIEW_SCORECARD_NOT_MEASURED_LABEL,
+      state: "notMeasured",
+    };
+  }
+
+  if (input.signedCount !== true && normalized < 0) {
     return {
       displayValue: REVIEW_SCORECARD_EMPTY_VALUE,
       scopeNote: REVIEW_SCORECARD_NOT_MEASURED_LABEL,
@@ -64,9 +76,9 @@ export function remediationFactoryCountMetricPresentation(input: {
   }
 
   return {
-    displayValue: String(input.value),
+    displayValue: String(normalized),
     scopeNote: input.scopeNote,
-    state: input.value === 0 ? "measuredZero" : "measured",
+    state: normalized === 0 ? "measuredZero" : "measured",
     href: input.href,
   };
 }
@@ -76,7 +88,9 @@ export function remediationFactoryDecimalMetricPresentation(input: {
   readonly fractionDigits?: number;
   readonly scopeNote: string;
 }): RemediationFactoryMetricPresentation {
-  if (input.value === null || input.value === undefined) {
+  const normalized = parseNonNegativeFiniteNumber(input.value);
+
+  if (normalized === null) {
     return {
       displayValue: REVIEW_SCORECARD_EMPTY_VALUE,
       scopeNote: REVIEW_SCORECARD_NOT_MEASURED_LABEL,
@@ -85,9 +99,9 @@ export function remediationFactoryDecimalMetricPresentation(input: {
   }
 
   return {
-    displayValue: input.value.toFixed(input.fractionDigits ?? 2),
+    displayValue: normalized.toFixed(input.fractionDigits ?? 2),
     scopeNote: input.scopeNote,
-    state: input.value === 0 ? "measuredZero" : "measured",
+    state: normalized === 0 ? "measuredZero" : "measured",
   };
 }
 
@@ -96,7 +110,9 @@ export function remediationFactoryPercentMetricPresentation(input: {
   readonly scopeNote: string;
   readonly plainScopeNote?: boolean;
 }): RemediationFactoryMetricPresentation {
-  if (input.value === null || input.value === undefined) {
+  const normalized = parseNonNegativeFiniteNumber(input.value);
+
+  if (normalized === null) {
     return {
       displayValue: REVIEW_SCORECARD_EMPTY_VALUE,
       scopeNote: REVIEW_SCORECARD_NOT_MEASURED_LABEL,
@@ -110,9 +126,9 @@ export function remediationFactoryPercentMetricPresentation(input: {
       : `${WORKSPACE_METRICS_SCOPE}. ${REMEDIATION_FACTORY_PERCENT_POPULATION_LINE} ${input.scopeNote}`;
 
   return {
-    displayValue: formatRemediationFactoryPercentPoints(input.value),
+    displayValue: formatRemediationFactoryPercentPoints(normalized),
     scopeNote,
-    state: input.value === 0 ? "measuredZero" : "measured",
+    state: normalized === 0 ? "measuredZero" : "measured",
   };
 }
 
@@ -126,6 +142,12 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
   readonly hint?: string;
 }> {
   const metrics = input.metrics;
+
+  const patternExactMatchPresentation = remediationFactoryPercentMetricPresentation({
+    value: metrics?.patternCoverageExactMatchPercent,
+    scopeNote: REMEDIATION_FACTORY_PATTERN_EXACT_HELPER,
+    plainScopeNote: true,
+  });
 
   const openFindingsPresentation = remediationFactoryCountMetricPresentation({
     value: metrics?.openFindings,
@@ -155,10 +177,15 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
         scopeNote: REMEDIATION_FACTORY_CRITICAL_EXPOSURE_HELPER,
         href: buildGovernanceFindingsQueueHref({ filter: "critical-error" }),
       }),
-      hint:
-        metrics?.criticalExposureCount === 0
-          ? "No critical-or-error findings in this metric for the current scope."
-          : undefined,
+      hint: (() => {
+        const count = parseNonNegativeFiniteNumber(metrics?.criticalExposureCount);
+
+        if (count === 0) {
+          return "No critical-or-error findings in this metric for the current scope.";
+        }
+
+        return undefined;
+      })(),
     },
     {
       key: "recurrence",
@@ -174,17 +201,17 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
       presentation: remediationFactoryCountMetricPresentation({
         value: metrics?.netBurn,
         scopeNote: REMEDIATION_FACTORY_NET_BURN_HELPER,
+        signedCount: true,
       }),
     },
     {
       key: "pattern-exact-match",
       label: "Pattern ExactMatch %",
-      presentation: remediationFactoryPercentMetricPresentation({
-        value: metrics?.patternCoverageExactMatchPercent,
-        scopeNote: REMEDIATION_FACTORY_PATTERN_EXACT_HELPER,
-        plainScopeNote: true,
-      }),
-      hint: "Pattern keys appear in the priority queue when recorded — not a drill-through from this tile alone.",
+      presentation: patternExactMatchPresentation,
+      hint:
+        patternExactMatchPresentation.state === "notMeasured"
+          ? undefined
+          : "Pattern keys appear in the priority queue when recorded — not a drill-through from this tile alone.",
     },
     {
       key: "automation",
@@ -202,10 +229,19 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
         value: metrics?.exceptionsActive,
         scopeNote: REMEDIATION_FACTORY_EXCEPTIONS_HELPER,
       }),
-      hint:
-        metrics == null
-          ? undefined
-          : `7-day window · ${metrics.exceptionsExpiringSoon} expiring soon`,
+      hint: (() => {
+        if (metrics == null) {
+          return undefined;
+        }
+
+        const expiringSoon = parseNonNegativeFiniteNumber(metrics.exceptionsExpiringSoon);
+
+        if (expiringSoon === null) {
+          return undefined;
+        }
+
+        return `7-day window · ${expiringSoon} expiring soon`;
+      })(),
     },
     {
       key: "average-age",
@@ -231,11 +267,13 @@ export function architectOutcomeDeltaScopeNote(input: {
   readonly denominator: number | null | undefined;
   readonly populationLabel: string;
 }): string {
-  if (input.denominator === null || input.denominator === undefined) {
+  const normalizedDenominator = parseNonNegativeFiniteNumber(input.denominator);
+
+  if (normalizedDenominator === null) {
     return REVIEW_SCORECARD_NOT_MEASURED_LABEL;
   }
 
-  return `${input.populationLabel}: ${input.denominator} resources in comparison scope`;
+  return `${input.populationLabel}: ${normalizedDenominator} resources in comparison scope`;
 }
 
 export function architectOutcomeMetricPresentation(input: {
@@ -243,7 +281,9 @@ export function architectOutcomeMetricPresentation(input: {
   readonly denominator: number | null | undefined;
   readonly populationLabel: string;
 }): RemediationFactoryMetricPresentation {
-  if (input.value === null || input.value === undefined) {
+  const normalized = parseFiniteNumber(input.value);
+
+  if (normalized === null) {
     return {
       displayValue: REVIEW_SCORECARD_EMPTY_VALUE,
       scopeNote: REVIEW_SCORECARD_NOT_MEASURED_LABEL,
@@ -252,11 +292,11 @@ export function architectOutcomeMetricPresentation(input: {
   }
 
   return {
-    displayValue: formatArchitectOutcomeDeltaValue(input.value),
+    displayValue: formatArchitectOutcomeDeltaValue(normalized),
     scopeNote: architectOutcomeDeltaScopeNote({
       denominator: input.denominator,
       populationLabel: input.populationLabel,
     }),
-    state: input.value === 0 ? "measuredZero" : "measured",
+    state: normalized === 0 ? "measuredZero" : "measured",
   };
 }

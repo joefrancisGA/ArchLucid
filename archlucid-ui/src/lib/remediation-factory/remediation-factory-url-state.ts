@@ -38,7 +38,7 @@ function setUuidParam(params: URLSearchParams, key: string, value: string | null
   }
 }
 
-function parseRemediationFactoryMetricsSummaryOpen(raw: string | null | undefined): boolean {
+export function parseRemediationFactoryDisclosureOpenFromSearch(raw: string | null | undefined): boolean {
   const normalized = raw?.trim().toLowerCase();
 
   if (normalized === undefined || normalized.length === 0) {
@@ -61,7 +61,7 @@ export function parseRemediationFactoryUrlStateFromSearch(search: string): Remed
     selectedPathId: readUuidParam(params, REMEDIATION_FACTORY_SELECTED_PATH_PARAM),
     fromSnapshotId: readUuidParam(params, REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM),
     toSnapshotId: readUuidParam(params, REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM),
-    metricsSummaryOpen: parseRemediationFactoryMetricsSummaryOpen(
+    metricsSummaryOpen: parseRemediationFactoryDisclosureOpenFromSearch(
       params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM),
     ),
   };

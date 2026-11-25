@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  architectureIntelligenceDescriptionStepComplete,
   hasActionableArchitectureIntelligenceResult,
   resolveArchitectureIntelligenceAnalysisEmphasizedStepId,
   resolveArchitectureIntelligenceAnalysisSteps,
@@ -35,6 +36,17 @@ describe("architecture-intelligence-analysis-checklist", () => {
     ).toBe(true);
   });
 
+  it("marks description complete for attachment-only hydrated intake without textarea text", () => {
+    expect(
+      architectureIntelligenceDescriptionStepComplete("", [
+        {
+          fileName: "network-diagram.png",
+          contentType: "image/png",
+          content: "attachment body",
+        },
+      ]),
+    ).toBe(true);
+  });
   it("emphasizes the first incomplete step", () => {
     expect(
       resolveArchitectureIntelligenceAnalysisEmphasizedStepId({

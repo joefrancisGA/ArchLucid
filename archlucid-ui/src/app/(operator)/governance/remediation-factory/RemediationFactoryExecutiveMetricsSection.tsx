@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 function MetricTileBody(props: {
   readonly label: string;
-  readonly scopeLine: string;
+  readonly scopeLine?: string;
   readonly windowLine?: string;
   readonly ruleLine?: string;
   readonly value: string | null;
@@ -32,7 +32,7 @@ function MetricTileBody(props: {
             : props.value}
       </p>
       {props.valueFootnote ? <p className={OPERATOR_TYPOGRAPHY.helper}>{props.valueFootnote}</p> : null}
-      <p className={OPERATOR_TYPOGRAPHY.helper}>{props.scopeLine}</p>
+      {props.scopeLine ? <p className={OPERATOR_TYPOGRAPHY.helper}>{props.scopeLine}</p> : null}
       {props.windowLine ? <p className={OPERATOR_TYPOGRAPHY.helper}>{props.windowLine}</p> : null}
       {props.ruleLine ? <p className={OPERATOR_TYPOGRAPHY.helper}>{props.ruleLine}</p> : null}
     </>

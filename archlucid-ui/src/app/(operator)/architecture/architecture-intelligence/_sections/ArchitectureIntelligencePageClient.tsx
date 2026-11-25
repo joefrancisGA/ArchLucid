@@ -37,6 +37,7 @@ import { ArchitectureIntelligenceRunModelGuardCallout } from "@/app/(operator)/a
 import { ArchitectureIntelligenceNextReviewFooterClient } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceNextReviewFooterClient";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import {
+  architectureIntelligenceDescriptionStepComplete,
   hasActionableArchitectureIntelligenceResult,
   resolveArchitectureIntelligenceAnalysisEmphasizedStepId,
   resolveArchitectureIntelligenceAnalysisSteps,
@@ -80,10 +81,11 @@ export function ArchitectureIntelligencePageClient() {
     interviewAnswers,
     onInterviewAnswerChange,
     continueWithAnswers,
+    hydratedSourceTexts,
   } = useArchitectureIntelligencePage();
 
   const reviewPicked = (activeRunId?.trim() ?? "").length > 0;
-  const descriptionWritten = architectureDescription.trim().length > 0;
+  const descriptionWritten = architectureIntelligenceDescriptionStepComplete(architectureDescription, hydratedSourceTexts);
   const analysisComplete = showReasoningWorkspace && hasActionableArchitectureIntelligenceResult(runState);
   const analysisChecklistInput = {
     reviewPicked,

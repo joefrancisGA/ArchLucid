@@ -43,6 +43,7 @@ import {
 } from "@/lib/runs/runs-list-compare-inspector-url";
 import {
   runsListNextPageHrefFromSearch,
+  runsListPaginationPageFromParams,
   runsListPreviousPageHrefFromSearch,
 } from "@/lib/runs/runs-list-pagination-url";
 
@@ -55,6 +56,7 @@ function totalPages(totalCount: number, pageSize: number): number {
 export type UseRunsListResult = {
   projectId: string;
   page: number;
+  displayPage: number;
   totalCount: number;
   listContextFilter: string | null;
   buyerPolished: boolean;
@@ -179,12 +181,21 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   }, [urlBuyerPackageScope]);
 
   useEffect(() => {
-    if (listContextFilterRef.current === urlListContextFilter) {
+    const committedListContextFilter = parseRunsListContextFilterFromSearch(
+      new URLSearchParams(readWindowLocationSearch()).get("filter"),
+    );
+
+    const next =
+      committedListContextFilter !== urlListContextFilter
+        ? committedListContextFilter
+        : urlListContextFilter;
+
+    if (listContextFilterRef.current === next) {
       return;
     }
 
-    listContextFilterRef.current = urlListContextFilter;
-    setListContextFilterState(urlListContextFilter);
+    listContextFilterRef.current = next;
+    setListContextFilterState(next);
   }, [urlListContextFilter]);
 
   useEffect(() => {
@@ -607,17 +618,24 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   );
 
   const pages = totalPages(totalCount, pageSize);
-  useEffect(() => {
-    const totalLabel = `${totalCount} review${totalCount === 1 ? "" : "s"} total`;
-
-    setPaginationAnnouncement(`Page ${page} of ${pages}. ${totalLabel}.`);
-  }, [page, pages, totalCount]);
 
   const committedSearchForNavigation = useSyncExternalStore(
     subscribeToCommittedLocationSearch,
     readWindowLocationSearch,
     () => "",
   );
+
+  const displayPage = runsListPaginationPageFromParams(
+    new URLSearchParams(committedSearchForNavigation),
+    page,
+  );
+
+  useEffect(() => {
+    const totalLabel = `${totalCount} review${totalCount === 1 ? "" : "s"} total`;
+
+    setPaginationAnnouncement(`Page ${displayPage} of ${pages}. ${totalLabel}.`);
+  }, [displayPage, pages, totalCount]);
+
   const navigationSearch = runsListCompareInspectorNavigationSearchFromSearch(
     routerSearchString,
     committedSearchForNavigation,
@@ -634,7 +652,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     pathname,
     projectId,
     pageSize,
-    page + 1,
+    displayPage + 1,
     nextCursor,
   );
 
@@ -699,6 +717,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   return {
     projectId,
     page,
+    displayPage,
     totalCount,
     listContextFilter,
     buyerPolished,

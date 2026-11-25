@@ -289,6 +289,7 @@ export function useArchitectureIntelligenceActions(
 
     setLoadingAction("golden");
     setError(null);
+    setRunState(null);
     const generation = actionGenerationRef.current;
 
     try {

@@ -93,4 +93,30 @@ describe("useArchitectureIntelligenceActions", () => {
     const body = postJsonMock.mock.calls[0]?.[1] as { publishToProduct?: boolean };
     expect(body.publishToProduct).toBe(true);
   });
+
+  it("clears prior reasoning output before a golden test POST", async () => {
+    const postJsonMock = vi.mocked(postJson);
+    let resolvePost: (value: unknown) => void;
+    const postPromise = new Promise((resolve) => {
+      resolvePost = resolve;
+    });
+    postJsonMock.mockReturnValue(postPromise as Promise<unknown>);
+
+    const ctx = createContext({
+      architectureDescription: "Brief",
+    });
+    const { result } = renderHook(() => useArchitectureIntelligenceActions(ctx));
+
+    let runPromise: Promise<void>;
+    act(() => {
+      runPromise = result.current.runGoldenTest();
+    });
+
+    expect(vi.mocked(ctx.setRunState).mock.calls.some((call) => call[0] === null)).toBe(true);
+
+    await act(async () => {
+      resolvePost!({ specialistReviews: [] });
+      await runPromise!;
+    });
+  });
 });

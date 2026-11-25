@@ -38,6 +38,81 @@ public sealed class DeploymentEvidenceReportMarkdownTests
         md.Should().Contain("| **Environment label** | staging |");
         md.Should().Contain("deadbeef");
     }
+    [Fact]
+    public void Compose_maps_git_dirty_tri_state_to_working_tree_lines()
+    {
+        DeploymentEvidenceProbeResult live =
+            new("GET /health/live", 200, true, "HTTP 200", [], "(empty body)");
+
+        DeploymentEvidenceProbeBundle bundle = new([live], allRequiredPassed: true);
+
+        string clean = DeploymentEvidenceReportMarkdown.Compose(
+            environmentName: "staging",
+            apiBaseUrl: "https://staging.example.com",
+            apiBaseUrlRedacted: "https://staging.example.com",
+            generatedAtUtc: new DateTime(2026, 5, 6, 12, 0, 0, DateTimeKind.Utc),
+            repositoryRoot: "C:\\repo",
+            gitHeadSha: "deadbeef",
+            gitDirty: false,
+            bundle,
+            cli: null,
+            allowMissingOpenApi: false,
+            syntheticPath: "/version");
+
+        string dirty = DeploymentEvidenceReportMarkdown.Compose(
+            environmentName: "staging",
+            apiBaseUrl: "https://staging.example.com",
+            apiBaseUrlRedacted: "https://staging.example.com",
+            generatedAtUtc: new DateTime(2026, 5, 6, 12, 0, 0, DateTimeKind.Utc),
+            repositoryRoot: "C:\\repo",
+            gitHeadSha: "deadbeef",
+            gitDirty: true,
+            bundle,
+            cli: null,
+            allowMissingOpenApi: false,
+            syntheticPath: "/version");
+
+        string unknown = DeploymentEvidenceReportMarkdown.Compose(
+            environmentName: "staging",
+            apiBaseUrl: "https://staging.example.com",
+            apiBaseUrlRedacted: "https://staging.example.com",
+            generatedAtUtc: new DateTime(2026, 5, 6, 12, 0, 0, DateTimeKind.Utc),
+            repositoryRoot: "C:\\repo",
+            gitHeadSha: "deadbeef",
+            gitDirty: null,
+            bundle,
+            cli: null,
+            allowMissingOpenApi: false,
+            syntheticPath: "/version");
+
+        clean.Should().Contain("- **Working tree:** clean");
+        dirty.Should().Contain("- **Working tree:** **dirty** (uncommitted changes)");
+        unknown.Should().Contain("- **Working tree:** (not determined)");
+    }
+
+    [Fact]
+    public void Compose_records_openapi_break_glass_when_allow_missing_open_api_is_true()
+    {
+        DeploymentEvidenceProbeResult live =
+            new("GET /health/live", 200, true, "HTTP 200", [], "(empty body)");
+
+        DeploymentEvidenceProbeBundle bundle = new([live], allRequiredPassed: true);
+
+        string md = DeploymentEvidenceReportMarkdown.Compose(
+            environmentName: "staging",
+            apiBaseUrl: "https://staging.example.com",
+            apiBaseUrlRedacted: "https://staging.example.com",
+            generatedAtUtc: new DateTime(2026, 5, 6, 12, 0, 0, DateTimeKind.Utc),
+            repositoryRoot: "C:\\repo",
+            gitHeadSha: "deadbeef",
+            gitDirty: false,
+            bundle,
+            cli: null,
+            allowMissingOpenApi: true,
+            syntheticPath: "/version");
+
+        md.Should().Contain("| **OpenAPI break-glass** | `--allow-missing-openapi` (recorded) |");
+    }
 
     [Fact]
     public void AppendPostureSection_lists_archlucid_json_row_when_config_present()

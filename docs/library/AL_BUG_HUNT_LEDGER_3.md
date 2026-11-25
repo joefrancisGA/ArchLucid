@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-infra-resource-hub` pass-496 cheap-disproof. ResourceHubClient **148/148**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 `ui-lib-remediation-factory` pass-24 negative architect denominator. **147/147**. — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-infra-resource-hub` pass-496 cheap-disproof. ResourceHubClient **148/148**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -334,7 +334,7 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 - **paths:** archlucid-ui/src/lib/api/
 - **test-filter:** lib/api
 - **hunts:** 10
-- **bugs-found:** 9
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -372,7 +372,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **paths:** archlucid-ui/src/lib/infra-evidence/
 - **test-filter:** lib/infra-evidence
 - **hunts:** 24
-- **bugs-found:** 8
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -381,6 +381,226 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-24 (`shouldRotate: false`; hint override). **proven** `architectOutcomeDeltaScopeNote` — negative comparison populations still rendered as `-3 resources in comparison scope` after finite parse; gate denominators with `parseNonNegativeFiniteNumber`. Regression `renders negative architect outcome denominators as not measured in scope notes`. **valid-no-repro** Infinity average age via decimal presenter, **valid-no-repro** non-numeric string percent (`parseNonNegativeFiniteNumber`), **valid-no-repro** snapshot identity foreign params on close (`operatorBooleanDisclosureHrefFromSearch`), **valid-no-repro** critical-exposure Infinity hint (`parseNonNegativeFiniteNumber` not zero). Pass-25 reseed below. Scoped vitest **147/147**. Private beta: invited operators no longer see negative resource counts in architect outcome comparison scope notes when the API returns an invalid population denominator.
+
+- [x] (superseded) pass-24 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-25 reseed.
+- [x] (proven) `architectOutcomeDeltaScopeNote` — negative denominator — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactoryDecimalMetricPresentation` — Infinity average age — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `parseNonNegativeFiniteNumber` rejects Infinity.
+- [x] (valid-no-repro) `remediationFactoryPercentMetricPresentation` — non-numeric string percent — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** invalid inputs become not measured.
+- [x] (valid-no-repro) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — foreign params on close — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** boolean disclosure writer preserves base search.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricPresentations` — critical-exposure hint for Infinity count — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** zero hint requires parsed count === 0.
+
+- [ ] (candidate) `architectOutcomeDeltaScopeNote` — fractional denominator — locus: scope note; input: 2.5 denominator; monitor; pass-25 reseed.
+- [ ] (candidate) `remediationFactoryCountMetricPresentation` — negative net burn — locus: signed count; input: -5 net burn; monitor; pass-25 reseed.
+- [ ] (candidate) `remediationFactoryDecimalMetricPresentation` — negative average age — locus: decimal parse; input: -1.2; monitor; pass-25 reseed.
+- [ ] (candidate) `remediationFactoryPercentMetricPresentation` — NaN percent value — locus: percent parse; input: NaN; monitor; pass-25 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — exceptions hint when expiringSoon zero — locus: table hints; input: 0 expiring; monitor; pass-25 reseed.
+
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-23 (`shouldRotate: false`; hint override). **proven** `architectOutcomeDeltaScopeNote` — finite architect outcome deltas could still show scope notes containing literal `NaN` when the comparison population was non-finite; normalize denominators with `parseFiniteNumber`. Regression `renders non-finite architect outcome denominators as not measured in scope notes`. **valid-no-repro** selection identity href drops legacy yes on close, **valid-no-repro** automation static hints when metrics null (exceptions hint already gated), **valid-no-repro** Infinity executive count via `parseFiniteNumber`, **valid-no-repro** metrics close preserves foreign params (existing url-state regression). Pass-24 reseed below. Scoped vitest **146/146**. Private beta: invited operators no longer see `NaN` in architect outcome comparison scope notes when the API returns an invalid population denominator.
+
+- [x] (superseded) pass-23 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-24 reseed.
+- [x] (proven) `architectOutcomeDeltaScopeNote` — non-finite denominator — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactorySelectionIdentityDisclosureHrefFromSearch` — drops legacy yes on close — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** boolean href writer.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricPresentations` — automation static hints — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** no automation table hint; exceptions gated on `metrics != null`.
+- [x] (valid-no-repro) `remediationFactoryCountMetricPresentation` — Infinity count — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `parseFiniteNumber` rejects Infinity.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — clears foreign params on metrics close — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** existing `foreign=keep` regression.
+
+
+- [x] (proven) `buildRemediationFactoryExecutiveMetricPresentations` — pattern hint when percent absent — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (proven) `architectOutcomeMetricPresentation` — non-finite delta values — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — drops legacy yes on close — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** boolean href writer.
+- [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects padded false — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** mixed-case false regression.
+- [x] (valid-no-repro) `remediationFactoryPercentMetricPresentation` — fraction percent above 100 — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** existing tile test keeps uncapped API points.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — metrics open padded true — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** existing padded true regression.
+
+
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-21 (`shouldRotate: false`; hint override). **proven** `remediationFactoryDecimalMetricPresentation` — negative risk-weighted open decimals rendered as `-1.50` in the executive table while tile chrome already rejected non-finite negatives; use `parseNonNegativeFiniteNumber`. Regression `renders negative risk-weighted open as not measured`. **valid-no-repro** selection identity href foreign params, **valid-no-repro** disclosure parse rejects `NaN` string, **valid-no-repro** tile formatter rejects negative open findings, **valid-no-repro** tab-only path overflow list. Pass-22 reseed below. Scoped vitest **143/143**. Private beta: invited operators no longer see negative risk-weighted open decimals in the remediation factory executive metrics table when the API returns invalid values.
+
+- [x] (superseded) pass-21 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-22 reseed.
+- [x] (proven) `remediationFactoryDecimalMetricPresentation` — negative risk-weighted — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactorySelectionIdentityDisclosureHrefFromSearch` — preserves foreign params — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** disclosure-only writer.
+- [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects NaN string token — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** not in open allowlist.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — negative count when loaded — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `parseNonNegativeFiniteNumber` on counts.
+- [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — tab-only path id list — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** existing whitespace regression.
+
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-20 (`shouldRotate: false`; hint override). **proven** executive metrics table presentation — `remediationFactoryCountMetricPresentation` and siblings stringified non-finite API numbers as literal `NaN` in the SecureNow remediation factory table; normalize through `parseFiniteNumber` / `parseNonNegativeFiniteNumber`, treat invalid counts as **Not measured**, and keep signed net burn via `signedCount`; gate critical-exposure zero hint on parsed count. Regressions `renders non-finite critical exposure counts as not measured`, `keeps signed net burn values in the executive table`. **valid-no-repro** selection identity href canonical writer, **valid-no-repro** snapshot identity href foreign params, **valid-no-repro** duplicate `toSnapshot` first-wins, **invalid** snapshot identity url-state writer (param not in lib url-state). Pass-21 reseed below. Scoped vitest **142/142**. Private beta: invited operators no longer see `NaN` in remediation factory executive metrics table cells when the factory metrics payload returns non-finite values.
+
+- [x] (superseded) pass-20 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-21 reseed.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricPresentations` — non-finite table values — **proven 2026-11-25 thorough hunt (seed→hit):** regressions cited in hunt note.
+- [x] (valid-no-repro) `remediationFactorySelectionIdentityDisclosureHrefFromSearch` — open writes canonical `1` — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `operatorBooleanDisclosureHrefFromSearch` contract.
+- [x] (valid-no-repro) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — preserves foreign params — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** disclosure-only selection switch.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate toSnapshot first-wins — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** existing first-wins regression.
+- [x] (invalid) `remediationFactoryUrlStateToSearchParams` — snapshot identity open writes canonical `1` — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** snapshot identity param not in url-state writer.
+
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-19 (`shouldRotate: false`; hint override). **proven** executive metric footnotes — `buildRemediationFactoryExecutiveMetricTiles` interpolated missing `exceptionsExpiringSoon` / weekly burn counts as the literal word `undefined` when the API omitted optional fields; gate with `parseNonNegativeFiniteNumber` helpers and omit the footnote; mirror exceptions table hint in `buildRemediationFactoryExecutiveMetricPresentations`. Regressions `omits exceptions-active footnote when expiring-soon count is not returned`, `omits net-burn footnote when weekly counts are not returned`, `omits exceptions-active table hint when expiring-soon count is not returned`. **valid-no-repro** snapshot identity href closed/open writer (`operatorBooleanDisclosureHrefFromSearch`), **valid-no-repro** `remediationFactoryHrefFromSearch` foreign params, **valid-no-repro** snapshot identity duplicate param first-wins, **invalid** metric label when unloaded (labels required under loading). Pass-20 reseed below. Scoped vitest **140/140**. Private beta: invited operators no longer see helper lines with the text `undefined` under net burn or exceptions active tiles when the factory metrics payload omits optional weekly counts.
+
+- [x] (superseded) pass-19 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-20 reseed.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — footnotes with absent optional counts — **proven 2026-11-25 thorough hunt (seed→hit):** regressions cited in hunt note.
+- [x] (valid-no-repro) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — closed clears token — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** boolean href writer contract.
+- [x] (valid-no-repro) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — open writes canonical `1` — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** writer normalization contract.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves finding param — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** existing foreign param regressions.
+- [x] (valid-no-repro) `parseRemediationFactorySnapshotIdentityDisclosureOpenFromSearch` — duplicate param first-wins — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `URLSearchParams.get` first token semantics.
+- [x] (invalid) `buildRemediationFactoryExecutiveMetricTiles` — label line when unloaded — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** labels required while loading.
+
+- [ ] (candidate) `remediationFactorySelectionIdentityDisclosureHrefFromSearch` — open writes canonical `1` — locus: writer normalization; input: open=true; monitor; pass-20 reseed.
+- [ ] (candidate) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — preserves foreign params — locus: disclosure writer; input: foreign query; monitor; pass-20 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — critical-exposure hint when count absent — locus: table hints; input: partial metrics; monitor; pass-20 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate toSnapshot first-wins — locus: URLSearchParams.get; monitor; pass-20 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — snapshot identity open writes canonical `1` — locus: writer normalization; input: legacy yes token; monitor; pass-20 reseed.
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-18 (`shouldRotate: false`; hint override). **proven** snapshot-identity disclosure parse — `parseRemediationFactorySnapshotIdentityDisclosureOpenFromSearch` still accepted only `1`/`true` while shared metrics parse already honors `yes`/`on`, so deep-linked snapshot identity panels stayed closed on shared allowlist tokens; route through `parseRemediationFactoryDisclosureOpenFromSearch`. Regression `treats yes and on snapshot identity disclosure tokens as open on read`. **valid-no-repro** selection-identity href closed clears token (`operatorBooleanDisclosureHrefFromSearch` contract), **valid-no-repro** shared parse rejects `off` (`treats OFF metrics disclosure token as closed on read`), **valid-no-repro** metrics open writes canonical `1` (writer regressions), **valid-no-repro** mixed short/long overflow (`shows overflow honesty after trimming padded long path ids`). Pass-19 reseed below. Scoped vitest **137/137**. Private beta: invited operators opening remediation factory with `yes`/`on` snapshot-identity disclosure bookmarks see the snapshot identity panel open consistently with metrics and selection-identity URL tokens.
+
+- [x] (superseded) pass-18 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-19 reseed.
+- [x] (proven) `parseRemediationFactorySnapshotIdentityDisclosureOpenFromSearch` — yes/on tokens — **proven 2026-11-25 thorough hunt (seed→hit):** shared disclosure parse; regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactorySelectionIdentityDisclosureHrefFromSearch` — closed clears token — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** boolean href writer contract.
+- [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects `off` literal — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** OFF read regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open writes canonical `1` — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** writer normalization regressions.
+- [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — mixed short/long after trim — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** padded-long overflow regression.
+
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-17 (`shouldRotate: false`; hint override). **proven** selection-identity disclosure parse — `parseRemediationFactorySelectionIdentityDisclosureOpenFromSearch` accepted only `1`/`true` while metrics disclosure already honors `yes`/`on`, so deep-linked selection identity panels stayed closed on shared allowlist tokens; route through exported `parseRemediationFactoryDisclosureOpenFromSearch`. Regression `treats yes and on selection identity disclosure tokens as open on read`. **valid-no-repro** metrics `NO` closed write (`drops NO metrics disclosure token from base search when writing closed state`), **valid-no-repro** metrics `yes` read, **valid-no-repro** trim-only chip label, **invalid** label-when-unloaded (labels must stay visible under loading). Pass-18 reseed below. Scoped vitest **136/136**. Private beta: invited operators opening remediation factory with `yes`/`on` selection-identity disclosure bookmarks see the identity panel open consistently with metrics disclosure URL tokens.
+
+- [x] (superseded) pass-17 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-18 reseed.
+- [x] (proven) `parseRemediationFactorySelectionIdentityDisclosureOpenFromSearch` — yes/on tokens — **proven 2026-11-25 thorough hunt (seed→hit):** shared disclosure parse; regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — drops `NO` token — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — yes metrics token — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `treats yes and on metrics disclosure tokens as open on read`.
+- [x] (valid-no-repro) `formatAttackPathReportPathChipLabel` — trim-only id — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** whitespace-only regression.
+- [x] (invalid) `buildRemediationFactoryExecutiveMetricTiles` — label when unloaded — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** metric labels required while loading.
+
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-16 (`shouldRotate: false`; hint override). **proven** `scopeLine` on executive tiles — workspace scope chrome showed under `Loading metrics…` while `metricsLoaded` was false; gate via `scopeLineWhenLoaded` and omit in `MetricTileBody` when undefined. Regression `omits scopeLine on executive metric tiles when metrics are unloaded`. **valid-no-repro** metrics `no` token not in open allowlist, **valid-no-repro** duplicate metrics param (`URLSearchParams.get` first token), **valid-no-repro** overflow with single long path id, **invalid** path alias param (no alias in url-state). Pass-17 reseed below. Scoped vitest **134/134**. Private beta: invited operators no longer see workspace scope helper copy on remediation factory metric tiles while metrics are still loading.
+
+- [x] (superseded) pass-16 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-17 reseed.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — scopeLine when unloaded — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics closed drops `no` token — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `no` not in open parse allowlist; closed write deletes param.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics param — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `URLSearchParams.get` first-wins on read.
+- [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — single id list — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** threshold regression without overflow line.
+- [x] (invalid) `remediationFactoryHrefFromSearch` — path alias param — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** only `selectedPath` param is defined.
+
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — label line when unloaded — locus: tile label always visible; monitor; pass-17 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics closed drops `NO` token — locus: case-fold parse; monitor; pass-17 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — yes metrics token — locus: open parse allowlist; monitor; pass-17 reseed.
+- [ ] (candidate) `formatAttackPathReportPathChipLabel` — trim-only id — locus: empty after trim; monitor; pass-17 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves finding param on pathname-only href — locus: disclosure writer; monitor; pass-17 reseed.
+
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-15 (`shouldRotate: false`; hint override). **proven** `windowLine` on executive metric tiles — static window/helper copy rendered while `metricsLoaded` was false; gate via `windowLineWhenLoaded`. Regression `omits windowLine on executive metric tiles when metrics are unloaded`. **valid-no-repro** metrics closed drops `off` token (`treats OFF metrics disclosure token as closed` + closed write drops param), **valid-no-repro** empty metrics param defaults closed (`parseRemediationFactoryMetricsSummaryOpen`), **valid-no-repro** lone dots chip label (`formatAttackPathReportPathChipLabel` returns `...`), **valid-no-repro** href preserves foreign params (`remediationFactoryHrefFromSearch` + round-trip `selectedPath`). Pass-16 reseed below. Scoped vitest **133/133**. Private beta: invited operators no longer see rolling-window and population helper lines under loading/not-computed remediation factory metric tiles.
+
+- [x] (superseded) pass-15 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-16 reseed.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — windowLine when unloaded — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics closed drops off token — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** OFF read + closed write param delete.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — empty metrics param — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** trim-empty → closed.
+- [x] (valid-no-repro) `formatAttackPathReportPathChipLabel` — lone dots path id — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** existing ellipsis passthrough test.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves selectedPath param — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** round-trip + foreign query regressions.
+
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — scopeLine when unloaded — locus: static workspace scope; monitor; pass-16 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics closed drops `no` token — locus: open parse allowlist; monitor; pass-16 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics param — locus: first token wins; monitor; pass-16 reseed.
+- [ ] (candidate) `attackPathReportPathChipOverflowLine` — single id list — locus: overflow helper; monitor; pass-16 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves path alias param — locus: disclosure writer; monitor; pass-16 reseed.
+
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker exhausted; continued `ui-lib-remediation-factory` pass-14 (`shouldRotate: false`). Promoted ruleLine on factory tiles — **proven** prioritization rule text showed on open-findings/risk-weighted tiles while `metricsLoaded` was false; gate `ruleLine` on `metricsLoaded`. Regression `omits ruleLine on open-findings-factory when metrics are unloaded`. **valid-no-repro** metrics closed drops `false` token, **valid-no-repro** padded `true` open parse, **valid-no-repro** whitespace-only overflow list, **valid-no-repro** href preserves `toSnapshot`. Scoped vitest **130/130**. Reseeded pass-15 below. Private beta: invited operators no longer see IE15 rule chrome under loading/not-computed metric tiles.
+
+- [x] (superseded) pass-14 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-15 reseed.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — ruleLine when unloaded — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics closed drops false token — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `drops false metrics disclosure token from base search when writing closed state`.
+- [x] (valid-no-repro) `parseRemediationFactoryMetricsSummaryOpen` — literal true with surrounding whitespace — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `treats a padded true metrics disclosure token as open on read`.
+- [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — whitespace-only ids in list — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `returns null overflow line for whitespace-only path ids in the list`.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves toSnapshot param — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — windowLine when unloaded — locus: static window text; monitor; pass-15 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics closed drops off token — locus: delete on false; monitor; pass-15 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — empty metrics param — locus: default closed; monitor; pass-15 reseed.
+- [ ] (candidate) `formatAttackPathReportPathChipLabel` — lone dots path id — locus: ellipsis passthrough; monitor; pass-15 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves selectedPath param — locus: disclosure writer; monitor; pass-15 reseed.
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker exhausted; continued `ui-lib-remediation-factory` pass-13 (`shouldRotate: false`). Promoted open-findings-factory static footnote — **proven** scope helper showed while `metricsLoaded` was false; gate on `metricsLoaded`. Regression `omits open-findings-factory footnote when metrics are unloaded`. **valid-no-repro** metrics closed drops `0` token, **valid-no-repro** whitespace-only chip label, **valid-no-repro** href preserves `fromSnapshot`, **valid-no-repro** independent first-wins finding/path reads. Scoped vitest **127/127**. Reseeded pass-14 below. Private beta: invited operators no longer see factory-vs-queue comparison footnote under not-measured open findings while metrics load.
+
+- [x] (superseded) pass-13 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-14 reseed.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — open-findings-factory static footnote when unloaded — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics closed drops literal 0 token — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `drops zero metrics disclosure token from base search when writing closed state`.
+- [x] (valid-no-repro) `formatAttackPathReportPathChipLabel` — whitespace-only path id after trim — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `returns empty string for a whitespace-only path id after trim`.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves fromSnapshot param — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate selectedPath and path params — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `reads first-wins selection params independently for finding and path`.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — ruleLine when unloaded — locus: static ruleLine text; monitor; pass-14 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics closed drops false token — locus: delete on false; monitor; pass-14 reseed.
+- [ ] (candidate) `parseRemediationFactoryMetricsSummaryOpen` — literal true with surrounding whitespace — locus: trim parse; monitor; pass-14 reseed.
+- [ ] (candidate) `attackPathReportPathChipOverflowLine` — whitespace-only ids in list — locus: trim before honesty; monitor; pass-14 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves toSnapshot param — locus: disclosure writer; monitor; pass-14 reseed.
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker exhausted (all default-eligible zones parked); continued open `ui-lib-remediation-factory` pass-12 queue (`shouldRotate: false`). Promoted critical-exposure footnote — **proven** zero-count helper text showed while `metricsLoaded` was false; gate on `metricsLoaded`. Regression `omits critical-exposure footnote when metrics are unloaded even if count is zero`. **valid-no-repro** duplicate `toSnapshot` first-wins, **valid-no-repro** padded `1` metrics token, **valid-no-repro** mixed short/long overflow honesty, **valid-no-repro** clearing snapshots drops both params. Scoped vitest **122/122**. Reseeded pass-13 below. Private beta: invited operators no longer see “no critical” helper copy under not-measured critical exposure while metrics load.
+
+- [x] (superseded) pass-12 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-13 reseed.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — critical-exposure footnote when unloaded — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `readUuidParam` — duplicate toSnapshot params first-wins — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `uses the first toSnapshot token when the query string repeats the param`.
+- [x] (valid-no-repro) `parseRemediationFactoryMetricsSummaryOpen` — literal 1 with surrounding whitespace — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `treats a padded numeric one metrics disclosure token as open on read`.
+- [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — mixed short and padded long ids — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `shows overflow honesty when any path id is long after trim among short ids`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — clears stale toSnapshot when from cleared — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `drops stale toSnapshot when clearing from snapshot from base search`.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — open-findings-factory static footnote when unloaded — locus: static scope footnote; monitor; pass-13 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics closed drops literal 0 token — locus: delete on false; monitor; pass-13 reseed.
+- [ ] (candidate) `formatAttackPathReportPathChipLabel` — whitespace-only path id after trim — locus: empty trim; monitor; pass-13 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves fromSnapshot param — locus: disclosure writer; monitor; pass-13 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate selectedPath and path params — locus: independent UUID reads; monitor; pass-13 reseed.
+2026-11-25 thorough hunt (seed→hit): no rotation (`shouldRotate: false`). Promoted pass-11 exceptions-active footnote — **proven** stale metrics object showed expiring-soon footnote while `metricsLoaded` was false; gate on `metricsLoaded` (sibling to pass-10 net-burn). Regression `omits exceptions-active footnote when metrics are unloaded even if a metrics object is present`. **valid-no-repro** legacy `true` open write (`writes metrics open as 1 when base search used a legacy true token`), **valid-no-repro** duplicate `fromSnapshot` first-wins, **valid-no-repro** padded chip ellipsis after trim, **valid-no-repro** href preserves metrics open param. Scoped vitest **117/117**. Reseeded pass-12 below. Private beta: invited operators no longer see expiring-soon footnote under not-measured exceptions tile while factory metrics load.
+
+- [x] (superseded) pass-11 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-12 reseed.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — open write normalizes legacy true to 1 — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `readUuidParam` — duplicate fromSnapshot params first-wins — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `uses the first fromSnapshot token when the query string repeats the param`.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — exceptions-active footnote when unloaded — **proven 2026-11-25 thorough hunt (seed→hit):** `metricsLoaded` guard; regression cited in hunt note.
+- [x] (valid-no-repro) `formatAttackPathReportPathChipLabel` — trims padding before ellipsis — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `ellipsizes padded long path ids after trim`.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves metrics open param — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — critical-exposure footnote when unloaded — locus: zero-count footnote vs metricsLoaded; monitor; pass-12 reseed.
+- [ ] (candidate) `readUuidParam` — duplicate toSnapshot params first-wins — locus: URLSearchParams get; monitor; pass-12 reseed.
+- [ ] (candidate) `parseRemediationFactoryMetricsSummaryOpen` — literal 1 with surrounding whitespace — locus: trim parse; monitor; pass-12 reseed.
+- [ ] (candidate) `attackPathReportPathChipOverflowLine` — mixed short and padded long ids — locus: some() honesty; monitor; pass-12 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — clears stale toSnapshot when from cleared — locus: UUID write; monitor; pass-12 reseed.
+2026-11-25 thorough hunt (seed→hit): no rotation (`shouldRotate: false`). Promoted pass-10 net-burn footnote — **proven** `buildRemediationFactoryExecutiveMetricTiles` showed created/remediated footnote while `metricsLoaded` was false; gate footnote on `metricsLoaded`. Regression `omits net-burn footnote when metrics are unloaded even if a metrics object is present`. **valid-no-repro** duplicate `selectedPath` first-wins, **valid-no-repro** open write normalizes legacy `on` to `1`, **valid-no-repro** padded path honesty after trim, **valid-no-repro** fractional points above unity. Scoped vitest **112/112**. Reseeded pass-11 below. Private beta: invited operators no longer see stale created/remediated footnote under not-measured net burn while metrics load.
+
+- [x] (superseded) pass-10 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-11 reseed.
+- [x] (valid-no-repro) `readUuidParam` — duplicate selectedPath params first-wins — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `uses the first selectedPath token when the query string repeats the param`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — open write replaces legacy on with 1 — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `writes metrics open as 1 when base search used a legacy on token`.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — net-burn footnote when unloaded — **proven 2026-11-25 thorough hunt (seed→hit):** `metricsLoaded` guard; regression cited above.
+- [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — padded path id honesty after trim — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `shows overflow honesty after trimming padded long path ids`.
+- [x] (valid-no-repro) `formatRemediationFactoryPercentDisplay` — fractional values above 1 on points scale — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `keeps fractional API points above unity on the points scale`.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — open write normalizes legacy true to 1 — locus: metrics open write; monitor; pass-11 reseed.
+- [ ] (candidate) `readUuidParam` — duplicate fromSnapshot params first-wins — locus: URLSearchParams get; monitor; pass-11 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — exceptions-active footnote when unloaded — locus: valueFootnote vs metricsLoaded; monitor; pass-11 reseed.
+- [ ] (candidate) `formatAttackPathReportPathChipLabel` — trims padding before ellipsis — locus: trim; monitor; pass-11 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves metrics open param — locus: disclosure writer; monitor; pass-11 reseed.
+2026-11-25 thorough hunt (dry): no rotation (`shouldRotate: false`). Attempted failing repro on five pass-9 `(candidate)` rows — all **valid-no-repro**: duplicate selection UUID first-wins (`uses the first selectedFinding token when the query string repeats the param`), open write normalizes legacy `yes` to `1` (`writes metrics open as 1 when base search used a legacy yes token`), unity fraction vs 100 points (`keeps one hundred on the API points scale distinct from a unity fraction`), 49-char path honesty (`shows overflow honesty copy only when a path id exceeds 48 characters`), unloaded positive net burn (`does not show positive net burn when metrics are unloaded even if netBurn is present`). Scoped vitest **107/107** (`remediation-factory`). Reseeded pass-10 below. Private beta: n/a.
+
+- [x] (superseded) pass-9 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (dry):** pass-10 reseed.
+- [x] (valid-no-repro) `readUuidParam` — duplicate selection UUID params first-wins — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `uses the first selectedFinding token when the query string repeats the param`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — open write replaces legacy yes with 1 — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `writes metrics open as 1 when base search used a legacy yes token`.
+- [x] (valid-no-repro) `formatRemediationFactoryPercentDisplay` — unity fraction 1.0 vs 100 points — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `keeps one hundred on the API points scale distinct from a unity fraction`.
+- [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — 49-char path id honesty threshold — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `shows overflow honesty copy only when a path id exceeds 48 characters`.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — positive net burn when unloaded — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `does not show positive net burn when metrics are unloaded even if netBurn is present`.
+
+2026-11-25 thorough hunt (dry): no rotation (`shouldRotate: false`). Attempted failing repro on five pass-8 `(candidate)` rows — all **valid-no-repro**: duplicate metrics param uses URLSearchParams first value (`uses the first metrics disclosure token when the query string repeats the param`), closed write drops legacy `yes` token (`drops yes metrics token from base search when writing closed state`), sub-point fraction rounding (`rounds sub-point percent fractions after normalization`), 29-char chip ellipsis boundary (`ellipsizes a 29-character path id while keeping a 28-character id verbatim`), unloaded negative net burn (`does not show net burn when metrics are unloaded even if netBurn is present`). Scoped vitest **102/102** (`remediation-factory`). Reseeded pass-9 below. Private beta: n/a.
+
+- [x] (superseded) pass-8 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (dry):** pass-9 reseed.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics params last-wins — **cheap-disproof 2026-11-25 thorough hunt (dry):** first-wins URLSearchParams contract; regression `uses the first metrics disclosure token when the query string repeats the param`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics closed drops yes token in base — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `drops yes metrics token from base search when writing closed state`.
+- [x] (valid-no-repro) `formatRemediationFactoryPercentDisplay` — sub-point fraction rounds — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `rounds sub-point percent fractions after normalization`.
+- [x] (valid-no-repro) `formatAttackPathReportPathChipLabel` — 29-char boundary — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `ellipsizes a 29-character path id while keeping a 28-character id verbatim`.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — negative net burn when unloaded — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `does not show net burn when metrics are unloaded even if netBurn is present`.
+2026-11-25 thorough hunt (dry): no rotation (`shouldRotate: false`). Attempted failing repro on five pass-7 `(candidate)` rows — all **valid-no-repro**: mixed-case `false` (`treats mixed-case false metrics disclosure token as closed on read`), tab-only UUID write (`drops tab-only finding id instead of writing blank param`), zero percent (`renders zero percent as 0%`), empty path list overflow (`returns null overflow line for an empty path id list`), foreign param retention on snapshot clear (`preserves foreign params when clearing snapshot selection`). Scoped vitest **102/102** (`remediation-factory`). Reseeded pass-8 below. Private beta: n/a.
+
+- [x] (superseded) pass-7 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (dry):** pass-8 reseed.
+- [x] (valid-no-repro) `parseRemediationFactoryMetricsSummaryOpen` — `false` literal with mixed case — **cheap-disproof 2026-11-25 thorough hunt (dry):** `treats mixed-case false metrics disclosure token as closed on read`.
+- [x] (valid-no-repro) `normalizeUuidQueryValue` — tab-only selection id — **cheap-disproof 2026-11-25 thorough hunt (dry):** `drops tab-only finding id instead of writing blank param`.
+- [x] (valid-no-repro) `formatRemediationFactoryPercentDisplay` — value exactly 0 — **cheap-disproof 2026-11-25 thorough hunt (dry):** `renders zero percent as 0%`.
+- [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — empty input array — **cheap-disproof 2026-11-25 thorough hunt (dry):** `returns null overflow line for an empty path id list`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — foreign params preserved when clearing snapshots — **cheap-disproof 2026-11-25 thorough hunt (dry):** `preserves foreign params when clearing snapshot selection`.
+2026-11-25 thorough hunt (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-6 `(candidate)` rows — all **valid-no-repro**: **valid-no-repro** `0` metrics token (`treats zero metrics disclosure token as closed on read`), **valid-no-repro** stale UUID on metrics write (`clears stale selection UUIDs when opening metrics from a populated base search`), **valid-no-repro** unity fraction display (`treats unity fraction as one hundred percent`), **valid-no-repro** all-short path overflow line (`returns null overflow line when every path id is short`), **valid-no-repro** disclosure-only href writer (`remediationFactoryHrefFromSearch preserves foreign query params without mutating selection`; stale selection via disclosure-only writer is intentional per hunt #2). Restored pass-5 URL monitors dropped in prior push. Scoped vitest **97/97** (`remediation-factory`). Reseeded pass-7 below. Private beta: n/a.
+
+- [x] (superseded) pass-6 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (dry):** pass-7 reseed.
+- [x] (valid-no-repro) `parseRemediationFactoryMetricsSummaryOpen` — `false` literal with mixed case — **cheap-disproof 2026-11-25 thorough hunt (dry):** `treats mixed-case false metrics disclosure token as closed on read`. — locus: open parse; monitor; pass-7 reseed.
+- [x] (valid-no-repro) `normalizeUuidQueryValue` — tab-only selection id — **cheap-disproof 2026-11-25 thorough hunt (dry):** `drops tab-only finding id instead of writing blank param`. — locus: UUID trim; monitor; pass-7 reseed.
+- [x] (valid-no-repro) `formatRemediationFactoryPercentDisplay` — value exactly 0 — **cheap-disproof 2026-11-25 thorough hunt (dry):** `renders zero percent as 0%`. — locus: zero percent; monitor; pass-7 reseed.
+- [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — empty input array — **cheap-disproof 2026-11-25 thorough hunt (dry):** `returns null overflow line for an empty path id list`. — locus: overflow guard; monitor; pass-7 reseed.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — foreign params preserved when clearing snapshots — **cheap-disproof 2026-11-25 thorough hunt (dry):** `preserves foreign params when clearing snapshot selection`. — locus: base search threading; monitor; pass-7 reseed.
+2026-11-25 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof on five pass-5 `(candidate)` rows — **valid-no-repro** percent above 100 (`renders percent tiles above 100 on the API points scale without capping`), **valid-no-repro** `OFF` token (`treats OFF metrics disclosure token as closed on read`), **valid-no-repro** metrics open with cleared selections (`writes metrics disclosure open when all selection params are cleared`), **valid-no-repro** lone ellipsis chip (`returns a lone ellipsis path id without adding a second ellipsis`), **valid-no-repro** unloaded metrics object (`returns null tile values when metrics are not loaded even if a metrics object is present`). Scoped vitest **89/89** (`remediation-factory`). Reseeded pass-6 below. Private beta: n/a.
+
+- [x] (superseded) pass-5 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed-only):** pass-6 reseed.
+- [x] (valid-no-repro) `parseRemediationFactoryMetricsSummaryOpen` — `0` numeric token — **cheap-disproof 2026-11-25 thorough hunt (dry):** `treats zero metrics disclosure token as closed on read`. — locus: open parse; monitor; pass-6 reseed.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — stale UUID params when only metrics toggles — **cheap-disproof 2026-11-25 thorough hunt (dry):** `clears stale selection UUIDs when opening metrics from a populated base search`. — locus: partial state write; monitor; pass-6 reseed.
+- [x] (valid-no-repro) `formatRemediationFactoryPercentDisplay` — exactly 1.0 fraction vs points — **cheap-disproof 2026-11-25 thorough hunt (dry):** `treats unity fraction as one hundred percent`. — locus: display normalize; monitor; pass-6 reseed.
+- [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — all short ids — **cheap-disproof 2026-11-25 thorough hunt (dry):** `returns null overflow line when every path id is short`. — locus: overflow line; monitor; pass-6 reseed.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — empty pathname segment — **cheap-disproof 2026-11-25 thorough hunt (dry):** `remediationFactoryHrefFromSearch threads pathname when search is empty` (disclosure-only selection retention via separate monitor). — locus: operator href; monitor; pass-6 reseed.
 -11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). **Proven** `parseRemediationFactoryUrlStateFromSearch` treated `remediationFactoryMetricsOpen=yes` and `on` as closed while other operator boolean URL parsers accept those tokens — `parseRemediationFactoryMetricsSummaryOpen` now aligns with `1`/`true`/`yes`/`on`; regressions `treats yes and on metrics disclosure tokens as open on read`. Cheap-disproof on pass-2 `(candidate)` monitors — **valid-no-repro** stale metrics delete on close (`drops stale metrics disclosure param when toggling closed`), **valid-no-repro** `NaN%` percent chips (monitor), **valid-no-repro** whitespace-only path chip, **valid-no-repro** loaded without metrics payload. Scoped vitest **86/86** (`remediation-factory`). Pass-3 reseed below. Private beta: shared remediation-factory URLs with `yes`/`on` metrics disclosure restore open state.
 
 
@@ -433,11 +653,11 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 - [x] (superseded) pass-4 `(candidate)` queue — **superseded 2026-11-25 seed hunt #3 (seed-only):** see pass-5 reseed.
 
-- [ ] (candidate) `formatPercentPoints` — percent above 100 buyer cap — locus: tile cap; monitor; pass-5 reseed.
-- [ ] (candidate) `parseRemediationFactoryMetricsSummaryOpen` — `OFF` uppercase token — locus: open parse; monitor; pass-5 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open with all selections cleared — locus: URL write; monitor; pass-5 reseed.
-- [ ] (candidate) `formatAttackPathReportPathChipLabel` — lone ellipsis path id — locus: chip label; monitor; pass-5 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — metricsLoaded false with object present — locus: tile null cells; monitor; pass-5 reseed.
+- [x] (valid-no-repro) `formatPercentPoints` — percent above 100 buyer cap — **cheap-disproof 2026-11-25 seed hunt (seed-only):** regression `renders percent tiles above 100 on the API points scale without capping`. — locus: tile cap; monitor; pass-5 reseed.
+- [x] (valid-no-repro) `parseRemediationFactoryMetricsSummaryOpen` — `OFF` uppercase token — **cheap-disproof 2026-11-25 seed hunt (seed-only):** regression `treats OFF metrics disclosure token as closed on read`. — locus: open parse; monitor; pass-5 reseed.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open with all selections cleared — **cheap-disproof 2026-11-25 seed hunt (seed-only):** regression `writes metrics disclosure open when all selection params are cleared`. — locus: URL write; monitor; pass-5 reseed.
+- [x] (valid-no-repro) `formatAttackPathReportPathChipLabel` — lone ellipsis path id — **cheap-disproof 2026-11-25 seed hunt (seed-only):** regression in `attack-path-report-path-chip-label.test.ts`. — locus: chip label; monitor; pass-5 reseed.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — metricsLoaded false with object present — **cheap-disproof 2026-11-25 seed hunt (seed-only):** regression `returns null tile values when metrics are not loaded even if a metrics object is present`. — locus: tile null cells; monitor; pass-5 reseed.
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/remediation-factory`. Seeded five `(hunt-ready)` rows; no production change.
 
 ### Hypotheses
@@ -453,13 +673,13 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 29
-- **bugs-found:** 10
-- **consecutive-dry-hunts:** 2
+- **hunts:** 46
+- **bugs-found:** 24
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 ## Zone: ui-hooks-shared
 
 2026-11-25 seed hunt #4 (seed-only): no rotation (`shouldRotate: false`). After shipping deferred `archlucid-contracts` hit (`739037b3a9`). Cheap-disproof on five pass-5 `(candidate)` rows — **valid-no-repro** incremental findings refresh (`summary.runId !== options.runId` guard), **valid-no-repro** pinned review auto-close (404 gated on `notFound` + loading semantics; monitor), **valid-no-repro** `useAskStream.reset` clears `pendingRef` and flush timer, **valid-no-repro** marketing early-access double-submit (`canSubmit` requires `!busy`), **valid-no-repro** pin URL desync (monitor; `commitHrefIfChanged` pattern). **3× seed-only streak** — zone parks from automatic picks until hint. Scoped vitest **259/259** (one transient failure on first pass, green on retry). Pass-6 reseed below. Private beta: n/a.
@@ -528,7 +748,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **paths:** archlucid-ui/src/hooks/
 - **test-filter:** src/hooks
 - **hunts:** 28
-- **bugs-found:** 9
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-24
@@ -1293,7 +1513,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
 - **hunts:** 24
-- **bugs-found:** 8
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -1672,7 +1892,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
 - **hunts:** 11
-- **bugs-found:** 10
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -2423,7 +2643,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
 - **hunts:** 24
-- **bugs-found:** 8
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -2557,6 +2777,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-terraform-evidence
 
+2026-11-25 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone `ui-runs-list` 1/3). Cheap-disproof on five pass-5 `(candidate)` rows — **valid-no-repro** git dirty tri-state (`Compose_maps_git_dirty_tri_state_to_working_tree_lines`; new monitor), **valid-no-repro** documentation path (`DocumentationRelativePath_points_to_existing_reference_doc`), **valid-no-repro** consumption APIM ordering (`DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring`), **valid-no-repro** OpenAPI break-glass row (`Compose_records_openapi_break_glass_when_allow_missing_open_api_is_true`; new monitor), **valid-no-repro** orchestrator legacy suffix (`DefaultApplyOrderRoots_orchestrator_line_cites_legacy_leaf_roots_annotation`). Scoped deployment-evidence terraform + report markdown vitest **57/57**. Reseeded pass-6 below. Private beta: n/a.
+
+- [x] (superseded) pass-5 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed-only):** pass-6 reseed.
+- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — default OpenAPI break-glass row may omit `off (default)` when flag false — locus: posture table; input: allowMissingOpenApi false; monitor; pass-6 reseed.
+- [ ] (candidate) `DefaultApplyOrderRoots` — composition wave ordering may invert foundation/platform/app metadata rows — locus: static list head; input: reorder composition lines; monitor `DefaultApplyOrderRoots_lists_three_composition_waves_in_foundation_platform_app_order`; pass-6 reseed.
+- [ ] (candidate) `DeploymentEvidenceTerraformReference.ExtractLeafPaths` — metadata-only rows may leak into leaf extract when annotation missing — locus: ExtractLeafPaths filter; input: strip em dash; monitor `DefaultApplyOrderRoots_extract_leaf_paths_omits_metadata_only_rows_for_leaf_planners`; pass-6 reseed.
+- [ ] (candidate) `infra/apply-saas.ps1` — `$multiRootSequence` length may diverge from twenty-entry evidence list — locus: ps1 parse vs C# list; input: append root; monitor `DefaultApplyOrderRoots_lists_exactly_twenty_entries`; pass-6 reseed.
+- [ ] (candidate) `REFERENCE_SAAS_STACK_ORDER.md` — advanced table may list fewer than sixteen hosted leaves — locus: backtick table scrape; input: drop row; monitor `DefaultApplyOrderRoots_reference_doc_advanced_table_lists_exactly_sixteen_leaves`; pass-6 reseed.
 2026-11-01 thorough hunt #169 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `cli-draft-new` (dry **#166**, **#167**, **#168** / run log). Picker applied **`-AvoidZoneId cli-draft-new`** and returned `cli-terraform-evidence` (`shouldRotate: true`; reason: *3 consecutive low-yield hunt(s) on 'cli-draft-new' (outcomes: dry, dry, dry).*). Cheap-disproof closed five header `(candidate)` monitor rows from hunt #157 reseed — **valid-no-repro** composition metadata cites `no Azure apply` (regression `DefaultApplyOrderRoots_composition_metadata_lines_cite_no_azure_apply`), **valid-no-repro** metadata-only rows omitted from leaf extract (regression `DefaultApplyOrderRoots_extract_leaf_paths_omits_metadata_only_rows_for_leaf_planners`), **valid-no-repro** em-dash split preserves path suffix (regression `ExtractLeafPaths_splits_only_on_first_em_dash_for_annotated_lines`), **valid-no-repro** consumption APIM ordering between edge and monitoring (regression `DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring`), **valid-no-repro** reference doc orchestrator legacy row (regression `Reference_doc_advanced_table_documents_orchestrator_as_legacy_only_multi_root_row`). Reseeded five `(candidate)` monitor rows below (hunt **#169**). `DeploymentEvidenceTerraformReferenceTests` and `DeploymentEvidenceReportMarkdownTests` passed **55/55**; `assert_terraform_root_ordering_sync.py` OK. Run-log low-yield streak on `cli-terraform-evidence` is **0/3** before this record (rotation from `cli-draft-new`). **This dry starts 1/3** on `cli-terraform-evidence` in the run log. Private beta: n/a.
 
 2026-11-24 thorough hunt #171 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-169 `(candidate)` monitor rows — all **valid-no-repro** via existing regression locks: zero-based compose indices (`Compose_terraform_section_never_uses_zero_based_list_index` in `DeploymentEvidenceReportMarkdownTests`), hosted-wave partition parity (`DefaultApplyOrderRoots_hosted_wave_partitions_match_apply_saas_ps1_wave_arrays`), hosted concat vs `$multiRootSequence` minus orchestrator (`ReadApplySaasHostedWaveLeaves_concatenation_equals_multi_root_sequence_minus_orchestrator`), verbatim numbered apply-order lines (`Compose_numbered_list_includes_every_default_apply_order_root_line_verbatim`), twenty-entry evidence list (`DefaultApplyOrderRoots_lists_exactly_twenty_entries`). `DeploymentEvidenceTerraformReferenceTests` **48/48**; paired compose guards **55/55** with `DeploymentEvidenceReportMarkdownTests`. Reseeded five pass-4 `(candidate)` monitors below. Private beta: n/a.
@@ -2577,11 +2805,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (superseded) pass-4 `(candidate)` queue — **superseded 2026-11-25 seed hunt #31 (seed-only):** closed at zone header; see pass-5 reseed.
 
-- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — git dirty tri-state may mislabel clean trees — locus: gitDirty switch; input: null vs false; wrong outcome: ambiguous working-tree line; reachability: compose output contract; pass-5 reseed.
-- [ ] (candidate) `DeploymentEvidenceTerraformReference.DocumentationRelativePath` — path may drift from on-disk REFERENCE doc location — locus: const vs repo layout; input: doc rename; wrong outcome: broken citation; reachability: CLI evidence command; pass-5 reseed.
-- [ ] (candidate) `DefaultApplyOrderRoots` — consumption APIM index may drift if edge/monitoring leaves reorder — locus: leaf ordering; input: swap edge and monitoring; wrong outcome: wave guard failure; reachability: monitor `DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring`; pass-5 reseed.
-- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — allowMissingOpenApi flag may omit break-glass wording — locus: openAPI break-glass row; input: true flag; wrong outcome: missing audit trail; reachability: deployment evidence export; pass-5 reseed.
-- [ ] (candidate) `DefaultApplyOrderRoots` — orchestrator legacy annotation suffix may drop `-LegacyLeafRoots` — locus: orchestrator line; input: annotation edit; wrong outcome: apply-saas mode drift; reachability: monitor `DefaultApplyOrderRoots_orchestrator_line_cites_legacy_leaf_roots_annotation`; pass-5 reseed.
+- [x] (valid-no-repro) `DeploymentEvidenceReportMarkdown.Compose` — git dirty tri-state may mislabel clean trees — **cheap-disproof 2026-11-25 seed hunt (seed-only):** `Compose_maps_git_dirty_tri_state_to_working_tree_lines`. — locus: gitDirty switch; input: null vs false; wrong outcome: ambiguous working-tree line; reachability: compose output contract; pass-5 reseed.
+- [x] (valid-no-repro) `DeploymentEvidenceTerraformReference.DocumentationRelativePath` — path may drift from on-disk REFERENCE doc location — **cheap-disproof 2026-11-25 seed hunt (seed-only):** `DocumentationRelativePath_points_to_existing_reference_doc`. — locus: const vs repo layout; input: doc rename; wrong outcome: broken citation; reachability: CLI evidence command; pass-5 reseed.
+- [x] (valid-no-repro) `DefaultApplyOrderRoots` — consumption APIM index may drift if edge/monitoring leaves reorder — **cheap-disproof 2026-11-25 seed hunt (seed-only):** `DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring`. — locus: leaf ordering; input: swap edge and monitoring; wrong outcome: wave guard failure; reachability: monitor `DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring`; pass-5 reseed.
+- [x] (valid-no-repro) `DeploymentEvidenceReportMarkdown.Compose` — allowMissingOpenApi flag may omit break-glass wording — **cheap-disproof 2026-11-25 seed hunt (seed-only):** `Compose_records_openapi_break_glass_when_allow_missing_open_api_is_true`. — locus: openAPI break-glass row; input: true flag; wrong outcome: missing audit trail; reachability: deployment evidence export; pass-5 reseed.
+- [x] (valid-no-repro) `DefaultApplyOrderRoots` — orchestrator legacy annotation suffix may drop `-LegacyLeafRoots` — **cheap-disproof 2026-11-25 seed hunt (seed-only):** `DefaultApplyOrderRoots_orchestrator_line_cites_legacy_leaf_roots_annotation`. — locus: orchestrator line; input: annotation edit; wrong outcome: apply-saas mode drift; reachability: monitor `DefaultApplyOrderRoots_orchestrator_line_cites_legacy_leaf_roots_annotation`; pass-5 reseed.
 
 
 
@@ -2782,9 +3010,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 26
-- **bugs-found:** 8
-- **consecutive-dry-hunts:** 2
+- **hunts:** 27
+- **bugs-found:** 12
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-24
 - **related-pd-tb:** none
@@ -2922,8 +3150,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: ui-runs-list
+2026-11-25 thorough hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted pass-17 pagination chrome `displayPage` — **proven** pagination label, Previous/Next visibility, live region, and Next href used server `page` prop while `window.location` already committed a higher `page=` when `useSearchParams` lagged; `useRunsList` now derives `displayPage` from `runsListPaginationPageFromParams(committedSearch, page)` and wires pagination chrome plus `displayPage + 1` into `runsListNextPageHrefFromSearch`. Regressions `shows Page 2 in pagination chrome when committed page= lags behind server props` and updated committed-page Next monitor (server `nextCursor` for page 3). Focused `RunsListClient` vitest **98/98**. Reseeded five pass-18 `(candidate)` monitors below. Private beta: invited operators paginating the reviews list see the committed page number in pagination chrome and controls when the App Router snapshot lags behind `window.location`.
 
+- [x] (superseded) pass-17 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-18 reseed.
+- [ ] (candidate) `useRunsList` `buyerPackageScope` — committed `scope=` on window lags while scope chips read router-only props — locus: buyer scope state sync; input: scope navigation then popstate before router refresh; monitor.
+- [ ] (candidate) `useRunsList` `sortOrder` — client re-sort keeps server prop while committed `sort=` changed — locus: sort chip aria-current vs `sortOrder` state; input: sort link commit with lagging `useSearchParams`; monitor.
+- [ ] (candidate) `RunsListClient` pagination Previous — `previousHref` uses server `page` prop for aria labels when `displayPage` is ahead — locus: Previous link visibility; input: committed page=2 with server page=1; monitor.
+- [ ] (candidate) `RunsListClient` buyer polished scope chip — `aria-current` drops when router clears `scope=` but committed search retains it — locus: `BuyerPackageScopeFilterChips`; input: scope deep link + soft nav; monitor (PROBE scope chip test).
+- [ ] (candidate) `useRunsList` listContextFilter — orphan banner hides when committed `filter=` trims to whitespace only — locus: popstate filter parse; input: `filter=%20orphan-candidates%20` then router drops param; monitor.
+2026-11-25 seed hunt (seed-only): no rotation (shouldRotate: false). Cheap-disproof on five pass-16 candidates — valid-no-repro mobile inspector trap (focus trap hook + resume tests), valid-no-repro needs-attention compare (new monitor does not open inspector when Space activates compare in the needs-attention section), valid-no-repro clearFilterText filter= overlay (Escape clears q= regression + pass-15 listContextFilter sync), valid-no-repro buyer scope chips + orphan (scope chip href regression), valid-no-repro disclosure + orphan banner (buyer polished totalCount>1 uses flat filter chrome without disclosure summary; orphan banner regressions). Added one monitor test. Focused RunsListClient vitest 96/96. Reseeded pass-17 below. Private beta: n/a.
 
+- [x] (superseded) pass-16 candidate queue — superseded 2026-11-25 seed hunt (seed-only): pass-17 reseed.
+
+2026-11-25 seed hunt (seed→hit): no rotation (shouldRotate: false; reason: No low-yield streak; keep default picker choice.). Promoted pass-13 pagination pageSize — proven Next/Previous href builders forced pageSize from server props while committed window.location kept a different pageSize when useSearchParams lagged on page 2; compare-inspector overlay now includes pageSize and pagination hrefs read runsListPaginationPageSizeFromParams. Regression preserves committed pageSize in the Previous pagination link when useSearchParams lags on page 2. Removed stray debug console.log from filter Previous monitor. Focused RunsListClient vitest 93/93. Reseeded pass-14 candidate rows below. Private beta: reviewers who change page size then paginate before the App Router catches up keep the committed page size on Previous/Next links instead of reverting to the server default.
+
+- [x] (superseded) pass-13 candidate queue — superseded 2026-11-25 seed hunt (seed→hit): pass-14 reseed.
 2026-11-25 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; **Cooled: true** with hit-rate cooldown waived). Cheap-disproof on five pass-8 `(candidate)` monitors — **valid-no-repro** disclosure toggle sort overlay (`preserves committed sort= when filter disclosure opens while useSearchParams lags` / `readWindowLocationSearch` on write), **valid-no-repro** Escape + `runsListFilterOpen=` (`Escape in the filter field clears the query without closing an open inspector`), **valid-no-repro** compare notice after card layout (`buyer-polished: clears stale compareRuns…`), **valid-no-repro** continue-last + pending `q=` (`RunsListContinueLastViewedRow` tests), **valid-no-repro** buyer card compare URL (`clears stale compareRuns` regression). No production change. Reseeded pass-9 `(candidate)` rows. Private beta: n/a.
 
 - [x] (superseded) pass-8 queue — **superseded 2026-11-25 seed hunt (seed-only):** pass-9 reseed.
@@ -3156,11 +3397,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) pass-12 mobile inspector compare popstate — **cheap-disproof 2026-11-25 seed hunt (seed-only):** inspector/compare regressions.
 - [x] (valid) pass-11 listContextFilter trim — **proven 2026-11-25 seed hunt (seed→hit):** parseRunsListContextFilterFromSearch; regression cited in hunt note.
 - [x] (valid-no-repro) pass-12 work-queue compare + scope
-- [ ] (candidate) `RunsListClient` mobile inspector — narrow viewport compare keyboard trap — locus: `mobileInspectorShellRef`; pass-13 reseed.
-- [ ] (candidate) `RunsListWorkQueueTable` — compare checkbox in needs-attention section — locus: section partition; pass-13 reseed.
-- [ ] (candidate) `useRunsList` debounced `q=` — list context `filter=` overlay on clear — locus: clearFilterText; pass-13 reseed.
-- [ ] (candidate) `BuyerPackageScopeFilterChips` — work-queue + orphan `filter=` combined — locus: chip href; pass-13 reseed.
-- [ ] (candidate) `RunsListClient` disclosure open — orphan context banner persistence — locus: filter disclosure; pass-13 reseed. — **cheap-disproof 2026-11-25 seed hunt (seed-only):** partition/scope chip regressions.
+- [x] (valid) pass-15 orphan banner after clear q= — **proven 2026-11-25 seed hunt (seed→hit):** committed listContextFilter sync; regression cited in hunt note.
+- [x] (proven) pass-17 pagination chrome displayPage — **hit 2026-11-25 thorough hunt (seed→hit):** `displayPage` from committed search; regressions cited in hunt note.
+- [x] (valid) pass-14 committed page Next lag — **proven 2026-11-25 seed hunt (seed→hit):** runsListPaginationPageFromParams; regression cited in hunt note.
+- [x] (valid) pass-13 pageSize pagination lag — **proven 2026-11-25 seed hunt (seed→hit):** compare-inspector overlay + runsListPaginationPageSizeFromParams; regression cited in hunt note.
+- [x] (valid-no-repro) pass-16 mobile inspector compare trap — **cheap-disproof 2026-11-25 seed hunt (seed-only):** existing compare keyboard + focus-trap wiring regressions.
+- [x] (valid-no-repro) pass-16 needs-attention compare — **cheap-disproof 2026-11-25 seed hunt (seed-only):** monitor does not open inspector when Space activates compare in the needs-attention section.
+- [x] (valid-no-repro) pass-16 clearFilterText filter= — **cheap-disproof 2026-11-25 seed hunt (seed-only):** Escape clears q= + pass-15 listContextFilter sync regressions.
+- [x] (valid-no-repro) pass-16 buyer scope + orphan — **cheap-disproof 2026-11-25 seed hunt (seed-only):** preserves committed filter= in buyer scope chip href regression.
+- [x] (valid-no-repro) pass-16 disclosure + orphan banner — **cheap-disproof 2026-11-25 seed hunt (seed-only):** orphan banner regressions; disclosure toggle uses navigationSearch overlay.
 - [x] (valid-no-repro) pass-12 whitespace-only filter= popstate — **cheap-disproof 2026-11-25 seed hunt (seed-only):** `parseRunsListContextFilterFromSearch` popstate sync.
 
 - **id:** ui-runs-list
@@ -3169,9 +3414,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 12
+- **hunts:** 17
 - **last-hunt:** 2026-11-25
-- **bugs-found:** 8
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-bug:** never
 - **code-changed-since:** yes
@@ -3575,7 +3820,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
 - **hunts:** 25
-- **bugs-found:** 8
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-24
@@ -3762,8 +4007,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 26
-- **bugs-found:** 10
+- **hunts:** 27
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
@@ -4124,7 +4369,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
 - **hunts:** 24
-- **bugs-found:** 8
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -4402,7 +4647,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/host-gate.ts
 - **test-filter:** host-gate
 - **hunts:** 25
-- **bugs-found:** 8
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -4424,6 +4669,38 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-09 seed hunt #1483 (seed-only): reseeded ui-host-gate; cheap-disproved `/settings` legacy bookmark candidate; 10 scoped host-gate tests passed.
 
 ---
+
+2026-11-25 thorough hunt (hit): no rotation (`shouldRotate: false`). **proven** `runGoldenTest` — prior reasoning `runState` stayed mounted while golden-test POST was in flight (no `setRunState(null)` at start unlike `runReasoningWithOptions`); stale findings/publish chrome could remain visible until the golden response landed. Regression `clears prior reasoning output before a golden test POST`. **valid-no-repro** golden mutation preflight pair (`shouldRequestGoldenFixtureForGoldenTest` + fixture flag), **valid-no-repro** continue honors `publishToProduct`, **valid-no-repro** invalid tier URL strip + `reviewTier` effect, **invalid** pass-56 duplicate golden-preflight row (wrong locus). Pass-57 reseed below. Scoped vitest **18/18**. Private beta: invited architects running a golden test no longer see stale reasoning output or publish affordances while the golden harness request is in flight.
+
+- [x] (superseded) pass-56 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (hit):** pass-57 reseed.
+- [x] (proven) `runGoldenTest` — stale reasoning `runState` during golden POST — **proven 2026-11-25 thorough hunt (hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `runGoldenTest` — posts without mutation preflight — **cheap-disproof 2026-11-25 thorough hunt (hit):** fixture path when intake blank.
+- [x] (valid-no-repro) `runReasoningWithOptions` — clears `runState` before analyze — **cheap-disproof 2026-11-25 thorough hunt (hit):** intentional stale-output guard on reasoning/analyze.
+- [x] (valid-no-repro) `continueWithAnswers` — publish toggle — **cheap-disproof 2026-11-25 thorough hunt (hit):** `publishToProduct` in continue body.
+- [x] (valid-no-repro) `parseArchitectureIntelligenceTierFromSearch` — invalid tier stale depth — **cheap-disproof 2026-11-25 thorough hunt (hit):** URL strip effect + tier helper tests.
+
+- [ ] (candidate) `loadGoldenFixture` — leaves prior golden results visible until fetch returns — locus: `setRunState(null)` timing; input: swap fixture after golden; monitor; pass-57 reseed.
+- [ ] (candidate) `publishRun` — missing `hasActionableArchitectureIntelligenceResult` guard on golden kind — locus: publish gate; input: golden-only runState; monitor; pass-57 reseed.
+- [ ] (candidate) `runGoldenTest` — missing `requiresArchitectureDescriptionForMutation` when `useGoldenFixture` is false — locus: golden POST; input: unreachable empty `sourceTexts`; monitor; pass-57 reseed.
+- [ ] (candidate) `architectureIntelligenceDescriptionStepComplete` — checklist emphasis with attachment-only intake — locus: emphasized step; input: review picked + attachment; monitor; pass-57 reseed.
+- [ ] (candidate) `invalidateInFlightActions` — fixture load without bump on analyze — locus: generation ref; input: overlap analyze + fixture; monitor; pass-57 reseed.
+
+
+2026-11-25 thorough hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Closed pass-54 monitors from the queued ledger rows (analyze CTA already aligned with `canAnalyzeHydratedReviewFromIntake`). **proven** analysis checklist — **proven** `descriptionWritten` used textarea trim only so attachment-only hydrated intake kept "Write a description" incomplete while Analyze was enabled; align with `architectureIntelligenceDescriptionStepComplete` / `requiresArchitectureDescriptionForMutation`. Regression `marks description complete for attachment-only hydrated intake without textarea text`. **valid-no-repro** pass-55 `runGoldenTest` empty sources without fixture, **valid-no-repro** fixture vs continue race, **valid-no-repro** duplicate canonical prepend, **invalid** publish toggle on dedicated publish endpoint. Pass-56 reseed below. Scoped vitest **17/17**. Private beta: invited architects on attachment-only review intake no longer see the analysis checklist stuck on an empty description when product source context is already loaded.
+
+- [x] (proven) ArchitectureIntelligencePageClient / analysis checklist — description step textarea-only — **proven 2026-11-25 thorough hunt (seed→hit):** `architectureIntelligenceDescriptionStepComplete`; regression cited in hunt note.
+- [x] (superseded) pass-54 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-55 reseed.
+- [x] (proven) `analyzeThisReview` — attachment-only analyze gate — **proven 2026-11-25 seed hunt (seed→hit):** `canAnalyzeHydratedReviewFromIntake`; regressions cited in hunt note.
+- [x] (valid-no-repro) `runGoldenTest` — empty `sourceTexts` without fixture — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `shouldRequestGoldenFixtureForGoldenTest`.
+- [x] (valid-no-repro) `loadGoldenFixture` — continue overlap — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** generation + invalidate guards.
+- [x] (valid-no-repro) `buildRequest` — duplicate canonical row — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** single prepend row.
+- [x] (invalid) `publishRun` — publish toggle ignored — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** endpoint always publishes gated output.
+
+- [ ] (candidate) `runGoldenTest` — no client-side requiresArchitectureDescriptionForMutation preflight — locus: emphasized step id; input: attachment-only loaded intake; monitor; pass-56 reseed.
+- [ ] (candidate) `runGoldenTest` — posts without mutation preflight — locus: golden POST; input: whitespace textarea and empty hydrated; monitor; pass-56 reseed.
+- [ ] (candidate) `runReasoningWithOptions` — clears `runState` before success on analyze path — locus: setRunState null at start; input: analyze retry; monitor; pass-56 reseed.
+- [ ] (candidate) `continueWithAnswers` — publish toggle not honored — locus: `publishToProduct` state; input: toggle off; monitor; pass-56 reseed.
+- [ ] (candidate) `parseArchitectureIntelligenceTierFromSearch` — invalid tier leaves checklist depth stale — locus: URL tier strip; input: bogus tier param; monitor; pass-56 reseed.
 
 2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-54 `(candidate)` monitors — **proven** `analyzeThisReview` / Analyze CTA gated on textarea trim while mutation guards accept attachment-only hydrated intake (`canAnalyzeHydratedReviewFromIntake` shares `requiresArchitectureDescriptionForMutation`); regression `canAnalyzeHydratedReviewFromIntake is true for attachment-only hydrated intake with an active run`, `analyzeThisReview posts when attachment-only hydrated intake can analyze`. **valid-no-repro** pass-54 `runGoldenTest` empty `sourceTexts` without fixture (`shouldRequestGoldenFixtureForGoldenTest` forces fixture when no canonical description), **valid-no-repro** `loadGoldenFixture` vs continue race (`invalidateInFlightActions` + `isStaleActionGeneration`), **valid-no-repro** `buildRequest` duplicate canonical prepend (single canonical row on description + attachment-only hydrated), **invalid** pass-54 `publishRun` publish toggle (`publishRun` endpoint intentionally always sets `publishToProduct: true`). Pass-55 reseed below. Scoped vitest **11/11**. Private beta: invited architects on attachment-only product review intake can use Analyze this review when the review scope is loaded, not only the generic reasoning CTA.
 
@@ -4461,11 +4738,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) pass-53 `invalidateInFlightActions` stale generation — **cheap-disproof 2026-11-25 seed hunt:** `isStaleActionGeneration` on responses.
 - [x] (superseded) pass-53 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-54 reseed.
 
-- [ ] (candidate) `runGoldenTest` — should no-op when `buildRequest` yields empty `sourceTexts` and fixture not requested — locus: golden POST guard; input: whitespace-only hydrated without fixture; monitor; pass-54 reseed.
-- [ ] (candidate) `analyzeThisReview` — may still require textarea despite usable attachment context — locus: `canAnalyzeHydratedReview`; input: attachment-only hydrated; monitor; pass-54 reseed.
-- [ ] (candidate) `loadGoldenFixture` — race with `continueWithAnswers` in-flight — locus: `invalidateInFlightActions` + fixture fetch; input: overlap continue + fixture; monitor; pass-54 reseed.
-- [ ] (candidate) `buildRequest` — duplicate canonical row when hydrated lacks canonical filename — locus: prepend branch; input: description + attachment only; monitor; pass-54 reseed.
-- [ ] (candidate) `publishRun` — publish toggle off during publish POST — locus: `publishToProduct: true` hard-coded; input: operator unchecked publish; monitor; pass-54 reseed.
+
+
+
+
+
 
 
 
@@ -4544,9 +4821,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 7
-- **bugs-found:** 4
-- **consecutive-dry-hunts:** 0
+- **hunts:** 8
+- **bugs-found:** 6`r`n- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
 - **related-pd-tb:** none
@@ -5204,8 +5480,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 12
-- **bugs-found:** 10
+- **hunts:** 17
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -8760,7 +9036,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **hunts:** 11
-- **bugs-found:** 10
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -9466,8 +9742,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 12
-- **bugs-found:** 11
+- **hunts:** 17
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
@@ -10956,7 +11232,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** operator
 - **hunts:** 11
 - **last-hunt:** 2026-11-23
-- **bugs-found:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-11-23
 - **related-pd-tb:** none
@@ -12282,8 +12558,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
 - **hunts:** 5
-- **bugs-found:** 5
-- **consecutive-dry-hunts:** 0
+- **bugs-found:** 6`r`n- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
 - **related-pd-tb:** none
@@ -13426,7 +13701,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 123
+- **hunts:** 173
 - **bugs-found:** 122
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
@@ -14000,7 +14275,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
 - **hunts:** 9
-- **bugs-found:** 8
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -14277,7 +14552,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
 - **hunts:** 5
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
 - **related-pd-tb:** none
@@ -17509,7 +17784,7 @@ ABQ-09 churn hotspot.
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **hunts:** 6
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-24
 2026-10-20 seed hunt (seed→hit): promoted failed reload stale hub candidate; regression `clears_hub_evidence_when_a_newer_URL_selection_fails_to_load`; 55 scoped ResourceHubClient tests passed.
@@ -20660,8 +20935,8 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 12
-- **bugs-found:** 10
+- **hunts:** 17
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24

@@ -11,6 +11,7 @@ import { useArchitectureIntelligenceProductContext } from "./use-architecture-in
 import type { ArchitectureIntelligenceReviewTier } from "@/lib/architecture/architecture-intelligence-review-tier";
 import type {
   FramingQuestion,
+  ClosedLoopReasoningSourceText,
   RunState,
   SpecialistReviewFinding,
 } from "./architecture-intelligence-types";
@@ -57,6 +58,7 @@ export type UseArchitectureIntelligencePageResult = {
   interviewAnswers: Record<string, string>;
   onInterviewAnswerChange: (questionId: string, value: string) => void;
   continueWithAnswers: () => Promise<void>;
+  hydratedSourceTexts: ClosedLoopReasoningSourceText[];
 };
 
 export function useArchitectureIntelligencePage(): UseArchitectureIntelligencePageResult {
@@ -123,5 +125,6 @@ export function useArchitectureIntelligencePage(): UseArchitectureIntelligencePa
     interviewAnswers: productContext.interviewAnswers,
     onInterviewAnswerChange: productContext.onInterviewAnswerChange,
     continueWithAnswers: actions.continueWithAnswers,
+    hydratedSourceTexts: productContext.hydratedSourceTexts,
   };
 }
