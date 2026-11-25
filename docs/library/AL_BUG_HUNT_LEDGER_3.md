@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed-only): `ui-hooks-shared` pass-5 reseed. Scoped vitest **259/259**. Private beta: n/a.
+> **Scope:** Contributor-reference — hunt 2026-11-25 thorough hunt (hit): `archlucid-contracts` pass-2 reseed. Scoped deserialization tests **14/14** on touched DTOs. Private beta: null display strings on advisory, alert, policy-pack, and ITSM health JSON deserialize to empty strings.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -8897,14 +8897,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-11-25 thorough hunt #4 (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone `ui-hooks-shared` 2× seed-only). Attempted failing repro on five pass-1 `(candidate)` rows — **proven** `RecommendationRecord.Title`, `PolicyPack.Name`/`Description`, `AlertRecord.Title`/`TriggerValue`, and `ItsmIntegrationHealthStatusResponse.Status` explicit JSON `null` left reference null despite `null!`/empty initializers; `ContractCollectionDefaults.CoalesceRequired` on backing-field setters; regressions `Deserialize_null_title_yields_empty_string_not_null`, `Deserialize_null_name_yields_empty_string_not_null`, `Deserialize_null_description_yields_empty_string_not_null`, `Deserialize_null_title_yields_empty_string_not_null` (alert), `Deserialize_null_trigger_value_yields_empty_string_not_null`, `Deserialize_null_status_yields_empty_string_not_null` (ITSM health); **valid-no-repro** `GovernanceApprovalRequest.ApprovalRequestId` null mints id (`Deserialize_null_approval_request_id_mints_non_empty_id`). Scoped deserialization tests **14/14** on touched suites. Reseeded pass-2 monitors below. Private beta: persisted advisory, alert, policy-pack, and ITSM health JSON with null display or summary strings deserialize to empty strings so operator workflow, notifications, and integrations settings do not null-reference on replay.
+
+
 2026-10-29 seed hunt (seed→hit): re-read governance approval JSON after prior workflow `Status` null fix; promoted `GovernanceApprovalRequest` explicit JSON `null` on required string fields (`RunId`, `ManifestVersion`, `RequestedBy`, environment labels) bypassing `= string.Empty` / environment defaults; `ContractCollectionDefaults.CoalesceRequired` / `CoalesceStringDefault` on backing-field setters; `ApprovalRequestId` regen when null or empty; regression `Deserialize_null_run_id_yields_empty_string_not_null`; scoped GovernanceApprovalRequest deserialization tests 3/3; reseeded five follow-on `(candidate)` rows below. Private beta: governance approval JSON with null run or environment fields deserializes to legacy empty/default strings so promotion workflow UI and SQL MERGE paths do not null-reference when replaying stored requests.
 
 - [x] (proven) `GovernanceApprovalRequest.RunId` / `ManifestVersion` / `RequestedBy` / environment strings — explicit JSON `null` on required promotion strings — **hit 2026-10-29 seed hunt:** `CoalesceRequired` / `CoalesceStringDefault`; regression above.
-- [ ] (candidate) `RecommendationRecord.Title` — explicit JSON `null` on advisory recommendation title despite `= null!` initializer — locus: auto-property setter; input: persisted recommendation row JSON with `"title": null`; reachability: workflow persistence round-trip.
-- [ ] (candidate) `PolicyPack.Name` / `Description` — explicit JSON `null` on policy pack display fields — locus: auto-property setters; input: policy pack API JSON with null name; reachability: governance policy pack import.
-- [ ] (candidate) `AlertRecord.Title` / `TriggerValue` — explicit JSON `null` on alert headline or trigger summary — locus: auto-property setters; input: alert notification payload with null title; reachability: alert delivery webhook JSON.
-- [ ] (candidate) `GovernanceApprovalRequest.ApprovalRequestId` — explicit JSON `null` should mint a new id when absent — locus: `ApprovalRequestId` setter; input: `"approvalRequestId": null` on create payload (verify regen vs empty).
-- [ ] (candidate) `ItsmIntegrationHealthStatusResponse.Status` — explicit JSON `null` on integration health summary status — locus: `init` only property with `= string.Empty`; input: ITSM health probe JSON with null status; reachability: integrations settings health card.
+- [x] (proven) `RecommendationRecord.Title` — explicit JSON `null` on advisory title — **hit 2026-11-25 thorough hunt #4:** `CoalesceRequired`; regression above.
+- [x] (proven) `PolicyPack.Name` / `Description` — explicit JSON `null` on pack display fields — **hit 2026-11-25 thorough hunt #4:** `CoalesceRequired`; regressions above.
+- [x] (proven) `AlertRecord.Title` / `TriggerValue` — explicit JSON `null` on alert headline/trigger — **hit 2026-11-25 thorough hunt #4:** `CoalesceRequired`; regressions above.
+- [x] (valid-no-repro) `GovernanceApprovalRequest.ApprovalRequestId` — explicit JSON `null` mints id — **cheap-disproof 2026-11-25 thorough hunt #4:** existing setter regen; regression above.
+- [x] (proven) `ItsmIntegrationHealthStatusResponse.Status` — explicit JSON `null` on health summary — **hit 2026-11-25 thorough hunt #4:** `CoalesceRequired` on `init`; regression above.
+
+- [ ] (candidate) `RecommendationRecord.Category` / `Rationale` — explicit JSON `null` on other `null!` workflow text columns — locus: auto-property setters; input: persisted row JSON; monitor; pass-2 reseed.
+- [ ] (candidate) `AlertRecord.Category` / `DeduplicationKey` — explicit JSON `null` on alert metadata strings — locus: auto-property setters; input: alert payload JSON; monitor; pass-2 reseed.
+- [ ] (candidate) `PolicyPack.CurrentVersion` — explicit JSON `null` on version label — locus: auto-property setter; input: pack import JSON; monitor; pass-2 reseed.
+- [ ] (candidate) `GovernanceApprovalRequest.RequestedBy` — explicit JSON `null` may bypass `CoalesceRequired` if setter regresses — locus: promotion request JSON; input: null requester; monitor; pass-2 reseed.
+- [ ] (candidate) `AlertRecord.Description` — explicit JSON `null` on long-form alert copy — locus: auto-property setter; input: notification JSON; monitor; pass-2 reseed.
+
 
 2026-10-29 seed hunt (seed→hit): promoted workflow `Status` explicit JSON `null` bypassing string initializers on `RecommendationRecord`, `AlertRecord`, `PolicyPack`, and `GovernanceApprovalRequest`; `ContractCollectionDefaults.CoalesceStringDefault` on all four setters with domain defaults (`Proposed`, `Open`, `Draft`, `Draft`); regressions `Deserialize_null_status_yields_*_not_null` per DTO; cheap-disproof closed `(candidate)` `GoldenManifestCreateTimePinCommitment` (still not whole-record JSON); scoped status deserialization tests 5/5 with prior RecommendationRecord JSON-column test; reseeded five follow-on `(candidate)` rows below. Private beta: advisory, alert, policy-pack, and governance-approval JSON with null status deserializes to each type's legacy default so operator workflow and integrations UI do not null-reference lifecycle filters.
 
@@ -9039,11 +9049,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 3
-- **bugs-found:** 2
+- **hunts:** 4
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-24
-- **last-bug:** 2026-11-24
+- **last-hunt:** 2026-11-25
+- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

@@ -30,11 +30,13 @@ public class PolicyPack
         set;
     }
 
+    private string name = string.Empty;
+
     public string Name
     {
-        get;
-        set;
-    } = null!;
+        get => name;
+        set => name = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>
     ///     Stable bundled-pack identity (filename stem). Null for custom packs; matching prefers slug over display name.
@@ -45,11 +47,13 @@ public class PolicyPack
         set;
     }
 
+    private string description = string.Empty;
+
     public string Description
     {
-        get;
-        set;
-    } = null!;
+        get => description;
+        set => description = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public string PackType
     {

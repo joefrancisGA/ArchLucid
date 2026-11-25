@@ -41,11 +41,13 @@ public class RecommendationRecord
         set;
     }
 
+    private string title = string.Empty;
+
     public string Title
     {
-        get;
-        set;
-    } = null!;
+        get => title;
+        set => title = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public string Category
     {

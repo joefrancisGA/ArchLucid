@@ -67,11 +67,13 @@ public class AlertRecord
     }
 
     /// <summary>Short headline for UI and notifications.</summary>
+    private string title = string.Empty;
+
     public string Title
     {
-        get;
-        set;
-    } = null!;
+        get => title;
+        set => title = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>Domain grouping (e.g. rule type name or <c>CompositeAlert</c>).</summary>
     public string Category
@@ -97,11 +99,13 @@ public class AlertRecord
     }
 
     /// <summary>Compact metric or rule summary for triage.</summary>
+    private string triggerValue = string.Empty;
+
     public string TriggerValue
     {
-        get;
-        set;
-    } = null!;
+        get => triggerValue;
+        set => triggerValue = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>Longer explanation including metric context.</summary>
     public string Description
