@@ -106,11 +106,7 @@ public sealed class RetrievalIndexingOutboxProcessor(
             return;
         }
 
-        ScopeContext? drainScope = AmbientScopeContext.CurrentOverride;
-        if (drainScope is not null &&
-            ((drainScope.TenantId != Guid.Empty && drainScope.TenantId != scopeContext.TenantId) ||
-             (drainScope.WorkspaceId != Guid.Empty && drainScope.WorkspaceId != scopeContext.WorkspaceId) ||
-             (drainScope.ProjectId != Guid.Empty && drainScope.ProjectId != scopeContext.ProjectId)))
+        if (!CommittedRunEvidenceBinding.MatchesDrainScope(scopeContext, AmbientScopeContext.CurrentOverride))
         {
             await SkipEntryAsync(outbox, entry, "outbox scope does not match the active drain scope", cancellationToken)
                 .ConfigureAwait(false);
