@@ -45,6 +45,13 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "pattern-exact")?.value).toBe("150%");
   });
 
+  it("does not show net burn when metrics are unloaded even if netBurn is present", () => {
+    const metrics = { createdThisWeek: 2, remediatedThisWeek: 5, netBurn: -3 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, false);
+
+    expect(tiles.find((tile) => tile.id === "net-burn")?.value).toBeNull();
+  });
+
   it("returns null tile values when metrics are not loaded even if a metrics object is present", () => {
     const metrics = { automationPercent: 25, openFindings: 3 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, false);

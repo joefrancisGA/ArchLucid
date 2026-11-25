@@ -381,14 +381,19 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
-2026-11-25 thorough hunt (dry): no rotation (`shouldRotate: false`). Attempted failing repro on five pass-7 `(candidate)` rows — all **valid-no-repro**: mixed-case `false` (`treats mixed-case false metrics disclosure token as closed on read`), tab-only UUID write (`drops tab-only finding id instead of writing blank param`), zero percent (`renders zero percent as 0%`), empty path list overflow (`returns null overflow line for an empty path id list`), foreign param retention on snapshot clear (`preserves foreign params when clearing snapshot selection`). Scoped vitest **102/102** (`remediation-factory`). Reseeded pass-8 below. Private beta: n/a.
+2026-11-25 thorough hunt (dry): no rotation (`shouldRotate: false`). Attempted failing repro on five pass-8 `(candidate)` rows — all **valid-no-repro**: duplicate metrics param uses URLSearchParams first value (`uses the first metrics disclosure token when the query string repeats the param`), closed write drops legacy `yes` token (`drops yes metrics token from base search when writing closed state`), sub-point fraction rounding (`rounds sub-point percent fractions after normalization`), 29-char chip ellipsis boundary (`ellipsizes a 29-character path id while keeping a 28-character id verbatim`), unloaded negative net burn (`does not show net burn when metrics are unloaded even if netBurn is present`). Scoped vitest **102/102** (`remediation-factory`). Reseeded pass-9 below. Private beta: n/a.
 
-- [x] (superseded) pass-7 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (dry):** pass-8 reseed.
-- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics params last-wins — locus: URLSearchParams get; monitor; pass-8 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics closed drops yes token in base — locus: delete on false; monitor; pass-8 reseed.
-- [ ] (candidate) `formatRemediationFactoryPercentDisplay` — sub-point fraction rounds — locus: Math.round; monitor; pass-8 reseed.
-- [ ] (candidate) `formatAttackPathReportPathChipLabel` — 29-char boundary — locus: ellipsis threshold; monitor; pass-8 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — negative net burn when unloaded — locus: metricsLoaded guard; monitor; pass-8 reseed.
+- [x] (superseded) pass-8 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (dry):** pass-9 reseed.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics params last-wins — **cheap-disproof 2026-11-25 thorough hunt (dry):** first-wins URLSearchParams contract; regression `uses the first metrics disclosure token when the query string repeats the param`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics closed drops yes token in base — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `drops yes metrics token from base search when writing closed state`.
+- [x] (valid-no-repro) `formatRemediationFactoryPercentDisplay` — sub-point fraction rounds — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `rounds sub-point percent fractions after normalization`.
+- [x] (valid-no-repro) `formatAttackPathReportPathChipLabel` — 29-char boundary — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `ellipsizes a 29-character path id while keeping a 28-character id verbatim`.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — negative net burn when unloaded — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `does not show net burn when metrics are unloaded even if netBurn is present`.
+- [ ] (candidate) `readUuidParam` — duplicate selection UUID params first-wins — locus: URLSearchParams get; monitor; pass-9 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — open write replaces legacy yes with 1 — locus: metrics open write; monitor; pass-9 reseed.
+- [ ] (candidate) `formatRemediationFactoryPercentDisplay` — unity fraction 1.0 vs 100 points — locus: normalize branch; monitor; pass-9 reseed.
+- [ ] (candidate) `attackPathReportPathChipOverflowLine` — 49-char path id honesty threshold — locus: path-inspect honesty; monitor; pass-9 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — positive net burn when unloaded — locus: metricsLoaded guard; monitor; pass-9 reseed.
 2026-11-25 thorough hunt (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-6 `(candidate)` rows — all **valid-no-repro**: **valid-no-repro** `0` metrics token (`treats zero metrics disclosure token as closed on read`), **valid-no-repro** stale UUID on metrics write (`clears stale selection UUIDs when opening metrics from a populated base search`), **valid-no-repro** unity fraction display (`treats unity fraction as one hundred percent`), **valid-no-repro** all-short path overflow line (`returns null overflow line when every path id is short`), **valid-no-repro** disclosure-only href writer (`remediationFactoryHrefFromSearch preserves foreign query params without mutating selection`; stale selection via disclosure-only writer is intentional per hunt #2). Restored pass-5 URL monitors dropped in prior push. Scoped vitest **97/97** (`remediation-factory`). Reseeded pass-7 below. Private beta: n/a.
 
 - [x] (superseded) pass-6 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (dry):** pass-7 reseed.
@@ -477,13 +482,13 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 6
+- **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 ## Zone: ui-hooks-shared
 
 2026-11-25 seed hunt #4 (seed-only): no rotation (`shouldRotate: false`). After shipping deferred `archlucid-contracts` hit (`739037b3a9`). Cheap-disproof on five pass-5 `(candidate)` rows — **valid-no-repro** incremental findings refresh (`summary.runId !== options.runId` guard), **valid-no-repro** pinned review auto-close (404 gated on `notFound` + loading semantics; monitor), **valid-no-repro** `useAskStream.reset` clears `pendingRef` and flush timer, **valid-no-repro** marketing early-access double-submit (`canSubmit` requires `!busy`), **valid-no-repro** pin URL desync (monitor; `commitHrefIfChanged` pattern). **3× seed-only streak** — zone parks from automatic picks until hint. Scoped vitest **259/259** (one transient failure on first pass, green on retry). Pass-6 reseed below. Private beta: n/a.

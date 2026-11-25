@@ -201,4 +201,31 @@ describe("remediation-factory-url-state", () => {
     expect(params.get(REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM)).toBeNull();
     expect(params.get("foreign")).toBe("keep");
   });
+  it("uses the first metrics disclosure token when the query string repeats the param", () => {
+    const openFirst = parseRemediationFactoryUrlStateFromSearch(
+      `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=0`,
+    );
+    const closedFirst = parseRemediationFactoryUrlStateFromSearch(
+      `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=0&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1`,
+    );
+
+    expect(openFirst.metricsSummaryOpen).toBe(true);
+    expect(closedFirst.metricsSummaryOpen).toBe(false);
+  });
+
+  it("drops yes metrics token from base search when writing closed state", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: false,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=yes&foreign=keep`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBeNull();
+    expect(params.get("foreign")).toBe("keep");
+  });
 });

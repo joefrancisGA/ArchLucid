@@ -12,6 +12,11 @@ describe("formatRemediationFactoryPercentDisplay", () => {
     expect(formatRemediationFactoryPercentDisplay(1.0)).toBe("100%");
   });
 
+  it("rounds sub-point percent fractions after normalization", () => {
+    expect(formatRemediationFactoryPercentDisplay(0.426)).toBe("43%");
+    expect(formatRemediationFactoryPercentDisplay(42.6)).toBe("43%");
+  });
+
   it("renders zero percent as 0%", () => {
     expect(formatRemediationFactoryPercentDisplay(0)).toBe("0%");
   });

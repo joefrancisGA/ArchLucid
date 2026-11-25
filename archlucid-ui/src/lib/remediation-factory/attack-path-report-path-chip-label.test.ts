@@ -15,6 +15,15 @@ describe("attack-path-report-path-chip-label", () => {
     expect(attackPathReportPathChipOverflowLine(["path-a", "path-b"])).toBeNull();
   });
 
+  it("ellipsizes a 29-character path id while keeping a 28-character id verbatim", () => {
+    const atBoundary = "a".repeat(28);
+    const overBoundary = "a".repeat(29);
+
+    expect(formatAttackPathReportPathChipLabel(atBoundary)).toBe(atBoundary);
+    expect(formatAttackPathReportPathChipLabel(overBoundary)).toContain("…");
+    expect(formatAttackPathReportPathChipLabel(overBoundary).length).toBeLessThan(overBoundary.length);
+  });
+
   it("returns null overflow line for an empty path id list", () => {
     expect(attackPathReportPathChipOverflowLine([])).toBeNull();
   });
