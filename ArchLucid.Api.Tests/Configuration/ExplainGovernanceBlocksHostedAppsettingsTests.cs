@@ -13,11 +13,9 @@ public sealed class ExplainGovernanceBlocksHostedAppsettingsTests
     private static string StagingJsonPath =>
         Path.Combine(AppContext.BaseDirectory, "appsettings.Staging.json");
 
-    [SkippableFact]
+    [Fact]
     public void Staging_appsettings_enables_explain_governance_blocks()
     {
-        Skip.IfNot(File.Exists(StagingJsonPath), $"Expected {StagingJsonPath} (copy from ArchLucid.Api via csproj).");
-
         ReadOptions(StagingJsonPath).Enabled.Should().BeTrue();
     }
 

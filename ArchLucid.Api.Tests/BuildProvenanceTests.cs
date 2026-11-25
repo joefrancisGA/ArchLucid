@@ -4,6 +4,8 @@ using ArchLucid.Core.Diagnostics;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Configuration;
+
 namespace ArchLucid.Api.Tests;
 
 [Trait("Category", "Unit")]
@@ -54,6 +56,28 @@ public sealed class BuildProvenanceTests
         response.CommitSha.Should().Be("abc123");
         response.RuntimeFramework.Should().Be(".NET 10.0.0");
         response.Environment.Should().Be("Staging");
+    }
+
+    [Fact]
+    public void BuildInfoResponse_FromProvenance_maps_deployment_metadata_and_uptime()
+    {
+        BuildProvenance provenance = new("1.0.0+abc123", "1.0.0.0", null, ".NET 10.0.0", "abc123");
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ARCHLUCID_BUILD_TIMESTAMP"] = " 2026-01-02T03:04:05Z ",
+                ["ARCHLUCID_BUILD_COMMIT_SHA"] = " def456 ",
+                ["ARCHLUCID_DEPLOY_STAMP"] = " 12345-2 ",
+            })
+            .Build();
+
+        BuildInfoResponse response = BuildInfoResponse.FromProvenance(
+            provenance, "TestApp", "Staging", processUptimeSeconds: 137, configuration: configuration);
+
+        response.BuildTimestamp.Should().Be("2026-01-02T03:04:05Z");
+        response.CommitSha.Should().Be("def456");
+        response.DeployStamp.Should().Be("12345-2");
+        response.ProcessUptimeSeconds.Should().Be(137L);
     }
 
     [SkippableFact]

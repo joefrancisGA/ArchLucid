@@ -29,20 +29,21 @@ public sealed class CreateGovernanceActivationRequestValidatorTests
         result.Errors.Should().Contain(e => e.ErrorMessage.Contains("RunId is required"));
     }
 
-    [Fact]
-    public void Validate_fails_when_run_id_exceeds_max_length()
+    [Theory]
+    [InlineData(64, true)]
+    [InlineData(65, false)]
+    public void Validate_checks_run_id_length_boundary(int length, bool valid)
     {
         CreateGovernanceActivationRequest request = new()
         {
-            RunId = new string('r', 65),
+            RunId = new string('r', length),
             ManifestVersion = "1.0.0",
             Environment = "dev",
         };
 
         ValidationResult result = _validator.Validate(request);
 
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("64 characters"));
+        AssertLengthResult(result, valid, nameof(request.RunId), "64 characters");
     }
 
     [Fact]
@@ -61,20 +62,21 @@ public sealed class CreateGovernanceActivationRequestValidatorTests
         result.Errors.Should().Contain(e => e.ErrorMessage.Contains("ManifestVersion is required"));
     }
 
-    [Fact]
-    public void Validate_fails_when_manifest_version_exceeds_max_length()
+    [Theory]
+    [InlineData(128, true)]
+    [InlineData(129, false)]
+    public void Validate_checks_manifest_version_length_boundary(int length, bool valid)
     {
         CreateGovernanceActivationRequest request = new()
         {
             RunId = "run-1",
-            ManifestVersion = new string('m', 129),
+            ManifestVersion = new string('m', length),
             Environment = "dev",
         };
 
         ValidationResult result = _validator.Validate(request);
 
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.ErrorMessage.Contains("128 characters"));
+        AssertLengthResult(result, valid, nameof(request.ManifestVersion), "128 characters");
     }
 
     [Fact]
@@ -141,5 +143,16 @@ public sealed class CreateGovernanceActivationRequestValidatorTests
         ValidationResult result = _validator.Validate(request);
 
         result.IsValid.Should().BeTrue();
+    }
+
+    private static void AssertLengthResult(ValidationResult result, bool valid, string property, string messageFragment)
+    {
+        result.IsValid.Should().Be(valid);
+        if (!valid)
+        {
+            ValidationFailure failure = Assert.Single(result.Errors);
+            Assert.Equal(property, failure.PropertyName);
+            Assert.Contains(messageFragment, failure.ErrorMessage);
+        }
     }
 }
