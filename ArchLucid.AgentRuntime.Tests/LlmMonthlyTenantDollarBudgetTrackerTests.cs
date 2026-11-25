@@ -149,7 +149,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
     }
 
     [SkippableFact]
-    public async Task Concurrent_record_usage_converges_on_expected_spend()
+    public async Task Concurrent_record_usage_retries_a_stale_version_and_preserves_both_updates()
     {
         LlmMonthlyTenantDollarBudgetOptions opts = new()
         {
@@ -164,27 +164,51 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         Mock<ILlmCostEstimator> cost = new();
         cost.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(1m);
 
-        InMemoryLlmTenantBudgetRepository repo = new();
-        LlmMonthlyTenantDollarBudgetTracker tracker = CreateTracker(monitor.Object, cost.Object, repo);
+        InMemoryLlmTenantBudgetRepository store = new();
+        Mock<ILlmTenantBudgetRepository> repo = new(MockBehavior.Strict);
         Guid tenant = Guid.NewGuid();
+        string periodKey = await store.GetSqlUtcMonthlyPeriodKeyAsync();
+        TaskCompletionSource bothSettling = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        int settleAttempts = 0;
+        int conflicts = 0;
+
+        repo.Setup(r => r.GetSqlUtcMonthlyPeriodKeyAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(periodKey);
+        repo.Setup(r => r.GetOrCreateAsync(tenant, LlmBudgetPeriod.Monthly, periodKey, It.IsAny<CancellationToken>()))
+            .Returns((Guid id, LlmBudgetPeriod period, string key, CancellationToken ct) =>
+                store.GetOrCreateAsync(id, period, key, ct));
+        repo.Setup(r => r.SettleAsync(It.IsAny<LlmTenantBudgetSettleRequest>(), It.IsAny<CancellationToken>()))
+            .Returns(async (LlmTenantBudgetSettleRequest request, CancellationToken ct) =>
+            {
+                // Both writers must read the current version before either writes.
+                int attempt = Interlocked.Increment(ref settleAttempts);
+                if (attempt == 2)
+                    bothSettling.TrySetResult();
+                if (attempt <= 2)
+                    await bothSettling.Task.WaitAsync(ct);
+
+                LlmTenantBudgetSettleResult result = await store.SettleAsync(request, ct);
+                if (result.ConcurrencyConflict)
+                    Interlocked.Increment(ref conflicts);
+
+                return result;
+            });
+
+        LlmMonthlyTenantDollarBudgetTracker tracker = CreateTracker(monitor.Object, cost.Object, repo.Object);
         IScopeContextProvider scope = CreateScopeProvider(tenant);
+        using CancellationTokenSource timeout = new(TimeSpan.FromSeconds(10));
 
-        Task[] tasks = new Task[32];
+        await Task.WhenAll(
+            tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scope, null, 1, 1, 0, null, false, timeout.Token),
+            tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scope, null, 1, 1, 0, null, false, timeout.Token))
+            .WaitAsync(timeout.Token);
 
-        for (int i = 0; i < tasks.Length; i++)
-        {
-            tasks[i] = tracker.RecordUsageAndMaybeWarnAsync(
-                tenant, "azure-openai", scope, null, 1, 1, 0, null, false, CancellationToken.None);
-        }
-
-        await Task.WhenAll(tasks);
-
-        DateTime utc = TimeProvider.System.UtcNowDateTime();
-        string periodKey = string.Format(CultureInfo.InvariantCulture, "{0:0000}-{1:00}", utc.Year, utc.Month);
         LlmTenantBudgetStateReadModel row =
-            await repo.GetOrCreateAsync(tenant, LlmBudgetPeriod.Monthly, periodKey, CancellationToken.None);
+            await store.GetOrCreateAsync(tenant, LlmBudgetPeriod.Monthly, periodKey, timeout.Token);
 
-        row.CommittedUsd.Should().Be(32m);
+        conflicts.Should().Be(1);
+        settleAttempts.Should().Be(3);
+        row.CommittedUsd.Should().Be(2m);
     }
 
     [SkippableFact]
@@ -319,11 +343,10 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
 
         Mock<IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(opts);
-        Mock<ILlmCostEstimator> cost = new();
-        cost.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(1m);
-        cost.Setup(e => e.EstimateUsd(
-                It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), null, null))
-            .Returns((decimal?)null);
+        Mock<ILlmCostEstimator> cost = new(MockBehavior.Strict);
+        cost.Setup(e => e.EstimateUsd(1, 1, 0, null, null)).Returns(1m);
+        if (!zeroUsage)
+            cost.Setup(e => e.EstimateUsd(10, 10, 0, null, null)).Returns((decimal?)null);
 
         InMemoryLlmTenantBudgetRepository repo = new();
         LlmMonthlyTenantDollarBudgetTracker tracker = CreateTracker(monitor.Object, cost.Object, repo);
@@ -332,7 +355,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         (decimal? reserved, bool overage) =
             await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
 
-        reserved.Should().BePositive();
+        reserved.Should().Be(1m);
         overage.Should().BeFalse();
 
         await tracker.RecordUsageAndMaybeWarnAsync(
@@ -344,7 +367,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTrackerTests
         (decimal? nextReserved, bool nextOverage) =
             await tracker.EnsureWithinBudgetBeforeCallAsync(tenant, "azure-openai", CancellationToken.None);
 
-        nextReserved.Should().BePositive();
+        nextReserved.Should().Be(1m);
         nextOverage.Should().BeFalse();
         await tracker.ReleasePendingReservationIfAnyAsync(
             tenant, "azure-openai", nextReserved, nextOverage, CancellationToken.None);
