@@ -49,6 +49,7 @@ public static class AzureInventoryEventGridSubscriptionSanitizer
             DestinationHost = destinationHost,
             DestinationKind = destinationKind,
             DeliveryAuthentication = AzureInventoryEventGridDeliveryAuthentication.Resolve(propertiesElement),
+            DeliveryUserAssignedIdentityResourceId = AzureInventoryEventGridDeliveryAuthentication.ReadUserAssignedIdentityResourceId(propertiesElement),
             CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
             WarningCode = warningCode,
         };
