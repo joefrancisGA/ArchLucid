@@ -1,14 +1,21 @@
+using System.Security.Claims;
+
+using ArchLucid.Api.Controllers.Authority;
+using ArchLucid.Api.Models;
 using ArchLucid.Api.Services.Authority;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Runs.Query;
 using ArchLucid.Application.Trust;
+using ArchLucid.Application.Traceability;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.DevTesting;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Scoping;
@@ -19,6 +26,9 @@ using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 using Moq;
 
@@ -146,7 +156,9 @@ public sealed class RunGraphQueryServiceTests
             Mock.Of<IAuthorityQueryService>(),
             executionMode.Object,
             traceRepository,
-            Mock.Of<IDbConnectionFactory>());
+            Mock.Of<IDbConnectionFactory>(),
+            new AuthorityRunInventoryQuery(authorityRunRepository, Mock.Of<IAgentExecutionTraceRepository>()),
+            gate ?? Mock.Of<IArchitectureShareAccessGate>());
 
         RunGraphDetailQueryResult result = await sut.GetRunDetailAsync(routeRunId, CancellationToken.None);
 
@@ -172,6 +184,137 @@ public sealed class RunGraphQueryServiceTests
             Times.Never);
     }
 
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public async Task Inventory_revalidates_continuation_when_only_lookahead_sharing_changes(bool useLegacyRoute, bool useKeyset)
+    {
+        RunRecord anchor = InventoryRow(0);
+        RunRecord first = InventoryRow(1);
+        RunRecord lookahead = InventoryRow(2);
+        RunRecord hidden = InventoryRow(3);
+        HashSet<Guid> visible = [first.RunId];
+        RunQueryController controller = CreateInventoryController([anchor, first, lookahead, hidden], visible);
+        string? cursor = useKeyset ? RunCursorCodec.Encode(anchor.CreatedUtc, anchor.RunId) : null;
+
+        Task<IActionResult> ReadAsync() => ReadInventoryAsync(controller, useLegacyRoute, cursor, offset: 0);
+
+        CursorPagedResponse<RunListItemResponse> initial = ReadPage(await ReadAsync());
+        initial.Items.Select(row => row.RunId).Should().Equal(first.RunId.ToString("N"));
+        initial.HasMore.Should().BeFalse();
+        initial.NextCursor.Should().BeNull();
+        string initialEtag = controller.Response.Headers.ETag.ToString();
+
+        controller.Request.Headers.IfNoneMatch = initialEtag;
+        (await ReadAsync()).Should().BeOfType<StatusCodeResult>().Which.StatusCode
+            .Should().Be(StatusCodes.Status304NotModified);
+
+        visible.Add(lookahead.RunId);
+        CursorPagedResponse<RunListItemResponse> granted = ReadPage(await ReadAsync());
+        granted.Items.Select(row => row.RunId).Should().Equal(first.RunId.ToString("N"));
+        granted.HasMore.Should().BeTrue();
+        granted.NextCursor.Should().Be(useKeyset ? RunCursorCodec.Encode(first.CreatedUtc, first.RunId) : null);
+        string grantedEtag = controller.Response.Headers.ETag.ToString();
+        grantedEtag.Should().NotBe(initialEtag);
+
+        visible.Remove(lookahead.RunId);
+        controller.Request.Headers.IfNoneMatch = grantedEtag;
+        CursorPagedResponse<RunListItemResponse> revoked = ReadPage(await ReadAsync());
+        revoked.Items.Select(row => row.RunId).Should().Equal(first.RunId.ToString("N"));
+        revoked.HasMore.Should().BeFalse();
+        revoked.NextCursor.Should().BeNull();
+        controller.Response.Headers.ETag.ToString().Should().Be(initialEtag);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Offset_skips_only_visible_rows_across_raw_page_boundaries(bool useLegacyRoute)
+    {
+        RunRecord first = InventoryRow(1);
+        RunRecord second = InventoryRow(RunPagination.MaxTake);
+        List<RunRecord> rows = [InventoryRow(0), first];
+        rows.AddRange(Enumerable.Range(2, RunPagination.MaxTake - 2).Select(InventoryRow));
+        rows.Add(second);
+        rows.Add(InventoryRow(RunPagination.MaxTake + 1));
+        RunQueryController controller = CreateInventoryController(rows, [first.RunId, second.RunId]);
+
+        CursorPagedResponse<RunListItemResponse> result =
+            ReadPage(await ReadInventoryAsync(controller, useLegacyRoute, cursor: null, offset: 1));
+
+        result.Items.Select(row => row.RunId).Should().Equal(second.RunId.ToString("N"));
+        result.HasMore.Should().BeFalse();
+        result.NextCursor.Should().BeNull();
+        result.RequestedTake.Should().Be(1);
+    }
+
+    private static RunQueryController CreateInventoryController(List<RunRecord> rows, HashSet<Guid> visible)
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        ClaimsPrincipal principal = new(new ClaimsIdentity("Test"));
+        Mock<IScopeContextProvider> scopes = new(MockBehavior.Strict);
+        scopes.Setup(s => s.GetCurrentScope()).Returns(scope);
+        Mock<IArchitectureShareAccessGate> gate = new(MockBehavior.Strict);
+        gate.Setup(g => g.EvaluateRunReadAsync(principal, scope, It.IsAny<Guid>(), CancellationToken.None))
+            .ReturnsAsync((ClaimsPrincipal _, ScopeContext _, Guid runId, CancellationToken _) => (true, visible.Contains(runId)));
+
+        Mock<IRunRepository> runs = new(MockBehavior.Strict);
+        runs.Setup(r => r.ListRecentInScopeKeysetAsync(
+                scope, It.IsAny<DateTime?>(), It.IsAny<Guid?>(), RunPagination.MaxTake, CancellationToken.None))
+            .ReturnsAsync((ScopeContext _, DateTime? created, Guid? id, int take, CancellationToken _) =>
+            {
+                int start = id is null ? 0 : rows.FindIndex(row => row.RunId == id && row.CreatedUtc == created) + 1;
+                if (id is not null)
+                    start.Should().BeGreaterThan(0);
+
+                return new RunListPage(rows.Skip(start).Take(take).ToList(), rows.Count > start + take);
+            });
+
+        RunGraphQueryService graph = CreateService(
+            Mock.Of<IRunDetailQueryService>(MockBehavior.Strict), runs.Object, Mock.Of<IAuthorityQueryService>(),
+            scopes.Object, gate.Object);
+        return new RunQueryController(
+            graph,
+            Mock.Of<IRunFindingsQueryService>(),
+            Mock.Of<IRunProvenanceQueryService>(),
+            Mock.Of<ITraceabilityBundleExportApplicationService>(),
+            Mock.Of<IAuthorityQueryService>(),
+            scopes.Object,
+            Mock.Of<IManifestHashService>(),
+            gate.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext { User = principal } },
+        };
+    }
+
+    private static Task<IActionResult> ReadInventoryAsync(
+        RunQueryController controller, bool useLegacyRoute, string? cursor, int offset)
+    {
+#pragma warning disable CS0618 // Exercise the retained alias through its controller action.
+        return useLegacyRoute
+            ? controller.ListRunsLegacyAlias(cursor, limit: 1, offset: offset, take: 1)
+            : controller.ListRuns(cursor, limit: 1, offset: offset, take: 1);
+#pragma warning restore CS0618
+    }
+
+    private static CursorPagedResponse<RunListItemResponse> ReadPage(IActionResult action) =>
+        action.Should().BeOfType<OkObjectResult>().Which.Value
+            .Should().BeOfType<CursorPagedResponse<RunListItemResponse>>().Which;
+
+    private static RunRecord InventoryRow(int index) => new()
+    {
+        RunId = Guid.NewGuid(),
+        CreatedUtc = new DateTime(2026, 11, 24, 12, 0, 0, DateTimeKind.Utc).AddMinutes(-index),
+        RowVersion = [1, 2, 3],
+    };
+
     private static RunGraphQueryService CreateService(IRunDetailQueryService runDetailQueryService) =>
         CreateService(runDetailQueryService, Mock.Of<IRunRepository>());
 
@@ -183,13 +326,15 @@ public sealed class RunGraphQueryServiceTests
     private static RunGraphQueryService CreateService(
         IRunDetailQueryService runDetailQueryService,
         IRunRepository authorityRunRepository,
-        IAuthorityQueryService authorityQueryService) =>
+        IAuthorityQueryService authorityQueryService,
+        IScopeContextProvider? scopes = null,
+        IArchitectureShareAccessGate? gate = null) =>
         new(
             runDetailQueryService,
             Mock.Of<IRunRoiEstimator>(),
             authorityRunRepository,
             Mock.Of<IRunStageOutcomesRepository>(),
-            Mock.Of<IScopeContextProvider>(),
+            scopes ?? Mock.Of<IScopeContextProvider>(),
             Mock.Of<IRunTrustEvidenceCardBuilder>(),
             Mock.Of<ILlmCostEstimator>(),
             authorityQueryService,

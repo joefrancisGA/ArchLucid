@@ -49,26 +49,18 @@ public sealed partial class AuthorityRunReadHandlers
             ct);
 
         int pageSize = RunPagination.ClampTake(take);
-        List<RunRecord> records = new(pageSize);
-        bool hasMore = false;
-        await foreach (RunRecord run in inventoryQuery.EnumerateVisibleHeadersAsync(
-                           scope, projectId, cursorCreatedUtc, cursorRunId, CanReadAsync, ct))
-        {
-            if (records.Count == pageSize)
-            {
-                hasMore = true;
-                break;
-            }
+        RunListPage page = await AuthorityRunInventoryQuery.PageVisibleHeadersAsync(
+            inventoryQuery.EnumerateVisibleHeadersAsync(scope, projectId, cursorCreatedUtc, cursorRunId, CanReadAsync, ct),
+            offset: 0,
+            pageSize,
+            ct);
 
-            records.Add(run);
-        }
-
-        IReadOnlyList<RunSummaryDto> summaries = await inventoryQuery.ProjectSummariesAsync(scope, records, ct);
+        IReadOnlyList<RunSummaryDto> summaries = await inventoryQuery.ProjectSummariesAsync(scope, page.Items, ct);
         return new CursorPagedResponse<RunSummaryResponse>
         {
             Items = summaries.Select(ToRunSummaryResponse).ToList(),
-            HasMore = hasMore,
-            NextCursor = hasMore ? RunCursorCodec.Encode(records[^1].CreatedUtc, records[^1].RunId) : null,
+            HasMore = page.HasMore,
+            NextCursor = page.HasMore ? RunCursorCodec.Encode(page.Items[^1].CreatedUtc, page.Items[^1].RunId) : null,
             RequestedTake = pageSize,
         };
     }
