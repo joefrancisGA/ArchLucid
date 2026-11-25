@@ -63,6 +63,8 @@ public class SpecialistReviewFinding
     /// <summary>Candidate claim that public network access is disabled on this exact Azure resource.</summary>
     public Guid? PublicNetworkAccessDisabledResourceId { get; set; }
 
+    public Guid? StorageMinimumTls12ResourceId { get; set; }
+
     public double Confidence
     {
         get;

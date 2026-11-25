@@ -36,7 +36,8 @@ jobs:
       - name: Verify Ask service authorization, history, finding and existing behavior
         run: >-
           dotnet test ArchLucid.Host.Core.Tests/ArchLucid.Host.Core.Tests.csproj
-          --filter "FullyQualifiedName~AskServiceShareAccessTests|FullyQualifiedName~AskServiceWorkspaceScopedTests|FullyQualifiedName~AskServiceConversationCompressionTests|FullyQualifiedName~AskServiceComparisonNarrativeTests|FullyQualifiedName~AskServiceAskAboutFindingTests|FullyQualifiedName~AskResponseComposerTests"
+          -c Release
+          --filter "FullyQualifiedName~AskServiceShareAccessTests|FullyQualifiedName~AskServiceWorkspaceScopedTests|FullyQualifiedName~AskServiceConversationCompressionTests|FullyQualifiedName~AskServiceComparisonNarrativeTests|FullyQualifiedName~AskServiceAskAboutFindingTests|FullyQualifiedName~AskResponseComposerTests|FullyQualifiedName~DraftIntakeReasoningServiceTests|FullyQualifiedName~DraftIntakeReasoningShareAccessTests"
   ask-api:
     runs-on: ubuntu-latest
     timeout-minutes: 15

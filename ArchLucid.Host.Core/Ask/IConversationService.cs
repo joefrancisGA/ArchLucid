@@ -1,4 +1,5 @@
 using ArchLucid.Core.Conversation;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Host.Core.Ask;
 
@@ -34,9 +35,15 @@ public interface IConversationService
         CancellationToken ct);
 
     /// <summary>
-    /// Returns up to <paramref name="take"/> recent messages in chronological order (oldest first within the window).
+    /// Returns only proven Ask turns from the bounded recent window in the exact caller scope.
     /// </summary>
-    Task<IReadOnlyList<ConversationMessage>> GetHistoryAsync(Guid threadId, int take, CancellationToken ct);
+    Task<IReadOnlyList<ConversationMessage>> GetVerifiedAskHistoryAsync(
+        ScopeContext scope, Guid threadId, int take, string actorId, IReadOnlySet<Guid> authorizedRuns, CancellationToken ct);
+
+    /// <summary>Same proof-first read, bound to the specific draft and architecture.</summary>
+    Task<IReadOnlyList<ConversationMessage>> GetVerifiedDraftHistoryAsync(
+        ScopeContext scope, Guid threadId, int take, Guid draftId, Guid? architectureId, string actorId,
+        IReadOnlySet<Guid> authorizedRuns, CancellationToken ct);
 
     /// <summary>Appends a user turn and bumps <see cref="ConversationThread.LastUpdatedUtc"/>.</summary>
     Task AppendUserMessageAsync(Guid threadId, string content, CancellationToken ct);

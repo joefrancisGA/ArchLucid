@@ -8,6 +8,7 @@ using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
@@ -120,6 +121,22 @@ public sealed class RunScopedEvidenceHubHttpTests(JwtLocalSigningWebAppFactory f
         var resource = await identity.UpsertOnSnapshotAsync(scope, CloudProvider.Azure,
             "/subscriptions/test/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/fixture",
             snapshotId, "Microsoft.Compute/virtualMachines", null, "rg", null, null);
+        ScopeContext foreignScope = new()
+        {
+            TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = Guid.NewGuid(),
+        };
+        Guid foreignSnapshotId = Guid.NewGuid();
+        var foreignResource = await identity.UpsertOnSnapshotAsync(foreignScope, CloudProvider.Azure,
+            resource.ExternalResourceIdNormalized, foreignSnapshotId, null, null, null, null, null);
+        foreignResource.CloudResourceId.Should().Be(resource.CloudResourceId);
+        Mock<IAzureInventorySnapshotRepository> snapshots = new();
+        snapshots.Setup(r => r.TryGetBySnapshotIdAsync(It.Is<ScopeContext>(s =>
+                s.TenantId == scope.TenantId && s.WorkspaceId == scope.WorkspaceId && s.ProjectId == scope.ProjectId),
+                snapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AzureInventorySnapshotRecord
+            {
+                SnapshotId = snapshotId, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId,
+            });
         RunRecord run = new()
         {
             RunId = runId, ArchitectureId = architectureId, TenantId = scope.TenantId,
@@ -170,6 +187,7 @@ public sealed class RunScopedEvidenceHubHttpTests(JwtLocalSigningWebAppFactory f
         {
             services.AddSingleton(tenants.Object);
             services.AddSingleton<ICloudResourceIdentityDirectory>(identity);
+            services.AddSingleton(snapshots.Object);
             services.AddSingleton(runs.Object);
             services.AddSingleton(shares.Object);
             services.AddSingleton(reconciliations.Object);
@@ -181,12 +199,13 @@ public sealed class RunScopedEvidenceHubHttpTests(JwtLocalSigningWebAppFactory f
         }));
         using HttpClient client = host.CreateClient();
 
-        async Task<HttpResponseMessage> ReadAsync()
+        async Task<HttpResponseMessage> ReadAsync(Guid? requestedSnapshot = null)
         {
             string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(factory.PrivatePemForTests,
                 JwtLocalSigningWebAppFactory.JwtLocalTestIssuer, JwtLocalSigningWebAppFactory.JwtLocalTestAudience,
                 "Hub reader", [ArchLucidRoles.Reader], scope.TenantId, scope.WorkspaceId, scope.ProjectId);
-            string query = explicitSnapshot ? $"?snapshotId={snapshotId:D}" : string.Empty;
+            Guid? selectedSnapshot = requestedSnapshot ?? (explicitSnapshot ? snapshotId : null);
+            string query = selectedSnapshot.HasValue ? $"?snapshotId={selectedSnapshot.Value:D}" : string.Empty;
             using HttpRequestMessage request = new(HttpMethod.Get,
                 $"/v1/infra-evidence/cloud-resources/{resource.CloudResourceId:D}/hub{query}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -216,6 +235,11 @@ public sealed class RunScopedEvidenceHubHttpTests(JwtLocalSigningWebAppFactory f
         foreign.StatusCode.Should().Be(HttpStatusCode.OK);
         authority.VerifyNoOtherCalls();
         shares.VerifyNoOtherCalls();
+
+        reconciliations.Invocations.Clear();
+        using HttpResponseMessage foreignSnapshot = await ReadAsync(foreignSnapshotId);
+        foreignSnapshot.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        reconciliations.VerifyNoOtherCalls();
     }
 
 
@@ -272,8 +296,9 @@ public sealed class RunScopedEvidenceHubHttpTests(JwtLocalSigningWebAppFactory f
             string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(factory.PrivatePemForTests,
                 JwtLocalSigningWebAppFactory.JwtLocalTestIssuer, JwtLocalSigningWebAppFactory.JwtLocalTestAudience,
                 "Snapshot diagram reader", [ArchLucidRoles.Reader], tenant, workspace, project);
+            string query = route == "mermaid/preview" ? string.Empty : "?mode=executive";
             using HttpRequestMessage request = new(HttpMethod.Get,
-                $"/v1/infra-evidence/snapshots/{snapshot:D}/{route}?mode=executive");
+                $"/v1/infra-evidence/snapshots/{snapshot:D}/{route}{query}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             request.Headers.Add("x-tenant-id", tenant.ToString("D"));
             request.Headers.Add("x-workspace-id", workspace.ToString("D"));

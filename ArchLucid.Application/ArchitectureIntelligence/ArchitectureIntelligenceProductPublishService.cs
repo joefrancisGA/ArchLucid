@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Application.InfraEvidence;
+
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Persistence.Ports;
@@ -16,6 +18,8 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 public sealed class ArchitectureIntelligenceProductPublishService : IArchitectureIntelligenceProductPublishService
 {
     internal const string InventoryVerificationProperty = "architectureIntelligence.independentInventoryVerification";
+
+    internal const string StorageTlsVerificationProperty = "architectureIntelligence.independentStorageTlsVerification";
 
     private readonly IFindingsSnapshotRepository? _findingsSnapshotRepository;
     private readonly IRecommendationRepository? _recommendationRepository;
@@ -118,6 +122,33 @@ public sealed class ArchitectureIntelligenceProductPublishService : IArchitectur
         foreach (Finding finding in result.ProductFindings)
         {
             finding.Properties?.Remove(InventoryVerificationProperty);
+            finding.Properties?.Remove(StorageTlsVerificationProperty);
+            if (finding.Properties?.ContainsKey(ScopedPublicNetworkAccessVerifier.StorageTlsResourceProperty) == true ||
+                InventoryStorageMinimumTlsVerifier.MentionsMinimumTls(finding.Title) ||
+                InventoryStorageMinimumTlsVerifier.MentionsMinimumTls(finding.Rationale))
+            {
+                if (finding.Properties is { } properties &&
+                    !properties.ContainsKey(ScopedPublicNetworkAccessVerifier.ResourceProperty) &&
+                    properties.TryGetValue(ScopedPublicNetworkAccessVerifier.StorageTlsResourceProperty, out string? tlsResource) &&
+                    Guid.TryParse(tlsResource, out Guid tlsId) &&
+                    properties.TryGetValue(ScopedPublicNetworkAccessVerifier.StorageTlsSnapshotProperty, out string? tlsSnapshot) &&
+                    Guid.TryParse(tlsSnapshot, out Guid expectedTlsSnapshot) &&
+                    _publicNetworkAccessVerifier is not null &&
+                    finding.Title == ScopedPublicNetworkAccessVerifier.StorageTlsTitle(tlsId) &&
+                    finding.Rationale == ScopedPublicNetworkAccessVerifier.StorageTlsRationale)
+                {
+                    StorageMinimumTlsVerification current = await _publicNetworkAccessVerifier.VerifyStorageTlsAsync(
+                        tenantId, workspaceId, projectId, runId, tlsId, cancellationToken);
+                    if (current is { Outcome: StorageMinimumTlsOutcome.Verified, CapturedUtc: not null, ResourceRowId: not null }
+                        && current.SnapshotId == expectedTlsSnapshot)
+                    {
+                        properties[StorageTlsVerificationProperty] = JsonSerializer.Serialize(current);
+                        publishable.Add(finding);
+                    }
+                }
+
+                continue;
+            }
             if (finding.Properties is null || !finding.Properties.TryGetValue(ScopedPublicNetworkAccessVerifier.ResourceProperty, out string? resource))
             {
                 publishable.Add(finding);

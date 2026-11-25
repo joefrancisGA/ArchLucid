@@ -31,7 +31,8 @@ namespace ArchLucid.Api.Controllers.Authority;
 public sealed partial class AuthorityRunEventsController(
     IAuthorityQueryService queryService,
     IScopeContextProvider scopeProvider,
-    IManifestHashService manifestHashService) : ControllerBase
+    IManifestHashService manifestHashService,
+    IArchitectureShareAccessGate shareAccessGate) : ControllerBase
 {
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
@@ -55,6 +56,14 @@ public sealed partial class AuthorityRunEventsController(
         try
         {
             ScopeContext scope = scopeProvider.GetCurrentScope();
+            IActionResult? denied = await shareAccessGate.EnsureRunReadAllowedAsync(
+                this, User, scope, runId, cancellationToken);
+            if (denied is not null)
+            {
+                await denied.ExecuteResultAsync(ControllerContext);
+                return;
+            }
+
             RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, cancellationToken);
 
             if (detail is not null)

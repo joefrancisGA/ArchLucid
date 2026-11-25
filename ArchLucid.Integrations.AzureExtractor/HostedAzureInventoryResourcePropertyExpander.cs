@@ -165,6 +165,7 @@ internal static class HostedAzureInventoryResourcePropertyExpander
             AddKindProperty(propertiesElement, properties);
             AddSiteWorkflowConnectionParameters(propertiesElement, properties);
             AddWebAppContainerImageProperty(propertiesElement, properties);
+            AddWebAppRuntimeConfigurationEvidence(propertiesElement, properties);
         }
 
         if (resourceType.Contains("virtualMachineScaleSets", StringComparison.OrdinalIgnoreCase))
@@ -516,6 +517,35 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
         }
 
         AddJsonArrayProperty(propertiesElement, properties, "privateDnsZoneGroups");
+        // Preserve only the target and approval state from each connection, not arbitrary descriptions.
+        foreach (string key in new[] { "privateLinkServiceConnections", "manualPrivateLinkServiceConnections" })
+        {
+            if (!propertiesElement.TryGetProperty(key, out JsonElement connections)
+                || connections.ValueKind != JsonValueKind.Array)
+                continue;
+
+            List<object> sanitized = [];
+            foreach (JsonElement connection in connections.EnumerateArray())
+            {
+                if (connection.ValueKind != JsonValueKind.Object
+                    || !connection.TryGetProperty("properties", out JsonElement body)
+                    || body.ValueKind != JsonValueKind.Object)
+                {
+                    sanitized.Add(new { });
+                    continue;
+                }
+
+                string? target = TryReadPrivateLinkServiceId(connection);
+                string? status = body.TryGetProperty("privateLinkServiceConnectionState", out JsonElement state)
+                    && state.ValueKind == JsonValueKind.Object
+                    && state.TryGetProperty("status", out JsonElement statusElement)
+                    && statusElement.ValueKind == JsonValueKind.String
+                    ? statusElement.GetString() : null;
+                sanitized.Add(new { properties = new { privateLinkServiceId = target,
+                    privateLinkServiceConnectionState = new { status } } });
+            }
+            properties[key] = JsonSerializer.Serialize(sanitized);
+        }
     }
 
     private static void AddPrivateLinkConnections(
@@ -888,6 +918,46 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
         if (!string.IsNullOrWhiteSpace(image))
         {
             properties["container.image[0]"] = image;
+        }
+    }
+
+    private static void AddWebAppRuntimeConfigurationEvidence(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        // ARM siteConfig describes the desired stack, not installed or executing binaries.
+        // No patch verdict or runtime observation is inferred from this source.
+        if (!propertiesElement.TryGetProperty("siteConfig", out JsonElement siteConfig)
+            || siteConfig.ValueKind is not JsonValueKind.Object)
+        {
+            return;
+        }
+
+        foreach (string field in new[] { "linuxFxVersion", "windowsFxVersion", "javaVersion",
+                     "javaContainer", "javaContainerVersion", "netFrameworkVersion",
+                     "nodeVersion", "pythonVersion", "phpVersion", "powerShellVersion" })
+        {
+            if (!siteConfig.TryGetProperty(field, out JsonElement element)
+                || element.ValueKind is not JsonValueKind.String)
+            {
+                continue;
+            }
+
+            string? value = element.GetString()?.Trim();
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                continue;
+            }
+
+            // Docker image references are already captured separately; do not classify them
+            // as runtime versions or collect arbitrary configuration/environment values.
+            if ((field is "linuxFxVersion" or "windowsFxVersion")
+                && value.StartsWith("DOCKER|", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            properties[$"runtime.configured.{field}"] = value;
         }
     }
 

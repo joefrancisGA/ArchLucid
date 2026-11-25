@@ -157,7 +157,7 @@ internal static class InventoryReachabilityPathGraph
             PublicIpArmIds = publicIpArmIds,
             PublicNetworkAccessArmIds = publicNetworkAccessArmIds,
             PrivateEndpointOnlyArmIds = privateEndpointOnlyArmIds,
-            PrivateIntegratedComputeArmIds = dnsJoinIndex.ComputeToVnetArmId.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase),
+            PrivateIntegratedComputeArmIds = dnsJoinIndex.ComputeToVnetArmIds.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase),
             DnsJoinIndex = dnsJoinIndex,
             CustomDnsIndex = customDnsIndex,
             EdgeControlIndex = edgeControlIndex,

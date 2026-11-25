@@ -64,12 +64,13 @@ public sealed class SqlAdvisoryTerraformRepresentationRepository(ISqlConnectionF
             return null;
 
         const string sql = """
-                           SELECT TOP (1) MappingId, SnapshotId, CloudResourceId, AzureResourceId, TerraformAddress,
-                                  CategoryFolder, GenerationMethod, UncertaintyNotes
-                           FROM dbo.AdvisoryTerraformResourceMappings
-                           WHERE TenantId = @TenantId
-                             AND SnapshotId = @SnapshotId
-                             AND CloudResourceId = @CloudResourceId;
+                           SELECT TOP (1) m.MappingId, m.SnapshotId, m.CloudResourceId, m.AzureResourceId, m.TerraformAddress,
+                                  m.CategoryFolder, m.GenerationMethod, m.UncertaintyNotes
+                           FROM dbo.AdvisoryTerraformResourceMappings m
+                           INNER JOIN dbo.AzureInventorySnapshots s ON s.TenantId = m.TenantId AND s.SnapshotId = m.SnapshotId
+                           WHERE m.TenantId = @TenantId AND s.WorkspaceId = @WorkspaceId AND s.ProjectId = @ProjectId
+                             AND m.SnapshotId = @SnapshotId
+                             AND m.CloudResourceId = @CloudResourceId;
                            """;
 
         using IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -82,6 +83,8 @@ public sealed class SqlAdvisoryTerraformRepresentationRepository(ISqlConnectionF
                     scope.TenantId,
                     SnapshotId = snapshotId,
                     CloudResourceId = cloudResourceId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
                 },
                 cancellationToken: cancellationToken));
 

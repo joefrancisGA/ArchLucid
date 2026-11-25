@@ -37,7 +37,9 @@ import {
   formatInfraEvidenceHubApiError,
 } from "@/lib/infra-evidence/infra-evidence-hub-api";
 import { buildInfrastructureAskHandoffHref } from "@/lib/infra-evidence/infrastructure-ask-drawer-url";
-import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { RemediationFactoryRankedPathAskHandoff } from "@/components/remediation-factory/RemediationFactoryRankedPathAskHandoff";
+import { TERRAFORM_WORKBENCH_RANKED_PATH_ASK_SCOPE_LINE } from "@/lib/infra-evidence/terraform-workbench-ranked-path-ask-handoff-copy";
+import { RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import type { CloudResourceEvidenceHubResponse } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import {
   formatAzureResourceTypeForDisplay,
@@ -151,6 +153,9 @@ export function TerraformWorkbenchClient() {
   const urlSnapshotId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(INFRA_TERRAFORM_SNAPSHOT_ID_PARAM));
   const urlCloudResourceId = parseInfraEvidenceWorkbenchQueryValue(
     searchParams.get(INFRA_TERRAFORM_CLOUD_RESOURCE_ID_PARAM),
+  );
+  const urlSecurityEvidencePathId = parseInfraEvidenceWorkbenchQueryValue(
+    searchParams.get(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM),
   );
   const isUnscoped = urlCloudResourceId.length === 0;
 
@@ -389,9 +394,10 @@ export function TerraformWorkbenchClient() {
       cloudResourceId: urlCloudResourceId,
       snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
       hubTab: "terraform",
+      securityEvidencePathId: urlSecurityEvidencePathId.length > 0 ? urlSecurityEvidencePathId : undefined,
       ...mergeInfrastructureAskAuditScope(auditScope),
     });
-  }, [auditScope, pathname, resolvedSnapshotId, searchParams, urlCloudResourceId]);
+  }, [auditScope, pathname, resolvedSnapshotId, searchParams, urlCloudResourceId, urlSecurityEvidencePathId]);
 
   const driftWorkbenchHref = useMemo(() => {
     if (urlCloudResourceId.length === 0) {
@@ -536,6 +542,16 @@ export function TerraformWorkbenchClient() {
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-terraform-advisory-snapshot-honesty">
           {TERRAFORM_ADVISORY_SNAPSHOT_HONESTY_LINE}
         </p>
+
+        {urlSecurityEvidencePathId.length > 0 && resolvedSnapshotId.length > 0 ? (
+          <RemediationFactoryRankedPathAskHandoff
+            testId="infra-terraform-ranked-path-ask-handoff"
+            snapshotId={resolvedSnapshotId}
+            securityEvidencePathId={urlSecurityEvidencePathId}
+            hubTab="terraform"
+            scopeLine={TERRAFORM_WORKBENCH_RANKED_PATH_ASK_SCOPE_LINE}
+          />
+        ) : null}
         {isSecureNowProductLine(productLine) ? (
           <SecureNowInfraPartialCaptureStrip
             testId="infra-terraform-partial-capture"

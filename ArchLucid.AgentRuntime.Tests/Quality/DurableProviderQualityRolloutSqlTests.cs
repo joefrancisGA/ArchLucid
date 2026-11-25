@@ -54,9 +54,38 @@ public sealed class DurableProviderQualityRolloutSqlTests(ITestOutputHelper outp
 
     private async Task MeasureMixedCohortAsync(string connectionString)
     {
-        const int healthyCohorts = 24;
-        const int degradedCohorts = 8;
+        const int replicasPerProfile = 4;
         const int observationsPerCohort = 64;
+        const double p95BudgetMs = 250;
+        ReplayProfile[] profiles =
+        [
+            new("steady-supported", false, i => (i % 16) switch
+            {
+                12 => new(ProviderQualityLabel.Unknown, 1),
+                15 => new(ProviderQualityLabel.Contradicted, 4),
+                _ => new(ProviderQualityLabel.Supported, 1),
+            }),
+            new("coverage-limited", false, i => (i % 16) switch
+            {
+                15 => new(ProviderQualityLabel.Contradicted, 4),
+                0 or 4 or 8 or 12 => new(ProviderQualityLabel.Supported, 1),
+                _ => new(ProviderQualityLabel.Unknown, 1),
+            }),
+            new("mixed-known", false, i => (i % 16) switch
+            {
+                13 or 14 => new(ProviderQualityLabel.Unsupported, 1),
+                15 => new(ProviderQualityLabel.Unknown, 1),
+                _ => new(ProviderQualityLabel.Supported, 1),
+            }),
+            new("unknown-only", false, _ => new(ProviderQualityLabel.Unknown, 1)),
+            new("sustained-contradiction", true, i =>
+                new(i % 16 < 4 ? ProviderQualityLabel.Supported : ProviderQualityLabel.Contradicted,
+                    i % 16 < 4 ? 1 : 4)),
+            new("sustained-unsupported", true, i =>
+                new(i % 16 < 4 ? ProviderQualityLabel.Supported : ProviderQualityLabel.Unsupported, 1)),
+        ];
+        int healthyCohorts = profiles.Count(static profile => !profile.Degraded) * replicasPerProfile;
+        int degradedCohorts = profiles.Count(static profile => profile.Degraded) * replicasPerProfile;
         using CancellationTokenSource timeout = new(TimeSpan.FromSeconds(120));
         ManualClock clock = new();
         DedicatedSystemSqlConnectionFactory sql = new(connectionString);
@@ -67,28 +96,30 @@ public sealed class DurableProviderQualityRolloutSqlTests(ITestOutputHelper outp
         ConcurrentBag<double> admissionLatency = [];
         ConcurrentBag<int> healthyTrips = [];
         ConcurrentBag<int> degradedTrips = [];
+        ConcurrentBag<CohortReplayResult> cohortResults = [];
 
-        // Warm the pool and serialization before timing.
+        // These are deterministic policy-representative cases, not production telemetry. They exercise the
+        // default thresholds with sparse contradictions, incomplete coverage, unknown-only evidence,
+        // unsupported claims and sustained degradation without retaining customer prompts or outputs.
         await reader.AdmitAsync("azure-openai", "warmup-only", timeout.Token);
-        await Parallel.ForEachAsync(Enumerable.Range(0, healthyCohorts + degradedCohorts),
+        await Parallel.ForEachAsync(Enumerable.Range(0, profiles.Length * replicasPerProfile),
             new ParallelOptions { MaxDegreeOfParallelism = 4, CancellationToken = timeout.Token },
             async (cohort, ct) =>
             {
-                bool healthy = cohort < healthyCohorts;
-                ProviderQualityKey key = ProviderQualityKey.Create("azure-openai", $"replay-{cohort}", "v1");
+                ReplayProfile profile = profiles[cohort % profiles.Length];
+                ProviderQualityKey key = ProviderQualityKey.Create(
+                    "azure-openai", $"replay-{profile.Name}-{cohort}", "v1");
                 bool tripped = false;
+                ProviderQualitySnapshot? finalSnapshot = null;
 
                 for (int i = 0; i < observationsPerCohort; i++)
                 {
-                    // Stagger sparse high-severity contradictions and unverified evidence across healthy fixtures.
-                    int phase = (i + cohort * 7) % observationsPerCohort;
-                    ProviderQualityLabel label = phase % 8 == 7 ? ProviderQualityLabel.Unknown
-                        : (healthy ? phase is 12 or 29 : phase % 4 != 0)
-                            ? ProviderQualityLabel.Contradicted : ProviderQualityLabel.Supported;
+                    ReplayObservation observation = profile.Observation(i + cohort * 5);
                     long started = Stopwatch.GetTimestamp();
                     ProviderQualityRecordResult recorded = await writer.RecordAsync(
-                        Sample(key, $"case-{i}", label, clock), ct);
+                        Sample(key, $"case-{i}", observation.Label, clock, observation.SeverityWeight), ct);
                     updateLatency.Add(Stopwatch.GetElapsedTime(started).TotalMilliseconds);
+                    finalSnapshot = recorded.Snapshot;
 
                     started = Stopwatch.GetTimestamp();
                     ProviderQualityAdmission admission = await reader.AdmitAsync(key.ProviderId, key.ModelId, ct);
@@ -96,21 +127,42 @@ public sealed class DurableProviderQualityRolloutSqlTests(ITestOutputHelper outp
                     tripped |= recorded.Snapshot.Quarantined || !admission.Allowed;
                 }
 
+                ProviderQualitySnapshot snapshot = Assert.IsType<ProviderQualitySnapshot>(finalSnapshot);
+                cohortResults.Add(new(profile.Name, profile.Degraded, tripped,
+                    snapshot.KnownSampleCount, snapshot.UnknownSampleCount));
                 if (tripped)
                 {
-                    if (healthy)
-                        healthyTrips.Add(cohort);
-                    else
+                    if (profile.Degraded)
                         degradedTrips.Add(cohort);
+                    else
+                        healthyTrips.Add(cohort);
                 }
             });
 
-        output.WriteLine(FormattableString.Invariant(
-            $"FND073_REPLAY healthy_false_quarantines={healthyTrips.Count}/{healthyCohorts} degraded_detected={degradedTrips.Count}/{degradedCohorts} observations={updateLatency.Count} concurrency=4 sql_update_p50_ms={Percentile(updateLatency, .50):F2} sql_update_p95_ms={Percentile(updateLatency, .95):F2} sql_admit_p50_ms={Percentile(admissionLatency, .50):F2} sql_admit_p95_ms={Percentile(admissionLatency, .95):F2}"));
         Assert.Empty(healthyTrips);
         Assert.Equal(degradedCohorts, degradedTrips.Count);
+        Assert.All(cohortResults.Where(static result => result.Profile == "unknown-only"), result =>
+        {
+            Assert.False(result.Tripped);
+            Assert.Equal(0, result.Known);
+            Assert.Equal(observationsPerCohort, result.Unknown);
+        });
+        Assert.All(cohortResults.Where(static result => result.Profile == "coverage-limited"), result =>
+        {
+            Assert.False(result.Tripped);
+            Assert.Equal(20, result.Known);
+            Assert.Equal(44, result.Unknown);
+        });
         Assert.Equal((healthyCohorts + degradedCohorts) * observationsPerCohort, updateLatency.Count);
         Assert.Equal(updateLatency.Count, admissionLatency.Count);
+
+        double updateP95 = Percentile(updateLatency, .95);
+        double admissionP95 = Percentile(admissionLatency, .95);
+        output.WriteLine(FormattableString.Invariant($"FND073_REPLAY coverage=offline-policy-scenarios coverage_limit=no-production-telemetry no_customer_data=true healthy_false_quarantines={healthyTrips.Count}/{healthyCohorts} degraded_detected={degradedTrips.Count}/{degradedCohorts} observations={updateLatency.Count} concurrency=4 sql_update_p50_ms={Percentile(updateLatency, .50):F2} sql_update_p95_ms={updateP95:F2} sql_admit_p50_ms={Percentile(admissionLatency, .50):F2} sql_admit_p95_ms={admissionP95:F2} sql_p95_budget_ms={p95BudgetMs:F0}"));
+        Assert.True(updateP95 <= p95BudgetMs,
+            $"SQL quality update p95 {updateP95:F2} ms exceeded the {p95BudgetMs:F0} ms offline replay budget.");
+        Assert.True(admissionP95 <= p95BudgetMs,
+            $"SQL admission p95 {admissionP95:F2} ms exceeded the {p95BudgetMs:F0} ms offline replay budget.");
     }
 
     private static double Percentile(IEnumerable<double> samples, double fraction)
@@ -195,9 +247,18 @@ public sealed class DurableProviderQualityRolloutSqlTests(ITestOutputHelper outp
             clock);
 
     private static ProviderQualityAdjudication Sample(
-        ProviderQualityKey key, string id, ProviderQualityLabel label, TimeProvider clock) =>
-        new(id, key, label, label == ProviderQualityLabel.Contradicted ? 4 : 1,
+        ProviderQualityKey key, string id, ProviderQualityLabel label, TimeProvider clock,
+        int? severityWeight = null) =>
+        new(id, key, label, severityWeight ?? (label == ProviderQualityLabel.Contradicted ? 4 : 1),
             label != ProviderQualityLabel.Unknown, "offline-rollout-fixture", clock.GetUtcNow());
+
+    private sealed record ReplayProfile(
+        string Name, bool Degraded, Func<int, ReplayObservation> Observation);
+
+    private readonly record struct ReplayObservation(ProviderQualityLabel Label, int SeverityWeight);
+
+    private sealed record CohortReplayResult(
+        string Profile, bool Degraded, bool Tripped, int Known, int Unknown);
 
     private sealed class ManualClock : TimeProvider
     {

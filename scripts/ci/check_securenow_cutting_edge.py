@@ -86,6 +86,10 @@ def validate(root: Path = ROOT) -> list[str]:
     diagrams_handoff = root / "archlucid-ui/src/lib/infra-evidence/diagrams-workbench-ranked-path-ask-handoff-copy.ts"
     if not diagrams_handoff.is_file():
         errors.append("diagrams RankedPath Ask handoff copy is missing")
+
+    explorer_handoff = root / "archlucid-ui/src/lib/infra-evidence/resources-explorer-ranked-path-ask-handoff-copy.ts"
+    if not explorer_handoff.is_file():
+        errors.append("resource explorer RankedPath Ask handoff copy is missing")
     return errors
 
 

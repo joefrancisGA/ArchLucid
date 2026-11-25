@@ -274,6 +274,7 @@ public static class HostedAzureExtractorZipBuilder
                 workspaceId = row.WorkspaceId,
                 storageAccountId = row.StorageAccountId,
                 eventHubAuthorizationRuleId = row.EventHubAuthorizationRuleId,
+                logs = row.Logs?.Select(log => new { category = log.Category, categoryGroup = log.CategoryGroup, enabled = log.Enabled }),
             })
             .ToArray<object>();
 

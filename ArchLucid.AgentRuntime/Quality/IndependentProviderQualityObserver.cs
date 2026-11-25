@@ -15,6 +15,8 @@ public sealed class IndependentProviderQualityObserver(IProviderQualityMonitor m
 {
     private static readonly AsyncLocal<Capture?> ActiveCapture = new();
 
+    internal static bool IsObservingSecureNow => ActiveCapture.Value is not null;
+
     public async Task<(string Response, IIndependentProviderQualitySample? Sample)> ObserveAsync(
         Func<CancellationToken, Task<string>> complete, CancellationToken cancellationToken)
     {
@@ -32,12 +34,13 @@ public sealed class IndependentProviderQualityObserver(IProviderQualityMonitor m
 
             // The recovery decorator returns its own stamped copy of the exact live transport response.
             if (!ReferenceEquals(response, attribution.Response)
-                && (!ProviderQualityRecoveryResponse.TryTake(response, out lease) || lease?.Key != attribution.Key))
+                && (!ProviderQualityRecoveryResponse.TryTake(response, out lease, allowSecureNowChallenge: true) || lease?.Key != attribution.Key))
                 return (response, null);
 
             string sampleId = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(
                 "securenow:inventory-public-network-access:v1\n" + response)));
-            return (response, new Sample(monitor, auditService, attribution.Key, sampleId, lease));
+            ProviderQualityLabel? recoveryLabel = lease?.SecureNowChallenge?.Adjudicate(response);
+            return (response, new Sample(monitor, auditService, attribution.Key, sampleId, lease, recoveryLabel));
         }
         finally
         {
@@ -64,10 +67,12 @@ public sealed class IndependentProviderQualityObserver(IProviderQualityMonitor m
 
     private sealed class Sample(
         IProviderQualityMonitor monitor, IAuditService auditService, ProviderQualityKey key, string sampleId,
-        ProviderQualityRecoveryResponse.Lease? lease)
+        ProviderQualityRecoveryResponse.Lease? lease, ProviderQualityLabel? recoveryLabel)
         : IIndependentProviderQualitySample
     {
         private int _recorded;
+
+        public bool IsSyntheticRecovery => recoveryLabel.HasValue;
 
         public async Task RecordAsync(
             ScopeContext scope, Guid storedExplanationId, IndependentProviderClaimOutcome outcome, bool material,
@@ -84,21 +89,29 @@ public sealed class IndependentProviderQualityObserver(IProviderQualityMonitor m
                 IndependentProviderClaimOutcome.Contradicted => ProviderQualityLabel.Contradicted,
                 _ => ProviderQualityLabel.Unknown,
             };
+            string method = "securenow_scoped_inventory_public_network_access_v1";
             string? traceId = null;
             if (lease is not null)
             {
                 traceId = $"securenow:{storedExplanationId:N}";
                 await monitor.BindRecoveryTraceAsync(key, lease.Id, traceId, cancellationToken).ConfigureAwait(false);
 
-                // A scoped contradiction can reject a probe, but supporting one property does not verify the full response.
-                if (label == ProviderQualityLabel.Supported)
+                if (recoveryLabel is ProviderQualityLabel completeResult)
+                {
+                    // This label was computed over the exact stamped response, not supplied by its caller.
+                    label = completeResult;
+                    method = SecureNowRecoveryChallenge.Method;
+                }
+                else if (label == ProviderQualityLabel.Supported)
+                {
+                    // A supported claim in a normal explanation does not verify that whole response.
                     label = ProviderQualityLabel.Unknown;
+                }
             }
 
-            const string method = "securenow_scoped_inventory_public_network_access_v1";
             ProviderQualityRecordResult result = await monitor.RecordAsync(
                 new ProviderQualityAdjudication(
-                    sampleId, key, label, material ? 4 : 1, label != ProviderQualityLabel.Unknown,
+                    sampleId, key, label, !IsSyntheticRecovery && material ? 4 : 1, label != ProviderQualityLabel.Unknown,
                     method, TimeProvider.System.GetUtcNow(), traceId),
                 cancellationToken).ConfigureAwait(false);
 
@@ -118,7 +131,7 @@ public sealed class IndependentProviderQualityObserver(IProviderQualityMonitor m
                         key.ModelVersion,
                         result.Transition,
                         explanationId = storedExplanationId,
-                        claimOutcome = outcome.ToString(),
+                        claimOutcome = IsSyntheticRecovery ? label.ToString() : outcome.ToString(),
                         recoveryAttempt = lease is not null,
                         result.Snapshot.KnownSampleCount,
                         result.Snapshot.UnknownSampleCount,
@@ -127,7 +140,7 @@ public sealed class IndependentProviderQualityObserver(IProviderQualityMonitor m
                         result.Snapshot.DecisionWindowWeightedBadRate,
                         result.Snapshot.DecisionWindowWilsonLowerBound,
                         adjudicatorKind = method,
-                        inventoryFalsification = MatchAuditProvenance(scope, outcome, inventoryFalsification),
+                        inventoryFalsification = IsSyntheticRecovery ? null : MatchAuditProvenance(scope, outcome, inventoryFalsification),
                     }),
                 }, cancellationToken).ConfigureAwait(false);
         }

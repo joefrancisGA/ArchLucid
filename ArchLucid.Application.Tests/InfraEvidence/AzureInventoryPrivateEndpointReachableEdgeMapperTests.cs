@@ -35,7 +35,7 @@ public sealed class AzureInventoryPrivateEndpointReachableEdgeMapperTests
         List<string> warnings = [];
         HashSet<string> keys = new(StringComparer.OrdinalIgnoreCase);
 
-        AzureInventoryPrivateEndpointReachableEdgeMapper.MapPeReachableTargets(relationships, keys, warnings);
+        AzureInventoryPrivateEndpointReachableEdgeMapper.MapPeReachableTargets(relationships, keys, warnings, [Endpoint(pe, sql, "Approved")]);
 
         warnings.Should().BeEmpty("mapper should not warn when DNS join is complete");
         relationships.Should().ContainSingle(relationship =>
@@ -70,7 +70,7 @@ public sealed class AzureInventoryPrivateEndpointReachableEdgeMapperTests
         AzureInventoryPrivateEndpointReachableEdgeMapper.MapPeReachableTargets(
             relationships,
             new HashSet<string>(StringComparer.OrdinalIgnoreCase),
-            []);
+            [], [Endpoint(pe, sql, "Approved")]);
 
         relationships.Should().ContainSingle(relationship =>
             relationship.FromAzureResourceId == ArmResourceIdNormalizer.Normalize(app)
@@ -106,7 +106,7 @@ public sealed class AzureInventoryPrivateEndpointReachableEdgeMapperTests
         AzureInventoryPrivateEndpointReachableEdgeMapper.MapPeReachableTargets(
             relationships,
             new HashSet<string>(StringComparer.OrdinalIgnoreCase),
-            []);
+            [], [Endpoint(pe, sql, "Approved")]);
 
         relationships.Should().ContainSingle(relationship =>
             relationship.InferenceSource == GraphEdgeInferenceSources.InventoryPeReachableTarget
@@ -197,6 +197,52 @@ public sealed class AzureInventoryPrivateEndpointReachableEdgeMapperTests
         warnings.Should().ContainSingle(
             $"{AzureInventoryRelationshipCompletenessWarningCodes.PeReachableDnsLinkMissing}:{ArmResourceIdNormalizer.Normalize(app)}:{ArmResourceIdNormalizer.Normalize(sql)}");
     }
+
+    [Theory]
+    [InlineData("Approved", true)]
+    [InlineData("Pending", false)]
+    [InlineData("Rejected", false)]
+    [InlineData("Disconnected", false)]
+    [InlineData(null, false)]
+    public void Dns_join_requires_exact_endpoint_approval(string? status, bool expected)
+    {
+        string vnet = BuildVnet("vnet");
+        string app = BuildWebApp("app");
+        string pe = BuildPrivateEndpoint("pe");
+        string sql = BuildSqlServer("sql");
+        string zone = BuildPrivateDnsZone("privatelink.database.windows.net");
+        List<AzureInventoryResourceRelationshipWrite> relationships =
+        [
+            Observed(app, BuildSubnet(vnet, "subnet"), GraphEdgeInferenceSources.InventoryAppServiceSubnet),
+            Observed(pe, sql, GraphEdgeInferenceSources.InventoryPrivateEndpoint),
+            Observed(pe, zone, GraphEdgeInferenceSources.InventoryPeDnsZoneGroup),
+            Observed(zone, vnet, GraphEdgeInferenceSources.InventoryPrivateDnsVnet),
+            Observed(app, sql, GraphEdgeInferenceSources.InventoryHostnameInferredTarget),
+        ];
+        List<string> warnings = [];
+        AzureInventoryPrivateEndpointReachableEdgeMapper.MapPeReachableTargets(
+            relationships, new(StringComparer.OrdinalIgnoreCase), warnings,
+            status is null ? [] : [Endpoint(pe, sql, status)]);
+        relationships.Any(row => row.InferenceSource == GraphEdgeInferenceSources.InventoryPeReachableTarget)
+            .Should().Be(expected);
+        warnings.Any(warning => warning.StartsWith("private-endpoint-approval-", StringComparison.Ordinal))
+            .Should().Be(!expected);
+    }
+
+    private static AzureExtractorExtendedResourceRow Endpoint(string pe, string target, string status) =>
+        new()
+        {
+            AzureResourceId = pe,
+            ResourceType = "Microsoft.Network/privateEndpoints",
+            Properties = new Dictionary<string, string>
+            {
+                ["privateLinkServiceConnections"] = System.Text.Json.JsonSerializer.Serialize(new[]
+                {
+                    new { properties = new { privateLinkServiceId = target,
+                        privateLinkServiceConnectionState = new { status } } },
+                }),
+            },
+        };
 
     private static AzureInventoryResourceRelationshipWrite Observed(
         string fromArmId,

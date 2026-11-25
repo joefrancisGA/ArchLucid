@@ -78,3 +78,44 @@ export function runsListNavigationSearchFromSearch(
 
   return merged.toString();
 }
+
+const COMPARE_INSPECTOR_PAGINATION_OVERLAY_PARAMS = [
+  "page",
+  "cursor",
+  "sort",
+  "scope",
+  "filter",
+  "projectId",
+  "pageSize",
+] as const;
+
+/** Base for compare/inspector commits when pagination params are on committed window.location before App Router catches up. */
+export function runsListCompareInspectorNavigationSearchFromSearch(
+  routerSearch: string,
+  committedSearch: string,
+  pendingQuery: string,
+): string {
+  const merged = new URLSearchParams(
+    runsListNavigationSearchFromSearch(routerSearch, committedSearch, pendingQuery),
+  );
+  const committed = new URLSearchParams(committedSearch);
+  const router = new URLSearchParams(routerSearch);
+
+  for (const key of COMPARE_INSPECTOR_PAGINATION_OVERLAY_PARAMS) {
+    const committedValue = committed.get(key);
+    const routerValue = router.get(key);
+
+    if (committedValue === routerValue) {
+      continue;
+    }
+
+    if (committedValue === null) {
+      merged.delete(key);
+    } else {
+      merged.set(key, committedValue);
+    }
+  }
+
+  return merged.toString();
+}
+

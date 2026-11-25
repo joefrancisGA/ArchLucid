@@ -87,28 +87,62 @@ public sealed class DapperConversationMessageRepository(
                 cancellationToken: ct));
     }
 
-    /// <inheritdoc />
-    public async Task<IReadOnlyList<ConversationMessage>> GetByThreadIdAsync(
-        Guid threadId,
-        int take,
-        CancellationToken ct)
+    public async Task<IReadOnlyList<ConversationProofRow>> GetRecentProofsAsync(
+        ScopeContext scope, Guid threadId, int take, CancellationToken ct)
     {
-        take = Math.Clamp(take, 1, 500);
+        if (!HasScope(scope, threadId))
+            return [];
+
         const string sql = """
-                           SELECT MessageId, ThreadId, Role, Content, CreatedUtc, MetadataJson
+                           SELECT MessageId, ThreadId, Role, CreatedUtc,
+                               CASE WHEN Role = N'User' THEN JSON_VALUE(ProofMetadata, '$.conversationQuestionKeyV1') END AS QuestionKey,
+                               CASE WHEN Role = N'Assistant' THEN JSON_QUERY(ProofMetadata, '$.askEvidenceScopeV1') END AS AnswerProofJson,
+                               CASE WHEN Role = N'Assistant' THEN JSON_QUERY(ProofMetadata, '$.draftIntakeEvidenceScopeV1') END AS DraftAnswerProofJson
                            FROM (
-                               SELECT TOP (@Take)
-                                   MessageId, ThreadId, Role, Content, CreatedUtc, MetadataJson
-                               FROM dbo.ConversationMessages
-                               WHERE ThreadId = @ThreadId
-                               ORDER BY CreatedUtc DESC, MessageId DESC
+                               SELECT TOP (@Take) m.MessageId, m.ThreadId, m.Role, m.CreatedUtc,
+                                   CASE WHEN ISJSON(m.MetadataJson) = 1 THEN m.MetadataJson ELSE N'{}' END AS ProofMetadata
+                               FROM dbo.ConversationMessages m
+                               JOIN dbo.ConversationThreads t ON t.ThreadId = m.ThreadId
+                                   AND t.TenantId = m.TenantId AND t.WorkspaceId = m.WorkspaceId AND t.ProjectId = m.ProjectId
+                               WHERE m.ThreadId = @ThreadId AND m.TenantId = @TenantId
+                                   AND m.WorkspaceId = @WorkspaceId AND m.ProjectId = @ProjectId AND t.ArchivedUtc IS NULL
+                               ORDER BY m.CreatedUtc DESC, m.MessageId DESC
                            ) AS recent
                            ORDER BY CreatedUtc ASC, MessageId ASC;
                            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        IEnumerable<ConversationMessage> rows = await connection.QueryAsync<ConversationMessage>(
-            new CommandDefinition(sql, new { ThreadId = threadId, Take = take }, cancellationToken: ct));
+        var rows = await connection.QueryAsync<ConversationProofRow>(
+            new CommandDefinition(sql, new { ThreadId = threadId, Take = Math.Clamp(take, 1, 500),
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId }, cancellationToken: ct));
         return rows.ToList();
     }
+
+    public async Task<IReadOnlyList<ConversationMessage>> GetAuthorizedMessagesAsync(
+        ScopeContext scope, Guid threadId, IReadOnlyCollection<Guid> messageIds, CancellationToken ct)
+    {
+        if (!HasScope(scope, threadId) || messageIds.Count == 0 || messageIds.Count > 500)
+            return [];
+
+        const string sql = """
+                           SELECT m.MessageId, m.ThreadId, m.Role, m.Content, m.CreatedUtc, m.MetadataJson
+                           FROM dbo.ConversationMessages m
+                           JOIN dbo.ConversationThreads t ON t.ThreadId = m.ThreadId
+                               AND t.TenantId = m.TenantId AND t.WorkspaceId = m.WorkspaceId AND t.ProjectId = m.ProjectId
+                           WHERE m.ThreadId = @ThreadId AND m.TenantId = @TenantId
+                               AND m.WorkspaceId = @WorkspaceId AND m.ProjectId = @ProjectId AND t.ArchivedUtc IS NULL
+                               AND m.MessageId IN @MessageIds
+                           ORDER BY m.CreatedUtc ASC, m.MessageId ASC;
+                           """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        var rows = await connection.QueryAsync<ConversationMessage>(
+            new CommandDefinition(sql, new { ThreadId = threadId, MessageIds = messageIds,
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId }, cancellationToken: ct));
+        return rows.ToList();
+    }
+
+    private static bool HasScope(ScopeContext scope, Guid threadId) =>
+        threadId != Guid.Empty && scope.TenantId != Guid.Empty &&
+        scope.WorkspaceId != Guid.Empty && scope.ProjectId != Guid.Empty;
 }

@@ -151,6 +151,127 @@ public sealed class IndependentProviderQualityObserverTests
         audit.Verify(x => x.LogAsync(It.IsAny<AuditEvent>(), ct), Times.Once);
     }
 
+    [Theory]
+    [InlineData("complete", false)]
+    [InlineData("partial", true)]
+    [InlineData("contradiction", true)]
+    [InlineData("extra", true)]
+    [InlineData("wrong-nonce", true)]
+    [InlineData("wrong-trace", true)]
+    [InlineData("expired", true)]
+    [InlineData("copy", true)]
+    public async Task SecureNow_recovery_can_clear_only_its_exact_complete_synthetic_response(string scenario, bool quarantined)
+    {
+        ProviderQualityKey key = ProviderQualityKey.Create("azure-openai", "primary", "v7");
+        ManualClock clock = new();
+        const int leaseSeconds = 20;
+        ProviderQualityMonitor monitor = new(Options.Create(new ProviderQualityOptions
+        {
+            MinimumIndependentKnownSamples = 5,
+            QuarantineSeconds = 30,
+            RecoveryProbeLeaseSeconds = leaseSeconds,
+        }), clock);
+        for (int i = 0; i < 5; i++)
+            monitor.Record(new ProviderQualityAdjudication(
+                $"bad-{i}", key, ProviderQualityLabel.Contradicted, 4, true, "deterministic", clock.GetUtcNow()));
+
+        clock.Advance(TimeSpan.FromSeconds(31));
+        Mock<IAgentCompletionClient> inner = new(MockBehavior.Strict);
+        inner.SetupGet(x => x.Descriptor).Returns(LlmProviderDescriptor.ForAzureOpenAi(new Uri("https://primary.example"), "primary"));
+        inner.Setup(x => x.CompleteJsonAsync(SecureNowRecoveryChallenge.SystemPrompt, It.IsAny<string>(),
+                128, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string _, string prompt, int? _, float? _, CancellationToken _) =>
+            {
+                prompt.Should().NotContain("private-customer-fixture");
+                string response = AnswerSyntheticFixture(prompt, scenario);
+                ProviderQualityRecoveryResponse.ConfirmTransport("primary", "v7", response);
+                IndependentProviderQualityObserver.ConfirmHostedTransport("primary", "v7", response);
+                return scenario == "copy" ? new string(response.AsSpan()) : response;
+            });
+
+        using ProviderQualityQuarantiningAgentCompletionClient client = new(inner.Object, monitor);
+        Mock<IAuditService> audit = new();
+        AuditEvent? recorded = null;
+        audit.Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((item, _) => recorded = item)
+            .Returns(Task.CompletedTask);
+        IndependentProviderQualityObserver observer = new(monitor, audit.Object);
+        var observed = await observer.ObserveAsync(async ct =>
+        {
+            string response = await client.CompleteJsonAsync("original instruction", "private-customer-fixture",
+                maxTokens: 800, cancellationToken: ct);
+            // The ordinary ArchLucid trace consumer must not take the SecureNow-only stamp.
+            ProviderQualityRecoveryResponse.TryTake(response, out _).Should().BeFalse();
+            return response;
+        }, CancellationToken.None);
+
+        inner.Verify(x => x.CompleteJsonAsync(SecureNowRecoveryChallenge.SystemPrompt, It.IsAny<string>(),
+            128, null, It.IsAny<CancellationToken>()), Times.Once);
+        if (scenario == "copy")
+        {
+            observed.Sample.Should().BeNull();
+            monitor.GetSnapshot(key).Quarantined.Should().BeTrue();
+            return;
+        }
+
+        observed.Sample.Should().NotBeNull();
+        observed.Sample!.IsSyntheticRecovery.Should().BeTrue();
+        if (scenario == "wrong-trace")
+        {
+            // Consume the still-current lease's binding through the monitor, under a different trace.
+            string payload = monitor.ExportState();
+            using JsonDocument state = JsonDocument.Parse(payload);
+            Guid leaseId = state.RootElement.EnumerateArray().Single().GetProperty("State").GetProperty("RecoveryLeaseId").GetGuid();
+            monitor.BindRecoveryTrace(key, leaseId, "unrelated-trace").Should().BeTrue();
+        }
+        if (scenario == "expired")
+            clock.Advance(TimeSpan.FromSeconds(leaseSeconds + 1));
+
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        await observed.Sample.RecordAsync(scope, Guid.NewGuid(), IndependentProviderClaimOutcome.Supported,
+            true, null, CancellationToken.None);
+        ProviderQualitySnapshot current = monitor.GetSnapshot(key);
+        current.Quarantined.Should().Be(quarantined);
+        if (scenario is "wrong-trace" or "expired")
+        {
+            current.KnownSampleCount.Should().Be(5);
+            current.UnknownSampleCount.Should().Be(0);
+            recorded.Should().BeNull();
+        }
+        if (!quarantined)
+        {
+            current.DecisionWindowKnownSamples.Should().Be(0);
+            recorded.Should().NotBeNull();
+            recorded!.DataJson.Should().Contain("\"recovered\"")
+                .And.Contain(SecureNowRecoveryChallenge.Method).And.NotContain(observed.Response);
+        }
+    }
+
+    private static string AnswerSyntheticFixture(string prompt, string scenario)
+    {
+        using JsonDocument challenge = JsonDocument.Parse(prompt);
+        string? nonce = challenge.RootElement.GetProperty("nonce").GetString();
+        var results = challenge.RootElement.GetProperty("rows").EnumerateArray().Select(row =>
+            !row.GetProperty("redacted").GetBoolean() && row.GetProperty("publicNetworkAccess").ValueKind == JsonValueKind.String
+                ? row.GetProperty("publicNetworkAccess").GetString() switch
+                {
+                    "Disabled" => "disabled",
+                    "Enabled" => "enabled",
+                    _ => "unknown",
+                }
+                : "unknown").ToArray();
+
+        if (scenario == "partial")
+            results = results[..^1];
+        if (scenario == "contradiction")
+            results[0] = results[0] == "enabled" ? "disabled" : "enabled";
+        if (scenario == "wrong-nonce")
+            nonce = Guid.NewGuid().ToString("N");
+        return scenario == "extra"
+            ? JsonSerializer.Serialize(new { nonce, results, unsupported = "extra factual claim" })
+            : JsonSerializer.Serialize(new { nonce, results });
+    }
+
     private sealed class ManualClock : TimeProvider
     {
         private DateTimeOffset _now = DateTimeOffset.UnixEpoch;

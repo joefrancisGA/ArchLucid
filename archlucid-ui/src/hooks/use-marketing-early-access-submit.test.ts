@@ -130,4 +130,23 @@ describe("useMarketingEarlyAccessSubmit", () => {
     expect(result.current.error).toBe("We couldn't submit your request. Please try again.");
     expect(result.current.error).not.toContain("System.InvalidOperationException");
   });
+  it("posts trimmed work email after validation", async () => {
+    const fetchMock = vi.mocked(globalThis.fetch);
+    const { result } = renderHook(() => useMarketingEarlyAccessSubmit({ source: "hero" }));
+
+    act(() => {
+      result.current.setEmail("  buyer@example.com  ");
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit({ preventDefault: vi.fn() } as React.FormEvent);
+    });
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+    });
+
+    const body = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
+    expect(body.email).toBe("buyer@example.com");
+  });
 });

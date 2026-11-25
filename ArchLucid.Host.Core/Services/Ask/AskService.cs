@@ -238,10 +238,8 @@ public sealed class AskService(
 
         string question = request.Question.Trim();
         HashSet<Guid> authorizedRuns = [runId];
-        IReadOnlyList<ConversationMessage> historyWindow =
-            await _conversationService.GetHistoryAsync(thread.ThreadId, HistoryTake, ct);
-        IReadOnlyList<ConversationMessage> priorMessages = AskHistoryEvidenceScope.SelectVerifiedTurns(
-            historyWindow, thread.ThreadId, actorId, authorizedRuns);
+        IReadOnlyList<ConversationMessage> priorMessages = await _conversationService.GetVerifiedAskHistoryAsync(
+            scope, thread.ThreadId, HistoryTake, actorId, authorizedRuns, ct);
         string historyText = await _conversationHistoryBuilder.BuildHistoryTextAsync(priorMessages, ct);
         await _conversationService.AppendUserMessageAsync(thread.ThreadId, question, ct);
         AskHistoryEvidenceScope? historyEvidence = AskHistoryEvidenceScope.Create(

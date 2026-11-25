@@ -8,14 +8,16 @@ internal static class ProviderQualityRecoveryResponse
     private static readonly AsyncLocal<Capture?> Current = new();
     private static readonly ConditionalWeakTable<string, Lease> Responses = new();
 
-    internal sealed record Lease(ProviderQualityKey Key, Guid Id);
+    internal sealed record Lease(
+        ProviderQualityKey Key, Guid Id, SecureNowRecoveryChallenge? SecureNowChallenge);
 
-    internal static Capture? Begin(ProviderQualityAdmission admission)
+    internal static Capture? Begin(ProviderQualityAdmission admission, bool useSecureNowChallenge = false)
     {
         if (admission is not { RecoveryProbe: true, Key: { } key, RecoveryLeaseId: { } id })
             return null;
 
-        Capture capture = new(Current.Value, new Lease(key, id));
+        Capture capture = new(Current.Value, new Lease(key, id,
+            useSecureNowChallenge ? new SecureNowRecoveryChallenge() : null));
         Current.Value = capture;
         return capture;
     }
@@ -29,8 +31,18 @@ internal static class ProviderQualityRecoveryResponse
             Volatile.Write(ref capture.LiveResponse, response);
     }
 
-    internal static bool TryTake(string response, out Lease? lease) => Responses.TryGetValue(response, out lease)
-        && Responses.Remove(response);
+    internal static bool TryTake(string response, out Lease? lease, bool allowSecureNowChallenge = false)
+    {
+        if (Responses.TryGetValue(response, out Lease? candidate)
+            && (candidate.SecureNowChallenge is null || allowSecureNowChallenge) && Responses.Remove(response))
+        {
+            lease = candidate;
+            return true;
+        }
+
+        lease = null;
+        return false;
+    }
 
     internal sealed class Capture(Capture? previous, Lease probe) : IDisposable
     {

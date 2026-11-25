@@ -28,6 +28,39 @@ public sealed class SecurityEvidencePathExplanationServiceTests
     private static readonly Guid ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
     [Fact]
+    public async Task Synthetic_recovery_response_is_not_used_as_customer_explanation()
+    {
+        Guid pathId = Guid.NewGuid();
+        ScopeContext scope = CreateScope();
+        InMemoryPathRepository paths = new();
+        paths.StoredPaths.Add(CreatePath(pathId, PathConfidenceBand.Probable));
+        paths.StoredHops.Add(CreateHop(pathId, 1, "evidence-1"));
+        CapturingExplanationRepository persisted = new();
+        Mock<IIndependentProviderQualityObserver> observer = new(MockBehavior.Strict);
+        Mock<IIndependentProviderQualitySample> sample = new(MockBehavior.Strict);
+        const string modelText = "Synthetic output must never enter the explanation.";
+        sample.SetupGet(x => x.IsSyntheticRecovery).Returns(true);
+        sample.Setup(x => x.RecordAsync(scope, It.IsAny<Guid>(), IndependentProviderClaimOutcome.Unknown, false,
+                null, It.IsAny<CancellationToken>()))
+            .Callback(() => persisted.LastInserted.Should().NotBeNull())
+            .Returns(Task.CompletedTask);
+        observer.Setup(x => x.ObserveAsync(It.IsAny<Func<CancellationToken, Task<string>>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((BuildPathExplanationLlmJson(pathId, ["evidence-1"], modelText),
+                (IIndependentProviderQualitySample?)sample.Object));
+
+        var sut = CreateSut(paths, persisted, Mock.Of<IAgentCompletionClient>(), CreatePassthroughRedactor(),
+            qualityObserver: observer.Object);
+        var response = await sut.TryBuildExplanationAsync(scope, pathId, useSimulator: false, allowInsufficientEvidence: false);
+
+        response.Succeeded.Should().BeTrue();
+        persisted.LastInserted!.ExecutiveSummary.Should().NotContain(modelText);
+        persisted.LastInserted.ProvenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
+        persisted.LastInserted.ModelOutputRejection.Should().Contain("synthetic provider recovery");
+        sample.Verify(x => x.RecordAsync(scope, persisted.LastInserted.ExplanationId, IndependentProviderClaimOutcome.Unknown,
+            false, null, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task TryBuildExplanationAsync_insufficient_evidence_skips_by_default()
     {
         Guid pathId = Guid.NewGuid();
@@ -248,6 +281,7 @@ public sealed class SecurityEvidencePathExplanationServiceTests
 
         CapturingExplanationRepository persisted = new();
         Mock<IIndependentProviderQualitySample> sample = new(MockBehavior.Strict);
+        sample.SetupGet(x => x.IsSyntheticRecovery).Returns(false);
         IndependentProviderClaimOutcome expected = rejection switch
         {
             null => IndependentProviderClaimOutcome.Supported,
@@ -315,6 +349,86 @@ public sealed class SecurityEvidencePathExplanationServiceTests
             It.Is<InventoryFalsificationProbe?>(record => ReferenceEquals(record, explanation.InventoryFalsification)),
             It.IsAny<CancellationToken>()), Times.Once);
         sample.VerifyNoOtherCalls();
+
+        if (stale || wrongProject || !typedClaim || !citesHop)
+            snapshots.Verify(repo => repo.ListResourcesAndPropertiesByCloudResourceIdsAsync(
+                It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<IReadOnlyList<Guid>>(), It.IsAny<CancellationToken>()),
+                Times.Never);
+    }
+
+    [Theory]
+    [InlineData("TLS1_2", false, false, true, true, null)]
+    [InlineData("TLS1_1", false, false, true, true, "contradicts")]
+    [InlineData(null, false, false, true, true, "remains unverified")]
+    [InlineData("TLS1_2", true, false, true, true, "remains unverified")]
+    [InlineData("TLS1_2", false, true, true, true, "remains unverified")]
+    [InlineData("TLS1_2", false, false, false, true, "remains unverified")]
+    [InlineData("TLS1_2", false, false, true, false, "remains unverified")]
+    public async Task Storage_tls_is_rendered_only_from_the_scoped_path_snapshot(
+        string? value, bool stale, bool wrongProject, bool typedClaim, bool citesHop, string? rejection)
+    {
+        ScopeContext scope = CreateScope();
+        Guid pathId = Guid.NewGuid(), resourceId = Guid.NewGuid(), rowId = Guid.NewGuid();
+        SecurityEvidencePathRecord path = CreatePath(pathId, PathConfidenceBand.Probable);
+        InMemoryPathRepository paths = new();
+        paths.StoredPaths.Add(path);
+        paths.StoredHops.Add(CreateHop(pathId, 1, "evidence-1", resourceId));
+
+        string modelJson = BuildPathExplanationLlmJson(
+            pathId, citesHop ? ["evidence-1"] : [$"path:{pathId:D}"],
+            "Minimum TLS is 1.2 and the asset is unreachable.");
+        if (typedClaim)
+            modelJson = modelJson.Insert(modelJson.IndexOf('{') + 1, "\"storageMinimumTls12HopOrdinal\":1,");
+        Mock<IAgentCompletionClient> llm = new();
+        llm.Setup(client => client.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(),
+                It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(modelJson);
+
+        DateTime captured = DateTime.UtcNow.AddHours(stale ? -25 : -1);
+        Mock<IAzureInventorySnapshotRepository> snapshots = new();
+        snapshots.Setup(repo => repo.TryGetBySnapshotIdAsync(scope, path.SnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AzureInventorySnapshotRecord
+            {
+                SnapshotId = path.SnapshotId, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId,
+                ProjectId = wrongProject ? Guid.NewGuid() : scope.ProjectId,
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded, CapturedUtc = captured,
+            });
+        IReadOnlyList<AzureInventoryResourceRecord> resources = [new()
+        {
+            SnapshotId = path.SnapshotId, TenantId = scope.TenantId, CloudResourceId = resourceId, ResourceRowId = rowId,
+            ResourceType = "Microsoft.Storage/storageAccounts",
+        }];
+        IReadOnlyList<AzureInventoryResourcePropertyReadModel> properties = [new()
+        {
+            ResourceRowId = rowId, PropertyKey = "properties.minimumTlsVersion", PropertyValue = value,
+        }];
+        snapshots.Setup(repo => repo.ListResourcesAndPropertiesByCloudResourceIdsAsync(
+                scope, path.SnapshotId, It.Is<IReadOnlyList<Guid>>(ids => ids.Count == 1 && ids[0] == resourceId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((resources, properties));
+
+        CapturingExplanationRepository persisted = new();
+        var sut = CreateSut(paths, persisted, llm.Object, CreatePassthroughRedactor(), snapshots: snapshots.Object);
+        var result = await sut.TryBuildExplanationAsync(scope, pathId, useSimulator: false, allowInsufficientEvidence: false);
+
+        result.Succeeded.Should().BeTrue();
+        var explanation = persisted.LastInserted!;
+        explanation.ProvenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
+        explanation.ExecutiveSummary.Should().NotContain("the asset is unreachable");
+        if (rejection is null)
+        {
+            explanation.ModelOutputRejection.Should().BeNull();
+            explanation.ExecutiveSummary.Should().Contain("has configured minimum TLS 1.2")
+                .And.Contain(StorageMinimumTlsVerification.VerifierVersion)
+                .And.Contain(path.SnapshotId.ToString("D"))
+                .And.Contain(rowId.ToString("D"))
+                .And.Contain("Live protocol enforcement was not tested.");
+        }
+        else
+        {
+            explanation.ModelOutputRejection.Should().Contain(rejection);
+            explanation.ExecutiveSummary.Should().NotContain("has configured minimum TLS 1.2");
+        }
 
         if (stale || wrongProject || !typedClaim || !citesHop)
             snapshots.Verify(repo => repo.ListResourcesAndPropertiesByCloudResourceIdsAsync(

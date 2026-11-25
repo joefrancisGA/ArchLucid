@@ -82,7 +82,9 @@ public sealed class DraftIntakeReasoningServiceTests
                 ProjectId = _scope.ProjectId,
             });
         conversation
-            .Setup(c => c.GetHistoryAsync(threadId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .Setup(c => c.GetVerifiedDraftHistoryAsync(It.IsAny<ScopeContext>(), threadId, It.IsAny<int>(),
+                It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<string>(), It.IsAny<IReadOnlySet<Guid>>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         conversation
             .Setup(c => c.AppendUserMessageAsync(threadId, It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -225,7 +227,9 @@ public sealed class DraftIntakeReasoningServiceTests
                 ProjectId = _scope.ProjectId,
             });
         conversation
-            .Setup(c => c.GetHistoryAsync(threadId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .Setup(c => c.GetVerifiedDraftHistoryAsync(It.IsAny<ScopeContext>(), threadId, It.IsAny<int>(),
+                It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<string>(), It.IsAny<IReadOnlySet<Guid>>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         conversation
             .Setup(c => c.AppendUserMessageAsync(threadId, It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -319,7 +323,9 @@ public sealed class DraftIntakeReasoningServiceTests
                 ProjectId = _scope.ProjectId,
             });
         conversation
-            .Setup(c => c.GetHistoryAsync(threadId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .Setup(c => c.GetVerifiedDraftHistoryAsync(It.IsAny<ScopeContext>(), threadId, It.IsAny<int>(),
+                It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<string>(), It.IsAny<IReadOnlySet<Guid>>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         conversation
             .Setup(c => c.AppendUserMessageAsync(threadId, It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -413,7 +419,9 @@ public sealed class DraftIntakeReasoningServiceTests
                 ProjectId = _scope.ProjectId,
             });
         conversation
-            .Setup(c => c.GetHistoryAsync(threadId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .Setup(c => c.GetVerifiedDraftHistoryAsync(It.IsAny<ScopeContext>(), threadId, It.IsAny<int>(),
+                It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<string>(), It.IsAny<IReadOnlySet<Guid>>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         conversation
             .Setup(c => c.AppendUserMessageAsync(threadId, It.IsAny<string>(), It.IsAny<CancellationToken>()))

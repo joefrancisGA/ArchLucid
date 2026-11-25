@@ -41,6 +41,12 @@ public sealed partial class ArtifactExportController
         if (request is null || string.IsNullOrWhiteSpace(request.DestinationSasUrl))
             return this.BadRequestProblem("DestinationSasUrl is required.", ProblemTypes.RequestBodyRequired);
 
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        IActionResult? shareDenied = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this, User, scope, runId, ct);
+        if (shareDenied is not null)
+            return shareDenied;
+
         string? sasRejection =
             await AllowedRunExportBlobDestinationUrlPolicy
                 .TryGetRejectionReasonAfterDnsResolveAsync(request.DestinationSasUrl, ct)
@@ -49,7 +55,6 @@ public sealed partial class ArtifactExportController
         if (sasRejection is not null)
             return this.BadRequestProblem(sasRejection, ProblemTypes.ValidationFailed);
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
 
         if (runDetail is null)
@@ -115,6 +120,11 @@ public sealed partial class ArtifactExportController
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        IActionResult? shareDenied = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this, User, scope, runId, ct);
+        if (shareDenied is not null)
+            return shareDenied;
+
         RunDetailDto? runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
 
         if (runDetail is null)

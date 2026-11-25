@@ -209,6 +209,126 @@ public sealed class ArchitectureIntelligenceProductPublishServiceTests
                 It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<IReadOnlyList<Guid>>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
+    [Theory]
+    [InlineData("TLS1_2", false, false, false, false, StorageMinimumTlsOutcome.Verified, true)]
+    [InlineData("TLS1_1", false, false, false, false, StorageMinimumTlsOutcome.Contradicted, false)]
+    [InlineData("TLS1_2", true, false, false, false, StorageMinimumTlsOutcome.Unverified, false)]
+    [InlineData("TLS1_2", false, true, false, false, StorageMinimumTlsOutcome.Unverified, false)]
+    [InlineData("TLS1_2", false, false, true, false, StorageMinimumTlsOutcome.Verified, false)]
+    [InlineData(null, false, false, false, false, StorageMinimumTlsOutcome.Unverified, false)]
+    [InlineData("TLS1_2", false, false, false, true, StorageMinimumTlsOutcome.Verified, false)]
+    public async Task Scoped_storage_tls_controls_the_gate_and_persisted_finding(
+        string? value, bool stale, bool foreign, bool cacheHit, bool revokeShare,
+        StorageMinimumTlsOutcome expected, bool shouldPublish)
+    {
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        Guid architectureId = Guid.NewGuid(), runId = Guid.NewGuid(), snapshotId = Guid.NewGuid();
+        Guid assetId = Guid.NewGuid(), rowId = Guid.NewGuid();
+        Mock<IScopeContextProvider> scopes = new();
+        scopes.Setup(x => x.GetCurrentScope()).Returns(scope);
+        Mock<IActorContext> actor = new();
+        actor.Setup(x => x.GetActorId()).Returns("reviewer");
+        Mock<IRunRepository> runs = new();
+        runs.Setup(x => x.GetByIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId, ArchitectureId = architectureId,
+                TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ScopeProjectId = scope.ProjectId });
+        Mock<IArchitectureShareAccessService> shares = new();
+        shares.Setup(x => x.EvaluateAsync(It.IsAny<ScopeContext>(), architectureId, "reviewer",
+                true, false, false, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureShareAccessEvaluation { ArchitectureFound = true, CanRead = true });
+        Mock<IArchitectureInventoryBindingService> bindings = new();
+        bindings.Setup(x => x.TryGetBindingAsync(It.IsAny<ScopeContext>(), architectureId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureInventoryBindingResponse { ArchitectureId = architectureId,
+                IsBound = true, SnapshotId = snapshotId });
+        Mock<IAzureInventorySnapshotRepository> snapshots = new();
+        snapshots.Setup(x => x.TryGetBySnapshotIdAsync(It.IsAny<ScopeContext>(), snapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AzureInventorySnapshotRecord { SnapshotId = snapshotId, TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId, ProjectId = foreign ? Guid.NewGuid() : scope.ProjectId,
+                CaptureStatus = AzureInventoryCaptureStatus.Succeeded, CapturedUtc = DateTime.UtcNow.AddHours(stale ? -25 : -1) });
+        IReadOnlyList<AzureInventoryResourceRecord> resources =
+            [new() { SnapshotId = snapshotId, TenantId = scope.TenantId, ResourceRowId = rowId, CloudResourceId = assetId,
+                ResourceType = "Microsoft.Storage/storageAccounts" }];
+        IReadOnlyList<AzureInventoryResourcePropertyReadModel> properties =
+            [new() { ResourceRowId = rowId, PropertyKey = "properties.minimumTlsVersion", PropertyValue = value }];
+        snapshots.Setup(x => x.ListResourcesAndPropertiesByCloudResourceIdsAsync(
+                It.IsAny<ScopeContext>(), snapshotId, It.Is<IReadOnlyList<Guid>>(ids => ids.Count == 1 && ids[0] == assetId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((resources, properties));
+        var verifier = new ScopedPublicNetworkAccessVerifier(scopes.Object, actor.Object, runs.Object,
+            shares.Object, bindings.Object, snapshots.Object);
+
+        string tenant = scope.TenantId.ToString("D"), workspace = scope.WorkspaceId.ToString("D");
+        string project = scope.ProjectId.ToString("D"), run = runId.ToString("D");
+        var observation = await verifier.VerifyStorageTlsAsync(tenant, workspace, project, run, assetId, default);
+        observation.Outcome.Should().Be(expected);
+
+        if (revokeShare)
+        {
+            shares.Setup(x => x.EvaluateAsync(It.IsAny<ScopeContext>(), architectureId, "reviewer",
+                    true, false, false, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ArchitectureShareAccessEvaluation { ArchitectureFound = true, CanRead = false });
+        }
+
+        SpecialistReviewFinding candidate = new()
+        {
+            FindingId = "asset-claim", Title = "A model claims a configured minimum TLS setting.",
+            StorageMinimumTls12ResourceId = assetId, Confidence = 1,
+        };
+        EvidenceValidationResult validation = new()
+        {
+            FindingId = candidate.FindingId, OverallPassedIntegrity = true,
+            SemanticAssessment = SemanticSupportAssessment.Supports, StorageMinimumTls = observation,
+        };
+        var decision = new TrustPublishGate().Decide([candidate], [], [validation], []);
+        decision.PublishableFindings.Should().HaveCount(expected == StorageMinimumTlsOutcome.Verified ? 1 : 0);
+
+        candidate.StorageMinimumTls12ResourceId = null;
+        new TrustPublishGate().Decide([candidate], [], [validation], []).PublishableFindings.Should().BeEmpty();
+        candidate.StorageMinimumTls12ResourceId = assetId;
+
+        // Exercise publication with a previously prepared product finding, even when the current record contradicts it.
+        var priorProof = new EvidenceValidationResult { FindingId = candidate.FindingId,
+            StorageMinimumTls = new(assetId, StorageMinimumTlsOutcome.Verified, snapshotId, DateTime.UtcNow, rowId, "1.2") };
+        ClosedLoopReasoningResult result = new()
+        {
+            CacheHit = cacheHit,
+            ProductFindings = ArchitectureIntelligenceProductBridge.ToFindings([candidate],
+                new Dictionary<string, EvidenceValidationResult> { [candidate.FindingId] = priorProof })
+        };
+        RecordingFindingsRepository findings = new();
+        ServiceCollection services = new();
+        services.AddSingleton<IFindingsSnapshotRepository>(findings);
+        services.AddSingleton(verifier);
+        await using ServiceProvider provider = services.BuildServiceProvider();
+        var published = await new ArchitectureIntelligenceProductPublishService(provider)
+            .PublishAsync(result, tenant, workspace, project, run);
+
+        published.Published.Should().Be(shouldPublish);
+        if (shouldPublish)
+        {
+            Finding saved = findings.Saved.Should().ContainSingle().Which.Findings.Should().ContainSingle().Which;
+            saved.Title.Should().Be(ScopedPublicNetworkAccessVerifier.StorageTlsTitle(assetId));
+            var proof = JsonSerializer.Deserialize<StorageMinimumTlsVerification>(
+                saved.Properties[ArchitectureIntelligenceProductPublishService.StorageTlsVerificationProperty])!;
+            proof.Version.Should().Be(StorageMinimumTlsVerification.VerifierVersion);
+            proof.ProjectId.Should().Be(scope.ProjectId);
+            proof.ResourceRowId.Should().Be(rowId);
+            proof.ObservedVersion.Should().Be("1.2");
+        }
+        else
+        {
+            findings.Saved.Should().BeEmpty();
+        }
+
+        if (revokeShare || cacheHit)
+            snapshots.Verify(x => x.TryGetBySnapshotIdAsync(
+                It.IsAny<ScopeContext>(), snapshotId, It.IsAny<CancellationToken>()), Times.Once);
+
+        if (stale || foreign)
+            snapshots.Verify(x => x.ListResourcesAndPropertiesByCloudResourceIdsAsync(
+                It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<IReadOnlyList<Guid>>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
     private sealed class RecordingFindingsRepository : IFindingsSnapshotRepository
     {
         public List<FindingsSnapshot> Saved { get; } = [];

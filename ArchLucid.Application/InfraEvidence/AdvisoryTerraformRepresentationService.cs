@@ -1,3 +1,4 @@
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
@@ -43,14 +44,14 @@ public sealed class AdvisoryTerraformRepresentationService(
 
         try
         {
+            if (snapshotId == Guid.Empty
+                || await snapshotRepository.TryGetBySnapshotIdAsync(scope, snapshotId, cancellationToken) is null)
+            {
+                return SnapshotNotFound();
+            }
+
             if (callerExport)
             {
-                if (snapshotId == Guid.Empty
-                    || await snapshotRepository.TryGetBySnapshotIdAsync(scope, snapshotId, cancellationToken) is null)
-                {
-                    return SnapshotNotFound();
-                }
-
                 await InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync(
                     scope,
                     snapshotId,
@@ -62,14 +63,17 @@ public sealed class AdvisoryTerraformRepresentationService(
             }
             else
             {
-                // Keep the remediation execution caller's existing seal behavior.
-                await InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync(
-                    scope,
-                    snapshotId,
-                    reconciliationRepository,
-                    authorityQueryService,
-                    manifestHashService,
-                    cancellationToken);
+                IReadOnlyList<Guid> citations = await reconciliationRepository.ListRunIdsBySnapshotAsync(
+                    scope.TenantId, snapshotId, cancellationToken);
+                List<Guid> runIds = citations.Where(id => id != Guid.Empty).Distinct().ToList();
+                foreach (Guid runId in runIds)
+                {
+                    if (runReadAccess is null || !await runReadAccess.CanReadRunAsync(scope, runId, cancellationToken))
+                        return SnapshotNotFound();
+                }
+
+                await GovernanceDispositionSealedManifestGuard.EnsureDistinctRunsSealedManifestHashOrThrowAsync(
+                    runIds, scope, authorityQueryService, manifestHashService, cancellationToken);
             }
 
             AzureInventorySnapshotDetailReadModel? snapshot =

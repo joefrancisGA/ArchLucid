@@ -97,6 +97,17 @@ public sealed class SpecialistFindingsSubstantiationService(
             async (finding, ct) =>
             {
                 // This path has no authorized product run or inventory binding.
+                if (TrustPublishGate.RequiresStorageTlsVerification(finding))
+                {
+                    return new EvidenceValidationResult
+                    {
+                        FindingId = finding.FindingId,
+                        StorageMinimumTls = new(finding.StorageMinimumTls12ResourceId.GetValueOrDefault(), StorageMinimumTlsOutcome.Unverified),
+                        Escalated = true,
+                        SemanticMethod = SemanticAssessmentMethod.NotPerformed,
+                    };
+                }
+
                 if (finding.PublicNetworkAccessDisabledResourceId is Guid resourceId)
                 {
                     return new EvidenceValidationResult

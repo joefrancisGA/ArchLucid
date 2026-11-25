@@ -31,6 +31,7 @@ internal static partial class ClosedLoopReasoningResultCloner
             SemanticVerificationDeferredReason = result.SemanticVerificationDeferredReason,
             CitationProbe = result.CitationProbe,
             PublicNetworkAccess = result.PublicNetworkAccess,
+            StorageMinimumTls = result.StorageMinimumTls,
             CompletenessNotes = result.CompletenessNotes,
             Escalated = result.Escalated,
             SupportTier = result.SupportTier,

@@ -1,3 +1,4 @@
+using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
@@ -34,6 +35,12 @@ public sealed class TrustPublishGate : ITrustPublishGate
                 validationResults.Where(result => result.FindingId == finding.FindingId).All(result =>
                     result.PublicNetworkAccess is { Outcome: PublicNetworkAccessVerificationOutcome.Verified,
                         SnapshotId: not null, CapturedUtc: not null } proof && proof.CloudResourceId == resourceId))
+            .Where(finding => !RequiresStorageTlsVerification(finding) ||
+                finding.StorageMinimumTls12ResourceId is Guid tlsResourceId &&
+                validationResults.Where(result => result.FindingId == finding.FindingId).All(result =>
+                    result.StorageMinimumTls is { Outcome: StorageMinimumTlsOutcome.Verified, SnapshotId: not null,
+                        CapturedUtc: not null, ResourceRowId: not null, ObservedVersion: StorageMinimumTlsVerification.ExpectedVersion }
+                    proof && proof.CloudResourceId == tlsResourceId))
             .Where(finding => !blockedFindingIds.Contains(finding.FindingId))
             .ToList();
 
@@ -58,6 +65,11 @@ public sealed class TrustPublishGate : ITrustPublishGate
             BlockReasons = blockReasons,
         };
     }
+
+    internal static bool RequiresStorageTlsVerification(SpecialistReviewFinding finding) =>
+        finding.StorageMinimumTls12ResourceId.HasValue ||
+        InventoryStorageMinimumTlsVerifier.MentionsMinimumTls(finding.Title) ||
+        InventoryStorageMinimumTlsVerifier.MentionsMinimumTls(finding.Rationale);
 
     private static HashSet<string> ExtractBlockedFindingIds(
         IReadOnlyList<MustNotFailViolation> blockingViolations)

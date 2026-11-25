@@ -96,6 +96,8 @@ export function RunsListClient(props: RunsListClientProps) {
   const {
     projectId,
     page,
+
+    displayPage,
     totalCount,
     listContextFilter,
     buyerPolished,
@@ -134,11 +136,11 @@ export function RunsListClient(props: RunsListClientProps) {
   const syncRunsListFilterOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        runsListFilterDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        runsListFilterDisclosureHrefFromSearch(navigationSearch, open, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [navigationSearch, pathname],
   );
 
   const setRunsListFilterOpen = useCallback(
@@ -157,7 +159,7 @@ export function RunsListClient(props: RunsListClientProps) {
   useEffect(() => {
     const syncRunsListFilterOpenFromUrl = (): void => {
       const next = parseRunsListFilterOpenFromSearch(
-        new URLSearchParams(window.location.search).get("runsListFilterOpen"),
+        new URLSearchParams(readWindowLocationSearch()).get("runsListFilterOpen"),
       );
 
       if (runsListFilterOpenRef.current === next) {
@@ -576,15 +578,15 @@ export function RunsListClient(props: RunsListClientProps) {
               aria-label="Reviews pagination"
             >
               <span className={OPERATOR_TYPOGRAPHY.helper}>
-                Page {page} of {pages} · {totalCount} review{totalCount === 1 ? "" : "s"} total
+                Page {displayPage} of {pages} · {totalCount} review{totalCount === 1 ? "" : "s"} total
               </span>
-              {page > 1 ? (
+              {displayPage > 1 ? (
                 <Link
                   className={cn("font-semibold", OPERATOR_LINK.nav)}
                   href={previousHref}
-                  aria-label={page === 2 ? "Previous page" : "First page (keyset pagination)"}
+                  aria-label={displayPage === 2 ? "Previous page" : "First page (keyset pagination)"}
                 >
-                  {page === 2 ? "Previous" : "First page"}
+                  {displayPage === 2 ? "Previous" : "First page"}
                 </Link>
               ) : (
                 <button
@@ -597,7 +599,7 @@ export function RunsListClient(props: RunsListClientProps) {
                   Previous
                 </button>
               )}
-              {page < pages ? (
+              {displayPage < pages ? (
                 <Link
                   className={cn("font-semibold", OPERATOR_LINK.nav)}
                   href={nextHref}

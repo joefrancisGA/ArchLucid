@@ -10,6 +10,7 @@ import {
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_CONTROL_ID_PARAM,
   RESOURCE_HUB_RUN_ID_PARAM,
+  RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 
 export const INFRA_TERRAFORM_SNAPSHOT_ID_PARAM = "snapshotId";
@@ -22,6 +23,7 @@ export type InfraTerraformWorkbenchContext = {
   readonly assessmentId?: string | null;
   readonly auditEvidenceSnapshotId?: string | null;
   readonly controlId?: string | null;
+  readonly securityEvidencePathId?: string | null;
 };
 
 const INFRA_TERRAFORM_WORKBENCH_PATHS = [
@@ -68,6 +70,7 @@ export function buildTerraformWorkbenchHref(context: InfraTerraformWorkbenchCont
     assessmentId: context.assessmentId ?? undefined,
     auditEvidenceSnapshotId: context.auditEvidenceSnapshotId ?? undefined,
     controlId: context.controlId ?? undefined,
+    securityEvidencePathId: context.securityEvidencePathId ?? undefined,
   });
 }
 
@@ -80,6 +83,7 @@ export function infraTerraformFilterHrefFromSearch(
     readonly assessmentId?: string;
     readonly auditEvidenceSnapshotId?: string;
     readonly controlId?: string;
+    readonly securityEvidencePathId?: string;
   },
   pathname: string = infrastructureTerraformPathForProductLine(resolveProductLineId()),
 ): string {
@@ -143,6 +147,16 @@ export function infraTerraformFilterHrefFromSearch(
       params.delete(RESOURCE_HUB_CONTROL_ID_PARAM);
     } else {
       params.set(RESOURCE_HUB_CONTROL_ID_PARAM, trimmed);
+    }
+  }
+
+  if (patch.securityEvidencePathId !== undefined) {
+    const trimmed = patch.securityEvidencePathId.trim();
+
+    if (trimmed.length === 0) {
+      params.delete(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM);
+    } else {
+      params.set(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM, trimmed);
     }
   }
 

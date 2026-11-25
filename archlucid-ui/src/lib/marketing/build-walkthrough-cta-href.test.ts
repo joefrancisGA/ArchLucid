@@ -41,4 +41,14 @@ describe("buildWalkthroughCtaHref", () => {
 
     expect(href.startsWith("mailto:?subject=")).toBe(true);
   });
+  it("falls back to mailto when booking URL is whitespace-only", () => {
+    const params: URLSearchParams = new URLSearchParams();
+
+    const href: string = buildWalkthroughCtaHref(params, "https://localhost", {
+      bookingUrl: "   ",
+      mailtoFallback: "sales@example.com",
+    });
+
+    expect(href.startsWith("mailto:sales@example.com?subject=")).toBe(true);
+  });
 });

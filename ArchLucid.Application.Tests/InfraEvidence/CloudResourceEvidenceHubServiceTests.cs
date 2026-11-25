@@ -109,6 +109,7 @@ public sealed class CloudResourceEvidenceHubServiceTests
         };
 
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
+        AllowSnapshot(snapshotRepository, scope, lastSeenSnapshotId);
         snapshotRepository
             .Setup(repo => repo.ListResourcesBySnapshotIdPagedAsync(
                 scope,
@@ -139,6 +140,58 @@ public sealed class CloudResourceEvidenceHubServiceTests
                 cloudResourceId,
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public async Task TryGetHubAsync_unavailable_snapshot_never_reaches_citations_or_mappings(
+        bool explicitlyRequested, bool mismatchedHeader)
+    {
+        ScopeContext scope = CreateScope();
+        Guid cloudResourceId = Guid.NewGuid(), snapshotId = Guid.NewGuid();
+        FakeCloudResourceIdentityDirectory identities = new();
+        identities.Records[cloudResourceId] = new CloudResourceIdentityRecord
+        {
+            CloudResourceId = cloudResourceId, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId, LastSeenSnapshotId = snapshotId, SubscriptionOrAccountId = "sub",
+        };
+
+        Mock<IAzureInventorySnapshotRepository> snapshots = new(MockBehavior.Strict);
+        snapshots.Setup(repo => repo.TryGetBySnapshotIdAsync(scope, snapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(mismatchedHeader
+                ? new AzureInventorySnapshotRecord
+                {
+                    SnapshotId = snapshotId, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId,
+                    ProjectId = Guid.NewGuid(),
+                }
+                : null);
+        Mock<IAdvisoryTerraformRepresentationRepository> mappings = new(MockBehavior.Strict);
+        Mock<IArchitectureDiagramReconciliationRepository> citations = new(MockBehavior.Strict);
+        CloudResourceEvidenceHubService service = CreateService(
+            identities, snapshotRepository: snapshots.Object, terraformRepository: mappings.Object,
+            citationRepository: citations.Object);
+
+        CloudResourceEvidenceHubQueryResult result = await service.TryGetHubAsync(
+            scope, cloudResourceId, new CloudResourceEvidenceHubQuery
+            { SnapshotId = explicitlyRequested ? snapshotId : null });
+
+        result.Succeeded.Should().Be(!explicitlyRequested);
+        if (explicitlyRequested)
+            result.ErrorMessage.Should().Be("Snapshot was not found in the current project scope.");
+        else
+        {
+            CloudResourceEvidenceHubResponse hub = result.Hub!;
+            hub.TerraformAddress.Should().BeNull();
+            hub.RecentChanges.Should().BeEmpty();
+        }
+
+        snapshots.Verify(repo => repo.TryGetBySnapshotIdAsync(scope, snapshotId, It.IsAny<CancellationToken>()), Times.Once);
+        snapshots.VerifyNoOtherCalls();
+        citations.VerifyNoOtherCalls();
+        mappings.VerifyNoOtherCalls();
     }
     [Fact]
     public async Task TryGetHubAsync_pages_architecture_findings_and_labels_finding_streams_separately()
@@ -332,11 +385,13 @@ public sealed class CloudResourceEvidenceHubServiceTests
             ProjectId = scope.ProjectId,
             Provider = CloudProvider.Azure,
             ExternalResourceIdNormalized = externalResourceId,
+            ResourceType = "Microsoft.Compute/virtualMachineScaleSets",
             LastSeenSnapshotId = snapshotId,
             SubscriptionOrAccountId = "sub",
         };
 
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
+        AllowSnapshot(snapshotRepository, scope, snapshotId);
         snapshotRepository
             .Setup(repo => repo.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AzureInventorySnapshotDetailReadModel());
@@ -488,6 +543,8 @@ public sealed class CloudResourceEvidenceHubServiceTests
             CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
+        result.Hub!.ResourceType.Should().Be("Microsoft.Compute/virtualMachines",
+            "an explicitly selected snapshot supplies its own resource type");
         result.Hub!.CurrentConfiguration.Should().NotBeNull();
         result.Hub.CurrentConfiguration!.Properties.Should().HaveCount(1);
         result.Hub.CurrentConfiguration.Properties["vmSize"].Should().Be("Standard_D2s_v3");
@@ -585,13 +642,21 @@ public sealed class CloudResourceEvidenceHubServiceTests
         result.Hub.OperationalSecurityFindings.TotalCount.Should().Be(1);
     }
 
+    private static void AllowSnapshot(Mock<IAzureInventorySnapshotRepository> repository, ScopeContext scope, Guid id) =>
+        repository.Setup(repo => repo.TryGetBySnapshotIdAsync(scope, id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AzureInventorySnapshotRecord
+            {
+                SnapshotId = id, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId,
+            });
+
     private static CloudResourceEvidenceHubService CreateService(
         FakeCloudResourceIdentityDirectory identityDirectory,
         FakeOperationalSecurityFindingRepository? operationalRepository = null,
         IAuthorityQueryService? authorityQueryService = null,
         IManifestHashService? manifestHashService = null,
         IAzureInventorySnapshotRepository? snapshotRepository = null,
-        IAdvisoryTerraformRepresentationRepository? terraformRepository = null)
+        IAdvisoryTerraformRepresentationRepository? terraformRepository = null,
+        IArchitectureDiagramReconciliationRepository? citationRepository = null)
     {
         operationalRepository ??= new FakeOperationalSecurityFindingRepository();
 
@@ -617,6 +682,12 @@ public sealed class CloudResourceEvidenceHubServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<ArchitectureDiagramReconciliationSnapshotRunRecord>());
 
+        snapshotRepositoryMock
+            .Setup(repo => repo.TryGetBySnapshotIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext scope, Guid id, CancellationToken _) => new AzureInventorySnapshotRecord
+            {
+                SnapshotId = id, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId,
+            });
         snapshotRepositoryMock
             .Setup(repo => repo.ListResourcesBySnapshotIdPagedAsync(
                 It.IsAny<ScopeContext>(),
@@ -670,7 +741,7 @@ public sealed class CloudResourceEvidenceHubServiceTests
             diagramReconciliation.Object,
             new ProjectScopedOperationalSecurityFindingRepositoryAdapter(operationalRepository),
             remediationRepository.Object,
-            reconciliationRepository.Object,
+            citationRepository ?? reconciliationRepository.Object,
             authorityQueryService ?? authorityQuery.Object,
             auditLineageResolver.Object,
             manifestHashService ?? SealedManifestHashTestSupport.CreateManifestHashService());

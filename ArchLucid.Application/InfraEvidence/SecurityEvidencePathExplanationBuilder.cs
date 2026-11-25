@@ -213,6 +213,7 @@ public static class SecurityEvidencePathExplanationBuilder
             {
                 ExecutiveSummary = executiveSummary,
                 PublicNetworkAccessDisabledHopOrdinal = parsed.PublicNetworkAccessDisabledHopOrdinal,
+                StorageMinimumTls12HopOrdinal = parsed.StorageMinimumTls12HopOrdinal,
                 BusinessImpactHypotheses = hypotheses,
                 ProposedRemediation = proposedRemediation,
                 CitedEvidenceRefs = citedEvidenceRefs,
@@ -311,6 +312,8 @@ public static class SecurityEvidencePathExplanationBuilder
     {
         public int? PublicNetworkAccessDisabledHopOrdinal { get; set; }
 
+        public int? StorageMinimumTls12HopOrdinal { get; set; }
+
         public string ExecutiveSummary
         {
             get;
@@ -340,6 +343,8 @@ public static class SecurityEvidencePathExplanationBuilder
 public sealed class SecurityEvidencePathExplanationContent
 {
     internal int? PublicNetworkAccessDisabledHopOrdinal { get; init; }
+
+    internal int? StorageMinimumTls12HopOrdinal { get; init; }
 
     public string ExecutiveSummary
     {

@@ -357,6 +357,7 @@ export function resourceExplorerFilterHrefFromSearch(
     readonly cloudResourceId?: string;
     readonly workQueue?: CloudResourceExplorerWorkQueue;
     readonly snapshotId?: string;
+    readonly securityEvidencePathId?: string;
   },
   pathname: string = infrastructureResourcesPathForProductLine(resolveProductLineId()),
 ): string {
@@ -417,6 +418,16 @@ export function resourceExplorerFilterHrefFromSearch(
       params.delete(RESOURCE_EXPLORER_SNAPSHOT_ID_PARAM);
     } else {
       params.set(RESOURCE_EXPLORER_SNAPSHOT_ID_PARAM, trimmed);
+    }
+  }
+
+  if (patch.securityEvidencePathId !== undefined) {
+    const trimmed = patch.securityEvidencePathId.trim();
+
+    if (trimmed.length === 0) {
+      params.delete(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM);
+    } else {
+      params.set(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM, trimmed);
     }
   }
 
@@ -550,14 +561,17 @@ export function buildResourceHubExplorerHref(
   cloudResourceId: string,
   workQueue: CloudResourceExplorerWorkQueue = "all",
   snapshotId?: string | null,
+  securityEvidencePathId?: string | null,
 ): string {
   const tab = resolveResourceHubTabFromExplorerWorkQueue(workQueue);
   const trimmedSnapshotId = snapshotId?.trim() ?? "";
+  const trimmedPathId = securityEvidencePathId?.trim() ?? "";
 
   return resourceHubFilterHrefFromSearch(cloudResourceId, "", {
     ...(tab != null ? { tab } : {}),
     snapshotId: trimmedSnapshotId.length > 0 ? trimmedSnapshotId : undefined,
     workQueue: workQueue !== "all" ? workQueue : undefined,
+    securityEvidencePathId: trimmedPathId.length > 0 ? trimmedPathId : undefined,
   });
 }
 

@@ -171,8 +171,8 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
-          workEmail,
-          companyName,
+          workEmail: normalizedWorkEmail,
+          companyName: normalizedCompanyName,
           tierInterest,
           message: composed,
           websiteUrl,
