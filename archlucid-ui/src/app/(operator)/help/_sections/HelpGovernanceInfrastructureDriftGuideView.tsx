@@ -241,6 +241,8 @@ export function HelpGovernanceInfrastructureDriftGuideView(
         titleTestId="help-governance-infrastructure-drift-page-title"
         subtitle={governanceInfrastructureDriftHelpPageSubtitle(buyerPolishedShell)}
         navHref={GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CANONICAL_PATH}
+        claimDiscipline={GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="help-governance-infrastructure-drift-claim-discipline"
         headingLevel="h1"
         metadata={buyerPolishedShell ? undefined : <HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={
@@ -267,6 +269,7 @@ export function HelpGovernanceInfrastructureDriftGuideView(
       <div className={contentGridClass}>
         <div
           id={GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_PRIMARY_CONTENT_ID}
+          tabIndex={-1}
           className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
         >
           {!buyerPolishedShell ? <DriftHelpStartHerePanel /> : null}

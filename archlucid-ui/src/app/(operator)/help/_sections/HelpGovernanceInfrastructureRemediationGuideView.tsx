@@ -151,6 +151,8 @@ export function HelpGovernanceInfrastructureRemediationGuideView(
         titleTestId="help-governance-infrastructure-remediation-page-title"
         subtitle={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_HELP_PAGE_SUBTITLE}
         navHref={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_HELP_CANONICAL_PATH}
+        claimDiscipline={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_HELP_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="help-governance-infrastructure-remediation-claim-discipline"
         headingLevel="h1"
         metadata={buyerPolishedShell ? undefined : <HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={
@@ -171,6 +173,7 @@ export function HelpGovernanceInfrastructureRemediationGuideView(
       <div className={contentGridClass}>
         <div
           id={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_HELP_PRIMARY_CONTENT_ID}
+          tabIndex={-1}
           className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
         >
           <p className={readingBodyClass} data-testid="help-governance-infrastructure-remediation-overview">

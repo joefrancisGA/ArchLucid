@@ -36,14 +36,18 @@ import {
 } from "@/lib/product-line/securenow-collection-agent-route";
 import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 
+import { OPERATOR_LINK, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isApiTransientLoadFailure, toApiLoadFailure } from "@/lib/api-load-failure";
+import { cn } from "@/lib/utils";
+
+const COLLECTION_AGENT_CLAIM_DISCIPLINE =
+  "Stored collection run rows only — not a guarantee of complete inventory, automatic remediation, or a timed SLA." as const;
+
 const COLLECTION_AGENT_PAGE_TITLE = resolveSecureNowPageHeading(
   "security",
   "Collection Agent",
   SECURENOW_COLLECTION_AGENT_PATH,
 );
-import { OPERATOR_LINK, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { isApiTransientLoadFailure, toApiLoadFailure } from "@/lib/api-load-failure";
-import { cn } from "@/lib/utils";
 
 function collectionRunSortTime(run: CollectionRun): number {
   const time = collectionRunTimeMs(run);
@@ -224,7 +228,10 @@ export function CollectionAgentPageClient(): React.JSX.Element {
   if (queryFailure !== null && !showCachedRuns) {
     return (
       <OperatorPageContainer variant="workflow" className={cn("px-1 py-4 sm:px-0", OPERATOR_LAYOUT.sectionStack)}>
-        <OperatorPageHeader title={COLLECTION_AGENT_PAGE_TITLE} subtitle="Whether scheduled collection is running and what it found." />
+        <OperatorPageHeader title={COLLECTION_AGENT_PAGE_TITLE} subtitle="Whether scheduled collection is running and what it found."
+          claimDiscipline={COLLECTION_AGENT_CLAIM_DISCIPLINE}
+          claimDisciplineTestId="collection-agent-claim-discipline"
+        />
         <div role="alert" className="rounded-md border border-rose-300 bg-rose-50 p-4 text-rose-950 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-100">
           {queryFailure.message}
         </div>
@@ -234,10 +241,14 @@ export function CollectionAgentPageClient(): React.JSX.Element {
 
   return (
     <OperatorPageContainer variant="workflow" className={cn("px-1 py-4 sm:px-0", OPERATOR_LAYOUT.sectionStack)}>
-      <OperatorPageHeader
+            <OperatorPageHeader
         navHref={SECURENOW_COLLECTION_AGENT_PATH}
         title={COLLECTION_AGENT_PAGE_TITLE}
         subtitle="Whether a collection run is stored, and its status."
+        claimDiscipline={COLLECTION_AGENT_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="collection-agent-claim-discipline"
+        titleTestId="collection-agent-heading"
+        subtitleTestId="collection-agent-lead"
         actions={
           <button
             type="button"
@@ -313,6 +324,20 @@ export function CollectionAgentPageClient(): React.JSX.Element {
           </p>
         </section>
       )}
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="collection-agent-sources">
+        <span className="font-medium text-al-text-primary">Sources:</span> Workspace-stored collection runs when the API
+        returns them — status and timestamps as recorded, not customer-verified completeness.
+      </p>
+
+      <p className={OPERATOR_TYPOGRAPHY.body}>
+        <Link className={OPERATOR_LINK.inline} href={SECURENOW_INFRASTRUCTURE_DRIFT_PATH}>
+          Snapshots &amp; drift
+        </Link>
+        {" · "}
+        <Link className={OPERATOR_LINK.inline} href="/">
+          Home
+        </Link>
+      </p>
     </OperatorPageContainer>
   );
 }

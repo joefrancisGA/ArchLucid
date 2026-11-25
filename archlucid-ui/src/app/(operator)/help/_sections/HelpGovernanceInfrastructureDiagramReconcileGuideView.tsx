@@ -152,6 +152,8 @@ export function HelpGovernanceInfrastructureDiagramReconcileGuideView(
         titleTestId="help-governance-infrastructure-diagram-reconcile-page-title"
         subtitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_PAGE_SUBTITLE}
         navHref={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_CANONICAL_PATH}
+        claimDiscipline={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="help-governance-infrastructure-diagram-reconcile-claim-discipline"
         headingLevel="h1"
         metadata={buyerPolishedShell ? undefined : <HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={
@@ -172,6 +174,7 @@ export function HelpGovernanceInfrastructureDiagramReconcileGuideView(
       <div className={contentGridClass}>
         <div
           id={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_PRIMARY_CONTENT_ID}
+          tabIndex={-1}
           className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
         >
           <p className={readingBodyClass} data-testid="help-governance-infrastructure-diagram-reconcile-overview">
