@@ -180,7 +180,6 @@ describe("RunsListClient inspector", () => {
     runsListSearchParamsHarness.applyRouterHref("/architecture/reviews?page=2");
     fireEvent.popState(window);
     const previousLink = screen.getByRole("link", { name: /previous/i });
-    console.log("HREF", previousLink.getAttribute("href"));
     expect(previousLink).toHaveAttribute("href", expect.stringContaining("filter=orphan-candidates"));
     expect(previousLink).toHaveAttribute("href", expect.stringContaining("page=1"));
   });
@@ -197,6 +196,22 @@ describe("RunsListClient inspector", () => {
 
 
 
+  it("preserves committed pageSize in the Previous pagination link when useSearchParams lags on page 2", () => {
+    const secondRun = { ...sampleRun, runId: "00000000-0000-0000-0000-0000000000bb", description: "Second" };
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={2} pageSize={20} totalCount={80} />,
+      "page=2",
+    );
+    runsListSearchParamsHarness.state.committedQuery = "page=2&pageSize=50";
+    runsListSearchParamsHarness.applyRouterHref("/architecture/reviews?page=2");
+    fireEvent.popState(window);
+
+    const previousLink = screen.getByRole("link", { name: /previous/i });
+
+    expect(previousLink).toHaveAttribute("href", expect.stringContaining("pageSize=50"));
+    expect(previousLink).toHaveAttribute("href", expect.stringContaining("page=1"));
+  });
   it("preserves committed projectId in the Next pagination link when useSearchParams lags after project navigation", () => {
     const secondRun: RunSummary = {
       ...sampleRun,

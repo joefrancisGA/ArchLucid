@@ -9,6 +9,21 @@ function runsListPaginationProjectIdFromParams(params: URLSearchParams, fallback
 
   return fallbackProjectId;
 }
+function runsListPaginationPageSizeFromParams(params: URLSearchParams, fallbackPageSize: number): number {
+  const fromSearch = params.get("pageSize");
+
+  if (fromSearch === null) {
+    return fallbackPageSize;
+  }
+
+  const parsed = Number.parseInt(fromSearch, 10);
+
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return fallbackPageSize;
+  }
+
+  return parsed;
+}
 
 export function runsListPreviousPageHrefFromSearch(
   currentSearch: string,
@@ -20,7 +35,7 @@ export function runsListPreviousPageHrefFromSearch(
     selectionSwitch: { kind: "disclosure-only" },
     mutate: (params) => {
     params.set("projectId", runsListPaginationProjectIdFromParams(params, projectId));
-    params.set("pageSize", String(pageSize));
+    params.set("pageSize", String(runsListPaginationPageSizeFromParams(params, pageSize)));
     params.set("page", "1");
     params.delete("cursor");
     },
@@ -39,7 +54,7 @@ export function runsListNextPageHrefFromSearch(
     selectionSwitch: { kind: "disclosure-only" },
     mutate: (params) => {
     params.set("projectId", runsListPaginationProjectIdFromParams(params, projectId));
-    params.set("pageSize", String(pageSize));
+    params.set("pageSize", String(runsListPaginationPageSizeFromParams(params, pageSize)));
     params.set("page", String(nextPage));
 
     if (nextCursor !== null && nextCursor !== undefined && nextCursor.length > 0) {
