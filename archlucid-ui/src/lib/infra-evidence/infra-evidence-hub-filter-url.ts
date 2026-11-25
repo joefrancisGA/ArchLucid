@@ -436,6 +436,7 @@ export function resourceHubFilterHrefFromSearch(
     readonly assessmentId?: string;
     readonly auditEvidenceSnapshotId?: string;
     readonly controlId?: string;
+    readonly securityEvidencePathId?: string;
   },
 ): string {
   const params = new URLSearchParams(currentSearch);
@@ -506,6 +507,16 @@ export function resourceHubFilterHrefFromSearch(
       params.delete(RESOURCE_HUB_CONTROL_ID_PARAM);
     } else {
       params.set(RESOURCE_HUB_CONTROL_ID_PARAM, trimmed);
+    }
+  }
+
+  if (patch.securityEvidencePathId !== undefined) {
+    const trimmed = patch.securityEvidencePathId.trim();
+
+    if (trimmed.length === 0) {
+      params.delete(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM);
+    } else {
+      params.set(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM, trimmed);
     }
   }
 

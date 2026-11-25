@@ -625,6 +625,10 @@ jobs:
         continue-on-error: true
         run: python scripts/ci/assert-score-lift-round138-batch.py
 
+      - name: Score lift round 139 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round139-batch.py
+
 
 
 

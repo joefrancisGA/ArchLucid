@@ -15,6 +15,7 @@ import {
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_CONTROL_ID_PARAM,
+  RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
@@ -67,6 +68,9 @@ export function remediationWorkbenchHrefFromSearch(
       : null,
     controlId: readParam(RESOURCE_HUB_CONTROL_ID_PARAM, patch.controlId)?.length
       ? readParam(RESOURCE_HUB_CONTROL_ID_PARAM, patch.controlId)
+      : null,
+    securityEvidencePathId: readParam(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM, patch.securityEvidencePathId)?.length
+      ? readParam(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM, patch.securityEvidencePathId)
       : null,
   });
 }
