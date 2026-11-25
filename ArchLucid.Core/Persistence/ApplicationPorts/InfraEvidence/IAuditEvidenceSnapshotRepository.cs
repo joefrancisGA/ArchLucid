@@ -94,9 +94,13 @@ public interface IAuditEvidenceSnapshotRepository
         CancellationToken cancellationToken = default) =>
         throw new NotSupportedException("A project-scoped audit repository implementation is required.");
 
-    Task<IReadOnlyList<AuditEvidenceSnapshotLineageContextRecord>> ListLineageContextsByCloudResourceIdAsync(
-        Guid tenantId,
+    Task<IReadOnlyList<AuditEvidenceSnapshotLineageContextRecord>> ListLineageContextsByCloudResourceIdInScopeAsync(
+        ProjectScopeKey scope,
         Guid cloudResourceId,
         int take,
-        CancellationToken cancellationToken = default);
+        Guid? assessmentId,
+        Guid? snapshotId,
+        Guid? controlId,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyList<AuditEvidenceSnapshotLineageContextRecord>>([]);
 }
