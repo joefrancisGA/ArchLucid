@@ -24,28 +24,6 @@ public sealed class AzureInventoryDiffService(
 
         try
         {
-            AzureInventoryDiffSummaryRecord? existing =
-                await diffRepository.TryGetBySnapshotPairAsync(scope, snapshotAId, snapshotBId, cancellationToken);
-
-            if (existing is not null)
-            {
-                IReadOnlyList<AzureInventoryChangeRecord> existingChanges =
-                    await diffRepository.ListChangesByDiffIdAsync(scope, existing.DiffId, cancellationToken);
-
-                bool consumerFanOutSucceeded =
-                    await NotifyDiffConsumersAsync(existing, existingChanges, cancellationToken);
-
-                return new AzureInventoryDiffComputeResult
-                {
-                    Succeeded = true,
-                    WasExisting = true,
-                    DiffId = existing.DiffId,
-                    Summary = existing,
-                    Changes = existingChanges,
-                    ConsumerFanOutSucceeded = consumerFanOutSucceeded,
-                };
-            }
-
             AzureInventorySnapshotDetailReadModel? snapshotA =
                 (await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotAId, cancellationToken)
                     .ConfigureAwait(false))?.Snapshot;
@@ -69,6 +47,40 @@ public sealed class AzureInventoryDiffService(
                 {
                     Succeeded = false,
                     ErrorMessage = "Snapshots must belong to the same Azure subscription.",
+                };
+            }
+
+            // A missing observation in an incomplete capture is not evidence of removal.
+            // Check both captures even when replaying a previously persisted diff.
+            if (snapshotA.Header.CaptureStatus != AzureInventoryCaptureStatus.Succeeded
+                || snapshotB.Header.CaptureStatus != AzureInventoryCaptureStatus.Succeeded)
+            {
+                return new AzureInventoryDiffComputeResult
+                {
+                    Succeeded = false,
+                    ErrorMessage = "Insufficient evidence: both snapshot captures must have succeeded before computing or replaying an inventory diff.",
+                };
+            }
+
+            AzureInventoryDiffSummaryRecord? existing =
+                await diffRepository.TryGetBySnapshotPairAsync(scope, snapshotAId, snapshotBId, cancellationToken);
+
+            if (existing is not null)
+            {
+                IReadOnlyList<AzureInventoryChangeRecord> existingChanges =
+                    await diffRepository.ListChangesByDiffIdAsync(scope, existing.DiffId, cancellationToken);
+
+                bool consumerFanOutSucceeded =
+                    await NotifyDiffConsumersAsync(existing, existingChanges, cancellationToken);
+
+                return new AzureInventoryDiffComputeResult
+                {
+                    Succeeded = true,
+                    WasExisting = true,
+                    DiffId = existing.DiffId,
+                    Summary = existing,
+                    Changes = existingChanges,
+                    ConsumerFanOutSucceeded = consumerFanOutSucceeded,
                 };
             }
 
