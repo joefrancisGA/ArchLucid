@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text;
 
+using ArchLucid.AgentRuntime.Quality;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 
@@ -131,6 +132,7 @@ public sealed partial class AzureOpenAiCompletionClient
 
             completionSucceededForTelemetry = true;
 
+            ProviderQualityRecoveryResponse.ConfirmTransport(_deploymentName, modelId, text);
             return text;
         }
         finally

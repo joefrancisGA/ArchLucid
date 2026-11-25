@@ -31,18 +31,10 @@ public sealed class ProviderQualityQuarantiningAgentCompletionClient(
     {
         cancellationToken.ThrowIfCancellationRequested();
         ProviderQualityAdmission admission = await AdmitAsync(cancellationToken).ConfigureAwait(false);
-        try
-        {
-            return await _inner.CompleteJsonAsync(
-                systemPrompt, userPrompt, maxTokens, temperature, cancellationToken).ConfigureAwait(false);
-        }
-        catch
-        {
-            if (admission.RecoveryProbe)
-                await _monitor.RecordRecoveryProbeFailureAsync(admission.Key ?? CurrentKey(), CancellationToken.None)
-                    .ConfigureAwait(false);
-            throw;
-        }
+        using ProviderQualityRecoveryResponse.Capture? capture = ProviderQualityRecoveryResponse.Begin(admission);
+        string response = await _inner.CompleteJsonAsync(
+            systemPrompt, userPrompt, maxTokens, temperature, cancellationToken).ConfigureAwait(false);
+        return capture?.Attach(response) ?? response;
     }
 
     public IAsyncEnumerable<string> StreamJsonAsync(
@@ -61,25 +53,14 @@ public sealed class ProviderQualityQuarantiningAgentCompletionClient(
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        ProviderQualityAdmission admission = await AdmitAsync(cancellationToken).ConfigureAwait(false);
-        bool completed = false;
-        try
+        await AdmitAsync(cancellationToken).ConfigureAwait(false);
+        // Streaming, cancellation and failures without a trace must not raise or release a different lease.
+        await foreach (string chunk in AgentCompletionStreamingBridge.StreamJsonAsync(
+                           _inner, systemPrompt, userPrompt, maxTokens, temperature, cancellationToken)
+                           .ConfigureAwait(false))
         {
-            await foreach (string chunk in AgentCompletionStreamingBridge.StreamJsonAsync(
-                               _inner, systemPrompt, userPrompt, maxTokens, temperature, cancellationToken)
-                               .ConfigureAwait(false))
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                yield return chunk;
-            }
-
-            completed = true;
-        }
-        finally
-        {
-            if (!completed && admission.RecoveryProbe)
-                await _monitor.RecordRecoveryProbeFailureAsync(admission.Key ?? CurrentKey(), CancellationToken.None)
-                    .ConfigureAwait(false);
+            cancellationToken.ThrowIfCancellationRequested();
+            yield return chunk;
         }
     }
 

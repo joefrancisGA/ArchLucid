@@ -53,7 +53,11 @@ jobs:
           assert "ProviderQualityQuarantiningAgentCompletionClient" in chain
           durable = Path("ArchLucid.AgentRuntime/Quality/DurableProviderQualityMonitor.cs").read_text()
           registrar = Path("ArchLucid.Host.Composition/Configuration/SqlSystemRuntimeInfrastructureRegistrar.cs").read_text()
-          assert "AllowUncorrelatedRecovery = false" in durable
+          trace = Path("ArchLucid.AgentRuntime/AgentExecutionTraceRecorder.cs").read_text()
+          assert "BindRecoveryTraceAsync" in durable
+          assert "BindRecoveryTraceAsync" in trace
+          assert "trace.TraceId" in evaluator
+          assert "matchesProbe" in monitor
           assert "IProviderQualityStateStore, SqlProviderQualityStateStore" in registrar
           PY
 

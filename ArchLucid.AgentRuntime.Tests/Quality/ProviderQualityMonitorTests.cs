@@ -84,8 +84,13 @@ public sealed class ProviderQualityMonitorTests
         first.RecoveryProbe.Should().BeTrue();
         second.Allowed.Should().BeFalse();
 
+        monitor.BindRecoveryTrace(PrimaryKey, first.RecoveryLeaseId!.Value, "probe").Should().BeTrue();
+        ProviderQualityRecordResult unrelated = monitor.Record(
+            Sample("unrelated", ProviderQualityLabel.Supported, independent: true) with { TraceId = "other" });
+        unrelated.Snapshot.Quarantined.Should().BeTrue();
+
         ProviderQualityRecordResult recovered = monitor.Record(
-            Sample("recovery", ProviderQualityLabel.Supported, independent: true));
+            Sample("recovery", ProviderQualityLabel.Supported, independent: true) with { TraceId = "probe" });
 
         recovered.Transition.Should().Be("recovered");
         recovered.Snapshot.Quarantined.Should().BeFalse();
@@ -199,6 +204,71 @@ public sealed class ProviderQualityMonitorTests
         unrelated.Snapshot.RecoveryProbeInFlight.Should().BeTrue();
         clock.Advance(TimeSpan.FromSeconds(11));
         (await b.AdmitAsync("azure-openai", "primary", ct)).Allowed.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Durable_probe_trace_is_bound_once_and_only_current_independent_result_can_recover()
+    {
+        SharedTestStore store = new();
+        ManualTimeProvider clock = new();
+        DurableProviderQualityMonitor a = CreateDurableMonitor(store, clock);
+        DurableProviderQualityMonitor b = CreateDurableMonitor(store, clock);
+        CancellationToken ct = CancellationToken.None;
+        for (int i = 0; i < 5; i++)
+            await a.RecordAsync(Sample($"bad-{i}", ProviderQualityLabel.Contradicted, true), ct);
+
+        clock.Advance(TimeSpan.FromSeconds(31));
+        ProviderQualityAdmission expired = await a.AdmitAsync("azure-openai", "primary", ct);
+        await a.BindRecoveryTraceAsync(PrimaryKey, expired.RecoveryLeaseId!.Value, "old-probe", ct);
+        clock.Advance(TimeSpan.FromSeconds(11));
+        (await b.RecordAsync(
+            Sample("late", ProviderQualityLabel.Supported, true) with { TraceId = "old-probe" }, ct))
+            .Snapshot.Quarantined.Should().BeTrue();
+        (await b.AdmitAsync("azure-openai", "primary", ct)).Allowed.Should().BeFalse();
+
+        clock.Advance(TimeSpan.FromSeconds(31));
+        ProviderQualityAdmission fresh = await b.AdmitAsync("azure-openai", "primary", ct);
+        await a.BindRecoveryTraceAsync(PrimaryKey, expired.RecoveryLeaseId.GetValueOrDefault(), "stale", ct);
+        await b.BindRecoveryTraceAsync(PrimaryKey, fresh.RecoveryLeaseId!.Value, "fresh", ct);
+        await a.BindRecoveryTraceAsync(PrimaryKey, fresh.RecoveryLeaseId.GetValueOrDefault(), "overwrite", ct);
+
+        (await a.RecordAsync(
+            Sample("wrong", ProviderQualityLabel.Supported, true) with { TraceId = "overwrite" }, ct))
+            .Snapshot.Quarantined.Should().BeTrue();
+        (await a.RecordAsync(
+            Sample("fresh", ProviderQualityLabel.Supported, true) with { TraceId = "fresh" }, ct))
+            .Transition.Should().Be("recovered");
+    }
+
+    [Fact]
+    public async Task Only_exact_live_transport_response_can_carry_recovery_lease_to_trace()
+    {
+        Guid leaseId = Guid.NewGuid();
+        Mock<IProviderQualityMonitor> monitor = new();
+        monitor.Setup(x => x.AdmitAsync("azure-openai", "primary", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ProviderQualityAdmission(true, true, PrimaryKey, null, null, leaseId));
+
+        string payload = new("{\"from\":\"provider\"}".AsSpan());
+        Mock<IAgentCompletionClient> transport = Client("primary");
+        transport.Setup(x => x.CompleteJsonAsync("s", "u", null, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(payload);
+        using ProviderQualityQuarantiningAgentCompletionClient client = new(transport.Object, monitor.Object);
+
+        string cached = await client.CompleteJsonAsync("s", "u");
+        ProviderQualityRecoveryResponse.TryTake(cached, out _).Should().BeFalse();
+
+        transport.Setup(x => x.CompleteJsonAsync("s", "u", null, null, It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                ProviderQualityRecoveryResponse.ConfirmTransport("primary", PrimaryKey.ModelVersion, payload);
+                return Task.FromResult(payload);
+            });
+        string live = await client.CompleteJsonAsync("s", "u");
+        live.Should().Be(payload);
+        ProviderQualityRecoveryResponse.TryTake(payload, out _).Should().BeFalse();
+        ProviderQualityRecoveryResponse.TryTake(live, out ProviderQualityRecoveryResponse.Lease? lease).Should().BeTrue();
+        lease!.Id.Should().Be(leaseId);
+        ProviderQualityRecoveryResponse.TryTake(live, out _).Should().BeFalse();
     }
 
     private static DurableProviderQualityMonitor CreateDurableMonitor(SharedTestStore store, TimeProvider clock) =>
