@@ -46,6 +46,11 @@ public sealed class AzureInventoryEventGridSubscriptionRow
 
     public string? DeliveryUserAssignedIdentityResourceId { get; init; }
 
+    public string? DeadLetterStatus { get; init; }
+    public string? DeadLetterResourceId { get; init; }
+    public string? DeadLetterAuthentication { get; init; }
+    public string? DeadLetterIdentityResourceId { get; init; }
+
     public string CollectionStatus
     {
         get;
