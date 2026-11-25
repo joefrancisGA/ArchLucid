@@ -32,6 +32,12 @@ describe("attack-path-report-path-chip-label", () => {
     expect(attackPathReportPathChipOverflowLine([overThreshold])).toContain("Long path ids");
   });
 
+  it("shows overflow honesty after trimming padded long path ids", () => {
+    const paddedLong = `${" ".repeat(4)}${"a".repeat(49)}${" ".repeat(3)}`;
+
+    expect(attackPathReportPathChipOverflowLine([paddedLong])).toContain("Long path ids");
+  });
+
   it("returns null overflow line for an empty path id list", () => {
     expect(attackPathReportPathChipOverflowLine([])).toBeNull();
   });

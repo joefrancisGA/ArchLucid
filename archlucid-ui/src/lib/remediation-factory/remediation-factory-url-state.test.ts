@@ -252,4 +252,28 @@ describe("remediation-factory-url-state", () => {
 
     expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
   });
+  it("uses the first selectedPath token when the query string repeats the param", () => {
+    const firstId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    const secondId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+    const parsed = parseRemediationFactoryUrlStateFromSearch(
+      `?${REMEDIATION_FACTORY_SELECTED_PATH_PARAM}=${firstId}&${REMEDIATION_FACTORY_SELECTED_PATH_PARAM}=${secondId}`,
+    );
+
+    expect(parsed.selectedPathId).toBe(firstId);
+  });
+
+  it("writes metrics open as 1 when base search used a legacy on token", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: true,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=on`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
+  });
 });

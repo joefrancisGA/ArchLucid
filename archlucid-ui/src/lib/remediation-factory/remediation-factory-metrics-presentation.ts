@@ -110,7 +110,7 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       scopeLine: WORKSPACE_SCOPE,
       windowLine: `${METRICS_WINDOW} · opened minus remediated — not cloud spend`,
       valueFootnote:
-        metrics == null
+        !metricsLoaded || metrics == null
           ? null
           : `Created ${metrics.createdThisWeek} · Remediated ${metrics.remediatedThisWeek}`,
       value: netBurn === null ? null : String(netBurn),

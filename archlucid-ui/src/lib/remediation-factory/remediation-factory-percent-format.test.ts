@@ -26,6 +26,10 @@ describe("formatRemediationFactoryPercentDisplay", () => {
     expect(formatRemediationFactoryPercentDisplay(1.01)).toBe("1%");
   });
 
+  it("keeps fractional API points above unity on the points scale", () => {
+    expect(formatRemediationFactoryPercentDisplay(1.5)).toBe("2%");
+  });
+
   it("keeps 0–100 values as whole percents", () => {
     expect(formatRemediationFactoryPercentDisplay(87)).toBe("87%");
   });
