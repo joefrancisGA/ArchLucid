@@ -378,6 +378,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-11-25 thorough hunt (hit): no rotation (shouldRotate: false; hint override; low-yield streak 2/3). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — metrics disclosure tokens with trailing zero-width format characters (e.g. `1` + U+200B) stayed closed after `trim()` because format-category scalars were not stripped;  strip `\p{Cf}` before matching. **valid-no-repro** pass-64 writer monitors (stale zero, padded one, true base, selection/snapshot href). Pass-65 reseed below. Scoped vitest **327/327**. Private beta: Invited operators who deep-link with invisible format characters on `remediationFactoryMetricsOpen` (or other remediation-factory disclosure params using the shared parser) open the executive metrics summary instead of landing with the panel closed.
 2026-11-25 thorough hunt (dry): no rotation (shouldRotate: false; hint override; low-yield streak 1/3). Attempted failing repro on five pass-63 `(candidate)` monitors after decimal-run saturation — **valid-no-repro** Pau Cin Hau decimal two, Myanmar Shan decimal-one drop on close, lone fullwidth `Ｏ` closed, Bhaiksuki decimal-one writer canonical `1`; **invalid** automation `valueFootnote` at measuredZero (tile never exposes that field). Pass-64 reseed below. Scoped vitest **323/323**. Private beta: n/a.
 2026-11-25 thorough hunt (dry): no rotation (shouldRotate: false; hint override). Attempted failing repro on five pass-62 (candidate) monitors after pass-61 decimal-run saturation — **valid-no-repro** Myanmar Shan decimal two, Kayah Li writer canonicalization, Bhaiksuki decimal-one drop on close, lone fullwidth Y closed; **invalid** open-findings-queue valueFootnote at measured zero (no field by design). Regressions only; pass-63 reseed below. Scoped vitest **322/322**. Private beta: n/a.
 2026-11-25 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** emediationFactoryDisclosureUnicodeDecimalOne — decimal-run digit-one detection relied on a growing code-point allowlist and still missed unlisted Nd scripts; recognize Unicode decimal digit one by Nd decade position (digit one immediately after digit zero). **valid-no-repro** pass-61 monitor regressions. Pass-62 reseed below. Scoped vitest **318/318**. Private beta: Invited operators who deep-link with any standard Unicode decimal digit one on emediationFactoryMetricsOpen open the executive metrics summary instead of landing with the panel closed.
@@ -572,11 +573,18 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (invalid) `buildRemediationFactoryExecutiveMetricTiles` — keeps automation valueFootnote when count is measuredZero — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `automation tile never carries a valueFootnote when percent is measuredZero`; field absent by design.
 
 - [x] (superseded) pass-63 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (dry):** pass-64 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open clears stale `0` token from base — locus: writer; input: open over zero base; monitor; pass-64 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded `1` from base — locus: writer; input: padded one; monitor; pass-64 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open from `true` base replaces with canonical `1` — locus: writer; input: true base; monitor; pass-64 reseed.
-- [ ] (candidate) `remediationFactorySelectionIdentityDisclosureHrefFromSearch` — open writes canonical `1` — locus: writer normalization; input: open=true; monitor; pass-64 reseed.
-- [ ] (candidate) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — preserves foreign params — locus: disclosure writer; input: foreign query; monitor; pass-64 reseed.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open clears stale `0` token from base — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `replaces zero metrics token with canonical one when writing open state`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded `1` from base — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `drops padded one metrics token from base search when writing closed state`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open from `true` base replaces with canonical `1` — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `canonicalizes true metrics token to 1 when writing open state from a true base`.
+- [x] (valid-no-repro) `remediationFactorySelectionIdentityDisclosureHrefFromSearch` — open writes canonical `1` — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression in selection-identity disclosure href tests.
+- [x] (valid-no-repro) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — preserves foreign params — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression in snapshot-identity disclosure href tests.
+
+- [x] (superseded) pass-64 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (hit):** pass-65 reseed.
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — treats zero-width-only metrics token as closed — locus: disclosure parse; input: U+200B only; monitor; pass-65 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate toSnapshot first-wins — locus: URLSearchParams.get; monitor; pass-65 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — critical-exposure hint when count absent — locus: table hints; input: partial metrics; monitor; pass-65 reseed.
+- [ ] (candidate) `formatAttackPathReportPathChipLabel` — trim-only id — locus: empty after trim; monitor; pass-65 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves finding param on pathname-only href — locus: disclosure writer; monitor; pass-65 reseed.
 - [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects unicode decimal two token — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** existing regression.
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics close drops unicode decimal one from base — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
 - [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — treats fullwidth FALSE metrics disclosure token as closed — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
@@ -1041,9 +1049,9 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 84
-- **bugs-found:** 72
-- **consecutive-dry-hunts:** 2
+- **hunts:** 85
+- **bugs-found:** 73
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
 - **related-pd-tb:** none

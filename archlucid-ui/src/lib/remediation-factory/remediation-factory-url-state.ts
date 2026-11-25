@@ -105,10 +105,19 @@ const REMEDIATION_FACTORY_DISCLOSURE_ENCLOSED_ONE_CODEPOINTS = new Set<number>([
   0x3021, // 〡 HANGZHOU NUMERAL ONE
 ]);
 
-function normalizeRemediationFactoryDisclosureOpenToken(raw: string | null | undefined): string | undefined {
-  const trimmed = raw?.trim();
+function remediationFactoryDisclosureTrimFormatChars(value: string): string {
+  // Strip invisible format characters (e.g. zero-width space) that trim() leaves in disclosure query values.
+  return value.replace(/\p{Cf}/gu, "").trim();
+}
 
-  if (trimmed === undefined || trimmed.length === 0) {
+function normalizeRemediationFactoryDisclosureOpenToken(raw: string | null | undefined): string | undefined {
+  if (raw === null || raw === undefined) {
+    return undefined;
+  }
+
+  const trimmed = remediationFactoryDisclosureTrimFormatChars(raw.trim());
+
+  if (trimmed.length === 0) {
     return undefined;
   }
 
