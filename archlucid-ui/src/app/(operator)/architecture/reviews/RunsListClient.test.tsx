@@ -169,7 +169,23 @@ function renderRunsList(ui: ReactElement, searchQuery = "") {
   return render(<RunsListSearchParamsRerenderHost>{ui}</RunsListSearchParamsRerenderHost>);
 }
 
-describe("RunsListClient inspector", () => {  it("treats trimmed filter=orphan-candidates deep links as orphan-candidates context", () => {
+describe("RunsListClient inspector", () => {
+  it("preserves committed filter= on the Previous link when useSearchParams lags on page 2", () => {
+    const secondRun = { ...sampleRun, runId: "00000000-0000-0000-0000-0000000000bb", description: "Second" };
+    renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={2} pageSize={20} totalCount={40} />,
+      "page=2",
+    );
+    runsListSearchParamsHarness.state.committedQuery = "page=2&filter=orphan-candidates";
+    runsListSearchParamsHarness.applyRouterHref("/architecture/reviews?page=2");
+    fireEvent.popState(window);
+    const previousLink = screen.getByRole("link", { name: /previous/i });
+    console.log("HREF", previousLink.getAttribute("href"));
+    expect(previousLink).toHaveAttribute("href", expect.stringContaining("filter=orphan-candidates"));`r`n    expect(previousLink).toHaveAttribute("href", expect.stringContaining("page=1"));
+  });
+
+
+  it("treats trimmed filter=orphan-candidates deep links as orphan-candidates context", () => {
     renderRunsList(
       <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
       "filter=%20orphan-candidates%20",

@@ -3153,10 +3153,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (valid) pass-9 filter disclosure pending `q=` — **proven 2026-11-25 seed hunt (seed→hit):** `navigationSearch` on disclosure write; regression cited in hunt note.
 - [x] (valid) pass-10 projectId pagination lag — **proven 2026-11-25 seed hunt (seed→hit):** overlay + pagination builder; regression cited in hunt note.
-- [ ] (candidate) `RunsListClient` mobile inspector — narrow viewport popstate compare — locus: shell ref; pass-12 reseed.
+- [x] (valid-no-repro) pass-12 mobile inspector compare popstate — **cheap-disproof 2026-11-25 seed hunt (seed-only):** inspector/compare regressions.
 - [x] (valid) pass-11 listContextFilter trim — **proven 2026-11-25 seed hunt (seed→hit):** parseRunsListContextFilterFromSearch; regression cited in hunt note.
-- [ ] (candidate) `RunsListWorkQueueTable` — section headers with compare + scope — locus: partition; pass-12 reseed.
-- [ ] (candidate) `useRunsList` ilter= popstate — whitespace-only committed value clears context — locus: syncListContextFilterFromUrl; pass-12 reseed.
+- [x] (valid-no-repro) pass-12 work-queue compare + scope
+- [ ] (candidate) `RunsListClient` mobile inspector — narrow viewport compare keyboard trap — locus: `mobileInspectorShellRef`; pass-13 reseed.
+- [ ] (candidate) `RunsListWorkQueueTable` — compare checkbox in needs-attention section — locus: section partition; pass-13 reseed.
+- [ ] (candidate) `useRunsList` debounced `q=` — list context `filter=` overlay on clear — locus: clearFilterText; pass-13 reseed.
+- [ ] (candidate) `BuyerPackageScopeFilterChips` — work-queue + orphan `filter=` combined — locus: chip href; pass-13 reseed.
+- [ ] (candidate) `RunsListClient` disclosure open — orphan context banner persistence — locus: filter disclosure; pass-13 reseed. — **cheap-disproof 2026-11-25 seed hunt (seed-only):** partition/scope chip regressions.
+- [x] (valid-no-repro) pass-12 whitespace-only filter= popstate — **cheap-disproof 2026-11-25 seed hunt (seed-only):** `parseRunsListContextFilterFromSearch` popstate sync.
 
 - **id:** ui-runs-list
 - **status:** open
@@ -3164,7 +3169,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 11
+- **hunts:** 12
 - **last-hunt:** 2026-11-25
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
@@ -20726,6 +20731,7 @@ ABQ-09 churn hotspot.
 2026-10-11 thorough hunt (dry): `host-core-jobs` — repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 thorough hunt (dry): `host-core-jobs` — repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 seed hunt (seed→hit): `ui-infra-resource-hub` — `ResourceHubClient` supplied `shortcutsTestId` to `InfraEvidenceWorkbenchHeaderActions`, but the shared header action wrapper dropped it, making the shortcut region unqueryable and breaking the focused ResourceHubClient test. The wrapper now applies the supplied test id; the focused ResourceHubClient, working-mode, and buyer-polished suites passed 52/52.
+
 
 
 
