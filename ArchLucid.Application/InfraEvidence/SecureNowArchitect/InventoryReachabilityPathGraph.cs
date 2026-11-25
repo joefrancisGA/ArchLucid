@@ -94,6 +94,14 @@ internal static class InventoryReachabilityPathGraph
                 continue;
             }
 
+            if (string.Equals(relationship.InferenceSource, GraphEdgeInferenceSources.InventoryPeReachableTarget,
+                    StringComparison.OrdinalIgnoreCase)
+                && InventoryPrivateFlowVerdict.Evaluate(dnsJoinIndex, relationship.FromAzureResourceId,
+                    relationship.ToAzureResourceId, reachabilityResourcesByArmId) == AzurePrivateConnectivityState.Blocked)
+            {
+                continue;
+            }
+
             if (relationship.RelationshipType == GraphEdgeTypes.RoutesTo)
             {
                 subnetsWithNsgAllowRule.Add(relationship.FromAzureResourceId);
