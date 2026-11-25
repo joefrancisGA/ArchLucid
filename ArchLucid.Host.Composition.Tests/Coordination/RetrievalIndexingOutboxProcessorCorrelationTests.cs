@@ -12,6 +12,7 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination.Retrieval;
 using ArchLucid.Persistence.Coordination.Retrieval;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
@@ -34,14 +35,19 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
     [Fact]
     public async Task ProcessPendingBatchAsync_starts_activity_with_correlation_tags()
     {
+        Guid outboxId = Guid.NewGuid();
         List<Activity> stopped = [];
         using ActivityListener listener = new();
         listener.ShouldListenTo = s => s.Name == ArchLucidMeterNames.RetrievalIndexingOutboxActivitySource;
         listener.Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded;
-        listener.ActivityStopped = stopped.Add;
+        listener.ActivityStopped = activity =>
+        {
+            if (string.Equals(activity.GetTagItem("archlucid.outbox_id") as string, outboxId.ToString("D"),
+                    StringComparison.Ordinal))
+                stopped.Add(activity);
+        };
         ActivitySource.AddActivityListener(listener);
 
-        Guid outboxId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
         Guid tenantId = Guid.NewGuid();
         Guid workspaceId = Guid.NewGuid();
@@ -62,22 +68,9 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
             ]);
         outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-        Mock<IAuthorityQueryService> query = new();
-        query
-            .Setup(q => q.GetRunDetailForRetrievalIndexingAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RunDetailDto?)null);
-        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(
-            query,
-            runId,
-            CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(runId));
-
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
-        services.AddScoped(_ => query.Object);
-        services.AddScoped(_ => Mock.Of<IArtifactQueryService>());
-        services.AddScoped(_ => Mock.Of<IRetrievalRunCompletionIndexer>());
-        services.AddScoped(_ => Mock.Of<IProvenanceBuilder>());
-        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
+        services.AddScoped(_ => Mock.Of<IRunRepository>());
         ServiceProvider provider = services.BuildServiceProvider();
         IServiceScopeFactory factory = provider.GetRequiredService<IServiceScopeFactory>();
 
@@ -164,9 +157,12 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
 
         Mock<IAuthorityQueryService> query = new();
         query
-            .Setup(q => q.GetRunDetailForRetrievalIndexingAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .Setup(q => q.GetRunDetailForRetrievalIndexingAsync(
+                It.IsAny<ScopeContext>(), It.IsAny<RunRecord>(), It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
-        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(query, runId, manifest);
+        manifest.GraphSnapshotId = detail.GraphSnapshot!.GraphSnapshotId;
+        manifest.FindingsSnapshotId = detail.FindingsSnapshot!.FindingsSnapshotId;
+        RetrievalIndexingBindingTestSupport.SetupManifest(query, manifest);
 
         Mock<IArtifactQueryService> artifactQuery = new();
         artifactQuery
@@ -198,6 +194,7 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
         services.AddScoped(_ => query.Object);
         services.AddScoped(_ => artifactQuery.Object);
         services.AddScoped(_ => indexer.Object);
+        RetrievalIndexingBindingTestSupport.RegisterCommittedRun(services, manifest);
         services.AddScoped(_ => provenanceBuilder.Object);
         CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services, manifest.ManifestHash!);
         ServiceProvider provider = services.BuildServiceProvider();
@@ -238,21 +235,11 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
             ]);
         outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-        Mock<IAuthorityQueryService> query = new();
-        query
-            .Setup(q => q.GetRunDetailForRetrievalIndexingAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RunDetailDto?)null);
-        query
-            .Setup(q => q.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RunDetailDto?)null);
-
+        Mock<IAuthorityQueryService> query = new(MockBehavior.Strict);
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => query.Object);
-        services.AddScoped(_ => Mock.Of<IArtifactQueryService>());
-        services.AddScoped(_ => Mock.Of<IRetrievalRunCompletionIndexer>());
-        services.AddScoped(_ => Mock.Of<IProvenanceBuilder>());
-        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
+        services.AddScoped(_ => Mock.Of<IRunRepository>());
         ServiceProvider provider = services.BuildServiceProvider();
 
         RetrievalIndexingOutboxProcessor sut = new(
@@ -263,6 +250,7 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
 
         await sut.ProcessPendingBatchAsync(CancellationToken.None);
 
+        query.VerifyNoOtherCalls();
         outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
         outbox.Verify(
             o => o.RecordBackoffAfterProcessingFailureAsync(
@@ -277,194 +265,15 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
     }
 
     [Fact]
-    public async Task ProcessPendingBatchAsync_marks_processed_when_manifest_compare_run_no_longer_found_after_retrieval_detail_loaded()
-    {
-        Guid outboxId = Guid.NewGuid();
-        Guid runId = Guid.NewGuid();
-        Guid tenantId = Guid.NewGuid();
-        Guid workspaceId = Guid.NewGuid();
-        Guid projectId = Guid.NewGuid();
-
-        ManifestDocument manifest = new()
-        {
-            ManifestId = Guid.NewGuid(),
-            RunId = runId,
-            TenantId = tenantId,
-            WorkspaceId = workspaceId,
-            ProjectId = projectId,
-            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-            ManifestHash = "hash",
-            RuleSetId = "rules",
-            RuleSetVersion = "1",
-            RuleSetHash = "hash-rules",
-        };
-
-        RunDetailDto detail = new()
-        {
-            Run = new RunRecord
-            {
-                RunId = runId,
-                ScopeProjectId = projectId,
-                ProjectId = "retrieval-parity",
-                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-            },
-            GoldenManifest = manifest,
-            GraphSnapshot = new GraphSnapshot
-            {
-                GraphSnapshotId = Guid.NewGuid(),
-                ContextSnapshotId = Guid.NewGuid(),
-                RunId = runId,
-                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-            },
-            FindingsSnapshot = new FindingsSnapshot { FindingsSnapshotId = Guid.NewGuid(), RunId = runId, Findings = [] },
-            AuthorityTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload()),
-        };
-
-        Mock<IRetrievalIndexingOutboxRepository> outbox = new();
-        outbox
-            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new RetrievalIndexingOutboxEntry
-                {
-                    OutboxId = outboxId,
-                    RunId = runId,
-                    TenantId = tenantId,
-                    WorkspaceId = workspaceId,
-                    ProjectId = projectId,
-                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
-                }
-            ]);
-        outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-
-        Mock<IAuthorityQueryService> query = new();
-        query
-            .Setup(q => q.GetRunDetailForRetrievalIndexingAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(detail);
-        query
-            .Setup(q => q.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RunDetailDto?)null);
-
-        ServiceCollection services = [];
-        services.AddScoped(_ => outbox.Object);
-        services.AddScoped(_ => query.Object);
-        services.AddScoped(_ => Mock.Of<IArtifactQueryService>());
-        services.AddScoped(_ => Mock.Of<IRetrievalRunCompletionIndexer>());
-        services.AddScoped(_ => Mock.Of<IProvenanceBuilder>());
-        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
-        ServiceProvider provider = services.BuildServiceProvider();
-
-        RetrievalIndexingOutboxProcessor sut = new(
-            provider.GetRequiredService<IServiceScopeFactory>(),
-            Options.Create(new RetrievalIndexingOutboxProcessorOptions()),
-            TimeProvider.System,
-            NullLogger<RetrievalIndexingOutboxProcessor>.Instance);
-
-        await sut.ProcessPendingBatchAsync(CancellationToken.None);
-
-        outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
-        outbox.Verify(
-            o => o.RecordDeadLetterAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
-
-    [Fact]
-    public async Task ProcessPendingBatchAsync_marks_processed_when_retrieval_and_manifest_compare_golden_manifests_disagree()
-    {
-        Guid outboxId = Guid.NewGuid();
-        Guid runId = Guid.NewGuid();
-        Guid tenantId = Guid.NewGuid();
-        Guid workspaceId = Guid.NewGuid();
-        Guid projectId = Guid.NewGuid();
-
-        ManifestDocument retrievalManifest = CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(
-            runId,
-            manifestHash: "stale-retrieval-manifest-hash");
-        ManifestDocument compareManifest = CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(runId);
-
-        RunDetailDto detail = new()
-        {
-            Run = new RunRecord
-            {
-                RunId = runId,
-                ScopeProjectId = projectId,
-                ProjectId = "retrieval-manifest-mismatch",
-                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-            },
-            GoldenManifest = retrievalManifest,
-            GraphSnapshot = new GraphSnapshot
-            {
-                GraphSnapshotId = Guid.NewGuid(),
-                ContextSnapshotId = Guid.NewGuid(),
-                RunId = runId,
-                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-            },
-            FindingsSnapshot = new FindingsSnapshot { FindingsSnapshotId = Guid.NewGuid(), RunId = runId, Findings = [] },
-            AuthorityTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload()),
-        };
-
-        Mock<IRetrievalIndexingOutboxRepository> outbox = new();
-        outbox
-            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new RetrievalIndexingOutboxEntry
-                {
-                    OutboxId = outboxId,
-                    RunId = runId,
-                    TenantId = tenantId,
-                    WorkspaceId = workspaceId,
-                    ProjectId = projectId,
-                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
-                }
-            ]);
-        outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-
-        Mock<IAuthorityQueryService> query = new();
-        query
-            .Setup(q => q.GetRunDetailForRetrievalIndexingAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(detail);
-        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(query, runId, compareManifest);
-
-        Mock<IRetrievalRunCompletionIndexer> indexer = new();
-
-        ServiceCollection services = [];
-        services.AddScoped(_ => outbox.Object);
-        services.AddScoped(_ => query.Object);
-        services.AddScoped(_ => Mock.Of<IArtifactQueryService>());
-        services.AddScoped(_ => indexer.Object);
-        services.AddScoped(_ => Mock.Of<IProvenanceBuilder>());
-        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
-        ServiceProvider provider = services.BuildServiceProvider();
-
-        RetrievalIndexingOutboxProcessor sut = new(
-            provider.GetRequiredService<IServiceScopeFactory>(),
-            Options.Create(new RetrievalIndexingOutboxProcessorOptions()),
-            TimeProvider.System,
-            NullLogger<RetrievalIndexingOutboxProcessor>.Instance);
-
-        await sut.ProcessPendingBatchAsync(CancellationToken.None);
-
-        outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
-        indexer.Verify(
-            i => i.IndexAuthorityRunAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<ManifestDocument>(),
-                It.IsAny<IReadOnlyList<SynthesizedArtifact>>(),
-                It.IsAny<DecisionProvenanceGraph>(),
-                It.IsAny<FindingsSnapshot>(),
-                It.IsAny<GraphSnapshot>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
-
-    [Fact]
     public async Task ProcessPendingBatchAsync_does_not_schedule_retry_after_incomplete_detail_skip_warning_log_failure()
     {
         Guid outboxId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
+        ManifestDocument manifest = new()
+        {
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid(),
+            RunId = runId, ManifestId = Guid.NewGuid(), ManifestHash = "sealed-outbox-test-hash"
+        };
 
         Mock<IRetrievalIndexingOutboxRepository> outbox = new();
         outbox
@@ -475,9 +284,9 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
                 {
                     OutboxId = outboxId,
                     RunId = runId,
-                    TenantId = Guid.NewGuid(),
-                    WorkspaceId = Guid.NewGuid(),
-                    ProjectId = Guid.NewGuid(),
+                    TenantId = manifest.TenantId,
+                    WorkspaceId = manifest.WorkspaceId,
+                    ProjectId = manifest.ProjectId,
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 }
             ]);
@@ -492,10 +301,13 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
 
         Mock<IAuthorityQueryService> query = new();
         query
-            .Setup(q => q.GetRunDetailForRetrievalIndexingAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .Setup(q => q.GetRunDetailForRetrievalIndexingAsync(
+                It.IsAny<ScopeContext>(), It.IsAny<RunRecord>(), It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunDetailDto?)null);
 
+        RetrievalIndexingBindingTestSupport.SetupManifest(query, manifest);
         ServiceCollection services = [];
+        RetrievalIndexingBindingTestSupport.RegisterCommittedRun(services, manifest);
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => query.Object);
         services.AddScoped(_ => Mock.Of<IArtifactQueryService>());

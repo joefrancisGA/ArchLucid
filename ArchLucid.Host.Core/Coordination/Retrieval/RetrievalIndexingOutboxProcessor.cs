@@ -3,12 +3,15 @@ using System.Diagnostics;
 using ArchLucid.Application.Coordination;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination;
 using ArchLucid.Persistence.Coordination.Retrieval;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
 using ArchLucid.Retrieval.Indexing;
@@ -78,12 +81,6 @@ public sealed class RetrievalIndexingOutboxProcessor(
         RetrievalIndexingOutboxProcessorOptions opts,
         CancellationToken cancellationToken)
     {
-        IAuthorityQueryService query = scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
-        IArtifactQueryService artifactQuery = scope.ServiceProvider.GetRequiredService<IArtifactQueryService>();
-        IRetrievalRunCompletionIndexer indexer =
-            scope.ServiceProvider.GetRequiredService<IRetrievalRunCompletionIndexer>();
-        IProvenanceBuilder provenanceBuilder = scope.ServiceProvider.GetRequiredService<IProvenanceBuilder>();
-
         using Activity? activity = ArchLucidInstrumentation.RetrievalIndexingOutbox.StartActivity(
             "RetrievalIndexingOutbox.ProcessEntry");
         string correlationId = FormattableString.Invariant($"retrieval-outbox:{entry.OutboxId:D}");
@@ -102,98 +99,79 @@ public sealed class RetrievalIndexingOutboxProcessor(
 
         ActivityScopeTags.ApplyTenantWorkspace(activity, scopeContext);
 
-        using IDisposable ambientScope = AmbientScopeContext.Push(scopeContext);
-
-        RunDetailDto? detail = await query.GetRunDetailForRetrievalIndexingAsync(scopeContext, entry.RunId, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (detail?.GoldenManifest is null ||
-            detail.GraphSnapshot is null ||
-            detail.FindingsSnapshot is null ||
-            detail.AuthorityTrace is null)
+        if (!CommittedRunEvidenceBinding.HasExplicitScope(scopeContext) || entry.RunId == Guid.Empty)
         {
-            await CompleteProcessedEntryAsync(
-                    outbox,
-                    entry,
-                    cancellationToken,
-                    postMarkObservability: () =>
-                    {
-                        if (Logger.IsEnabled(LogLevel.Warning))
-                        {
-                            Logger.LogWarning(
-                                "Skipping retrieval indexing for run {RunId}: incomplete run detail.",
-                                entry.RunId);
-                        }
-                    })
+            await SkipEntryAsync(outbox, entry, "outbox scope or run ID is incomplete", cancellationToken)
                 .ConfigureAwait(false);
-
             return;
         }
 
-        RunDetailDto? manifestCompareDetail = await query
-            .GetRunDetailForManifestCompareAsync(scopeContext, entry.RunId, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (manifestCompareDetail?.GoldenManifest is null)
+        ScopeContext? drainScope = AmbientScopeContext.CurrentOverride;
+        if (drainScope is not null &&
+            ((drainScope.TenantId != Guid.Empty && drainScope.TenantId != scopeContext.TenantId) ||
+             (drainScope.WorkspaceId != Guid.Empty && drainScope.WorkspaceId != scopeContext.WorkspaceId) ||
+             (drainScope.ProjectId != Guid.Empty && drainScope.ProjectId != scopeContext.ProjectId)))
         {
-            await CompleteProcessedEntryAsync(
-                    outbox,
-                    entry,
-                    cancellationToken,
-                    postMarkObservability: () =>
-                    {
-                        if (Logger.IsEnabled(LogLevel.Warning))
-                        {
-                            Logger.LogWarning(
-                                "Skipping retrieval indexing for run {RunId}: run detail no longer found.",
-                                entry.RunId);
-                        }
-                    })
+            await SkipEntryAsync(outbox, entry, "outbox scope does not match the active drain scope", cancellationToken)
                 .ConfigureAwait(false);
+            return;
+        }
 
+        using IDisposable ambientScope = AmbientScopeContext.Push(scopeContext);
+
+        // The commit pipeline is the only production enqueue caller. Confirm its current run binding from
+        // storage before using any evidence cache (this repository operation bypasses the run cache).
+        IRunRepository runs = scope.ServiceProvider.GetRequiredService<IRunRepository>();
+        RunRecord? run = await runs.GetByIdIncludingArchivedAsync(scopeContext, entry.RunId, cancellationToken)
+            .ConfigureAwait(false);
+        if (run?.GoldenManifestId is not Guid manifestId ||
+            !CommittedRunEvidenceBinding.MatchesRun(scopeContext, entry.RunId, run))
+        {
+            await SkipEntryAsync(outbox, entry, "no matching active committed run", cancellationToken)
+                .ConfigureAwait(false);
+            return;
+        }
+
+        IAuthorityQueryService query = scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
+        ManifestDocument? manifest = await query
+            .GetManifestForSummaryVerificationAsync(scopeContext, manifestId, cancellationToken)
+            .ConfigureAwait(false);
+        if (manifest is null || !CommittedRunEvidenceBinding.MatchesManifest(scopeContext, run, manifest))
+        {
+            await SkipEntryAsync(outbox, entry, "sealed manifest is missing or not bound to the run", cancellationToken)
+                .ConfigureAwait(false);
             return;
         }
 
         IManifestHashService manifestHashService =
             scope.ServiceProvider.GetRequiredService<IManifestHashService>();
-
-        ManifestDocument compareManifest = manifestCompareDetail.GoldenManifest;
-
-        if (detail.GoldenManifest.ManifestId != compareManifest.ManifestId)
-        {
-            await CompleteProcessedEntryAsync(
-                    outbox,
-                    entry,
-                    cancellationToken,
-                    postMarkObservability: () =>
-                    {
-                        if (Logger.IsEnabled(LogLevel.Warning))
-                        {
-                            Logger.LogWarning(
-                                "Skipping retrieval indexing for run {RunId}: retrieval golden manifest {RetrievalManifestId} does not match manifest-compare golden manifest {CompareManifestId}.",
-                                entry.RunId,
-                                detail.GoldenManifest.ManifestId,
-                                compareManifest.ManifestId);
-                        }
-                    })
-                .ConfigureAwait(false);
-
-            return;
-        }
-
         RetrievalIndexingOutboxSealedManifestHashGuard.EnsureGoldenManifestSealedHashOrThrow(
-            compareManifest,
+            manifest,
             entry.RunId,
             manifestHashService);
 
-        ManifestDocument manifest = compareManifest;
-        GraphSnapshot graphSnapshot = detail.GraphSnapshot;
-        FindingsSnapshot findings = detail.FindingsSnapshot;
+        RunDetailDto? detail = await query
+            .GetRunDetailForRetrievalIndexingAsync(scopeContext, run, manifest, cancellationToken)
+            .ConfigureAwait(false);
+        if (detail?.GraphSnapshot is not { } graphSnapshot || detail.FindingsSnapshot is not { } findings ||
+            detail.AuthorityTrace is null || graphSnapshot.GraphSnapshotId != manifest.GraphSnapshotId ||
+            graphSnapshot.RunId != run.RunId || findings.FindingsSnapshotId != manifest.FindingsSnapshotId ||
+            findings.RunId != run.RunId)
+        {
+            await SkipEntryAsync(outbox, entry, "run evidence is incomplete or does not match the sealed anchors", cancellationToken)
+                .ConfigureAwait(false);
+            return;
+        }
+
+        IProvenanceBuilder provenanceBuilder = scope.ServiceProvider.GetRequiredService<IProvenanceBuilder>();
+        IArtifactQueryService artifactQuery = scope.ServiceProvider.GetRequiredService<IArtifactQueryService>();
+        IRetrievalRunCompletionIndexer indexer =
+            scope.ServiceProvider.GetRequiredService<IRetrievalRunCompletionIndexer>();
         IReadOnlyList<SynthesizedArtifact> provenanceArtifacts = detail.ArtifactBundle?.Artifacts ?? [];
 
         DecisionProvenanceGraph graph = provenanceBuilder.Build(new ProvenanceBuildInput
         {
-            RunId = detail.Run.RunId,
+            RunId = run.RunId,
             Findings = findings,
             Graph = graphSnapshot,
             Manifest = manifest,
@@ -201,14 +179,9 @@ public sealed class RetrievalIndexingOutboxProcessor(
             Artifacts = provenanceArtifacts
         });
 
-        IReadOnlyList<SynthesizedArtifact> indexingArtifacts = provenanceArtifacts;
-
-        if (manifest.ManifestId != Guid.Empty)
-        {
-            indexingArtifacts = await artifactQuery
-                .GetArtifactsByManifestIdAsync(scopeContext, manifest.ManifestId, cancellationToken)
-                .ConfigureAwait(false);
-        }
+        IReadOnlyList<SynthesizedArtifact> indexingArtifacts = await artifactQuery
+            .GetArtifactsByManifestIdAsync(scopeContext, manifest.ManifestId, cancellationToken)
+            .ConfigureAwait(false);
 
         await indexer.IndexAuthorityRunAsync(
             entry.TenantId,
@@ -223,6 +196,17 @@ public sealed class RetrievalIndexingOutboxProcessor(
 
         await CompleteProcessedEntryAsync(outbox, entry, cancellationToken).ConfigureAwait(false);
     }
+
+    private Task SkipEntryAsync(
+        IRetrievalIndexingOutboxRepository outbox,
+        RetrievalIndexingOutboxEntry entry,
+        string reason,
+        CancellationToken ct) =>
+        CompleteProcessedEntryAsync(outbox, entry, ct, () =>
+        {
+            if (Logger.IsEnabled(LogLevel.Warning))
+                Logger.LogWarning("Skipping retrieval indexing for run {RunId}: {Reason}.", entry.RunId, reason);
+        });
 
     private async Task CompleteProcessedEntryAsync(
         IRetrievalIndexingOutboxRepository outbox,

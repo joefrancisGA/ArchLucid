@@ -163,12 +163,13 @@ public interface IAuthorityQueryService
     }
 
     /// <summary>
-    ///     Retrieval indexing outbox path (TB-2055): graph, findings, trace, manifest, and artifact metadata without
-    ///     context snapshot, disposition coverage, or artifact bodies (bodies loaded separately for indexing).
+    ///     Load graph, findings, trace, and artifact metadata only for the scoped, committed run header and
+    ///     sealed manifest already verified by the retrieval indexing worker. Do not re-resolve cached run anchors.
     /// </summary>
     Task<RunDetailDto?> GetRunDetailForRetrievalIndexingAsync(
         ScopeContext scope,
-        Guid runId,
+        RunRecord authorizedRun,
+        ManifestDocument verifiedManifest,
         CancellationToken ct);
 
     /// <summary>
