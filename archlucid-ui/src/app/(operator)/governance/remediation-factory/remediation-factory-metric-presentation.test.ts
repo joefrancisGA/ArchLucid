@@ -34,6 +34,23 @@ describe("remediation-factory-metric-presentation", () => {
   });
 
 
+
+  it("renders percent tiles above 100 on the API points scale without capping", () => {
+    const metrics = {
+      patternCoverageExactMatchPercent: 150.4,
+      automationPercent: 25,
+    } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "pattern-exact")?.value).toBe("150%");
+  });
+
+  it("returns null tile values when metrics are not loaded even if a metrics object is present", () => {
+    const metrics = { automationPercent: 25, openFindings: 3 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, false);
+
+    expect(tiles.every((tile) => tile.value === null)).toBe(true);
+  });
   it("omits non-finite percent tiles instead of rendering NaN%", () => {
     const metrics = {
       patternCoverageExactMatchPercent: Number.NaN,
