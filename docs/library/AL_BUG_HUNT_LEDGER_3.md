@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed→hit): `ui-runs-list` compare URL pagination overlay. RunsListClient **80/80**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-infra-resource-hub` pass-496 cheap-disproof. ResourceHubClient **148/148**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -14567,6 +14567,13 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+
+- [ ] (candidate) `ResourceHubClient` — snapshot pin bootstrap may race tab dedupe on resource switch — locus: urlSnapshotPin refs; input: switch hub rows with pinned snapshot; monitor; pass-497 reseed.
+- [ ] (candidate) `ResourceHubClient` — findings remediation busy id survives manual Retry — locus: Retry + busy gate; input: retry during in-flight create; monitor; pass-497 reseed.
+- [ ] (candidate) `ResourceHubClient` — ARM technical disclosure on buyer-polished overview — locus: disclosure href; input: duplicate tab + arm key; monitor; pass-497 reseed.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — whitespace-only property on workbench link — locus: change href builder; input: padded property; monitor; pass-497 reseed.
+- [ ] (candidate) `ResourceHubClient` — audit scope inline hydrate skip on manual refresh — locus: suppress refetch; input: refresh after inline hydrate; monitor; pass-497 reseed.
+
 2026-11-25 thorough hunt #496 (dry): no rotation (`shouldRotate: false`). Re-attempted failing repro on five pass-495 `(candidate)` monitors — **valid-no-repro** Ask handoff `runId` with duplicate `tab=` (`omits duplicate stale tab params on drift Infrastructure Ask links`, `preserves runId on drift Infrastructure Ask links`), **valid-no-repro** stale banner clear (`clears partial stale URL audit params on overview Infrastructure Ask link`, `preserves explorer workQueue on stale audit scope banner links`), **valid-no-repro** tab dedupe + `workQueue` (`uses the last tab query value and canonicalizes duplicate tab params on load`, `preserves explorer workQueue on overview Infrastructure Ask link`), **valid-no-repro** findings tab badge sum (`shows tab count badges for findings and drift`), **valid-no-repro** drift `changeId` trim (defer trim class; whitespace omission copy regressions). Scoped vitest **148/148**. Pass-496 reseed below. Private beta: n/a.
 
 2026-11-24 thorough hunt #495 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone **`ui-claim-discipline-policy`** at run-log tail is **1/3** seed-only before this record). Attempted failing repro on five header `(candidate)` monitor rows from hunt **#494** reseed; cheap-disproof closed all five — **valid-no-repro** Ask handoff `snapshotId` with duplicate `tab=` (`infrastructureAskHandoffSearch` builds from `resourceHubFilterHrefFromSearch`; regressions `omits duplicate stale tab params on drift Infrastructure Ask links`, `preserves hub snapshot and runId on stale audit scope banner audit tab link`; hunt **#237** reseed family), **valid-no-repro** stale banner `auditTabHref` omitting `runId` with duplicate tabs (`preserves hub snapshot and runId on stale audit scope banner audit tab link`; `preserves runId when switching hub tabs from the tab bar`; hunt **#237** reseed family), **valid-no-repro** `setActiveTab` dropping explorer `workQueue` with duplicate `tab=` (`preserves explorer workQueue when switching hub tabs from the tab bar`; `uses the last tab query value and canonicalizes duplicate tab params on load`; hunt **#237** reseed family), **valid-no-repro** diagram tab badge saturated `[state-machine-gap]` (regression `shows tab count badges for findings and drift`; hunt **#237** reseed family), **valid-no-repro** drift `diffId` whitespace trim (defer trim class; hunt **#237** reseed family). Reseeded five follow-on `(candidate)` rows below (hunt **#495** reseed). Scoped **143/143** `ResourceHubClient.test.tsx` + **23/23** `infra-evidence-hub-filter-url.test.ts`. **This dry starts 1/3** on `ui-infra-resource-hub` at run-log tail (prior hub **hit #494** separated by claim-discipline seed-only). Private beta: n/a.
@@ -14579,11 +14586,13 @@ ABQ-09 churn hotspot.
 
 - [x] (superseded) pass-495 `(candidate)` queue — **superseded 2026-11-25 thorough hunt #496:** pass-496 reseed.
 
-- [ ] (candidate) `ResourceHubClient` — `suppressLinkedAuditScopeRefetchRef` may skip load on rapid audit control switch — locus: scope refetch guard; input: fast control chip clicks; monitor; pass-496 reseed.
-- [ ] (candidate) `ResourceHubClient` — `loadRequestGeneration` may apply late hub row after resource id change — locus: generation guard; input: rapid resource switch; monitor; pass-496 reseed.
-- [ ] (candidate) `ResourceHubClient` — `infraResourceHubTechnicalKey` URL sync vs terraform tab exit — locus: technical key normalize; input: leave terraform with open disclosure; monitor; pass-496 reseed.
-- [ ] (candidate) `ResourceHubClient` — partial capture empty stream copy vs hub totals — locus: SecureNow partial capture; input: partial snapshot badge; monitor; pass-496 reseed.
-- [ ] (candidate) `ResourceHubDriftChangesTable` — duplicate `changeId` rows ask link collision — locus: test id suffix; input: shared changeId differing property; monitor; pass-496 reseed.
+- [x] (superseded) pass-496 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed-only, dry):** pass-497 reseed.
+
+- [x] (valid-no-repro) `ResourceHubClient` — `suppressLinkedAuditScopeRefetchRef` may skip load on rapid audit control switch — **cheap-disproof 2026-11-25 seed hunt:** see hunt note. — locus: scope refetch guard; input: fast control chip clicks; monitor; pass-496 reseed.
+- [x] (valid-no-repro) `ResourceHubClient` — `loadRequestGeneration` may apply late hub row after resource id change — **cheap-disproof 2026-11-25 seed hunt:** see hunt note. — locus: generation guard; input: rapid resource switch; monitor; pass-496 reseed.
+- [x] (valid-no-repro) `ResourceHubClient` — `infraResourceHubTechnicalKey` URL sync vs terraform tab exit — **cheap-disproof 2026-11-25 seed hunt:** see hunt note. — locus: technical key normalize; input: leave terraform with open disclosure; monitor; pass-496 reseed.
+- [x] (valid-no-repro) `ResourceHubClient` — partial capture empty stream copy vs hub totals — **cheap-disproof 2026-11-25 seed hunt:** see hunt note. — locus: SecureNow partial capture; input: partial snapshot badge; monitor; pass-496 reseed.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — duplicate `changeId` rows ask link collision — **cheap-disproof 2026-11-25 seed hunt:** see hunt note. — locus: test id suffix; input: shared changeId differing property; monitor; pass-496 reseed.
 
 
 - [x] (valid-no-repro) `ResourceHubClient` `infrastructureAskHandoffSearch` — handoff may drop `snapshotId` when duplicate `tab=` keys precede dedupe — locus: scoped Ask handoff builder; input: duplicate `tab=` + pinned snapshot; monitor; hunt **#494** reseed. — **cheap-disproof 2026-11-24 thorough hunt #495:** scoped handoff + stale banner snapshot regressions (hunt **#237** reseed family).
