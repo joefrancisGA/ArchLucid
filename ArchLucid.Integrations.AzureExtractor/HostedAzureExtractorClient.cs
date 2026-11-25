@@ -201,6 +201,11 @@ public sealed class HostedAzureExtractorClient(
         IReadOnlyList<HostedAzureArmResourceRecord> inventoryResources = resources;
         List<string> collectionWarnings = [];
 
+        if (indexResources is HostedAzureArmResourceCollection { PartialCollection: true })
+        {
+            collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+        }
+
         if (diagnosticSettingsResult.PartialCollection)
         {
             collectionWarnings.Add(AzureInventoryDiagnosticCompletenessWarningCodes.PartialCollection);
@@ -388,11 +393,16 @@ public sealed class HostedAzureExtractorClient(
                 .ListManagementGroupPolicyAssignmentsAsync(accessTokenValue, managementGroupId, cancellationToken)
                 .ConfigureAwait(false));
 
+        bool subscriptionResourceCollectionPartial = false;
+
         foreach (string subscriptionId in subscriptionIds)
         {
             IReadOnlyList<HostedAzureArmResourceRecord> subscriptionIndexResources = await _armReadClient
                 .ListSubscriptionResourcesAsync(accessTokenValue, subscriptionId, cancellationToken)
                 .ConfigureAwait(false);
+
+            subscriptionResourceCollectionPartial |= subscriptionIndexResources is
+                HostedAzureArmResourceCollection { PartialCollection: true };
 
             HostedAzureArmNetworkResourceEnrichResult enrichResult = await HostedAzureArmNetworkResourceEnricher
                 .EnrichAsync(
@@ -534,6 +544,11 @@ public sealed class HostedAzureExtractorClient(
 
         IReadOnlyList<HostedAzureArmResourceRecord> inventoryResources = resources;
         List<string> collectionWarnings = [];
+
+        if (subscriptionResourceCollectionPartial)
+        {
+            collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+        }
 
         if (diagnosticSettingsResult.PartialCollection)
         {
