@@ -148,10 +148,9 @@ public sealed partial class InfraEvidenceSnapshotsController(
 
         try
         {
-            AdvisoryTerraformRepresentationResult result = await advisoryTerraformService.TryBuildFromSnapshotAsync(
+            AdvisoryTerraformRepresentationResult result = await advisoryTerraformService.TryBuildForSnapshotExportAsync(
                 scope,
                 snapshotId,
-                aztfexportAvailable: false,
                 cancellationToken);
 
             if (!result.Succeeded)
