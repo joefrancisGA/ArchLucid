@@ -132,7 +132,11 @@ public sealed partial class AzureOpenAiCompletionClient
 
             completionSucceededForTelemetry = true;
 
-            ProviderQualityRecoveryResponse.ConfirmTransport(_deploymentName, modelId, text);
+            if (!_tenantOwned)
+            {
+                ProviderQualityRecoveryResponse.ConfirmTransport(_deploymentName, modelId, text);
+                IndependentProviderQualityObserver.ConfirmHostedTransport(_deploymentName, modelId, text);
+            }
             return text;
         }
         finally

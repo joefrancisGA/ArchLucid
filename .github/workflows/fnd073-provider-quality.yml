@@ -7,6 +7,8 @@ on:
       - 'ArchLucid.AgentRuntime/**'
       - 'ArchLucid.Host.Composition/Startup/Modules/Agents/**'
       - 'ArchLucid.AgentRuntime.Tests/Quality/ProviderQualityMonitorTests.cs'
+      - 'ArchLucid.AgentRuntime.Tests/Quality/IndependentProviderQualityObserverTests.cs'
+      - 'ArchLucid.Core/Llm/IIndependentProviderQualityObserver.cs'
       - 'ArchLucid.Core/Resilience/IProviderQualityStateStore.cs'
       - 'ArchLucid.Persistence/Resilience/SqlProviderQualityStateStore.cs'
       - 'ArchLucid.Persistence/Migrations/System/007_ProviderQualityState.sql'
@@ -50,7 +52,7 @@ jobs:
           dotnet test ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj
           --no-restore
           -c Release
-          --filter "FullyQualifiedName~ProviderQualityMonitorTests|FullyQualifiedName~AgentCompletionFallbackEligibilityTests"
+          --filter "FullyQualifiedName~ProviderQualityMonitorTests|FullyQualifiedName~IndependentProviderQualityObserverTests|FullyQualifiedName~AgentCompletionFallbackEligibilityTests"
           --logger "console;verbosity=normal"
       - name: Compile host composition and SQL state adapter
         run: dotnet build ArchLucid.Host.Composition/ArchLucid.Host.Composition.csproj -c Release

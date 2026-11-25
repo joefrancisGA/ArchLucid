@@ -26,7 +26,8 @@ public sealed class SecurityEvidencePathExplanationService(
     IAzureInventorySnapshotRepository? snapshotRepository = null,
     TimeProvider? timeProvider = null,
     IOptions<ArchitectureIntelligencePipelineOptions>? verificationOptions = null,
-    ILlmCostEstimator? costEstimator = null) : ISecurityEvidencePathExplanationService
+    ILlmCostEstimator? costEstimator = null,
+    IIndependentProviderQualityObserver? qualityObserver = null) : ISecurityEvidencePathExplanationService
 {
     public const int PathExplanationMaxOutputTokens = 800;
 
@@ -102,6 +103,9 @@ public sealed class SecurityEvidencePathExplanationService(
                 SecurityEvidencePathExplanationTemplateBuilder.Build(path, hops, cutPoints);
 
             SecurityEvidencePathExplanationContent content;
+            IIndependentProviderQualitySample? qualitySample = null;
+            IndependentProviderClaimOutcome claimOutcome = IndependentProviderClaimOutcome.Unknown;
+            bool material = path.CrownJewelAssertionId.HasValue;
             ProvenanceKind provenanceKind;
             string? simulatorLabel = null;
             string? modelOutputRejection = null;
@@ -134,19 +138,22 @@ public sealed class SecurityEvidencePathExplanationService(
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     // A stored crown-jewel assertion identifies a material path without trusting model output.
-                    bool material = path.CrownJewelAssertionId.HasValue;
                     TimeSpan timeout = _verificationBudget.Reserve(
                         ExplanationSystemPrompt, redactedPrompt.Text, material,
                         maxInputTokens: material ? 16_384 : 8_192, outputTokens: PathExplanationMaxOutputTokens);
-                    string llmJson = await SemanticVerificationBudget.RunWithDeadlineAsync(
-                        timeout, timeProvider ?? TimeProvider.System,
-                        token => llm.CompleteJsonAsync(
-                            ExplanationSystemPrompt,
-                            redactedPrompt.Text,
-                            maxTokens: PathExplanationMaxOutputTokens,
-                            cancellationToken: token),
-                        cancellationToken);
+                    Task<string> CompleteAsync(CancellationToken token) => llm.CompleteJsonAsync(
+                        ExplanationSystemPrompt, redactedPrompt.Text,
+                        maxTokens: PathExplanationMaxOutputTokens, cancellationToken: token);
 
+                    (string Response, IIndependentProviderQualitySample? Sample) observed =
+                        await SemanticVerificationBudget.RunWithDeadlineAsync<(string, IIndependentProviderQualitySample?)>(
+                        timeout, timeProvider ?? TimeProvider.System,
+                        async token => qualityObserver is null
+                            ? (await CompleteAsync(token).ConfigureAwait(false), (IIndependentProviderQualitySample?)null)
+                            : await qualityObserver.ObserveAsync(CompleteAsync, token).ConfigureAwait(false),
+                        cancellationToken);
+                    string llmJson = observed.Response;
+                    qualitySample = observed.Sample;
                     if (!SecurityEvidencePathExplanationBuilder.TryParseLlmResponse(
                             llmJson,
                             allowedEvidenceRefs,
@@ -220,6 +227,7 @@ public sealed class SecurityEvidencePathExplanationService(
                 switch (probe.Outcome)
                 {
                     case InventoryFalsificationOutcome.SurvivedWithinTestedScope:
+                        claimOutcome = IndependentProviderClaimOutcome.Supported;
                         var evidence = verification!.Evidence!;
                         configurationFact = $" Azure inventory snapshot {verification.SnapshotId:D} "
                             + $"captured at {verification.CapturedUtc:O} records publicNetworkAccess=Disabled "
@@ -229,6 +237,7 @@ public sealed class SecurityEvidencePathExplanationService(
                             + "Coverage: the explicit Azure property only. The hypothesis survived within the tested scope.";
                         break;
                     case InventoryFalsificationOutcome.Refuted:
+                        claimOutcome = IndependentProviderClaimOutcome.Contradicted;
                         modelOutputRejection = $"Refuted by the scoped Azure inventory: {verification!.SnapshotId:D}, "
                             + $"resource {verification.CloudResourceId:D}, inventory row {verification.Evidence!.ResourceRowId:D}, "
                             + $"captured {verification.CapturedUtc:O}. The public network access claim was contradicted. "
@@ -275,6 +284,18 @@ public sealed class SecurityEvidencePathExplanationService(
             };
 
             await explanationRepository.InsertAsync(record, cancellationToken);
+
+            if (qualitySample is not null)
+            {
+                try
+                {
+                    await qualitySample.RecordAsync(scope, explanationId, claimOutcome, material, cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    logger.LogWarning(ex, "Independent provider quality observation could not be recorded for PathId={PathId}.", pathId);
+                }
+            }
 
             return new SecurityEvidencePathExplanationResult
             {

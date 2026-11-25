@@ -246,7 +246,22 @@ public sealed class SecurityEvidencePathExplanationServiceTests
             .ReturnsAsync((resources, properties));
 
         CapturingExplanationRepository persisted = new();
-        var sut = CreateSut(paths, persisted, llm.Object, CreatePassthroughRedactor(), snapshots: snapshots.Object);
+        Mock<IIndependentProviderQualitySample> sample = new(MockBehavior.Strict);
+        IndependentProviderClaimOutcome expected = rejection switch
+        {
+            null => IndependentProviderClaimOutcome.Supported,
+            "Refuted" => IndependentProviderClaimOutcome.Contradicted,
+            _ => IndependentProviderClaimOutcome.Unknown,
+        };
+        sample.Setup(x => x.RecordAsync(scope, It.IsAny<Guid>(), expected, false, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        Mock<IIndependentProviderQualityObserver> observer = new(MockBehavior.Strict);
+        observer.Setup(x => x.ObserveAsync(
+                It.IsAny<Func<CancellationToken, Task<string>>>(), It.IsAny<CancellationToken>()))
+            .Returns(async (Func<CancellationToken, Task<string>> complete, CancellationToken token) =>
+                (await complete(token), (IIndependentProviderQualitySample?)sample.Object));
+        var sut = CreateSut(paths, persisted, llm.Object, CreatePassthroughRedactor(),
+            snapshots: snapshots.Object, qualityObserver: observer.Object);
         var result = await sut.TryBuildExplanationAsync(scope, pathId, useSimulator: false, allowInsufficientEvidence: false);
 
         result.Succeeded.Should().BeTrue();
@@ -271,6 +286,9 @@ public sealed class SecurityEvidencePathExplanationServiceTests
                     .And.Contain(rowId.ToString("D")).And.Contain("explicit Azure property only");
             explanation.ExecutiveSummary.Should().NotContain("publicNetworkAccess=Disabled");
         }
+
+        sample.Verify(x => x.RecordAsync(scope, explanation.ExplanationId, expected, false, It.IsAny<CancellationToken>()), Times.Once);
+        sample.VerifyNoOtherCalls();
 
         if (stale || wrongProject || !typedClaim || !citesHop)
             snapshots.Verify(repo => repo.ListResourcesAndPropertiesByCloudResourceIdsAsync(
@@ -546,7 +564,8 @@ public sealed class SecurityEvidencePathExplanationServiceTests
         ISecurityEvidenceCutPointRepository? cutPointRepository = null,
         IAzureInventorySnapshotRepository? snapshots = null,
         ArchitectureIntelligencePipelineOptions? verificationOptions = null,
-        TimeProvider? timeProvider = null) =>
+        TimeProvider? timeProvider = null,
+        IIndependentProviderQualityObserver? qualityObserver = null) =>
         new(
             pathRepository,
             cutPointRepository ?? new NoOpCutPointRepository(),
@@ -558,7 +577,8 @@ public sealed class SecurityEvidencePathExplanationServiceTests
             timeProvider: timeProvider,
             verificationOptions: Options.Create(verificationOptions ?? new()),
             costEstimator: Mock.Of<ILlmCostEstimator>(value =>
-                value.EstimateUsd(It.IsAny<int>(), It.IsAny<int>(), 0, null, null) == 0.01m));
+                value.EstimateUsd(It.IsAny<int>(), It.IsAny<int>(), 0, null, null) == 0.01m),
+            qualityObserver: qualityObserver);
 
     private static string BuildPathExplanationLlmJson(
         Guid pathId,

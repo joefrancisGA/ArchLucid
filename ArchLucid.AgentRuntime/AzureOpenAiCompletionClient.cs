@@ -55,6 +55,7 @@ public sealed partial class AzureOpenAiCompletionClient : IAgentStreamingComplet
     private readonly AzureOpenAIClient _azureOpenAiClient;
     private readonly ChatClient _chatClient;
     private readonly string _deploymentName;
+    private readonly bool _tenantOwned;
     private readonly int _maxOutputTokens;
     private readonly BinaryData? _structuredOutputAgentResultSchema;
     private readonly ILogger<AzureOpenAiCompletionClient>? _logger;
@@ -115,6 +116,7 @@ public sealed partial class AzureOpenAiCompletionClient : IAgentStreamingComplet
     ///     When non-null and <see cref="LlmTelemetryOptions.CapturePromptResponseOnSpans" /> is true, attaches truncated
     ///     prompt/completion payloads to spans (default off — see telemetry docs).
     /// </param>
+    /// <param name="tenantOwned">Exclude tenant-owned credentials from shared hosted quality attribution.</param>
     public AzureOpenAiCompletionClient(
         string endpoint,
         string apiKey,
@@ -124,7 +126,8 @@ public sealed partial class AzureOpenAiCompletionClient : IAgentStreamingComplet
         ILogger<AzureOpenAiCompletionClient>? logger = null,
         IOptionsMonitor<LlmTelemetryOptions>? llmTelemetryOptions = null,
         ILlmCompletionOutputTruncationReporter? truncationReporter = null,
-        TimeSpan? networkTimeout = null)
+        TimeSpan? networkTimeout = null,
+        bool tenantOwned = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(endpoint);
         ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
@@ -141,6 +144,7 @@ public sealed partial class AzureOpenAiCompletionClient : IAgentStreamingComplet
             CreateClientOptions(networkTimeout));
 
         _azureOpenAiClient = azureClient;
+        _tenantOwned = tenantOwned;
         _deploymentName = deploymentName.Trim();
         _chatClient = azureClient.GetChatClient(_deploymentName);
         _maxOutputTokens = maxCompletionTokens;
