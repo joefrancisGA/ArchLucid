@@ -128,6 +128,28 @@ public sealed class DapperCosmosGraphSnapshotOutboxRepository(ISqlConnectionFact
     }
 
     /// <inheritdoc />
+    public async Task DeferUntilAsync(
+        Guid outboxId, DateTime expectedLeaseUtc, DateTime nextAttemptUtc, CancellationToken cancellationToken)
+    {
+        const string sql = """
+                           UPDATE dbo.CosmosGraphSnapshotOutbox
+                           SET LockedUntilUtc = NULL, NextAttemptUtc = @NextAttemptUtc
+                           WHERE OutboxId = @OutboxId
+                             AND LockedUntilUtc = @ExpectedLeaseUtc
+                             AND ProcessedUtc IS NULL
+                             AND DeadLetteredUtc IS NULL;
+                           """;
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        DynamicParameters parameters = new();
+        parameters.Add("OutboxId", outboxId);
+        parameters.Add("ExpectedLeaseUtc", NormalizeSqlUtc(expectedLeaseUtc), DbType.DateTime2, scale: 7);
+        parameters.Add("NextAttemptUtc", NormalizeSqlUtc(nextAttemptUtc), DbType.DateTime2, scale: 7);
+        await connection.ExecuteAsync(new CommandDefinition(
+            sql, parameters,
+            cancellationToken: cancellationToken));
+    }
+
+    /// <inheritdoc />
     public async Task RecordBackoffAfterProcessingFailureAsync(
         Guid outboxId,
         DateTime nextAttemptUtc,

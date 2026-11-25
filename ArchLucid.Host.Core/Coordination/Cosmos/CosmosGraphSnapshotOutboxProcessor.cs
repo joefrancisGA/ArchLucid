@@ -2,12 +2,17 @@ using System.Diagnostics;
 
 using ArchLucid.Application.Coordination;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination;
 using ArchLucid.Persistence.Cosmos;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -54,11 +59,6 @@ public sealed class CosmosGraphSnapshotOutboxProcessor(
         CosmosGraphSnapshotOutboxProcessorOptions opts,
         CancellationToken cancellationToken)
     {
-        ICosmosGraphSnapshotOutboxSqlLoader sqlLoader =
-            scope.ServiceProvider.GetRequiredService<ICosmosGraphSnapshotOutboxSqlLoader>();
-        ICosmosGraphSnapshotOutboxCosmosWriter cosmosWriter =
-            scope.ServiceProvider.GetRequiredService<ICosmosGraphSnapshotOutboxCosmosWriter>();
-
         using Activity? activity = ArchLucidInstrumentation.AuthorityRun.StartActivity(
             "CosmosGraphSnapshotOutbox.ProcessEntry");
         string correlationId = FormattableString.Invariant($"cosmos-graph-outbox:{entry.OutboxId:D}");
@@ -76,92 +76,107 @@ public sealed class CosmosGraphSnapshotOutboxProcessor(
 
         ActivityScopeTags.ApplyTenantWorkspace(activity, scopeContext);
 
+        if (!CommittedRunEvidenceBinding.HasExplicitScope(scopeContext) ||
+            !CommittedRunEvidenceBinding.MatchesDrainScope(scopeContext, AmbientScopeContext.CurrentOverride) ||
+            entry.RunId == Guid.Empty || entry.GraphSnapshotId == Guid.Empty)
+        {
+            await SkipEntryAsync(outbox, entry, "outbox scope or resource binding is invalid", cancellationToken)
+                .ConfigureAwait(false);
+            return;
+        }
+
         using IDisposable ambientScope = AmbientScopeContext.Push(scopeContext);
 
-        GraphSnapshot? snapshot =
-            await sqlLoader.LoadAsync(scopeContext, entry.GraphSnapshotId, cancellationToken);
-
-        if (snapshot is null)
+        IRunRepository runs = scope.ServiceProvider.GetRequiredService<IRunRepository>();
+        RunRecord? run = await runs.GetByIdIncludingArchivedAsync(scopeContext, entry.RunId, cancellationToken)
+            .ConfigureAwait(false);
+        if (run is null || !CommittedRunEvidenceBinding.MatchesActiveRun(scopeContext, entry.RunId, run))
         {
-            await CompleteProcessedEntryAsync(
-                    outbox,
-                    entry,
-                    cancellationToken,
-                    postMarkObservability: () =>
-                    {
-                        if (Logger.IsEnabled(LogLevel.Warning))
-                        {
-                            Logger.LogWarning(
-                                "Skipping Cosmos graph snapshot replication for graph {GraphSnapshotId}: graph snapshot was not found in SQL.",
-                                entry.GraphSnapshotId);
-                        }
-                    })
-                .ConfigureAwait(false);
-
+            await SkipEntryAsync(outbox, entry, "no matching active run", cancellationToken).ConfigureAwait(false);
             return;
         }
 
-        if (entry.RunId != Guid.Empty && snapshot.RunId != entry.RunId)
+        AuthorityRunLifecyclePhase phase = AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(run);
+        if (phase == AuthorityRunLifecyclePhase.Failed)
         {
-            await CompleteProcessedEntryAsync(
-                    outbox,
-                    entry,
-                    cancellationToken,
-                    postMarkObservability: () =>
-                    {
-                        if (Logger.IsEnabled(LogLevel.Warning))
-                        {
-                            Logger.LogWarning(
-                                "Skipping Cosmos graph snapshot replication for graph {GraphSnapshotId}: SQL graph RunId {SqlRunId} does not match outbox RunId {OutboxRunId}.",
-                                entry.GraphSnapshotId,
-                                snapshot.RunId,
-                                entry.RunId);
-                        }
-                    })
-                .ConfigureAwait(false);
-
+            await SkipEntryAsync(outbox, entry, "run did not commit successfully", cancellationToken).ConfigureAwait(false);
             return;
         }
 
-        if (entry.RunId != Guid.Empty)
+        // The graph producer can publish an outbox row before the authority run is committed.
+        // A legitimate early row should wait without reading a payload or consuming its failure budget.
+        if (phase != AuthorityRunLifecyclePhase.Complete || run.GoldenManifestId is not Guid manifestId)
         {
-            IAuthorityQueryService authorityQueryService =
-                scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
-            IManifestHashService manifestHashService =
-                scope.ServiceProvider.GetRequiredService<IManifestHashService>();
-
-            RunDetailDto? manifestCompareDetail = await authorityQueryService
-                .GetRunDetailForManifestCompareAsync(scopeContext, entry.RunId, cancellationToken)
-                .ConfigureAwait(false);
-
-            if (manifestCompareDetail?.GoldenManifest is null)
-            {
-                await CompleteProcessedEntryAsync(
-                        outbox,
-                        entry,
-                        cancellationToken,
-                        postMarkObservability: () =>
-                        {
-                            if (Logger.IsEnabled(LogLevel.Warning))
-                            {
-                                Logger.LogWarning(
-                                    "Skipping Cosmos graph snapshot replication for graph {GraphSnapshotId}: run detail no longer found.",
-                                    entry.GraphSnapshotId);
-                            }
-                        })
-                    .ConfigureAwait(false);
-
-                return;
-            }
-
-            CosmosGraphSnapshotOutboxSealedManifestHashGuard.EnsureGoldenManifestSealedHashOrThrow(
-                manifestCompareDetail.GoldenManifest,
-                entry.RunId,
-                manifestHashService);
+            await DeferForFinalizationAsync(outbox, entry, opts, cancellationToken).ConfigureAwait(false);
+            return;
         }
 
-        await cosmosWriter.SaveAsync(snapshot, cancellationToken);
+        if (run.GraphSnapshotId != entry.GraphSnapshotId)
+        {
+            await SkipEntryAsync(outbox, entry, "queued graph is not the committed run's graph", cancellationToken)
+                .ConfigureAwait(false);
+            return;
+        }
+
+        IAuthorityQueryService authorityQuery = scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
+        ManifestDocument? manifest = await authorityQuery
+            .GetManifestForSummaryVerificationAsync(scopeContext, manifestId, cancellationToken)
+            .ConfigureAwait(false);
+        if (manifest is null)
+        {
+            await DeferForFinalizationAsync(outbox, entry, opts, cancellationToken).ConfigureAwait(false);
+            return;
+        }
+        if (!CommittedRunEvidenceBinding.MatchesManifest(scopeContext, run, manifest))
+        {
+            await SkipEntryAsync(outbox, entry, "manifest is not bound to the committed run and graph", cancellationToken)
+                .ConfigureAwait(false);
+            return;
+        }
+
+        CosmosGraphSnapshotOutboxSealedManifestHashGuard.EnsureGoldenManifestSealedHashOrThrow(
+            manifest, entry.RunId, scope.ServiceProvider.GetRequiredService<IManifestHashService>());
+
+        ICosmosGraphSnapshotOutboxSqlLoader sqlLoader =
+            scope.ServiceProvider.GetRequiredService<ICosmosGraphSnapshotOutboxSqlLoader>();
+        GraphSnapshot? snapshot = await sqlLoader.LoadAsync(scopeContext, entry.GraphSnapshotId, cancellationToken)
+            .ConfigureAwait(false);
+        if (snapshot is null || snapshot.GraphSnapshotId != manifest.GraphSnapshotId ||
+            snapshot.RunId != manifest.RunId || snapshot.ContextSnapshotId != manifest.ContextSnapshotId)
+        {
+            await SkipEntryAsync(outbox, entry, "SQL graph is missing or does not match the sealed anchors", cancellationToken)
+                .ConfigureAwait(false);
+            return;
+        }
+
+        ICosmosGraphSnapshotOutboxCosmosWriter cosmosWriter =
+            scope.ServiceProvider.GetRequiredService<ICosmosGraphSnapshotOutboxCosmosWriter>();
+        await cosmosWriter.SaveAsync(snapshot, cancellationToken).ConfigureAwait(false);
         await CompleteProcessedEntryAsync(outbox, entry, cancellationToken).ConfigureAwait(false);
+    }
+
+    private Task SkipEntryAsync(
+        ICosmosGraphSnapshotOutboxRepository outbox, CosmosGraphSnapshotOutboxEntry entry, string reason, CancellationToken ct) =>
+        CompleteProcessedEntryAsync(outbox, entry, ct, () =>
+        {
+            if (Logger.IsEnabled(LogLevel.Warning))
+                Logger.LogWarning("Skipping Cosmos graph snapshot replication for graph {GraphSnapshotId}: {Reason}.",
+                    entry.GraphSnapshotId, reason);
+        });
+
+    private Task DeferForFinalizationAsync(
+        ICosmosGraphSnapshotOutboxRepository outbox,
+        CosmosGraphSnapshotOutboxEntry entry,
+        CosmosGraphSnapshotOutboxProcessorOptions opts,
+        CancellationToken ct)
+    {
+        // SQL claims always carry the lease. Without one, do not change a row we cannot prove we still own.
+        if (entry.LockedUntilUtc is not DateTime leaseUtc)
+            return Task.CompletedTask;
+
+        DateTime nextAttemptUtc = TimeProvider.GetUtcNow().UtcDateTime
+            .AddSeconds(Math.Clamp(opts.PollIntervalSeconds, 5, 300));
+        return outbox.DeferUntilAsync(entry.OutboxId, leaseUtc, nextAttemptUtc, ct);
     }
 
     private async Task CompleteProcessedEntryAsync(

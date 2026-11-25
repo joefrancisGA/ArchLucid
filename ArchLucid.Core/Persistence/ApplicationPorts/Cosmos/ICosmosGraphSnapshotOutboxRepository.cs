@@ -9,6 +9,10 @@ namespace ArchLucid.Persistence.Cosmos;
 /// </summary>
 public interface ICosmosGraphSnapshotOutboxRepository : IRecoverableOutboxRepository<CosmosGraphSnapshotOutboxEntry>
 {
+    /// <summary>Reschedules a claimed job without counting an expected wait as a processing failure.</summary>
+    Task DeferUntilAsync(
+        Guid outboxId, DateTime expectedLeaseUtc, DateTime nextAttemptUtc, CancellationToken cancellationToken);
+
     Task EnqueueAsync(
         Guid graphSnapshotId,
         Guid runId,

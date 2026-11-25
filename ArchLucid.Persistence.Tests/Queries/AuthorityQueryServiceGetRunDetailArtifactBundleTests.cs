@@ -210,10 +210,12 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
     }
 
     [Theory]
-    [InlineData(typeof(InMemoryAuthorityQueryService))]
-    [InlineData(typeof(DapperAuthorityQueryService))]
-    public async Task GetRunDetailForRetrievalIndexingAsync_loads_bundle_metadata_without_bodies(
-        Type implementationType)
+    [InlineData(typeof(InMemoryAuthorityQueryService), true)]
+    [InlineData(typeof(DapperAuthorityQueryService), true)]
+    [InlineData(typeof(InMemoryAuthorityQueryService), false)]
+    [InlineData(typeof(DapperAuthorityQueryService), false)]
+    public async Task GetRunDetailForRetrievalIndexingAsync_reads_only_bound_evidence_without_artifact_bodies(
+        Type implementationType, bool validBinding)
     {
         Guid tenantId = Guid.NewGuid();
         Guid workspaceId = Guid.NewGuid();
@@ -230,12 +232,17 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
             RunId = runId,
             ProjectId = "default",
             GoldenManifestId = manifestId,
+            LegacyRunStatus = "Committed",
         };
 
         ArtifactBundle bundle = new() { ManifestId = manifestId, BundleId = Guid.NewGuid() };
 
-        Mock<IRunRepository> runs = new();
-        runs.Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>())).ReturnsAsync(run);
+        ManifestDocument verifiedManifest = new()
+        {
+            TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = validBinding ? projectId : Guid.NewGuid(),
+            RunId = runId, ManifestId = manifestId
+        };
+        Mock<IRunRepository> runs = new(MockBehavior.Strict);
 
         Mock<IContextSnapshotRepository> contextSnapshots = new();
         Mock<IGraphSnapshotRepository> graphSnapshots = new();
@@ -260,10 +267,24 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
             bundles.Object,
             traceRows.Object);
 
-        RunDetailDto? detail = await sut.GetRunDetailForRetrievalIndexingAsync(scope, runId, CancellationToken.None);
+        RunDetailDto? detail = await sut.GetRunDetailForRetrievalIndexingAsync(scope, run, verifiedManifest, CancellationToken.None);
 
+        if (!validBinding)
+        {
+            detail.Should().BeNull();
+            runs.VerifyNoOtherCalls();
+            graphSnapshots.VerifyNoOtherCalls();
+            findingsSnapshots.VerifyNoOtherCalls();
+            traces.VerifyNoOtherCalls();
+            manifests.VerifyNoOtherCalls();
+            bundles.VerifyNoOtherCalls();
+            return;
+        }
         detail.Should().NotBeNull();
         detail!.ArtifactBundle.Should().BeSameAs(bundle);
+        detail.GoldenManifest.Should().BeSameAs(verifiedManifest);
+        runs.VerifyNoOtherCalls();
+        manifests.VerifyNoOtherCalls();
         bundles.Verify(
             b => b.GetByManifestIdAsync(scope, manifestId, false, It.IsAny<CancellationToken>()),
             Times.Once);
