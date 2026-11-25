@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 thorough hunt (dry): `cli-draft-new` hunt #192 reseed. Scoped `DraftNewCommandCoreTests` **73/73** (`RunAnalyzers=false`).
+> **Scope:** Contributor-reference — hunt 2026-11-25 thorough hunt (dry): `ui-claim-discipline-policy` pass-46 reseed. Scoped vitest **54/54** (5 focused files).
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -17380,6 +17380,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-claim-discipline-policy
 
+2026-11-25 thorough hunt #502 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-45 `(candidate)` monitors — **valid-no-repro** `EvidenceOrientationClaimAndSourcesStrip` sources-only early return (`omits sources-only strips when Where to go next is turned off` establishes intentional preference gating); **valid-no-repro** terraform/resources dual slug surfaces (`HelpGovernanceInfrastructureTerraformGuideView` regression; help strip passes `GOVERNANCE_INFRASTRUCTURE_TERRAFORM_HELP_CLAIM_HEADING_ID`; workbench `governance-infrastructure-terraform` orientation strip); **valid-no-repro** marketing `part="claim"` default anchor drift (signup split-band regression; infra help strips pass explicit claim heading ids); **valid-no-repro** `package-print` visible-band exception (`expectsVisibleClaimDisciplineBand` + empty-claim shell regression); **valid-no-repro** cloud-connections alias slug parity (`drops connect AWS claim TOC row when cloud-connections-aws omits the orientation band` + alias map). Pass-46 reseed below. Scoped vitest **54/54**. Private beta: n/a.
+
 2026-11-24 thorough hunt #501 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-44 `(candidate)` monitors — **valid-no-repro** Terraform TOC/orientation parity (visible `help-governance-infrastructure-terraform` band intentionally keeps claim TOC row; `HelpGovernanceInfrastructureTerraformGuideView` regression asserts heading ids and orientation strip); **invalid** mismatched `claimHeadingId` on omitted infra slug (all `help-governance-infrastructure-*` guides use visible bands with matching `GOVERNANCE_INFRASTRUCTURE_*_CLAIM_HEADING_ID` constants); **valid-no-repro** infra omit-set sibling drift-only (`passes governance infrastructure drift help claim through for visible-band orientation slug`; terraform/resources/diagrams share visible-band pattern); **valid-no-repro** admin `part="sources"` / omitted slugs (`administration settings evidence strips` regressions; `resolveClaimDisciplineForStrip` suppresses duplicate claim while sources render); **invalid** whitespace-padded slug (registry `stripSlug` values are static literals with no padded config/OpenAPI source). Reseeded five pass-45 `(candidate)` monitors below. Scoped vitest **44/44** (`claim-discipline-policy.test.ts`, `administration-settings-claim-discipline-strips.test.tsx`, `HelpGovernanceInfrastructureTerraformGuideView.test.tsx`). Private beta: n/a.
 
 - [x] (valid-no-repro) `HelpGovernanceInfrastructureTerraformGuideView` — TOC keeps claim heading id while header paragraph repeats orientation claim — **cheap-disproof 2026-11-24 thorough hunt #501:** visible-band infra help design; guide regression + orientation strip claim heading id matches TOC.
@@ -20443,6 +20445,8 @@ ABQ-09 churn hotspot.
 2026-10-11 thorough hunt (dry): `host-core-jobs` — repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 thorough hunt (dry): `host-core-jobs` — repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 seed hunt (seed→hit): `ui-infra-resource-hub` — `ResourceHubClient` supplied `shortcutsTestId` to `InfraEvidenceWorkbenchHeaderActions`, but the shared header action wrapper dropped it, making the shortcut region unqueryable and breaking the focused ResourceHubClient test. The wrapper now applies the supplied test id; the focused ResourceHubClient, working-mode, and buyer-polished suites passed 52/52.
+
+
 
 
 
