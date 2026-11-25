@@ -98,6 +98,11 @@ internal static class AgentOutputTraceFindingCitationCoverageApplicator
                 findingsElement.GetRawText(),
                 FindingJsonOptions) ?? [];
 
+            // Treat a malformed array like other invalid finding payloads. Dropping null entries
+            // alone would inflate coverage when the remaining findings are cited.
+            if (findings.Exists(static finding => finding is null))
+                findings.Clear();
+
             return true;
         }
         catch (JsonException)

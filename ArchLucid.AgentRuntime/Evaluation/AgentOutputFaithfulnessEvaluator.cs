@@ -148,7 +148,7 @@ public sealed class AgentOutputFaithfulnessEvaluator(
 
             return null;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(ex, "LLM faithfulness judge failed for TraceId={TraceId}", traceId);
