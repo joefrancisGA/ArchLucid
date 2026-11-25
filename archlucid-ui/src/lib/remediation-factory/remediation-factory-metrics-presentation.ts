@@ -135,7 +135,7 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       scopeLine: WORKSPACE_SCOPE,
       windowLine: "Current snapshot — not the 7-day window",
       valueFootnote:
-        metrics == null ? null : `${METRICS_WINDOW} · ${metrics.exceptionsExpiringSoon} expiring soon`,
+        !metricsLoaded || metrics == null ? null : `${METRICS_WINDOW} · ${metrics.exceptionsExpiringSoon} expiring soon`,
       value: formatCount(metrics?.exceptionsActive),
     },
     {

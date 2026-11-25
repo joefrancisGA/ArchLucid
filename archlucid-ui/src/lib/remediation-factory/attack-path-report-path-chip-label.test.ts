@@ -38,6 +38,13 @@ describe("attack-path-report-path-chip-label", () => {
     expect(attackPathReportPathChipOverflowLine([paddedLong])).toContain("Long path ids");
   });
 
+  it("ellipsizes padded long path ids after trim", () => {
+    const padded = `  ${"a".repeat(29)}  `;
+
+    expect(formatAttackPathReportPathChipLabel(padded)).toContain("…");
+    expect(formatAttackPathReportPathChipLabel(padded).length).toBeLessThan(padded.length);
+  });
+
   it("returns null overflow line for an empty path id list", () => {
     expect(attackPathReportPathChipOverflowLine([])).toBeNull();
   });

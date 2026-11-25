@@ -276,4 +276,38 @@ describe("remediation-factory-url-state", () => {
 
     expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
   });
+  it("uses the first fromSnapshot token when the query string repeats the param", () => {
+    const firstId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+    const secondId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+    const parsed = parseRemediationFactoryUrlStateFromSearch(
+      `?${REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM}=${firstId}&${REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM}=${secondId}`,
+    );
+
+    expect(parsed.fromSnapshotId).toBe(firstId);
+  });
+
+  it("writes metrics open as 1 when base search used a legacy true token", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: true,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=true`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
+  });
+
+  it("remediationFactoryHrefFromSearch preserves an open metrics disclosure param", () => {
+    const href = remediationFactoryHrefFromSearch(
+      "/governance/remediation-factory",
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1&foreign=keep`,
+    );
+
+    expect(href).toContain(`${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1`);
+    expect(href).toContain("foreign=keep");
+  });
 });

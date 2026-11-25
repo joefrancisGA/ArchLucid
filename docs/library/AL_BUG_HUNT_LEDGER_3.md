@@ -381,6 +381,19 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 thorough hunt (seed→hit): no rotation (`shouldRotate: false`). Promoted pass-11 exceptions-active footnote — **proven** stale metrics object showed expiring-soon footnote while `metricsLoaded` was false; gate on `metricsLoaded` (sibling to pass-10 net-burn). Regression `omits exceptions-active footnote when metrics are unloaded even if a metrics object is present`. **valid-no-repro** legacy `true` open write (`writes metrics open as 1 when base search used a legacy true token`), **valid-no-repro** duplicate `fromSnapshot` first-wins, **valid-no-repro** padded chip ellipsis after trim, **valid-no-repro** href preserves metrics open param. Scoped vitest **117/117**. Reseeded pass-12 below. Private beta: invited operators no longer see expiring-soon footnote under not-measured exceptions tile while factory metrics load.
+
+- [x] (superseded) pass-11 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-12 reseed.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — open write normalizes legacy true to 1 — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `readUuidParam` — duplicate fromSnapshot params first-wins — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `uses the first fromSnapshot token when the query string repeats the param`.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — exceptions-active footnote when unloaded — **proven 2026-11-25 thorough hunt (seed→hit):** `metricsLoaded` guard; regression cited in hunt note.
+- [x] (valid-no-repro) `formatAttackPathReportPathChipLabel` — trims padding before ellipsis — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `ellipsizes padded long path ids after trim`.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves metrics open param — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — critical-exposure footnote when unloaded — locus: zero-count footnote vs metricsLoaded; monitor; pass-12 reseed.
+- [ ] (candidate) `readUuidParam` — duplicate toSnapshot params first-wins — locus: URLSearchParams get; monitor; pass-12 reseed.
+- [ ] (candidate) `parseRemediationFactoryMetricsSummaryOpen` — literal 1 with surrounding whitespace — locus: trim parse; monitor; pass-12 reseed.
+- [ ] (candidate) `attackPathReportPathChipOverflowLine` — mixed short and padded long ids — locus: some() honesty; monitor; pass-12 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — clears stale toSnapshot when from cleared — locus: UUID write; monitor; pass-12 reseed.
 2026-11-25 thorough hunt (seed→hit): no rotation (`shouldRotate: false`). Promoted pass-10 net-burn footnote — **proven** `buildRemediationFactoryExecutiveMetricTiles` showed created/remediated footnote while `metricsLoaded` was false; gate footnote on `metricsLoaded`. Regression `omits net-burn footnote when metrics are unloaded even if a metrics object is present`. **valid-no-repro** duplicate `selectedPath` first-wins, **valid-no-repro** open write normalizes legacy `on` to `1`, **valid-no-repro** padded path honesty after trim, **valid-no-repro** fractional points above unity. Scoped vitest **112/112**. Reseeded pass-11 below. Private beta: invited operators no longer see stale created/remediated footnote under not-measured net burn while metrics load.
 
 - [x] (superseded) pass-10 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-11 reseed.
@@ -507,8 +520,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 35
-- **bugs-found:** 13
+- **hunts:** 36
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
