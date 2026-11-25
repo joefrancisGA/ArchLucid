@@ -6,7 +6,7 @@ using ArchLucid.Persistence.InfraEvidence;
 namespace ArchLucid.Application.InfraEvidence;
 
 /// <summary>
-///     Derives compute → store <c>peReachableTarget</c> edges when private DNS proves reachability (SN-PE-04).
+///     Derives compute → store <c>peReachableTarget</c> edges when private DNS configuration supports a candidate path (SN-PE-04).
 /// </summary>
 internal static class AzureInventoryPrivateEndpointReachableEdgeMapper
 {
@@ -54,47 +54,17 @@ internal static class AzureInventoryPrivateEndpointReachableEdgeMapper
                         relationship.ToAzureResourceId,
                         relationship.InferenceSource)));
 
-        Dictionary<string, string> computeToVnet = dnsJoinIndex.ComputeToVnetArmId
-            .ToDictionary(static pair => pair.Key, static pair => pair.Value, StringComparer.OrdinalIgnoreCase);
-        Dictionary<string, string> peToTarget = BuildDirectedMap(
-            relationships,
-            GraphEdgeInferenceSources.InventoryPrivateEndpoint);
-        Dictionary<string, string> peToSubnet = BuildDirectedMap(
-            relationships,
-            GraphEdgeInferenceSources.InventoryPeSubnet);
-
-        HashSet<string> emittedPairs = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> warnedPairs = new(StringComparer.OrdinalIgnoreCase);
-        HashSet<string> targetArmIds = peToTarget.Values.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> targetArmIds = dnsJoinIndex.PrivateEndpointToTargetArmIds.Values
+            .SelectMany(targets => targets).ToHashSet(StringComparer.OrdinalIgnoreCase);
         Dictionary<string, List<string>> usageIntentTargetsBySource = BuildUsageIntentTargetsBySource(relationships);
 
-        foreach ((string computeArmId, string computeVnetArmId) in computeToVnet)
+        foreach (string computeArmId in dnsJoinIndex.ComputeToVnetArmIds.Keys)
         {
             foreach (string targetArmId in targetArmIds)
             {
-                string pairKey = $"{computeArmId}|{targetArmId}";
-                bool emitted = false;
-
-                foreach ((string peArmId, string peTargetArmId) in peToTarget)
+                if (dnsJoinIndex.HasConfigurationDnsJoin(computeArmId, targetArmId))
                 {
-                    if (!string.Equals(peTargetArmId, targetArmId, StringComparison.OrdinalIgnoreCase))
-                    {
-                        continue;
-                    }
-
-                    if (!dnsJoinIndex.TryHasDnsJoin(peArmId, computeVnetArmId))
-                    {
-                        continue;
-                    }
-
-                    if (!emittedPairs.Add(pairKey))
-                    {
-                        emitted = true;
-
-                        continue;
-                    }
-
-                    PathConfidenceBand band = ResolveBand(peArmId, computeVnetArmId, peToSubnet);
                     AddRelationship(
                         relationships,
                         relationshipKeys,
@@ -104,52 +74,13 @@ internal static class AzureInventoryPrivateEndpointReachableEdgeMapper
                         ProvenanceKind.DerivedFact,
                         DerivedFactConfidence,
                         definition.DefaultInferenceSource);
-                    emitted = true;
                 }
-
-                if (!emitted && HasUsageIntent(computeArmId, targetArmId, usageIntentTargetsBySource))
+                else if (HasUsageIntent(computeArmId, targetArmId, usageIntentTargetsBySource))
                 {
                     TryAddDnsMissingWarning(computeArmId, targetArmId, warnedPairs, warnings);
                 }
             }
         }
-    }
-
-    private static PathConfidenceBand ResolveBand(
-        string peArmId,
-        string computeVnetArmId,
-        IReadOnlyDictionary<string, string> peToSubnet)
-    {
-        if (peToSubnet.TryGetValue(peArmId, out string? peSubnetArmId)
-            && string.Equals(
-                AzureInventorySubnetArmIdHelper.TryResolveVnetArmIdFromSubnetArmId(peSubnetArmId),
-                computeVnetArmId,
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return PathConfidenceBand.HighlyLikely;
-        }
-
-        return PathConfidenceBand.Probable;
-    }
-
-    private static Dictionary<string, string> BuildDirectedMap(
-        IReadOnlyList<AzureInventoryResourceRelationshipWrite> relationships,
-        string inferenceSource)
-    {
-        Dictionary<string, string> map = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (AzureInventoryResourceRelationshipWrite relationship in relationships)
-        {
-            if (!string.Equals(relationship.InferenceSource, inferenceSource, StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            map[ArmResourceIdNormalizer.Normalize(relationship.FromAzureResourceId)] =
-                ArmResourceIdNormalizer.Normalize(relationship.ToAzureResourceId);
-        }
-
-        return map;
     }
 
     private static Dictionary<string, List<string>> BuildUsageIntentTargetsBySource(
