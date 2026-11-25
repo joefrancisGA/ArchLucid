@@ -287,7 +287,9 @@ public sealed class AzureInventorySnapshotMaterializer(
                 StringComparer.OrdinalIgnoreCase);
             bool partialEntraCollection = collectionWarnings.Any(warning =>
                 warning.Equals(SecurityEvidenceAddCredentialAdapterWarnings.GraphIncomplete, StringComparison.OrdinalIgnoreCase)
-                || warning.Equals(SecurityEvidenceAddCredentialAdapterWarnings.GraphForbidden, StringComparison.OrdinalIgnoreCase));
+                || warning.Equals(SecurityEvidenceAddCredentialAdapterWarnings.GraphForbidden, StringComparison.OrdinalIgnoreCase)
+                || warning.Equals(SecurityEvidenceEntraGroupAdapterWarnings.GraphIncomplete, StringComparison.OrdinalIgnoreCase)
+                || warning.Equals(SecurityEvidenceEntraGroupAdapterWarnings.GraphForbidden, StringComparison.OrdinalIgnoreCase));
             bool incompleteCapture = partialChildEnumeration || partialEntraCollection;
             AzureInventoryCaptureStatus status = resources.Count == 0 || incompleteCapture
                 ? AzureInventoryCaptureStatus.Partial
