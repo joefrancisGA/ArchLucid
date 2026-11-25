@@ -390,6 +390,12 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (valid-no-repro) `remediationFactoryCountMetricPresentation` — Infinity count — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `parseFiniteNumber` rejects Infinity.
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — clears foreign params on metrics close — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** existing `foreign=keep` regression.
 
+- [ ] (candidate) `architectOutcomeDeltaScopeNote` — negative denominator — locus: scope note; input: -3 denominator; monitor; pass-24 reseed.
+- [ ] (candidate) `remediationFactoryDecimalMetricPresentation` — Infinity average age — locus: decimal parse; input: Infinity; monitor; pass-24 reseed.
+- [ ] (candidate) `remediationFactoryPercentMetricPresentation` — non-numeric string percent — locus: percent parse; input: "bad"; monitor; pass-24 reseed.
+- [ ] (candidate) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — foreign params on close — locus: href writer; input: toggle closed; monitor; pass-24 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — critical-exposure hint for Infinity count — locus: table hints; input: Infinity; monitor; pass-24 reseed.
+
 - [x] (proven) `buildRemediationFactoryExecutiveMetricPresentations` — pattern hint when percent absent — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
 - [x] (proven) `architectOutcomeMetricPresentation` — non-finite delta values — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
 - [x] (valid-no-repro) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — drops legacy yes on close — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** boolean href writer.
@@ -657,8 +663,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 44
-- **bugs-found:** 22
+- **hunts:** 45
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
