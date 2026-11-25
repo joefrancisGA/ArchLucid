@@ -1,9 +1,15 @@
+using System.Security.Claims;
+
 using ArchLucid.Api.Controllers.Architecture;
+using ArchLucid.Api.Support;
 using ArchLucid.Application.Intake;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Intake;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.TestSupport.SealedManifest;
 
@@ -27,7 +33,11 @@ public sealed class WizardIntakeDraftsControllerTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
     };
 
-    private static WizardIntakeDraftsController BuildSut(Mock<IWizardIntakeDraftService>? service = null)
+    private static WizardIntakeDraftsController BuildSut(
+        Mock<IWizardIntakeDraftService>? service = null,
+        IArchitectureShareAccessGate? shareGate = null,
+        IRunDetailQueryService? runDetails = null,
+        IAuthorityQueryService? authorityQuery = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -51,9 +61,10 @@ public sealed class WizardIntakeDraftsControllerTests
             scopeProvider.Object,
             tenants.Object,
             (service ?? new Mock<IWizardIntakeDraftService>()).Object,
-            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            authorityQuery ?? SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
             SealedManifestHashTestSupport.CreateManifestHashService(),
-            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
+            runDetails ?? SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
+            shareGate ?? Mock.Of<IArchitectureShareAccessGate>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -65,6 +76,102 @@ public sealed class WizardIntakeDraftsControllerTests
         StepIndex = 2,
         StateJson = "{\"step\":2}",
         UpdatedUtc = new DateTime(2026, 8, 31, 12, 0, 0, DateTimeKind.Utc)
+    };
+
+    [Theory]
+    [InlineData(false, null)]
+    [InlineData(true, null)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    public async Task Wizard_actions_read_only_an_authorized_committed_manifest(
+        bool saveDraft,
+        bool? readableSealValid)
+    {
+        const string wizardId = "wizard-1";
+        Guid deniedRun = Guid.NewGuid();
+        Guid missingRun = Guid.NewGuid();
+        Guid readableRun = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        using CancellationTokenSource cancellation = new();
+        CancellationToken ct = cancellation.Token;
+        List<RunSummary> candidates = [Committed(deniedRun), Committed(missingRun)];
+        if (readableSealValid is not null)
+            candidates.Add(Committed(readableRun));
+
+        Mock<IRunDetailQueryService> runDetails = new(MockBehavior.Strict);
+        runDetails.Setup(query => query.ListRunSummariesKeysetAsync(null, 50, ct))
+            .ReturnsAsync(((IReadOnlyList<RunSummary>)candidates, false, (string?)null));
+
+        Mock<IWizardIntakeDraftService> service = new(MockBehavior.Strict);
+        Mock<IArchitectureShareAccessGate> shares = new(MockBehavior.Strict);
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        WizardIntakeDraftsController sut = BuildSut(service, shares.Object, runDetails.Object, authority.Object);
+        ClaimsPrincipal principal = new(new ClaimsIdentity("test"));
+        sut.HttpContext.User = principal;
+        MockSequence sequence = new();
+        shares.InSequence(sequence).Setup(gate => gate.EvaluateRunReadAsync(principal, Scope, deniedRun, ct))
+            .ReturnsAsync((true, false));
+        shares.InSequence(sequence).Setup(gate => gate.EvaluateRunReadAsync(principal, Scope, missingRun, ct))
+            .ReturnsAsync((false, false));
+
+        if (readableSealValid is bool valid)
+        {
+            shares.InSequence(sequence).Setup(gate => gate.EvaluateRunReadAsync(principal, Scope, readableRun, ct))
+                .ReturnsAsync((true, true));
+            authority.InSequence(sequence).Setup(query => query.GetRunDetailForManifestCompareAsync(
+                    It.Is<ScopeContext>(scope => scope.TenantId == Scope.TenantId &&
+                        scope.WorkspaceId == Scope.WorkspaceId && scope.ProjectId == Scope.ProjectId),
+                    readableRun, ct))
+                .ReturnsAsync(new RunDetailDto
+                {
+                    Run = new RunRecord { RunId = readableRun, GoldenManifestId = manifestId },
+                    GoldenManifest = new ManifestDocument
+                    {
+                        RunId = readableRun,
+                        ManifestId = manifestId,
+                        ManifestHash = valid ? SealedManifestHashTestSupport.DefaultHash : "invalid",
+                    },
+                });
+        }
+
+        UpsertWizardIntakeDraftRequest body = new()
+        {
+            StepIndex = 3,
+            StateJson = "{}",
+            IdempotencyKey = "idem-1",
+        };
+        if (readableSealValid is not false)
+        {
+            if (saveDraft)
+                service.InSequence(sequence).Setup(s => s.UpsertAsync(Scope, wizardId, body, ct)).ReturnsAsync(Draft());
+            else
+                service.InSequence(sequence).Setup(s => s.GetAsync(Scope, wizardId, ct)).ReturnsAsync(Draft());
+        }
+
+        IActionResult action = saveDraft
+            ? await sut.UpsertDraft(wizardId, body, ct)
+            : await sut.GetDraft(wizardId, ct);
+
+        if (readableSealValid is false)
+        {
+            action.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+            service.VerifyNoOtherCalls();
+        }
+        else
+        {
+            action.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(Draft());
+        }
+
+        shares.Invocations.Should().HaveCount(candidates.Count);
+        authority.Invocations.Should().HaveCount(readableSealValid is null ? 0 : 1);
+    }
+
+    private static RunSummary Committed(Guid runId) => new()
+    {
+        RunId = runId.ToString("N"),
+        Status = nameof(ArchitectureRunStatus.Committed),
     };
 
     [Fact]

@@ -1,4 +1,5 @@
 using ArchLucid.Api.Controllers.Architecture;
+using ArchLucid.Api.Support;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
@@ -83,7 +84,8 @@ public sealed class DraftIntakeSealedManifestRuntimeConflictTests
             service.Object,
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
             SealedManifestHashTestSupport.CreateManifestHashService(),
-            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
+            Mock.Of<IArchitectureShareAccessGate>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -117,7 +119,8 @@ public sealed class DraftIntakeSealedManifestRuntimeConflictTests
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
             SealedManifestHashTestSupport.CreateManifestHashService(),
             SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
-            Mock.Of<IPriorPackageSemanticMergeService>())
+            Mock.Of<IPriorPackageSemanticMergeService>(),
+            Mock.Of<IArchitectureShareAccessGate>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

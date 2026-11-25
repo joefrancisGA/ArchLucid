@@ -1,7 +1,12 @@
+using System.Security.Claims;
+
 using ArchLucid.Api.Controllers.Architecture;
+using ArchLucid.Api.Support;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Exports;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Exports;
 using ArchLucid.Core.Ask;
@@ -10,6 +15,7 @@ using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.TestSupport.SealedManifest;
 
@@ -50,7 +56,10 @@ public sealed class DraftRequestsControllerTests
         _actorContext.Setup(static a => a.GetActorId()).Returns("op-id");
     }
 
-    private DraftRequestsController BuildSut() =>
+    private DraftRequestsController BuildSut(
+        IArchitectureShareAccessGate? shareGate = null,
+        IRunDetailQueryService? runDetails = null,
+        IAuthorityQueryService? authorityQuery = null) =>
         new(
             _scopeProvider.Object,
             _actorContext.Object,
@@ -59,13 +68,121 @@ public sealed class DraftRequestsControllerTests
             _decisionReceipt.Object,
             _audit.Object,
             _workLease.Object,
-            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            authorityQuery ?? SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
             SealedManifestHashTestSupport.CreateManifestHashService(),
-            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
-            Mock.Of<IPriorPackageSemanticMergeService>())
+            runDetails ?? SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
+            Mock.Of<IPriorPackageSemanticMergeService>(),
+            shareGate ?? Mock.Of<IArchitectureShareAccessGate>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
+
+    [Theory]
+    [InlineData(nameof(DraftRequestsController.GetDraftQuestions))]
+    [InlineData(nameof(DraftRequestsController.AnswerQuestion))]
+    [InlineData(nameof(DraftRequestsController.SkipQuestion))]
+    [InlineData(nameof(DraftRequestsController.ReasonDraft))]
+    public async Task Intake_actions_do_not_load_manifests_for_denied_or_missing_runs(string action)
+    {
+        Guid deniedRun = Guid.NewGuid();
+        Guid missingRun = Guid.NewGuid();
+        Mock<IArchitectureShareAccessGate> shares = new(MockBehavior.Strict);
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        DraftRequestsController sut = BuildSut(shares.Object, RunDetails(deniedRun, missingRun), authority.Object);
+
+        shares.Setup(gate => gate.EvaluateRunReadAsync(sut.User, Scope, deniedRun, CancellationToken.None))
+            .ReturnsAsync((true, false));
+        shares.Setup(gate => gate.EvaluateRunReadAsync(sut.User, Scope, missingRun, CancellationToken.None))
+            .ReturnsAsync((false, false));
+
+        IActionResult result = action switch
+        {
+            nameof(DraftRequestsController.GetDraftQuestions) =>
+                await sut.GetDraftQuestions(DraftId, CancellationToken.None),
+            nameof(DraftRequestsController.AnswerQuestion) =>
+                await sut.AnswerQuestion(DraftId, new AnswerDraftQuestionRequest { QuestionKey = "question", Answer = "yes" },
+                    CancellationToken.None),
+            nameof(DraftRequestsController.SkipQuestion) =>
+                await sut.SkipQuestion(DraftId, new SkipDraftQuestionRequest { QuestionKey = "question" },
+                    CancellationToken.None),
+            nameof(DraftRequestsController.ReasonDraft) =>
+                await sut.ReasonDraft(DraftId, new DraftIntakeReasonRequest { Message = "why?" }, CancellationToken.None),
+            _ => throw new ArgumentOutOfRangeException(nameof(action), action, null),
+        };
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        if (action == nameof(DraftRequestsController.ReasonDraft))
+            _reasoning.Invocations.Should().ContainSingle();
+        else
+            _service.Invocations.Should().ContainSingle();
+        shares.Verify(gate => gate.EvaluateRunReadAsync(sut.User, Scope, deniedRun, CancellationToken.None), Times.Once);
+        shares.Verify(gate => gate.EvaluateRunReadAsync(sut.User, Scope, missingRun, CancellationToken.None), Times.Once);
+        authority.VerifyNoOtherCalls();
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Intake_preflight_verifies_only_the_first_readable_committed_manifest(bool validSeal)
+    {
+        Guid deniedRun = Guid.NewGuid();
+        Guid allowedRun = Guid.NewGuid();
+        Guid olderRun = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        Mock<IArchitectureShareAccessGate> shares = new(MockBehavior.Strict);
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        DraftRequestsController sut = BuildSut(shares.Object, RunDetails(deniedRun, allowedRun, olderRun), authority.Object);
+        MockSequence sequence = new();
+        shares.InSequence(sequence).Setup(gate =>
+                gate.EvaluateRunReadAsync(sut.User, Scope, deniedRun, CancellationToken.None))
+            .ReturnsAsync((true, false));
+        shares.InSequence(sequence).Setup(gate =>
+                gate.EvaluateRunReadAsync(sut.User, Scope, allowedRun, CancellationToken.None))
+            .ReturnsAsync((true, true));
+        authority.InSequence(sequence).Setup(query => query.GetRunDetailForManifestCompareAsync(
+                It.Is<ScopeContext>(scope => scope.TenantId == Scope.TenantId &&
+                    scope.WorkspaceId == Scope.WorkspaceId && scope.ProjectId == Scope.ProjectId),
+                allowedRun, CancellationToken.None))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = allowedRun, GoldenManifestId = manifestId },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = allowedRun,
+                    ManifestId = manifestId,
+                    ManifestHash = validSeal ? SealedManifestHashTestSupport.DefaultHash : "invalid",
+                },
+            });
+        _service.Setup(service => service.GetQuestionsAsync(Scope, DraftId, CancellationToken.None))
+            .ReturnsAsync(new DraftQuestionsResponse { DraftId = DraftId });
+
+        IActionResult result = await sut.GetDraftQuestions(DraftId, CancellationToken.None);
+
+        if (validSeal)
+        {
+            result.Should().BeOfType<OkObjectResult>();
+        }
+        else
+        {
+            result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+            _service.Invocations.Should().BeEmpty();
+        }
+        shares.Invocations.Should().HaveCount(2);
+        authority.Invocations.Should().ContainSingle();
+    }
+
+    private static IRunDetailQueryService RunDetails(params Guid[] runIds)
+    {
+        IReadOnlyList<RunSummary> summaries = runIds.Select(id => new RunSummary
+        {
+            RunId = id.ToString("N"),
+            Status = nameof(ArchitectureRunStatus.Committed),
+        }).ToList();
+        Mock<IRunDetailQueryService> runs = new(MockBehavior.Strict);
+        runs.Setup(service => service.ListRunSummariesKeysetAsync(null, 50, CancellationToken.None))
+            .ReturnsAsync((summaries, false, (string?)null));
+        return runs.Object;
+    }
 
     [Fact]
     public async Task CreateDraft_NullBody_ReturnsBadRequest_AndDoesNotAudit()

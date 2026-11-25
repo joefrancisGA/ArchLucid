@@ -1,5 +1,6 @@
 using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Intake;
 using ArchLucid.Contracts.Intake;
@@ -28,8 +29,12 @@ public sealed partial class WizardIntakeDraftsController(
     IWizardIntakeDraftService wizardIntakeDraftService,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
-    IRunDetailQueryService runDetailQueryService) : ControllerBase
+    IRunDetailQueryService runDetailQueryService,
+    IArchitectureShareAccessGate architectureShareAccessGate) : ControllerBase
 {
+    private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
+        architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
+
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
 

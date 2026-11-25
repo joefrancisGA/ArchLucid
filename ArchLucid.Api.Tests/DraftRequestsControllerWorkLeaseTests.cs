@@ -1,4 +1,5 @@
 using ArchLucid.Api.Controllers.Architecture;
+using ArchLucid.Api.Support;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Exports;
@@ -108,7 +109,8 @@ public sealed class DraftRequestsControllerWorkLeaseTests
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
             SealedManifestHashTestSupport.CreateManifestHashService(),
             SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
-            Mock.Of<IPriorPackageSemanticMergeService>())
+            Mock.Of<IPriorPackageSemanticMergeService>(),
+            Mock.Of<IArchitectureShareAccessGate>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
