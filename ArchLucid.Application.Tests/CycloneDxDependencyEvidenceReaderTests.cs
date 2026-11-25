@@ -41,7 +41,7 @@ public sealed class CycloneDxDependencyEvidenceReaderTests
     {
         var result = CycloneDxDependencyEvidenceReader.Read("""
             {"bomFormat":"CycloneDX","components":[
-              {"purl":"pkg:npm/foo@1.0","version":"1.0"},
+              {"purl":"pkg:unsupported/foo@1.0","version":"1.0"},
               {"purl":"pkg:pypi/foo@1.0","version":"2.0"},
               {"purl":"pkg:pypi/bar@2.0","version":"2.0"}]}
             """, "build-42", Now);
