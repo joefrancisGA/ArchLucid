@@ -24,6 +24,9 @@ jobs:
             mcr.microsoft.com/mssql/server:2022-latest
       - name: Verify SQL journal behavior
         run: bash scripts/ci/run_fnd010_sql_journal_verify.sh
+      - name: Verify standalone run scope binding migration
+        if: ${{ hashFiles('ArchLucid.Persistence/Migrations/432_ArchitectureIntelligenceStandaloneRuns.sql') != '' }}
+        run: python3 -m scripts.ci.fnd010_standalone_run_scope_verify
       - name: Verify atomic hash-chain migration and concurrent appends
         run: python3 scripts/ci/fnd010_hash_chain_verify.py
       - name: Install checkpoint crypto dependency

@@ -1,9 +1,14 @@
+using System.Security.Claims;
+using System.Text.Json;
+
+using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Drafts;
-using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Application.Governance;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.AspNetCore.Mvc;
@@ -25,7 +30,12 @@ public sealed partial class ArchitectureIntelligenceController
                 _runDetailQueryService,
                 _authorityQueryService,
                 _manifestHashService,
-                cancellationToken);
+                cancellationToken,
+                canReadRun: async (runId, ct) =>
+                {
+                    (bool found, bool canRead) = await _architectureShareAccessGate.EvaluateRunReadAsync(User, scope, runId, ct);
+                    return found && canRead;
+                });
         }
         catch (ConflictException ex)
         {
@@ -35,41 +45,82 @@ public sealed partial class ArchitectureIntelligenceController
         return null;
     }
 
+    // Product runs use architecture sharing. A standalone run must instead have a
+    // server-issued binding for this actor and the exact authenticated scope.
     private async Task<IActionResult?> EnsureRunSealedManifestReadAllowedAsync(
-        string runId,
-        CancellationToken cancellationToken)
+        ScopeContext scope,
+        Guid runId,
+        bool requireDecide,
+        CancellationToken cancellationToken,
+        bool allowStandalone = true)
     {
-        if (!Guid.TryParse(runId, out Guid runGuid))
-            return null;
+        (bool found, bool canRead) = await _architectureShareAccessGate.EvaluateRunReadAsync(
+            User, scope, runId, cancellationToken);
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        RunDetailDto? detail;
-
-        try
+        if (!found)
         {
-            detail = await _authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+            string? actorId = allowStandalone ? GetStandaloneRunActorId() : null;
+            if (actorId is not null
+                && await _standaloneRunStore.IsOwnedByAsync(scope, runId, actorId, cancellationToken))
+            {
+                return null;
+            }
+
+            return ArchitectureShareNotVisibleAsNotFoundResponsePolicy.RunNotFound(this, runId);
         }
-        catch (ConflictException ex)
+
+        if (!canRead)
+            return ArchitectureShareNotVisibleAsNotFoundResponsePolicy.RunNotFound(this, runId);
+
+        if (requireDecide)
         {
-            return MapArchitectureIntelligenceSealedManifestConflict(ex);
+            IActionResult? decideDenied = await _architectureShareAccessGate.EnsureRunDecideAllowedAsync(
+                this, User, scope, runId, cancellationToken);
+
+            if (decideDenied is not null)
+                return decideDenied;
         }
 
-        if (detail?.GoldenManifest is null)
-            return null;
+        RunDetailDto? detail = await _authorityQueryService.GetRunDetailForManifestCompareAsync(
+            scope, runId, cancellationToken);
+        if (detail is null)
+            return ArchitectureShareNotVisibleAsNotFoundResponsePolicy.RunNotFound(this, runId);
 
-        try
+        if (detail.Run.GoldenManifestId.HasValue || detail.GoldenManifest is not null
+            || string.Equals(detail.Run.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
         {
-            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                detail.GoldenManifest,
-                runGuid.ToString("D"),
-                _manifestHashService);
-        }
-        catch (ConflictException ex)
-        {
-            return MapArchitectureIntelligenceSealedManifestConflict(ex);
+            GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrow(
+                detail.GoldenManifest, runId.ToString("D"), _manifestHashService);
         }
 
         return null;
+    }
+
+    private string? GetStandaloneRunActorId()
+    {
+        if (User.Identity is not ClaimsIdentity { IsAuthenticated: true } identity)
+            return null;
+
+        // API keys identify a configured service principal. A display name from a
+        // bearer or SAML identity is not a unique ownership key.
+        if (identity.AuthenticationType == AuthServiceCollectionExtensions.ApiKeySchemeName)
+            return string.IsNullOrWhiteSpace(identity.Name) ? null : JsonSerializer.Serialize(new[] { "api-key", identity.Name });
+
+        Claim? objectId = identity.FindFirst("oid")
+            ?? identity.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier");
+        if (objectId is not null && !string.IsNullOrWhiteSpace(objectId.Value))
+        {
+            return JsonSerializer.Serialize(new[]
+            {
+                "object", identity.FindFirst("iss")?.Value ?? objectId.Issuer,
+                identity.FindFirst("tid")?.Value ?? string.Empty, objectId.Value,
+            });
+        }
+
+        Claim? subject = identity.FindFirst("sub") ?? identity.FindFirst(ClaimTypes.NameIdentifier);
+        return subject is null || string.IsNullOrWhiteSpace(subject.Value)
+            ? null
+            : JsonSerializer.Serialize(new[] { "subject", identity.FindFirst("iss")?.Value ?? subject.Issuer, subject.Value });
     }
 
     /// <summary>
