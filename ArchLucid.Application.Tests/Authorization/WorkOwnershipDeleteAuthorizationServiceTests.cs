@@ -65,6 +65,22 @@ public sealed class WorkOwnershipDeleteAuthorizationServiceTests
         await act.Should().ThrowAsync<WorkOwnershipDeleteForbiddenException>();
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task EnsureCanDeleteOwnedWorkAsync_allows_legacy_rows_without_creator(string? creator)
+    {
+        WorkOwnershipDeleteAuthorizationService service = CreateService(
+            isTenantAdministrator: false,
+            allowCreatorDelete: false,
+            actorId: "jwt:tenant:operator");
+
+        Func<Task> act = () => service.EnsureCanDeleteOwnedWorkAsync(creator, CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+    }
+
     private static WorkOwnershipDeleteAuthorizationService CreateService(
         bool isTenantAdministrator,
         bool allowCreatorDelete,
