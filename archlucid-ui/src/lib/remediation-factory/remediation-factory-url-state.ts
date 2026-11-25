@@ -57,14 +57,40 @@ const REMEDIATION_FACTORY_DISCLOSURE_DECIMAL_ONE_CODEPOINTS = new Set<number>([
   0x1c51, // ᱑ OL CHIKI DIGIT ONE
   0xa9d1, // ꧑ JAVANESE DIGIT ONE
   0xaa51, // ꩑ CHAM DIGIT ONE
+  0x11067, // ꤷ KAYAH LI DIGIT ONE
+  0x11651, // ᛕ MYANMAR SHAN DIGIT ONE
+  0x11c51, // 𑱑 BHAIKSUKI DIGIT ONE
+  0x16b51, // 𖭑 PAU CIN HAU DIGIT ONE
 ]);
 
+
+function remediationFactoryDisclosureScalarCodePoint(trimmed: string): number | undefined {
+  let codePoint: number | undefined;
+  let scalarCount = 0;
+
+  for (const char of trimmed) {
+    const next = char.codePointAt(0);
+
+    if (next === undefined) {
+      return undefined;
+    }
+
+    scalarCount += 1;
+    codePoint = next;
+  }
+
+  if (scalarCount !== 1 || codePoint === undefined) {
+    return undefined;
+  }
+
+  return codePoint;
+}
 function remediationFactoryDisclosureUnicodeDecimalOne(trimmed: string): boolean {
-  if (trimmed.length !== 1 || !/^\p{Nd}$/u.test(trimmed)) {
+  if (!/^\p{Nd}$/u.test(trimmed)) {
     return false;
   }
 
-  const codePoint = trimmed.codePointAt(0);
+  const codePoint = remediationFactoryDisclosureScalarCodePoint(trimmed);
 
   if (codePoint === undefined) {
     return false;
@@ -76,7 +102,9 @@ function remediationFactoryDisclosureUnicodeDecimalOne(trimmed: string): boolean
 
   const nfkcAsciiDigit = trimmed.normalize("NFKC");
 
-  return nfkcAsciiDigit.length === 1 && nfkcAsciiDigit >= "0" && nfkcAsciiDigit <= "9" && nfkcAsciiDigit === "1";
+  const nfkcScalar = remediationFactoryDisclosureScalarCodePoint(nfkcAsciiDigit);
+
+  return nfkcScalar !== undefined && nfkcScalar >= 0x30 && nfkcScalar <= 0x39 && nfkcScalar === 0x31;
 }
 const REMEDIATION_FACTORY_DISCLOSURE_ENCLOSED_ONE_CODEPOINTS = new Set<number>([
   0x24f5, // ⓵ DOUBLE CIRCLED DIGIT ONE
@@ -108,8 +136,8 @@ function normalizeRemediationFactoryDisclosureOpenToken(raw: string | null | und
   }
 
 
-  if (trimmed.length === 1) {
-    const codePoint = trimmed.codePointAt(0);
+  {
+    const codePoint = remediationFactoryDisclosureScalarCodePoint(trimmed);
 
     if (codePoint !== undefined && REMEDIATION_FACTORY_DISCLOSURE_ENCLOSED_ONE_CODEPOINTS.has(codePoint)) {
       return "1";
