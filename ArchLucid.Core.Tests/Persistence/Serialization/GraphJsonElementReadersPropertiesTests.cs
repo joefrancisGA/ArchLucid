@@ -11,6 +11,20 @@ namespace ArchLucid.Core.Tests.Persistence.Serialization;
 [Trait("Suite", "Core")]
 public sealed class GraphJsonElementReadersPropertiesTests
 {
+    [Theory]
+    [InlineData("\"new\"", "new")]
+    [InlineData("42", "42")]
+    public void ReadProperties_case_variants_use_the_last_scalar_value(string token, string expected)
+    {
+        string json = $$"""{"properties":{"resourceId":"old","RESOURCEID":{{token}} } }""";
+
+        GraphNode? node = JsonSerializer.Deserialize<GraphNode>(json, GraphJsonSerialization.EntityJsonOptions);
+
+        node.Should().NotBeNull();
+        node!.Properties.Should().ContainSingle();
+        node.Properties["ResourceId"].Should().Be(expected);
+    }
+
     [Fact]
     public void ReadProperties_numeric_only_values_coerce_to_strings()
     {

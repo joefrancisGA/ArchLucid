@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Text.Json;
 
+using ArchLucid.Core.Json;
+
 namespace ArchLucid.Core.Integration;
 
 /// <summary>Shared scalar normalization for optional Service Bus event metadata.</summary>
@@ -27,8 +29,7 @@ internal static class IntegrationEventServiceBusScalarReader
         {
             string? raw = element.GetString();
 
-            if (!string.IsNullOrWhiteSpace(raw)
-                && TryParseWholeNumberString(raw.Trim(), out long numericFromString))
+            if (JsonInt64TokenReader.TryParse(raw, out long numericFromString))
             {
                 value = numericFromString.ToString(CultureInfo.InvariantCulture);
 
@@ -55,7 +56,7 @@ internal static class IntegrationEventServiceBusScalarReader
         }
 
         if (element.ValueKind == JsonValueKind.Number
-            && TryParseWholeNumberString(element.GetRawText(), out long wholeNumber))
+            && JsonInt64TokenReader.TryParse(element.GetRawText(), out long wholeNumber))
         {
             value = wholeNumber.ToString(CultureInfo.InvariantCulture);
 
@@ -70,28 +71,6 @@ internal static class IntegrationEventServiceBusScalarReader
         }
 
         value = null;
-
-        return false;
-    }
-
-    private static bool TryParseWholeNumberString(string raw, out long value)
-    {
-        if (long.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
-        {
-            return true;
-        }
-
-        if (decimal.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out decimal numeric)
-            && numeric >= 0m
-            && numeric <= long.MaxValue
-            && numeric == decimal.Truncate(numeric))
-        {
-            value = (long)numeric;
-
-            return true;
-        }
-
-        value = default;
 
         return false;
     }

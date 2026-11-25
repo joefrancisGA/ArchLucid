@@ -11,6 +11,23 @@ namespace ArchLucid.Core.Tests.Persistence.Serialization;
 [Trait("Suite", "Core")]
 public sealed class GraphNodeJsonConverterTests
 {
+    [Theory]
+    [InlineData("9007199254740993.0", "9007199254740993")]
+    [InlineData("\"9.007199254740993e15\"", "9007199254740993")]
+    [InlineData("9223372036854775807.0", "9223372036854775807")]
+    [InlineData("9223372036854775808.0", "9223372036854775808.0")]
+    [InlineData("42.000000000000000000000000000001", "42.000000000000000000000000000001")]
+    public void Read_preserves_id_precision_across_node_and_property_tokens(string token, string expected)
+    {
+        string json = $$"""{"nodeId":{{token}},"properties":{"resourceId":{{token}} } }""";
+
+        GraphNode? node = JsonSerializer.Deserialize<GraphNode>(json, GraphJsonSerialization.EntityJsonOptions);
+
+        node.Should().NotBeNull();
+        node!.NodeId.Should().Be(expected);
+        node.Properties["resourceId"].Should().Be(expected);
+    }
+
     [Fact]
     public void Read_numeric_nodeId_and_sourceId_coerce_to_strings()
     {

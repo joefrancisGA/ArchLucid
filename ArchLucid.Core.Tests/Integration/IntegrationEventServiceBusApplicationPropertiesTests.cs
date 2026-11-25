@@ -258,6 +258,7 @@ public sealed class IntegrationEventServiceBusApplicationPropertiesTests
     [InlineData("42")]
     [InlineData("\"scalar\"")]
     [InlineData("""{"deduplicationKey":9223372036854775808.0}""")]
+    [InlineData("""{"deduplicationKey":42.000000000000000000000000000001}""")]
     public void TryResolveForPublish_invalid_shape_or_out_of_range_number_returns_null(string json)
     {
         IntegrationEventServiceBusApplicationProperties.TryResolveForPublish(IntegrationEventTypes.AlertResolvedV1, Encoding.UTF8.GetBytes(json)).Should().BeNull();
@@ -268,6 +269,7 @@ public sealed class IntegrationEventServiceBusApplicationPropertiesTests
     [InlineData("""{"deduplicationKey":"9007199254740993.0"}""", "9007199254740993")]
     [InlineData("""{"deduplicationKey":9223372036854775807.0}""", "9223372036854775807")]
     [InlineData("""{"deduplicationKey":"9223372036854775808.0"}""", "9223372036854775808.0")]
+    [InlineData("""{"deduplicationKey":"42.000000000000000000000000000001"}""", "42.000000000000000000000000000001")]
     public void TryResolveForPublish_preserves_numeric_identity_without_double_rounding(string json, string expected)
     {
         var result = IntegrationEventServiceBusApplicationProperties.TryResolveForPublish(IntegrationEventTypes.AlertResolvedV1, Encoding.UTF8.GetBytes(json));

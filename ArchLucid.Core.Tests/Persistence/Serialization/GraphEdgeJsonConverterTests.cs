@@ -11,6 +11,25 @@ namespace ArchLucid.Core.Tests.Persistence.Serialization;
 [Trait("Suite", "Core")]
 public sealed class GraphEdgeJsonConverterTests
 {
+    [Theory]
+    [InlineData("\"NaN\"", 1.0)]
+    [InlineData("\"Infinity\"", 1.0)]
+    [InlineData("1e309", 1.0)]
+    [InlineData("\"-1e309\"", 1.0)]
+    [InlineData("0.25", 0.25)]
+    [InlineData("\"0.25\"", 0.25)]
+    public void Read_weight_can_always_be_written_as_a_json_number(string token, double expected)
+    {
+        string json = $$"""{"edgeId":"e1","weight":{{token}} }""";
+        JsonSerializerOptions options = GraphJsonSerialization.EntityJsonOptions;
+
+        GraphEdge? edge = JsonSerializer.Deserialize<GraphEdge>(json, options);
+        edge.Should().NotBeNull();
+
+        using JsonDocument roundTrip = JsonDocument.Parse(JsonSerializer.Serialize(edge, options));
+        roundTrip.RootElement.GetProperty("weight").GetDouble().Should().Be(expected);
+    }
+
     [Fact]
     public void Read_boolean_weight_coerces_to_zero_or_one()
     {
