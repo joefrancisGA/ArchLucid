@@ -46,7 +46,22 @@ describe("remediation-factory-metric-presentation", () => {
       }),
     );
   });
-  it("renders negative risk-weighted open as not measured", () => {
+
+  it("renders non-finite architect outcome denominators as not measured in scope notes", () => {
+    expect(
+      architectOutcomeMetricPresentation({
+        value: 2,
+        denominator: Number.NaN,
+        populationLabel: "Compared snapshots",
+      }),
+    ).toEqual(
+      expect.objectContaining({
+        displayValue: "+2",
+        scopeNote: "Not measured",
+        state: "measured",
+      }),
+    );
+  });  it("renders negative risk-weighted open as not measured", () => {
     const metrics = { riskWeightedOpen: -1.5 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricPresentations({
       metrics,

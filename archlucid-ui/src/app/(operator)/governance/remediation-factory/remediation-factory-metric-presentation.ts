@@ -267,11 +267,13 @@ export function architectOutcomeDeltaScopeNote(input: {
   readonly denominator: number | null | undefined;
   readonly populationLabel: string;
 }): string {
-  if (input.denominator === null || input.denominator === undefined) {
+  const normalizedDenominator = parseFiniteNumber(input.denominator);
+
+  if (normalizedDenominator === null) {
     return REVIEW_SCORECARD_NOT_MEASURED_LABEL;
   }
 
-  return `${input.populationLabel}: ${input.denominator} resources in comparison scope`;
+  return `${input.populationLabel}: ${normalizedDenominator} resources in comparison scope`;
 }
 
 export function architectOutcomeMetricPresentation(input: {
