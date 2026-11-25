@@ -111,6 +111,55 @@ public sealed class AuditControlEvaluationBuilderTests
         result.Evaluation.HumanDisposition.Should().BeNull();
     }
 
+    [Theory]
+    [InlineData(false, false, AuditEvaluationOutcome.InsufficientEvidence)]
+    [InlineData(true, false, AuditEvaluationOutcome.TechnicallyNotSupported)]
+    [InlineData(true, true, AuditEvaluationOutcome.InsufficientEvidence)]
+    public void Build_partial_capture_never_supports_compliance(
+        bool observedFailure, bool approvedException, AuditEvaluationOutcome expected)
+    {
+        Guid requirementId = Guid.NewGuid();
+        const string resourceId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventGrid/topics/topic1";
+        AuditEvidenceRequirementSelectionRecord selection = new()
+        {
+            Requirement = new AuditEvidenceRequirementRecord
+            {
+                RequirementId = requirementId,
+                EvidenceType = AuditEvidenceTypeNames.Inventory,
+                Name = "Inventory",
+            },
+            CollectionStatus = AuditEvidenceCollectionStatus.Collected,
+            Candidates =
+            [
+                new AuditEvidenceCandidateRecord
+                {
+                    RequirementId = requirementId,
+                    AzureResourceId = resourceId,
+                    EvidenceType = AuditEvidenceTypeNames.Inventory,
+                    Summary = "Observed resource",
+                    ProvenanceKind = ProvenanceKind.ObservedFact,
+                },
+            ],
+        };
+
+        AuditControlEvaluationBuildResult result = AuditControlEvaluationBuilder.Build(
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),
+            [selection],
+            approvedException ? ["EX-174"] : [],
+            observedFailure ? [resourceId] : [],
+            DateTime.UtcNow,
+            inventoryCaptureComplete: false);
+
+        result.Evaluation.Outcome.Should().Be(expected);
+        result.Evaluation.EvaluationText.Should().Contain("inventory capture is incomplete");
+        result.Evaluation.Formula.Should().Contain("inventoryCaptureComplete=false");
+        result.EvidenceItems.Should().ContainSingle(item => item.AzureResourceId == resourceId);
+        if (expected == AuditEvaluationOutcome.InsufficientEvidence)
+        {
+            result.Evaluation.Confidence.Should().Be(0m);
+        }
+    }
+
     [Fact]
     public void Build_never_sets_human_disposition_from_builder()
     {
