@@ -1,4 +1,3 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 `ui-lib-remediation-factory` pass-37 factory ruleLine + metrics 1.0 parse. **198/198**. — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-infra-resource-hub` pass-496 cheap-disproof. ResourceHubClient **148/148**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -381,6 +380,22 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 thorough hunt (hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-38 (`shouldRotate: false`; hint override). **proven** `buildRemediationFactoryExecutiveMetricTiles` — risk-weighted tile still showed the weighted-sum `ruleLine` when `riskWeightedOpen` was not returned; gate `ruleLine` on measured decimal value. Regression `omits ruleLine on risk-weighted-open when value is not returned`. **valid-no-repro** automation table NaN (regression added), **valid-no-repro** padded TRUE metrics parse (existing test), **valid-no-repro** metrics open replaces zero base with canonical `1` (regression added), **valid-no-repro** net-burn footnote when only netBurn returned (existing regression). Pass-39 reseed below. Scoped vitest **202/202**. Private beta: invited operators no longer see weighted-sum rule chrome without a measured risk-weighted open value.
+
+- [x] (superseded) pass-38 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (hit):** pass-39 reseed.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — risk-weighted ruleLine without value — **proven 2026-11-25 thorough hunt (hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricPresentations` — automation table scope when percent NaN — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression added.
+- [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — uppercase TRUE token — **cheap-disproof 2026-11-25 thorough hunt (hit):** existing regression.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open over zero base — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression added.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — net-burn footnote when weekly missing — **cheap-disproof 2026-11-25 thorough hunt (hit):** existing regression.
+
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — open-findings queue windowLine when count absent — locus: tile chrome; input: missing openFindings; monitor; pass-39 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — net-burn table when signed negative — locus: table value; input: negative netBurn; monitor; pass-39 reseed.
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — negative zero token on read — locus: metrics parse; input: `-0`; monitor; pass-39 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops `off` token from base — locus: writer; input: padded off; monitor; pass-39 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — pattern-exact windowLine when percent absent — locus: tile chrome; input: missing percent; monitor; pass-39 reseed.
+
+
 2026-11-25 thorough hunt (hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-37 (`shouldRotate: false`; hint override). **proven** `buildRemediationFactoryExecutiveMetricTiles` — open-findings factory tile still showed the IE15 prioritization `ruleLine` when `openFindings` was not returned (same class as pass-34 footnote); gate `ruleLine` on measured factory count. **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — decimal one tokens like `1.0` stayed closed; accept finite decimals that normalize to one. Regressions added. **valid-no-repro** pattern-exact table hint when percent NaN (regression added), **valid-no-repro** recurrence zero tile chrome (regression added), **valid-no-repro** automation zero percent tile (regression added), **valid-no-repro** padded one metrics drop on close (regression added). Pass-38 reseed below. Scoped vitest **198/198**. Private beta: invited operators no longer see prioritization rule chrome without a factory open-findings count, and `remediationFactoryMetricsOpen=1.0` deep links open the metrics panel.
 
 - [x] (superseded) pass-37 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (hit):** pass-38 reseed.
@@ -391,11 +406,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded one — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression added.
 - [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — automation tile when percent is zero — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression added.
 
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — risk-weighted ruleLine when value not measured — locus: tile chrome; input: missing riskWeightedOpen; monitor; pass-38 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — automation table scope when percent NaN — locus: table presentation; input: NaN; monitor; pass-38 reseed.
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — uppercase TRUE token on read — locus: metrics parse; input: `TRUE`; monitor; pass-38 reseed.
 - [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open clears stale `0` token from base — locus: writer; input: open over zero base; monitor; pass-38 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — net-burn window footnote grammar when weekly missing — locus: tile footnote; input: netBurn only; monitor; pass-38 reseed.
 
 
 2026-11-25 thorough hunt (hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-36 (`shouldRotate: false`; hint override). **proven** `buildRemediationFactoryExecutiveMetricPresentations` — exceptions-active table hint still rendered when only `exceptionsExpiringSoon` was returned (mirror of pass-35 tile footnote bug); gate hint on `exceptionsActivePresentation.state !== "notMeasured"`. **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — plus-prefixed numeric one (`+1`) stayed closed; strip optional leading `+` before numeric-one check. Regressions added. **valid-no-repro** net-burn weekly disagree (existing regression), **valid-no-repro** metrics open canonical `1` from `true` base (existing regression), **valid-no-repro** factory `ruleLine` at zero open findings (regression added). Pass-37 reseed below. Scoped vitest **192/192**. Private beta: invited operators no longer see expiring-soon table hints without a measured active exceptions count, and `remediationFactoryMetricsOpen=+1` deep links open the metrics panel.
@@ -815,8 +826,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 59
-- **bugs-found:** 36
+- **hunts:** 60
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25

@@ -239,6 +239,31 @@ describe("remediation-factory-metric-presentation", () => {
   });
 
 
+
+  it("omits ruleLine on risk-weighted-open when value is not returned", () => {
+    const metrics = { openFindings: 1 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "risk-weighted-open")?.value).toBeNull();
+    expect(tiles.find((tile) => tile.id === "risk-weighted-open")?.ruleLine).toBeUndefined();
+  });
+
+  it("renders automation table presentation as not measured when percent is NaN", () => {
+    const metrics = { automationPercent: Number.NaN } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics,
+      openFindingsHref: "/security/findings",
+    });
+
+    expect(tiles.find((tile) => tile.key === "automation")?.presentation.state).toBe("notMeasured");
+  });
+
+  it("omits net-burn weekly footnote when only netBurn is returned", () => {
+    const metrics = { netBurn: 2 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "net-burn")?.valueFootnote).toBeNull();
+  });
   it("omits ruleLine on open-findings-factory when open findings count is not returned", () => {
     const metrics = { automationPercent: 10 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);

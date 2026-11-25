@@ -93,6 +93,22 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+
+  it("replaces zero metrics token with canonical one when writing open state", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: true,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=0&foreign=keep`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
+    expect(params.get("foreign")).toBe("keep");
+  });
   it("drops padded one metrics token from base search when writing closed state", () => {
     const params = remediationFactoryUrlStateToSearchParams(
       {

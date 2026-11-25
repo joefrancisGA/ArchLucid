@@ -144,6 +144,7 @@ export function buildRemediationFactoryExecutiveMetricTiles(
 
   const criticalExposureValue = formatCount(metrics?.criticalExposureCount);
   const openFindingsFactoryValue = formatCount(metrics?.openFindings);
+  const riskWeightedOpenValue = formatDecimal(metrics?.riskWeightedOpen, 2);
 
   return [
     {
@@ -172,8 +173,11 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       id: "risk-weighted-open",
       label: "Risk-weighted open",
       scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
-      ruleLine: metricsLoaded ? `${PRIORITIZATION_RULE} · weighted sum, not a finding count` : undefined,
-      value: formatDecimal(metrics?.riskWeightedOpen, 2),
+      ruleLine:
+        metricsLoaded && riskWeightedOpenValue !== null
+          ? `${PRIORITIZATION_RULE} ? weighted sum, not a finding count`
+          : undefined,
+      value: riskWeightedOpenValue,
     },
     {
       id: "critical-exposure",
