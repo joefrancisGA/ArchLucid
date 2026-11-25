@@ -213,6 +213,21 @@ describe("remediation-factory-url-state", () => {
     expect(closedFirst.metricsSummaryOpen).toBe(false);
   });
 
+  it("drops padded on metrics token from base search when writing closed state", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: false,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=  on  &foreign=keep`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBeNull();
+    expect(params.get("foreign")).toBe("keep");
+  });
   it("drops yes metrics token from base search when writing closed state", () => {
     const params = remediationFactoryUrlStateToSearchParams(
       {

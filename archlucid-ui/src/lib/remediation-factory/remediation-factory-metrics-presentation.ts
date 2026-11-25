@@ -136,6 +136,8 @@ export function buildRemediationFactoryExecutiveMetricTiles(
     return metricTileChromeWhenLoaded(line);
   }
 
+  const criticalExposureValue = formatCount(metrics?.criticalExposureCount);
+
   return [
     {
       id: "open-findings-queue",
@@ -174,10 +176,10 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       valueFootnote:
         !metricsLoaded || metrics == null
           ? null
-          : metrics.criticalExposureCount === 0
+          : criticalExposureValue === "0"
             ? "No critical-or-error findings in this metric."
             : null,
-      value: formatCount(metrics?.criticalExposureCount),
+      value: criticalExposureValue,
       href: buildGovernanceFindingsQueueHref({ filter: "critical-error" }),
     },
     {

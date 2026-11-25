@@ -302,6 +302,32 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "critical-exposure")?.value).toBeNull();
     expect(tiles.find((tile) => tile.id === "critical-exposure")?.valueFootnote).toBeNull();
   });
+  it("shows critical-exposure zero footnote when API sends count as a numeric string", () => {
+    const metrics = { criticalExposureCount: "0" as unknown as number } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "critical-exposure")?.value).toBe("0");
+    expect(tiles.find((tile) => tile.id === "critical-exposure")?.valueFootnote).toContain(
+      "No critical-or-error findings",
+    );
+  });
+
+  it("renders net-burn tile value when only netBurn is returned", () => {
+    const metrics = { netBurn: 3 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "net-burn")?.value).toBe("3");
+  });
+
+  it("renders automation percent above 100 in the executive table", () => {
+    const metrics = { automationPercent: 150 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics,
+      openFindingsHref: "/security/findings",
+    });
+
+    expect(tiles.find((tile) => tile.key === "automation")?.presentation.displayValue).toBe("150%");
+  });
 
   it("omits exceptions-active table hint when expiring-soon is Infinity", () => {
     const metrics = { exceptionsActive: 2, exceptionsExpiringSoon: Number.POSITIVE_INFINITY } as RemediationFactoryMetrics;
