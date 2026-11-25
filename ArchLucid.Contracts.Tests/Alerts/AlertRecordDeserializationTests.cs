@@ -79,4 +79,31 @@ public sealed class AlertRecordDeserializationTests
         record.Should().NotBeNull();
         record!.TriggerValue.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_category_dedup_key_and_description_yields_empty_strings_not_null()
+    {
+        const string json = """
+            {
+              "alertId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              "ruleId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              "tenantId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+              "workspaceId": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+              "projectId": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+              "title": "t",
+              "category": null,
+              "severity": "High",
+              "triggerValue": "v",
+              "description": null,
+              "deduplicationKey": null
+            }
+            """;
+
+        AlertRecord? record = JsonSerializer.Deserialize<AlertRecord>(json, ContractJson.CamelCaseCompact);
+
+        record.Should().NotBeNull();
+        record!.Category.Should().BeEmpty();
+        record.Description.Should().BeEmpty();
+        record.DeduplicationKey.Should().BeEmpty();
+    }
 }

@@ -95,4 +95,31 @@ public sealed class RecommendationRecordDeserializationTests
         record.Should().NotBeNull();
         record!.Title.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_category_and_rationale_yields_empty_strings_not_null()
+    {
+        const string json = """
+            {
+              "recommendationId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              "tenantId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              "workspaceId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+              "projectId": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+              "runId": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+              "title": "t",
+              "category": null,
+              "rationale": null,
+              "suggestedAction": "a",
+              "urgency": "u",
+              "expectedImpact": "e"
+            }
+            """;
+
+        RecommendationRecord? record =
+            JsonSerializer.Deserialize<RecommendationRecord>(json, ContractJson.CamelCaseCompact);
+
+        record.Should().NotBeNull();
+        record!.Category.Should().BeEmpty();
+        record.Rationale.Should().BeEmpty();
+    }
 }

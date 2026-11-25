@@ -91,11 +91,13 @@ public class PolicyPack
         set;
     }
 
+    private string currentVersion = "1.0.0";
+
     public string CurrentVersion
     {
-        get;
-        set;
-    } = "1.0.0";
+        get => currentVersion;
+        set => currentVersion = ContractCollectionDefaults.CoalesceStringDefault(value, "1.0.0");
+    }
 
     public bool IsDeleted
     {

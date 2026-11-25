@@ -70,4 +70,25 @@ public sealed class PolicyPackDeserializationTests
         pack.Should().NotBeNull();
         pack!.Description.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_current_version_yields_default_label_not_null()
+    {
+        const string json = """
+            {
+              "policyPackId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              "tenantId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              "workspaceId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+              "projectId": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+              "name": "n",
+              "description": "d",
+              "currentVersion": null
+            }
+            """;
+
+        PolicyPack? pack = JsonSerializer.Deserialize<PolicyPack>(json, ContractJson.CamelCaseCompact);
+
+        pack.Should().NotBeNull();
+        pack!.CurrentVersion.Should().Be("1.0.0");
+    }
 }

@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 thorough hunt (dry): `ui-infra-resource-hub` pass-496 reseed. Scoped vitest ResourceHubClient **148/148**. Private beta: n/a.
+> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed→hit): `archlucid-contracts` pass-3 reseed. Scoped deserialization suites **12/12**. Private beta: advisory, alert, and policy-pack JSON with null workflow text or version labels coalesce to safe defaults.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -8909,6 +8909,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone `ui-infra-resource-hub` 1/3 dry). Promoted pass-2 `(candidate)` rows — **proven** `RecommendationRecord.Category`/`Rationale` (and sibling workflow text columns), **proven** `AlertRecord.Category`/`Description`/`DeduplicationKey`, **proven** `PolicyPack.CurrentVersion` explicit JSON `null` leaving null despite initializer; `ContractCollectionDefaults.CoalesceRequired` / `CoalesceStringDefault`; regressions `Deserialize_null_category_and_rationale_yields_empty_strings_not_null`, `Deserialize_null_category_dedup_key_and_description_yields_empty_strings_not_null`, `Deserialize_null_current_version_yields_default_label_not_null`; **valid-no-repro** `GovernanceApprovalRequest.RequestedBy` null (`CoalesceRequired` on setter; run-id regression family). Scoped deserialization **12/12** on touched suites. Pass-3 reseed below. Private beta: persisted advisory, alert, and policy-pack JSON with null category, rationale, description, dedupe key, or version label deserializes to empty or default version strings so workflow, notifications, and pack settings do not null-reference on replay.
+
+
 2026-11-25 thorough hunt #4 (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone `ui-hooks-shared` 2× seed-only). Attempted failing repro on five pass-1 `(candidate)` rows — **proven** `RecommendationRecord.Title`, `PolicyPack.Name`/`Description`, `AlertRecord.Title`/`TriggerValue`, and `ItsmIntegrationHealthStatusResponse.Status` explicit JSON `null` left reference null despite `null!`/empty initializers; `ContractCollectionDefaults.CoalesceRequired` on backing-field setters; regressions `Deserialize_null_title_yields_empty_string_not_null`, `Deserialize_null_name_yields_empty_string_not_null`, `Deserialize_null_description_yields_empty_string_not_null`, `Deserialize_null_title_yields_empty_string_not_null` (alert), `Deserialize_null_trigger_value_yields_empty_string_not_null`, `Deserialize_null_status_yields_empty_string_not_null` (ITSM health); **valid-no-repro** `GovernanceApprovalRequest.ApprovalRequestId` null mints id (`Deserialize_null_approval_request_id_mints_non_empty_id`). Scoped deserialization tests **14/14** on touched suites. Reseeded pass-2 monitors below. Private beta: persisted advisory, alert, policy-pack, and ITSM health JSON with null display or summary strings deserialize to empty strings so operator workflow, notifications, and integrations settings do not null-reference on replay.
 
 
@@ -8921,11 +8924,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `GovernanceApprovalRequest.ApprovalRequestId` — explicit JSON `null` mints id — **cheap-disproof 2026-11-25 thorough hunt #4:** existing setter regen; regression above.
 - [x] (proven) `ItsmIntegrationHealthStatusResponse.Status` — explicit JSON `null` on health summary — **hit 2026-11-25 thorough hunt #4:** `CoalesceRequired` on `init`; regression above.
 
-- [ ] (candidate) `RecommendationRecord.Category` / `Rationale` — explicit JSON `null` on other `null!` workflow text columns — locus: auto-property setters; input: persisted row JSON; monitor; pass-2 reseed.
-- [ ] (candidate) `AlertRecord.Category` / `DeduplicationKey` — explicit JSON `null` on alert metadata strings — locus: auto-property setters; input: alert payload JSON; monitor; pass-2 reseed.
-- [ ] (candidate) `PolicyPack.CurrentVersion` — explicit JSON `null` on version label — locus: auto-property setter; input: pack import JSON; monitor; pass-2 reseed.
-- [ ] (candidate) `GovernanceApprovalRequest.RequestedBy` — explicit JSON `null` may bypass `CoalesceRequired` if setter regresses — locus: promotion request JSON; input: null requester; monitor; pass-2 reseed.
-- [ ] (candidate) `AlertRecord.Description` — explicit JSON `null` on long-form alert copy — locus: auto-property setter; input: notification JSON; monitor; pass-2 reseed.
 
 
 2026-10-29 seed hunt (seed→hit): promoted workflow `Status` explicit JSON `null` bypassing string initializers on `RecommendationRecord`, `AlertRecord`, `PolicyPack`, and `GovernanceApprovalRequest`; `ContractCollectionDefaults.CoalesceStringDefault` on all four setters with domain defaults (`Proposed`, `Open`, `Draft`, `Draft`); regressions `Deserialize_null_status_yields_*_not_null` per DTO; cheap-disproof closed `(candidate)` `GoldenManifestCreateTimePinCommitment` (still not whole-record JSON); scoped status deserialization tests 5/5 with prior RecommendationRecord JSON-column test; reseeded five follow-on `(candidate)` rows below. Private beta: advisory, alert, policy-pack, and governance-approval JSON with null status deserializes to each type's legacy default so operator workflow and integrations UI do not null-reference lifecycle filters.
@@ -9061,8 +9059,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 4
-- **bugs-found:** 3
+- **hunts:** 5
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
