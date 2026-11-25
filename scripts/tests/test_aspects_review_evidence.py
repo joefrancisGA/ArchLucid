@@ -1,5 +1,6 @@
 import importlib.util
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -93,10 +94,32 @@ class EvidenceTests(unittest.TestCase):
                 mod.verified_observation(".", SHA1, "src/a.cs", ["1-3"])
 
     def test_verified_observation_uses_actual_blob(self):
-        with patch.object(mod, "git", side_effect=[SHA2, "first\nsecond"]):
-            row = mod.verified_observation(".", SHA1, "src/a.cs", ["1-2"], "D1")
-        self.assertEqual(row["blob"], SHA2)
-        self.assertEqual(row["spans"], ["1-2"])
+        with tempfile.TemporaryDirectory() as tmp:
+            def git(*args):
+                return subprocess.run(["git", "-C", tmp, *args], check=True,
+                                      capture_output=True, text=True).stdout.strip()
+
+            git("init", "-q")
+            git("config", "user.name", "Evidence Fixture")
+            git("config", "user.email", "evidence@example.test")
+            target = Path(tmp) / "src" / "a.cs"
+            target.parent.mkdir()
+            target.write_text("first\nsecond\n", encoding="utf-8")
+            Path(tmp, "decoy.cs").write_text("not the reviewed source\n", encoding="utf-8")
+            git("add", ".")
+            expected_blob = git("hash-object", "src/a.cs")
+            git("commit", "-qm", "review baseline")
+            baseline = git("rev-parse", "HEAD")
+            target.write_text("first\n\n", encoding="utf-8")
+            git("commit", "-qam", "different HEAD blob")
+            current = git("rev-parse", "HEAD")
+            self.assertNotEqual(expected_blob, git("hash-object", "src/a.cs"))
+
+            row = mod.verified_observation(tmp, baseline, "src/a.cs", ["1-2"], "D1")
+            self.assertEqual(row, {"baseline": baseline, "blob": expected_blob, "path": "src/a.cs",
+                                   "spans": ["1-2"], "defect_id": "D1", "verified": True})
+            with self.assertRaisesRegex(ValueError, "blank"):
+                mod.verified_observation(tmp, current, "src/a.cs", ["1-2"], "D1")
 
     def test_first_parent_history_from_git(self):
         with patch.object(mod, "git", return_value=SHA1 + "\n" + SHA2) as invoke:

@@ -1,5 +1,6 @@
 """Named Aspects command isolation and mutation evidence, using synthetic Git."""
 import json
+from math import fsum
 from pathlib import Path
 import subprocess
 import sys
@@ -88,20 +89,27 @@ class NamedAspectsTests(unittest.TestCase):
 
     def test_moving_windows_and_no_duplicate_loc_or_defect_credit(self):
         rows = []
-        for i in range(700):
+        for i in range(701):
             rows.append({'verified': True, 'review_track': 'systematic',
                          'review_outcome': 'defect' if i < 2 else 'clean',
                          'defect_id': 'shared' if i < 2 else None,
                          'review_id': str(i), 'path': str(i), 'blob': 'blob',
                          'baseline': self.head, 'spans': [[1, 1]]})
         series = commands.density_series(rows + [rows[-1], rows[0]])
-        self.assertEqual(len(series), 700)
+        self.assertEqual(len(series), 701)
         self.assertEqual(series[-1]['cumulative_defects'], 1)
-        self.assertEqual(series[-1]['cumulative_path_blob_loc'], 700)
+        self.assertEqual(series[-1]['cumulative_path_blob_loc'], 701)
         self.assertIsNone(series[23]['sma25'])
-        self.assertIsNotNone(series[24]['sma25'])
         self.assertIsNone(series[698]['sma700'])
-        self.assertIsNotNone(series[699]['sma700'])
+        # This fixture contributes one distinct defect and one new line at each
+        # successive cumulative denominator, independent of the reported series.
+        for key, width, end, start in [
+            ('sma25', 25, 25, 1), ('sma25', 25, 26, 2),
+            ('sma700', 700, 700, 1), ('sma700', 700, 701, 2),
+        ]:
+            with self.subTest(window=width, observation=end):
+                expected = fsum(1000 / denominator for denominator in range(start, end + 1)) / width
+                self.assertAlmostEqual(series[end - 1][key], expected, places=10)
         self.assertLess(commands.trend_slope(series), 0)
 
     def test_mutation_plan_reuses_scope_and_is_bounded(self):
