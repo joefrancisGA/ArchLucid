@@ -8,6 +8,9 @@ namespace ArchLucid.Persistence.Tests.Coordination;
 [Trait("Suite", "Core")]
 public sealed class InMemoryRunExportBlobPushOutboxRepositoryRecoverabilityTests
 {
+    private const string ActorKey = "jwt:aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    private static readonly Guid RequesterId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
     [Fact]
     public async Task DequeuePendingAsync_sets_exclusive_lease_blocking_second_worker_scan()
     {
@@ -20,12 +23,16 @@ public sealed class InMemoryRunExportBlobPushOutboxRepositoryRecoverabilityTests
             Guid.NewGuid(),
             Guid.NewGuid(),
             "https://example.blob.core.windows.net/container/blob?sas=token",
+            ActorKey,
+            RequesterId,
             CancellationToken.None);
 
         IReadOnlyList<RunExportBlobPushOutboxEntry> first =
             await sut.DequeuePendingAsync(1, 300, CancellationToken.None);
 
         first.Should().ContainSingle(e => e.RunId == runId);
+        first[0].RequestedByActorKey.Should().Be(ActorKey);
+        first[0].RequestedByDirectoryUserId.Should().Be(RequesterId);
         first[0].LockedUntilUtc.Should().Be(utc.AddSeconds(300));
 
         IReadOnlyList<RunExportBlobPushOutboxEntry> second =
@@ -54,6 +61,8 @@ public sealed class InMemoryRunExportBlobPushOutboxRepositoryRecoverabilityTests
             Guid.NewGuid(),
             Guid.NewGuid(),
             "https://example.blob.core.windows.net/container/blob?sas=token",
+            ActorKey,
+            RequesterId,
             CancellationToken.None);
         RunExportBlobPushOutboxEntry claimed =
             (await sut.DequeuePendingAsync(5, 300, CancellationToken.None)).Should().ContainSingle().Subject;
@@ -77,6 +86,8 @@ public sealed class InMemoryRunExportBlobPushOutboxRepositoryRecoverabilityTests
             Guid.NewGuid(),
             Guid.NewGuid(),
             "https://example.blob.core.windows.net/container/blob?sas=token",
+            ActorKey,
+            RequesterId,
             CancellationToken.None);
 
         RunExportBlobPushOutboxEntry claimed =

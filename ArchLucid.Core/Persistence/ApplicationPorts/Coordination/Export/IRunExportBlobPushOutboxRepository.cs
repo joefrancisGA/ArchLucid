@@ -14,6 +14,8 @@ public interface IRunExportBlobPushOutboxRepository : IRecoverableOutboxReposito
         Guid workspaceId,
         Guid projectId,
         string destinationSasUrl,
+        string requestedByActorKey,
+        Guid requestedByDirectoryUserId,
         CancellationToken ct);
 
     /// <summary>Count of unprocessed rows excluding dead letters (for observability / admin).</summary>

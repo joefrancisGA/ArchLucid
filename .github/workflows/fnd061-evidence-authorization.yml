@@ -22,7 +22,7 @@ jobs:
       - name: Verify scoped authorization precedes protected evidence reads
         run: >-
           dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~EvidenceReadAuthorizationGateTests|FullyQualifiedName~SecureNowSnapshotHttpBoundaryTests|FullyQualifiedName~TerraformAdvisoryCitedRunHttpTests|FullyQualifiedName~AuthorityRunEventsControllerShareAccessTests|FullyQualifiedName~OutboundExportShareDenial'
+          --filter 'FullyQualifiedName~EvidenceReadAuthorizationGateTests|FullyQualifiedName~SecureNowSnapshotHttpBoundaryTests|FullyQualifiedName~TerraformAdvisoryCitedRunHttpTests|FullyQualifiedName~AuthorityRunEventsControllerShareAccessTests|FullyQualifiedName~OutboundExportShareDenial|FullyQualifiedName~BlobExportRequesterBinding'
       - name: Verify indexing, replication, and projection jobs check committed scope and seal
         run: >-
           dotnet test ArchLucid.Host.Composition.Tests/ArchLucid.Host.Composition.Tests.csproj -c Release
@@ -39,3 +39,7 @@ jobs:
         run: >-
           dotnet test ArchLucid.KnowledgeGraph.Tests/ArchLucid.KnowledgeGraph.Tests.csproj -c Release
           --filter 'FullyQualifiedName~Warm_projection_is_not_reused_across_a_scope_boundary'
+      - name: Verify queued blob exports honor current requester access
+        run: >-
+          dotnet test ArchLucid.Host.Composition.Tests/ArchLucid.Host.Composition.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~RunExportBlobPushRequesterAuthorizationTests'

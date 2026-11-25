@@ -1,3 +1,5 @@
+using System.Security.Claims;
+
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Support;
@@ -19,6 +21,7 @@ using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.CareerArtifacts;
+using ArchLucid.Host.Core.Coordination.Export;
 using ArchLucid.Persistence.Coordination.Export;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
@@ -38,8 +41,44 @@ namespace ArchLucid.Api.Tests.Controllers;
 [Trait("Category", "Unit")]
 public sealed class ArtifactExportControllerRunExportTests
 {
+    private const string RequesterObjectId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+    private static readonly Guid RequesterId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
     private const string ValidDestination =
         "https://acct.blob.core.windows.net/exports/archlucid.zip?sv=2022-11-02&ss=b&srt=sco&sp=w&se=2099-01-01T00:00:00Z&sig=placeholder";
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task BlobExportRequesterBinding_denies_unverifiable_request_before_cache_or_enqueue(bool missingOid)
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+        };
+        Mock<IRunExportBlobPushAuthorization> authorization = new(MockBehavior.Strict);
+        if (!missingOid)
+            authorization.Setup(a => a.AuthorizeAsync(scope, runId, "jwt:" + RequesterObjectId, null, CancellationToken.None))
+                .ReturnsAsync((Guid?)null);
+        ArtifactExportController controller = CreateController(
+            out Mock<IAuthorityQueryService> authority, out Mock<IAuditService> audit,
+            out Mock<IRunExportBlobPushOutboxRepository> outbox, scope, blobPushAuthorization: authorization.Object);
+        if (missingOid)
+            controller.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim(ClaimTypes.Name, "jwt:" + RequesterObjectId)], "Test"));
+
+        IActionResult result = await controller.PushRunExportToBlob(
+            runId, new RunExportBlobPushRequest { DestinationSasUrl = ValidDestination });
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        authorization.Verify(a => a.AuthorizeAsync(scope, runId, "jwt:" + RequesterObjectId, null, CancellationToken.None),
+            missingOid ? Times.Never() : Times.Once());
+        authorization.VerifyNoOtherCalls();
+        authority.VerifyNoOtherCalls();
+        audit.VerifyNoOtherCalls();
+        outbox.VerifyNoOtherCalls();
+    }
 
     [Theory]
     [InlineData(true)]
@@ -107,6 +146,8 @@ public sealed class ArtifactExportControllerRunExportTests
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -135,6 +176,8 @@ public sealed class ArtifactExportControllerRunExportTests
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -164,6 +207,8 @@ public sealed class ArtifactExportControllerRunExportTests
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -563,6 +608,8 @@ public sealed class ArtifactExportControllerRunExportTests
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
         audit.Verify(
@@ -614,6 +661,8 @@ public sealed class ArtifactExportControllerRunExportTests
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
         audit.Verify(
@@ -674,6 +723,8 @@ public sealed class ArtifactExportControllerRunExportTests
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
         audit.Verify(
@@ -908,6 +959,8 @@ public sealed class ArtifactExportControllerRunExportTests
                 scope.WorkspaceId,
                 scope.ProjectId,
                 ValidDestination,
+                "jwt:" + RequesterObjectId,
+                RequesterId,
                 It.IsAny<CancellationToken>()),
             Times.Once);
         audit.Verify(
@@ -1042,7 +1095,8 @@ public sealed class ArtifactExportControllerRunExportTests
         IConfiguration? configuration = null,
         IArtifactQueryService? artifactQueryService = null,
         IDiagramImageRenderer? diagramImageRenderer = null,
-        IArchitectureShareAccessGate? architectureShareAccessGate = null)
+        IArchitectureShareAccessGate? architectureShareAccessGate = null,
+        IRunExportBlobPushAuthorization? blobPushAuthorization = null)
     {
         authority = new Mock<IAuthorityQueryService>();
         audit = new Mock<IAuditService>();
@@ -1063,6 +1117,8 @@ public sealed class ArtifactExportControllerRunExportTests
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -1112,6 +1168,12 @@ public sealed class ArtifactExportControllerRunExportTests
                 };
             });
 
+        Mock<IRunExportBlobPushAuthorization> defaultAuthorization = new();
+        defaultAuthorization.Setup(a => a.AuthorizeAsync(
+                It.IsAny<ScopeContext>(), It.IsAny<Guid>(), "jwt:" + RequesterObjectId, null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RequesterId);
+
         ArtifactExportController controller = new(
             artifactQueryService ?? Mock.Of<IArtifactQueryService>(),
             authority.Object,
@@ -1133,9 +1195,16 @@ public sealed class ArtifactExportControllerRunExportTests
             Mock.Of<IGraphSnapshotRepository>(),
             CreateEmptyAgentExecutionTraceRepository(),
             Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
-            Mock.Of<IArchitectureInventoryBindingRepository>());
+            Mock.Of<IArchitectureInventoryBindingRepository>(),
+            blobPushAuthorization ?? defaultAuthorization.Object);
 
-        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(new ClaimsIdentity([new Claim("oid", RequesterObjectId)], "Test"))
+            }
+        };
 
         return controller;
     }

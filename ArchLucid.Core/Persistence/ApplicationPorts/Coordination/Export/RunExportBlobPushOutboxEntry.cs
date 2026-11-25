@@ -43,6 +43,10 @@ public sealed class RunExportBlobPushOutboxEntry : IRecoverableOutboxEntry
         init;
     } = null!;
 
+    public string? RequestedByActorKey { get; init; }
+
+    public Guid? RequestedByDirectoryUserId { get; init; }
+
     public DateTime CreatedUtc
     {
         get;
