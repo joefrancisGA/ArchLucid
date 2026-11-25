@@ -132,20 +132,28 @@ public sealed class CachingGoldenManifestRepositoryTests
         ManifestDocument manifest = new() { ManifestId = Guid.NewGuid() };
         string cacheKey = HotPathCacheKeys.Manifest(scope, manifest.ManifestId);
 
+        TaskCompletionSource committed = new(TaskCreationOptions.RunContinuationsAsynchronously);
         inner.Setup(i => i.UpdateSealedHasherBoundSliceAsync(scope, manifest, caller.Token))
-            .Returns(() =>
-            {
-                caller.Cancel();
-                return Task.CompletedTask;
-            });
+            .Returns(committed.Task);
         cache.Setup(c => c.RemoveAsync(cacheKey, It.IsAny<CancellationToken>()))
             .Returns((string _, CancellationToken token) =>
                 token.IsCancellationRequested ? Task.FromCanceled(token) : Task.CompletedTask);
 
         CachingGoldenManifestRepository sut = new(inner.Object, cache.Object);
 
-        await sut.UpdateSealedHasherBoundSliceAsync(scope, manifest, caller.Token);
+        Task pending = sut.UpdateSealedHasherBoundSliceAsync(scope, manifest, caller.Token);
+        try
+        {
+            cache.VerifyNoOtherCalls();
+            pending.IsCompleted.Should().BeFalse();
+        }
+        finally
+        {
+            caller.Cancel();
+            committed.TrySetResult();
+        }
 
+        await pending;
         cache.Verify(c => c.RemoveAsync(cacheKey, CancellationToken.None), Times.Once);
     }
 

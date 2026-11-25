@@ -46,6 +46,9 @@ public sealed class AgentResultRollupProjectionTests
                     WhyThisIsNotGeneric = "why",
                     PrincipalArchitectValue = "value",
                     DecisionConsequence = "consequence",
+                    MuteReason = "mute",
+                    TrustLabel = "trust",
+                    TrustLabelReason = "reason",
                 },
             ],
         };
@@ -69,5 +72,14 @@ public sealed class AgentResultRollupProjectionTests
         stripped.Findings[0].IacStub.Should().BeNull();
         stripped.Findings[0].ReasoningTrace.Should().BeNull();
         stripped.Findings[0].WhyThisIsNotGeneric.Should().BeNull();
+        stripped.Findings[0].PrincipalArchitectValue.Should().BeNull();
+        stripped.Findings[0].DecisionConsequence.Should().BeNull();
+        stripped.Findings[0].MuteReason.Should().BeNull();
+        stripped.Findings[0].TrustLabel.Should().BeNull();
+        stripped.Findings[0].TrustLabelReason.Should().BeNull();
+        stripped.Findings[0].Severity.Should().Be(FindingSeverity.Error);
+        stripped.ResultId.Should().Be("r1");
+        stripped.TaskId.Should().Be("t1");
+        stripped.AgentType.Should().Be(AgentType.Topology);
     }
 }

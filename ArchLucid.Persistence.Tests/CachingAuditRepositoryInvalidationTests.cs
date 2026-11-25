@@ -41,10 +41,10 @@ public sealed class CachingAuditRepositoryInvalidationTests
         AuditEvent entry = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
         ScopeContext scope = new() { TenantId = entry.TenantId, WorkspaceId = entry.WorkspaceId, ProjectId = entry.ProjectId };
         string revisionKey = HotPathCacheKeys.AuditListScopeRevision(scope);
+        TaskCompletionSource committed = new(TaskCreationOptions.RunContinuationsAsynchronously);
         Mock<IAuditRepository> inner = new();
         inner.Setup(repository => repository.AppendAsync(entry, cancellation.Token, null, null))
-            .Callback(cancellation.Cancel)
-            .Returns(Task.CompletedTask);
+            .Returns(committed.Task);
         Mock<IHotPathReadCache> cache = new();
         cache.Setup(store => store.GetOrCreateAsync(
                 revisionKey, It.IsAny<Func<CancellationToken, Task<RunListScopeRevisionState?>>>(),
@@ -55,7 +55,18 @@ public sealed class CachingAuditRepositoryInvalidationTests
             .Returns(Task.CompletedTask);
         CachingAuditRepository repository = new(inner.Object, cache.Object);
 
-        await repository.AppendAsync(entry, cancellation.Token);
+        Task pending = repository.AppendAsync(entry, cancellation.Token);
+        try
+        {
+            cache.VerifyNoOtherCalls();
+            pending.IsCompleted.Should().BeFalse();
+        }
+        finally
+        {
+            cancellation.Cancel();
+            committed.TrySetResult();
+        }
+        await pending;
 
         cache.Verify(store => store.RemoveAsync(revisionKey, CancellationToken.None), Times.Once);
         cache.Verify(store => store.GetOrCreateAsync(
