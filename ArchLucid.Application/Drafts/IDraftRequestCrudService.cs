@@ -44,4 +44,11 @@ public interface IDraftRequestCrudService
         int page,
         int pageSize,
         CancellationToken cancellationToken);
+
+    Task<DraftRequestResponse?> AnswerQuestionAsync(ScopeContext scope, Guid draftId,
+        AnswerDraftQuestionRequest request, DateTime? authorizedUpdatedUtc, CancellationToken cancellationToken);
+
+    Task<DraftRequestResponse?> SkipQuestionAsync(ScopeContext scope, Guid draftId,
+        SkipDraftQuestionRequest request, DateTime? authorizedUpdatedUtc, CancellationToken cancellationToken);
+
 }

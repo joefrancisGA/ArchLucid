@@ -153,7 +153,8 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
             NewHash = DraftDocumentContentFingerprint.Compute(document),
         });
         parameters.Add("UpdatedUtc", expected.UpdatedUtc, DbType.DateTime2);
-        parameters.Add("Now", TimeProvider.System.GetUtcNow().UtcDateTime, DbType.DateTime2);
+        DateTime now = TimeProvider.System.GetUtcNow().UtcDateTime;
+        parameters.Add("Now", now <= expected.UpdatedUtc ? expected.UpdatedUtc.AddTicks(1) : now, DbType.DateTime2);
         int rows = await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, parameters,
             cancellationToken: ct, commandTimeout: InteractiveDraftCommandTimeoutSeconds));
 
@@ -163,7 +164,7 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
     }
 
     /// <inheritdoc />
-    public async Task<DraftRequestResponse?> UpdateAsync(
+    public Task<DraftRequestResponse?> UpdateAsync(
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
@@ -174,12 +175,30 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
         string? spawnedRunId,
         CancellationToken cancellationToken,
         Guid? spawnedArchitectureVersionId = null,
-        byte[]? spawnedDocumentContentHashSha256 = null)
+        byte[]? spawnedDocumentContentHashSha256 = null) =>
+        UpdateCoreAsync(tenantId, workspaceId, projectId, draftId, status, document, redirectReason,
+            spawnedRunId, spawnedArchitectureVersionId, spawnedDocumentContentHashSha256,
+            expectedUpdatedUtc: null, cancellationToken);
+
+    public Task<DraftRequestResponse?> UpdateAtAccessRevisionAsync(
+        DraftRequestResponse draft, CancellationToken cancellationToken) =>
+        UpdateCoreAsync(draft.TenantId, draft.WorkspaceId, draft.ProjectId, draft.DraftId, draft.Status,
+            draft.Document, draft.RedirectReason, draft.SpawnedRunId, draft.SpawnedArchitectureVersionId,
+            draft.SpawnedDocumentContentHashSha256, draft.UpdatedUtc, cancellationToken);
+
+    private async Task<DraftRequestResponse?> UpdateCoreAsync(
+        Guid tenantId, Guid workspaceId, Guid projectId, Guid draftId, DraftRequestStatus status,
+        DraftRequestDocument document, string? redirectReason, string? spawnedRunId,
+        Guid? spawnedArchitectureVersionId, byte[]? spawnedDocumentContentHashSha256,
+        DateTime? expectedUpdatedUtc, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(document);
         PersistenceTenantScope.RequireEntityTenant(tenantId);
 
         DateTime now = TimeProvider.System.GetUtcNow().UtcDateTime;
+        if (expectedUpdatedUtc is DateTime previous && now <= previous)
+            now = previous.AddTicks(1);
+
         string documentJson = JsonSerializer.Serialize(document, JsonOptions);
         byte[] documentContentHashSha256 = DraftDocumentContentFingerprint.Compute(document);
 
@@ -195,43 +214,44 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
                                RedirectReason = @RedirectReason,
                                SpawnedRunId = @SpawnedRunId,
                                SpawnedArchitectureVersionId = @SpawnedArchitectureVersionId,
-                               UpdatedUtc = @UpdatedUtc
+                               UpdatedUtc = CASE WHEN @UpdatedUtc <= UpdatedUtc
+                                   THEN DATEADD(nanosecond, 100, UpdatedUtc) ELSE @UpdatedUtc END
                            WHERE DraftId = @DraftId
                              AND TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
-                             AND ProjectId = @ProjectId;
+                             AND ProjectId = @ProjectId
+                             AND (@ExpectedUpdatedUtc IS NULL OR UpdatedUtc = @ExpectedUpdatedUtc);
 
                            SELECT @@ROWCOUNT;
                            """;
 
+        DynamicParameters parameters = new(new
+        {
+            DraftId = draftId,
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            Status = status.ToString(),
+            DocumentJson = documentJson,
+            DocumentContentHashSha256 = documentContentHashSha256,
+            SpawnedDocumentContentHashSha256 = spawnedDocumentContentHashSha256,
+            RedirectReason = redirectReason,
+            SpawnedRunId = spawnedRunId,
+            SpawnedArchitectureVersionId = spawnedArchitectureVersionId,
+        });
+        parameters.Add("UpdatedUtc", now, DbType.DateTime2);
+        parameters.Add("ExpectedUpdatedUtc", expectedUpdatedUtc, DbType.DateTime2);
+
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        int rows = await connection.ExecuteScalarAsync<int>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    DraftId = draftId,
-                    TenantId = tenantId,
-                    WorkspaceId = workspaceId,
-                    ProjectId = projectId,
-                    Status = status.ToString(),
-                    DocumentJson = documentJson,
-                    DocumentContentHashSha256 = documentContentHashSha256,
-                    SpawnedDocumentContentHashSha256 = spawnedDocumentContentHashSha256,
-                    RedirectReason = redirectReason,
-                    SpawnedRunId = spawnedRunId,
-                    SpawnedArchitectureVersionId = spawnedArchitectureVersionId,
-                    UpdatedUtc = now,
-                },
-                cancellationToken: cancellationToken,
-                commandTimeout: InteractiveDraftCommandTimeoutSeconds));
+        int rows = await connection.ExecuteScalarAsync<int>(new CommandDefinition(
+            sql, parameters, cancellationToken: cancellationToken,
+            commandTimeout: InteractiveDraftCommandTimeoutSeconds));
 
         if (rows == 0)
             return null;
 
-        DraftRequestResponse? refreshed = await GetAsync(tenantId, workspaceId, projectId, draftId, cancellationToken);
-
-        return refreshed;
+        return await GetCoreAsync(tenantId, workspaceId, projectId, draftId,
+            expectedUpdatedUtc.HasValue ? now : null, cancellationToken);
     }
 
     /// <inheritdoc />

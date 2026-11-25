@@ -13,6 +13,16 @@ public interface IDraftRequestRepository
         Guid draftId,
         CancellationToken cancellationToken);
 
+    Task<DraftRequestAccessMetadata?> GetAccessMetadataAsync(
+        Guid tenantId, Guid workspaceId, Guid projectId, Guid draftId, CancellationToken cancellationToken);
+
+    Task<DraftRequestResponse?> GetAtAccessRevisionAsync(
+        Guid tenantId, Guid workspaceId, Guid projectId, Guid draftId,
+        DateTime expectedUpdatedUtc, CancellationToken cancellationToken);
+
+    Task<DraftRequestResponse?> UpdateAtAccessRevisionAsync(
+        DraftRequestResponse draft, CancellationToken cancellationToken);
+
     Task<DraftRequestResponse> CreateAsync(
         Guid tenantId,
         Guid workspaceId,

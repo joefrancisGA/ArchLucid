@@ -244,4 +244,46 @@ public sealed class UsageEventRepositoryCoreTests
         summaries.Should().ContainSingle();
         summaries[0].TotalQuantity.Should().Be(5);
     }
+
+    [Fact]
+    public async Task Authorized_revision_never_reads_or_overwrites_a_relinked_draft()
+    {
+        InMemoryDraftRequestRepository repository = new();
+        Guid tenant = Guid.NewGuid();
+        Guid workspace = Guid.NewGuid();
+        Guid project = Guid.NewGuid();
+        Guid prior = Guid.NewGuid();
+        CancellationToken ct = CancellationToken.None;
+        DraftRequestResponse created = await repository.CreateAsync(
+            tenant, workspace, project, "draft-owner", new DraftRequestDocument { PriorRunId = prior.ToString("D") }, ct);
+        DraftRequestAccessMetadata facts = (await repository.GetAccessMetadataAsync(
+            tenant, workspace, project, created.DraftId, ct))!;
+        facts.CreatedByUserId.Should().Be("draft-owner");
+        facts.PriorRunId.Should().Be(prior.ToString("D"));
+        (await repository.GetAccessMetadataAsync(tenant, workspace, Guid.NewGuid(), created.DraftId, ct)).Should().BeNull();
+        DraftRequestResponse original = (await repository.GetAtAccessRevisionAsync(
+            tenant, workspace, project, created.DraftId, facts.UpdatedUtc, ct))!;
+
+        Guid architecture = Guid.NewGuid();
+        (await repository.SetArchitectureIdAsync(tenant, workspace, project, created.DraftId, architecture, ct))
+            .Should().BeTrue();
+        original.Document.QuestionAnswers["cost"] = "stale";
+
+        (await repository.GetAtAccessRevisionAsync(
+            tenant, workspace, project, created.DraftId, facts.UpdatedUtc, ct)).Should().BeNull();
+        (await repository.UpdateAtAccessRevisionAsync(original, ct)).Should().BeNull();
+
+        DraftRequestAccessMetadata changed = (await repository.GetAccessMetadataAsync(
+            tenant, workspace, project, created.DraftId, ct))!;
+        changed.ArchitectureId.Should().Be(architecture);
+        DraftRequestResponse latest = (await repository.GetAtAccessRevisionAsync(
+            tenant, workspace, project, created.DraftId, changed.UpdatedUtc, ct))!;
+        latest.Document.QuestionAnswers.Should().BeEmpty();
+        latest.Document.QuestionAnswers["cost"] = "current";
+        DraftRequestResponse written = (await repository.UpdateAtAccessRevisionAsync(latest, ct))
+            !;
+        written.Document.QuestionAnswers["cost"].Should().Be("current");
+        written.UpdatedUtc.Should().BeAfter(changed.UpdatedUtc);
+    }
+
 }

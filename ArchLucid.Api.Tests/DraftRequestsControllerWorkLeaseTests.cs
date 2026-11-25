@@ -110,7 +110,8 @@ public sealed class DraftRequestsControllerWorkLeaseTests
             SealedManifestHashTestSupport.CreateManifestHashService(),
             SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
             Mock.Of<IPriorPackageSemanticMergeService>(),
-            Mock.Of<IArchitectureShareAccessGate>())
+            Mock.Of<IArchitectureShareAccessGate>(),
+            Mock.Of<IDraftRequestRepository>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
