@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "baselineCommit": "f81ff8a23ca4096a18ffb5fbab76c189a150dbd4",
+  "baselineCommit": "a4e11fa60f31ab105a1d522b37c57ad69083dbd2",
   "scope": "Source-reviewed HTTP action-method cohort. Multiple route attributes on one method count once; distinct methods count separately. Resource-specific share/entitlement before evidence/cache/model access; identity-only discovery allowed. Partial = known adoption with unresolved pre-hydration/mode limitations. No mandatory-audit or runtime claim for share-gate paths.",
   "registryPath": "scripts/ci/data/route_tier_policy_nav_registry.json",
   "registryBlob": "a45a41f449fba38a2386355898d52c6713943c90",
@@ -1513,7 +1513,7 @@
       "action": "ReasonDraft",
       "source": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
       "status": "partial",
-      "reason": "Downstream reasoning verifies execute actor, linked read/decide, prior-run authority and same-draft proof before model use. The upstream scope-wide seal preflight can load a manifest before a resource share decision. Raw draft and history pre-reads remain separately reviewable.",
+      "reason": "Merged intake preflight authorizes readable committed runs before manifest hydration. The downstream reasoning path verifies draft, run and completed-turn proof before model use. Raw draft and history pre-reads remain separately reviewable.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
@@ -1545,19 +1545,19 @@
         },
         {
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.SealedManifestGuard.cs",
-          "blob": "2279f0f1fcecd0559d71d7e0ce0708d2880e9448"
+          "blob": "7324faa5ec9a0e0459bf8b829b177a7c2f984e32"
         },
         {
           "path": "ArchLucid.Application/Drafts/DraftIntakeSealedManifestReadGuard.cs",
-          "blob": "231f4ecc27238447055d4a7cbd427a3f628f0af7"
+          "blob": "b86ca773c399b40c132082696089f901d20536a5"
         },
         {
           "path": "ArchLucid.Application/Runs/RunInventorySealedManifestReadGuard.cs",
-          "blob": "372fe940fae880c46dbd87c67b56da87fba37fe6"
+          "blob": "04e51b92e2b214d671e259ab3aca14ee319d5e0e"
         },
         {
           "path": "ArchLucid.Application/Governance/Posture/GovernancePostureSealedManifestHashGuard.cs",
-          "blob": "f3c9269d4d8fc5e90374fec57a1145918f78fc11"
+          "blob": "48b86d2b9feaff123978b2a2a85d0cb1cd6ca1ef"
         },
         {
           "path": "ArchLucid.Application/Governance/GovernanceDispositionSealedManifestGuard.cs",
@@ -1576,6 +1576,49 @@
             "EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken)",
             "_draftIntakeReasoningService.ReasonAsync("
           ]
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.SealedManifestGuard.cs",
+          "start": "private async Task<IActionResult?> EnsureDraftIntakeSealedManifestReadAllowedAsync(",
+          "tokens": [
+            "EnsureDraftIntakeReadAllowedOrThrowAsync(",
+            "canReadRun: async (runId, ct)",
+            ".EvaluateRunReadAsync(User, scope, runId, ct)",
+            "return found && canRead;"
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/DraftIntakeSealedManifestReadGuard.cs",
+          "start": "public static Task EnsureDraftIntakeReadAllowedOrThrowAsync(",
+          "tokens": [
+            "RunInventorySealedManifestReadGuard.EnsureRunInventoryReadAllowedOrThrowAsync(",
+            "canReadRun);"
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Runs/RunInventorySealedManifestReadGuard.cs",
+          "start": "public static Task EnsureRunInventoryReadAllowedOrThrowAsync(",
+          "tokens": [
+            "GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync(",
+            "canReadRun);"
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Governance/Posture/GovernancePostureSealedManifestHashGuard.cs",
+          "start": "public static async Task EnsureLatestCommittedRunSealedOrThrowAsync(",
+          "tokens": [
+            "ListRunSummariesKeysetAsync(null, 50, cancellationToken)",
+            "await canReadRun(runGuid, cancellationToken)",
+            "continue;",
+            "EnsureRunSealedManifestHashOrThrowAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Governance/GovernanceDispositionSealedManifestGuard.cs",
+          "start": "public static async Task EnsureRunSealedManifestHashOrThrowAsync(",
+          "tokens": [
+            "GetRunDetailForManifestCompareAsync(scope, runId, cancellationToken)"
+          ]
         }
       ]
     },
@@ -1584,8 +1627,8 @@
       "controllerFile": "Architecture/DraftRequestsController.cs",
       "action": "GetDraftQuestions",
       "source": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
-      "status": "gap",
-      "reason": "Scope-wide preflight can load the latest committed run's manifest before the draft-specific operation. It receives scope without a resource share decision. Downstream draft authorization is outside this finding.",
+      "status": "partial",
+      "reason": "Merged intake preflight authorizes readable committed runs before manifest hydration. The downstream question selector loads the target draft through a scope-only repository lookup, without a draft-specific decision on this path.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
@@ -1593,19 +1636,19 @@
         },
         {
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.SealedManifestGuard.cs",
-          "blob": "2279f0f1fcecd0559d71d7e0ce0708d2880e9448"
+          "blob": "7324faa5ec9a0e0459bf8b829b177a7c2f984e32"
         },
         {
           "path": "ArchLucid.Application/Drafts/DraftIntakeSealedManifestReadGuard.cs",
-          "blob": "231f4ecc27238447055d4a7cbd427a3f628f0af7"
+          "blob": "b86ca773c399b40c132082696089f901d20536a5"
         },
         {
           "path": "ArchLucid.Application/Runs/RunInventorySealedManifestReadGuard.cs",
-          "blob": "372fe940fae880c46dbd87c67b56da87fba37fe6"
+          "blob": "04e51b92e2b214d671e259ab3aca14ee319d5e0e"
         },
         {
           "path": "ArchLucid.Application/Governance/Posture/GovernancePostureSealedManifestHashGuard.cs",
-          "blob": "f3c9269d4d8fc5e90374fec57a1145918f78fc11"
+          "blob": "48b86d2b9feaff123978b2a2a85d0cb1cd6ca1ef"
         },
         {
           "path": "ArchLucid.Application/Governance/GovernanceDispositionSealedManifestGuard.cs",
@@ -1614,6 +1657,26 @@
         {
           "path": "ArchLucid.Application/RunDetailQueryService.ListSummaries.cs",
           "blob": "fc1587cb140c0a520267a900d1e7a919aa2a6869"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/DraftRequestService.cs",
+          "blob": "e768390e3f1af71924b53ea41b575da30c2113de"
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/DraftRequestCrudService.cs",
+          "blob": "8f400bbf8e9a4ccae0949949edfd54cd1936861f"
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/DraftAdmissionService.Questions.cs",
+          "blob": "a1e0bcc0c59078bc02eed76bf53c711453ccd5f1"
         }
       ],
       "orderChecks": [
@@ -1626,11 +1689,38 @@
           ]
         },
         {
+          "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.SealedManifestGuard.cs",
+          "start": "private async Task<IActionResult?> EnsureDraftIntakeSealedManifestReadAllowedAsync(",
+          "tokens": [
+            "EnsureDraftIntakeReadAllowedOrThrowAsync(",
+            "canReadRun: async (runId, ct)",
+            ".EvaluateRunReadAsync(User, scope, runId, ct)",
+            "return found && canRead;"
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/DraftIntakeSealedManifestReadGuard.cs",
+          "start": "public static Task EnsureDraftIntakeReadAllowedOrThrowAsync(",
+          "tokens": [
+            "RunInventorySealedManifestReadGuard.EnsureRunInventoryReadAllowedOrThrowAsync(",
+            "canReadRun);"
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Runs/RunInventorySealedManifestReadGuard.cs",
+          "start": "public static Task EnsureRunInventoryReadAllowedOrThrowAsync(",
+          "tokens": [
+            "GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync(",
+            "canReadRun);"
+          ]
+        },
+        {
           "path": "ArchLucid.Application/Governance/Posture/GovernancePostureSealedManifestHashGuard.cs",
           "start": "public static async Task EnsureLatestCommittedRunSealedOrThrowAsync(",
           "tokens": [
             "ListRunSummariesKeysetAsync(null, 50, cancellationToken)",
-            "FirstOrDefault(IsCommittedSummary)",
+            "await canReadRun(runGuid, cancellationToken)",
+            "continue;",
             "EnsureRunSealedManifestHashOrThrowAsync("
           ]
         },
@@ -1648,8 +1738,8 @@
       "controllerFile": "Architecture/DraftRequestsController.cs",
       "action": "AnswerQuestion",
       "source": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
-      "status": "gap",
-      "reason": "Scope-wide preflight can load the latest committed run's manifest before the draft-specific operation. It receives scope without a resource share decision. Downstream draft authorization is outside this finding.",
+      "status": "partial",
+      "reason": "Merged intake preflight authorizes readable committed runs before manifest hydration. The downstream mutation stage loads and updates the target draft using scope and draft ID. A draft-specific decision before the payload read is absent from this path.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
@@ -1657,19 +1747,19 @@
         },
         {
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.SealedManifestGuard.cs",
-          "blob": "2279f0f1fcecd0559d71d7e0ce0708d2880e9448"
+          "blob": "7324faa5ec9a0e0459bf8b829b177a7c2f984e32"
         },
         {
           "path": "ArchLucid.Application/Drafts/DraftIntakeSealedManifestReadGuard.cs",
-          "blob": "231f4ecc27238447055d4a7cbd427a3f628f0af7"
+          "blob": "b86ca773c399b40c132082696089f901d20536a5"
         },
         {
           "path": "ArchLucid.Application/Runs/RunInventorySealedManifestReadGuard.cs",
-          "blob": "372fe940fae880c46dbd87c67b56da87fba37fe6"
+          "blob": "04e51b92e2b214d671e259ab3aca14ee319d5e0e"
         },
         {
           "path": "ArchLucid.Application/Governance/Posture/GovernancePostureSealedManifestHashGuard.cs",
-          "blob": "f3c9269d4d8fc5e90374fec57a1145918f78fc11"
+          "blob": "48b86d2b9feaff123978b2a2a85d0cb1cd6ca1ef"
         },
         {
           "path": "ArchLucid.Application/Governance/GovernanceDispositionSealedManifestGuard.cs",
@@ -1678,6 +1768,26 @@
         {
           "path": "ArchLucid.Application/RunDetailQueryService.ListSummaries.cs",
           "blob": "fc1587cb140c0a520267a900d1e7a919aa2a6869"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/DraftRequestService.cs",
+          "blob": "e768390e3f1af71924b53ea41b575da30c2113de"
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/DraftRequestCrudService.cs",
+          "blob": "8f400bbf8e9a4ccae0949949edfd54cd1936861f"
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/Stages/DraftRequestMutateStage.cs",
+          "blob": "2731ba34a3a92316c1ec9feaadec40f72631b658"
         }
       ],
       "orderChecks": [
@@ -1690,11 +1800,38 @@
           ]
         },
         {
+          "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.SealedManifestGuard.cs",
+          "start": "private async Task<IActionResult?> EnsureDraftIntakeSealedManifestReadAllowedAsync(",
+          "tokens": [
+            "EnsureDraftIntakeReadAllowedOrThrowAsync(",
+            "canReadRun: async (runId, ct)",
+            ".EvaluateRunReadAsync(User, scope, runId, ct)",
+            "return found && canRead;"
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/DraftIntakeSealedManifestReadGuard.cs",
+          "start": "public static Task EnsureDraftIntakeReadAllowedOrThrowAsync(",
+          "tokens": [
+            "RunInventorySealedManifestReadGuard.EnsureRunInventoryReadAllowedOrThrowAsync(",
+            "canReadRun);"
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Runs/RunInventorySealedManifestReadGuard.cs",
+          "start": "public static Task EnsureRunInventoryReadAllowedOrThrowAsync(",
+          "tokens": [
+            "GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync(",
+            "canReadRun);"
+          ]
+        },
+        {
           "path": "ArchLucid.Application/Governance/Posture/GovernancePostureSealedManifestHashGuard.cs",
           "start": "public static async Task EnsureLatestCommittedRunSealedOrThrowAsync(",
           "tokens": [
             "ListRunSummariesKeysetAsync(null, 50, cancellationToken)",
-            "FirstOrDefault(IsCommittedSummary)",
+            "await canReadRun(runGuid, cancellationToken)",
+            "continue;",
             "EnsureRunSealedManifestHashOrThrowAsync("
           ]
         },
@@ -1712,8 +1849,8 @@
       "controllerFile": "Architecture/DraftRequestsController.cs",
       "action": "SkipQuestion",
       "source": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
-      "status": "gap",
-      "reason": "Scope-wide preflight can load the latest committed run's manifest before the draft-specific operation. It receives scope without a resource share decision. Downstream draft authorization is outside this finding.",
+      "status": "partial",
+      "reason": "Merged intake preflight authorizes readable committed runs before manifest hydration. The downstream mutation stage loads and updates the target draft using scope and draft ID. A draft-specific decision before the payload read is absent from this path.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
@@ -1721,19 +1858,19 @@
         },
         {
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.SealedManifestGuard.cs",
-          "blob": "2279f0f1fcecd0559d71d7e0ce0708d2880e9448"
+          "blob": "7324faa5ec9a0e0459bf8b829b177a7c2f984e32"
         },
         {
           "path": "ArchLucid.Application/Drafts/DraftIntakeSealedManifestReadGuard.cs",
-          "blob": "231f4ecc27238447055d4a7cbd427a3f628f0af7"
+          "blob": "b86ca773c399b40c132082696089f901d20536a5"
         },
         {
           "path": "ArchLucid.Application/Runs/RunInventorySealedManifestReadGuard.cs",
-          "blob": "372fe940fae880c46dbd87c67b56da87fba37fe6"
+          "blob": "04e51b92e2b214d671e259ab3aca14ee319d5e0e"
         },
         {
           "path": "ArchLucid.Application/Governance/Posture/GovernancePostureSealedManifestHashGuard.cs",
-          "blob": "f3c9269d4d8fc5e90374fec57a1145918f78fc11"
+          "blob": "48b86d2b9feaff123978b2a2a85d0cb1cd6ca1ef"
         },
         {
           "path": "ArchLucid.Application/Governance/GovernanceDispositionSealedManifestGuard.cs",
@@ -1742,6 +1879,26 @@
         {
           "path": "ArchLucid.Application/RunDetailQueryService.ListSummaries.cs",
           "blob": "fc1587cb140c0a520267a900d1e7a919aa2a6869"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/DraftRequestService.cs",
+          "blob": "e768390e3f1af71924b53ea41b575da30c2113de"
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/DraftRequestCrudService.cs",
+          "blob": "8f400bbf8e9a4ccae0949949edfd54cd1936861f"
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/Stages/DraftRequestMutateStage.cs",
+          "blob": "2731ba34a3a92316c1ec9feaadec40f72631b658"
         }
       ],
       "orderChecks": [
@@ -1754,11 +1911,38 @@
           ]
         },
         {
+          "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.SealedManifestGuard.cs",
+          "start": "private async Task<IActionResult?> EnsureDraftIntakeSealedManifestReadAllowedAsync(",
+          "tokens": [
+            "EnsureDraftIntakeReadAllowedOrThrowAsync(",
+            "canReadRun: async (runId, ct)",
+            ".EvaluateRunReadAsync(User, scope, runId, ct)",
+            "return found && canRead;"
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/DraftIntakeSealedManifestReadGuard.cs",
+          "start": "public static Task EnsureDraftIntakeReadAllowedOrThrowAsync(",
+          "tokens": [
+            "RunInventorySealedManifestReadGuard.EnsureRunInventoryReadAllowedOrThrowAsync(",
+            "canReadRun);"
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Runs/RunInventorySealedManifestReadGuard.cs",
+          "start": "public static Task EnsureRunInventoryReadAllowedOrThrowAsync(",
+          "tokens": [
+            "GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync(",
+            "canReadRun);"
+          ]
+        },
+        {
           "path": "ArchLucid.Application/Governance/Posture/GovernancePostureSealedManifestHashGuard.cs",
           "start": "public static async Task EnsureLatestCommittedRunSealedOrThrowAsync(",
           "tokens": [
             "ListRunSummariesKeysetAsync(null, 50, cancellationToken)",
-            "FirstOrDefault(IsCommittedSummary)",
+            "await canReadRun(runGuid, cancellationToken)",
+            "continue;",
             "EnsureRunSealedManifestHashOrThrowAsync("
           ]
         },
@@ -1809,7 +1993,7 @@
         },
         {
           "path": "ArchLucid.Application/Runs/RunInventorySealedManifestReadGuard.cs",
-          "blob": "372fe940fae880c46dbd87c67b56da87fba37fe6"
+          "blob": "04e51b92e2b214d671e259ab3aca14ee319d5e0e"
         },
         {
           "path": "ArchLucid.Application/Governance/GovernanceDispositionSealedManifestGuard.cs",
