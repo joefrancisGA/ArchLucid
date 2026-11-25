@@ -603,6 +603,77 @@ public sealed class AzureInventorySnapshotMaterializerTests
         captured.WarningCount.Should().Be(warnings.Count);
     }
 
+    [Fact]
+    public async Task TryMaterializePackageAsync_rejects_untrusted_runtime_observation_claims()
+    {
+        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        Guid snapshotId = Guid.NewGuid();
+        AzureInventorySnapshotMaterializeWriteRequest? captured = null;
+        AzureInventorySnapshotMaterializer sut = new(
+            CreateSnapshotRepository(scope, snapshotId, request => captured = request).Object,
+            CreateIdentityDirectory(scope, snapshotId).Object,
+            CreateNoOpPostMaterializeCoordinator(),
+            NullLogger<AzureInventorySnapshotMaterializer>.Instance);
+
+        byte[] zip = BuildZip("""
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app/slots/blue",
+                "resourceType": "Microsoft.Web/sites/slots",
+                "name": "blue",
+                "location": "eastus",
+                "properties": {
+                  "runtime.configured.javaVersion": "17",
+                  "runtime.executing.version": "17.0.21.1",
+                  "runtime.installed.version": "17.0.21.1",
+                  "runtime.verified": true,
+                  "Runtime.PlatformRollout": "patched",
+                  " runtime.compliance": "Compliant",
+                  "runtime.configured.verified": true,
+                  "unrelatedProperty": "retained"
+                }
+              },
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Unknown/widget1",
+                "resourceType": "Microsoft.Unknown/widget",
+                "name": "widget1",
+                "location": "eastus",
+                "isUnknownType": true,
+                "properties": {
+                  "runtime.configured.javaVersion": "17",
+                  "runtime.executing.version": "17.0.21.1",
+                  "unrelatedProperty": "retained"
+                }
+              }
+            ]
+            """);
+
+        AzureInventorySnapshotMaterializeResult result = await sut.TryMaterializePackageAsync(
+            scope, snapshotId, Guid.NewGuid(), zip, AzureInventoryCaptureMethod.CustomerScript,
+            "test", CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        captured.Should().NotBeNull();
+        AzureInventoryResourceRecord app = captured!.Resources.Single(resource =>
+            resource.ResourceType == "Microsoft.Web/sites/slots");
+        AzureInventoryResourceRecord unknown = captured.Resources.Single(resource =>
+            resource.ResourceType == "Microsoft.Unknown/widget");
+        app.TenantId.Should().Be(scope.TenantId);
+        app.SnapshotId.Should().Be(snapshotId);
+        captured.Properties.Should().ContainSingle(property =>
+            property.PropertyKey == "runtime.configured.javaVersion"
+            && property.PropertyValue == "17"
+            && property.ResourceRowId == app.ResourceRowId);
+        captured.Properties.Where(property =>
+            property.PropertyKey.Trim().StartsWith("runtime.", StringComparison.OrdinalIgnoreCase))
+            .Should().ContainSingle();
+        captured.Properties.Should().Contain(property =>
+            property.ResourceRowId == unknown.ResourceRowId
+            && property.PropertyKey == "unrelatedProperty");
+        captured.Unknowns.Should().ContainSingle(row =>
+            !row.CappedPropertiesJson.Contains("runtime.", StringComparison.OrdinalIgnoreCase));
+    }
+
     private static byte[] BuildZip(
         string resourcesJson,
         string subscriptionId = "sub",
