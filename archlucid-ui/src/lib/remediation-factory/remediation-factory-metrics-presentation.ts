@@ -186,7 +186,8 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       windowLine: windowLineWhenLoaded(
         `${METRICS_WINDOW} · opened minus remediated — not cloud spend`,
       ),
-      valueFootnote: netBurnWeeklyFootnoteWhenLoaded(metricsLoaded, metrics),
+      valueFootnote:
+        netBurn === null ? null : netBurnWeeklyFootnoteWhenLoaded(metricsLoaded, metrics),
       value: netBurn === null ? null : String(netBurn),
     },
     {

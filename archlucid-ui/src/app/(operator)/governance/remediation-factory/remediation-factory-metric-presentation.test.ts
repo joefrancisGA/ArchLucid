@@ -265,6 +265,28 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "net-burn")?.valueFootnote).toBeNull();
   });
 
+  it("omits net-burn footnote when net burn is fractional but weekly counts are integers", () => {
+    const metrics = { createdThisWeek: 2, remediatedThisWeek: 3, netBurn: 1.5 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "net-burn")?.value).toBeNull();
+    expect(tiles.find((tile) => tile.id === "net-burn")?.valueFootnote).toBeNull();
+  });
+
+  it("omits net-burn footnote when weekly created is negative", () => {
+    const metrics = { createdThisWeek: -1, remediatedThisWeek: 2, netBurn: 3 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "net-burn")?.valueFootnote).toBeNull();
+  });
+
+  it("omits critical-exposure zero footnote when count is negative", () => {
+    const metrics = { criticalExposureCount: -1 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "critical-exposure")?.valueFootnote).toBeNull();
+  });
+
   it("omits fractional open findings in metric tiles", () => {
     const metrics = { openFindings: 2.3 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
@@ -374,6 +396,26 @@ describe("remediation-factory-metric-presentation", () => {
     });
 
     expect(tiles.find((tile) => tile.key === "exceptions-active")?.hint).toBeUndefined();
+  });
+
+  it("omits exceptions-active table hint when expiring-soon count is negative", () => {
+    const metrics = { exceptionsActive: 2, exceptionsExpiringSoon: -2 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics,
+      openFindingsHref: "/security/findings",
+    });
+
+    expect(tiles.find((tile) => tile.key === "exceptions-active")?.hint).toBeUndefined();
+  });
+
+  it("omits open findings drill-through href when count is fractional", () => {
+    const metrics = { openFindings: 2.2 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics,
+      openFindingsHref: "/security/findings",
+    });
+
+    expect(tiles.find((tile) => tile.key === "open-findings")?.presentation.href).toBeUndefined();
   });
 
   it("omits exceptions footnote when expiring-soon count is negative", () => {
