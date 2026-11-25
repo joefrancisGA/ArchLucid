@@ -7,6 +7,11 @@ describe("formatRemediationFactoryPercentDisplay", () => {
     expect(formatRemediationFactoryPercentDisplay(0.42)).toBe("42%");
   });
 
+  it("treats unity fraction as one hundred percent", () => {
+    expect(formatRemediationFactoryPercentDisplay(1)).toBe("100%");
+    expect(formatRemediationFactoryPercentDisplay(1.0)).toBe("100%");
+  });
+
   it("keeps 0–100 values as whole percents", () => {
     expect(formatRemediationFactoryPercentDisplay(87)).toBe("87%");
   });

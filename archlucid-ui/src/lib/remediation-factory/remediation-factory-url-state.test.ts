@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   parseRemediationFactoryUrlStateFromSearch,
   remediationFactoryUrlStateToSearchParams,
+  remediationFactoryHrefFromSearch,
   REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM,
   REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM,
   REMEDIATION_FACTORY_SELECTED_FINDING_PARAM,
@@ -100,5 +101,65 @@ describe("remediation-factory-url-state", () => {
         `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=  TRUE  `,
       ).metricsSummaryOpen,
     ).toBe(true);
+  });
+  it("treats OFF metrics disclosure token as closed on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=OFF`,
+      ).metricsSummaryOpen,
+    ).toBe(false);
+  });
+
+  it("treats zero metrics disclosure token as closed on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=0`,
+      ).metricsSummaryOpen,
+    ).toBe(false);
+  });
+
+  it("writes metrics disclosure open when all selection params are cleared", () => {
+    const params = remediationFactoryUrlStateToSearchParams({
+      selectedFindingId: null,
+      selectedPathId: null,
+      fromSnapshotId: null,
+      toSnapshotId: null,
+      metricsSummaryOpen: true,
+    });
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
+    expect(params.get(REMEDIATION_FACTORY_SELECTED_FINDING_PARAM)).toBeNull();
+  });
+
+  it("clears stale selection UUIDs when opening metrics from a populated base search", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: true,
+      },
+      `${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_SELECTED_FINDING_PARAM)).toBeNull();
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
+  });
+
+  it("remediationFactoryHrefFromSearch preserves foreign query params without mutating selection", () => {
+    const href = remediationFactoryHrefFromSearch(
+      "/governance/remediation-factory",
+      "selectedFinding=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&foreign=keep",
+    );
+
+    expect(href).toContain("selectedFinding=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    expect(href).toContain("foreign=keep");
+  });
+
+  it("remediationFactoryHrefFromSearch threads pathname when search is empty", () => {
+    expect(remediationFactoryHrefFromSearch("/governance/remediation-factory", "")).toBe(
+      "/governance/remediation-factory",
+    );
   });
 });

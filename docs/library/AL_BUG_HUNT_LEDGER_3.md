@@ -381,14 +381,22 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 thorough hunt (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-6 `(candidate)` rows — all **valid-no-repro**: **valid-no-repro** `0` metrics token (`treats zero metrics disclosure token as closed on read`), **valid-no-repro** stale UUID on metrics write (`clears stale selection UUIDs when opening metrics from a populated base search`), **valid-no-repro** unity fraction display (`treats unity fraction as one hundred percent`), **valid-no-repro** all-short path overflow line (`returns null overflow line when every path id is short`), **valid-no-repro** disclosure-only href writer (`remediationFactoryHrefFromSearch preserves foreign query params without mutating selection`; stale selection via disclosure-only writer is intentional per hunt #2). Restored pass-5 URL monitors dropped in prior push. Scoped vitest **97/97** (`remediation-factory`). Reseeded pass-7 below. Private beta: n/a.
+
+- [x] (superseded) pass-6 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (dry):** pass-7 reseed.
+- [ ] (candidate) `parseRemediationFactoryMetricsSummaryOpen` — `false` literal with mixed case — locus: open parse; monitor; pass-7 reseed.
+- [ ] (candidate) `normalizeUuidQueryValue` — tab-only selection id — locus: UUID trim; monitor; pass-7 reseed.
+- [ ] (candidate) `formatRemediationFactoryPercentDisplay` — value exactly 0 — locus: zero percent; monitor; pass-7 reseed.
+- [ ] (candidate) `attackPathReportPathChipOverflowLine` — empty input array — locus: overflow guard; monitor; pass-7 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — foreign params preserved when clearing snapshots — locus: base search threading; monitor; pass-7 reseed.
 2026-11-25 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof on five pass-5 `(candidate)` rows — **valid-no-repro** percent above 100 (`renders percent tiles above 100 on the API points scale without capping`), **valid-no-repro** `OFF` token (`treats OFF metrics disclosure token as closed on read`), **valid-no-repro** metrics open with cleared selections (`writes metrics disclosure open when all selection params are cleared`), **valid-no-repro** lone ellipsis chip (`returns a lone ellipsis path id without adding a second ellipsis`), **valid-no-repro** unloaded metrics object (`returns null tile values when metrics are not loaded even if a metrics object is present`). Scoped vitest **89/89** (`remediation-factory`). Reseeded pass-6 below. Private beta: n/a.
 
 - [x] (superseded) pass-5 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed-only):** pass-6 reseed.
-- [ ] (candidate) `parseRemediationFactoryMetricsSummaryOpen` — `0` numeric token — locus: open parse; monitor; pass-6 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — stale UUID params when only metrics toggles — locus: partial state write; monitor; pass-6 reseed.
-- [ ] (candidate) `formatRemediationFactoryPercentDisplay` — exactly 1.0 fraction vs points — locus: display normalize; monitor; pass-6 reseed.
-- [ ] (candidate) `attackPathReportPathChipOverflowLine` — all short ids — locus: overflow line; monitor; pass-6 reseed.
-- [ ] (candidate) `remediationFactoryHrefFromSearch` — empty pathname segment — locus: operator href; monitor; pass-6 reseed.
+- [x] (valid-no-repro) `parseRemediationFactoryMetricsSummaryOpen` — `0` numeric token — **cheap-disproof 2026-11-25 thorough hunt (dry):** `treats zero metrics disclosure token as closed on read`. — locus: open parse; monitor; pass-6 reseed.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — stale UUID params when only metrics toggles — **cheap-disproof 2026-11-25 thorough hunt (dry):** `clears stale selection UUIDs when opening metrics from a populated base search`. — locus: partial state write; monitor; pass-6 reseed.
+- [x] (valid-no-repro) `formatRemediationFactoryPercentDisplay` — exactly 1.0 fraction vs points — **cheap-disproof 2026-11-25 thorough hunt (dry):** `treats unity fraction as one hundred percent`. — locus: display normalize; monitor; pass-6 reseed.
+- [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — all short ids — **cheap-disproof 2026-11-25 thorough hunt (dry):** `returns null overflow line when every path id is short`. — locus: overflow line; monitor; pass-6 reseed.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — empty pathname segment — **cheap-disproof 2026-11-25 thorough hunt (dry):** `remediationFactoryHrefFromSearch threads pathname when search is empty` (disclosure-only selection retention via separate monitor). — locus: operator href; monitor; pass-6 reseed.
 -11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). **Proven** `parseRemediationFactoryUrlStateFromSearch` treated `remediationFactoryMetricsOpen=yes` and `on` as closed while other operator boolean URL parsers accept those tokens — `parseRemediationFactoryMetricsSummaryOpen` now aligns with `1`/`true`/`yes`/`on`; regressions `treats yes and on metrics disclosure tokens as open on read`. Cheap-disproof on pass-2 `(candidate)` monitors — **valid-no-repro** stale metrics delete on close (`drops stale metrics disclosure param when toggling closed`), **valid-no-repro** `NaN%` percent chips (monitor), **valid-no-repro** whitespace-only path chip, **valid-no-repro** loaded without metrics payload. Scoped vitest **86/86** (`remediation-factory`). Pass-3 reseed below. Private beta: shared remediation-factory URLs with `yes`/`on` metrics disclosure restore open state.
 
 
@@ -461,9 +469,9 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
 - **related-pd-tb:** none
