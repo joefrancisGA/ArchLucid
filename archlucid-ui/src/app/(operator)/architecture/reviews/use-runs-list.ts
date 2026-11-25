@@ -179,12 +179,21 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   }, [urlBuyerPackageScope]);
 
   useEffect(() => {
-    if (listContextFilterRef.current === urlListContextFilter) {
+    const committedListContextFilter = parseRunsListContextFilterFromSearch(
+      new URLSearchParams(readWindowLocationSearch()).get("filter"),
+    );
+
+    const next =
+      committedListContextFilter !== urlListContextFilter
+        ? committedListContextFilter
+        : urlListContextFilter;
+
+    if (listContextFilterRef.current === next) {
       return;
     }
 
-    listContextFilterRef.current = urlListContextFilter;
-    setListContextFilterState(urlListContextFilter);
+    listContextFilterRef.current = next;
+    setListContextFilterState(next);
   }, [urlListContextFilter]);
 
   useEffect(() => {

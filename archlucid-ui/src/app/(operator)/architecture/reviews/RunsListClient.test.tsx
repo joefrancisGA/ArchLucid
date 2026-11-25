@@ -196,6 +196,16 @@ describe("RunsListClient inspector", () => {
 
 
 
+  it("keeps orphan context banner after Escape clears q= when useSearchParams drops filter=", () => {
+    renderRunsList(
+      <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
+      "filter=orphan-candidates&q=Demo",
+    );
+    runsListSearchParamsHarness.applyRouterHref("/architecture/reviews");
+    const filterInput = screen.getByLabelText(/Filter reviews by name or description/i);
+    fireEvent.keyDown(filterInput, { key: "Escape", code: "Escape" });
+    expect(screen.getByTestId("runs-list-orphan-candidates-filter-banner")).toBeInTheDocument();
+  });
   it("preserves committed page in the Next pagination link when useSearchParams lags behind committed page", () => {
     const secondRun = { ...sampleRun, runId: "00000000-0000-0000-0000-0000000000bb", description: "Second" };
     renderRunsList(
