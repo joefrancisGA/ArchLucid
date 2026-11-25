@@ -13,7 +13,7 @@ public sealed class ProvenanceNodeCoalesceTests
         ProvenanceNode existing = new()
         {
             Type = ProvenanceNodeType.Decision,
-            ReferenceId = "dec-1",
+            ReferenceId = " dec-1 ",
             Name = "Enable WAF",
         };
         ProvenanceNode incoming = new()

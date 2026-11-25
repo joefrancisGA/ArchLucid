@@ -23,14 +23,27 @@ public sealed class ApproveGovernanceRequestValidatorTests
         result.IsValid.Should().BeTrue();
     }
 
-    [Fact]
-    public void Validate_fails_when_reviewed_by_exceeds_max_length()
+    [Theory]
+    [InlineData(200, 4000, null)]
+    [InlineData(201, 4000, nameof(ApproveGovernanceRequest.ReviewedBy))]
+    [InlineData(200, 4001, nameof(ApproveGovernanceRequest.ReviewComment))]
+    public void Validate_enforces_each_field_length_at_its_boundary(
+        int reviewedByLength,
+        int commentLength,
+        string? invalidProperty)
     {
-        ApproveGovernanceRequest request = new() { ReviewedBy = new string('r', 201), ReviewComment = "ok" };
+        ApproveGovernanceRequest request = new()
+        {
+            ReviewedBy = new string('r', reviewedByLength),
+            ReviewComment = new string('c', commentLength),
+        };
 
         ValidationResult result = _validator.Validate(request);
 
-        result.IsValid.Should().BeFalse();
+        if (invalidProperty is null)
+            result.IsValid.Should().BeTrue();
+        else
+            result.Errors.Should().ContainSingle().Which.PropertyName.Should().Be(invalidProperty);
     }
 
     [Fact]

@@ -1,5 +1,3 @@
-using System.Globalization;
-
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
@@ -120,7 +118,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
     }
 
     [SkippableFact]
-    public async Task Concurrent_record_usage_converges_on_expected_tokens()
+    public async Task Concurrent_record_usage_retries_a_real_stale_version_and_preserves_both_updates()
     {
         LlmDailyTenantTokenWindowOptions opts = new()
         {
@@ -132,27 +130,57 @@ public sealed class LlmDailyTenantBudgetTrackerTests
         Mock<IOptionsMonitor<LlmDailyTenantTokenWindowOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(opts);
 
-        InMemoryLlmTenantBudgetRepository repo = new();
-        LlmDailyTenantBudgetTracker tracker = new(monitor.Object, repo);
+        const string fixedPeriodKey = "2026-10-22";
         Guid tenant = Guid.NewGuid();
+        InMemoryLlmTenantBudgetRepository store = new();
+        Mock<ILlmTenantBudgetRepository> repo = new(MockBehavior.Strict);
+        TaskCompletionSource bothSettling = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        int settleAttempts = 0;
+        int conflicts = 0;
+
+        // Pin the backing row so the optimistic-concurrency check is independent of UTC midnight.
+        repo.Setup(r => r.GetOrCreateAsync(tenant, LlmBudgetPeriod.Daily, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((Guid id, LlmBudgetPeriod period, string _, CancellationToken ct) =>
+                store.GetOrCreateAsync(id, period, fixedPeriodKey, ct));
+        repo.Setup(r => r.SettleAsync(It.IsAny<LlmTenantBudgetSettleRequest>(), It.IsAny<CancellationToken>()))
+            .Returns(async (LlmTenantBudgetSettleRequest request, CancellationToken ct) =>
+            {
+                int attempt = Interlocked.Increment(ref settleAttempts);
+                if (attempt == 2)
+                    bothSettling.TrySetResult();
+                if (attempt <= 2)
+                    await bothSettling.Task.WaitAsync(ct);
+
+                LlmTenantBudgetSettleResult result = await store.SettleAsync(new LlmTenantBudgetSettleRequest
+                {
+                    TenantId = request.TenantId,
+                    Period = request.Period,
+                    PeriodKey = fixedPeriodKey,
+                    ActualTokens = request.ActualTokens,
+                    ReleaseReservedTokens = request.ReleaseReservedTokens,
+                    WarnAtTokens = request.WarnAtTokens,
+                    ExpectedRowVersion = request.ExpectedRowVersion,
+                }, ct);
+                if (result.ConcurrencyConflict)
+                    Interlocked.Increment(ref conflicts);
+
+                return result;
+            });
+
+        LlmDailyTenantBudgetTracker tracker = new(monitor.Object, repo.Object);
         IScopeContextProvider scope = CreateScopeProvider(tenant);
+        using CancellationTokenSource timeout = new(TimeSpan.FromSeconds(10));
 
-        Task[] tasks = new Task[32];
-
-        for (int i = 0; i < tasks.Length; i++)
-        {
-            tasks[i] = tracker.RecordUsageAndMaybeWarnAsync(
-                tenant, "azure-openai", scope, null, 1, 1, 0, null, CancellationToken.None);
-        }
-
-        await Task.WhenAll(tasks);
-
-        DateOnly day = TimeProvider.System.UtcToday();
-        string periodKey = day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+        await Task.WhenAll(
+            tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scope, null, 1, 1, 0, null, timeout.Token),
+            tracker.RecordUsageAndMaybeWarnAsync(tenant, "azure-openai", scope, null, 1, 1, 0, null, timeout.Token))
+            .WaitAsync(timeout.Token);
         LlmTenantBudgetStateReadModel row =
-            await repo.GetOrCreateAsync(tenant, LlmBudgetPeriod.Daily, periodKey, CancellationToken.None);
+            await store.GetOrCreateAsync(tenant, LlmBudgetPeriod.Daily, fixedPeriodKey, timeout.Token);
 
-        row.TokensConsumed.Should().Be(64L);
+        conflicts.Should().Be(1);
+        settleAttempts.Should().Be(3);
+        row.TokensConsumed.Should().Be(4L);
     }
 
     private static IScopeContextProvider CreateScopeProvider(Guid tenantId)
