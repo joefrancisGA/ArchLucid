@@ -116,4 +116,14 @@ describe("infra-evidence-workbench-url", () => {
       "/governance/infrastructure/remediation?cloudResourceId=11111111-1111-1111-1111-111111111111&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc",
     );
   });
+
+  it("builds drift workbench links with securityEvidencePathId", () => {
+    expect(
+      buildDriftWorkbenchHref({
+        snapshotId: "11111111-1111-1111-1111-111111111111",
+        securityEvidencePathId: "22222222-2222-2222-2222-222222222222",
+      }),
+    ).toContain("securityEvidencePathId=22222222-2222-2222-2222-222222222222");
+  });
 });
+

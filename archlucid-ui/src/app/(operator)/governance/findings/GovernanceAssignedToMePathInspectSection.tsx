@@ -4,6 +4,15 @@ import { useCallback, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
+import { RemediationFactoryRankedPathAskHandoff } from "@/components/remediation-factory/RemediationFactoryRankedPathAskHandoff";
+import {
+  RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM,
+  RESOURCE_HUB_SNAPSHOT_ID_PARAM,
+  parseResourceHubQueryValueFromSearch,
+} from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
+import { GOVERNANCE_FINDINGS_QUEUE_RANKED_PATH_ASK_SCOPE_LINE } from "@/lib/governance/governance-findings-queue-ranked-path-ask-handoff-copy";
 import {
   GOVERNANCE_ASSIGNED_TO_ME_PATH_INSPECT_SELECT_PROMPT,
   GOVERNANCE_FINDINGS_QUEUE_PATH_INSPECT_SELECT_PROMPT,
@@ -33,8 +42,15 @@ export function GovernanceAssignedToMePathInspectSection(
 ): React.JSX.Element | null {
   const { productLine } = useProductLine();
   const searchParams = useSearchParams();
-  const pathInspectPanelRef = useRef<HTMLElement | null>(null);
   const secureNowFindingsDesk = isSecureNowProductLine(productLine);
+  const partialCapture = useLatestSnapshotCaptureIsPartial(secureNowFindingsDesk);
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
+  const urlSecurityEvidencePathId = parseResourceHubQueryValueFromSearch(
+    searchParams.get(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM),
+  );
+  const urlSnapshotId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_SNAPSHOT_ID_PARAM));
+  const askSnapshotId = urlSnapshotId.length > 0 ? urlSnapshotId : partialCaptureSnapshotId;
+  const pathInspectPanelRef = useRef<HTMLElement | null>(null);
 
   const onFocusPathInspect = useCallback(() => {
     focusGovernanceFindingsQueuePathInspectPanel(pathInspectPanelRef.current);
@@ -71,11 +87,24 @@ export function GovernanceAssignedToMePathInspectSection(
     : GOVERNANCE_FINDINGS_QUEUE_PATH_INSPECT_SELECT_PROMPT;
 
   return (
-    <SecurityEvidencePathInspectPanel
+    <>
+      {urlSecurityEvidencePathId.length > 0 ? (
+        <RemediationFactoryRankedPathAskHandoff
+          testId="governance-findings-ranked-path-ask-handoff"
+          snapshotId={askSnapshotId}
+          securityEvidencePathId={urlSecurityEvidencePathId}
+          disabled={partialCapture}
+          hubTab="findings"
+          scopeLine={GOVERNANCE_FINDINGS_QUEUE_RANKED_PATH_ASK_SCOPE_LINE}
+        />
+      ) : null}
+      <SecurityEvidencePathInspectPanel
       findingId={pathInspectFindingId}
       panelRef={pathInspectPanelRef}
       selectPromptPreset={selectPromptPreset}
       showFocusPathInspectShortcutHint
+      pathIdOverride={urlSecurityEvidencePathId.length > 0 ? urlSecurityEvidencePathId : undefined}
     />
+    </>
   );
 }

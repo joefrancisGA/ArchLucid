@@ -6,6 +6,7 @@ import {
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_CONTROL_ID_PARAM,
+  RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM,
   resourceHubFilterHrefFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import type { CloudResourceExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
@@ -39,6 +40,7 @@ export type InfraEvidenceWorkbenchContext = {
   readonly assessmentId?: string | null;
   readonly auditEvidenceSnapshotId?: string | null;
   readonly controlId?: string | null;
+  readonly securityEvidencePathId?: string | null;
 };
 
 export function parseInfraEvidenceWorkbenchQueryValue(raw: string | null | undefined): string {
@@ -82,6 +84,10 @@ export function buildDriftWorkbenchHref(context: InfraEvidenceWorkbenchContext =
 
   if (context.controlId != null && context.controlId.trim().length > 0) {
     params.set(RESOURCE_HUB_CONTROL_ID_PARAM, context.controlId.trim());
+  }
+
+  if (context.securityEvidencePathId != null && context.securityEvidencePathId.trim().length > 0) {
+    params.set(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM, context.securityEvidencePathId.trim());
   }
 
   const query = params.toString();
