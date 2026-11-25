@@ -35,7 +35,16 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: () => false,
   useOperatorNavAuthority: () => ({
     isAuthorityLoading: false,
+    currentPrincipal: operatorNavOutsideProviderPrincipal,
   }),
+}));
+
+vi.mock("@/hooks/use-latest-snapshot-capture-partial", () => ({
+  useLatestSnapshotCaptureIsPartial: () => false,
+}));
+
+vi.mock("@/hooks/use-latest-partial-capture-snapshot-id", () => ({
+  useLatestPartialCaptureSnapshotId: () => null,
 }));
 
 vi.mock("@/hooks/use-review-intake-navigation", () => ({
@@ -53,6 +62,7 @@ vi.mock("@/hooks/use-review-intake-navigation", () => ({
 }));
 
 import { HelpSpecialtyWalkthroughTemplatesView } from "@/app/(operator)/help/_sections/HelpSpecialtyWalkthroughTemplatesView";
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
   SPECIALTY_WALKTHROUGHS_HELP_CLAIM_DISCIPLINE,

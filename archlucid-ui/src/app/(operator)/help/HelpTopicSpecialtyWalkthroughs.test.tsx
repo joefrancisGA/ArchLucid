@@ -1,9 +1,11 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const useSearchParams = vi.fn();
 const replace = vi.fn();
 const mockIsAuthorityLoading = vi.hoisted(() => vi.fn(() => false));
+const mockLatestCaptureIsPartial = vi.hoisted(() => vi.fn<(enabled: boolean) => boolean>());
+const mockLatestPartialCaptureSnapshotId = vi.hoisted(() => vi.fn<(enabled: boolean) => string | null>());
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
@@ -19,7 +21,16 @@ vi.mock("next/navigation", async (importOriginal) => {
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => ({
     isAuthorityLoading: mockIsAuthorityLoading(),
+    currentPrincipal: operatorNavOutsideProviderPrincipal,
   }),
+}));
+
+vi.mock("@/hooks/use-latest-snapshot-capture-partial", () => ({
+  useLatestSnapshotCaptureIsPartial: mockLatestCaptureIsPartial,
+}));
+
+vi.mock("@/hooks/use-latest-partial-capture-snapshot-id", () => ({
+  useLatestPartialCaptureSnapshotId: mockLatestPartialCaptureSnapshotId,
 }));
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
@@ -44,6 +55,7 @@ vi.mock("@/hooks/use-review-intake-navigation", () => ({
 
 import { HelpSpecialtyWalkthroughTemplatesView } from "@/app/(operator)/help/_sections/HelpSpecialtyWalkthroughTemplatesView";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
   SPECIALTY_REVIEW_TEMPLATES_PAGE_TITLE,
@@ -83,7 +95,34 @@ describe("HelpSpecialtyWalkthroughTemplatesView", () => {
       searchParams = new URLSearchParams(url.search);
     });
     mockIsAuthorityLoading.mockReturnValue(false);
+    mockLatestCaptureIsPartial.mockReturnValue(false);
+    mockLatestPartialCaptureSnapshotId.mockReturnValue(null);
     vi.mocked(useOperateCapability).mockReturnValue(true);
+  });
+
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("enables partial-capture recovery only for SecureNow even when Architecture sees cached data", () => {
+    if (entry === undefined) {
+      throw new Error("Expected specialty-walkthroughs documentation entry.");
+    }
+
+    mockLatestCaptureIsPartial.mockReturnValue(true);
+    mockLatestPartialCaptureSnapshotId.mockReturnValue("partial-snapshot");
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_PRODUCT", "architecture");
+
+    const { rerender } = render(<HelpSpecialtyWalkthroughTemplatesView entry={entry} />);
+
+    expect(mockLatestCaptureIsPartial).toHaveBeenLastCalledWith(false);
+    expect(mockLatestPartialCaptureSnapshotId).toHaveBeenLastCalledWith(false);
+    expect(screen.queryByTestId("help-specialty-walkthroughs-partial-capture")).not.toBeInTheDocument();
+
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_PRODUCT", "security");
+    rerender(<HelpSpecialtyWalkthroughTemplatesView entry={entry} />);
+
+    expect(mockLatestCaptureIsPartial).toHaveBeenLastCalledWith(true);
+    expect(mockLatestPartialCaptureSnapshotId).toHaveBeenLastCalledWith(true);
+    expect(screen.getByTestId("help-specialty-walkthroughs-partial-capture")).toHaveTextContent("partial-snapshot");
   });
 
   it("does not list a claim-discipline TOC entry on the specialty walkthrough catalog headings", () => {
@@ -256,7 +295,7 @@ describe("HelpSpecialtyWalkthroughTemplatesView", () => {
 
     render(<HelpSpecialtyWalkthroughTemplatesView entry={entry} />);
 
-    expect(screen.getByTestId("specialty-template-permission-hint")).toHaveTextContent(/review creation permission/i);
+    expect(screen.getByTestId("specialty-template-permission-hint")).toHaveTextContent(/cannot start a review here/i);
     expect(screen.getByText("Preview only")).toBeInTheDocument();
     expect(screen.getByTestId("specialty-template-use-saas-readiness")).toBeDisabled();
     expect(screen.getByTestId("specialty-template-preview-saas-readiness")).toBeEnabled();

@@ -192,7 +192,10 @@ import {
   type DriftLastComparisonSelection,
 } from "@/lib/infra-evidence/infra-evidence-drift-last-comparison-storage";
 import { partitionInfraEvidenceLaterSnapshotsForAnchor } from "@/lib/infra-evidence/infra-evidence-drift-later-snapshots";
-import { infraEvidenceSnapshotCaptureStatusTagProps } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
+import {
+  infraEvidenceSnapshotCaptureStatusTagProps,
+  isInfraEvidenceSnapshotCaptureSucceeded,
+} from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
   SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
