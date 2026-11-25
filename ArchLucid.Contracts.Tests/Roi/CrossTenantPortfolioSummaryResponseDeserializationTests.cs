@@ -28,4 +28,24 @@ public sealed class CrossTenantPortfolioSummaryResponseDeserializationTests
 
         response.TopSystemicIssues.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_populated_portfolio_preserves_systemic_issue()
+    {
+        const string json = """
+            {
+              "totalSystemCount": 6,
+              "isKAnonymitySatisfied": true,
+              "topSystemicIssues": [{"category": "Reliability", "severity": "High", "count": 3}]
+            }
+            """;
+
+        CrossTenantPortfolioSummaryResponse response =
+            JsonSerializer.Deserialize<CrossTenantPortfolioSummaryResponse>(json, ContractJson.CamelCaseCompact)!;
+
+        response.TotalSystemCount.Should().Be(6);
+        response.IsKAnonymitySatisfied.Should().BeTrue();
+        SystemicIssueSummary issue = response.TopSystemicIssues.Should().ContainSingle().Which;
+        (issue.Category, issue.Severity, issue.Count).Should().Be(("Reliability", "High", 3));
+    }
 }

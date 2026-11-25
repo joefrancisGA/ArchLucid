@@ -8,17 +8,24 @@ namespace ArchLucid.Core.Tests.CustomerSuccess;
 [Trait("Suite", "Core")]
 public sealed class TenantHealthScoringCalculatorTests
 {
-    [Fact]
-    public void Engagement_boosts_for_commits_and_multiple_actors_and_caps_at_five()
+    [Theory]
+    [InlineData(0, 0, 1, 10)]
+    [InlineData(3, 0, 1, 30)]
+    [InlineData(3, 1, 1, 34)]
+    [InlineData(3, 0, 2, 34)]
+    [InlineData(3, 0, 3, 34)]
+    [InlineData(3, 0, 4, 36)]
+    [InlineData(3, 1, 4, 40)]
+    [InlineData(20, 3, 5, 50)]
+    public void Engagement_applies_exact_boosts_at_the_actor_boundaries(
+        int runs,
+        int commits,
+        int actors,
+        int expectedTenths)
     {
-        decimal one = TenantHealthScoringCalculator.EngagementScore(0, 0, 1);
-        one.Should().Be(1.0M);
+        decimal score = TenantHealthScoringCalculator.EngagementScore(runs, commits, actors);
 
-        decimal withCommit = TenantHealthScoringCalculator.EngagementScore(3, 1, 1);
-        withCommit.Should().BeGreaterThan(3.0M);
-
-        decimal heavy = TenantHealthScoringCalculator.EngagementScore(20, 3, 5);
-        heavy.Should().Be(5.0M);
+        score.Should().Be(expectedTenths / 10m);
     }
 
     [Fact]
