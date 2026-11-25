@@ -150,23 +150,8 @@ public sealed class ConversationController(
         HashSet<Guid> authorizedRuns = projectRuns ?? [];
         authorizedRuns.UnionWith(anchors);
 
-        // Verify the bounded proof window first. Denied turns never enter the payload query.
-        IReadOnlyList<ConversationProofRow> proofs = await messageRepository.GetRecentProofsAsync(
-            scope, threadId, PaginationDefaults.MaxListingTake, ct);
-        var pairs = AskHistoryEvidenceScope.SelectVerifiedTurnReferences(proofs, threadId, actorId!, authorizedRuns);
-        if (pairs.Count == 0)
-            return NotFoundThread();
-
-        var messageIds = pairs.SelectMany(pair => new[] { pair.Question.MessageId, pair.Answer.MessageId }).ToHashSet();
-        IReadOnlyList<ConversationMessage> messages = await messageRepository.GetAuthorizedMessagesAsync(
-            scope, threadId, messageIds, ct);
-        if (messages.Count != messageIds.Count || !messageIds.SetEquals(messages.Select(m => m.MessageId)) ||
-            messages.Any(m => m.ThreadId != threadId))
-            return NotFoundThread();
-
-        // Rebind the hydrated question text to the same proof before returning it.
-        IReadOnlyList<ConversationMessage> verified = AskHistoryEvidenceScope.SelectVerifiedTurns(
-            messages, threadId, actorId!, authorizedRuns);
+        IReadOnlyList<ConversationMessage> verified = await ConversationHistoryReader.ReadAskAsync(
+            messageRepository, scope, threadId, PaginationDefaults.MaxListingTake, actorId!, authorizedRuns, ct);
         if (verified.Count == 0)
             return NotFoundThread();
 

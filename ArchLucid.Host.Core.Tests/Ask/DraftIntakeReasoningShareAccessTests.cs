@@ -114,8 +114,10 @@ public sealed class DraftIntakeReasoningShareAccessTests
                 kind == "other-draft" ? Guid.NewGuid() : DraftId,
                 kind == "other-actor" ? "jwt:tenant:other" : Actor,
                 null, [], kind == "ordinary-ask", kind == "legacy");
-            h.Conversation.Setup(c => c.GetHistoryAsync(old.ThreadId, It.IsAny<int>(), CancellationToken.None))
-                .ReturnsAsync(history);
+            h.Conversation.Setup(c => c.GetVerifiedDraftHistoryAsync(Scope, old.ThreadId, It.IsAny<int>(),
+                    DraftId, null, Actor, It.Is<IReadOnlySet<Guid>>(ids => ids.Count == 0), CancellationToken.None))
+                .ReturnsAsync(AskHistoryEvidenceScope.SelectVerifiedDraftTurns(
+                    history, old.ThreadId, DraftId, null, Actor, new HashSet<Guid>()));
         }
 
         ConversationThread fresh = Thread();
@@ -149,12 +151,10 @@ public sealed class DraftIntakeReasoningShareAccessTests
             .ReturnsAsync(true);
         h.Access.Setup(a => a.CanReadRunAsync(Scope, prior, CancellationToken.None)).ReturnsAsync(true);
         h.Threads.Setup(t => t.GetByIdAsync(thread.ThreadId, CancellationToken.None)).ReturnsAsync(thread);
-        h.Conversation.Setup(c => c.GetHistoryAsync(thread.ThreadId, It.IsAny<int>(), CancellationToken.None))
-            .ReturnsAsync(Turn(thread, "verified-answer", DraftId, Actor, ArchitectureId, [prior])
-                .Concat(Turn(thread, "revoked-answer", DraftId, Actor, ArchitectureId, [prior, Guid.NewGuid()]))
-                .Concat(Turn(thread, "foreign-answer", Guid.NewGuid(), Actor, ArchitectureId, [prior]))
-                .Concat(Turn(thread, "ask-answer", DraftId, Actor, ArchitectureId, [prior], ordinaryAsk: true))
-                .ToArray());
+        h.Conversation.Setup(c => c.GetVerifiedDraftHistoryAsync(Scope, thread.ThreadId, It.IsAny<int>(),
+                DraftId, ArchitectureId, Actor, It.Is<IReadOnlySet<Guid>>(ids => ids.SetEquals(new[] { prior })),
+                CancellationToken.None))
+            .ReturnsAsync(Turn(thread, "verified-answer", DraftId, Actor, ArchitectureId, [prior]));
         h.Complete(thread);
 
         DraftIntakeReasonResponse? response = await h.ReasonAsync();

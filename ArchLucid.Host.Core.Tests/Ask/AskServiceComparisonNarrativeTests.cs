@@ -180,7 +180,8 @@ public sealed class AskServiceComparisonNarrativeTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(thread);
         conversationService
-            .Setup(service => service.GetHistoryAsync(thread.ThreadId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .Setup(service => service.GetVerifiedAskHistoryAsync(It.IsAny<ScopeContext>(), thread.ThreadId, It.IsAny<int>(),
+                It.IsAny<string>(), It.IsAny<IReadOnlySet<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         conversationService
             .Setup(service => service.AppendUserMessageAsync(thread.ThreadId, It.IsAny<string>(), It.IsAny<CancellationToken>()))

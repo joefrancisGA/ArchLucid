@@ -11,11 +11,13 @@ public sealed class ConversationProofRow
     public DateTime CreatedUtc { get; init; }
     public string? QuestionKey { get; init; }
     public string? AnswerProofJson { get; init; }
+    public string? DraftAnswerProofJson { get; init; }
 
     public static ConversationProofRow FromStoredMetadata(ConversationMessage message)
     {
         string? questionKey = null;
         string? answerProof = null;
+        string? draftAnswerProof = null;
         try
         {
             using JsonDocument document = JsonDocument.Parse(message.MetadataJson ?? "{}");
@@ -30,6 +32,10 @@ public sealed class ConversationProofRow
                     root.TryGetProperty("askEvidenceScopeV1", out JsonElement proof) &&
                     proof.ValueKind == JsonValueKind.Object)
                     answerProof = proof.GetRawText();
+                if (message.Role == ConversationMessageRole.Assistant &&
+                    root.TryGetProperty("draftIntakeEvidenceScopeV1", out JsonElement draftProof) &&
+                    draftProof.ValueKind == JsonValueKind.Object)
+                    draftAnswerProof = draftProof.GetRawText();
             }
         }
         catch (JsonException)
@@ -41,6 +47,7 @@ public sealed class ConversationProofRow
         {
             MessageId = message.MessageId, ThreadId = message.ThreadId, Role = message.Role,
             CreatedUtc = message.CreatedUtc, QuestionKey = questionKey, AnswerProofJson = answerProof,
+            DraftAnswerProofJson = draftAnswerProof,
         };
     }
 }

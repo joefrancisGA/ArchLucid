@@ -87,31 +87,6 @@ public sealed class DapperConversationMessageRepository(
                 cancellationToken: ct));
     }
 
-    /// <inheritdoc />
-    public async Task<IReadOnlyList<ConversationMessage>> GetByThreadIdAsync(
-        Guid threadId,
-        int take,
-        CancellationToken ct)
-    {
-        take = Math.Clamp(take, 1, 500);
-        const string sql = """
-                           SELECT MessageId, ThreadId, Role, Content, CreatedUtc, MetadataJson
-                           FROM (
-                               SELECT TOP (@Take)
-                                   MessageId, ThreadId, Role, Content, CreatedUtc, MetadataJson
-                               FROM dbo.ConversationMessages
-                               WHERE ThreadId = @ThreadId
-                               ORDER BY CreatedUtc DESC, MessageId DESC
-                           ) AS recent
-                           ORDER BY CreatedUtc ASC, MessageId ASC;
-                           """;
-
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        IEnumerable<ConversationMessage> rows = await connection.QueryAsync<ConversationMessage>(
-            new CommandDefinition(sql, new { ThreadId = threadId, Take = take }, cancellationToken: ct));
-        return rows.ToList();
-    }
-
     public async Task<IReadOnlyList<ConversationProofRow>> GetRecentProofsAsync(
         ScopeContext scope, Guid threadId, int take, CancellationToken ct)
     {
@@ -121,7 +96,8 @@ public sealed class DapperConversationMessageRepository(
         const string sql = """
                            SELECT MessageId, ThreadId, Role, CreatedUtc,
                                CASE WHEN Role = N'User' THEN JSON_VALUE(ProofMetadata, '$.conversationQuestionKeyV1') END AS QuestionKey,
-                               CASE WHEN Role = N'Assistant' THEN JSON_QUERY(ProofMetadata, '$.askEvidenceScopeV1') END AS AnswerProofJson
+                               CASE WHEN Role = N'Assistant' THEN JSON_QUERY(ProofMetadata, '$.askEvidenceScopeV1') END AS AnswerProofJson,
+                               CASE WHEN Role = N'Assistant' THEN JSON_QUERY(ProofMetadata, '$.draftIntakeEvidenceScopeV1') END AS DraftAnswerProofJson
                            FROM (
                                SELECT TOP (@Take) m.MessageId, m.ThreadId, m.Role, m.CreatedUtc,
                                    CASE WHEN ISJSON(m.MetadataJson) = 1 THEN m.MetadataJson ELSE N'{}' END AS ProofMetadata

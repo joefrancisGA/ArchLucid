@@ -118,10 +118,8 @@ public sealed class DraftIntakeReasoningService(
             if (candidate is not null && candidate.ThreadId == linkedThreadId &&
                 IsUnanchoredInScope(candidate, scope))
             {
-                IReadOnlyList<ConversationMessage> history = await _conversationService.GetHistoryAsync(
-                    candidate.ThreadId, HistoryTake, cancellationToken);
-                verifiedHistory = AskHistoryEvidenceScope.SelectVerifiedDraftTurns(
-                    history, candidate.ThreadId, draftId, draft.ArchitectureId, actorId, authorizedRuns);
+                verifiedHistory = await _conversationService.GetVerifiedDraftHistoryAsync(
+                    scope, candidate.ThreadId, HistoryTake, draftId, draft.ArchitectureId, actorId, authorizedRuns, cancellationToken);
                 if (verifiedHistory.Count > 0)
                     thread = candidate;
             }

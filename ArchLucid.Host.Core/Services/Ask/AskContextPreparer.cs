@@ -137,10 +137,8 @@ public sealed class AskContextPreparer(
         authorizedRuns.UnionWith(checkedRuns);
 
         string question = request.Question.Trim();
-        IReadOnlyList<ConversationMessage> historyWindow =
-            await _conversationService.GetHistoryAsync(thread.ThreadId, HistoryTake, cancellationToken);
-        IReadOnlyList<ConversationMessage> priorMessages = AskHistoryEvidenceScope.SelectVerifiedTurns(
-            historyWindow, thread.ThreadId, actorId, authorizedRuns);
+        IReadOnlyList<ConversationMessage> priorMessages = await _conversationService.GetVerifiedAskHistoryAsync(
+            scope, thread.ThreadId, HistoryTake, actorId, authorizedRuns, cancellationToken);
         string historyText = await _conversationHistoryBuilder.BuildHistoryTextAsync(priorMessages, cancellationToken);
         await _conversationService.AppendUserMessageAsync(thread.ThreadId, question, cancellationToken);
 

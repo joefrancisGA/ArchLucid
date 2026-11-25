@@ -33,28 +33,6 @@ public sealed class InMemoryConversationMessageRepository(IConversationThreadRep
         return Task.CompletedTask;
     }
 
-    /// <inheritdoc />
-    public Task<IReadOnlyList<ConversationMessage>> GetByThreadIdAsync(
-        Guid threadId,
-        int take,
-        CancellationToken ct)
-    {
-        ct.ThrowIfCancellationRequested();
-        take = Math.Clamp(take, 1, 500);
-        lock (_gate)
-        {
-            List<ConversationMessage> result = _messages
-                .Where(x => x.ThreadId == threadId)
-                .OrderByDescending(x => x.CreatedUtc)
-                .ThenByDescending(x => new SqlGuid(x.MessageId))
-                .Take(take)
-                .OrderBy(x => x.CreatedUtc)
-                .ThenBy(x => new SqlGuid(x.MessageId))
-                .ToList();
-            return Task.FromResult<IReadOnlyList<ConversationMessage>>(result);
-        }
-    }
-
     public async Task<IReadOnlyList<ConversationProofRow>> GetRecentProofsAsync(
         ScopeContext scope, Guid threadId, int take, CancellationToken ct)
     {

@@ -59,7 +59,8 @@ public sealed class AskServiceAskAboutFindingTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(thread);
         conversationService
-            .Setup(c => c.GetHistoryAsync(thread.ThreadId, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .Setup(c => c.GetVerifiedAskHistoryAsync(It.IsAny<ScopeContext>(), thread.ThreadId, It.IsAny<int>(),
+                It.IsAny<string>(), It.IsAny<IReadOnlySet<Guid>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         Mock<IFindingInspectReadRepository> findingRepository = new();

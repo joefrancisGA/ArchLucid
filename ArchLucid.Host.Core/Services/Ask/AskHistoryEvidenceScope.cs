@@ -68,9 +68,20 @@ public sealed record AskHistoryEvidenceScope(string ActorKey, string[] RunKeys, 
     /// <summary>Authorizes immutable references without reading message content.</summary>
     public static IReadOnlyList<(ConversationProofRow Question, ConversationProofRow Answer)> SelectVerifiedTurnReferences(
         IReadOnlyList<ConversationProofRow> proofs, Guid threadId, string actorId, IReadOnlySet<Guid> authorizedRuns) =>
+        SelectVerifiedReferences(proofs, threadId, actorId, authorizedRuns, forDraft: false);
+
+    public static IReadOnlyList<(ConversationProofRow Question, ConversationProofRow Answer)> SelectVerifiedDraftTurnReferences(
+        IReadOnlyList<ConversationProofRow> proofs, Guid threadId, Guid draftId, Guid? architectureId,
+        string actorId, IReadOnlySet<Guid> authorizedRuns) =>
+        draftId == Guid.Empty || ActorKeyFor(threadId, actorId) is null ? [] :
+        SelectVerifiedReferences(proofs, threadId, DraftActor(draftId, architectureId, actorId), authorizedRuns, forDraft: true);
+
+    private static IReadOnlyList<(ConversationProofRow Question, ConversationProofRow Answer)> SelectVerifiedReferences(
+        IReadOnlyList<ConversationProofRow> proofs, Guid threadId, string actorId, IReadOnlySet<Guid> authorizedRuns, bool forDraft) =>
         SelectVerifiedPairs(
             proofs.Where(row => row.MessageId != Guid.Empty).Select(row => new TurnCandidate<ConversationProofRow>(
-                row, row.ThreadId, row.Role, row.QuestionKey, ReadProof(row.AnswerProofJson))),
+                row, row.ThreadId, row.Role, row.QuestionKey,
+                ReadProof(forDraft ? row.DraftAnswerProofJson : row.AnswerProofJson))),
             threadId, actorId, authorizedRuns);
 
     private static IReadOnlyList<ConversationMessage> SelectVerifiedTurnsCore(
