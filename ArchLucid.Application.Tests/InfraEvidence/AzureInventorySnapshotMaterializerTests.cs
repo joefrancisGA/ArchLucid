@@ -671,6 +671,7 @@ public sealed class AzureInventorySnapshotMaterializerTests
             property.ResourceRowId == unknown.ResourceRowId
             && property.PropertyKey == "unrelatedProperty");
         captured.UnknownResources.Should().ContainSingle(row =>
+            row.CappedPropertiesJson != null &&
             !row.CappedPropertiesJson.Contains("runtime.", StringComparison.OrdinalIgnoreCase));
     }
 
