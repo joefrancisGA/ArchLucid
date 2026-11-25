@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 thorough hunt (dry): `ui-claim-discipline-policy` pass-46 reseed. Scoped vitest **54/54** (5 focused files).
+> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed-only): `ui-auth-callback` pass-1 reseed. Scoped `AuthCallbackAccessPanel` **101/101**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -3109,6 +3109,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: ui-auth-callback
+
+2026-11-25 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; `ui-claim-discipline-policy` parked at 3/3 dry). Reread `AuthCallbackAccessPanel` submit generation guards, honeypot posting contract, and unsupported-text rejection; no hunt-ready row promoted — **valid-no-repro** whitespace-only required fields round-trip API `validation_failed` with generic client error (`posts whitespace-only name when native validation is bypassed`; `shows generic submit error when the API returns validation_failed`); **valid-no-repro** honeypot peripheral whitespace (`posts honeypot websiteUrl without client-side trim`; `posts empty honeypot websiteUrl string for server trimOptional normalization`); **valid-no-repro** stale `204` after dismiss (`dismisses the form via request access toggle while submit is in flight`); **valid-no-repro** non-JSON failure bodies (`shows generic submit error when the API returns an HTML error body`). Pass-1 reseed below. Scoped `AuthCallbackAccessPanel` **101/101**. Private beta: n/a.
+
+- [ ] (candidate) `AuthCallbackAccessPanel` — client may POST whitespace-only required fields before HTML5 blocks them — locus: payload trim without preflight; input: bypassed constraint validation; monitor.
+- [ ] (candidate) `onSubmit` — HTTP `400 validation_failed` may ignore server `message` for operator copy — locus: non-409 failure branch; input: empty trimmed required fields; monitor.
+- [ ] (candidate) `websiteUrl` — whitespace-only honeypot may normalize to real submit server-side — locus: raw honeypot POST; input: spaces-only website field; monitor.
+- [ ] (candidate) `invalidateInFlightSubmit` — toggle-close may leave `networkInFlightCount` blocking a later submit silently — locus: dismiss mid-flight; input: in-flight POST + reopen; monitor.
+- [ ] (candidate) `technicalDetail` — non-empty whitespace detail hidden while trimmed empty copy still flows to report-problem payload — locus: trim gate vs raw prop; input: whitespace-only technical detail; monitor.
+
 
 2026-10-30 thorough hunt #35 (dry): cheap-disproof closed five candidate rows — generation guards ignore stale 204 success, browser email validation rejects embedded spaces while payload trim handles peripheral spaces, unsupported control characters use the generic submit error by design, in-flight cancellation is disabled and network counts are covered, and React escapes technical detail text. The focused `AuthCallbackAccessPanel.test.tsx` suite passed 101/101; no production code changed. Zone exhausted after all hypotheses were closed, three consecutive dry hunts, and no production-path commit since the last hunt.
 
