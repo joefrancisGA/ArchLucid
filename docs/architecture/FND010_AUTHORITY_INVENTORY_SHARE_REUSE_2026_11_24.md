@@ -6,4 +6,8 @@ These routes now share an inventory reader that applies the existing run sharing
 
 The reader uses the existing scoped keyset queries and the existing run-summary mapper and bulk trace enrichment. It stores a bounded set of sharing decisions within one request to reuse overlapping preflight and page checks. A sparsely shared inventory can require scanning multiple raw pages. Candidate batches stay bounded and honor cancellation.
 
-The focused API suite covers all three routes, raw page boundaries, trailing hidden rows, an all-hidden inventory and a visible invalid seal. This work covers the authority inventory response. The separate `/v1/architecture/reviews` and `/v1/architecture/runs` offset/ETag surface uses a different read service and remains a follow-up.
+The focused API suite covers all three routes, raw page boundaries, trailing hidden rows, an all-hidden inventory and a visible invalid seal. Both architecture inventory routes now share the visible-header reader as well.
+
+`GET /v1/architecture/reviews` and its legacy alias `GET /v1/architecture/runs` use the caller's scoped run-share decisions before applying the offset, page size, and continuation probe. Their response shape, cursor format and private no-store policy are preserved. ETags identify the row versions and continuation metadata, so a grant or revocation affecting only the lookahead row changes the validator.
+
+The architecture inventory tests cover both routes in offset and keyset mode, including share changes with stable visible rows and row versions, a genuine unchanged-page 304, and visible-row offsets across raw page boundaries. Offset reads scan visible candidates from the start of the inventory and can require more queries at deep offsets.

@@ -51,6 +51,31 @@ public sealed class AuthorityRunInventoryQuery(
         }
     }
 
+    /// <summary>Applies offsets, page size and continuation lookahead to visible headers.</summary>
+    public static async Task<RunListPage> PageVisibleHeadersAsync(
+        IAsyncEnumerable<RunRecord> visibleRuns,
+        int offset,
+        int take,
+        CancellationToken ct)
+    {
+        List<RunRecord> page = new(take);
+        await foreach (RunRecord run in visibleRuns.WithCancellation(ct))
+        {
+            if (offset > 0)
+            {
+                offset--;
+                continue;
+            }
+
+            if (page.Count == take)
+                return new RunListPage(page, HasMore: true);
+
+            page.Add(run);
+        }
+
+        return new RunListPage(page, HasMore: false);
+    }
+
     public async Task<IReadOnlyList<RunSummaryDto>> ProjectSummariesAsync(
         ScopeContext scope,
         IReadOnlyList<RunRecord> authorizedRuns,

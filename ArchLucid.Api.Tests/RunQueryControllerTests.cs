@@ -317,6 +317,7 @@ public sealed class RunQueryControllerTests
         Mock<IRunGraphQueryService> graph = new();
         graph
             .Setup(s => s.ListRunsAsync(
+                It.IsAny<ClaimsPrincipal>(),
                 It.IsAny<string?>(),
                 It.IsAny<int?>(),
                 It.IsAny<int>(),
