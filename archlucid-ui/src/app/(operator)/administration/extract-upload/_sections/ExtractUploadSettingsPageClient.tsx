@@ -95,6 +95,8 @@ import {
   formatCloudConnectionsReturnLinkLabel,
 } from "@/lib/integrations/cloud-connections-return-path-honesty-copy";
 import { resolveSecureNowReturnPathFromSearch } from "@/lib/product-line/securenow-second-capture-cloud-connections-return-path";
+import { SECURENOW_INFRASTRUCTURE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { SECURENOW_COLLECTION_AGENT_PATH } from "@/lib/product-line/securenow-collection-agent-route";
 
 function reviewBindingStepLabel(associateRunId: string | null): string | null {
   const trimmed = associateRunId?.trim() ?? "";
@@ -548,6 +550,22 @@ function ExtractUploadSettingsPageClientInner() {
             </aside>
           </div>
         </div>
+
+        {pathname.startsWith(SECURENOW_INFRASTRUCTURE_PATH) ? (
+          <p className={OPERATOR_TYPOGRAPHY.body} data-testid="infrastructure-manual-upload-wayfinding">
+            <Link className={OPERATOR_LINK.inline} href={SECURENOW_COLLECTION_AGENT_PATH}>
+              Collection agent
+            </Link>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href={SECURENOW_INFRASTRUCTURE_PATH}>
+              Infrastructure hub
+            </Link>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href="/">
+              Home
+            </Link>
+          </p>
+        ) : null}
       </div>
 
       <AlertDialog open={demoConfirmOpen} onOpenChange={setDemoConfirmOpen}>
