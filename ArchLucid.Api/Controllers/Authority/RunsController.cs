@@ -2,6 +2,7 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Architecture;
@@ -63,9 +64,13 @@ public sealed partial class RunsController(
     IRunRepository runRepository,
     IRunDetailQueryService runDetailQueryService,
     IManifestHashService manifestHashService,
-    ILogger<RunsController> logger)
+    ILogger<RunsController> logger,
+    IArchitectureShareAccessGate architectureShareAccessGate)
     : ControllerBase
 {
+    private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
+        architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
+
     private readonly IAuthorityQueryService authorityQuery =
         authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
 

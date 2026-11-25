@@ -1,4 +1,5 @@
 using ArchLucid.Api.Controllers.Authority;
+using ArchLucid.Api.Support;
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Controllers.Pilots;
 using ArchLucid.Api.Models;
@@ -107,7 +108,8 @@ public sealed class SealedManifestRuntimeConflictVerificationBatch2Tests
             Mock.Of<IRunRepository>(),
             SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
             SealedManifestHashTestSupport.CreateManifestHashService(),
-            NullLogger<RunsController>.Instance)
+            NullLogger<RunsController>.Instance,
+            Mock.Of<IArchitectureShareAccessGate>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
