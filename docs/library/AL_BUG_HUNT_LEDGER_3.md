@@ -527,11 +527,20 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open over unicode-decimal-one base replaces with canonical 1 — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
 - [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps critical-exposure valueFootnote when count is measuredZero — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in metric-presentation tests.
 
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects Gujarati decimal two token — locus: disclosure parse; input: `૨`; monitor; pass-59 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops Malayalam decimal one from base — locus: writer; input: `൧` base; monitor; pass-59 reseed.
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — treats fullwidth FALSE metrics disclosure token as closed — locus: disclosure parse; input: `Ｆ`; monitor; pass-59 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open over Gujarati decimal-one base replaces with canonical 1 — locus: writer; input: `૧` base; monitor; pass-59 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps recurrence valueFootnote when count is measuredZero — locus: tile chrome; input: recurrenceCount 0; monitor; pass-59 reseed.
+- [x] (superseded) pass-59 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (hit):** pass-60 reseed.
+- [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — extended unicode decimal one token — **proven 2026-11-25 thorough hunt (hit):** regressions in url-state tests.
+
+- [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects Gujarati decimal two token — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression in url-state tests.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics close drops Malayalam decimal one from base — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression in url-state tests.
+- [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — treats fullwidth FALSE metrics disclosure token as closed — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `treats lone fullwidth F metrics disclosure token as closed on read`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open over Gujarati decimal-one base replaces with canonical 1 — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression in url-state tests.
+- [x] (invalid) `buildRemediationFactoryExecutiveMetricTiles` — keeps recurrence valueFootnote when count is measuredZero — **cheap-disproof 2026-11-25 thorough hunt (hit):** no valueFootnote field on recurrence tile.
+
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects Gurmukhi decimal two token — locus: disclosure parse; input: `੨`; monitor; pass-60 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops Gurmukhi decimal one from base — locus: writer; input: `੧` base; monitor; pass-60 reseed.
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — treats fullwidth TRUE metrics disclosure token as open — locus: disclosure parse; input: `Ｔ`; monitor; pass-60 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open over Mongolian decimal-one base replaces with canonical 1 — locus: writer; input: `᠑` base; monitor; pass-60 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps exceptions-active valueFootnote when count is measuredZero — locus: tile chrome; input: exceptionsActiveCount 0; monitor; pass-60 reseed.
 - [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects unicode decimal two token — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** existing regression.
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics close drops unicode decimal one from base — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
 - [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — treats fullwidth FALSE metrics disclosure token as closed — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
@@ -996,9 +1005,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 79
-- **bugs-found:** 69
-- **consecutive-dry-hunts:** 0
+- **hunts:** 80
+- **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25

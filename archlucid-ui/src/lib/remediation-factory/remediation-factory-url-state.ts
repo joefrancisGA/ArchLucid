@@ -46,6 +46,17 @@ const REMEDIATION_FACTORY_DISCLOSURE_DECIMAL_ONE_CODEPOINTS = new Set<number>([
   0x0b67, // ୧ ORIYA DIGIT ONE
   0x0ed1, // ໑ LAO DIGIT ONE
   0x0f21, // ༡ TIBETAN DIGIT ONE
+  0x0a67, // ੧ GURMUKHI DIGIT ONE
+  0x1811, // ᠑ MONGOLIAN DIGIT ONE
+  0xabf1, // ꯱ MEETEI MAYEK DIGIT ONE
+  0x1b51, // ᭑ BALINESE DIGIT ONE
+  0x1947, // ᥇ LIMBU DIGIT ONE
+  0x19d1, // ᧑ NEW TAI LUE DIGIT ONE
+  0x1bb1, // ᮱ SUNDANESE DIGIT ONE
+  0x1c41, // ᱁ LEPCHA DIGIT ONE
+  0x1c51, // ᱑ OL CHIKI DIGIT ONE
+  0xa9d1, // ꧑ JAVANESE DIGIT ONE
+  0xaa51, // ꩑ CHAM DIGIT ONE
 ]);
 
 function remediationFactoryDisclosureUnicodeDecimalOne(trimmed: string): boolean {
