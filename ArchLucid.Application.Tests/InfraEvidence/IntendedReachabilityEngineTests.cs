@@ -122,7 +122,7 @@ public sealed class IntendedReachabilityEngineTests
     }
 
     [Fact]
-    public void Enumerate_pe_reachable_target_produces_private_intended_path_from_app()
+    public void Enumerate_pe_reachable_target_without_measurement_is_indeterminate()
     {
         const string vnetArm =
             "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1";
@@ -162,7 +162,8 @@ public sealed class IntendedReachabilityEngineTests
         candidate.Hops[0].FromNodeId.Should().Be(appArm);
         candidate.Hops.Should().Contain(hop =>
             hop.InferenceSource == GraphEdgeInferenceSources.InventoryPeReachableTarget);
-        candidate.HasInsufficientEvidenceHop.Should().BeFalse();
+        candidate.HasInsufficientEvidenceHop.Should().BeTrue();
+        candidate.Hops[^1].EdgeType.Should().Be(SecureNowArchitectConstants.InsufficientEvidenceDnsHopEdgeType);
         candidate.TerminalAssetNodeId.Should().Be(SqlArm);
     }
 
