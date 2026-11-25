@@ -48,7 +48,8 @@ public static class AzureInventoryRbacDataPlaneRoleMap
         }
 
         if (normalized.Equals("Azure Service Bus Data Sender", StringComparison.OrdinalIgnoreCase)
-            || normalized.Equals("Azure Event Hubs Data Sender", StringComparison.OrdinalIgnoreCase))
+            || normalized.Equals("Azure Event Hubs Data Sender", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("EventGrid Data Sender", StringComparison.OrdinalIgnoreCase))
         {
             return AzureInventoryDerivedDataPlanePermission.Write;
         }
