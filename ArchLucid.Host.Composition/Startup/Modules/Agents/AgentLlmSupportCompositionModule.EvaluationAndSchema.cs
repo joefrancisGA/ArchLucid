@@ -10,6 +10,7 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Findings;
+using ArchLucid.Core.Llm;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Resilience;
 using ArchLucid.Host.Composition.AzureOpenAI;
@@ -64,6 +65,7 @@ partial class AgentLlmSupportCompositionModule
                 ? new DurableProviderQualityMonitor(options, sp.GetRequiredService<IProviderQualityStateStore>(), clock)
                 : new ProviderQualityMonitor(options, clock);
         });
+        services.AddScoped<IIndependentProviderQualityObserver, IndependentProviderQualityObserver>();
         services.AddSingleton<AgentOutputEvaluator>();
         services.AddSingleton<IAgentOutputEvaluator>(static sp => sp.GetRequiredService<AgentOutputEvaluator>());
         services.AddSingleton<IAgentResultEvidenceFaithfulnessChecker, AgentResultEvidenceFaithfulnessChecker>();
