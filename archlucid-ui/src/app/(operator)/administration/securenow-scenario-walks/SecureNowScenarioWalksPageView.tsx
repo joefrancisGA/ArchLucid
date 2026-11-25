@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
+import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SECURENOW_SAMPLE_SECOND_FIXTURE_SECTION_ID } from "@/lib/marketing/securenow-sample-copy";
 import {
@@ -10,13 +12,27 @@ import {
   SECURENOW_SCENARIO_WALKS_HEADING,
   SECURENOW_SCENARIO_WALKS_LEAD,
 } from "@/lib/product-line/securenow-scenario-walks-copy";
+import { cn } from "@/lib/utils";
 
 export function SecureNowScenarioWalksPageView(): React.JSX.Element {
   return (
     <OperatorPageContainer variant="full" data-testid="securenow-scenario-walks-page">
-      <OperatorPageHeader title={SECURENOW_SCENARIO_WALKS_HEADING} subtitle={SECURENOW_SCENARIO_WALKS_LEAD} />
+      <OperatorPageHeader
+        title={SECURENOW_SCENARIO_WALKS_HEADING}
+        subtitle={SECURENOW_SCENARIO_WALKS_LEAD}
+        claimDiscipline={SECURENOW_SCENARIO_WALKS_GUARDRAIL}
+        claimDisciplineTestId="securenow-scenario-walks-claim-discipline"
+        titleTestId="securenow-scenario-walks-heading"
+        subtitleTestId="securenow-scenario-walks-lead"
+      />
 
-      <main className="mt-6 max-w-4xl space-y-6">
+      <main id="main-content" tabIndex={-1} className="mt-6 max-w-4xl space-y-6">
+        <SecureNowAdminPartialCaptureStrip
+          testId="securenow-scenario-walks-partial-capture"
+          cloudConnectionsTestId="securenow-scenario-walks-partial-capture-cloud-connections"
+          extractUploadTestId="securenow-scenario-walks-partial-capture-extract-upload"
+        />
+
         <section aria-labelledby="securenow-scenario-walks-list-heading" className="space-y-2">
           <h2 id="securenow-scenario-walks-list-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
             Six scenarios
@@ -62,10 +78,20 @@ export function SecureNowScenarioWalksPageView(): React.JSX.Element {
           </ul>
         </section>
 
-        <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_SCENARIO_WALKS_GUARDRAIL}</p>
+        <SecureNowFixtureWorkspaceNotEntitlementLine />
+
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-scenario-walks-sources">
+          <span className="font-medium text-al-text-primary">Sources:</span> Facilitator scenario cards with honest
+          labels — synthetic rehearsal until tenant capture; not verified customer evidence.
+        </p>
+
         <p className={OPERATOR_TYPOGRAPHY.body}>
+          <Link className={OPERATOR_LINK.inline} href="/administration">
+            Administration hub
+          </Link>
+          {" · "}
           <Link className={OPERATOR_LINK.inline} href="/">
-            Back to Home
+            Home
           </Link>
         </p>
       </main>
