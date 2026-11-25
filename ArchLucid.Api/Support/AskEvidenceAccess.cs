@@ -9,9 +9,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace ArchLucid.Api.Support;
 
-/// <summary>Bridges Ask and Evidence Hub citation reads to the same HTTP principal and run-share decision used by API controllers.</summary>
+/// <summary>Bridges Ask and infrastructure evidence citation reads to the same HTTP principal and run-share decision used by API controllers.</summary>
 public sealed class AskEvidenceAccess(
-    ArchitectureShareAccessGate gate, IHttpContextAccessor context, IActorContext actor) : IAskEvidenceAccess, ICloudResourceHubRunReadAccess
+    ArchitectureShareAccessGate gate, IHttpContextAccessor context, IActorContext actor) : IAskEvidenceAccess, IInfraEvidenceRunReadAccess
 {
     public string? GetAuthorizedActorId()
     {

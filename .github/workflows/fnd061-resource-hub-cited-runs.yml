@@ -5,7 +5,8 @@ on:
     branches: [master]
     paths:
       - 'ArchLucid.Application/InfraEvidence/CloudResourceEvidenceHubService.cs'
-      - 'ArchLucid.Application/InfraEvidence/ICloudResourceHubRunReadAccess.cs'
+      - 'ArchLucid.Application/InfraEvidence/IInfraEvidenceRunReadAccess.cs'
+      - 'ArchLucid.Application/InfraEvidence/Mermaid/InfraEvidenceSnapshotMermaidService.cs'
       - 'ArchLucid.Application/InfraEvidence/Mermaid/InfraEvidenceSnapshotSealedManifestHashGuard.cs'
       - 'ArchLucid.Api/Support/*ShareAccessGate.cs'
       - 'ArchLucid.Api/Support/AskEvidenceAccess.cs'

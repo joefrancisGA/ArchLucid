@@ -26,7 +26,7 @@ public sealed class CloudResourceEvidenceHubService(
     IAuthorityQueryService authorityQueryService,
     ICloudResourceAuditLineageResolver auditLineageResolver,
     IManifestHashService manifestHashService,
-    ICloudResourceHubRunReadAccess? runReadAccess = null) : ICloudResourceEvidenceHubService
+    IInfraEvidenceRunReadAccess? runReadAccess = null) : ICloudResourceEvidenceHubService
 {
     private const int RecentChangeTake = 25;
 

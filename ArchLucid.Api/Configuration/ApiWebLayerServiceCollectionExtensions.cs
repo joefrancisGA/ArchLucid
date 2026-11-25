@@ -108,7 +108,7 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddScoped<Support.IArchitectureShareAccessGate, Support.ArchitectureShareAccessGate>();
         services.AddScoped<Support.ArchitectureShareAccessGate>();
         services.AddScoped<ArchLucid.Host.Core.Services.Ask.IAskEvidenceAccess, Support.AskEvidenceAccess>();
-        services.AddScoped<ICloudResourceHubRunReadAccess, Support.AskEvidenceAccess>();
+        services.AddScoped<IInfraEvidenceRunReadAccess, Support.AskEvidenceAccess>();
         services.AddScoped<IArchitectureRequestImportValidator, FluentArchitectureRequestImportValidator>();
         services.AddScoped<IImportRequestFileService, ImportRequestFileService>();
         services.AddScoped<IDocumentTextExtractionService, DocumentTextExtractionService>();

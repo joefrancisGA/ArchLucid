@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.InfraEvidence;
+using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Authorization;
@@ -215,6 +216,84 @@ public sealed class RunScopedEvidenceHubHttpTests(JwtLocalSigningWebAppFactory f
         foreign.StatusCode.Should().Be(HttpStatusCode.OK);
         authority.VerifyNoOtherCalls();
         shares.VerifyNoOtherCalls();
+    }
+
+
+    [Theory]
+    [InlineData("mermaid/preview")]
+    [InlineData("mermaid")]
+    [InlineData("mermaid/export.png")]
+    public async Task Snapshot_diagram_checks_share_before_reading_the_cited_manifest(string route)
+    {
+        Guid tenant = ScopeIds.DefaultTenant, workspace = ScopeIds.DefaultWorkspace, project = ScopeIds.DefaultProject;
+        Guid runId = Guid.NewGuid(), architecture = Guid.NewGuid(), snapshot = Guid.NewGuid();
+        RunRecord run = new() { RunId = runId, ArchitectureId = architecture, TenantId = tenant,
+            WorkspaceId = workspace, ScopeProjectId = project };
+        Mock<IRunRepository> runs = new();
+        runs.Setup(r => r.GetByIdAsync(It.Is<ScopeContext>(s =>
+                s.TenantId == tenant && s.WorkspaceId == workspace && s.ProjectId == project),
+                runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(run);
+        bool shared = true;
+        Mock<IArchitectureShareAccessService> shares = new();
+        shares.Setup(s => s.EvaluateAsync(It.IsAny<ScopeContext>(), architecture, It.IsAny<string?>(),
+                It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new ArchitectureShareAccessEvaluation { ArchitectureFound = true, CanRead = shared });
+        Mock<IArchitectureDiagramReconciliationRepository> reconciliations = new();
+        reconciliations.Setup(r => r.ListRunIdsBySnapshotAsync(tenant, snapshot, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([runId, runId]);
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        authority.Setup(a => a.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto { Run = run, GoldenManifest = new ManifestDocument
+                { RunId = runId, ManifestHash = "fixture-corrupt-seal" } });
+        Mock<IAzureInventorySnapshotGraphResolver> graph = new(MockBehavior.Strict);
+        graph.Setup(g => g.TryResolveGraphAsync(It.Is<ScopeContext>(s =>
+                s.TenantId == tenant && s.WorkspaceId == workspace && s.ProjectId == project),
+                snapshot, It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AzureInventorySnapshotGraphResolveResult { ErrorMessage = "Fixture inventory unavailable." });
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid id, CancellationToken _) => new TenantRecord { Id = id, Tier = TenantTier.Standard });
+
+        using var host = factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
+        {
+            services.AddSingleton(tenants.Object);
+            services.AddSingleton(runs.Object);
+            services.AddSingleton(shares.Object);
+            services.AddSingleton(reconciliations.Object);
+            services.AddSingleton(authority.Object);
+            services.AddSingleton(graph.Object);
+            services.AddSingleton(SealedManifestHashTestSupport.CreateManifestHashService());
+        }));
+        using HttpClient client = host.CreateClient();
+
+        async Task<HttpResponseMessage> ReadAsync()
+        {
+            string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(factory.PrivatePemForTests,
+                JwtLocalSigningWebAppFactory.JwtLocalTestIssuer, JwtLocalSigningWebAppFactory.JwtLocalTestAudience,
+                "Snapshot diagram reader", [ArchLucidRoles.Reader], tenant, workspace, project);
+            using HttpRequestMessage request = new(HttpMethod.Get,
+                $"/v1/infra-evidence/snapshots/{snapshot:D}/{route}?mode=executive");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            request.Headers.Add("x-tenant-id", tenant.ToString("D"));
+            request.Headers.Add("x-workspace-id", workspace.ToString("D"));
+            request.Headers.Add("x-project-id", project.ToString("D"));
+            return await client.SendAsync(request);
+        }
+
+        using HttpResponseMessage readableCorruptSeal = await ReadAsync();
+        readableCorruptSeal.StatusCode.Should().Be(HttpStatusCode.Conflict);
+        graph.VerifyNoOtherCalls();
+        authority.Verify(a => a.GetRunDetailForManifestCompareAsync(
+            It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()), Times.Once);
+
+        shared = false;
+        authority.Invocations.Clear();
+        using HttpResponseMessage revoked = await ReadAsync();
+        revoked.StatusCode.Should().Be(HttpStatusCode.NotFound, "the scoped graph fixture, not the unreadable seal, decides the result");
+        authority.VerifyNoOtherCalls();
+        graph.Verify(g => g.TryResolveGraphAsync(
+            It.IsAny<ScopeContext>(), snapshot, It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
 }
