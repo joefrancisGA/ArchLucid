@@ -11,6 +11,9 @@ public static class SecurityEvidenceAddCredentialAdapterWarnings
     public const string MissingGraphAppRoleAssignments =
         "graph-app-role-assignments.json missing: privilege paths cannot traverse Application.ReadWrite.All";
 
+    public const string GraphIncomplete = "entra-add-credential-graph-incomplete";
+    public const string GraphNotCollected = "entra-add-credential-graph-not-collected";
+
     public const string GraphForbidden =
         "Entra add-credential Graph read returned 403; grant Application.Read.All, Directory.Read.All, and AppRoleAssignment.Read.All";
 }
