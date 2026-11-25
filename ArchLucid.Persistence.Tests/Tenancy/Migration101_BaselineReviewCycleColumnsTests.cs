@@ -27,6 +27,7 @@ public sealed class Migration101BaselineReviewCycleColumnsTests
         sql.Should().Contain("BaselineReviewCycleHours");
         sql.Should().Contain("BaselineReviewCycleSource");
         sql.Should().Contain("BaselineReviewCycleCapturedUtc");
-        sql.Should().Contain("CK_Tenants_BaselineReviewCycleHours_Positive");
+        sql.Should().Contain("ADD CONSTRAINT CK_Tenants_BaselineReviewCycleHours_Positive");
+        sql.Should().Contain("CHECK (BaselineReviewCycleHours IS NULL OR BaselineReviewCycleHours > 0);");
     }
 }
