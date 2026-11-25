@@ -1,7 +1,9 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 thorough hunt #28 (hit): `ui-lib-governance` pass-4 reseed. Assigned-to-me queue sort **3/3**; pass-3 monitors closed.
+> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt #29 (hit): `ui-lib-governance` pass-5 reseed. Assigned-to-me queue sort **5/5**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
+
+2026-11-25 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted pass-4 `Error` severity monitor to hunt-ready — **proven** assigned-to-me `severityRank` treated contract `Error` as unknown (rank 99) while quick-approve and density sort treat Error as High-equivalent; extended map with `error`, `informational`, and `info` aligned to `governance-findings-density-sort`. **valid-no-repro** padded approval filter token (`parseGovernanceApprovalStatusFilter` trims), **valid-no-repro** clear-all decision-register lingering (no register params in clear-all mutate), **valid-no-repro** desk-cache scoped review open (production locator + registry path; local unrelated test drift). Regressions `ranks contract Error severity ahead of Medium` and `ranks informational severity after Low`; assigned-to-me sort **5/5**. Reseeded five pass-5 `(candidate)` monitors. Private beta: invited operators on the assigned-to-me queue see Error-severity findings sort with other High-class rows instead of at the bottom of the default severity sort.
 
 2026-11-25 thorough hunt #4 (hit): no rotation (`shouldRotate: false`; picker continued `ui-lib-governance` from prior message). Closed five pass-3 `(candidate)` rows — **proven** `compareGovernanceAssignedToMeQueueRows` ranked lowercase `critical` after title-case `Low` because `SEVERITY_ORDER` keys were title-case only while findings facets and density sort use lowercase enums; **valid-no-repro** hide-generic href retaining padded `q` (`buildOperatorHrefFromSearch` preserves encoded query until search writer trims), **valid-no-repro** `filterGovernanceApprovalsByStatusFilter` `InReview` pending bucket (`isPendingStatus` lowercases), **valid-no-repro** whitespace-only `revisitDueUtc` due ordering (`governance-queue-due-date.test.ts` + assigned sort waiver regression), **valid-no-repro** NaN `insightDensityScore` hide-generic path (`isLowInsightDensityScore` returns false for non-finite scores). Regression `ranks lowercase API severities ahead of higher title-case lows`; assigned-to-me sort **3/3**. Reseeded five pass-4 `(candidate)` monitors below. Private beta: invited operators on the assigned-to-me governance queue now see Critical-class findings sort ahead of Low rows when the API emits lowercase severity enums (matching findings queue facets), instead of those rows sinking to the bottom of the default severity sort.
 
@@ -33,11 +35,21 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 
 - [x] (superseded) pass-3 `(candidate)` queue — **superseded 2026-11-25 thorough hunt #4 (hit):** closed at zone header; see pass-4 reseed.
 
-- [ ] (candidate) `severityRank` — contract `Error` severity sorts unknown in assigned-to-me queue — locus: `governance-assigned-to-me-queue-sort.ts`; input: `Error` before `Medium`; quick-approve maps Error to High; pass-4 reseed.
-- [ ] (candidate) `compareGovernanceAssignedToMeQueueRows` — `informational` severity rank missing vs density sort — locus: severityRank map; input: informational before Low; pass-4 reseed.
-- [ ] (candidate) `parseGovernanceApprovalStatusFilter` — leading/trailing spaces on filter param — locus: parser; input: ` pending `; pass-4 reseed.
-- [ ] (candidate) `governanceFindingsClearAllFiltersHref` — decision register params may linger — locus: clear-all mutate; input: mixed register facets; pass-4 reseed.
-- [ ] (candidate) `resolveGovernanceScopedReviewOpenHref` — desk cache architecture parent when locator omits parent — locus: scoped review open; input: cached architecture + peer run; monitor; pass-4 reseed.
+- [x] (proven) `severityRank` — contract `Error` severity sorts unknown in assigned-to-me queue — **hit 2026-11-25 seed hunt:** `error` rank 1; regression `ranks contract Error severity ahead of Medium`.
+- [x] (proven) `compareGovernanceAssignedToMeQueueRows` — `informational` severity rank missing vs density sort — **hit 2026-11-25 seed hunt:** informational/info rank 4; regression `ranks informational severity after Low`.
+- [x] (valid-no-repro) `parseGovernanceApprovalStatusFilter` — leading/trailing spaces on filter param — **cheap-disproof 2026-11-25 seed hunt:** parser trims before set lookup.
+- [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — decision register params may linger — **cheap-disproof 2026-11-25 seed hunt:** clear-all deletes findings queue params only; no decision-register keys in mutate list.
+- [x] (valid-no-repro) `resolveGovernanceScopedReviewOpenHref` — desk cache architecture parent when locator omits parent — **cheap-disproof 2026-11-25 seed hunt:** desk cache branch retained; monitor only.
+
+- [x] (superseded) pass-4 `(candidate)` queue — **superseded 2026-11-25 seed hunt (hit):** closed at zone header; see pass-5 reseed.
+
+- [ ] (candidate) `sortGovernanceAssignedToMeQueueRows` — `Warning` contract severity may sort unknown vs finalize gate — locus: severityRank map; input: Warning before Medium; pass-5 reseed.
+- [ ] (candidate) `compareGovernanceAssignedToMeQueueRows` — descending severity sort with tied Error/High ranks — locus: compareSeverity; input: Error vs High same rank tie-break; pass-5 reseed.
+- [ ] (candidate) `filterGovernanceApprovalsByStatusFilter` — denied vs rejected URL synonym — locus: isRejectedStatus; input: status Denied under rejected filter; pass-5 reseed.
+- [ ] (candidate) `governanceFindingsHideGenericHrefFromSearch` — hide flag `2` or `yes` in URL — locus: parse hide generic; input: hideGeneric=yes; pass-5 reseed.
+- [ ] (candidate) `resolveGovernanceAssignedToMeOldestFinding` — mixed Error/Critical severities on tie due dates — locus: oldest finding helper; input: critical vs error same due; pass-5 reseed.
+
+
 
 
 2026-11-23 thorough hunt (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). The only hunt-ready row was a reseed stub with no locus, input, or wrong outcome, so it is `(invalid)`. Re-read `governanceFindingsClearAllFiltersHref`, `governanceFindingsClearReviewScopeHref`, `governanceFindingsNlTitleHrefFromSearch`, and `resolveGovernanceScopedReviewOpenHref`. Cheap-disproof closed the four pass-1 monitors: clear-all deletes `bulkDispConfirm`, clear-scope deletes keyboard triage params, row review href trims `runId` before encoding, and title facets go through `URLSearchParams.set`. Inverse checks on architecture-id case, approval status `Promoted`/`Activated`, and the untrimmed findings search reader did not meet the hunt-ready bar. Private beta: n/a.
@@ -71,8 +83,8 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 - **aliases:** governance lib; findings URL helpers
 - **paths:** archlucid-ui/src/lib/governance/
 - **test-filter:** lib/governance
-- **hunts:** 6
-- **bugs-found:** 2
+- **hunts:** 7
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25

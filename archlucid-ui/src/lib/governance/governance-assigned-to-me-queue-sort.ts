@@ -5,9 +5,12 @@ export type GovernanceAssignedToMeQueueSortKey = "severity" | "due" | "title" | 
 
 const SEVERITY_ORDER: Readonly<Record<string, number>> = {
   critical: 0,
+  error: 1,
   high: 1,
   medium: 2,
   low: 3,
+  informational: 4,
+  info: 4,
 };
 
 function severityRank(severity: string): number {

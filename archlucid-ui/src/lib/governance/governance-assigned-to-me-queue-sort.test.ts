@@ -51,4 +51,21 @@ describe("governance-assigned-to-me-queue-sort", () => {
 
     expect(rows.map((row) => row.findingId)).toEqual(["lower-critical", "title-low"]);
   });
+
+  it("ranks contract Error severity ahead of Medium", () => {
+    const rows = sortGovernanceAssignedToMeQueueRows([
+      baseRow({ findingId: "medium", severity: "Medium" }),
+      baseRow({ findingId: "error", severity: "Error" }),
+    ]);
+
+    expect(rows.map((row) => row.findingId)).toEqual(["error", "medium"]);
+  });
+  it("ranks informational severity after Low", () => {
+    const rows = sortGovernanceAssignedToMeQueueRows([
+      baseRow({ findingId: "info", severity: "Informational" }),
+      baseRow({ findingId: "low", severity: "Low" }),
+    ]);
+
+    expect(rows.map((row) => row.findingId)).toEqual(["low", "info"]);
+  });
 });
