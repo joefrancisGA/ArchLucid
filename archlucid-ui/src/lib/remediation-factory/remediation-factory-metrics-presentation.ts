@@ -21,6 +21,41 @@ const WORKSPACE_SCOPE = "Operational security · this workspace";
 const METRICS_WINDOW = "Rolling 7-day window";
 const PRIORITIZATION_RULE = "Remediation prioritization rule IE15-priority-v1";
 
+
+function netBurnWeeklyFootnoteWhenLoaded(
+  metricsLoaded: boolean,
+  metrics: RemediationFactoryMetrics | undefined,
+): string | null {
+  if (!metricsLoaded || metrics === undefined) {
+    return null;
+  }
+
+  const created = parseNonNegativeFiniteNumber(metrics.createdThisWeek);
+  const remediated = parseNonNegativeFiniteNumber(metrics.remediatedThisWeek);
+
+  if (created === null || remediated === null) {
+    return null;
+  }
+
+  return `Created ${created} · Remediated ${remediated}`;
+}
+
+function exceptionsExpiringFootnoteWhenLoaded(
+  metricsLoaded: boolean,
+  metrics: RemediationFactoryMetrics | undefined,
+): string | null {
+  if (!metricsLoaded || metrics === undefined) {
+    return null;
+  }
+
+  const expiringSoon = parseNonNegativeFiniteNumber(metrics.exceptionsExpiringSoon);
+
+  if (expiringSoon === null) {
+    return null;
+  }
+
+  return `${METRICS_WINDOW} · ${expiringSoon} expiring soon`;
+}
 export function buildRemediationFactoryExecutiveMetricTiles(
   metrics: RemediationFactoryMetrics | undefined,
   metricsLoaded: boolean,
@@ -137,10 +172,7 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       windowLine: windowLineWhenLoaded(
         `${METRICS_WINDOW} · opened minus remediated — not cloud spend`,
       ),
-      valueFootnote:
-        !metricsLoaded || metrics == null
-          ? null
-          : `Created ${metrics.createdThisWeek} · Remediated ${metrics.remediatedThisWeek}`,
+      valueFootnote: netBurnWeeklyFootnoteWhenLoaded(metricsLoaded, metrics),
       value: netBurn === null ? null : String(netBurn),
     },
     {
@@ -162,8 +194,7 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       label: "Exceptions active",
       scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
       windowLine: windowLineWhenLoaded("Current snapshot — not the 7-day window"),
-      valueFootnote:
-        !metricsLoaded || metrics == null ? null : `${METRICS_WINDOW} · ${metrics.exceptionsExpiringSoon} expiring soon`,
+      valueFootnote: exceptionsExpiringFootnoteWhenLoaded(metricsLoaded, metrics),
       value: formatCount(metrics?.exceptionsActive),
     },
     {

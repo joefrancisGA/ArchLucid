@@ -106,6 +106,19 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "exceptions-active")?.valueFootnote).toBeNull();
   });
 
+  it("omits exceptions-active footnote when expiring-soon count is not returned", () => {
+    const metrics = { exceptionsActive: 3 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "exceptions-active")?.valueFootnote).toBeNull();
+  });
+
+  it("omits net-burn footnote when weekly counts are not returned", () => {
+    const metrics = { netBurn: 2 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "net-burn")?.valueFootnote).toBeNull();
+  });
   it("omits net-burn footnote when metrics are unloaded even if a metrics object is present", () => {
     const metrics = { createdThisWeek: 2, remediatedThisWeek: 5, netBurn: -3 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, false);
@@ -187,6 +200,15 @@ describe("remediation-factory-metric-presentation", () => {
     expect(REMEDIATION_FACTORY_METRICS_MEASUREMENT_BODY).toContain("IE15-priority-v1");
   });
 
+  it("omits exceptions-active table hint when expiring-soon count is not returned", () => {
+    const metrics = { exceptionsActive: 3 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics,
+      openFindingsHref: "/security/findings",
+    });
+
+    expect(tiles.find((tile) => tile.key === "exceptions-active")?.hint).toBeUndefined();
+  });
   it("formats architect outcome deltas with no-change state", () => {
     expect(formatArchitectOutcomeDeltaValue(0)).toBe("No change");
     expect(formatArchitectOutcomeDeltaValue(3)).toBe("+3");

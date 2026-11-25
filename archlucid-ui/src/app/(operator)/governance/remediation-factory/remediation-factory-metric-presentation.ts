@@ -1,5 +1,6 @@
 import { buildGovernanceFindingsQueueHref } from "@/lib/metric-count-presentation";
 import type { RemediationFactoryMetrics } from "@/lib/remediation-factory-types";
+import { parseNonNegativeFiniteNumber } from "@/lib/parse-finite-number";
 import {
   formatRemediationFactoryPercentPoints,
   REMEDIATION_FACTORY_PERCENT_POPULATION_LINE,
@@ -202,10 +203,19 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
         value: metrics?.exceptionsActive,
         scopeNote: REMEDIATION_FACTORY_EXCEPTIONS_HELPER,
       }),
-      hint:
-        metrics == null
-          ? undefined
-          : `7-day window · ${metrics.exceptionsExpiringSoon} expiring soon`,
+      hint: (() => {
+        if (metrics == null) {
+          return undefined;
+        }
+
+        const expiringSoon = parseNonNegativeFiniteNumber(metrics.exceptionsExpiringSoon);
+
+        if (expiringSoon === null) {
+          return undefined;
+        }
+
+        return `7-day window · ${expiringSoon} expiring soon`;
+      })(),
     },
     {
       key: "average-age",

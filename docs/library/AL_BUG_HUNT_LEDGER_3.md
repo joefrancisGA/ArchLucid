@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 `ui-lib-remediation-factory` pass-18 snapshot identity yes/on. **137/137**. — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-infra-resource-hub` pass-496 cheap-disproof. ResourceHubClient **148/148**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 `ui-lib-remediation-factory` pass-19 metric footnotes undefined counts. **140/140**. — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-infra-resource-hub` pass-496 cheap-disproof. ResourceHubClient **148/148**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -379,8 +379,21 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
-## Zone: ui-lib-remediation-factory
+$12026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-19 (`shouldRotate: false`; hint override). **proven** executive metric footnotes — `buildRemediationFactoryExecutiveMetricTiles` interpolated missing `exceptionsExpiringSoon` / weekly burn counts as the literal word `undefined` when the API omitted optional fields; gate with `parseNonNegativeFiniteNumber` helpers and omit the footnote; mirror exceptions table hint in `buildRemediationFactoryExecutiveMetricPresentations`. Regressions `omits exceptions-active footnote when expiring-soon count is not returned`, `omits net-burn footnote when weekly counts are not returned`, `omits exceptions-active table hint when expiring-soon count is not returned`. **valid-no-repro** snapshot identity href closed/open writer (`operatorBooleanDisclosureHrefFromSearch`), **valid-no-repro** `remediationFactoryHrefFromSearch` foreign params, **valid-no-repro** snapshot identity duplicate param first-wins, **invalid** metric label when unloaded (labels required under loading). Pass-20 reseed below. Scoped vitest **140/140**. Private beta: invited operators no longer see helper lines with the text `undefined` under net burn or exceptions active tiles when the factory metrics payload omits optional weekly counts.
 
+- [x] (superseded) pass-19 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-20 reseed.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — footnotes with absent optional counts — **proven 2026-11-25 thorough hunt (seed→hit):** regressions cited in hunt note.
+- [x] (valid-no-repro) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — closed clears token — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** boolean href writer contract.
+- [x] (valid-no-repro) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — open writes canonical `1` — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** writer normalization contract.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves finding param — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** existing foreign param regressions.
+- [x] (valid-no-repro) `parseRemediationFactorySnapshotIdentityDisclosureOpenFromSearch` — duplicate param first-wins — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `URLSearchParams.get` first token semantics.
+- [x] (invalid) `buildRemediationFactoryExecutiveMetricTiles` — label line when unloaded — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** labels required while loading.
+
+- [ ] (candidate) `remediationFactorySelectionIdentityDisclosureHrefFromSearch` — open writes canonical `1` — locus: writer normalization; input: open=true; monitor; pass-20 reseed.
+- [ ] (candidate) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — preserves foreign params — locus: disclosure writer; input: foreign query; monitor; pass-20 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — critical-exposure hint when count absent — locus: table hints; input: partial metrics; monitor; pass-20 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate toSnapshot first-wins — locus: URLSearchParams.get; monitor; pass-20 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — snapshot identity open writes canonical `1` — locus: writer normalization; input: legacy yes token; monitor; pass-20 reseed.
 2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-18 (`shouldRotate: false`; hint override). **proven** snapshot-identity disclosure parse — `parseRemediationFactorySnapshotIdentityDisclosureOpenFromSearch` still accepted only `1`/`true` while shared metrics parse already honors `yes`/`on`, so deep-linked snapshot identity panels stayed closed on shared allowlist tokens; route through `parseRemediationFactoryDisclosureOpenFromSearch`. Regression `treats yes and on snapshot identity disclosure tokens as open on read`. **valid-no-repro** selection-identity href closed clears token (`operatorBooleanDisclosureHrefFromSearch` contract), **valid-no-repro** shared parse rejects `off` (`treats OFF metrics disclosure token as closed on read`), **valid-no-repro** metrics open writes canonical `1` (writer regressions), **valid-no-repro** mixed short/long overflow (`shows overflow honesty after trimming padded long path ids`). Pass-19 reseed below. Scoped vitest **137/137**. Private beta: invited operators opening remediation factory with `yes`/`on` snapshot-identity disclosure bookmarks see the snapshot identity panel open consistently with metrics and selection-identity URL tokens.
 
 - [x] (superseded) pass-18 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-19 reseed.
@@ -390,11 +403,6 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open writes canonical `1` — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** writer normalization regressions.
 - [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — mixed short/long after trim — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** padded-long overflow regression.
 
-- [ ] (candidate) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — closed clears token — locus: boolean href writer; input: toggle closed; monitor; pass-19 reseed.
-- [ ] (candidate) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — open writes canonical `1` — locus: writer normalization; input: open=true; monitor; pass-19 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — label line when unloaded — locus: tile label always visible; monitor; pass-19 reseed.
-- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves finding param on pathname-only href — locus: disclosure writer; monitor; pass-19 reseed.
-- [ ] (candidate) `parseRemediationFactorySnapshotIdentityDisclosureOpenFromSearch` — duplicate param first-wins — locus: URLSearchParams.get; monitor; pass-19 reseed.
 2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-17 (`shouldRotate: false`; hint override). **proven** selection-identity disclosure parse — `parseRemediationFactorySelectionIdentityDisclosureOpenFromSearch` accepted only `1`/`true` while metrics disclosure already honors `yes`/`on`, so deep-linked selection identity panels stayed closed on shared allowlist tokens; route through exported `parseRemediationFactoryDisclosureOpenFromSearch`. Regression `treats yes and on selection identity disclosure tokens as open on read`. **valid-no-repro** metrics `NO` closed write (`drops NO metrics disclosure token from base search when writing closed state`), **valid-no-repro** metrics `yes` read, **valid-no-repro** trim-only chip label, **invalid** label-when-unloaded (labels must stay visible under loading). Pass-18 reseed below. Scoped vitest **136/136**. Private beta: invited operators opening remediation factory with `yes`/`on` selection-identity disclosure bookmarks see the identity panel open consistently with metrics disclosure URL tokens.
 
 - [x] (superseded) pass-17 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-18 reseed.
@@ -612,8 +620,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 40
-- **bugs-found:** 18
+- **hunts:** 41
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
