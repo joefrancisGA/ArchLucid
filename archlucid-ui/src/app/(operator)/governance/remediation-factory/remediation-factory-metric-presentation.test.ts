@@ -327,6 +327,41 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "automation")?.scopeLine).toBeUndefined();
   });
 
+
+  it("omits critical-exposure scopeLine when count is not returned", () => {
+    const metrics = { openFindings: 1 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "critical-exposure")?.scopeLine).toBeUndefined();
+  });
+
+  it("omits recurrence scopeLine when count is not returned", () => {
+    const metrics = { openFindings: 1 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "recurrence")?.scopeLine).toBeUndefined();
+  });
+
+  it("omits net-burn scopeLine when net burn is not returned", () => {
+    const metrics = { createdThisWeek: 1, remediatedThisWeek: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "net-burn")?.scopeLine).toBeUndefined();
+  });
+
+  it("omits avg-age scopeLine when value is not returned", () => {
+    const metrics = { openFindings: 1 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "avg-age")?.scopeLine).toBeUndefined();
+  });
+
+  it("omits open-findings-queue href when count is not returned", () => {
+    const metrics = { automationPercent: 5 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "open-findings-queue")?.href).toBeUndefined();
+  });
   it("omits risk-weighted-open scopeLine when value is not returned", () => {
     const metrics = { openFindings: 1 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);

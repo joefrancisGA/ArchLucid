@@ -423,11 +423,18 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — automation scopeLine when percent absent — **proven 2026-11-25 thorough hunt (hit):** regression cited in hunt note.
 - [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — risk-weighted-open scopeLine when value absent — **proven 2026-11-25 thorough hunt (hit):** regression cited in hunt note.
 
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — critical-exposure scopeLine when count absent — locus: tile chrome; input: missing criticalExposureCount; monitor; pass-43 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — recurrence scopeLine when count absent — locus: tile chrome; input: missing recurrenceCount; monitor; pass-43 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — net-burn scopeLine when net burn absent — locus: tile chrome; input: missing netBurn; monitor; pass-43 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — avg-age scopeLine when value absent — locus: tile chrome; input: missing averageAgeDays; monitor; pass-43 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — open-findings-queue href when count absent — locus: tile link; input: missing openFindings; monitor; pass-43 reseed.
+- [x] (superseded) pass-43 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (hit):** pass-44 reseed.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — critical-exposure scopeLine when count absent — **proven 2026-11-25 thorough hunt (hit):** regression cited in hunt note.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — recurrence scopeLine when count absent — **proven 2026-11-25 thorough hunt (hit):** regression cited in hunt note.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — net-burn scopeLine when net burn absent — **proven 2026-11-25 thorough hunt (hit):** regression cited in hunt note.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — avg-age scopeLine when value absent — **proven 2026-11-25 thorough hunt (hit):** regression cited in hunt note.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — open-findings-queue href when count absent — **proven 2026-11-25 thorough hunt (hit):** regression cited in hunt note.
+
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps open-findings-queue href when count is zero — locus: tile link; input: openFindings 0; monitor; pass-44 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps critical-exposure scopeLine when count is zero — locus: tile chrome; input: criticalExposureCount 0; monitor; pass-44 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps net-burn scopeLine when net burn is zero — locus: tile chrome; input: netBurn 0; monitor; pass-44 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps pattern-exact scopeLine when percent is zero — locus: tile chrome; input: percent 0; monitor; pass-44 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps automation scopeLine when percent is zero — locus: tile chrome; input: automationPercent 0; monitor; pass-44 reseed.
 
 
 

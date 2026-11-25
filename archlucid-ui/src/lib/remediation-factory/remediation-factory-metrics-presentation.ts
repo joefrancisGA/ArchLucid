@@ -149,6 +149,7 @@ export function buildRemediationFactoryExecutiveMetricTiles(
   const automationPercentValue = formatPercentPoints(metrics?.automationPercent);
   const recurrenceCountValue = formatCount(metrics?.recurrenceCount);
   const exceptionsActiveValue = formatCount(metrics?.exceptionsActive);
+  const averageAgeValue = formatDecimal(metrics?.averageAgeDays, 1);
 
   return [
     {
@@ -161,7 +162,7 @@ export function buildRemediationFactoryExecutiveMetricTiles(
           ? windowLineWhenLoaded("Governance queue open filter — may differ from factory metrics API.")
           : undefined,
       value: openFindingsFactoryValue,
-      href: openFindingsHref,
+      href: openFindingsFactoryValue !== null ? openFindingsHref : undefined,
     },
     {
       id: "open-findings-factory",
@@ -190,7 +191,8 @@ export function buildRemediationFactoryExecutiveMetricTiles(
     {
       id: "critical-exposure",
       label: "Critical exposure",
-      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
+      scopeLine:
+        criticalExposureValue !== null ? scopeLineWhenLoaded(WORKSPACE_SCOPE) : undefined,
       windowLine:
         criticalExposureValue !== null
           ? windowLineWhenLoaded(
@@ -212,7 +214,8 @@ export function buildRemediationFactoryExecutiveMetricTiles(
     {
       id: "recurrence",
       label: "Recurrence (7d)",
-      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
+      scopeLine:
+        recurrenceCountValue !== null ? scopeLineWhenLoaded(WORKSPACE_SCOPE) : undefined,
       windowLine:
         recurrenceCountValue !== null
           ? windowLineWhenLoaded(
@@ -224,7 +227,7 @@ export function buildRemediationFactoryExecutiveMetricTiles(
     {
       id: "net-burn",
       label: "Net burn (7d)",
-      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
+      scopeLine: netBurn !== null ? scopeLineWhenLoaded(WORKSPACE_SCOPE) : undefined,
       windowLine:
         netBurn !== null
           ? windowLineWhenLoaded(
@@ -272,8 +275,8 @@ export function buildRemediationFactoryExecutiveMetricTiles(
     {
       id: "avg-age",
       label: "Average age (days)",
-      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
-      value: formatDecimal(metrics?.averageAgeDays, 1),
+      scopeLine: averageAgeValue !== null ? scopeLineWhenLoaded(WORKSPACE_SCOPE) : undefined,
+      value: averageAgeValue,
     },
   ];
 }
