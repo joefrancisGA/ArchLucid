@@ -154,6 +154,22 @@ Treat every proposed remediation as a graph transformation in an isolated, pinne
 
 **Backlog:** FND-146–150, [PR #8182](https://github.com/joefrancisGA/ArchLucid/pull/8182), added as Critical QA/stabilization following this question. FND-146 extends evidence-bound shared trust and failure-domain graph modeling; FND-147 covers counterfactual security/resilience deltas; FND-148 covers deterministic concentration and N-1/selective N-2 contingency evaluation; FND-149 integrates introduced risks into existing portfolio selection and safety gates; FND-150 covers independent regression and post-remediation assurance. Reuse foundations FND-045/088–093/117–123, TB-2412–2415 and SN-QA-04 rather than create parallel infrastructure. Backlog requirements only; no implementation or test execution is claimed.
 
+### AQ-010 — Stateful logical feasibility of complete attack paths
+
+**Question (level 9):** Suppose SecureNow identifies an attack path consisting of five individually verified graph edges. However, exploiting the first edge requires one identity, exploiting the second requires a different identity, and subsequent edges require permissions that neither identity possesses. Every individual edge is technically valid, but the complete attack path may be impossible to execute. How would you architect a reusable framework that verifies the logical feasibility of an entire attack path rather than merely establishing the validity of its individual nodes and edges?
+
+**Owner answer:**
+
+> Well, the attack path is not going to be feasible if it is executed with different identities. So we'll actually have to determine the identities and account for them when validating the attack path.
+
+**Assessment:** 85%; level 9 retained. Correctly identified identity and permission continuity as essential to path feasibility. The same identity is not required throughout when an independently substantiated identity transition is achievable from the preceding state.
+
+**Refinement:** Extend existing graph traversal with explicit security state: current identity, effective permissions and acquired capabilities, scoped resources, transition prerequisites, authorization/deny constraints, and temporal compatibility. Validate each transition against the preceding state and propagate only capabilities demonstrably acquired by that transition. Treat role assumption, managed identity access and other identity transitions as evidence-bound possibilities, not automatic identity substitution. Distinguish verified feasible, infeasible within tested scope, and inconclusive paths; retain evidence and bounded-search limitations. Use state-aware reachability with safe equivalence/pruning rather than independent edge validation; preserve relevant state differences to avoid false paths or missed feasible alternatives. No customer mutation.
+
+**Invariant:** Every step in an attack path must be achievable from the security state established by preceding steps.
+
+**Backlog:** Related foundations FND-069/071/077/083/086/112–116/130–135. Dedicated logical path feasibility requirements have not yet been separately checked or added for this question; implementation coverage is unverified.
+
 ## Earlier architecture exam topics — reconstructed appendix
 
 These entries preserve accessible earlier context from the examination sequence. Exact wording and complete scores were not available for all entries; no quotations or invented scores are supplied. The questions are reconstructed summaries, not verbatim transcripts. They are ordered by topic/available sequence, not asserted exact timestamps. Backlog references are related requirements, not proof of implementation.
