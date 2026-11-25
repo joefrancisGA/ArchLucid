@@ -545,6 +545,7 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
       [
         new AdvisoryTerraformResourceMappingRecord
         {
+          MappingId = Guid.NewGuid(),
           SnapshotId = snapshotId, CloudResourceId = identity.CloudResourceId, AzureResourceId = armId,
           TerraformAddress = "azurerm_storage_account.shared", CategoryFolder = "storage",
           GenerationMethod = AdvisoryTerraformGenerationMethod.SnapshotReconstruction,
