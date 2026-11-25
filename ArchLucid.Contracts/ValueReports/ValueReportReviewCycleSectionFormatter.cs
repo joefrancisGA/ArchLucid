@@ -11,6 +11,7 @@ namespace ArchLucid.Contracts.ValueReports;
 public static class ValueReportReviewCycleSectionFormatter
 {
     private const string Heading = "Review-cycle delta (before vs measured)";
+    private const string NotAvailable = "Not available";
 
     /// <summary>Paragraphs for OpenXML (font sizes match existing value-report sections).</summary>
     public static IReadOnlyList<ValueReportReviewCycleParagraph> GetParagraphs(ValueReportSnapshot snapshot)
@@ -54,27 +55,38 @@ public static class ValueReportReviewCycleSectionFormatter
             _ => string.Empty
         };
 
+        string baselineText = effectiveBaseline is { } baselineHours
+            ? $"{FormatHours(baselineHours)} h ({provenanceLabel})"
+            : NotAvailable;
         list.Add(
             new ValueReportReviewCycleParagraph(
-                $"Baseline review cycle: {FormatHours(effectiveBaseline)} h ({provenanceLabel})",
+                $"Baseline review cycle: {baselineText}",
                 false,
                 false,
                 22));
 
         decimal? measured = snapshot.MeasuredAverageReviewCycleHoursForWindow;
         int sampleSize = snapshot.MeasuredReviewCycleSampleSize;
+        string measuredText = measured is { } measuredHours
+            ? $"{FormatHours(measuredHours)} h across {sampleSize.ToString(CultureInfo.InvariantCulture)} run(s)"
+            : NotAvailable;
 
         list.Add(
             new ValueReportReviewCycleParagraph(
-                $"Measured review cycle (this window): {FormatHours(measured)} h across {sampleSize.ToString(CultureInfo.InvariantCulture)} run(s)",
+                $"Measured review cycle (this window): {measuredText}",
                 false,
                 false,
                 22));
 
-        decimal? delta = snapshot.ReviewCycleHoursDelta;
-        decimal? deltaPct = snapshot.ReviewCycleHoursDeltaPercent;
-
-        list.Add(new ValueReportReviewCycleParagraph(FormatDeltaLine(delta, deltaPct, claimDisposition), false, false, 22));
+        if (measured is not null && snapshot.ReviewCycleHoursDelta is { } delta)
+        {
+            list.Add(
+                new ValueReportReviewCycleParagraph(
+                    FormatDeltaLine(delta, snapshot.ReviewCycleHoursDeltaPercent, claimDisposition),
+                    false,
+                    false,
+                    22));
+        }
 
         if (snapshot.ReviewCycleBaselineProvenance is ReviewCycleBaselineProvenance.TenantSuppliedAtSignup
             or ReviewCycleBaselineProvenance.TenantSuppliedViaSettings)
@@ -184,7 +196,7 @@ public static class ValueReportReviewCycleSectionFormatter
     }
 
     private static string FormatDeltaLine(
-        decimal? delta,
+        decimal delta,
         decimal? deltaPct,
         SponsorRoiClaimDisposition claimDisposition)
     {
@@ -215,8 +227,5 @@ public static class ValueReportReviewCycleSectionFormatter
         return snapshot.TenantBaselineReviewCycleHours;
     }
 
-    private static string FormatHours(decimal? hours)
-    {
-        return hours is { } h ? h.ToString("0.##", CultureInfo.InvariantCulture) : "0";
-    }
+    private static string FormatHours(decimal hours) => hours.ToString("0.##", CultureInfo.InvariantCulture);
 }
