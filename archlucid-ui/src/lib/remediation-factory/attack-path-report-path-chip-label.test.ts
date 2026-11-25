@@ -6,6 +6,10 @@ import {
 } from "@/lib/remediation-factory/attack-path-report-path-chip-label";
 
 describe("attack-path-report-path-chip-label", () => {
+
+  it("preserves interior horizontal tab in a short path id", () => {
+    expect(formatAttackPathReportPathChipLabel("ab\tcd")).toBe("ab\tcd");
+  });
   it("returns a lone ellipsis path id without adding a second ellipsis", () => {
     expect(formatAttackPathReportPathChipLabel("…")).toBe("…");
     expect(formatAttackPathReportPathChipLabel("...")).toBe("...");

@@ -172,6 +172,20 @@ describe("remediation-factory-url-state", () => {
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=01`).metricsSummaryOpen,
     ).toBe(true);
   });
+  it("canonicalizes metrics open to 1 when writing open state from a false base", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: true,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=false`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
+  });
 
   it("treats scientific-notation one metrics disclosure token as open on read", () => {
     expect(
@@ -798,6 +812,29 @@ describe("remediation-factory-url-state", () => {
     ).toBe(false);
   });
 
+  it("treats true metrics disclosure token with line separator inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tru\u2028e`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats ON metrics disclosure token with paragraph separator inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\u2029n`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats yes metrics disclosure token with horizontal tab inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=y\u0009es`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats NUL-only metrics disclosure token as closed on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\u0000`).metricsSummaryOpen,
+    ).toBe(false);
+  });
   it("treats true metrics disclosure token with vertical tab inside the word as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tru\u000Be`).metricsSummaryOpen,
