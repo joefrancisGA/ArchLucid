@@ -173,12 +173,13 @@ public sealed class EntraAddCredentialGraphReader(
         List<JsonElement> items = [];
         string? nextLink = "https://graph.microsoft.com/v1.0/applications?$select=id,appId&$top=999";
         int requestCount = 0;
+        HashSet<string> visitedLinks = new(StringComparer.Ordinal);
 
         while (!string.IsNullOrWhiteSpace(nextLink))
         {
             requestCount++;
 
-            if (requestCount > maxPaginationRequests)
+            if (requestCount > maxPaginationRequests || !visitedLinks.Add(nextLink))
             {
                 logger.LogWarning(
                     "Entra add-credential Graph read stopped listing applications after {MaxPages} pages.",
@@ -215,12 +216,13 @@ public sealed class EntraAddCredentialGraphReader(
         List<JsonElement> items = [];
         string? nextLink = "https://graph.microsoft.com/v1.0/servicePrincipals?$select=id,appId&$top=999";
         int requestCount = 0;
+        HashSet<string> visitedLinks = new(StringComparer.Ordinal);
 
         while (!string.IsNullOrWhiteSpace(nextLink))
         {
             requestCount++;
 
-            if (requestCount > maxPaginationRequests)
+            if (requestCount > maxPaginationRequests || !visitedLinks.Add(nextLink))
             {
                 logger.LogWarning(
                     "Entra add-credential Graph read stopped listing service principals after {MaxPages} pages.",
@@ -277,6 +279,7 @@ public sealed class EntraAddCredentialGraphReader(
 
             if (string.IsNullOrWhiteSpace(appObjectId) || string.IsNullOrWhiteSpace(appId))
             {
+                partial = true;
                 continue;
             }
 
@@ -285,12 +288,13 @@ public sealed class EntraAddCredentialGraphReader(
                 $"https://graph.microsoft.com/v1.0/applications/{Uri.EscapeDataString(appObjectId.Trim())}/owners?$select=id";
             string? nextLink = ownersUrl;
             int pageCount = 0;
+            HashSet<string> visitedLinks = new(StringComparer.Ordinal);
 
             while (!string.IsNullOrWhiteSpace(nextLink))
             {
                 pageCount++;
 
-                if (pageCount > maxPaginationRequests)
+                if (pageCount > maxPaginationRequests || !visitedLinks.Add(nextLink))
                 {
                     partial = true;
                     break;
@@ -312,6 +316,7 @@ public sealed class EntraAddCredentialGraphReader(
 
                     if (string.IsNullOrWhiteSpace(ownerId))
                     {
+                        partial = true;
                         continue;
                     }
 
@@ -345,12 +350,13 @@ public sealed class EntraAddCredentialGraphReader(
         string? nextLink =
             "https://graph.microsoft.com/v1.0/roleManagement/directory/roleAssignments?$expand=roleDefinition($select=id,templateId,displayName)&$top=999";
         int requestCount = 0;
+        HashSet<string> visitedLinks = new(StringComparer.Ordinal);
 
         while (!string.IsNullOrWhiteSpace(nextLink))
         {
             requestCount++;
 
-            if (requestCount > maxPaginationRequests)
+            if (requestCount > maxPaginationRequests || !visitedLinks.Add(nextLink))
             {
                 logger.LogWarning(
                     "Entra add-credential Graph read stopped listing directory role assignments after {MaxPages} pages.",
@@ -398,12 +404,13 @@ public sealed class EntraAddCredentialGraphReader(
         string? nextLink =
             $"https://graph.microsoft.com/v1.0/servicePrincipals/{Uri.EscapeDataString(graphServicePrincipalId)}/appRoleAssignedTo?$select=principalId,appRoleId,resourceId&$top=999";
         int requestCount = 0;
+        HashSet<string> visitedLinks = new(StringComparer.Ordinal);
 
         while (!string.IsNullOrWhiteSpace(nextLink))
         {
             requestCount++;
 
-            if (requestCount > maxPaginationRequests)
+            if (requestCount > maxPaginationRequests || !visitedLinks.Add(nextLink))
             {
                 partial = true;
                 break;
@@ -429,6 +436,7 @@ public sealed class EntraAddCredentialGraphReader(
                     || string.IsNullOrWhiteSpace(appRoleId)
                     || string.IsNullOrWhiteSpace(resourceId))
                 {
+                    partial = true;
                     continue;
                 }
 
@@ -468,66 +476,72 @@ public sealed class EntraAddCredentialGraphReader(
             throw new InvalidOperationException("Entra add-credential Graph read stopped due to an untrusted URL.");
         }
 
-        using HttpRequestMessage request = new(HttpMethod.Get, url);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-        using HttpResponseMessage response =
-            await httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-
-        if (response.StatusCode == HttpStatusCode.Forbidden)
+        try
         {
-            logger.LogWarning(
-                "Entra add-credential Graph read returned 403 for {Url}. Required scopes: {Scope}.",
-                url,
-                EntraAddCredentialGraphScopes.PreferredScope);
+            using HttpRequestMessage request = new(HttpMethod.Get, url);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            using HttpResponseMessage response =
+                await httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
-            return new EntraAddCredentialGraphPageReadResult { Forbidden = true };
-        }
+            if (response.StatusCode == HttpStatusCode.Forbidden)
+                return new EntraAddCredentialGraphPageReadResult { Forbidden = true };
 
-        if (!response.IsSuccessStatusCode)
-        {
-            string body = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                logger.LogWarning("Entra Graph collection failed with HTTP {StatusCode}.", (int)response.StatusCode);
+                return new EntraAddCredentialGraphPageReadResult { PartialCollection = true };
+            }
 
-            logger.LogWarning(
-                "Entra add-credential Graph read failed for {Url} with status {StatusCode}: {Body}",
-                url,
-                (int)response.StatusCode,
-                body);
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+            JsonElement root = document.RootElement;
+            if (root.ValueKind != JsonValueKind.Object
+                || !root.TryGetProperty("value", out JsonElement value)
+                || value.ValueKind != JsonValueKind.Array)
+                return new EntraAddCredentialGraphPageReadResult { PartialCollection = true };
 
-            return new EntraAddCredentialGraphPageReadResult { PartialCollection = true };
-        }
-
-        await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-        using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
-        JsonElement root = document.RootElement;
-        List<JsonElement> items = [];
-
-        if (root.ValueKind != JsonValueKind.Object || !root.TryGetProperty("value", out JsonElement value) || value.ValueKind != JsonValueKind.Array)
-            return new EntraAddCredentialGraphPageReadResult { PartialCollection = true };
-
-        if (value.ValueKind == JsonValueKind.Array)
-        {
+            List<JsonElement> items = [];
+            bool partial = false;
             foreach (JsonElement item in value.EnumerateArray())
             {
+                if (item.ValueKind != JsonValueKind.Object)
+                {
+                    partial = true;
+                    continue;
+                }
+
                 items.Add(item.Clone());
             }
-        }
 
-        string? nextLink = TryReadString(root, "@odata.nextLink");
+            string? nextLink = null;
+            if (root.TryGetProperty("@odata.nextLink", out JsonElement next) && next.ValueKind != JsonValueKind.Null)
+            {
+                if (next.ValueKind == JsonValueKind.String
+                    && Uri.TryCreate(next.GetString(), UriKind.Absolute, out Uri? nextUri)
+                    && nextUri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
+                    && nextUri.Host.Equals(uri.Host, StringComparison.OrdinalIgnoreCase)
+                    && nextUri.Port == uri.Port
+                    && nextUri.AbsolutePath.Equals(uri.AbsolutePath, StringComparison.OrdinalIgnoreCase)
+                    && string.IsNullOrEmpty(nextUri.UserInfo))
+                    nextLink = next.GetString();
+                else
+                    partial = true;
+            }
 
-        if (!string.IsNullOrWhiteSpace(nextLink)
-            && Uri.TryCreate(nextLink, UriKind.Absolute, out Uri? nextUri)
-            && EntraGroupMembershipGraphTrustedHosts.IsTrusted(nextUri.Host))
-        {
             return new EntraAddCredentialGraphPageReadResult
             {
                 Items = items,
                 NextLink = nextLink,
+                PartialCollection = partial,
             };
         }
-
-        return new EntraAddCredentialGraphPageReadResult { Items = items, PartialCollection = !string.IsNullOrWhiteSpace(nextLink) };
+        catch (Exception exception) when (exception is HttpRequestException or IOException or JsonException
+            || (exception is OperationCanceledException && !cancellationToken.IsCancellationRequested))
+        {
+            logger.LogWarning("Entra Graph collection was interrupted ({FailureType}).", exception.GetType().Name);
+            return new EntraAddCredentialGraphPageReadResult { PartialCollection = true };
+        }
     }
 
     private static Dictionary<string, string> BuildServicePrincipalIdByAppId(IReadOnlyList<JsonElement> servicePrincipals)
