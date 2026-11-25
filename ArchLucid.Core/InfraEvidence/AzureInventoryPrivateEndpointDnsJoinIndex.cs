@@ -16,37 +16,49 @@ public sealed class AzureInventoryPrivateEndpointDnsJoinIndex
         public const string PeReachableTarget = "inventory-pe-reachable-target";
     }
 
-    private readonly Dictionary<string, string> _computeToVnetArmId;
-    private readonly Dictionary<string, string> _peToTargetArmId;
-    private readonly Dictionary<string, string> _peToZoneArmId;
+    private readonly Dictionary<string, HashSet<string>> _computeToVnetArmIds;
+    private readonly Dictionary<string, HashSet<string>> _peToTargetArmIds;
+    private readonly Dictionary<string, HashSet<string>> _peToZoneArmIds;
     private readonly Dictionary<string, HashSet<string>> _zoneToVnetArmIds;
     private readonly HashSet<string> _peReachablePairs;
 
     private AzureInventoryPrivateEndpointDnsJoinIndex(
-        Dictionary<string, string> computeToVnetArmId,
-        Dictionary<string, string> peToTargetArmId,
-        Dictionary<string, string> peToZoneArmId,
+        Dictionary<string, HashSet<string>> computeToVnetArmIds,
+        Dictionary<string, HashSet<string>> peToTargetArmIds,
+        Dictionary<string, HashSet<string>> peToZoneArmIds,
         Dictionary<string, HashSet<string>> zoneToVnetArmIds,
         HashSet<string> peReachablePairs)
     {
-        _computeToVnetArmId = computeToVnetArmId;
-        _peToTargetArmId = peToTargetArmId;
-        _peToZoneArmId = peToZoneArmId;
+        _computeToVnetArmIds = computeToVnetArmIds;
+        _peToTargetArmIds = peToTargetArmIds;
+        _peToZoneArmIds = peToZoneArmIds;
         _zoneToVnetArmIds = zoneToVnetArmIds;
         _peReachablePairs = peReachablePairs;
     }
 
-    public IReadOnlyDictionary<string, string> ComputeToVnetArmId => _computeToVnetArmId;
+    public IReadOnlyDictionary<string, HashSet<string>> ComputeToVnetArmIds => _computeToVnetArmIds;
+
+    public IReadOnlyDictionary<string, HashSet<string>> PrivateEndpointToTargetArmIds => _peToTargetArmIds;
+
+    /// <summary>Compatibility projection for unambiguous single-VNet associations only.</summary>
+    public IReadOnlyDictionary<string, string> ComputeToVnetArmId => _computeToVnetArmIds
+        .Where(pair => pair.Value.Count == 1)
+        .ToDictionary(pair => pair.Key, pair => pair.Value.Single(), StringComparer.OrdinalIgnoreCase);
+
+    public bool HasConfigurationDnsJoin(string computeArmId, string targetArmId) =>
+        _computeToVnetArmIds.TryGetValue(ArmResourceIdNormalizer.Normalize(computeArmId), out HashSet<string>? vnets)
+        && _peToTargetArmIds.Any(pair => pair.Value.Contains(ArmResourceIdNormalizer.Normalize(targetArmId))
+            && vnets.Any(vnet => TryHasDnsJoin(pair.Key, vnet)));
 
     public bool HasPeReachableTarget(string computeArmId, string targetArmId)
     {
         string pairKey = BuildPairKey(computeArmId, targetArmId);
 
-        return _peReachablePairs.Contains(pairKey);
+        return _peReachablePairs.Contains(pairKey) && HasConfigurationDnsJoin(computeArmId, targetArmId);
     }
 
     public bool HasPrivateEndpointTarget(string targetArmId) =>
-        _peToTargetArmId.Values.Any(peTargetArmId =>
+        _peToTargetArmIds.Values.SelectMany(targets => targets).Any(peTargetArmId =>
             string.Equals(peTargetArmId, targetArmId, StringComparison.OrdinalIgnoreCase)
             || ArmResourceIdNormalizer.IsDescendantOf(peTargetArmId, targetArmId)
             || ArmResourceIdNormalizer.IsDescendantOf(targetArmId, peTargetArmId));
@@ -61,7 +73,7 @@ public sealed class AzureInventoryPrivateEndpointDnsJoinIndex
             return false;
         }
 
-        if (!_computeToVnetArmId.ContainsKey(ArmResourceIdNormalizer.Normalize(computeArmId)))
+        if (!_computeToVnetArmIds.ContainsKey(ArmResourceIdNormalizer.Normalize(computeArmId)))
         {
             return false;
         }
@@ -71,15 +83,15 @@ public sealed class AzureInventoryPrivateEndpointDnsJoinIndex
 
     public bool TryHasDnsJoin(string privateEndpointArmId, string computeVnetArmId)
     {
-        if (!_peToZoneArmId.TryGetValue(
+        if (!_peToZoneArmIds.TryGetValue(
                 ArmResourceIdNormalizer.Normalize(privateEndpointArmId),
-                out string? zoneArmId))
+                out HashSet<string>? zoneArmIds))
         {
             return false;
         }
 
-        return _zoneToVnetArmIds.TryGetValue(zoneArmId, out HashSet<string>? linkedVnets)
-            && linkedVnets.Contains(ArmResourceIdNormalizer.Normalize(computeVnetArmId));
+        return zoneArmIds.Any(zoneArmId => _zoneToVnetArmIds.TryGetValue(zoneArmId, out HashSet<string>? linkedVnets)
+            && linkedVnets.Contains(ArmResourceIdNormalizer.Normalize(computeVnetArmId)));
     }
 
     public static AzureInventoryPrivateEndpointDnsJoinIndex Build(
@@ -87,21 +99,21 @@ public sealed class AzureInventoryPrivateEndpointDnsJoinIndex
     {
         ArgumentNullException.ThrowIfNull(relationships);
 
-        Dictionary<string, string> vmToNic = BuildDirectedMap(relationships, InferenceSources.VmNic);
-        Dictionary<string, string> nicToSubnet = BuildDirectedMap(relationships, InferenceSources.NicSubnet);
-        Dictionary<string, string> appToSubnet = BuildDirectedMap(
+        Dictionary<string, HashSet<string>> vmToNic = BuildMultiMap(relationships, InferenceSources.VmNic);
+        Dictionary<string, HashSet<string>> nicToSubnet = BuildMultiMap(relationships, InferenceSources.NicSubnet);
+        Dictionary<string, HashSet<string>> appToSubnet = BuildMultiMap(
             relationships,
             InferenceSources.AppServiceSubnet);
-        Dictionary<string, string> peToTarget = BuildDirectedMap(
+        Dictionary<string, HashSet<string>> peToTarget = BuildMultiMap(
             relationships,
             InferenceSources.PrivateEndpoint);
-        Dictionary<string, string> peToZone = BuildDirectedMap(
+        Dictionary<string, HashSet<string>> peToZone = BuildMultiMap(
             relationships,
             InferenceSources.PeDnsZoneGroup);
-        Dictionary<string, HashSet<string>> zoneToVnets = BuildZoneToVnetMap(relationships);
+        Dictionary<string, HashSet<string>> zoneToVnets = BuildMultiMap(relationships, InferenceSources.PrivateDnsVnet);
         HashSet<string> peReachablePairs = BuildPeReachablePairs(relationships);
 
-        Dictionary<string, string> computeToVnet = BuildComputeToVnetMap(vmToNic, nicToSubnet, appToSubnet);
+        Dictionary<string, HashSet<string>> computeToVnet = BuildComputeToVnetMap(vmToNic, nicToSubnet, appToSubnet);
 
         return new AzureInventoryPrivateEndpointDnsJoinIndex(
             computeToVnet,
@@ -111,43 +123,36 @@ public sealed class AzureInventoryPrivateEndpointDnsJoinIndex
             peReachablePairs);
     }
 
-    private static Dictionary<string, string> BuildComputeToVnetMap(
-        IReadOnlyDictionary<string, string> vmToNic,
-        IReadOnlyDictionary<string, string> nicToSubnet,
-        IReadOnlyDictionary<string, string> appToSubnet)
+    private static Dictionary<string, HashSet<string>> BuildComputeToVnetMap(
+        IReadOnlyDictionary<string, HashSet<string>> vmToNic,
+        IReadOnlyDictionary<string, HashSet<string>> nicToSubnet,
+        IReadOnlyDictionary<string, HashSet<string>> appToSubnet)
     {
-        Dictionary<string, string> computeToVnet = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, HashSet<string>> computeToVnet = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach ((string appArmId, string subnetArmId) in appToSubnet)
+        void AddSubnets(string compute, IEnumerable<string> subnets)
         {
-            string? vnetArmId = AzureInventorySubnetArmIdHelper.TryResolveVnetArmIdFromSubnetArmId(subnetArmId);
-
-            if (string.IsNullOrWhiteSpace(vnetArmId))
+            foreach (string subnet in subnets)
             {
-                continue;
+                string? vnet = AzureInventorySubnetArmIdHelper.TryResolveVnetArmIdFromSubnetArmId(subnet);
+                if (string.IsNullOrWhiteSpace(vnet))
+                    continue;
+                if (!computeToVnet.TryGetValue(compute, out HashSet<string>? vnets))
+                {
+                    vnets = new(StringComparer.OrdinalIgnoreCase);
+                    computeToVnet[compute] = vnets;
+                }
+                vnets.Add(ArmResourceIdNormalizer.Normalize(vnet));
             }
-
-            computeToVnet[ArmResourceIdNormalizer.Normalize(appArmId)] =
-                ArmResourceIdNormalizer.Normalize(vnetArmId);
         }
 
-        foreach ((string vmArmId, string nicArmId) in vmToNic)
-        {
-            if (!nicToSubnet.TryGetValue(nicArmId, out string? subnetArmId))
-            {
-                continue;
-            }
+        foreach (var (app, subnets) in appToSubnet)
+            AddSubnets(app, subnets);
 
-            string? vnetArmId = AzureInventorySubnetArmIdHelper.TryResolveVnetArmIdFromSubnetArmId(subnetArmId);
-
-            if (string.IsNullOrWhiteSpace(vnetArmId))
-            {
-                continue;
-            }
-
-            computeToVnet[ArmResourceIdNormalizer.Normalize(vmArmId)] =
-                ArmResourceIdNormalizer.Normalize(vnetArmId);
-        }
+        foreach (var (vm, nics) in vmToNic)
+            foreach (string nic in nics)
+                if (nicToSubnet.TryGetValue(nic, out HashSet<string>? subnets))
+                    AddSubnets(vm, subnets);
 
         return computeToVnet;
     }
@@ -172,28 +177,9 @@ public sealed class AzureInventoryPrivateEndpointDnsJoinIndex
         return pairs;
     }
 
-    private static Dictionary<string, string> BuildDirectedMap(
+    private static Dictionary<string, HashSet<string>> BuildMultiMap(
         IEnumerable<AzureInventoryRelationshipArmTriple> relationships,
         string inferenceSource)
-    {
-        Dictionary<string, string> map = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (AzureInventoryRelationshipArmTriple relationship in relationships)
-        {
-            if (!string.Equals(relationship.InferenceSource, inferenceSource, StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            map[ArmResourceIdNormalizer.Normalize(relationship.FromAzureResourceId)] =
-                ArmResourceIdNormalizer.Normalize(relationship.ToAzureResourceId);
-        }
-
-        return map;
-    }
-
-    private static Dictionary<string, HashSet<string>> BuildZoneToVnetMap(
-        IEnumerable<AzureInventoryRelationshipArmTriple> relationships)
     {
         Dictionary<string, HashSet<string>> map = new(StringComparer.OrdinalIgnoreCase);
 
@@ -201,7 +187,7 @@ public sealed class AzureInventoryPrivateEndpointDnsJoinIndex
         {
             if (!string.Equals(
                     relationship.InferenceSource,
-                    InferenceSources.PrivateDnsVnet,
+                    inferenceSource,
                     StringComparison.OrdinalIgnoreCase))
             {
                 continue;

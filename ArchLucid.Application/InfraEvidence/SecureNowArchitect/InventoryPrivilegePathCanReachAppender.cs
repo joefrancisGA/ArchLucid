@@ -48,6 +48,9 @@ internal static class InventoryPrivilegePathCanReachAppender
                 continue;
             }
 
+            if (!dnsJoinIndex.HasPeReachableTarget(relationship.FromAzureResourceId, relationship.ToAzureResourceId))
+                continue;
+
             InventoryPrivilegePathGraph.AddEdge(
                 outgoing,
                 new PrivilegePathEdge

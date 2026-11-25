@@ -272,10 +272,10 @@ internal static class IntendedReachabilityPathEnumerator
             && graph.DnsJoinIndex is not null
             && TryResolvePrivateComputeOrigin(hops, currentNode, graph, out string? computeForDns)
             && !string.IsNullOrWhiteSpace(computeForDns)
-            && graph.DnsJoinIndex.ComputeToVnetArmId.TryGetValue(
+            && graph.DnsJoinIndex.ComputeToVnetArmIds.TryGetValue(
                 ArmResourceIdNormalizer.Normalize(computeForDns),
-                out string? computeVnetArmId)
-            && graph.CustomDnsIndex.VnetUsesCustomDns(computeVnetArmId)
+                out HashSet<string>? computeVnetArmIds)
+            && computeVnetArmIds.Any(graph.CustomDnsIndex.VnetUsesCustomDns)
             && (hasPrivatePeReachableHop || startsFromPrivateCompute))
         {
             finalHops.Add(new PrivilegePathEdge
