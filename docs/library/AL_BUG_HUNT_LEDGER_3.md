@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-marketing-surfaces` pass-4 reseed. Scoped vitest marketing **683/685** (2 pre-existing branch failures). Private beta: n/a.
+> **Scope:** Contributor-reference — hunt 2026-11-25 thorough hunt (hit): `ui-architecture-intelligence` pass-52 reseed. Scoped vitest **17/17** on client-api, page-helpers, product-context, checklist. Private beta: continue/publish no longer POST whitespace-only hydrated intake.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -4147,13 +4147,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-architecture-intelligence
 
+2026-11-25 thorough hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone `ui-marketing-surfaces` 2/3 dry). Attempted failing repro on five pass-51 `(candidate)` monitors — **proven** `buildRequest` shipped whitespace-only canonical `architecture-description.txt` when the textarea was empty; **proven** `continueWithAnswers` / `publishRun` omitted the reasoning-path description guard; **proven** `loadGoldenFixture` marked context loaded from `sources.length` without usable bodies; **valid-no-repro** `canAnalyzeHydratedReview` (`architectureDescription.trim().length > 0` gate); **invalid** page-client VM heap harness (use focused helper suites). Fixes: filter whitespace-only hydrated rows in `buildRequest`, share `requiresArchitectureDescriptionForMutation` on continue/publish, `hasUsableArchitectureSourceText` for golden fixture load; regressions `drops whitespace-only hydrated sources when the architecture description field is empty`, `requiresArchitectureDescriptionForMutation is true when textarea and hydrated rows are blank`. Scoped vitest **17/17**. Pass-52 reseed below. Private beta: invited architects who clear the description field no longer continue or publish runs that silently carry whitespace-only hydrated intake, and golden-fixture load no longer marks product context loaded when fixture bodies are blank.
+
+
 2026-11-24 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone **`securenow-question-queue`** hit at run-log tail). Reread `buildRequest`, `shouldRequestGoldenFixtureForGoldenTest`, action POST gates, and product-context hydration after attachment-only hit family; cheap-disproof closed prior empty-reasoning publish gate (`hasActionableArchitectureIntelligenceResult`), whitespace-only source context (`hasUsableArchitectureSourceText`), and non-canonical filename casing drift (product loader emits exact `architecture-description.txt`). No row met hunt-ready; reseeded five pass-51 `(candidate)` monitors below. Scoped vitest **15/15** (`architecture-intelligence-client-api.test.ts`, `architecture-intelligence-page-helpers.test.ts`, `use-architecture-intelligence-product-context.test.ts`, `architecture-intelligence-analysis-checklist.test.ts`). Private beta: n/a.
 
-- [ ] (candidate) `buildRequest` — hydrated canonical `architecture-description.txt` with whitespace-only body ships on continue/publish when textarea empty — locus: hydrated branch without operator override; input: whitespace canonical row (monitor).
-- [ ] (candidate) `continueWithAnswers` / `publishRun` — POST without `architectureDescription.trim()` guard unlike `runReasoningWithOptions` — locus: shared `buildRequest`; input: cleared textarea after prior reasoning (monitor).
-- [ ] (candidate) `canAnalyzeHydratedReview` — `productContextStatus === "loaded"` on attachment-only intake while description textarea empty — locus: analyze gate vs inbound copy; input: attachment-only deep link (monitor).
-- [ ] (candidate) `loadGoldenFixture` — `markProductContextLoaded(sources.length > 0)` ignores whitespace-only fixture bodies — locus: fixture hydration; input: blank fixture source row (monitor).
-- [ ] (candidate) `ArchitectureIntelligencePageClient.test.tsx` — full page-client Vitest file VM heap blocks new action-state repros — locus: test harness; input: isolated regression pattern (monitor).
+- [x] (proven) `buildRequest` — whitespace-only canonical when textarea empty — **hit 2026-11-25 thorough hunt:** filter hydrated rows; regression above.
+- [x] (proven) `continueWithAnswers` / `publishRun` — missing description guard — **hit 2026-11-25 thorough hunt:** `requiresArchitectureDescriptionForMutation`.
+- [x] (valid-no-repro) `canAnalyzeHydratedReview` — attachment-only analyze without description — **cheap-disproof 2026-11-25 thorough hunt:** trim gate on description.
+- [x] (proven) `loadGoldenFixture` — loaded flag on blank fixture rows — **hit 2026-11-25 thorough hunt:** `hasUsableArchitectureSourceText`.
+- [x] (invalid) `ArchitectureIntelligencePageClient.test.tsx` VM heap — **cheap-disproof 2026-11-25 thorough hunt:** focused helper suites.
+
+- [x] (superseded) pass-51 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (hit):** pass-52 reseed.
+
+- [ ] (candidate) `runGoldenTest` — POST without description guard when only whitespace hydrated canonical remains — locus: shared mutation guard; input: clear textarea after fixture; monitor; pass-52 reseed.
+- [ ] (candidate) `buildRequest` — operator override may retain whitespace-only non-canonical hydrated attachments after filter — locus: attachment-only POST; input: blank png metadata; monitor; pass-52 reseed.
+- [ ] (candidate) `analyzeThisReview` — publish path when description whitespace-only but hydrated has attachment body — locus: analyze vs reasoning gates; input: spaces in textarea; monitor; pass-52 reseed.
+- [ ] (candidate) `primaryDescriptionFromSources` — whitespace canonical in fixture load populates textarea without usable gate — locus: fixture hydration; input: golden fixture whitespace canonical; monitor; pass-52 reseed.
+- [ ] (candidate) `runReasoningWithOptions` — error copy when hydrated attachment-only but `activeRunId` missing on analyze — locus: analyze preflight; input: loaded attachment deep link; monitor; pass-52 reseed.
+
 
 2026-11-24 seed hunt (seed→hit): no rotation (shouldRotate: false). Promoted attachment-only hydrated intake in buildRequest and runGoldenTest; architecture-intelligence-client-api Vitest 5/5. Private beta: invited architects on attachment-only deep links now send correctly labeled architecture text for reasoning posts and get fixture-backed golden tests when they have not supplied a primary brief.
 
@@ -4229,11 +4241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 4
-- **bugs-found:** 2
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-24
-- **last-bug:** 2026-11-24
+- **hunts:** 5
+- **bugs-found:** 3
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-25
+- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

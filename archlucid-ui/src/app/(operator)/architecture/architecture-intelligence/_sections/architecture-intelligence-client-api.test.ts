@@ -4,6 +4,7 @@ import { writeOperatorScopeToStorage } from "@/lib/operator/operator-scope-stora
 
 import {
   buildRequest,
+  requiresArchitectureDescriptionForMutation,
   getJson,
   postJson,
   primaryDescriptionFromSources,
@@ -103,6 +104,48 @@ describe("architecture-intelligence-client-api", () => {
           fileName: "network-diagram.png",
           contentType: "image/png",
           content: "attachment body",
+        },
+      ]),
+    ).toBe(true);
+  });
+
+  it("drops whitespace-only hydrated sources when the architecture description field is empty", () => {
+    const request = buildRequest(
+      "   ",
+      "",
+      {},
+      {
+        hydratedSourceTexts: [
+          {
+            fileName: "architecture-description.txt",
+            contentType: "text/plain",
+            content: "   \n",
+          },
+          {
+            fileName: "network-diagram.png",
+            contentType: "image/png",
+            content: "Attachment body",
+          },
+        ],
+      },
+    );
+
+    expect(request.sourceTexts).toEqual([
+      {
+        fileName: "network-diagram.png",
+        contentType: "image/png",
+        content: "Attachment body",
+      },
+    ]);
+  });
+
+  it("requiresArchitectureDescriptionForMutation is true when textarea and hydrated rows are blank", () => {
+    expect(
+      requiresArchitectureDescriptionForMutation("  ", [
+        {
+          fileName: "architecture-description.txt",
+          contentType: "text/plain",
+          content: "  ",
         },
       ]),
     ).toBe(true);

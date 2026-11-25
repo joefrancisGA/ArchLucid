@@ -65,6 +65,22 @@ export async function getJson<T>(path: string): Promise<T> {
   return (await response.json()) as T;
 }
 
+
+export function hasUsableArchitectureSourceText(
+  sources: readonly ClosedLoopReasoningSourceText[],
+): boolean {
+  return sources.some((source) => source.content.trim().length > 0);
+}
+
+export function requiresArchitectureDescriptionForMutation(
+  architectureDescription: string,
+  hydratedSourceTexts: readonly ClosedLoopReasoningSourceText[],
+): boolean {
+  return (
+    architectureDescription.trim().length === 0 && !hasUsableArchitectureSourceText(hydratedSourceTexts)
+  );
+}
+
 export function buildRequest(
   architectureDescription: string,
   prioritiesRaw: string,
@@ -111,7 +127,7 @@ export function buildRequest(
         ];
       }
     } else {
-      sourceTexts = [...hydrated];
+      sourceTexts = hydrated.filter((source) => source.content.trim().length > 0);
     }
   } else if (trimmedDescription.length > 0) {
     sourceTexts = [
