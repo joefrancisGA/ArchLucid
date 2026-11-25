@@ -26,6 +26,39 @@ public sealed class EntraGroupMembershipGraphReaderTests
     private const string GroupB = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
     private const string MemberUser = "cccccccc-cccc-cccc-cccc-cccccccccccc";
 
+    [Theory]
+    [InlineData("transport")]
+    [InlineData("malformed")]
+    [InlineData("missing-value")]
+    [InlineData("invalid-row")]
+    [InlineData("http")]
+    [InlineData("cycle")]
+    [InlineData("empty")]
+    public async Task TryReadDirectMembershipsAsync_distinguishes_empty_success_from_incomplete(string scenario)
+    {
+        using HttpClient httpClient = CreateHttpClient(request => scenario switch
+        {
+            "transport" => throw new HttpRequestException("test transport failure"),
+            "malformed" => JsonResponse("{"),
+            "missing-value" => JsonResponse("{}"),
+            "invalid-row" => JsonResponse("""{"value":[null]}"""),
+            "http" => new HttpResponseMessage(HttpStatusCode.ServiceUnavailable),
+            "cycle" => JsonResponse($"""{"value":[],"@odata.nextLink":"{{request.RequestUri!.AbsoluteUri}}"}"""),
+            "empty" => JsonResponse("""{"value":[]}"""),
+            _ => throw new InvalidOperationException("Unknown test fixture"),
+        });
+        EntraGroupMembershipGraphReader sut = new(httpClient, NullLogger<EntraGroupMembershipGraphReader>.Instance);
+        EntraGroupMembershipGraphReadResult result = await sut.TryReadDirectMembershipsAsync(
+            new StubTokenCredential(), [GroupA], 0, CancellationToken.None);
+
+        Assert.Empty(result.Memberships);
+        Assert.False(result.Forbidden);
+        if (scenario == "empty")
+            Assert.Empty(result.Warnings);
+        else
+            Assert.Contains(SecurityEvidenceEntraGroupAdapterWarnings.GraphIncomplete, result.Warnings);
+    }
+
     [Fact]
     public async Task TryReadDirectMembershipsAsync_empty_seed_returns_without_http_call()
     {
@@ -213,6 +246,7 @@ public sealed class EntraGroupMembershipGraphReaderTests
         Assert.Equal(2, requestCount);
         Assert.False(result.Forbidden);
         Assert.Single(result.Memberships);
+        Assert.Contains(SecurityEvidenceEntraGroupAdapterWarnings.GraphForbidden, result.Warnings);
         Assert.Contains(result.Memberships, row => row.MemberId == memberPage1 && row.GroupId == GroupA);
     }
 
@@ -263,6 +297,7 @@ public sealed class EntraGroupMembershipGraphReaderTests
 
         Assert.Equal(2, requestCount);
         Assert.Single(result.Memberships);
+        Assert.Contains(SecurityEvidenceEntraGroupAdapterWarnings.GraphIncomplete, result.Warnings);
         Assert.Contains(result.Memberships, row => row.MemberId == memberPage1 && row.GroupId == GroupA);
     }
 
@@ -541,14 +576,11 @@ public sealed class EntraGroupMembershipGraphReaderTests
 
         EntraGroupMembershipGraphReader sut = new(httpClient, NullLogger<EntraGroupMembershipGraphReader>.Instance);
 
-        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            sut.TryReadDirectMembershipsAsync(
-                new StubTokenCredential(),
-                [GroupA],
-                maxNestedDepth: 0,
-                CancellationToken.None));
+        EntraGroupMembershipGraphReadResult result = await sut.TryReadDirectMembershipsAsync(
+            new StubTokenCredential(), [GroupA], 0, CancellationToken.None);
 
-        Assert.Contains("invalid @odata.nextLink", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Empty(result.Memberships);
+        Assert.Contains(SecurityEvidenceEntraGroupAdapterWarnings.GraphIncomplete, result.Warnings);
     }
 
     [Fact]
@@ -626,6 +658,7 @@ public sealed class EntraGroupMembershipGraphReaderTests
 
         Assert.Single(requestedGroupIds);
         Assert.Single(shallow.Memberships);
+        Assert.Contains(SecurityEvidenceEntraGroupAdapterWarnings.GraphIncomplete, shallow.Warnings);
         Assert.Equal(GroupB, shallow.Memberships[0].MemberId);
         Assert.Equal(GroupA, shallow.Memberships[0].GroupId);
 
@@ -639,6 +672,7 @@ public sealed class EntraGroupMembershipGraphReaderTests
 
         Assert.Equal(2, requestedGroupIds.Count);
         Assert.Equal(2, deep.Memberships.Count);
+        Assert.Empty(deep.Warnings);
         Assert.Contains(deep.Memberships, row => row.MemberId == MemberUser && row.GroupId == GroupB);
     }
 
