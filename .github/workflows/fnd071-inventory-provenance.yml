@@ -11,7 +11,7 @@ on:
       - '**/SecurityEvidencePathReport*Service*.cs'
       - '**/SecurityEvidencePathReportResponse.cs'
       - 'ArchLucid.Api/Controllers/OperationalSecurity/OperationalSecurityPathsController.cs'
-      - 'ArchLucid.Api.Tests/OperationalSecurity/OperationalSecurityPathsControllerTests.cs'
+      - 'ArchLucid.Api.Tests/OperationalSecurity/OperationalSecurityPathsController*Tests.cs'
       - '**/SqlSecurityEvidencePathRepositorySqlIntegrationTests.cs'
       - 'scripts/ci/tests/test_security_evidence_path_explanations_greenfield_parity.py'
       - '.github/workflows/fnd071-inventory-provenance.yml'
@@ -99,5 +99,5 @@ jobs:
           global-json-file: global.json
       - run: >-
           dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~OperationalSecurityPathsControllerTests'
+          --filter 'FullyQualifiedName~OperationalSecurityPathsController'
           --logger 'console;verbosity=normal'
