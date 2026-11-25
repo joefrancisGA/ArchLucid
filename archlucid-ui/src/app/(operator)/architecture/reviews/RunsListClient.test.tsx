@@ -181,7 +181,8 @@ describe("RunsListClient inspector", () => {
     fireEvent.popState(window);
     const previousLink = screen.getByRole("link", { name: /previous/i });
     console.log("HREF", previousLink.getAttribute("href"));
-    expect(previousLink).toHaveAttribute("href", expect.stringContaining("filter=orphan-candidates"));`r`n    expect(previousLink).toHaveAttribute("href", expect.stringContaining("page=1"));
+    expect(previousLink).toHaveAttribute("href", expect.stringContaining("filter=orphan-candidates"));
+    expect(previousLink).toHaveAttribute("href", expect.stringContaining("page=1"));
   });
 
 
