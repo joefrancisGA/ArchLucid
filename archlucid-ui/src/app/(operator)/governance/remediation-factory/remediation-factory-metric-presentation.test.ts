@@ -257,6 +257,38 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "open-findings-queue")?.windowLine).toBeUndefined();
   });
 
+
+  it("omits automation windowLine when percent is not returned", () => {
+    const metrics = { openFindings: 1 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "automation")?.value).toBeNull();
+    expect(tiles.find((tile) => tile.id === "automation")?.windowLine).toBeUndefined();
+  });
+
+  it("omits critical-exposure windowLine when count is not returned", () => {
+    const metrics = { openFindings: 1 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "critical-exposure")?.value).toBeNull();
+    expect(tiles.find((tile) => tile.id === "critical-exposure")?.windowLine).toBeUndefined();
+  });
+
+  it("omits recurrence windowLine when count is not returned", () => {
+    const metrics = { openFindings: 1 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "recurrence")?.value).toBeNull();
+    expect(tiles.find((tile) => tile.id === "recurrence")?.windowLine).toBeUndefined();
+  });
+
+  it("omits net-burn windowLine when net burn is not returned", () => {
+    const metrics = { createdThisWeek: 1, remediatedThisWeek: 1 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "net-burn")?.value).toBeNull();
+    expect(tiles.find((tile) => tile.id === "net-burn")?.windowLine).toBeUndefined();
+  });
   it("omits pattern-exact windowLine when percent is not returned", () => {
     const metrics = { automationPercent: 5 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);

@@ -146,6 +146,8 @@ export function buildRemediationFactoryExecutiveMetricTiles(
   const openFindingsFactoryValue = formatCount(metrics?.openFindings);
   const riskWeightedOpenValue = formatDecimal(metrics?.riskWeightedOpen, 2);
   const patternExactPercentValue = formatPercentPoints(metrics?.patternCoverageExactMatchPercent);
+  const automationPercentValue = formatPercentPoints(metrics?.automationPercent);
+  const recurrenceCountValue = formatCount(metrics?.recurrenceCount);
 
   return [
     {
@@ -185,9 +187,12 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       id: "critical-exposure",
       label: "Critical exposure",
       scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
-      windowLine: windowLineWhenLoaded(
-        "Factory metric — linked queue uses critical-error filter and may differ.",
-      ),
+      windowLine:
+        criticalExposureValue !== null
+          ? windowLineWhenLoaded(
+              "Factory metric — linked queue uses critical-error filter and may differ.",
+            )
+          : undefined,
       valueFootnote:
         !metricsLoaded || metrics == null
           ? null
@@ -201,18 +206,24 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       id: "recurrence",
       label: "Recurrence (7d)",
       scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
-      windowLine: windowLineWhenLoaded(
-        `${METRICS_WINDOW} · findings that reopened after remediation in this metric`,
-      ),
-      value: formatCount(metrics?.recurrenceCount),
+      windowLine:
+        recurrenceCountValue !== null
+          ? windowLineWhenLoaded(
+              `${METRICS_WINDOW} · findings that reopened after remediation in this metric`,
+            )
+          : undefined,
+      value: recurrenceCountValue,
     },
     {
       id: "net-burn",
       label: "Net burn (7d)",
       scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
-      windowLine: windowLineWhenLoaded(
-        `${METRICS_WINDOW} · opened minus remediated — not cloud spend`,
-      ),
+      windowLine:
+        netBurn !== null
+          ? windowLineWhenLoaded(
+              `${METRICS_WINDOW} · opened minus remediated — not cloud spend`,
+            )
+          : undefined,
       valueFootnote:
         netBurn === null ? null : netBurnWeeklyFootnoteWhenLoaded(metricsLoaded, metrics),
       value: netBurn === null ? null : String(netBurn),
@@ -231,8 +242,11 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       id: "automation",
       label: "Automation %",
       scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
-      windowLine: windowLineWhenLoaded(REMEDIATION_FACTORY_PERCENT_POPULATION_LINE),
-      value: formatPercentPoints(metrics?.automationPercent),
+      windowLine:
+        automationPercentValue !== null
+          ? windowLineWhenLoaded(REMEDIATION_FACTORY_PERCENT_POPULATION_LINE)
+          : undefined,
+      value: automationPercentValue,
     },
     {
       id: "exceptions-active",
