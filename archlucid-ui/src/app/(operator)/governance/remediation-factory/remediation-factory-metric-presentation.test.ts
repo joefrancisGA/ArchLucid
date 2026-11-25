@@ -238,6 +238,38 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "open-findings-factory")?.valueFootnote).toBeNull();
   });
 
+
+  it("omits ruleLine on open-findings-factory when open findings count is not returned", () => {
+    const metrics = { automationPercent: 10 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "open-findings-factory")?.ruleLine).toBeUndefined();
+  });
+
+  it("omits pattern-exact-match drill-through hint when pattern percent is NaN", () => {
+    const metrics = { patternCoverageExactMatchPercent: Number.NaN } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics,
+      openFindingsHref: "/security/findings",
+    });
+
+    expect(tiles.find((tile) => tile.key === "pattern-exact-match")?.hint).toBeUndefined();
+  });
+
+  it("renders automation percent zero on the tile", () => {
+    const metrics = { automationPercent: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "automation")?.value).toBe("0%");
+  });
+
+  it("renders measured zero on recurrence tile", () => {
+    const metrics = { recurrenceCount: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "recurrence")?.value).toBe("0");
+    expect(tiles.find((tile) => tile.id === "recurrence")?.valueFootnote).toBeUndefined();
+  });
   it("keeps open-findings-factory compare footnote when open findings count is zero", () => {
     const metrics = { openFindings: 0 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);

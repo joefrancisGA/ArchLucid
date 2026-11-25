@@ -32,13 +32,17 @@ function readUuidParam(params: URLSearchParams, key: string): string | null {
 function remediationFactoryDisclosureNumericOneOpenToken(normalized: string): boolean {
   const unsigned = normalized.startsWith("+") ? normalized.slice(1) : normalized;
 
-  if (!/^\d+$/.test(unsigned)) {
-    return false;
+  if (/^\d+$/.test(unsigned)) {
+    return Number(unsigned) === 1;
   }
 
-  const numeric = Number(unsigned);
+  if (/^\d+\.\d+$/.test(unsigned)) {
+    const numeric = Number(unsigned);
 
-  return Number.isInteger(numeric) && numeric === 1;
+    return Number.isFinite(numeric) && numeric === 1;
+  }
+
+  return false;
 }
 function setUuidParam(params: URLSearchParams, key: string, value: string | null): void {
   const normalized = normalizeUuidQueryValue(value);

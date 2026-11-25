@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 `ui-lib-remediation-factory` pass-36 exceptions table hint + metrics +1 parse. **192/192**. — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-infra-resource-hub` pass-496 cheap-disproof. ResourceHubClient **148/148**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 `ui-lib-remediation-factory` pass-37 factory ruleLine + metrics 1.0 parse. **198/198**. — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-infra-resource-hub` pass-496 cheap-disproof. ResourceHubClient **148/148**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -381,6 +381,23 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 thorough hunt (hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-37 (`shouldRotate: false`; hint override). **proven** `buildRemediationFactoryExecutiveMetricTiles` — open-findings factory tile still showed the IE15 prioritization `ruleLine` when `openFindings` was not returned (same class as pass-34 footnote); gate `ruleLine` on measured factory count. **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — decimal one tokens like `1.0` stayed closed; accept finite decimals that normalize to one. Regressions added. **valid-no-repro** pattern-exact table hint when percent NaN (regression added), **valid-no-repro** recurrence zero tile chrome (regression added), **valid-no-repro** automation zero percent tile (regression added), **valid-no-repro** padded one metrics drop on close (regression added). Pass-38 reseed below. Scoped vitest **198/198**. Private beta: invited operators no longer see prioritization rule chrome without a factory open-findings count, and `remediationFactoryMetricsOpen=1.0` deep links open the metrics panel.
+
+- [x] (superseded) pass-37 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (hit):** pass-38 reseed.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — factory ruleLine without open findings count — **proven 2026-11-25 thorough hunt (hit):** regression added.
+- [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — decimal one token — **proven 2026-11-25 thorough hunt (hit):** regression added.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricPresentations` — pattern-exact hint when percent not measured — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression added.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — recurrence footnote when count zero — **cheap-disproof 2026-11-25 thorough hunt (hit):** no footnote chrome; regression added.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded one — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression added.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — automation tile when percent is zero — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression added.
+
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — risk-weighted ruleLine when value not measured — locus: tile chrome; input: missing riskWeightedOpen; monitor; pass-38 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — automation table scope when percent NaN — locus: table presentation; input: NaN; monitor; pass-38 reseed.
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — uppercase TRUE token on read — locus: metrics parse; input: `TRUE`; monitor; pass-38 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open clears stale `0` token from base — locus: writer; input: open over zero base; monitor; pass-38 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — net-burn window footnote grammar when weekly missing — locus: tile footnote; input: netBurn only; monitor; pass-38 reseed.
+
+
 2026-11-25 thorough hunt (hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-36 (`shouldRotate: false`; hint override). **proven** `buildRemediationFactoryExecutiveMetricPresentations` — exceptions-active table hint still rendered when only `exceptionsExpiringSoon` was returned (mirror of pass-35 tile footnote bug); gate hint on `exceptionsActivePresentation.state !== "notMeasured"`. **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — plus-prefixed numeric one (`+1`) stayed closed; strip optional leading `+` before numeric-one check. Regressions added. **valid-no-repro** net-burn weekly disagree (existing regression), **valid-no-repro** metrics open canonical `1` from `true` base (existing regression), **valid-no-repro** factory `ruleLine` at zero open findings (regression added). Pass-37 reseed below. Scoped vitest **192/192**. Private beta: invited operators no longer see expiring-soon table hints without a measured active exceptions count, and `remediationFactoryMetricsOpen=+1` deep links open the metrics panel.
 
 - [x] (superseded) pass-36 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (hit):** pass-37 reseed.
@@ -390,11 +407,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open canonical `1` from true base — **cheap-disproof 2026-11-25 thorough hunt (hit):** existing regression.
 - [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — ruleLine on factory open-findings when count zero — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression added.
 
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — pattern-exact table hint when percent not measured — locus: table hints; input: NaN percent; monitor; pass-37 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — recurrence footnote when count zero — locus: tile chrome; input: recurrence 0; monitor; pass-37 reseed.
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — decimal one token on read — locus: metrics parse; input: `1.0`; monitor; pass-37 reseed.
 - [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded `1` from base — locus: writer; input: padded one; monitor; pass-37 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — automation tile when percent is zero — locus: tile value; input: automationPercent 0; monitor; pass-37 reseed.
 
 
 2026-11-25 thorough hunt (hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-35 (`shouldRotate: false`; hint override). **proven** `exceptionsExpiringFootnoteWhenLoaded` — expiring-soon footnote still rendered when `exceptionsActive` was not returned (e.g. only `exceptionsExpiringSoon: 0`), so operators saw expiring copy beside `Not returned`; require a measured active count before composing the footnote. **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — leading-zero numeric one tokens (e.g. `01`) stayed closed while other allowlist tokens open; honor all-digit tokens that parse to integer one. Regressions cited in scoped tests. **valid-no-repro** critical table hint vs raw zero (aligned to `measuredZero`; regression added), **valid-no-repro** open-findings queue tile footnote contract (regression added), **valid-no-repro** padded `true` drop on metrics close (regression added). Pass-36 reseed below. Scoped vitest **188/188**. Private beta: invited operators no longer see expiring-soon footnotes without an active count on the exceptions tile, and deep links with `remediationFactoryMetricsOpen=01` reopen the metrics panel.
@@ -802,8 +815,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 58
-- **bugs-found:** 35
+- **hunts:** 59
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25

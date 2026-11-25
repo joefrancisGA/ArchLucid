@@ -160,7 +160,8 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       id: "open-findings-factory",
       label: "Open findings (factory metrics)",
       scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
-      ruleLine: metricsLoaded ? PRIORITIZATION_RULE : undefined,
+      ruleLine:
+        metricsLoaded && openFindingsFactoryValue !== null ? PRIORITIZATION_RULE : undefined,
       valueFootnote:
         metricsLoaded && openFindingsFactoryValue !== null
           ? "Factory metrics API count — compare to queue only when both are loaded."
