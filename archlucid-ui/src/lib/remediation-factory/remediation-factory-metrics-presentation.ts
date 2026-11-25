@@ -33,7 +33,17 @@ function netBurnWeeklyFootnoteWhenLoaded(
   const created = parseNonNegativeFiniteNumber(metrics.createdThisWeek);
   const remediated = parseNonNegativeFiniteNumber(metrics.remediatedThisWeek);
 
-  if (created === null || remediated === null) {
+  if (created === null || remediated === null || !Number.isInteger(created) || !Number.isInteger(remediated)) {
+    return null;
+  }
+
+  const netBurn = parseFiniteNumber(metrics.netBurn);
+
+  if (netBurn === null || !Number.isInteger(netBurn)) {
+    return null;
+  }
+
+  if (created - remediated !== netBurn) {
     return null;
   }
 
@@ -48,9 +58,15 @@ function exceptionsExpiringFootnoteWhenLoaded(
     return null;
   }
 
+  const active = parseNonNegativeFiniteNumber(metrics.exceptionsActive);
+
+  if (active === null || !Number.isInteger(active)) {
+    return null;
+  }
+
   const expiringSoon = parseNonNegativeFiniteNumber(metrics.exceptionsExpiringSoon);
 
-  if (expiringSoon === null) {
+  if (expiringSoon === null || !Number.isInteger(expiringSoon)) {
     return null;
   }
 
@@ -61,7 +77,17 @@ export function buildRemediationFactoryExecutiveMetricTiles(
   metricsLoaded: boolean,
 ): readonly RemediationFactoryMetricTile[] {
   const openFindingsHref = buildGovernanceFindingsQueueHref({ filter: "open" });
-  const netBurn = metricsLoaded ? parseFiniteNumber(metrics?.netBurn) : null;
+  const netBurn = metricsLoaded
+    ? (() => {
+        const normalized = parseFiniteNumber(metrics?.netBurn);
+
+        if (normalized === null || !Number.isInteger(normalized)) {
+          return null;
+        }
+
+        return normalized;
+      })()
+    : null;
 
   function formatCount(value: number | undefined): string | null {
     if (!metricsLoaded || metrics === undefined) {
@@ -74,7 +100,11 @@ export function buildRemediationFactoryExecutiveMetricTiles(
 
     const normalized = parseNonNegativeFiniteNumber(value);
 
-    return normalized === null ? null : String(normalized);
+    if (normalized === null || !Number.isInteger(normalized)) {
+      return null;
+    }
+
+    return String(normalized);
   }
 
   function formatDecimal(value: number | undefined, digits = 2): string | null {
@@ -112,96 +142,141 @@ export function buildRemediationFactoryExecutiveMetricTiles(
     return metricTileChromeWhenLoaded(line);
   }
 
+  const criticalExposureValue = formatCount(metrics?.criticalExposureCount);
+  const openFindingsFactoryValue = formatCount(metrics?.openFindings);
+  const riskWeightedOpenValue = formatDecimal(metrics?.riskWeightedOpen, 2);
+  const patternExactPercentValue = formatPercentPoints(metrics?.patternCoverageExactMatchPercent);
+  const automationPercentValue = formatPercentPoints(metrics?.automationPercent);
+  const recurrenceCountValue = formatCount(metrics?.recurrenceCount);
+  const exceptionsActiveValue = formatCount(metrics?.exceptionsActive);
+  const averageAgeValue = formatDecimal(metrics?.averageAgeDays, 1);
+
   return [
     {
       id: "open-findings-queue",
       label: "Open findings (queue)",
-      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
-      windowLine: windowLineWhenLoaded(
-        "Governance queue open filter — may differ from factory metrics API.",
-      ),
-      value: formatCount(metrics?.openFindings),
-      href: openFindingsHref,
+      scopeLine:
+        openFindingsFactoryValue !== null ? scopeLineWhenLoaded(WORKSPACE_SCOPE) : undefined,
+      windowLine:
+        openFindingsFactoryValue !== null
+          ? windowLineWhenLoaded("Governance queue open filter — may differ from factory metrics API.")
+          : undefined,
+      value: openFindingsFactoryValue,
+      href: openFindingsFactoryValue !== null ? openFindingsHref : undefined,
     },
     {
       id: "open-findings-factory",
       label: "Open findings (factory metrics)",
-      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
-      ruleLine: metricsLoaded ? PRIORITIZATION_RULE : undefined,
-      valueFootnote: metricsLoaded
-        ? "Factory metrics API count — compare to queue only when both are loaded."
-        : null,
-      value: formatCount(metrics?.openFindings),
+      scopeLine:
+        openFindingsFactoryValue !== null ? scopeLineWhenLoaded(WORKSPACE_SCOPE) : undefined,
+      ruleLine:
+        metricsLoaded && openFindingsFactoryValue !== null ? PRIORITIZATION_RULE : undefined,
+      valueFootnote:
+        metricsLoaded && openFindingsFactoryValue !== null
+          ? "Factory metrics API count — compare to queue only when both are loaded."
+          : null,
+      value: openFindingsFactoryValue,
     },
     {
       id: "risk-weighted-open",
       label: "Risk-weighted open",
-      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
-      ruleLine: metricsLoaded ? `${PRIORITIZATION_RULE} · weighted sum, not a finding count` : undefined,
-      value: formatDecimal(metrics?.riskWeightedOpen, 2),
+      scopeLine:
+        riskWeightedOpenValue !== null ? scopeLineWhenLoaded(WORKSPACE_SCOPE) : undefined,
+      ruleLine:
+        metricsLoaded && riskWeightedOpenValue !== null
+          ? `${PRIORITIZATION_RULE} · weighted sum, not a finding count`
+          : undefined,
+      value: riskWeightedOpenValue,
     },
     {
       id: "critical-exposure",
       label: "Critical exposure",
-      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
-      windowLine: windowLineWhenLoaded(
-        "Factory metric — linked queue uses critical-error filter and may differ.",
-      ),
+      scopeLine:
+        criticalExposureValue !== null ? scopeLineWhenLoaded(WORKSPACE_SCOPE) : undefined,
+      windowLine:
+        criticalExposureValue !== null
+          ? windowLineWhenLoaded(
+              "Factory metric — linked queue uses critical-error filter and may differ.",
+            )
+          : undefined,
       valueFootnote:
         !metricsLoaded || metrics == null
           ? null
-          : metrics.criticalExposureCount === 0
+          : criticalExposureValue === "0"
             ? "No critical-or-error findings in this metric."
             : null,
-      value: formatCount(metrics?.criticalExposureCount),
-      href: buildGovernanceFindingsQueueHref({ filter: "critical-error" }),
+      value: criticalExposureValue,
+      href:
+        criticalExposureValue !== null
+          ? buildGovernanceFindingsQueueHref({ filter: "critical-error" })
+          : undefined,
     },
     {
       id: "recurrence",
       label: "Recurrence (7d)",
-      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
-      windowLine: windowLineWhenLoaded(
-        `${METRICS_WINDOW} · findings that reopened after remediation in this metric`,
-      ),
-      value: formatCount(metrics?.recurrenceCount),
+      scopeLine:
+        recurrenceCountValue !== null ? scopeLineWhenLoaded(WORKSPACE_SCOPE) : undefined,
+      windowLine:
+        recurrenceCountValue !== null
+          ? windowLineWhenLoaded(
+              `${METRICS_WINDOW} · findings that reopened after remediation in this metric`,
+            )
+          : undefined,
+      value: recurrenceCountValue,
     },
     {
       id: "net-burn",
       label: "Net burn (7d)",
-      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
-      windowLine: windowLineWhenLoaded(
-        `${METRICS_WINDOW} · opened minus remediated — not cloud spend`,
-      ),
-      valueFootnote: netBurnWeeklyFootnoteWhenLoaded(metricsLoaded, metrics),
+      scopeLine: netBurn !== null ? scopeLineWhenLoaded(WORKSPACE_SCOPE) : undefined,
+      windowLine:
+        netBurn !== null
+          ? windowLineWhenLoaded(
+              `${METRICS_WINDOW} · opened minus remediated — not cloud spend`,
+            )
+          : undefined,
+      valueFootnote:
+        netBurn === null ? null : netBurnWeeklyFootnoteWhenLoaded(metricsLoaded, metrics),
       value: netBurn === null ? null : String(netBurn),
     },
     {
       id: "pattern-exact",
       label: "Pattern exact match %",
-      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
-      windowLine: windowLineWhenLoaded(REMEDIATION_FACTORY_PERCENT_POPULATION_LINE),
-      value: formatPercentPoints(metrics?.patternCoverageExactMatchPercent),
+      scopeLine:
+        patternExactPercentValue !== null ? scopeLineWhenLoaded(WORKSPACE_SCOPE) : undefined,
+      windowLine:
+        patternExactPercentValue !== null
+          ? windowLineWhenLoaded(REMEDIATION_FACTORY_PERCENT_POPULATION_LINE)
+          : undefined,
+      value: patternExactPercentValue,
     },
     {
       id: "automation",
       label: "Automation %",
-      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
-      windowLine: windowLineWhenLoaded(REMEDIATION_FACTORY_PERCENT_POPULATION_LINE),
-      value: formatPercentPoints(metrics?.automationPercent),
+      scopeLine:
+        automationPercentValue !== null ? scopeLineWhenLoaded(WORKSPACE_SCOPE) : undefined,
+      windowLine:
+        automationPercentValue !== null
+          ? windowLineWhenLoaded(REMEDIATION_FACTORY_PERCENT_POPULATION_LINE)
+          : undefined,
+      value: automationPercentValue,
     },
     {
       id: "exceptions-active",
       label: "Exceptions active",
-      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
-      windowLine: windowLineWhenLoaded("Current snapshot — not the 7-day window"),
+      scopeLine:
+        exceptionsActiveValue !== null ? scopeLineWhenLoaded(WORKSPACE_SCOPE) : undefined,
+      windowLine:
+        exceptionsActiveValue !== null
+          ? windowLineWhenLoaded("Current snapshot — not the 7-day window")
+          : undefined,
       valueFootnote: exceptionsExpiringFootnoteWhenLoaded(metricsLoaded, metrics),
-      value: formatCount(metrics?.exceptionsActive),
+      value: exceptionsActiveValue,
     },
     {
       id: "avg-age",
       label: "Average age (days)",
-      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
-      value: formatDecimal(metrics?.averageAgeDays, 1),
+      scopeLine: averageAgeValue !== null ? scopeLineWhenLoaded(WORKSPACE_SCOPE) : undefined,
+      value: averageAgeValue,
     },
   ];
 }
