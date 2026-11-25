@@ -15,6 +15,81 @@ namespace ArchLucid.Integrations.AzureExtractor.Tests;
 
 public sealed class GetOnlyHostedAzureArmReadClientTests
 {
+    [Theory]
+    [InlineData("linkedservices")]
+    [InlineData("datasets")]
+    [InlineData("pipelines")]
+    [InlineData("triggers")]
+    [InlineData("integrationruntimes")]
+    [InlineData("dataflows")]
+    public async Task FactoryMetadataListings_report_incomplete_on_server_failure(string family)
+    {
+        const string factory = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/f1";
+        using HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError)));
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        var result = await (family switch
+        {
+            "linkedservices" => client.ListFactoryLinkedServicesAsync("token", factory, CancellationToken.None),
+            "datasets" => client.ListFactoryDatasetsAsync("token", factory, CancellationToken.None),
+            "pipelines" => client.ListFactoryPipelinesAsync("token", factory, CancellationToken.None),
+            "triggers" => client.ListFactoryTriggersAsync("token", factory, CancellationToken.None),
+            "integrationruntimes" => client.ListFactoryIntegrationRuntimesAsync("token", factory, CancellationToken.None),
+            "dataflows" => client.ListFactoryDataflowsAsync("token", factory, CancellationToken.None),
+            _ => throw new InvalidOperationException("Unexpected family."),
+        });
+
+        Assert.Empty(result);
+        Assert.True(Assert.IsType<HostedAzureAdfCollection<System.Text.Json.JsonElement>>(result).PartialCollection);
+    }
+
+    [Theory]
+    [InlineData("cycle")]
+    [InlineData("http")]
+    [InlineData("malformed")]
+    [InlineData("complete")]
+    public async Task FactoryMetadataListing_preserves_valid_prefix_and_completeness(string scenario)
+    {
+        const string factory = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/f1";
+        const string next = "https://management.azure.com" + factory + "/datasets?api-version=2018-06-01&$skiptoken=page2";
+        int requests = 0;
+        using HttpMessageHandler handler = new RecordingHandler((_, _) =>
+        {
+            int count = Interlocked.Increment(ref requests);
+            if (count > 2)
+                throw new InvalidOperationException("Pagination did not terminate.");
+            if (count == 2 && scenario == "http")
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.Forbidden));
+
+            string body = count == 1
+                ? "{\"value\":[{\"name\":\"dataset1\"}],\"nextLink\":\"" + next + "\"}"
+                : scenario switch
+                {
+                    "cycle" => "{\"value\":[],\"nextLink\":\"" + next + "\"}",
+                    "malformed" => "{}",
+                    "complete" => """{"value":[],"nextLink":null}""",
+                    _ => throw new InvalidOperationException("Unexpected scenario."),
+                };
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        var result = await client.ListFactoryDatasetsAsync("token", factory, CancellationToken.None);
+
+        Assert.Equal(2, requests);
+        Assert.Single(result);
+        Assert.Equal(scenario != "complete",
+            Assert.IsType<HostedAzureAdfCollection<System.Text.Json.JsonElement>>(result).PartialCollection);
+    }
+
     [Fact]
     public async Task ListSubscriptionResourcesAsync_uses_get_only_against_management_azure_com()
     {
