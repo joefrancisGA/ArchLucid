@@ -280,10 +280,8 @@ public sealed class UsageEventRepositoryCoreTests
             tenant, workspace, project, created.DraftId, changed.UpdatedUtc, ct))!;
         latest.Document.QuestionAnswers.Should().BeEmpty();
         latest.Document.QuestionAnswers["cost"] = "current";
-        DraftRequestResponse written = (await repository.UpdateAtAccessRevisionAsync(latest, ct))
-            !;
+        DraftRequestResponse written = (await repository.UpdateAtAccessRevisionAsync(latest, ct))!;
         written.Document.QuestionAnswers["cost"].Should().Be("current");
         written.UpdatedUtc.Should().BeAfter(changed.UpdatedUtc);
     }
-
 }

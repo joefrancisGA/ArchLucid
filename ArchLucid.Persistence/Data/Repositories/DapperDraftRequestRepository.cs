@@ -178,23 +178,24 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
         byte[]? spawnedDocumentContentHashSha256 = null) =>
         UpdateCoreAsync(tenantId, workspaceId, projectId, draftId, status, document, redirectReason,
             spawnedRunId, spawnedArchitectureVersionId, spawnedDocumentContentHashSha256,
-            expectedUpdatedUtc: null, cancellationToken);
+            authorizedDraft: null, cancellationToken);
 
     public Task<DraftRequestResponse?> UpdateAtAccessRevisionAsync(
         DraftRequestResponse draft, CancellationToken cancellationToken) =>
         UpdateCoreAsync(draft.TenantId, draft.WorkspaceId, draft.ProjectId, draft.DraftId, draft.Status,
             draft.Document, draft.RedirectReason, draft.SpawnedRunId, draft.SpawnedArchitectureVersionId,
-            draft.SpawnedDocumentContentHashSha256, draft.UpdatedUtc, cancellationToken);
+            draft.SpawnedDocumentContentHashSha256, draft, cancellationToken);
 
     private async Task<DraftRequestResponse?> UpdateCoreAsync(
         Guid tenantId, Guid workspaceId, Guid projectId, Guid draftId, DraftRequestStatus status,
         DraftRequestDocument document, string? redirectReason, string? spawnedRunId,
         Guid? spawnedArchitectureVersionId, byte[]? spawnedDocumentContentHashSha256,
-        DateTime? expectedUpdatedUtc, CancellationToken cancellationToken)
+        DraftRequestResponse? authorizedDraft, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(document);
         PersistenceTenantScope.RequireEntityTenant(tenantId);
 
+        DateTime? expectedUpdatedUtc = authorizedDraft?.UpdatedUtc;
         DateTime now = TimeProvider.System.GetUtcNow().UtcDateTime;
         if (expectedUpdatedUtc is DateTime previous && now <= previous)
             now = previous.AddTicks(1);
@@ -250,8 +251,16 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
         if (rows == 0)
             return null;
 
-        return await GetCoreAsync(tenantId, workspaceId, projectId, draftId,
-            expectedUpdatedUtc.HasValue ? now : null, cancellationToken);
+        if (authorizedDraft is not null)
+        {
+            // The guarded write has committed this private snapshot. Do not re-read a
+            // potentially newer, unauthorized revision or lose the audit of this write.
+            authorizedDraft.UpdatedUtc = now;
+            authorizedDraft.DocumentContentHashSha256 = documentContentHashSha256;
+            return authorizedDraft;
+        }
+
+        return await GetAsync(tenantId, workspaceId, projectId, draftId, cancellationToken);
     }
 
     /// <inheritdoc />
