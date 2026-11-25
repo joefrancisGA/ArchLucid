@@ -11,7 +11,8 @@ public sealed class PaginationDefaultsTests
     [InlineData(0, 10, 1, 10)]
     [InlineData(-3, 10, 1, 10)]
     [InlineData(2, 0, 2, 1)]
-    [InlineData(1, 500, 1, PaginationDefaults.MaxPageSize)]
+    // The API contract caps page size at 200. Keep the expected value independent of the implementation.
+    [InlineData(1, 500, 1, 200)]
     public void Normalize_ClampsPageAndPageSize(int page, int pageSize, int expectedPage, int expectedSize)
     {
         (int p, int s) = PaginationDefaults.Normalize(page, pageSize);
@@ -24,6 +25,9 @@ public sealed class PaginationDefaultsTests
     [InlineData(1, 50, 0)]
     [InlineData(2, 10, 10)]
     [InlineData(3, 25, 50)]
+    [InlineData(0, 10, 0)]
+    [InlineData(2, 0, 1)]
+    [InlineData(2, 500, 200)]
     public void ToSkip_MatchesOneBasedPage(int page, int pageSize, int expectedSkip)
     {
         int skip = PaginationDefaults.ToSkip(page, pageSize);

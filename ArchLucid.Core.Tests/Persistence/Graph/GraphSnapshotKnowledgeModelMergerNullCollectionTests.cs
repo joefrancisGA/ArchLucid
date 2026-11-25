@@ -48,8 +48,10 @@ public sealed class GraphSnapshotKnowledgeModelMergerNullCollectionTests
         merged.Edges.Should().BeEmpty();
     }
 
-    [Fact]
-    public void Merge_succeeds_when_snapshot_projection_json_has_null_collection_properties()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Merge_preserves_the_other_input_when_snapshot_projection_json_has_null_collections(bool modelIsEmpty)
     {
         GraphSnapshot? deserialized = GraphJsonSerialization.DeserializeSnapshot(
             Encoding.UTF8.GetBytes("{\"nodes\":null,\"edges\":null,\"warnings\":null}"));
@@ -59,16 +61,22 @@ public sealed class GraphSnapshotKnowledgeModelMergerNullCollectionTests
         deserialized.Edges.Should().BeEmpty();
         deserialized.Warnings.Should().BeEmpty();
 
-        GraphSnapshot modelGraph = new()
+        GraphSnapshot populated = new()
         {
             GraphSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Nodes = [new GraphNode { NodeId = "a" }, new GraphNode { NodeId = "b" }],
+            Edges = [new GraphEdge { EdgeId = "a-to-b", FromNodeId = "a", ToNodeId = "b" }],
+            Warnings = ["retained-warning"],
         };
 
-        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(deserialized, modelGraph);
+        GraphSnapshot contextGraph = modelIsEmpty ? populated : deserialized;
+        GraphSnapshot modelGraph = modelIsEmpty ? deserialized : populated;
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
 
-        merged.Nodes.Should().BeEmpty();
-        merged.Edges.Should().BeEmpty();
-        merged.Warnings.Should().BeEmpty();
+        merged.GraphSnapshotId.Should().Be(modelGraph.GraphSnapshotId);
+        merged.Nodes.Select(static node => node.NodeId).Should().Equal("a", "b");
+        merged.Edges.Select(static edge => edge.EdgeId).Should().Equal("a-to-b");
+        merged.Warnings.Should().Equal("retained-warning");
     }
 
     [Fact]
