@@ -212,6 +212,7 @@ public sealed class SecurityEvidencePathExplanationService(
             }
 
             string? configurationFact = null;
+            InventoryFalsificationProbe? inventoryFalsification = null;
             if (provenanceKind == ProvenanceKind.AiInference &&
                 (content.PublicNetworkAccessDisabledHopOrdinal.HasValue || MentionsPublicNetworkAccess(content)))
             {
@@ -222,32 +223,28 @@ public sealed class SecurityEvidencePathExplanationService(
                 provenanceKind = ProvenanceKind.DeterministicInference;
                 simulatorLabel = SecurityEvidencePathExplanationBuilder.SimulatorLabel;
 
+                string? provenance = InventoryPublicNetworkAccessProvenance.Format(scope, verification);
                 InventoryFalsificationProbe probe = PublicNetworkAccessCounterexample.Evaluate(
-                    verification, hasResourceBinding: verification is not null);
+                    provenance is null ? null : verification, hasResourceBinding: verification is not null);
+                inventoryFalsification = probe;
                 switch (probe.Outcome)
                 {
                     case InventoryFalsificationOutcome.SurvivedWithinTestedScope:
                         claimOutcome = IndependentProviderClaimOutcome.Supported;
-                        var evidence = verification!.Evidence!;
-                        configurationFact = $" Azure inventory snapshot {verification.SnapshotId:D} "
-                            + $"captured at {verification.CapturedUtc:O} records publicNetworkAccess=Disabled "
-                            + $"for resource {verification.CloudResourceId:D} (inventory row {evidence.ResourceRowId:D}). "
-                            + $"Deterministic verification: {evidence.VerifierVersion}; "
-                            + $"maximum capture age at verification: {evidence.MaximumCaptureAgeHours} hours. "
-                            + "Coverage: the explicit Azure property only. The hypothesis survived within the tested scope.";
+                        configurationFact = " " + provenance
+                            + " The hypothesis survived within the tested scope.";
                         break;
                     case InventoryFalsificationOutcome.Refuted:
                         claimOutcome = IndependentProviderClaimOutcome.Contradicted;
-                        modelOutputRejection = $"Refuted by the scoped Azure inventory: {verification!.SnapshotId:D}, "
-                            + $"resource {verification.CloudResourceId:D}, inventory row {verification.Evidence!.ResourceRowId:D}, "
-                            + $"captured {verification.CapturedUtc:O}. The public network access claim was contradicted. "
+                        modelOutputRejection = "Refuted by the scoped Azure inventory. The public network access claim was contradicted. "
                             + probe.Coverage;
                         break;
                     case InventoryFalsificationOutcome.HumanReviewRequired:
                         modelOutputRejection = "Human review required. The public network access claim remains unverified without a cited resource.";
                         break;
                     default:
-                        modelOutputRejection = "Untestable. The public network access claim remains unverified in the path inventory snapshot.";
+                        modelOutputRejection = "Untestable. The public network access claim remains unverified in the path inventory snapshot. "
+                            + probe.Coverage;
                         break;
                 }
             }
@@ -280,6 +277,7 @@ public sealed class SecurityEvidencePathExplanationService(
                 ProvenanceKind = provenanceKind,
                 SimulatorLabel = simulatorLabel,
                 ModelOutputRejection = modelOutputRejection,
+                InventoryFalsification = inventoryFalsification,
                 CreatedUtc = createdUtc,
             };
 

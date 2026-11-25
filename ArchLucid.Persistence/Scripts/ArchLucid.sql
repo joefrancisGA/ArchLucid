@@ -13357,6 +13357,7 @@ BEGIN
         ProvenanceKind              INT               NOT NULL,
         SimulatorLabel              NVARCHAR(128)     NULL,
         ModelOutputRejection        NVARCHAR(512)     NULL,
+        InventoryFalsificationJson  NVARCHAR(MAX)     NULL,
         CreatedUtc                  DATETIME2         NOT NULL,
         CONSTRAINT FK_SecurityEvidencePathExplanations_Paths
             FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId)
@@ -13372,6 +13373,14 @@ IF OBJECT_ID(N'dbo.SecurityEvidencePathExplanations', N'U') IS NOT NULL
 BEGIN
     ALTER TABLE dbo.SecurityEvidencePathExplanations
         ADD ModelOutputRejection NVARCHAR(512) NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.SecurityEvidencePathExplanations', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.SecurityEvidencePathExplanations', N'InventoryFalsificationJson') IS NULL
+BEGIN
+    ALTER TABLE dbo.SecurityEvidencePathExplanations
+        ADD InventoryFalsificationJson NVARCHAR(MAX) NULL;
 END;
 GO
 
