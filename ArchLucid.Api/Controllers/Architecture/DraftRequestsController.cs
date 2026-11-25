@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Drafts;
@@ -43,8 +44,12 @@ public sealed partial class DraftRequestsController(
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
     IRunDetailQueryService runDetailQueryService,
-    IPriorPackageSemanticMergeService priorPackageSemanticMergeService) : ControllerBase
+    IPriorPackageSemanticMergeService priorPackageSemanticMergeService,
+    IArchitectureShareAccessGate architectureShareAccessGate) : ControllerBase
 {
+    private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
+        architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
+
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
 

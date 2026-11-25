@@ -16,3 +16,9 @@ Inspected DraftIntakeReasoningService, DraftRequestsController.Questions.cs and 
 
 ## Integration and next
 Reconcile branch to current master using a verified nonoverlapping file diff; target master in draft PR. Owner retains merge decisions. Next review ExplanationController and run/finding/compare explanation consumers, followed by targeted validation of historical FND-010 routes and earlier reuse controls. Avoid adding new control families.
+
+## Draft controller seal preflight
+
+The shared `DraftRequestsController` preflight now supplies the existing run-share decision before manifest hydration. It selects the first readable committed run within the existing 50-summary window. Missing or unshared candidates are skipped, and an eligible run still goes through the same sealed-hash verification and conflict mapping. The callback uses the current principal, scope, exact run ID and cancellation token.
+
+Focused API coverage exercises questions, answer, skip and reason without readable committed candidates, fallback to an older readable candidate, and seal mismatch on that candidate.

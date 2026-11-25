@@ -20,7 +20,8 @@ public static class RunInventorySealedManifestReadGuard
         IRunDetailQueryService runDetailQueryService,
         IAuthorityQueryService authorityQueryService,
         IManifestHashService manifestHashService,
-        CancellationToken cancellationToken) =>
+        CancellationToken cancellationToken,
+        Func<Guid, CancellationToken, Task<bool>>? canReadRun = null) =>
         GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync(
             tenantId,
             workspaceId,
@@ -28,7 +29,8 @@ public static class RunInventorySealedManifestReadGuard
             runDetailQueryService,
             authorityQueryService,
             manifestHashService,
-            cancellationToken);
+            cancellationToken,
+            canReadRun);
 
     /// <summary>Verifies the first visible committed run within the recent inventory window.</summary>
     public static async Task EnsureVisibleRunInventoryReadAllowedOrThrowAsync(

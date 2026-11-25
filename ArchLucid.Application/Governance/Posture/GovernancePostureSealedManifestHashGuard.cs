@@ -10,7 +10,7 @@ using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Governance.Posture;
 
-/// <summary>Wave-27 suggestion 279: architecture posture read fail-closed on latest committed run sealed hash.</summary>
+/// <summary>Checks the latest eligible committed run's sealed manifest within the recent scope window.</summary>
 public static class GovernancePostureSealedManifestHashGuard
 {
     public static async Task EnsureLatestCommittedRunSealedOrThrowAsync(
@@ -20,7 +20,8 @@ public static class GovernancePostureSealedManifestHashGuard
         IRunDetailQueryService runDetailQueryService,
         IAuthorityQueryService authorityQueryService,
         IManifestHashService manifestHashService,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        Func<Guid, CancellationToken, Task<bool>>? canReadRun = null)
     {
         ArgumentNullException.ThrowIfNull(runDetailQueryService);
         ArgumentNullException.ThrowIfNull(authorityQueryService);
@@ -39,23 +40,32 @@ public static class GovernancePostureSealedManifestHashGuard
         if (items is null || items.Count == 0)
             return;
 
-        RunSummary? latestCommitted = items.FirstOrDefault(IsCommittedSummary);
-
-        if (latestCommitted is null || string.IsNullOrWhiteSpace(latestCommitted.RunId))
-            return;
-
-        if (!AuthorityRunIdentifier.TryParse(latestCommitted.RunId, out Guid runGuid))
+        foreach (RunSummary committed in items.Where(IsCommittedSummary))
         {
-            throw new ConflictException(
-                $"Architecture posture blocked: run id '{latestCommitted.RunId}' is not a valid GUID.");
-        }
+            if (!AuthorityRunIdentifier.TryParse(committed.RunId, out Guid runGuid))
+            {
+                if (canReadRun is not null)
+                    continue;
 
-        await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
-            runGuid,
-            scope,
-            authorityQueryService,
-            manifestHashService,
-            cancellationToken);
+                if (string.IsNullOrWhiteSpace(committed.RunId))
+                    return;
+
+                throw new ConflictException(
+                    $"Architecture posture blocked: run id '{committed.RunId}' is not a valid GUID.");
+            }
+
+            if (canReadRun is not null &&
+                (runGuid == Guid.Empty || !await canReadRun(runGuid, cancellationToken).ConfigureAwait(false)))
+                continue;
+
+            await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                runGuid,
+                scope,
+                authorityQueryService,
+                manifestHashService,
+                cancellationToken);
+            return;
+        }
     }
 
     private static bool IsCommittedSummary(RunSummary summary) =>
