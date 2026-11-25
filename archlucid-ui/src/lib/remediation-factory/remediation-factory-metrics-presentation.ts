@@ -61,7 +61,17 @@ export function buildRemediationFactoryExecutiveMetricTiles(
   metricsLoaded: boolean,
 ): readonly RemediationFactoryMetricTile[] {
   const openFindingsHref = buildGovernanceFindingsQueueHref({ filter: "open" });
-  const netBurn = metricsLoaded ? parseFiniteNumber(metrics?.netBurn) : null;
+  const netBurn = metricsLoaded
+    ? (() => {
+        const normalized = parseFiniteNumber(metrics?.netBurn);
+
+        if (normalized === null || !Number.isInteger(normalized)) {
+          return null;
+        }
+
+        return normalized;
+      })()
+    : null;
 
   function formatCount(value: number | undefined): string | null {
     if (!metricsLoaded || metrics === undefined) {
@@ -74,7 +84,11 @@ export function buildRemediationFactoryExecutiveMetricTiles(
 
     const normalized = parseNonNegativeFiniteNumber(value);
 
-    return normalized === null ? null : String(normalized);
+    if (normalized === null || !Number.isInteger(normalized)) {
+      return null;
+    }
+
+    return String(normalized);
   }
 
   function formatDecimal(value: number | undefined, digits = 2): string | null {

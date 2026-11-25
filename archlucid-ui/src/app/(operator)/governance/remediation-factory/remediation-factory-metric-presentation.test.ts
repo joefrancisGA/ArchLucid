@@ -132,7 +132,33 @@ describe("remediation-factory-metric-presentation", () => {
         state: "notMeasured",
       }),
     );
-  });  it("keeps signed net burn values in the executive table", () => {
+  });
+
+
+  it("omits fractional critical exposure in metric tiles", () => {
+    const metrics = { criticalExposureCount: 1.9 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "critical-exposure")?.value).toBeNull();
+  });
+
+  it("omits fractional net burn in metric tiles", () => {
+    const metrics = { netBurn: 1.5 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "net-burn")?.value).toBeNull();
+  });
+
+  it("renders fractional net burn as not measured in the executive table", () => {
+    const metrics = { netBurn: 1.5 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics,
+      openFindingsHref: "/security/findings",
+    });
+
+    expect(tiles.find((tile) => tile.key === "net-burn")?.presentation.displayValue).toBe("Not measured");
+  });
+  it("keeps signed net burn values in the executive table", () => {
     const metrics = { netBurn: -3 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricPresentations({
       metrics,
