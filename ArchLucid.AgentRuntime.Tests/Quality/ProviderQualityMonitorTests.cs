@@ -271,6 +271,38 @@ public sealed class ProviderQualityMonitorTests
         ProviderQualityRecoveryResponse.TryTake(live, out _).Should().BeFalse();
     }
 
+    [Fact]
+    public async Task Audited_override_is_version_scoped_shared_revocable_and_expires_without_erasing_history()
+    {
+        SharedTestStore store = new();
+        ManualTimeProvider clock = new();
+        DurableProviderQualityMonitor first = CreateDurableMonitor(store, clock);
+        DurableProviderQualityMonitor second = CreateDurableMonitor(store, clock);
+        CancellationToken ct = CancellationToken.None;
+        for (int i = 0; i < 5; i++)
+            await first.RecordAsync(Sample($"bad-{i}", ProviderQualityLabel.Contradicted, true), ct);
+
+        (await first.SetOperatorOverrideAsync(PrimaryKey with { ModelVersion = "different" },
+            TimeSpan.FromMinutes(1), Guid.NewGuid(), ct)).Should().BeFalse();
+        (await first.SetOperatorOverrideAsync(PrimaryKey,
+            TimeSpan.FromMinutes(1), Guid.Empty, ct)).Should().BeFalse();
+        (await first.SetOperatorOverrideAsync(PrimaryKey,
+            TimeSpan.FromMinutes(1), Guid.NewGuid(), ct)).Should().BeTrue();
+        (await second.AdmitAsync("azure-openai", "primary", ct)).Allowed.Should().BeTrue();
+        (await second.SetOperatorOverrideAsync(PrimaryKey, null, Guid.NewGuid(), ct)).Should().BeTrue();
+        (await first.AdmitAsync("azure-openai", "primary", ct)).Allowed.Should().BeFalse();
+
+        (await first.SetOperatorOverrideAsync(PrimaryKey,
+            TimeSpan.FromMinutes(1), Guid.NewGuid(), ct)).Should().BeTrue();
+        clock.Advance(TimeSpan.FromSeconds(61));
+        ProviderQualityRecordResult observed = await second.RecordAsync(
+            Sample("unknown", ProviderQualityLabel.Unknown, false), ct);
+        observed.Snapshot.HumanOverride.Should().BeFalse();
+        observed.Snapshot.Quarantined.Should().BeTrue();
+        observed.Snapshot.KnownSampleCount.Should().Be(5);
+        (await second.AdmitAsync("azure-openai", "primary", ct)).RecoveryProbe.Should().BeTrue();
+    }
+
     private static DurableProviderQualityMonitor CreateDurableMonitor(SharedTestStore store, TimeProvider clock) =>
         new(Options.Create(new ProviderQualityOptions
         {

@@ -5,6 +5,8 @@ on:
     branches: [ master ]
     paths:
       - 'ArchLucid.AgentRuntime/**'
+      - 'ArchLucid.Api/Controllers/Admin/AdminAgentModelCatalogController*.cs'
+      - 'ArchLucid.Api.Tests/AdminAgentModelCatalogControllerAuditTests.cs'
       - 'ArchLucid.Host.Composition/Startup/Modules/Agents/**'
       - 'ArchLucid.AgentRuntime.Tests/Quality/ProviderQualityMonitorTests.cs'
       - 'ArchLucid.AgentRuntime.Tests/Quality/IndependentProviderQualityObserverTests.cs'
@@ -54,6 +56,10 @@ jobs:
           -c Release
           --filter "FullyQualifiedName~ProviderQualityMonitorTests|FullyQualifiedName~IndependentProviderQualityObserverTests|FullyQualifiedName~AgentCompletionFallbackEligibilityTests"
           --logger "console;verbosity=normal"
+      - name: Run focused operator authorization and audit regressions
+        run: >-
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj
+          -c Release --filter FullyQualifiedName~AdminAgentModelCatalogControllerAuditTests
       - name: Compile host composition and SQL state adapter
         run: dotnet build ArchLucid.Host.Composition/ArchLucid.Host.Composition.csproj -c Release
       - name: Verify production wiring and independent signal
