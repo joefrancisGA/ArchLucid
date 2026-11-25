@@ -381,6 +381,21 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-24 (`shouldRotate: false`; hint override). **proven** `architectOutcomeDeltaScopeNote` — negative comparison populations still rendered as `-3 resources in comparison scope` after finite parse; gate denominators with `parseNonNegativeFiniteNumber`. Regression `renders negative architect outcome denominators as not measured in scope notes`. **valid-no-repro** Infinity average age via decimal presenter, **valid-no-repro** non-numeric string percent (`parseNonNegativeFiniteNumber`), **valid-no-repro** snapshot identity foreign params on close (`operatorBooleanDisclosureHrefFromSearch`), **valid-no-repro** critical-exposure Infinity hint (`parseNonNegativeFiniteNumber` not zero). Pass-25 reseed below. Scoped vitest **147/147**. Private beta: invited operators no longer see negative resource counts in architect outcome comparison scope notes when the API returns an invalid population denominator.
+
+- [x] (superseded) pass-24 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-25 reseed.
+- [x] (proven) `architectOutcomeDeltaScopeNote` — negative denominator — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactoryDecimalMetricPresentation` — Infinity average age — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `parseNonNegativeFiniteNumber` rejects Infinity.
+- [x] (valid-no-repro) `remediationFactoryPercentMetricPresentation` — non-numeric string percent — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** invalid inputs become not measured.
+- [x] (valid-no-repro) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — foreign params on close — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** boolean disclosure writer preserves base search.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricPresentations` — critical-exposure hint for Infinity count — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** zero hint requires parsed count === 0.
+
+- [ ] (candidate) `architectOutcomeDeltaScopeNote` — fractional denominator — locus: scope note; input: 2.5 denominator; monitor; pass-25 reseed.
+- [ ] (candidate) `remediationFactoryCountMetricPresentation` — negative net burn — locus: signed count; input: -5 net burn; monitor; pass-25 reseed.
+- [ ] (candidate) `remediationFactoryDecimalMetricPresentation` — negative average age — locus: decimal parse; input: -1.2; monitor; pass-25 reseed.
+- [ ] (candidate) `remediationFactoryPercentMetricPresentation` — NaN percent value — locus: percent parse; input: NaN; monitor; pass-25 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — exceptions hint when expiringSoon zero — locus: table hints; input: 0 expiring; monitor; pass-25 reseed.
+
 2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-23 (`shouldRotate: false`; hint override). **proven** `architectOutcomeDeltaScopeNote` — finite architect outcome deltas could still show scope notes containing literal `NaN` when the comparison population was non-finite; normalize denominators with `parseFiniteNumber`. Regression `renders non-finite architect outcome denominators as not measured in scope notes`. **valid-no-repro** selection identity href drops legacy yes on close, **valid-no-repro** automation static hints when metrics null (exceptions hint already gated), **valid-no-repro** Infinity executive count via `parseFiniteNumber`, **valid-no-repro** metrics close preserves foreign params (existing url-state regression). Pass-24 reseed below. Scoped vitest **146/146**. Private beta: invited operators no longer see `NaN` in architect outcome comparison scope notes when the API returns an invalid population denominator.
 
 - [x] (superseded) pass-23 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-24 reseed.
@@ -390,11 +405,6 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (valid-no-repro) `remediationFactoryCountMetricPresentation` — Infinity count — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `parseFiniteNumber` rejects Infinity.
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — clears foreign params on metrics close — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** existing `foreign=keep` regression.
 
-- [ ] (candidate) `architectOutcomeDeltaScopeNote` — negative denominator — locus: scope note; input: -3 denominator; monitor; pass-24 reseed.
-- [ ] (candidate) `remediationFactoryDecimalMetricPresentation` — Infinity average age — locus: decimal parse; input: Infinity; monitor; pass-24 reseed.
-- [ ] (candidate) `remediationFactoryPercentMetricPresentation` — non-numeric string percent — locus: percent parse; input: "bad"; monitor; pass-24 reseed.
-- [ ] (candidate) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — foreign params on close — locus: href writer; input: toggle closed; monitor; pass-24 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — critical-exposure hint for Infinity count — locus: table hints; input: Infinity; monitor; pass-24 reseed.
 
 - [x] (proven) `buildRemediationFactoryExecutiveMetricPresentations` — pattern hint when percent absent — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
 - [x] (proven) `architectOutcomeMetricPresentation` — non-finite delta values — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
@@ -663,8 +673,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 45
-- **bugs-found:** 23
+- **hunts:** 46
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25

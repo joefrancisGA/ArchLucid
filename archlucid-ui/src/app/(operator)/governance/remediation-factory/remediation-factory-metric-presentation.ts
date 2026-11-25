@@ -267,7 +267,7 @@ export function architectOutcomeDeltaScopeNote(input: {
   readonly denominator: number | null | undefined;
   readonly populationLabel: string;
 }): string {
-  const normalizedDenominator = parseFiniteNumber(input.denominator);
+  const normalizedDenominator = parseNonNegativeFiniteNumber(input.denominator);
 
   if (normalizedDenominator === null) {
     return REVIEW_SCORECARD_NOT_MEASURED_LABEL;
