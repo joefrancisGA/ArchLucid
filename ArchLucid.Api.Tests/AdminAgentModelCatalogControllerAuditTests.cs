@@ -155,11 +155,30 @@ public sealed class AdminAgentModelCatalogControllerAuditTests
         result.Should().BeOfType<NoContentResult>();
     }
 
+    [Fact]
+    public async Task Provider_override_denies_tenant_scoped_platform_operator_before_audit_or_state_access()
+    {
+        AdminAgentModelCatalogController controller = CreateOverrideController(
+            ArchLucidRoles.PlatformOperator, Guid.NewGuid());
+        Mock<IProviderQualityStateStore> store = new(MockBehavior.Strict);
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+
+        IActionResult result = await controller.PutProviderQualityOverrideAsync(
+            OverrideRequest(), new DurableProviderQualityMonitor(Options.Create(new ProviderQualityOptions()), store.Object),
+            audit.Object, CancellationToken.None);
+
+        result.Should().BeOfType<ForbidResult>();
+        audit.VerifyNoOtherCalls();
+        store.VerifyNoOtherCalls();
+    }
+
     private static AdminAgentModelCatalogController.ProviderQualityOverrideRequest OverrideRequest() =>
         new("azure-openai", "primary", "v1", true, 10, "Incident 123");
 
-    private static AdminAgentModelCatalogController CreateOverrideController(string role)
+    private static AdminAgentModelCatalogController CreateOverrideController(string role, Guid tenantId = default)
     {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(x => x.GetCurrentScope()).Returns(new ScopeContext { TenantId = tenantId });
         AdminAgentModelCatalogController controller = new(
             Mock.Of<IAgentModelCatalogRepository>(),
             Mock.Of<IAgentModelCatalogEvaluationRecorder>(),
@@ -167,7 +186,7 @@ public sealed class AdminAgentModelCatalogControllerAuditTests
             Mock.Of<IAgentModelCatalogCacheInvalidator>(),
             Mock.Of<IActorContext>(),
             Mock.Of<IAuditService>(),
-            Mock.Of<IScopeContextProvider>());
+            scopeProvider.Object);
         controller.ControllerContext = new ControllerContext
         {
             HttpContext = new DefaultHttpContext

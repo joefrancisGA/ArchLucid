@@ -3,7 +3,6 @@ using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Quality;
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
@@ -31,6 +30,10 @@ public sealed partial class AdminAgentModelCatalogController
     {
         if (!User.IsInRole(ArchLucidRoles.PlatformOperator)
             || User.Identity?.IsAuthenticated != true)
+            return Forbid();
+
+        // Never let the ambient platform audit connection route this global action into a tenant catalog.
+        if (_scopeContextProvider.GetCurrentScope().TenantId != Guid.Empty)
             return Forbid();
 
         string? actor = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
