@@ -164,6 +164,32 @@ public sealed class AzureInventorySecurityBaselineFindingEngineTests
         finding.Trace.RulesApplied.Should().Contain("data-protection");
     }
 
+    [Theory]
+    [InlineData("false", "sec-base-036", true)]
+    [InlineData("null", "sec-base-036", true)]
+    [InlineData("true", "sec-base-036", false)]
+    [InlineData("false", "sec-base-006", false)]
+    public async Task AnalyzeAsync_event_grid_respects_dedicated_policy_and_evidence(
+        string value, string ruleId, bool expectedFinding)
+    {
+        string json = "[{\"resourceType\":\"Microsoft.EventGrid/topics\","
+            + "\"resourceId\":\"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventGrid/topics/topic1\","
+            + "\"properties\":{\"disableLocalAuth\":" + value + "}}]";
+        var (sut, context) = CreateSut(CreatePackage(json), CreatePack(ruleId));
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
+
+        if (!expectedFinding)
+        {
+            findings.Should().BeEmpty();
+            return;
+        }
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.PolicyRuleId.Should().Be("sec-base-036");
+        var payload = finding.Payload.Should().BeOfType<RequirementFindingPayload>().Subject;
+        payload.RequirementText.Should().Contain(value == "null" ? "Insufficient evidence" : "local authentication is enabled");
+    }
+
     private static (AzureInventorySecurityBaselineFindingEngine Engine, FindingAnalysisContext Context) CreateSut(
         AzureExtractorPackageDownloadRecord package,
         ComplianceRulePack? rulePack = null)
