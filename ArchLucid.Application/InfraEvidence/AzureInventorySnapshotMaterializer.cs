@@ -279,7 +279,7 @@ public sealed class AzureInventorySnapshotMaterializer(
                 securityEdges.AdfExternalSources);
             IReadOnlyList<string> collectionWarnings = manifest?.CollectionWarnings ?? [];
             string[] completenessWarnings = securityEdges.CompletenessWarnings
-                .Concat(collectionWarnings)
+                .Concat(collectionWarnings.Where(warning => !string.Equals(warning, SecurityEvidenceAddCredentialAdapterWarnings.EntraOnlyCapturePartial, StringComparison.OrdinalIgnoreCase)))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToArray();
             bool partialChildEnumeration = collectionWarnings.Contains(
@@ -290,6 +290,14 @@ public sealed class AzureInventorySnapshotMaterializer(
                 || warning.Equals(SecurityEvidenceAddCredentialAdapterWarnings.GraphForbidden, StringComparison.OrdinalIgnoreCase)
                 || warning.Equals(SecurityEvidenceEntraGroupAdapterWarnings.GraphIncomplete, StringComparison.OrdinalIgnoreCase)
                 || warning.Equals(SecurityEvidenceEntraGroupAdapterWarnings.GraphForbidden, StringComparison.OrdinalIgnoreCase));
+            // Only the materializer may establish this reason for a partial capture.
+            // Unknown or non-identity warnings prevent a scoped override.
+            if (resources.Count > 0 && partialEntraCollection && !partialChildEnumeration
+                && completenessWarnings.All(SecurityEvidenceAddCredentialAdapterWarnings.IsEntraEvidenceWarning))
+            {
+                completenessWarnings = [.. completenessWarnings, SecurityEvidenceAddCredentialAdapterWarnings.EntraOnlyCapturePartial];
+            }
+
             bool incompleteCapture = partialChildEnumeration || partialEntraCollection;
             AzureInventoryCaptureStatus status = resources.Count == 0 || incompleteCapture
                 ? AzureInventoryCaptureStatus.Partial
