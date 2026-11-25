@@ -37,11 +37,12 @@ public sealed class SecurityEvidencePathExplanationService(
     private const string ExplanationSystemPrompt =
         "You are an enterprise cloud security architect summarizing a cited SecureNow architect path. "
         + "Return ONLY JSON with keys executiveSummary, businessImpactHypotheses, proposedRemediation, citedEvidenceRefs, "
-        + "and optional publicNetworkAccessDisabledHopOrdinal. "
+        + "and optional publicNetworkAccessDisabledHopOrdinal or storageMinimumTls12HopOrdinal. "
         + "Use ONLY allowedEvidenceRefs for citedEvidenceRefs. "
         + "If proposing that an Azure resource has public network access disabled, put its hop ordinal in "
         + "publicNetworkAccessDisabledHopOrdinal. Use a hop marked hasInventoryResource with a cited evidence reference. "
-        + "Keep the setting and any conclusions based on it out of free text. "
+        + "To propose that an Azure Storage account has configured minimum TLS exactly 1.2, use storageMinimumTls12HopOrdinal with a cited inventory hop instead. "
+        + "Use at most one structured setting per explanation. Keep setting claims out of free text and never infer live TLS enforcement. "
         + "Do not invent Azure ARM resource ids, hops, snapshot rows, ExactMatch patterns, or ObservedFact claims. "
         + "Business impact lines must be explicit hypotheses (AiInference), not observed traffic or exfiltration.";
 
@@ -223,6 +224,34 @@ public sealed class SecurityEvidencePathExplanationService(
             string? configurationFact = null;
             InventoryFalsificationProbe? inventoryFalsification = null;
             if (provenanceKind == ProvenanceKind.AiInference &&
+                (content.StorageMinimumTls12HopOrdinal.HasValue ||
+                 MentionsSetting(content, InventoryStorageMinimumTlsVerifier.MentionsMinimumTls)))
+            {
+                Guid? resourceId = content.PublicNetworkAccessDisabledHopOrdinal.HasValue || MentionsPublicNetworkAccess(content)
+                    ? null : ResolveCitedResource(scope, path, hops, content, content.StorageMinimumTls12HopOrdinal);
+                StorageMinimumTlsVerification? tls = snapshotRepository is not null && resourceId is Guid id
+                    ? await InventoryStorageMinimumTlsVerifier.VerifyAsync(
+                        snapshotRepository, scope, path.SnapshotId, id, timeProvider ?? TimeProvider.System, cancellationToken)
+                    : null;
+                content = SecurityEvidencePathExplanationBuilder.BuildSimulatorExplanation(
+                    path, hops, cutPoints, allowedEvidenceRefs, rankContext);
+                provenanceKind = ProvenanceKind.DeterministicInference;
+                simulatorLabel = SecurityEvidencePathExplanationBuilder.SimulatorLabel;
+                if (tls is { Outcome: StorageMinimumTlsOutcome.Verified, SnapshotId: Guid verifiedSnapshot,
+                    CapturedUtc: DateTime capturedUtc, ResourceRowId: Guid verifiedRow })
+                {
+                    configurationFact = $" Azure Storage {tls.CloudResourceId:D} has configured minimum TLS 1.2 in "
+                        + $"snapshot {verifiedSnapshot:D}, resource row {verifiedRow:D}, captured {capturedUtc:O} "
+                        + $"({StorageMinimumTlsVerification.VerifierVersion}). Live protocol enforcement was not tested.";
+                }
+                else
+                {
+                    modelOutputRejection = tls?.Outcome == StorageMinimumTlsOutcome.Contradicted
+                        ? "The scoped Azure inventory contradicts the proposed minimum TLS 1.2 setting."
+                        : "The proposed minimum TLS setting remains unverified. A scoped, fresh, cited Azure Storage observation is required.";
+                }
+            }
+            else if (provenanceKind == ProvenanceKind.AiInference &&
                 (content.PublicNetworkAccessDisabledHopOrdinal.HasValue || MentionsPublicNetworkAccess(content)))
             {
                 PublicNetworkAccessVerification? verification = await VerifyPublicNetworkAccessAsync(
@@ -338,36 +367,46 @@ public sealed class SecurityEvidencePathExplanationService(
         SecurityEvidencePathExplanationContent content,
         CancellationToken cancellationToken)
     {
-        if (snapshotRepository is null || content.PublicNetworkAccessDisabledHopOrdinal is not > 0)
-            return null;
-
-        SecurityEvidencePathHopRecord[] matches = hops.Where(
-            hop => hop.HopOrdinal == content.PublicNetworkAccessDisabledHopOrdinal).Take(2).ToArray();
-        if (matches.Length != 1 || matches[0].PathId != path.PathId || matches[0].TenantId != scope.TenantId ||
-            matches[0].CloudResourceId is not Guid resourceId || string.IsNullOrWhiteSpace(matches[0].EvidenceReference) ||
-            !content.CitedEvidenceRefs.Contains(matches[0].EvidenceReference.Trim(), StringComparer.OrdinalIgnoreCase))
+        if (snapshotRepository is null ||
+            ResolveCitedResource(scope, path, hops, content, content.PublicNetworkAccessDisabledHopOrdinal) is not Guid resourceId)
             return null;
 
         return await InventoryPublicNetworkAccessVerifier.VerifyAsync(
             snapshotRepository, scope, path.SnapshotId, resourceId, timeProvider ?? TimeProvider.System, cancellationToken);
     }
 
-    private static bool MentionsPublicNetworkAccess(SecurityEvidencePathExplanationContent content)
+    private static Guid? ResolveCitedResource(
+        ScopeContext scope, SecurityEvidencePathRecord path, IReadOnlyList<SecurityEvidencePathHopRecord> hops,
+        SecurityEvidencePathExplanationContent content, int? ordinal)
     {
-        static bool MentionsSetting(string? text) =>
+        if (ordinal is not > 0)
+            return null;
+
+        SecurityEvidencePathHopRecord[] matches = hops.Where(hop => hop.HopOrdinal == ordinal).Take(2).ToArray();
+        if (matches.Length != 1 || matches[0].PathId != path.PathId || matches[0].TenantId != scope.TenantId ||
+            matches[0].CloudResourceId is not Guid resourceId || resourceId == Guid.Empty ||
+            string.IsNullOrWhiteSpace(matches[0].EvidenceReference) ||
+            !content.CitedEvidenceRefs.Contains(matches[0].EvidenceReference.Trim(), StringComparer.OrdinalIgnoreCase))
+            return null;
+
+        return resourceId;
+    }
+
+    private static bool MentionsPublicNetworkAccess(SecurityEvidencePathExplanationContent content) =>
+        MentionsSetting(content, text =>
             text is not null && (text.Contains("publicNetworkAccess", StringComparison.OrdinalIgnoreCase) ||
                 text.Contains("public network access", StringComparison.OrdinalIgnoreCase) ||
                 text.Contains("public-network-access", StringComparison.OrdinalIgnoreCase) ||
-                text.Contains("public_network_access", StringComparison.OrdinalIgnoreCase));
+                text.Contains("public_network_access", StringComparison.OrdinalIgnoreCase)));
 
-        return MentionsSetting(content.ExecutiveSummary) ||
-            content.BusinessImpactHypotheses.Any(MentionsSetting) ||
-            MentionsSetting(content.ProposedRemediation.RecommendedChange) ||
-            MentionsSetting(content.ProposedRemediation.RecommendedChangeSource) ||
-            MentionsSetting(content.ProposedRemediation.SuggestedPatternKey) ||
-            content.ProposedRemediation.VerificationQueries.Any(MentionsSetting) ||
-            content.ProposedRemediation.Preconditions.Any(MentionsSetting);
-    }
+    private static bool MentionsSetting(SecurityEvidencePathExplanationContent content, Func<string?, bool> mentions) =>
+        mentions(content.ExecutiveSummary) ||
+        content.BusinessImpactHypotheses.Any(mentions) ||
+        mentions(content.ProposedRemediation.RecommendedChange) ||
+        mentions(content.ProposedRemediation.RecommendedChangeSource) ||
+        mentions(content.ProposedRemediation.SuggestedPatternKey) ||
+        content.ProposedRemediation.VerificationQueries.Any(mentions) ||
+        content.ProposedRemediation.Preconditions.Any(mentions);
 
     private static async Task<string> BuildRankContextAsync(
         ScopeContext scope,

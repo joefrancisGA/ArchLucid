@@ -140,6 +140,9 @@ public static class ArchitectureIntelligenceProductBridge
             ["architectureIntelligence.provenancePresentation"] = presentationBucket.ToString(),
         };
 
+        if (finding.StorageMinimumTls12ResourceId is Guid tlsResourceId)
+            properties[ScopedPublicNetworkAccessVerifier.StorageTlsResourceProperty] = tlsResourceId.ToString("D");
+
         if (finding.PublicNetworkAccessDisabledResourceId is Guid resourceId)
             properties[ScopedPublicNetworkAccessVerifier.ResourceProperty] = resourceId.ToString("D");
 
@@ -176,6 +179,9 @@ public static class ArchitectureIntelligenceProductBridge
             && validationByFindingId.TryGetValue(finding.FindingId, out EvidenceValidationResult? validation)
             && validation is not null)
         {
+            if (validation.StorageMinimumTls?.SnapshotId is Guid tlsSnapshotId)
+                properties[ScopedPublicNetworkAccessVerifier.StorageTlsSnapshotProperty] = tlsSnapshotId.ToString("D");
+
             if (validation.PublicNetworkAccess is { SnapshotId: Guid snapshotId, CapturedUtc: DateTime capturedUtc })
             {
                 properties[ScopedPublicNetworkAccessVerifier.SnapshotProperty] = snapshotId.ToString("D");
@@ -216,8 +222,10 @@ public static class ArchitectureIntelligenceProductBridge
                 ArchitecturePillarRollup.FromSpecialistDimension(finding.Dimension)),
             EngineType = EngineType,
             Severity = severity,
-            Title = finding.PublicNetworkAccessDisabledResourceId is Guid id ? ScopedPublicNetworkAccessVerifier.Title(id) : finding.Title,
-            Rationale = finding.PublicNetworkAccessDisabledResourceId.HasValue ? ScopedPublicNetworkAccessVerifier.Rationale : finding.Rationale,
+            Title = finding.StorageMinimumTls12ResourceId is Guid tlsId ? ScopedPublicNetworkAccessVerifier.StorageTlsTitle(tlsId)
+                : finding.PublicNetworkAccessDisabledResourceId is Guid id ? ScopedPublicNetworkAccessVerifier.Title(id) : finding.Title,
+            Rationale = finding.StorageMinimumTls12ResourceId.HasValue ? ScopedPublicNetworkAccessVerifier.StorageTlsRationale
+                : finding.PublicNetworkAccessDisabledResourceId.HasValue ? ScopedPublicNetworkAccessVerifier.Rationale : finding.Rationale,
             ConfidenceScore = finding.Confidence,
             HumanReviewStatus = humanReviewStatus,
             Properties = properties,

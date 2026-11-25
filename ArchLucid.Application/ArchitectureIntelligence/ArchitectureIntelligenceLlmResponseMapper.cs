@@ -66,7 +66,10 @@ internal static class ArchitectureIntelligenceLlmResponseMapper
         Guid? resourceId = item.PublicNetworkAccessDisabledResourceId is string candidate
             ? (Guid.TryParse(candidate, out Guid parsed) ? parsed : Guid.Empty)
             : null;
-        ReviewConclusion conclusion = resourceId.HasValue
+        Guid? tlsResourceId = item.StorageMinimumTls12ResourceId is string tlsCandidate
+            ? (Guid.TryParse(tlsCandidate, out Guid parsedTls) ? parsedTls : Guid.Empty)
+            : null;
+        ReviewConclusion conclusion = resourceId.HasValue || tlsResourceId.HasValue
             ? ReviewConclusion.Pass
             : ParseReviewConclusion(item.Conclusion);
 
@@ -74,9 +77,12 @@ internal static class ArchitectureIntelligenceLlmResponseMapper
         {
             FindingId = Guid.NewGuid().ToString("N"),
             Dimension = dimension,
-            Title = resourceId is Guid id ? ScopedPublicNetworkAccessVerifier.Title(id) : item.Title?.Trim() ?? string.Empty,
-            Rationale = resourceId.HasValue ? ScopedPublicNetworkAccessVerifier.Rationale : item.Rationale?.Trim() ?? string.Empty,
+            Title = tlsResourceId is Guid tlsId ? ScopedPublicNetworkAccessVerifier.StorageTlsTitle(tlsId)
+                : resourceId is Guid id ? ScopedPublicNetworkAccessVerifier.Title(id) : item.Title?.Trim() ?? string.Empty,
+            Rationale = tlsResourceId.HasValue ? ScopedPublicNetworkAccessVerifier.StorageTlsRationale
+                : resourceId.HasValue ? ScopedPublicNetworkAccessVerifier.Rationale : item.Rationale?.Trim() ?? string.Empty,
             PublicNetworkAccessDisabledResourceId = resourceId,
+            StorageMinimumTls12ResourceId = tlsResourceId,
             Conclusion = conclusion,
             EvidenceCondition = EvidenceCondition.Unverified,
             GovernanceDisposition = GovernanceDisposition.Open,
@@ -87,7 +93,7 @@ internal static class ArchitectureIntelligenceLlmResponseMapper
                 Origin = ClaimOrigin.ModelInferred,
                 SupportStatus = SupportStatus.NotYetEvaluated,
                 Confidence = ClampConfidence(item.Confidence),
-                Notes = resourceId.HasValue ? null : item.Notes?.Trim(),
+                Notes = resourceId.HasValue || tlsResourceId.HasValue ? null : item.Notes?.Trim(),
             },
         };
     }

@@ -8,15 +8,21 @@ internal static class EvidenceSupportTierResolver
     // Eligibility for further review. Semantic support alone is not independent factual verification.
     internal static HashSet<string> SupportedFindingIds(IReadOnlyList<EvidenceValidationResult> results) =>
         results.GroupBy(result => result.FindingId, StringComparer.Ordinal)
-            .Where(group => group.All(result => result.PublicNetworkAccess is { } observation
-                ? observation.Outcome == PublicNetworkAccessVerificationOutcome.Verified
-                : result.OverallPassedIntegrity && result.SemanticAssessment == SemanticSupportAssessment.Supports))
+            .Where(group => group.All(result => result.StorageMinimumTls is { } tls
+                ? tls.Outcome == StorageMinimumTlsOutcome.Verified
+                : result.PublicNetworkAccess is { } observation
+                    ? observation.Outcome == PublicNetworkAccessVerificationOutcome.Verified
+                    : result.OverallPassedIntegrity && result.SemanticAssessment == SemanticSupportAssessment.Supports))
             .Select(group => group.Key)
             .ToHashSet(StringComparer.Ordinal);
 
     internal static EvidenceSupportTier Resolve(EvidenceValidationResult validation)
     {
         ArgumentNullException.ThrowIfNull(validation);
+
+        if (validation.StorageMinimumTls is { } tls)
+            return tls.Outcome == StorageMinimumTlsOutcome.Verified
+                ? EvidenceSupportTier.IntegrityVerified : EvidenceSupportTier.Unverified;
 
         if (validation.PublicNetworkAccess?.Outcome == PublicNetworkAccessVerificationOutcome.Verified)
             return EvidenceSupportTier.IntegrityVerified;
@@ -38,7 +44,8 @@ internal static class EvidenceSupportTierResolver
         EvidenceSupportTier tier = Resolve(validation);
         finding.EvidenceSupportTier = tier;
 
-        if (validation.PublicNetworkAccess?.Outcome == PublicNetworkAccessVerificationOutcome.Contradicted)
+        if (validation.StorageMinimumTls?.Outcome == StorageMinimumTlsOutcome.Contradicted ||
+            validation.PublicNetworkAccess?.Outcome == PublicNetworkAccessVerificationOutcome.Contradicted)
         {
             finding.EvidenceCondition = EvidenceCondition.Conflicting;
             return;

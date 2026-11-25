@@ -88,6 +88,8 @@ internal static class ArchitectureIntelligenceLlmResponseShapes
         [JsonPropertyName("publicNetworkAccessDisabledResourceId")]
         public string? PublicNetworkAccessDisabledResourceId { get; init; }
 
+        public string? StorageMinimumTls12ResourceId { get; init; }
+
         [JsonPropertyName("title")]
         public string? Title
         {

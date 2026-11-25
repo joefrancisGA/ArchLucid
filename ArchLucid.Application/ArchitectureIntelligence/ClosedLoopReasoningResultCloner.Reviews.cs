@@ -25,6 +25,7 @@ internal static partial class ClosedLoopReasoningResultCloner
             Conclusion = finding.Conclusion,
             EvidenceCondition = finding.EvidenceCondition,
             PublicNetworkAccessDisabledResourceId = finding.PublicNetworkAccessDisabledResourceId,
+            StorageMinimumTls12ResourceId = finding.StorageMinimumTls12ResourceId,
             GovernanceDisposition = finding.GovernanceDisposition,
             Provenance = ArchitectureKnowledgeModelCloner.CloneProvenance(finding.Provenance),
             Confidence = finding.Confidence,

@@ -1,0 +1,32 @@
+name: FND-069 Storage minimum TLS regressions
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.Application/ArchitectureIntelligence/**'
+      - 'ArchLucid.Contracts/ArchitectureIntelligence/**'
+      - 'ArchLucid.Application/InfraEvidence/InventoryStorageMinimumTlsVerifier.cs'
+      - 'ArchLucid.Application/InfraEvidence/SecurityEvidencePathExplanation*.cs'
+      - 'ArchLucid.Application/Analysis/DeclarationInventorySecurityPropertyValueComparer.cs'
+      - 'ArchLucid.Application.Tests/ArchitectureIntelligence/ArchitectureIntelligenceProductPublishServiceTests.cs'
+      - 'ArchLucid.Application.Tests/ArchitectureIntelligence/TrustPublishGateTests.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/SecurityEvidencePathExplanationServiceTests.cs'
+      - '.github/workflows/fnd069-storage-minimum-tls.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  storage-tls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - run: >-
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~ArchitectureIntelligenceProductPublishServiceTests|FullyQualifiedName~TrustPublishGateTests|FullyQualifiedName~SecurityEvidencePathExplanationServiceTests'
+          --logger 'console;verbosity=normal'

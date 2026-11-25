@@ -100,7 +100,9 @@ public sealed class ArchitectureIntelligenceLlmGateway : IArchitectureIntelligen
             "\"openQuestions\":[\"...\"]}. " +
             "For an explicit claim that public network access is disabled on one Azure resource, include " +
             "publicNetworkAccessDisabledResourceId with its cloud resource GUID only when the supplied context identifies it. " +
-            "Never infer this setting from the existence of a private endpoint.";
+            "Never infer this setting from the existence of a private endpoint. " +
+            "For a separate Azure Storage claim that the configured minimum TLS version equals 1.2, " +
+            "supply storageMinimumTls12ResourceId with the identified cloud resource GUID. Never infer live TLS enforcement.";
 
         string userPrompt = BuildModelSummaryPrompt(model, dimension);
 
