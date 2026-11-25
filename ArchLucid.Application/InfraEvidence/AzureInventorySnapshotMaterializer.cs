@@ -285,7 +285,11 @@ public sealed class AzureInventorySnapshotMaterializer(
             bool partialChildEnumeration = collectionWarnings.Contains(
                 AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration,
                 StringComparer.OrdinalIgnoreCase);
-            AzureInventoryCaptureStatus status = resources.Count == 0 || partialChildEnumeration
+            bool partialEntraCollection = collectionWarnings.Any(warning =>
+                warning.Equals(SecurityEvidenceAddCredentialAdapterWarnings.GraphIncomplete, StringComparison.OrdinalIgnoreCase)
+                || warning.Equals(SecurityEvidenceAddCredentialAdapterWarnings.GraphForbidden, StringComparison.OrdinalIgnoreCase));
+            bool incompleteCapture = partialChildEnumeration || partialEntraCollection;
+            AzureInventoryCaptureStatus status = resources.Count == 0 || incompleteCapture
                 ? AzureInventoryCaptureStatus.Partial
                 : AzureInventoryCaptureStatus.Succeeded;
 
@@ -310,7 +314,7 @@ public sealed class AzureInventorySnapshotMaterializer(
                     CaptureStatus = status,
                     ResourceCount = resources.Count,
                     RelationshipCount = securityEdges.Relationships.Count,
-                    CompletenessScore = resources.Count == 0 || partialChildEnumeration ? 0m : 1.0m,
+                    CompletenessScore = resources.Count == 0 || incompleteCapture ? 0m : 1.0m,
                     WarningCount = completenessWarnings.Length,
                     CompletenessWarningsJson = AzureInventorySnapshotCompletenessWarningsJson.Serialize(
                         completenessWarnings),
