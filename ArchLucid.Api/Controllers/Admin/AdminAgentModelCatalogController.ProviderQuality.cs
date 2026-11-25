@@ -2,11 +2,11 @@ using System.Security.Claims;
 using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Quality;
+using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Security;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
-using ArchLucid.Core.Configuration;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -42,11 +42,14 @@ public sealed partial class AdminAgentModelCatalogController
         if (string.IsNullOrWhiteSpace(actor) || actor.Length > 200)
             return Forbid();
 
-        string? reason = request?.Reason?.Trim();
-        if (request is null || request.Allow is null
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        string? reason = request.Reason?.Trim();
+        if (request.Allow is null
             || !IsOverrideKeyPart(request.ProviderId) || !IsOverrideKeyPart(request.ModelId)
-            || !IsOverrideKeyPart(request.ModelVersion) || string.IsNullOrWhiteSpace(reason)
-            || reason.Length > 500 || !UnicodeTextValidation.IsValidUnicodeText(reason)
+            || !IsOverrideKeyPart(request.ModelVersion) || reason is not { Length: >= 1 and <= 500 }
+            || !UnicodeTextValidation.IsValidUnicodeText(reason)
             || (request.Allow == true && request.DurationMinutes is not (>= 1 and <= 60))
             || (request.Allow == false && request.DurationMinutes is not null))
         {
@@ -88,7 +91,7 @@ public sealed partial class AdminAgentModelCatalogController
     }
 
     private static bool IsOverrideKeyPart(string? value) =>
-        !string.IsNullOrWhiteSpace(value) && value.Length <= 200
+        value is { Length: >= 1 and <= 200 } && !string.IsNullOrWhiteSpace(value)
         && UnicodeTextValidation.IsValidUnicodeText(value)
         && !string.Equals(value.Trim(), "unknown", StringComparison.OrdinalIgnoreCase);
 
