@@ -2922,6 +2922,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: ui-runs-list
+2026-11-25 seed hunt (seed-only): no rotation (shouldRotate: false). Cheap-disproof on five pass-16 candidates — valid-no-repro mobile inspector trap (focus trap hook + resume tests), valid-no-repro needs-attention compare (new monitor does not open inspector when Space activates compare in the needs-attention section), valid-no-repro clearFilterText filter= overlay (Escape clears q= regression + pass-15 listContextFilter sync), valid-no-repro buyer scope chips + orphan (scope chip href regression), valid-no-repro disclosure + orphan banner (buyer polished totalCount>1 uses flat filter chrome without disclosure summary; orphan banner regressions). Added one monitor test. Focused RunsListClient vitest 96/96. Reseeded pass-17 below. Private beta: n/a.
+
+- [x] (superseded) pass-16 candidate queue — superseded 2026-11-25 seed hunt (seed-only): pass-17 reseed.
+
 2026-11-25 seed hunt (seed→hit): no rotation (shouldRotate: false; reason: No low-yield streak; keep default picker choice.). Promoted pass-13 pagination pageSize — proven Next/Previous href builders forced pageSize from server props while committed window.location kept a different pageSize when useSearchParams lagged on page 2; compare-inspector overlay now includes pageSize and pagination hrefs read runsListPaginationPageSizeFromParams. Regression preserves committed pageSize in the Previous pagination link when useSearchParams lags on page 2. Removed stray debug console.log from filter Previous monitor. Focused RunsListClient vitest 93/93. Reseeded pass-14 candidate rows below. Private beta: reviewers who change page size then paginate before the App Router catches up keep the committed page size on Previous/Next links instead of reverting to the server default.
 
 - [x] (superseded) pass-13 candidate queue — superseded 2026-11-25 seed hunt (seed→hit): pass-14 reseed.
@@ -3160,11 +3164,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid) pass-15 orphan banner after clear q= — **proven 2026-11-25 seed hunt (seed→hit):** committed listContextFilter sync; regression cited in hunt note.
 - [x] (valid) pass-14 committed page Next lag — **proven 2026-11-25 seed hunt (seed→hit):** runsListPaginationPageFromParams; regression cited in hunt note.
 - [x] (valid) pass-13 pageSize pagination lag — **proven 2026-11-25 seed hunt (seed→hit):** compare-inspector overlay + runsListPaginationPageSizeFromParams; regression cited in hunt note.
-- [ ] (candidate) `RunsListClient` mobile inspector — narrow viewport compare keyboard trap — locus: `mobileInspectorShellRef`; pass-16 reseed.
-- [ ] (candidate) `RunsListWorkQueueTable` — compare checkbox in needs-attention section — locus: section partition; pass-16 reseed.
-- [ ] (candidate) `useRunsList` debounced `q=` — list context `filter=` overlay on clear — locus: clearFilterText; pass-16 reseed.
-- [ ] (candidate) `BuyerPackageScopeFilterChips` — work-queue + orphan `filter=` combined — locus: chip href; pass-16 reseed.
-- [ ] (candidate) `RunsListClient` disclosure open — orphan context banner persistence — locus: filter disclosure; pass-16 reseed.
+- [x] (valid-no-repro) pass-16 mobile inspector compare trap — **cheap-disproof 2026-11-25 seed hunt (seed-only):** existing compare keyboard + focus-trap wiring regressions.
+- [x] (valid-no-repro) pass-16 needs-attention compare — **cheap-disproof 2026-11-25 seed hunt (seed-only):** monitor does not open inspector when Space activates compare in the needs-attention section.
+- [x] (valid-no-repro) pass-16 clearFilterText filter= — **cheap-disproof 2026-11-25 seed hunt (seed-only):** Escape clears q= + pass-15 listContextFilter sync regressions.
+- [x] (valid-no-repro) pass-16 buyer scope + orphan — **cheap-disproof 2026-11-25 seed hunt (seed-only):** preserves committed filter= in buyer scope chip href regression.
+- [x] (valid-no-repro) pass-16 disclosure + orphan banner — **cheap-disproof 2026-11-25 seed hunt (seed-only):** orphan banner regressions; disclosure toggle uses navigationSearch overlay.
 - [x] (valid-no-repro) pass-12 whitespace-only filter= popstate — **cheap-disproof 2026-11-25 seed hunt (seed-only):** `parseRunsListContextFilterFromSearch` popstate sync.
 
 - **id:** ui-runs-list
@@ -3173,7 +3177,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 15
+- **hunts:** 16
 - **last-hunt:** 2026-11-25
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
@@ -5208,7 +5212,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
@@ -9470,7 +9474,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
@@ -13430,7 +13434,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 153
+- **hunts:** 163
 - **bugs-found:** 122
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
@@ -20664,7 +20668,7 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
