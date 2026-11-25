@@ -198,7 +198,8 @@ public sealed class AuditControlEvaluationService(
             selections,
             approvedExceptionIds,
             failingAzureResourceIds,
-            createdUtc);
+            createdUtc,
+            inventoryCaptureComplete: snapshot.Header.CaptureStatus == AzureInventoryCaptureStatus.Succeeded);
 
         await evaluationRepository.InsertInScopeAsync(
             scope.ToProjectScopeKey(),
@@ -282,7 +283,8 @@ public sealed class AuditControlEvaluationService(
                 selections,
                 approvedExceptionIds,
                 failingAzureResourceIds,
-                createdUtc);
+                createdUtc,
+                inventoryCaptureComplete: snapshot.Header.CaptureStatus == AzureInventoryCaptureStatus.Succeeded);
 
             await evaluationRepository.InsertAsync(
                 new AuditControlEvaluationPersistRequest
