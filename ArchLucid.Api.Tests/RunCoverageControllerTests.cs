@@ -1,9 +1,11 @@
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Models.Coverage;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Governance.Coverage;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Governance.Coverage;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
@@ -43,13 +45,66 @@ public sealed class RunCoverageControllerTests
         new(
             Mock.Of<ICoverageQueryService>(),
             _acknowledgementService.Object,
-            Mock.Of<ArchLucid.Core.Persistence.Ports.IPolicyPackRepository>(),
+            Mock.Of<IPolicyPackRepository>(),
             _scopeProvider.Object,
             Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>())
+            Mock.Of<IManifestHashService>(),
+            Mock.Of<IArchitectureShareAccessGate>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
+
+    [Theory]
+    [InlineData("coverage", false)]
+    [InlineData("acknowledgement", false)]
+    [InlineData("put", true)]
+    [InlineData("patch", true)]
+    public async Task Denied_run_access_does_not_reach_manifest_or_coverage_services(string action, bool needsDecide)
+    {
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        Mock<ICoverageQueryService> coverage = new(MockBehavior.Strict);
+        Mock<IPolicyPackRepository> packs = new(MockBehavior.Strict);
+        Mock<IArchitectureShareAccessGate> gate = new(MockBehavior.Strict);
+        using CancellationTokenSource cancellation = new();
+        CancellationToken ct = cancellation.Token;
+        RunCoverageController sut = new(
+            coverage.Object,
+            _acknowledgementService.Object,
+            packs.Object,
+            _scopeProvider.Object,
+            authority.Object,
+            Mock.Of<IManifestHashService>(),
+            gate.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        NotFoundResult forbidden = new();
+        if (needsDecide)
+            gate.Setup(g => g.EnsureRunDecideAllowedAsync(sut, sut.User, Scope, RunGuid, ct)).ReturnsAsync(forbidden);
+        else
+            gate.Setup(g => g.EnsureRunReadAllowedAsync(sut, sut.User, Scope, RunGuid, ct)).ReturnsAsync(forbidden);
+
+        IActionResult result = action switch
+        {
+            "coverage" => await sut.GetRunCoverage(RunGuid, ct),
+            "acknowledgement" => await sut.GetAcknowledgedCoverage(RunGuid, ct),
+            "put" => await sut.PutAcknowledgedCoverage(RunGuid, new PutRunCoverageAcknowledgementRequest(), ct),
+            "patch" => await sut.PatchRunCoveragePack(RunGuid, PolicyPackGuid, new PatchRunCoveragePackRequest(), ct),
+            _ => throw new InvalidOperationException("Unknown coverage action."),
+        };
+
+        result.Should().BeSameAs(forbidden);
+        if (needsDecide)
+            gate.Verify(g => g.EnsureRunDecideAllowedAsync(sut, sut.User, Scope, RunGuid, ct), Times.Once);
+        else
+            gate.Verify(g => g.EnsureRunReadAllowedAsync(sut, sut.User, Scope, RunGuid, ct), Times.Once);
+        gate.VerifyNoOtherCalls();
+        authority.VerifyNoOtherCalls();
+        coverage.VerifyNoOtherCalls();
+        packs.VerifyNoOtherCalls();
+        _acknowledgementService.VerifyNoOtherCalls();
+    }
 
     [Fact]
     public async Task PutAcknowledgedCoverage_returns_bad_request_when_entries_collection_contains_null_element()

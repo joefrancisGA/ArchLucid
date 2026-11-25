@@ -1,5 +1,6 @@
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Models.Coverage;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Governance.Coverage;
 using ArchLucid.Contracts.Governance.Coverage;
@@ -42,7 +43,8 @@ public sealed class RunCoverageControllerAcknowledgementTests
             Mock.Of<ArchLucid.Core.Persistence.Ports.IPolicyPackRepository>(),
             scopeProvider.Object,
             Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>())
+            Mock.Of<IManifestHashService>(),
+            Mock.Of<IArchitectureShareAccessGate>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -91,7 +93,8 @@ public sealed class RunCoverageControllerAcknowledgementTests
             Mock.Of<ArchLucid.Core.Persistence.Ports.IPolicyPackRepository>(),
             scopeProvider.Object,
             authority.Object,
-            SealedManifestHashTestSupport.CreateManifestHashService())
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            Mock.Of<IArchitectureShareAccessGate>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -142,7 +145,8 @@ public sealed class RunCoverageControllerAcknowledgementTests
             Mock.Of<ArchLucid.Core.Persistence.Ports.IPolicyPackRepository>(),
             scopeProvider.Object,
             authority.Object,
-            SealedManifestHashTestSupport.CreateManifestHashService())
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            Mock.Of<IArchitectureShareAccessGate>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -197,7 +201,8 @@ public sealed class RunCoverageControllerAcknowledgementTests
             Mock.Of<ArchLucid.Core.Persistence.Ports.IPolicyPackRepository>(),
             scopeProvider.Object,
             authority.Object,
-            SealedManifestHashTestSupport.CreateManifestHashService())
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            Mock.Of<IArchitectureShareAccessGate>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -249,7 +254,8 @@ public sealed class RunCoverageControllerAcknowledgementTests
             Mock.Of<ArchLucid.Core.Persistence.Ports.IPolicyPackRepository>(),
             scopeProvider.Object,
             authority.Object,
-            SealedManifestHashTestSupport.CreateManifestHashService())
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            Mock.Of<IArchitectureShareAccessGate>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -302,7 +308,8 @@ public sealed class RunCoverageControllerAcknowledgementTests
             Mock.Of<ArchLucid.Core.Persistence.Ports.IPolicyPackRepository>(),
             scopeProvider.Object,
             authority.Object,
-            SealedManifestHashTestSupport.CreateManifestHashService())
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            Mock.Of<IArchitectureShareAccessGate>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -365,7 +372,8 @@ public sealed class RunCoverageControllerAcknowledgementTests
             Mock.Of<ArchLucid.Core.Persistence.Ports.IPolicyPackRepository>(),
             scopeProvider.Object,
             authority.Object,
-            SealedManifestHashTestSupport.CreateManifestHashService())
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            Mock.Of<IArchitectureShareAccessGate>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
