@@ -33,14 +33,14 @@ public static class InsightGeneratorFindingParser
 
             List<InsightGeneratorProposal> proposals = [];
 
-            foreach (ParsedFindingShape row in parsed.Findings)
+            foreach (ParsedFindingShape? row in parsed.Findings)
             {
                 if (proposals.Count >= maxFindings)
                 {
                     break;
                 }
 
-                if (string.IsNullOrWhiteSpace(row.Title) || string.IsNullOrWhiteSpace(row.Rationale))
+                if (row is null || string.IsNullOrWhiteSpace(row.Title) || string.IsNullOrWhiteSpace(row.Rationale))
                 {
                     continue;
                 }
@@ -102,7 +102,7 @@ public static class InsightGeneratorFindingParser
     private sealed class ParsedShape
     {
         [JsonPropertyName("findings")]
-        public List<ParsedFindingShape>? Findings
+        public List<ParsedFindingShape?>? Findings
         {
             get;
             set;

@@ -53,7 +53,12 @@ public static class AzureInventoryPublicNetworkAccessResolver
             return false;
         }
 
-        return !IsPublicNetworkAccessEnabled(properties);
+        // Absence of an enabled setting is not evidence that public access is disabled.
+        return properties!.Any(entry =>
+            (entry.Key.Equals("publicNetworkAccess", StringComparison.OrdinalIgnoreCase)
+                || entry.Key.Equals("properties.publicNetworkAccess", StringComparison.OrdinalIgnoreCase))
+            && entry.Value.Trim().Equals("Disabled", StringComparison.OrdinalIgnoreCase))
+            && !IsPublicNetworkAccessEnabled(properties);
     }
 
     private static bool IsPublicNetworkAccessValueEnabled(string value)

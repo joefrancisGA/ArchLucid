@@ -27,6 +27,10 @@ public sealed partial class LlmCompletionAccountingClient
 
         try
         {
+            // A sliding-window denial can be checked without taking any durable budget hold.
+            if (_quotaOptions.CurrentValue.Enabled)
+                _quotaTracker.EnsureWithinQuotaBeforeCall(scope.TenantId);
+
             if (_dailyTenantBudgetOptions.CurrentValue.Enabled)
                 dailyReserved = await _dailyTenantBudgetTracker
                     .EnsureWithinBudgetBeforeCallAsync(scope.TenantId, providerKind, cancellationToken)
@@ -36,13 +40,15 @@ public sealed partial class LlmCompletionAccountingClient
                 (monthlyReserved, overageActive) = await _monthlyDollarBudgetTracker
                     .EnsureWithinBudgetBeforeCallAsync(scope.TenantId, providerKind, cancellationToken)
                     .ConfigureAwait(false);
-
-            if (_quotaOptions.CurrentValue.Enabled)
-                _quotaTracker.EnsureWithinQuotaBeforeCall(scope.TenantId);
         }
-        catch (LlmTokenQuotaExceededException)
+        catch (Exception ex)
         {
-            ArchLucidInstrumentation.LlmQuotaExceededTotal.Add(1);
+            if (ex is LlmTokenQuotaExceededException)
+                ArchLucidInstrumentation.LlmQuotaExceededTotal.Add(1);
+
+            await ReleasePreCallDailyReservationAsync(scope.TenantId, providerKind, dailyReserved,
+                useJudgeDailyCapOnly: false).ConfigureAwait(false);
+
             throw;
         }
 

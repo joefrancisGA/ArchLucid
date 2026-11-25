@@ -63,6 +63,79 @@ public sealed class LlmCompletionAccountingClientTests
             Times.Never);
     }
 
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public async Task Preflight_rejection_does_not_leave_daily_or_monthly_holds(bool stream, bool rejectAtMonthlyBudget)
+    {
+        Guid tenant = Guid.NewGuid();
+        LlmTokenQuotaOptions quota = new()
+        {
+            Enabled = !rejectAtMonthlyBudget,
+            WindowMinutes = 60,
+            MaxPromptTokensPerTenantPerWindow = 50,
+            AssumedMaxPromptTokensPerRequest = 10
+        };
+        LlmTokenQuotaWindowTracker quotaTracker = new(new FixedValueOptionsMonitor<LlmTokenQuotaOptions>(quota));
+        quotaTracker.RecordUsage(tenant, 45, 0);
+
+        Mock<IAgentCompletionClient> inner = new();
+        inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("stub", "stub"));
+        Mock<ILlmCostEstimator> cost = new();
+        cost.Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(), It.IsAny<string?>()))
+            .Returns(0.25m);
+        InMemoryLlmTenantBudgetRepository daily = new();
+        InMemoryLlmTenantBudgetRepository monthly = new();
+        LlmCompletionAccountingClient sut = CreateClient(
+            inner.Object, tenant, quotaTracker, clientQuotaOptions: quota,
+            dailyBudgetOptions: new LlmDailyTenantTokenWindowOptions
+            {
+                Enabled = true,
+                HardCutoffTokensPerUtcDay = 1_000,
+                AssumedMaxTotalTokensPerRequest = 100
+            },
+            dailyBudgetRepository: daily,
+            monthlyBudgetOptions: new LlmMonthlyTenantDollarBudgetOptions
+            {
+                Enabled = true,
+                IncludedUsdPerUtcMonth = rejectAtMonthlyBudget ? 0.10m : 50m,
+                HardCutoffUsdPerUtcMonth = rejectAtMonthlyBudget ? 0.10m : 75m
+            },
+            monthlyBudgetRepository: monthly,
+            costEstimator: cost.Object);
+
+        DateTime utc = DateTime.UtcNow;
+        Func<Task> act = async () =>
+        {
+            if (stream)
+            {
+                await using IAsyncEnumerator<string> enumerator = sut.StreamJsonAsync("s", "u").GetAsyncEnumerator();
+                await enumerator.MoveNextAsync();
+            }
+            else
+            {
+                await sut.CompleteJsonAsync("s", "u");
+            }
+        };
+
+        await act.Should().ThrowAsync<LlmTokenQuotaExceededException>();
+        inner.Verify(
+            c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        LlmTenantBudgetStateReadModel dailyRow = await daily.GetOrCreateAsync(
+            tenant, LlmBudgetPeriod.Daily, utc.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+            CancellationToken.None);
+        LlmTenantBudgetStateReadModel monthlyRow = await monthly.GetOrCreateAsync(
+            tenant, LlmBudgetPeriod.Monthly, utc.ToString("yyyy-MM", System.Globalization.CultureInfo.InvariantCulture),
+            CancellationToken.None);
+
+        dailyRow.TotalTokenPressure.Should().Be(0);
+        monthlyRow.TotalUsdPressure.Should().Be(0);
+    }
+
     [Fact]
     public async Task CompleteJsonAsync_records_dimensional_token_metrics_with_scoped_tags()
     {
