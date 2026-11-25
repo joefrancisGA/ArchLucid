@@ -277,3 +277,7 @@ See [source-level conformance baseline](FND010_CONFORMANCE_BASELINE_2026_11_24.m
 ### Revalidated adoption on merged master
 
 Pinned `f81ff8a23ca4096a18ffb5fbab76c189a150dbd4`. Revalidated the merged explanation, canonical authority, coverage, technology ledger and agent-evaluation paths, plus the canonical inventory. Added both architecture inventory action methods. The reviewed cohort is now **39 of 50 eligible or candidate actions conformant (78.00%)**, seven partial, three gaps, one unverified and one exemption. The three gaps share the draft-question scope-wide seal preflight, which runs before a resource share decision. See the [refreshed baseline](FND010_CONFORMANCE_BASELINE_2026_11_24.md) for the source evidence and next priority.
+
+### Draft manifest preflight reconciliation
+
+On pinned master `a4e11fa60f31ab105a1d522b37c57ad69083dbd2`, merged #8116 authorizes the committed-run candidate before draft and wizard manifest hydration. The three draft question actions move from gap to partial because draft payload access remains scope-only in the reviewed service chain. `ReasonDraft` remains partial. The cohort is 39 of 50 eligible or candidate actions conformant, ten partial, one unverified and one exemption. See the [refreshed baseline](FND010_CONFORMANCE_BASELINE_2026_11_24.md).
