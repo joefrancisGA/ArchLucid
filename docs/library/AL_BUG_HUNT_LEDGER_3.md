@@ -3515,6 +3515,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-help-docs
 
+2026-11-25 thorough hunt #28 (hit): no rotation (shouldRotate: false; reason: *No low-yield streak; keep default picker choice.*). **Proven** duplicate category section ids — createHelpHeadingSlugAllocator; regression ssigns unique category section ids when two category labels slug to the same anchor. Four pass-3 monitors **valid-no-repro** (see rows below). Scoped vitest **66/66**. Pass-4 reseed below. Private beta: distinct category anchor ids when doc-index spelling differs from canonical category labels.
+
+
+
 
 
 - [x] (superseded) pass-3 `(candidate)` queue — **superseded 2026-11-25 thorough hunt #28 (hit):** closed at zone header; see pass-4 reseed.
