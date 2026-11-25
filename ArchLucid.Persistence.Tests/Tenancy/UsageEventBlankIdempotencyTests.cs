@@ -42,6 +42,33 @@ public sealed class UsageEventBlankIdempotencyTests
     }
 
     [Fact]
+    public async Task Idempotency_deduplicates_within_tenant_but_not_between_tenants()
+    {
+        Guid tenantA = Guid.NewGuid();
+        Guid tenantB = Guid.NewGuid();
+        DateTimeOffset now = new(2026, 11, 23, 0, 0, 0, TimeSpan.Zero);
+        UsageEvent first = Event(tenantA, "shared-key", now);
+        UsageEvent replay = Event(tenantA, "shared-key", now);
+        UsageEvent foreign = Event(tenantB, "shared-key", now);
+
+        UsageEventRepositoryCore.SelectDistinctIdempotencyKeysForBatchInsert(
+            [first, replay, foreign]).Select(static row => row.Id)
+            .Should().Equal(first.Id, foreign.Id);
+
+        InMemoryUsageEventRepository repository = new();
+        await repository.InsertAsync(first, CancellationToken.None);
+        await repository.InsertBatchAsync([replay, foreign], CancellationToken.None);
+
+        IReadOnlyList<UsageEvent> firstTenant = await repository.ListAsync(
+            tenantA, now.AddMinutes(-1), now.AddMinutes(1), null, 20, CancellationToken.None);
+        IReadOnlyList<UsageEvent> secondTenant = await repository.ListAsync(
+            tenantB, now.AddMinutes(-1), now.AddMinutes(1), null, 20, CancellationToken.None);
+
+        firstTenant.Select(static row => row.Id).Should().Equal(first.Id);
+        secondTenant.Select(static row => row.Id).Should().Equal(foreign.Id);
+    }
+
+    [Fact]
     public async Task In_memory_single_and_batch_writes_preserve_distinct_blank_key_usage()
     {
         InMemoryUsageEventRepository repository = new();

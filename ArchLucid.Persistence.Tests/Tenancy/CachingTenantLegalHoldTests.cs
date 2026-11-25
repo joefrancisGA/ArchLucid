@@ -17,11 +17,11 @@ public sealed class CachingTenantLegalHoldTests
         DateTimeOffset now = new(2026, 11, 16, 0, 0, 0, TimeSpan.Zero);
         DateTimeOffset until = now.AddDays(1);
         using CancellationTokenSource request = new();
+        TaskCompletionSource<bool> committed = new(TaskCreationOptions.RunContinuationsAsynchronously);
         Mock<ITenantRepository> inner = new(MockBehavior.Strict);
         inner.Setup(repository => repository.TrySetTenantErasureLegalHoldAsync(
                 tenantId, until, now, "Retain evidence", "operator", request.Token))
-            .Callback(request.Cancel)
-            .ReturnsAsync(true);
+            .Returns(committed.Task);
 
         Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
         string key = HotPathCacheKeys.TenantById(tenantId);
@@ -30,8 +30,21 @@ public sealed class CachingTenantLegalHoldTests
             .Returns(Task.CompletedTask);
         CachingTenantRepository repository = new(inner.Object, cache.Object);
 
-        (await repository.TrySetTenantErasureLegalHoldAsync(
-            tenantId, until, now, "Retain evidence", "operator", request.Token)).Should().BeTrue();
+        Task<bool> pending = repository.TrySetTenantErasureLegalHoldAsync(
+            tenantId, until, now, "Retain evidence", "operator", request.Token);
+        try
+        {
+            cache.Verify(store => store.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+            pending.IsCompleted.Should().BeFalse();
+        }
+        finally
+        {
+            request.Cancel();
+            committed.TrySetResult(true);
+        }
+
+        (await pending).Should().BeTrue();
+        inner.VerifyAll();
 
         cache.Verify(store => store.RemoveAsync(key, CancellationToken.None), Times.Once);
     }

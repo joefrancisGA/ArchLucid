@@ -15,10 +15,10 @@ public sealed class CachingTenantSuspensionTests
     {
         Guid tenantId = Guid.NewGuid();
         using CancellationTokenSource request = new();
+        TaskCompletionSource<bool> committed = new(TaskCreationOptions.RunContinuationsAsynchronously);
         Mock<ITenantRepository> inner = new(MockBehavior.Strict);
         inner.Setup(repository => repository.TrySuspendTenantAsync(tenantId, request.Token))
-            .Callback(request.Cancel)
-            .ReturnsAsync(true);
+            .Returns(committed.Task);
 
         Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
         string key = HotPathCacheKeys.TenantById(tenantId);
@@ -27,7 +27,20 @@ public sealed class CachingTenantSuspensionTests
             .Returns(Task.CompletedTask);
         CachingTenantRepository repository = new(inner.Object, cache.Object);
 
-        (await repository.TrySuspendTenantAsync(tenantId, request.Token)).Should().BeTrue();
+        Task<bool> pending = repository.TrySuspendTenantAsync(tenantId, request.Token);
+        try
+        {
+            cache.Verify(store => store.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+            pending.IsCompleted.Should().BeFalse();
+        }
+        finally
+        {
+            request.Cancel();
+            committed.TrySetResult(true);
+        }
+
+        (await pending).Should().BeTrue();
+        inner.VerifyAll();
 
         cache.Verify(store => store.RemoveAsync(key, CancellationToken.None), Times.Once);
     }
