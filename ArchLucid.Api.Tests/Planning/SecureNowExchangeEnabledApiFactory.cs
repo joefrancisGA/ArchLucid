@@ -21,7 +21,12 @@ public sealed class SecureNowExchangeEnabledApiFactory : ArchLucidApiFactory
 
     public string TestEntitlementDiagnosticCounts => _testEntitlements.DiagnosticCounts;
 
-  public SecureNowExchangeEnabledApiFactory() : base(sqlAuthorityStorage: true) { }
+    public int GrantedRequestCount => _testEntitlements.GrantedRequestCount;
+
+    public bool IsSeededEntitlementAuthority(IEvidenceEntitlementAuthority authority) =>
+        ReferenceEquals(authority, _testEntitlements);
+
+    public SecureNowExchangeEnabledApiFactory() : base(sqlAuthorityStorage: true) { }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
