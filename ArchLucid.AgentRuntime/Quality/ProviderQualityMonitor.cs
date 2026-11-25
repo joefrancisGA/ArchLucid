@@ -148,6 +148,11 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
             bool matchesProbe = ProbeIsCurrent(entry)
                 && entry.RecoveryTraceId is { } traceId
                 && string.Equals(traceId, adjudication.TraceId, StringComparison.Ordinal);
+            // A synthetic recovery result has no meaning outside its exact lease and must not
+            // count as a normal observation (including if the lease expired before recording).
+            if (!matchesProbe && string.Equals(adjudication.AdjudicatorKind, SecureNowRecoveryChallenge.Method, StringComparison.Ordinal))
+                return new ProviderQualityRecordResult(Snapshot(adjudication.Key, entry), false, null);
+
             bool newSample = entry.SampleIds.Add(adjudication.SampleId);
             if (!newSample && !matchesProbe)
                 return new ProviderQualityRecordResult(Snapshot(adjudication.Key, entry), false, null);

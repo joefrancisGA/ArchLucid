@@ -28,6 +28,39 @@ public sealed class SecurityEvidencePathExplanationServiceTests
     private static readonly Guid ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
     [Fact]
+    public async Task Synthetic_recovery_response_is_not_used_as_customer_explanation()
+    {
+        Guid pathId = Guid.NewGuid();
+        ScopeContext scope = CreateScope();
+        InMemoryPathRepository paths = new();
+        paths.StoredPaths.Add(CreatePath(pathId, PathConfidenceBand.Probable));
+        paths.StoredHops.Add(CreateHop(pathId, 1, "evidence-1"));
+        CapturingExplanationRepository persisted = new();
+        Mock<IIndependentProviderQualityObserver> observer = new(MockBehavior.Strict);
+        Mock<IIndependentProviderQualitySample> sample = new(MockBehavior.Strict);
+        const string modelText = "Synthetic output must never enter the explanation.";
+        sample.SetupGet(x => x.IsSyntheticRecovery).Returns(true);
+        sample.Setup(x => x.RecordAsync(scope, It.IsAny<Guid>(), IndependentProviderClaimOutcome.Unknown, false,
+                null, It.IsAny<CancellationToken>()))
+            .Callback(() => persisted.LastInserted.Should().NotBeNull())
+            .Returns(Task.CompletedTask);
+        observer.Setup(x => x.ObserveAsync(It.IsAny<Func<CancellationToken, Task<string>>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((BuildPathExplanationLlmJson(pathId, ["evidence-1"], modelText),
+                (IIndependentProviderQualitySample?)sample.Object));
+
+        var sut = CreateSut(paths, persisted, Mock.Of<IAgentCompletionClient>(), CreatePassthroughRedactor(),
+            qualityObserver: observer.Object);
+        var response = await sut.TryBuildExplanationAsync(scope, pathId, useSimulator: false, allowInsufficientEvidence: false);
+
+        response.Succeeded.Should().BeTrue();
+        persisted.LastInserted!.ExecutiveSummary.Should().NotContain(modelText);
+        persisted.LastInserted.ProvenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
+        persisted.LastInserted.ModelOutputRejection.Should().Contain("synthetic provider recovery");
+        sample.Verify(x => x.RecordAsync(scope, persisted.LastInserted.ExplanationId, IndependentProviderClaimOutcome.Unknown,
+            false, null, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task TryBuildExplanationAsync_insufficient_evidence_skips_by_default()
     {
         Guid pathId = Guid.NewGuid();
@@ -248,6 +281,7 @@ public sealed class SecurityEvidencePathExplanationServiceTests
 
         CapturingExplanationRepository persisted = new();
         Mock<IIndependentProviderQualitySample> sample = new(MockBehavior.Strict);
+        sample.SetupGet(x => x.IsSyntheticRecovery).Returns(false);
         IndependentProviderClaimOutcome expected = rejection switch
         {
             null => IndependentProviderClaimOutcome.Supported,

@@ -1,0 +1,33 @@
+name: FND-073 SecureNow synthetic recovery
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.AgentRuntime/Quality/**'
+      - 'ArchLucid.Core/Llm/IIndependentProviderQualityObserver.cs'
+      - 'ArchLucid.Application/InfraEvidence/SecurityEvidencePathExplanationService.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/SecurityEvidencePathExplanationServiceTests.cs'
+      - 'ArchLucid.AgentRuntime.Tests/Quality/IndependentProviderQualityObserverTests.cs'
+      - '.github/workflows/fnd073-securenow-recovery.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - run: >-
+          dotnet test ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~IndependentProviderQualityObserverTests|FullyQualifiedName~ProviderQualityMonitorTests'
+          --logger 'console;verbosity=normal'
+      - run: >-
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~SecurityEvidencePathExplanationServiceTests'
+          --logger 'console;verbosity=normal'

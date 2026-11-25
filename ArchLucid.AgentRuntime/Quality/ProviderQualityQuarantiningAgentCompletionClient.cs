@@ -31,7 +31,16 @@ public sealed class ProviderQualityQuarantiningAgentCompletionClient(
     {
         cancellationToken.ThrowIfCancellationRequested();
         ProviderQualityAdmission admission = await AdmitAsync(cancellationToken).ConfigureAwait(false);
-        using ProviderQualityRecoveryResponse.Capture? capture = ProviderQualityRecoveryResponse.Begin(admission);
+        using ProviderQualityRecoveryResponse.Capture? capture =
+            ProviderQualityRecoveryResponse.Begin(admission, IndependentProviderQualityObserver.IsObservingSecureNow);
+        if (capture?.Probe.SecureNowChallenge is { } challenge)
+        {
+            // Reuse the admitted completion instead of making a second call. Do not send customer data on this lease.
+            systemPrompt = SecureNowRecoveryChallenge.SystemPrompt;
+            userPrompt = challenge.UserPrompt;
+            maxTokens = Math.Min(maxTokens ?? 128, 128);
+        }
+
         string response = await _inner.CompleteJsonAsync(
             systemPrompt, userPrompt, maxTokens, temperature, cancellationToken).ConfigureAwait(false);
         return capture?.Attach(response) ?? response;
