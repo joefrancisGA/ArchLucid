@@ -59,8 +59,8 @@
     <_ArchLucidEnumProduct Condition="$([System.String]::Copy('$(MSBuildProjectName)').StartsWith('ArchLucid.')) And !$([System.String]::Copy('$(MSBuildProjectName)').EndsWith('.Tests')) And '$(MSBuildProjectName)' != 'ArchLucid.Analyzers'">true</_ArchLucidEnumProduct>
   </PropertyGroup>
   <ItemGroup Condition="'$(_ArchLucidEnumProduct)' == 'true'">
-    <_ArchLucidExistingAnalyzerReference Include="@(ProjectReference)"
-        Condition="'%(ProjectReference.Filename)' == 'ArchLucid.Analyzers'" />
+    <_ArchLucidExistingAnalyzerReference
+        Include="@(ProjectReference->WithMetadataValue('Filename', 'ArchLucid.Analyzers'))" />
     <ProjectReference Include="$(MSBuildThisFileDirectory)ArchLucid.Analyzers/ArchLucid.Analyzers.csproj"
         OutputItemType="Analyzer" ReferenceOutputAssembly="false"
         Condition="'@(_ArchLucidExistingAnalyzerReference)' == ''" />
