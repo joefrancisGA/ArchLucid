@@ -34,6 +34,7 @@ public sealed class EntraAddCredentialGraphReader(
                 cancellationToken)
             .ConfigureAwait(false);
 
+        bool partial = false;
         List<AzureInventoryApplicationOwnerRow> applicationOwners = [];
         List<AzureInventoryDirectoryRoleAssignmentRow> directoryRoleAssignments = [];
         List<AzureInventoryEntraApplicationRegistrationRow> applicationRegistrations = [];
@@ -44,10 +45,18 @@ public sealed class EntraAddCredentialGraphReader(
             maxPaginationRequests,
             cancellationToken).ConfigureAwait(false);
 
+        partial |= applicationsResult.PartialCollection;
         if (applicationsResult.Forbidden)
         {
-            return EntraAddCredentialGraphReadResult.ForbiddenResult(
-                SecurityEvidenceAddCredentialAdapterWarnings.GraphForbidden);
+            return new EntraAddCredentialGraphReadResult
+            {
+                Forbidden = true,
+                Warnings = [SecurityEvidenceAddCredentialAdapterWarnings.GraphForbidden],
+                ApplicationOwners = applicationOwners,
+                DirectoryRoleAssignments = directoryRoleAssignments,
+                ApplicationRegistrations = applicationRegistrations,
+                GraphAppRoleAssignments = graphAppRoleAssignments,
+            };
         }
 
         EntraAddCredentialGraphPageReadResult servicePrincipalsResult = await ReadServicePrincipalsAsync(
@@ -55,10 +64,18 @@ public sealed class EntraAddCredentialGraphReader(
             maxPaginationRequests,
             cancellationToken).ConfigureAwait(false);
 
+        partial |= servicePrincipalsResult.PartialCollection;
         if (servicePrincipalsResult.Forbidden)
         {
-            return EntraAddCredentialGraphReadResult.ForbiddenResult(
-                SecurityEvidenceAddCredentialAdapterWarnings.GraphForbidden);
+            return new EntraAddCredentialGraphReadResult
+            {
+                Forbidden = true,
+                Warnings = [SecurityEvidenceAddCredentialAdapterWarnings.GraphForbidden],
+                ApplicationOwners = applicationOwners,
+                DirectoryRoleAssignments = directoryRoleAssignments,
+                ApplicationRegistrations = applicationRegistrations,
+                GraphAppRoleAssignments = graphAppRoleAssignments,
+            };
         }
 
         Dictionary<string, string> servicePrincipalIdByAppId = BuildServicePrincipalIdByAppId(servicePrincipalsResult.Items);
@@ -72,10 +89,18 @@ public sealed class EntraAddCredentialGraphReader(
             applicationOwners,
             cancellationToken).ConfigureAwait(false);
 
+        partial |= ownersForbiddenCheck.PartialCollection;
         if (ownersForbiddenCheck.Forbidden)
         {
-            return EntraAddCredentialGraphReadResult.ForbiddenResult(
-                SecurityEvidenceAddCredentialAdapterWarnings.GraphForbidden);
+            return new EntraAddCredentialGraphReadResult
+            {
+                Forbidden = true,
+                Warnings = [SecurityEvidenceAddCredentialAdapterWarnings.GraphForbidden],
+                ApplicationOwners = applicationOwners,
+                DirectoryRoleAssignments = directoryRoleAssignments,
+                ApplicationRegistrations = applicationRegistrations,
+                GraphAppRoleAssignments = graphAppRoleAssignments,
+            };
         }
 
         EntraAddCredentialGraphPageReadResult directoryRolesResult = await ReadDirectoryRoleAssignmentsAsync(
@@ -84,10 +109,18 @@ public sealed class EntraAddCredentialGraphReader(
             directoryRoleAssignments,
             cancellationToken).ConfigureAwait(false);
 
+        partial |= directoryRolesResult.PartialCollection;
         if (directoryRolesResult.Forbidden)
         {
-            return EntraAddCredentialGraphReadResult.ForbiddenResult(
-                SecurityEvidenceAddCredentialAdapterWarnings.GraphForbidden);
+            return new EntraAddCredentialGraphReadResult
+            {
+                Forbidden = true,
+                Warnings = [SecurityEvidenceAddCredentialAdapterWarnings.GraphForbidden],
+                ApplicationOwners = applicationOwners,
+                DirectoryRoleAssignments = directoryRoleAssignments,
+                ApplicationRegistrations = applicationRegistrations,
+                GraphAppRoleAssignments = graphAppRoleAssignments,
+            };
         }
 
         string? graphServicePrincipalId = TryResolveMicrosoftGraphServicePrincipalId(servicePrincipalsResult.Items);
@@ -101,15 +134,29 @@ public sealed class EntraAddCredentialGraphReader(
                 graphAppRoleAssignments,
                 cancellationToken).ConfigureAwait(false);
 
+            partial |= graphRolesResult.PartialCollection;
             if (graphRolesResult.Forbidden)
             {
-                return EntraAddCredentialGraphReadResult.ForbiddenResult(
-                    SecurityEvidenceAddCredentialAdapterWarnings.GraphForbidden);
+                return new EntraAddCredentialGraphReadResult
+            {
+                Forbidden = true,
+                Warnings = [SecurityEvidenceAddCredentialAdapterWarnings.GraphForbidden],
+                ApplicationOwners = applicationOwners,
+                DirectoryRoleAssignments = directoryRoleAssignments,
+                ApplicationRegistrations = applicationRegistrations,
+                GraphAppRoleAssignments = graphAppRoleAssignments,
+            };
             }
+        }
+
+        else
+        {
+            partial = true;
         }
 
         return new EntraAddCredentialGraphReadResult
         {
+            Warnings = partial ? [SecurityEvidenceAddCredentialAdapterWarnings.GraphIncomplete] : [],
             ApplicationOwners = applicationOwners,
             DirectoryRoleAssignments = directoryRoleAssignments,
             ApplicationRegistrations = applicationRegistrations,
@@ -122,6 +169,7 @@ public sealed class EntraAddCredentialGraphReader(
         int maxPaginationRequests,
         CancellationToken cancellationToken)
     {
+        bool partial = false;
         List<JsonElement> items = [];
         string? nextLink = "https://graph.microsoft.com/v1.0/applications?$select=id,appId&$top=999";
         int requestCount = 0;
@@ -136,11 +184,15 @@ public sealed class EntraAddCredentialGraphReader(
                     "Entra add-credential Graph read stopped listing applications after {MaxPages} pages.",
                     maxPaginationRequests);
 
+                partial = true;
+
                 break;
             }
 
             EntraAddCredentialGraphPageReadResult page = await ReadGraphPageAsync(accessToken, nextLink, cancellationToken)
                 .ConfigureAwait(false);
+
+            partial |= page.PartialCollection;
 
             if (page.Forbidden)
             {
@@ -151,7 +203,7 @@ public sealed class EntraAddCredentialGraphReader(
             nextLink = page.NextLink;
         }
 
-        return new EntraAddCredentialGraphPageReadResult { Items = items };
+        return new EntraAddCredentialGraphPageReadResult { Items = items, PartialCollection = partial };
     }
 
     private async Task<EntraAddCredentialGraphPageReadResult> ReadServicePrincipalsAsync(
@@ -159,6 +211,7 @@ public sealed class EntraAddCredentialGraphReader(
         int maxPaginationRequests,
         CancellationToken cancellationToken)
     {
+        bool partial = false;
         List<JsonElement> items = [];
         string? nextLink = "https://graph.microsoft.com/v1.0/servicePrincipals?$select=id,appId&$top=999";
         int requestCount = 0;
@@ -173,11 +226,15 @@ public sealed class EntraAddCredentialGraphReader(
                     "Entra add-credential Graph read stopped listing service principals after {MaxPages} pages.",
                     maxPaginationRequests);
 
+                partial = true;
+
                 break;
             }
 
             EntraAddCredentialGraphPageReadResult page = await ReadGraphPageAsync(accessToken, nextLink, cancellationToken)
                 .ConfigureAwait(false);
+
+            partial |= page.PartialCollection;
 
             if (page.Forbidden)
             {
@@ -188,7 +245,7 @@ public sealed class EntraAddCredentialGraphReader(
             nextLink = page.NextLink;
         }
 
-        return new EntraAddCredentialGraphPageReadResult { Items = items };
+        return new EntraAddCredentialGraphPageReadResult { Items = items, PartialCollection = partial };
     }
 
     private async Task<EntraAddCredentialGraphPageReadResult> ReadApplicationOwnersAsync(
@@ -199,6 +256,7 @@ public sealed class EntraAddCredentialGraphReader(
         List<AzureInventoryApplicationOwnerRow> owners,
         CancellationToken cancellationToken)
     {
+        bool partial = false;
         int ownerRequestCount = 0;
 
         foreach (JsonElement application in applications)
@@ -208,6 +266,8 @@ public sealed class EntraAddCredentialGraphReader(
                 logger.LogWarning(
                     "Entra add-credential Graph read stopped listing application owners after {MaxOwnerRequests} applications.",
                     maxApplicationOwnerRequests);
+
+                partial = true;
 
                 break;
             }
@@ -232,11 +292,14 @@ public sealed class EntraAddCredentialGraphReader(
 
                 if (pageCount > maxPaginationRequests)
                 {
+                    partial = true;
                     break;
                 }
 
                 EntraAddCredentialGraphPageReadResult page = await ReadGraphPageAsync(accessToken, nextLink, cancellationToken)
                     .ConfigureAwait(false);
+
+                partial |= page.PartialCollection;
 
                 if (page.Forbidden)
                 {
@@ -269,7 +332,7 @@ public sealed class EntraAddCredentialGraphReader(
             }
         }
 
-        return new EntraAddCredentialGraphPageReadResult();
+        return new EntraAddCredentialGraphPageReadResult { PartialCollection = partial };
     }
 
     private async Task<EntraAddCredentialGraphPageReadResult> ReadDirectoryRoleAssignmentsAsync(
@@ -278,6 +341,7 @@ public sealed class EntraAddCredentialGraphReader(
         List<AzureInventoryDirectoryRoleAssignmentRow> assignments,
         CancellationToken cancellationToken)
     {
+        bool partial = false;
         string? nextLink =
             "https://graph.microsoft.com/v1.0/roleManagement/directory/roleAssignments?$expand=roleDefinition($select=id,templateId,displayName)&$top=999";
         int requestCount = 0;
@@ -292,11 +356,15 @@ public sealed class EntraAddCredentialGraphReader(
                     "Entra add-credential Graph read stopped listing directory role assignments after {MaxPages} pages.",
                     maxPaginationRequests);
 
+                partial = true;
+
                 break;
             }
 
             EntraAddCredentialGraphPageReadResult page = await ReadGraphPageAsync(accessToken, nextLink, cancellationToken)
                 .ConfigureAwait(false);
+
+            partial |= page.PartialCollection;
 
             if (page.Forbidden)
             {
@@ -316,7 +384,7 @@ public sealed class EntraAddCredentialGraphReader(
             nextLink = page.NextLink;
         }
 
-        return new EntraAddCredentialGraphPageReadResult();
+        return new EntraAddCredentialGraphPageReadResult { PartialCollection = partial };
     }
 
     private async Task<EntraAddCredentialGraphPageReadResult> ReadMicrosoftGraphAppRoleAssignmentsAsync(
@@ -326,6 +394,7 @@ public sealed class EntraAddCredentialGraphReader(
         List<AzureInventoryGraphAppRoleAssignmentRow> assignments,
         CancellationToken cancellationToken)
     {
+        bool partial = false;
         string? nextLink =
             $"https://graph.microsoft.com/v1.0/servicePrincipals/{Uri.EscapeDataString(graphServicePrincipalId)}/appRoleAssignedTo?$select=principalId,appRoleId,resourceId&$top=999";
         int requestCount = 0;
@@ -336,11 +405,14 @@ public sealed class EntraAddCredentialGraphReader(
 
             if (requestCount > maxPaginationRequests)
             {
+                partial = true;
                 break;
             }
 
             EntraAddCredentialGraphPageReadResult page = await ReadGraphPageAsync(accessToken, nextLink, cancellationToken)
                 .ConfigureAwait(false);
+
+            partial |= page.PartialCollection;
 
             if (page.Forbidden)
             {
@@ -381,7 +453,7 @@ public sealed class EntraAddCredentialGraphReader(
             nextLink = page.NextLink;
         }
 
-        return new EntraAddCredentialGraphPageReadResult();
+        return new EntraAddCredentialGraphPageReadResult { PartialCollection = partial };
     }
 
     private async Task<EntraAddCredentialGraphPageReadResult> ReadGraphPageAsync(
@@ -422,7 +494,7 @@ public sealed class EntraAddCredentialGraphReader(
                 (int)response.StatusCode,
                 body);
 
-            return new EntraAddCredentialGraphPageReadResult();
+            return new EntraAddCredentialGraphPageReadResult { PartialCollection = true };
         }
 
         await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
@@ -431,7 +503,10 @@ public sealed class EntraAddCredentialGraphReader(
         JsonElement root = document.RootElement;
         List<JsonElement> items = [];
 
-        if (root.TryGetProperty("value", out JsonElement value) && value.ValueKind == JsonValueKind.Array)
+        if (root.ValueKind != JsonValueKind.Object || !root.TryGetProperty("value", out JsonElement value) || value.ValueKind != JsonValueKind.Array)
+            return new EntraAddCredentialGraphPageReadResult { PartialCollection = true };
+
+        if (value.ValueKind == JsonValueKind.Array)
         {
             foreach (JsonElement item in value.EnumerateArray())
             {
@@ -452,7 +527,7 @@ public sealed class EntraAddCredentialGraphReader(
             };
         }
 
-        return new EntraAddCredentialGraphPageReadResult { Items = items };
+        return new EntraAddCredentialGraphPageReadResult { Items = items, PartialCollection = !string.IsNullOrWhiteSpace(nextLink) };
     }
 
     private static Dictionary<string, string> BuildServicePrincipalIdByAppId(IReadOnlyList<JsonElement> servicePrincipals)
