@@ -201,6 +201,12 @@ public sealed class HostedAzureExtractorClient(
         IReadOnlyList<HostedAzureArmResourceRecord> inventoryResources = resources;
         List<string> collectionWarnings = [];
 
+        if (adfLinkedServices is HostedAzureAdfCollection<AzureInventoryAdfLinkedServiceRow> { PartialCollection: true }
+            || adfPipelineMetadata.PartialCollection || adfExtendedMetadata.PartialCollection)
+        {
+            collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+        }
+
         if (diagnosticSettingsResult.PartialCollection)
         {
             collectionWarnings.Add(AzureInventoryDiagnosticCompletenessWarningCodes.PartialCollection);
@@ -534,6 +540,12 @@ public sealed class HostedAzureExtractorClient(
 
         IReadOnlyList<HostedAzureArmResourceRecord> inventoryResources = resources;
         List<string> collectionWarnings = [];
+
+        if (adfLinkedServices is HostedAzureAdfCollection<AzureInventoryAdfLinkedServiceRow> { PartialCollection: true }
+            || adfPipelineMetadata.PartialCollection || adfExtendedMetadata.PartialCollection)
+        {
+            collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+        }
 
         if (diagnosticSettingsResult.PartialCollection)
         {
