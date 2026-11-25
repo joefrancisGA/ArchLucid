@@ -272,8 +272,9 @@ public sealed class RunScopedEvidenceHubHttpTests(JwtLocalSigningWebAppFactory f
             string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(factory.PrivatePemForTests,
                 JwtLocalSigningWebAppFactory.JwtLocalTestIssuer, JwtLocalSigningWebAppFactory.JwtLocalTestAudience,
                 "Snapshot diagram reader", [ArchLucidRoles.Reader], tenant, workspace, project);
+            string query = route == "mermaid/preview" ? string.Empty : "?mode=executive";
             using HttpRequestMessage request = new(HttpMethod.Get,
-                $"/v1/infra-evidence/snapshots/{snapshot:D}/{route}?mode=executive");
+                $"/v1/infra-evidence/snapshots/{snapshot:D}/{route}{query}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             request.Headers.Add("x-tenant-id", tenant.ToString("D"));
             request.Headers.Add("x-workspace-id", workspace.ToString("D"));
