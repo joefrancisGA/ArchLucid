@@ -430,11 +430,18 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — avg-age scopeLine when value absent — **proven 2026-11-25 thorough hunt (hit):** regression cited in hunt note.
 - [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — open-findings-queue href when count absent — **proven 2026-11-25 thorough hunt (hit):** regression cited in hunt note.
 
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps open-findings-queue href when count is zero — locus: tile link; input: openFindings 0; monitor; pass-44 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps critical-exposure scopeLine when count is zero — locus: tile chrome; input: criticalExposureCount 0; monitor; pass-44 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps net-burn scopeLine when net burn is zero — locus: tile chrome; input: netBurn 0; monitor; pass-44 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps pattern-exact scopeLine when percent is zero — locus: tile chrome; input: percent 0; monitor; pass-44 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps automation scopeLine when percent is zero — locus: tile chrome; input: automationPercent 0; monitor; pass-44 reseed.
+- [x] (superseded) pass-44 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (dry):** pass-45 reseed.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps open-findings-queue href when count is zero — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression added.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps critical-exposure scopeLine when count is zero — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression added.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps net-burn scopeLine when net burn is zero — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression added.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps pattern-exact scopeLine when percent is zero — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression added.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps automation scopeLine when percent is zero — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression added.
+
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps recurrence scopeLine when count is zero — locus: tile chrome; input: recurrenceCount 0; monitor; pass-45 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps exceptions-active scopeLine when count is zero — locus: tile chrome; input: exceptionsActive 0; monitor; pass-45 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps open-findings-queue scopeLine when count is zero — locus: tile chrome; input: openFindings 0; monitor; pass-45 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps critical-exposure href when count is zero — locus: tile link; input: criticalExposureCount 0; monitor; pass-45 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps avg-age scopeLine when value is zero — locus: tile chrome; input: averageAgeDays 0; monitor; pass-45 reseed.
 
 
 
@@ -868,7 +875,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 65
+- **hunts:** 66
 - **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25

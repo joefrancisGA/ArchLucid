@@ -356,6 +356,41 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "avg-age")?.scopeLine).toBeUndefined();
   });
 
+
+  it("keeps open-findings-queue href when count is zero", () => {
+    const metrics = { openFindings: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "open-findings-queue")?.href).toBeDefined();
+  });
+
+  it("keeps critical-exposure scopeLine when count is zero", () => {
+    const metrics = { criticalExposureCount: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "critical-exposure")?.scopeLine).toBeDefined();
+  });
+
+  it("keeps net-burn scopeLine when net burn is zero", () => {
+    const metrics = { netBurn: 0, createdThisWeek: 0, remediatedThisWeek: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "net-burn")?.scopeLine).toBeDefined();
+  });
+
+  it("keeps pattern-exact scopeLine when percent is zero", () => {
+    const metrics = { patternCoverageExactMatchPercent: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "pattern-exact")?.scopeLine).toBeDefined();
+  });
+
+  it("keeps automation scopeLine when percent is zero", () => {
+    const metrics = { automationPercent: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "automation")?.scopeLine).toBeDefined();
+  });
   it("omits open-findings-queue href when count is not returned", () => {
     const metrics = { automationPercent: 5 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
