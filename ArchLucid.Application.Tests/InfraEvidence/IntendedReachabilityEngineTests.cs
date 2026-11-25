@@ -683,7 +683,7 @@ public sealed class IntendedReachabilityEngineTests
                 {
                     ResourceRowId = sqlRowId,
                     PropertyKey = "privateEndpointConnections",
-                    PropertyValue = $"""
+                    PropertyValue = $$"""
                         [{"id":"/subscriptions/sub/.../privateEndpointConnections/peconn1","properties":{"privateLinkServiceConnectionState":{"status":"{{approvalStatus}}"}}}]
                         """,
                 },
