@@ -23,6 +23,7 @@ import {
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_CONTROL_ID_PARAM,
+  RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import { applyOperatorUrlSelectionSwitch } from "@/lib/operator/operator-url-selection-switch";
 
@@ -56,6 +57,11 @@ export function driftWorkbenchHrefFromSearch(
     patch.auditEvidenceSnapshotId,
   );
   const controlId = readDriftWorkbenchParam(searchParams, RESOURCE_HUB_CONTROL_ID_PARAM, patch.controlId);
+  const securityEvidencePathId = readDriftWorkbenchParam(
+    searchParams,
+    RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM,
+    patch.securityEvidencePathId,
+  );
   const baseHref = buildDriftWorkbenchHref({
     snapshotId: snapshotId.length > 0 ? snapshotId : null,
     cloudResourceId: cloudResourceId.length > 0 ? cloudResourceId : null,
@@ -64,6 +70,7 @@ export function driftWorkbenchHrefFromSearch(
     assessmentId: assessmentId.length > 0 ? assessmentId : null,
     auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : null,
     controlId: controlId.length > 0 ? controlId : null,
+    securityEvidencePathId: securityEvidencePathId.length > 0 ? securityEvidencePathId : null,
   });
   const tableFilterState = buildDriftTableFilterPatch(parseDriftTableFilterState(searchParams), patch.tableFilters ?? {});
   const snapshotTableFilterState = buildDriftSnapshotsTableFilterPatch(

@@ -88,7 +88,10 @@ import {
 import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
 import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { buildInfrastructureAskHandoffHref } from "@/lib/infra-evidence/infrastructure-ask-drawer-url";
-import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { RemediationFactoryRankedPathAskHandoff } from "@/components/remediation-factory/RemediationFactoryRankedPathAskHandoff";
+import { DRIFT_WORKBENCH_RANKED_PATH_ASK_SCOPE_LINE } from "@/lib/infra-evidence/drift-workbench-ranked-path-ask-handoff-copy";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   INFRA_DRIFT_CHANGE_IDENTIFIERS_OPEN_PARAM,
   infraDriftChangeIdentifiersDisclosureHrefFromSearch,
@@ -323,6 +326,10 @@ export function DriftWorkbenchClient() {
   );
   const urlChangeId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(DRIFT_WORKBENCH_CHANGE_ID_PARAM));
   const urlDiffId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(DRIFT_WORKBENCH_DIFF_ID_PARAM));
+  const urlSecurityEvidencePathId = parseInfraEvidenceWorkbenchQueryValue(
+    searchParams.get(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM),
+  );
+  const latestCapturePartial = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
   const tableFilterState = useMemo(() => parseDriftTableFilterState(searchParams), [searchParams]);
   const snapshotTableFilterState = useMemo(
     () => parseDriftSnapshotsTableFilterState(searchParams),
@@ -1686,6 +1693,17 @@ export function DriftWorkbenchClient() {
               </p>
             </div>
 
+            {urlSecurityEvidencePathId.length > 0 && selectedSnapshotId.length > 0 ? (
+              <RemediationFactoryRankedPathAskHandoff
+                testId="infra-drift-ranked-path-ask-handoff"
+                snapshotId={selectedSnapshotId}
+                securityEvidencePathId={urlSecurityEvidencePathId}
+                disabled={latestCapturePartial}
+                hubTab="drift"
+                scopeLine={DRIFT_WORKBENCH_RANKED_PATH_ASK_SCOPE_LINE}
+              />
+            ) : null}
+
             <div className="flex flex-wrap items-end gap-3">
               <div className="grid min-w-[16rem] max-w-xl gap-2">
                 <Label htmlFor="infra-drift-diff-picker">{GOVERNANCE_INFRASTRUCTURE_DRIFT_DIFF_LABEL}</Label>
@@ -1721,6 +1739,7 @@ export function DriftWorkbenchClient() {
                       snapshotId: selectedSnapshotId,
                       diffId: selectedDiffId,
                       hubTab: "drift",
+                      securityEvidencePathId: urlSecurityEvidencePathId.length > 0 ? urlSecurityEvidencePathId : undefined,
                       ...mergeInfrastructureAskAuditScope(auditScope),
                     })}
                   >
