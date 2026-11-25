@@ -89,6 +89,17 @@ public sealed class AllowedRunExportBlobDestinationUrlPolicyTests
         reason.Should().Contain(expectedPhrase);
     }
 
+    [Theory]
+    [InlineData("https://acct.blob.core.windows.net.example.invalid/container/blob")]
+    [InlineData("https://acct.blob.storage.azure.net.example.invalid/container/blob")]
+    [InlineData("https://acct.notblob.core.windows.net/container/blob")]
+    [InlineData("https://acct.notblob.storage.azure.net/container/blob")]
+    public void TryGetRejectionReason_rejects_hosts_without_exact_blob_suffix(string url)
+    {
+        AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason(url)
+            .Should().Contain("Azure Blob");
+    }
+
     [Fact]
     public async Task TryGetRejectionReasonAfterDnsResolveAsync_WhenHostIsNotAzureBlob_RejectsBeforeDnsLookup()
     {

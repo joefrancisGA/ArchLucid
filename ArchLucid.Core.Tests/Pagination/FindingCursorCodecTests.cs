@@ -25,6 +25,15 @@ public sealed class FindingCursorCodecTests
     }
 
     [Fact]
+    public void FindingCursorCodec_decodes_independently_constructed_wire_contract()
+    {
+        const string json = """{"so":17,"fri":"01234567-89ab-cdef-0123-456789abcdef"}""";
+        string cursor = JsonCursorTestHelper.EncodeJsonCursor(json);
+        FindingCursorCodec.TryDecode(cursor)
+            .Should().Be((17, Guid.Parse("01234567-89ab-cdef-0123-456789abcdef")));
+    }
+
+    [Fact]
     public void FindingCursorCodec_TryDecode_TrimsSurroundingWhitespace()
     {
         Guid findingRecordId = Guid.NewGuid();

@@ -71,6 +71,36 @@ public sealed class AllowedDocumentUrlPolicyTests
     }
 
     [Fact]
+    public async Task TryGetFirstDocumentRejectionReasonAfterDnsResolveAsync_allows_empty_and_permitted_documents()
+    {
+        (await AllowedDocumentUrlPolicy.TryGetFirstDocumentRejectionReasonAfterDnsResolveAsync([]))
+            .Should().BeNull();
+        List<ContextDocumentRequest> documents =
+        [
+            new() { Name = "inline", ContentType = "text/plain", Content = "body" },
+            // Documentation-range literal: the guard's contract permits it and no DNS or HTTP is needed.
+            new() { Name = "external", ContentType = "text/plain", Content = "body",
+                SourceDocumentUrl = "https://192.0.2.1/doc" }
+        ];
+        (await AllowedDocumentUrlPolicy.TryGetFirstDocumentRejectionReasonAfterDnsResolveAsync(documents))
+            .Should().BeNull();
+    }
+
+    [Fact]
+    public async Task TryGetFirstDocumentRejectionReasonAfterDnsResolveAsync_returns_first_distinct_failure()
+    {
+        List<ContextDocumentRequest> documents =
+        [
+            new() { Name = "first", ContentType = "text/plain", Content = "body",
+                SourceDocumentUrl = "http://example.com/doc" },
+            new() { Name = "second", ContentType = "text/plain", Content = "body",
+                SourceDocumentUrl = "https://127.0.0.1/doc" }
+        ];
+        (await AllowedDocumentUrlPolicy.TryGetFirstDocumentRejectionReasonAfterDnsResolveAsync(documents))
+            .Should().Be("SourceDocumentUrl must use the https scheme.");
+    }
+
+    [Fact]
     public async Task TryGetFirstDocumentRejectionReasonAfterDnsResolveAsync_WhenSecondDocumentFails_ReturnsThatReason()
     {
         List<ContextDocumentRequest> documents =

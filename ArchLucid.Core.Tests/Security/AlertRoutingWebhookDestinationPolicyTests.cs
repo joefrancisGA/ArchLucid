@@ -39,6 +39,22 @@ public sealed class AlertRoutingWebhookDestinationPolicyTests
             reason);
     }
 
+    [Theory]
+    [InlineData("https://user:pass@listener.example/webhook")]
+    [InlineData("https://token@listener.example/webhook")]
+    public void TryGetRejectionReason_rejects_embedded_credentials(string rawUrl)
+    {
+        Assert.Equal("Webhook URL must not include embedded credentials.",
+            AlertRoutingWebhookDestinationPolicy.TryGetRejectionReason(rawUrl));
+    }
+
+    [Fact]
+    public void TryGetRejectionReason_rejects_nonabsolute_url()
+    {
+        Assert.Equal("Webhook URL must be an absolute HTTPS URL.",
+            AlertRoutingWebhookDestinationPolicy.TryGetRejectionReason("relative/hook"));
+    }
+
     [Fact]
     public void TryGetRejectionReason_accepts_public_https()
     {

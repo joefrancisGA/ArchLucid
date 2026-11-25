@@ -26,6 +26,15 @@ public sealed class ArtifactCursorCodecTests
     }
 
     [Fact]
+    public void ArtifactCursorCodec_decodes_independently_constructed_wire_contract()
+    {
+        const string json = """{"so":17,"ai":"01234567-89ab-cdef-0123-456789abcdef"}""";
+        string cursor = JsonCursorTestHelper.EncodeJsonCursor(json);
+        ArtifactCursorCodec.TryDecode(cursor)
+            .Should().Be((17, Guid.Parse("01234567-89ab-cdef-0123-456789abcdef")));
+    }
+
+    [Fact]
     public void ArtifactCursorCodec_TryDecode_TrimsSurroundingWhitespace()
     {
         Guid artifactId = Guid.NewGuid();
