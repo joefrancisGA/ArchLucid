@@ -37,6 +37,21 @@ public sealed class WebhookSecretsTests
     }
 
     [Fact]
+    public void Hmac_verification_accepts_independent_vector_and_rejects_valid_length_tampering()
+    {
+        // RFC 4231 test case 2; expected bytes are independent of the implementation under test.
+        const string secret = "Jefe";
+        const string body = "what do ya want for nothing?";
+        const string signature = "5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843";
+
+        WebhookSecrets.IsValidHmacSha256Signature(secret, body, signature).Should().BeTrue();
+        WebhookSecrets.IsValidHmacSha256Signature(secret, body + "!", signature).Should().BeFalse();
+        WebhookSecrets.IsValidHmacSha256Signature("Jefx", body, signature).Should().BeFalse();
+        WebhookSecrets.IsValidHmacSha256Signature(secret, body, "6" + signature[1..]).Should().BeFalse();
+        WebhookSecrets.IsValidHmacSha256Signature(secret, body, "g" + signature[1..]).Should().BeFalse();
+    }
+
+    [Fact]
     public void IsValidHmacSha256Signature_accepts_sha256_prefixed_header()
     {
         const string secret = "test-secret";
