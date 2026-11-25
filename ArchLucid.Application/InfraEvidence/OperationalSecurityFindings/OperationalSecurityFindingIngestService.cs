@@ -205,16 +205,32 @@ public sealed class OperationalSecurityFindingIngestService(
                 advisory = advisory with { AdvisoryId = alias.CveId };
             }
 
-            byte[] payloadHash = alias is not null && advisory is not null
-                ? alias.MaterialHash(item, advisory)
-                : OperationalSecurityFindingGuard.ComputePayloadHash(item);
-
             OperationalSecurityFindingRecord? existing = await repository.TryGetByNaturalKeyInScopeAsync(
                 scope.ToProjectScopeKey(),
                 item.Provider,
                 item.SourceSystem.Trim(),
                 item.SourceFindingId.Trim(),
                 cancellationToken);
+
+            // Hash the effective revision. Omitted fields retain their stored values;
+            // a canonical control mapping, by contrast, is replaced even when it resolves to null.
+            if (alias is not null && existing is not null)
+            {
+                item = item with
+                {
+                    Severity = item.Severity ?? existing.Severity,
+                    RiskScore = item.RiskScore ?? existing.RiskScore,
+                    Exploitability = item.Exploitability ?? existing.Exploitability,
+                    Exposure = item.Exposure ?? existing.Exposure,
+                    BusinessCriticality = item.BusinessCriticality ?? existing.BusinessCriticality,
+                    BlastRadius = item.BlastRadius ?? existing.BlastRadius,
+                    PathId = item.PathId ?? existing.PathId,
+                };
+            }
+
+            byte[] payloadHash = alias is not null && advisory is not null
+                ? alias.MaterialHash(item, advisory)
+                : OperationalSecurityFindingGuard.ComputePayloadHash(item);
 
             if (existing is null)
             {

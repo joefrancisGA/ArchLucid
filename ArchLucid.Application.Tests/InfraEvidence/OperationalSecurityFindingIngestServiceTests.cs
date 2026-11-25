@@ -461,6 +461,57 @@ public sealed class OperationalSecurityFindingIngestServiceTests
         repository.StoredFindings.Should().BeEmpty();
     }
 
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData("high", false)]
+    public async Task Canonical_revision_reopens_a_closed_finding_only_when_effective_facts_change(
+        string? severity, bool deduplicated)
+    {
+        InMemoryOperationalSecurityFindingRepository repository = new();
+        OperationalSecurityFindingIngestService sut = new(
+            repository, Mock.Of<IAuditService>(), NullLogger<OperationalSecurityFindingIngestService>.Instance);
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        DateTime first = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        Guid pathId = Guid.NewGuid();
+        var initial = CreateAliasedAdvisory("msrc", "MSRC-111", first) with
+        {
+            RiskScore = 9.5m, Exploitability = "Known", Exposure = "Public",
+            BusinessCriticality = "High", BlastRadius = "Large", PathId = pathId,
+        };
+        (await sut.IngestBatchAsync(scope, [initial], "service@test")).IngestedCount.Should().Be(1);
+
+        OperationalSecurityFindingRecord prior = repository.StoredFindings.Should().ContainSingle().Which;
+        repository.StoredFindings[0] = new OperationalSecurityFindingMutation
+        {
+            FindingId = prior.FindingId,
+            CloudResourceId = prior.CloudResourceId,
+            Title = prior.Title,
+            Severity = prior.Severity,
+            RiskScore = prior.RiskScore,
+            Exploitability = prior.Exploitability,
+            Exposure = prior.Exposure,
+            BusinessCriticality = prior.BusinessCriticality,
+            BlastRadius = prior.BlastRadius,
+            PathId = prior.PathId,
+            LastObservedUtc = prior.LastObservedUtc,
+            UpdatedUtc = prior.UpdatedUtc,
+            PayloadHashSha256 = prior.PayloadHashSha256,
+            Status = OperationalSecurityFindingStatus.Closed,
+        }.ApplyTo(prior);
+
+        var result = await sut.IngestBatchAsync(scope,
+            [CreateAliasedAdvisory("msrc", "MSRC-111", first.AddDays(1)) with { Severity = severity }], "service@test");
+
+        result.DeduplicatedCount.Should().Be(deduplicated ? 1 : 0);
+        result.IngestedCount.Should().Be(deduplicated ? 0 : 1);
+        repository.StoredObservations.Should().HaveCount(deduplicated ? 1 : 2);
+        OperationalSecurityFindingRecord current = repository.StoredFindings.Should().ContainSingle().Which;
+        current.Status.Should().Be(deduplicated ? OperationalSecurityFindingStatus.Closed : OperationalSecurityFindingStatus.Recurred);
+        current.Severity.Should().Be(severity ?? prior.Severity);
+        current.RiskScore.Should().Be(prior.RiskScore);
+        current.PathId.Should().Be(pathId);
+    }
+
     private static OperationalSecurityFindingIngestItem CreateAliasedAdvisory(
         string source, string id, DateTime observedUtc, bool referenceOnly = false, bool providerFixed = false) =>
         new()
