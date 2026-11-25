@@ -54,7 +54,16 @@ class CandidateGoldenTests(unittest.TestCase):
                         self.candidate_report, self.candidates)
 
     def test_original_derived_candidate_overlap_preserves_provenance(self):
-        self.assertEqual(self.verify()["increments"]["candidate_new_exact_identities"], 1)
+        result = self.verify()
+        self.assertEqual(result["status"], "derived_source_candidates_verified_not_full_density")
+        self.assertEqual(result["increments"], {
+            "recovered_review_rows": 1, "source_components": 1,
+            "candidate_line_occurrences": 2, "candidate_new_exact_identities": 1,
+            "candidate_repeated_line_occurrences": 1,
+            "candidate_exact_overlap_with_original_pins": 1,
+            "original_pin_denominator_increment": 0, "new_distinct_defects_promoted": 0,
+        })
+        self.assertIsNone(result["new_comparable_900_rate"])
 
     def test_tampered_derived_blob_is_rejected_even_with_updated_artifact_digest(self):
         self.candidates[0]["sources"][0]["blob_derived_at_reviewed_commit"] = "9" * 40

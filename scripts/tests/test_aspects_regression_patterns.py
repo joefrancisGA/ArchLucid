@@ -3,6 +3,7 @@ import copy
 import sys
 import unittest
 import json
+import subprocess
 import tempfile
 from unittest.mock import patch
 from pathlib import Path
@@ -79,6 +80,24 @@ class RegressionCatalogTests(unittest.TestCase):
                                        "--report-json", str(report)])
             self.assertEqual(2, result)
             self.assertEqual("missing-tool", json.loads(report.read_text())["commands"][0]["status"])
+
+    def test_zero_exit_without_matching_tests_is_not_reported_as_pass(self):
+        scenarios = [
+            ("matched", 0, "Passed: 1, Total: 1\n", "", "passed", False, 0),
+            ("no-match", 0, "", "No test matches the given testcase filter\n", "failed", True, 1),
+            ("failed-assertion", 1, "Failed: 1, Total: 1\n", "", "failed", False, 1),
+        ]
+        for name, exit_code, stdout, stderr, status, no_tests, expected in scenarios:
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as directory:
+                report = Path(directory) / "report.json"
+                completed = subprocess.CompletedProcess([], exit_code, stdout=stdout, stderr=stderr)
+                with patch.object(library.subprocess, "run", return_value=completed) as invoke:
+                    result = library.main(["--run", "--pattern", "pagination", "--report-json", str(report)])
+                invoke.assert_called_once()
+                self.assertEqual(result, expected)
+                (command,) = json.loads(report.read_text())["commands"]
+                self.assertEqual((command["status"], command["no_tests"], command["exit_code"]),
+                                 (status, no_tests, exit_code))
 
 
 if __name__ == "__main__":

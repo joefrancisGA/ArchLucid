@@ -116,14 +116,26 @@ class SystematicReviewTests(unittest.TestCase):
         self.assertEqual(age['first_seen']['utc'], '2022-02-03T04:05:06+00:00')
         self.assertEqual(age['last_modified_pre_review']['utc'], '2024-03-04T05:06:07+00:00')
 
-    def test_old_blob_and_unverified_record_do_not_count_as_current_coverage(self):
-        module.record_review(self.repo, self.ledger, self.old_head, 'Core/old.cs',
-                             ['1'], 'older-review', 'systematic', 'clean', None, 'not-assessed', None)
-        data = module.read_records(self.ledger)
-        data[0]['verified'] = False
-        result = module.build_inventory(self.repo, self.sha, data)
-        self.assertEqual(result['summary']['systematic_reviewed_nonblank_loc'], 0)
-        self.assertEqual(result['summary']['observations']['systematic'], 0)
+    def test_stale_verified_blob_and_current_unverified_blob_are_excluded_independently(self):
+        path = 'Core/updated.cs'
+        previous = self.run_git('rev-parse', f'{self.sha}^')
+        module.record_review(self.repo, self.ledger, previous, path,
+                             ['1-2'], 'older-review', 'systematic', 'clean', None, 'not-assessed', None)
+        module.record_review(self.repo, self.ledger, self.sha, path,
+                             ['1-3'], 'current-review', 'systematic', 'clean', None, 'not-assessed', None)
+        stale, current = module.read_records(self.ledger)
+        self.assertNotEqual(stale['blob'], current['blob'])
+        for reason, row in [('stale verified', stale), ('current unverified', {**current, 'verified': False})]:
+            with self.subTest(reason=reason):
+                result = module.build_inventory(self.repo, self.sha, [row])
+                self.assertEqual(result['summary']['systematic_reviewed_nonblank_loc'], 0)
+                self.assertEqual(result['summary']['known_verified_current_blob_nonblank_loc'], 0)
+                self.assertEqual(result['summary']['observations']['systematic'], 0)
+                candidate = next(x for x in result['next_review_candidates'] if x['path'] == path)
+                self.assertEqual(candidate['systematic_status'], 'not-started')
+        verified = module.build_inventory(self.repo, self.sha, [current])
+        self.assertEqual(verified['summary']['systematic_reviewed_nonblank_loc'], 3)
+        self.assertNotIn(path, [x['path'] for x in verified['next_review_candidates']])
 
     def test_pass_reports_oldest_introduced_of_multiple_reviewed_files(self):
         module.record_review(self.repo, self.ledger, self.sha, 'Core/old.cs',
