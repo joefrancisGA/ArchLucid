@@ -1,5 +1,6 @@
 ﻿using ArchLucid.Api.Evaluation;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Agents;
@@ -9,7 +10,6 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.QualityGates;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
@@ -34,7 +34,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
 public sealed partial class RunAgentEvaluationController(
     IAuthorityQueryService authorityQueryService,
-    IRunRepository authorityRunRepository,
+    IArchitectureShareAccessGate architectureShareAccessGate,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IAgentOutputEvaluator agentOutputEvaluator,
@@ -49,6 +49,7 @@ public sealed partial class RunAgentEvaluationController(
     /// <summary>
     ///     Returns recorded (authoritative) and advisory-current agent-evaluation perspectives (TB-973).
     /// </summary>
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     [HttpGet("run/{runId}/agent-evaluation")]
     [HttpGet("/v{version:apiVersion}/architecture/review/{runId}/agent-evaluation")]
     [ProducesResponseType(typeof(AgentOutputEvaluationSummary), StatusCodes.Status200OK)]
@@ -60,19 +61,19 @@ public sealed partial class RunAgentEvaluationController(
     {
         try
         {
-            if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken).ConfigureAwait(false))
+            if (!TryParseRunId(runId, out Guid runGuid))
                 return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
+            IActionResult? denied = await architectureShareAccessGate.EnsureRunReadAllowedAsync(
+                this, User, scope, runGuid, cancellationToken).ConfigureAwait(false);
+            if (denied is not null)
+                return denied;
 
-            if (TryParseRunId(runId, out Guid runGuid))
-            {
-                IActionResult? sealedGuardResult =
-                    await EnsureSealedManifestReadAllowedAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
-
-                if (sealedGuardResult is not null)
-                    return sealedGuardResult;
-            }
+            IActionResult? sealedGuardResult =
+                await EnsureSealedManifestReadAllowedAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
             IReadOnlyList<AgentExecutionTrace> traces =
                 await agentExecutionTraceRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
@@ -159,17 +160,6 @@ public sealed partial class RunAgentEvaluationController(
         score.QualityGateOutcome = agentOutputQualityGate.Evaluate(score, score.Semantic);
 
         return score;
-    }
-
-    private async Task<bool> AuthorityRunExistsInScopeAsync(string runId, CancellationToken cancellationToken)
-    {
-        if (!TryParseRunId(runId, out Guid runGuid))
-            return false;
-
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-
-        return await authorityRunRepository.GetByIdAsync(scope, runGuid, cancellationToken).ConfigureAwait(false)
-               is not null;
     }
 
     private static bool TryParseRunId(string runId, out Guid runGuid)

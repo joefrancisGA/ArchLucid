@@ -1,0 +1,27 @@
+name: FND-061 run agent evaluation authorization
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.Api/Controllers/Authority/RunAgentEvaluationController*.cs'
+      - 'ArchLucid.Api/Support/ArchitectureShareAccessGate.cs'
+      - 'ArchLucid.Api.Tests/RunAgentEvaluationAuthorizationHttpTests.cs'
+      - '.github/workflows/fnd061-run-agent-evaluation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  http-authorization:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - run: >-
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~RunAgentEvaluationAuthorizationHttpTests'
+          --logger 'console;verbosity=normal'
