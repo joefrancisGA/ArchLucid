@@ -108,7 +108,7 @@ public sealed partial class ArchitectureIntelligenceController
 
         Claim? objectId = identity.FindFirst("oid")
             ?? identity.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier");
-        if (!string.IsNullOrWhiteSpace(objectId?.Value))
+        if (objectId is not null && !string.IsNullOrWhiteSpace(objectId.Value))
         {
             return JsonSerializer.Serialize(new[]
             {
@@ -118,7 +118,7 @@ public sealed partial class ArchitectureIntelligenceController
         }
 
         Claim? subject = identity.FindFirst("sub") ?? identity.FindFirst(ClaimTypes.NameIdentifier);
-        return string.IsNullOrWhiteSpace(subject?.Value)
+        return subject is null || string.IsNullOrWhiteSpace(subject.Value)
             ? null
             : JsonSerializer.Serialize(new[] { "subject", identity.FindFirst("iss")?.Value ?? subject.Issuer, subject.Value });
     }

@@ -190,6 +190,33 @@ public sealed class ArchitectureIntelligenceRunAuthorizationTests
     }
 
     [Theory]
+    [InlineData("continue")]
+    [InlineData("publish")]
+    [InlineData("run")]
+    public async Task Read_and_decide_allow_operation_on_exact_authorized_product_run(string action)
+    {
+        Guid runId = Guid.NewGuid();
+        ArchitectureIntelligenceController controller = CreateController();
+        MockSequence sequence = new();
+        _gate.InSequence(sequence).Setup(g => g.EvaluateRunReadAsync(_principal, _scope, runId, Ct))
+            .ReturnsAsync((true, true));
+        _gate.InSequence(sequence).Setup(g => g.EnsureRunDecideAllowedAsync(controller, _principal, _scope, runId, Ct))
+            .ReturnsAsync((IActionResult?)null);
+        _authority.InSequence(sequence).Setup(q => q.GetRunDetailForManifestCompareAsync(_scope, runId, Ct))
+            .ReturnsAsync(SealedDetail(runId, SealedManifestHashTestSupport.DefaultHash));
+        _orchestrator.InSequence(sequence).Setup(o => o.RunAsync(
+                It.Is<ClosedLoopReasoningRequest>(r => r.RunId == runId.ToString("D")
+                    && r.WorkspaceId == _scope.WorkspaceId.ToString("D")
+                    && r.ProjectId == _scope.ProjectId.ToString("D")
+                    && r.PublishToProduct == (action == "publish")), Ct))
+            .ReturnsAsync(new ClosedLoopReasoningResult());
+
+        IActionResult result = await InvokeAsync(controller, action, runId.ToString("B"));
+
+        result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Theory]
     [InlineData(false)]
     [InlineData(true)]
     public async Task Fresh_run_skips_hidden_seal_and_checks_the_first_readable_candidate(bool invalidVisibleSeal)
