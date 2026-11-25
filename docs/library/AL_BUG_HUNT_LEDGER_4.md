@@ -31752,6 +31752,14 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-11-22 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Re-read `AwsResourceExplorerQueryString.ResolveForRegion`, `AwsIamRoleArn.EnsureAccountMatches`, `GcpServiceAccountEmail.EnsureProjectMatches`, `GcpAssetInventoryCollector.CollectFromRawPagesAsync`, and `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync`. Partition prefix order already checks `us-isob-`, `us-isof-`, and `eu-isoe-` before `us-iso-`. No row met the hunt-ready bar. Seeded five `(candidate)` rows below. Private beta: n/a.
+
+- [ ] (candidate) `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync` — page cap returns the partial resource list with no warning, while federated-credential listing logs a warning and diagnostic settings set `PartialCollection` — locus: `ShouldBreakForPageCap`; input: `subscriptions/{id}/resources` nextLink past 64 pages; wrong outcome: truncated inventory returned as complete; reachability: ARM nextLink on the subscription resource list used by `CollectSubscriptionZipAsync`.
+- [ ] (candidate) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — the page that makes `requestCount` exceed `MaxPaginationRequests` is already yielded and then dropped with no truncation signal — locus: `requestCount` check inside `await foreach`; input: 65th SearchAllResources page; wrong outcome: that page of assets omitted with no warning; reachability: large GCP project asset search.
+- [ ] (candidate) `GcpServiceAccountEmail.EnsureProjectMatches` — project segment keeps the email casing and is compared with ordinal equality after an ignore-case suffix check — locus: `string.Equals` ordinal; input: `sa@MyProject.iam.gserviceaccount.com` vs hosted project `myproject`; wrong outcome: ArgumentException for the same project; reachability: pasted GCP service account email.
+- [ ] (candidate) `AwsIamRoleArn.EnsureAccountMatches` — match is 12 digits only, so a different-partition role ARN with the same account digits is accepted — locus: `TryGetAccountId`; input: `arn:aws-us-gov:iam::123456789012:role/Extract` against commercial account `123456789012`; wrong outcome: cross-partition role accepted; reachability: operator-pasted IAM role ARN.
+- [ ] (candidate) `AwsIamRoleArn.TryGetAccountId` — `char.IsDigit` accepts non-ASCII decimal digits, so a 12-character account of non-ASCII digits is treated as a valid account id — locus: digit loop; input: role ARN whose account field is twelve Nd-category digits; wrong outcome: ARN accepted; reachability: operator-pasted IAM role ARN.
+
 2026-11-02 thorough hunt #1503 (dry): no rotation at pick time (`shouldRotate: false`; run-log low-yield streak on `cloud-extractors` completed **3/3** at dry **#1496** — picker still returned zone by score; dry **#1502** on `host-core-coordination` at tail). Cheap-disproof closed five header `(candidate)` monitor rows from hunt #1496 reseed (seed **#176** family) — **valid-no-repro** assessments listing first-page invalid JSON clears details and counts (`CollectSubscriptionDefenderCompanionsAsync_clears_assessments_and_counts_when_first_assessments_page_is_invalid_json`; hunt **#173** regression family), **valid-no-repro** security contact listing first-page invalid JSON yields unavailable contact (`CollectSubscriptionDefenderCompanionsAsync_marks_security_contacts_unavailable_when_first_contacts_page_is_invalid_json`), **valid-no-repro** defender score controls per-score `nextLink` with secureScores listing scope rejected (`CollectSubscriptionDefenderCompanionsAsync_rejects_defender_score_controls_next_link_with_secure_scores_listing_scope`), **valid-no-repro** Medium severity alerts rank before Low when start times tie under row cap (`CollectSubscriptionDefenderFollowOnAsync_keeps_medium_severity_alerts_over_low_when_row_cap_reached_with_tied_start_times`), **invalid** AWS null `ResourceType` with valid ARN retained as empty type (`CollectAsync_retains_resource_with_empty_resource_type_when_arn_is_present`). Reseeded five `(candidate)` monitor rows below (follow-on seed **#175** family); scoped **284/284** Azure integration + **85/85** Application AWS/GCP tests passed (`RunAnalyzers=false`). **This dry starts 1/3** on `cloud-extractors` at run-log tail. Private beta: n/a.
 
 - [x] (valid-no-repro) `ReadDefenderAssessmentsAsync` — assessments listing first-page invalid JSON clears details and counts — locus: assessments `failed`; input: malformed first page; wrong outcome: partial rows retained (monitor; hunt #1496 reseed; seed **#176** family). — **cheap-disproof 2026-11-02 thorough hunt #1503:** hunt #1496 reseed queue; hunt **#173** regression family.
@@ -32157,10 +32165,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **last-hunt:** 2026-11-22
 - **last-bug:** never
 
 2026-10-21 seed hunt (seed→hit): cloud-extractors — Paas child listings dropped PartialCollection via ListChildJsonElementsAsync; fixed with ListChildResourcesWithStatusAsync and partial-child-enumeration warnings; regression CollectAsync_warns_when_sql_database_list_is_partially_collected.
@@ -32420,10 +32428,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **last-hunt:** 2026-11-22
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
