@@ -41,6 +41,9 @@ public sealed class AzureInventoryEventGridSubscriptionRow
         init;
     } = string.Empty;
 
+    /// <summary>Allowlisted delivery authentication configuration; not verified authorization.</summary>
+    public string? DeliveryAuthentication { get; init; }
+
     public string CollectionStatus
     {
         get;
