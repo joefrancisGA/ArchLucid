@@ -1,3 +1,4 @@
+using ArchLucid.Core.Conversation;
 using ArchLucid.Persistence.Conversation;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -9,8 +10,13 @@ namespace ArchLucid.Persistence.Tests.Contracts;
 [Trait("Category", "Unit")]
 public sealed class InMemoryConversationMessageRepositoryContractTests : ConversationMessageRepositoryContractTests
 {
+    private readonly InMemoryConversationThreadRepository _threads = new();
+
     protected override IConversationMessageRepository CreateRepository()
     {
-        return new InMemoryConversationMessageRepository();
+        return new InMemoryConversationMessageRepository(_threads);
     }
+
+    protected override Task EnsureThreadExistsAsync(ConversationThread thread) =>
+        _threads.CreateAsync(thread, CancellationToken.None);
 }

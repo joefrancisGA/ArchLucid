@@ -1,4 +1,5 @@
 using ArchLucid.Core.Conversation;
+using ArchLucid.Host.Core.Services.Ask;
 using ArchLucid.Persistence.Conversation;
 
 namespace ArchLucid.Host.Core.Ask;
@@ -67,7 +68,7 @@ public sealed class ConversationService(
                 Role = ConversationMessageRole.User,
                 Content = content,
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-                MetadataJson = "{}"
+                MetadataJson = AskHistoryEvidenceScope.CreateQuestionMetadata(threadId, content)
             },
             ct);
 

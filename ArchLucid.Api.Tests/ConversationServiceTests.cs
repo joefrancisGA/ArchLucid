@@ -146,7 +146,9 @@ public sealed class ConversationServiceTests
                 It.Is<ConversationMessage>(m =>
                     m.ThreadId == threadId &&
                     m.Role == ConversationMessageRole.User &&
-                    m.Content == "Hello"),
+                    m.Content == "Hello" &&
+                    m.MetadataJson.Contains("conversationQuestionKeyV1") &&
+                    !m.MetadataJson.Contains("Hello")),
                 It.IsAny<CancellationToken>()),
             Times.Once);
 
