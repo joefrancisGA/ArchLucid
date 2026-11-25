@@ -22,11 +22,18 @@ export function buildWalkthroughCtaHref(
   pageOrigin: string,
   env: WalkthroughCtaEnv = readWalkthroughCtaEnvFromProcess(),
 ): string {
-  if (env.bookingUrl !== "") return appendMarketingAttributionToUrl(env.bookingUrl, searchParams, pageOrigin);
+  const bookingUrl = env.bookingUrl.trim();
+  const mailtoFallback = env.mailtoFallback.trim();
+
+  if (bookingUrl !== "") {
+    return appendMarketingAttributionToUrl(bookingUrl, searchParams, pageOrigin);
+  }
 
   const subject: string = encodeURIComponent(WALKTHROUGH_REQUEST_MAILTO_SUBJECT);
 
-  if (env.mailtoFallback !== "") return `mailto:${env.mailtoFallback}?subject=${subject}`;
+  if (mailtoFallback !== "") {
+    return `mailto:${mailtoFallback}?subject=${subject}`;
+  }
 
   return `mailto:?subject=${subject}`;
 }

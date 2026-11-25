@@ -640,6 +640,30 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("renders the base external url when doc-index lists a bare trailing query suffix before the https row", async () => {
+    const data = [
+      { title: "External alpha (bare question mark)", summary: "Vendor url with empty query suffix listed before https base.", category: "API", url: "https://example.com/docs/alpha?" },
+      { title: "External alpha", summary: "Https base vendor path.", category: "API", url: "https://example.com/docs/alpha" },
+    ];
+    vi.stubGlobal("fetch", vi.fn(async () => Promise.resolve({ ok: true, json: async () => data } as Response)));
+    renderWithOperatorQuery(<HelpDocsClient />);
+    expect(await screen.findByRole("link", { name: "External alpha (bare question mark)" })).toHaveAttribute("href", "https://example.com/docs/alpha?");
+    expect(await screen.findByRole("link", { name: "External alpha" })).toHaveAttribute("href", "https://example.com/docs/alpha");
+    vi.unstubAllGlobals();
+  });
+
+  it("renders the base external url when doc-index lists a bare trailing query on scheme-relative url before the base row", async () => {
+    const data = [
+      { title: "External alpha (bare question mark)", summary: "Scheme-relative empty query suffix before base.", category: "API", url: "//example.com/docs/alpha?" },
+      { title: "External alpha", summary: "Scheme-relative base path.", category: "API", url: "//example.com/docs/alpha" },
+    ];
+    vi.stubGlobal("fetch", vi.fn(async () => Promise.resolve({ ok: true, json: async () => data } as Response)));
+    renderWithOperatorQuery(<HelpDocsClient />);
+    expect(await screen.findByRole("link", { name: "External alpha (bare question mark)" })).toHaveAttribute("href", "//example.com/docs/alpha?");
+    expect(await screen.findByRole("link", { name: "External alpha" })).toHaveAttribute("href", "//example.com/docs/alpha");
+    vi.unstubAllGlobals();
+  });
+
   it("renders fetched external doc links when only a hash fragment differs on the same https url", async () => {
     const data = [
       {
@@ -1117,6 +1141,43 @@ describe("HelpDocsClient", () => {
     await waitFor(() => {
       expect(screen.queryByText("Refreshing documentation index…")).toBeNull();
     });
+
+    vi.unstubAllGlobals();
+  });
+
+
+  it("assigns unique category section ids when two category labels slug to the same anchor", async () => {
+    const data = [
+      {
+        title: "Alias getting started doc",
+        summary: "Doc-index row uses a different spelling for Getting Started.",
+        category: "getting started",
+        url: "/help/getting-started-alias",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    await screen.findByRole("link", { name: "Alias getting started doc" });
+
+    const headings = screen.getAllByRole("heading", { level: 2 });
+    const canonicalHeading = headings.find((heading) => heading.textContent === "Getting Started");
+    const aliasHeading = headings.find((heading) => heading.textContent === "getting started");
+
+    expect(canonicalHeading).toBeDefined();
+    expect(aliasHeading).toBeDefined();
+    expect(canonicalHeading!.id).not.toBe(aliasHeading!.id);
+    expect(aliasHeading!.id).toBe("help-cat-getting-started-2");
 
     vi.unstubAllGlobals();
   });

@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent, type RefObject } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type MouseEvent, type RefObject } from "react";
 
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
@@ -27,10 +27,11 @@ import { parseBuyerPackageScopeFilter } from "./buyer-package-scope-url";
 import {
   parseRunsListSearchQuery,
   runsListClearSearchHrefFromSearch,
+  runsListCompareInspectorNavigationSearchFromSearch,
   runsListEffectiveSearchFromSearch,
-  runsListNavigationSearchFromSearch,
   runsListSearchHrefFromSearch,
 } from "@/lib/runs/runs-list-search-url";
+import { parseRunsListContextFilterFromSearch } from "@/lib/runs/runs-list-context-filter-url";
 import {
   parseRunsListSortFromSearch,
   sortOrderFromRunsListSort,
@@ -87,12 +88,20 @@ export type UseRunsListResult = {
   filterStatusLine: string;
 };
 
+function subscribeToCommittedLocationSearch(listener: () => void): () => void {
+  window.addEventListener("popstate", listener);
+
+  return () => {
+    window.removeEventListener("popstate", listener);
+  };
+}
+
 /** Page controller: runs list filter, sort, inspector, and pagination state. */
 export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const { runs, projectId, page, pageSize, totalCount, nextCursor = null } = props;
   const pathname = usePathname() ?? "/architecture/reviews";
   const searchParams = useSearchParams();
-  const urlListContextFilter = searchParams.get("filter");
+  const urlListContextFilter = parseRunsListContextFilterFromSearch(searchParams.get("filter"));
   const urlBuyerPackageScope = parseBuyerPackageScopeFilter(searchParams.get("scope"));
   const urlFilterText = parseRunsListSearchQuery(searchParams.get("q"));
   const urlSortOrder = sortOrderFromRunsListSort(parseRunsListSortFromSearch(searchParams.get("sort")));
@@ -253,7 +262,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
 
   useEffect(() => {
     const syncListContextFilterFromUrl = (): void => {
-      const next = new URLSearchParams(readWindowLocationSearch()).get("filter");
+      const next = parseRunsListContextFilterFromSearch(new URLSearchParams(readWindowLocationSearch()).get("filter"));
 
       if (listContextFilterRef.current === next) {
         return;
@@ -300,7 +309,11 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     const handle = window.setTimeout(() => {
       commitHrefIfChanged(
         runsListSearchHrefFromSearch(
-          runsListNavigationSearchFromSearch(routerSearchString, readWindowLocationSearch(), ""),
+          runsListCompareInspectorNavigationSearchFromSearch(
+            routerSearchString,
+            readWindowLocationSearch(),
+            filterText,
+          ),
           filterText,
           pathname,
         ),
@@ -323,7 +336,11 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     setFilterTextState("");
     commitHrefIfChanged(
       runsListClearSearchHrefFromSearch(
-        runsListNavigationSearchFromSearch(routerSearchString, readWindowLocationSearch(), ""),
+        runsListCompareInspectorNavigationSearchFromSearch(
+          routerSearchString,
+          readWindowLocationSearch(),
+          "",
+        ),
         pathname,
       ),
       { notify: false },
@@ -338,7 +355,11 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     (inspectorRunId: string | null, compareRunIds: readonly string[]) => {
       commitHrefIfChanged(
         runsListCompareInspectorHrefFromSearch(
-          runsListEffectiveSearchFromSearch(routerSearchString, filterTextRef.current),
+          runsListCompareInspectorNavigationSearchFromSearch(
+            routerSearchString,
+            readWindowLocationSearch(),
+            filterTextRef.current,
+          ),
           { inspectorRunId, compareRunIds },
           pathname,
         ),
@@ -592,9 +613,14 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     setPaginationAnnouncement(`Page ${page} of ${pages}. ${totalLabel}.`);
   }, [page, pages, totalCount]);
 
-  const navigationSearch = runsListNavigationSearchFromSearch(
+  const committedSearchForNavigation = useSyncExternalStore(
+    subscribeToCommittedLocationSearch,
+    readWindowLocationSearch,
+    () => "",
+  );
+  const navigationSearch = runsListCompareInspectorNavigationSearchFromSearch(
     routerSearchString,
-    readWindowLocationSearch(),
+    committedSearchForNavigation,
     filterText,
   );
   const previousHref = runsListPreviousPageHrefFromSearch(

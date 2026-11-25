@@ -65,6 +65,8 @@ export function useMarketingEarlyAccessSubmit(
         return;
       }
 
+      const trimmedEmail = email.trim();
+
       setBusy(true);
       setError(null);
 
@@ -73,7 +75,7 @@ export function useMarketingEarlyAccessSubmit(
           method: "POST",
           headers: { "Content-Type": "application/json", Accept: "application/json" },
           body: JSON.stringify({
-            email,
+            email: trimmedEmail,
             companyName: companyName.trim() === "" ? null : companyName.trim(),
             role: role.trim() === "" ? null : role.trim(),
             websiteUrl,

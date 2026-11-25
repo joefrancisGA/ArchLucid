@@ -38,16 +38,32 @@ function setUuidParam(params: URLSearchParams, key: string, value: string | null
   }
 }
 
+function parseRemediationFactoryMetricsSummaryOpen(raw: string | null | undefined): boolean {
+  const normalized = raw?.trim().toLowerCase();
+
+  if (normalized === undefined || normalized.length === 0) {
+    return false;
+  }
+
+  return (
+    normalized === "1" ||
+    normalized === "true" ||
+    normalized === "yes" ||
+    normalized === "on"
+  );
+}
+
 export function parseRemediationFactoryUrlStateFromSearch(search: string): RemediationFactoryUrlState {
   const params = new URLSearchParams(search);
-  const metricsOpenRaw = params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)?.trim().toLowerCase();
 
   return {
     selectedFindingId: readUuidParam(params, REMEDIATION_FACTORY_SELECTED_FINDING_PARAM),
     selectedPathId: readUuidParam(params, REMEDIATION_FACTORY_SELECTED_PATH_PARAM),
     fromSnapshotId: readUuidParam(params, REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM),
     toSnapshotId: readUuidParam(params, REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM),
-    metricsSummaryOpen: metricsOpenRaw === "1" || metricsOpenRaw === "true",
+    metricsSummaryOpen: parseRemediationFactoryMetricsSummaryOpen(
+      params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM),
+    ),
   };
 }
 

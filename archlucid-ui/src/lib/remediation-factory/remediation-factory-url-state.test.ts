@@ -4,6 +4,7 @@ import {
   parseRemediationFactoryUrlStateFromSearch,
   remediationFactoryUrlStateToSearchParams,
   REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM,
+  REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM,
   REMEDIATION_FACTORY_SELECTED_FINDING_PARAM,
   REMEDIATION_FACTORY_SELECTED_PATH_PARAM,
   REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM,
@@ -81,5 +82,23 @@ describe("remediation-factory-url-state", () => {
     );
 
     expect(params.get(REMEDIATION_FACTORY_SELECTED_FINDING_PARAM)).toBeNull();
+  });
+  it("treats yes and on metrics disclosure tokens as open on read", () => {
+    expect(parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=yes`).metricsSummaryOpen).toBe(true);
+    expect(parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=on`).metricsSummaryOpen).toBe(true);
+  });
+
+  it("drops stale metrics disclosure param when toggling closed", () => {
+    const params = remediationFactoryUrlStateToSearchParams({ selectedFindingId: null, selectedPathId: null, fromSnapshotId: null, toSnapshotId: null, metricsSummaryOpen: false }, `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1&foreign=keep`);
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBeNull();
+    expect(params.get("foreign")).toBe("keep");
+  });
+
+  it("treats padded TRUE metrics disclosure token as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=  TRUE  `,
+      ).metricsSummaryOpen,
+    ).toBe(true);
   });
 });

@@ -155,7 +155,7 @@ const sampleRun: RunSummary = {
 function RunsListSearchParamsRerenderHost({ children }: { readonly children: ReactNode }): ReactElement {
   useSyncExternalStore(
     runsListSearchParamsHarness.subscribe,
-    () => runsListSearchParamsHarness.state.routerQuery,
+    () => `${runsListSearchParamsHarness.state.routerQuery}\u0000${runsListSearchParamsHarness.state.committedQuery}`,
     () => "",
   );
 
@@ -170,6 +170,113 @@ function renderRunsList(ui: ReactElement, searchQuery = "") {
 }
 
 describe("RunsListClient inspector", () => {
+  it("preserves committed filter= on the Previous link when useSearchParams lags on page 2", () => {
+    const secondRun = { ...sampleRun, runId: "00000000-0000-0000-0000-0000000000bb", description: "Second" };
+    renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={2} pageSize={20} totalCount={40} />,
+      "page=2",
+    );
+    runsListSearchParamsHarness.state.committedQuery = "page=2&filter=orphan-candidates";
+    runsListSearchParamsHarness.applyRouterHref("/architecture/reviews?page=2");
+    fireEvent.popState(window);
+    const previousLink = screen.getByRole("link", { name: /previous/i });
+    console.log("HREF", previousLink.getAttribute("href"));
+    expect(previousLink).toHaveAttribute("href", expect.stringContaining("filter=orphan-candidates"));
+    expect(previousLink).toHaveAttribute("href", expect.stringContaining("page=1"));
+  });
+
+
+  it("treats trimmed filter=orphan-candidates deep links as orphan-candidates context", () => {
+    renderRunsList(
+      <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
+      "filter=%20orphan-candidates%20",
+    );
+
+    expect(screen.getByTestId("runs-list-orphan-candidates-filter-banner")).toBeInTheDocument();
+  });
+
+
+
+  it("preserves committed projectId in the Next pagination link when useSearchParams lags after project navigation", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={40} nextCursor="cursor-page-2" />,
+      "projectId=default&page=1",
+    );
+
+        runsListSearchParamsHarness.state.committedQuery = "projectId=acme&page=1&cursor=c1";
+    runsListSearchParamsHarness.applyRouterHref("/architecture/reviews?page=1");
+    fireEvent.popState(window);
+
+    const nextLink = screen.getByRole("link", { name: "Next" });
+
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("projectId=acme"));
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("page=2"));
+  });
+
+
+      it("preserves pending q= when filter disclosure toggles before debounce completes", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
+      "scope=finalized",
+    );
+
+    fireEvent.change(screen.getByLabelText(/Search reviews by title or description/i), {
+      target: { value: "Demo" },
+    });
+
+    const details = screen.getByText("Filter reviews", { selector: "summary" }).closest("details") as HTMLDetailsElement;
+    details.open = true;
+    fireEvent(details, new Event("toggle", { bubbles: true }));
+
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("q=Demo");
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("runsListFilterOpen=1");
+  });
+
+it("preserves committed sort= when filter disclosure opens while useSearchParams lags", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
+      "scope=finalized",
+    );
+
+    runsListSearchParamsHarness.applyRouterHref("/architecture/reviews?scope=finalized");
+    runsListSearchParamsHarness.state.committedQuery = "sort=created-asc&scope=finalized";
+    fireEvent.popState(window);
+
+    runsListSearchParamsHarness.state.committedQuery = "sort=created-asc&scope=finalized&runsListFilterOpen=1";
+    fireEvent.popState(window);
+
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("sort=created-asc");
+  });
+
+it("opens filter disclosure when runsListFilterOpen= is committed before useSearchParams catches up", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
+      "scope=finalized",
+    );
+
+    runsListSearchParamsHarness.state.committedQuery = "runsListFilterOpen=1&scope=finalized";
+    fireEvent.popState(window);
+
+    const filterDisclosure = screen.getByText("Filter reviews", { selector: "summary" }).closest("details");
+    expect(filterDisclosure).toHaveAttribute("open");
+  });
+
+
   it("collapses showcase alias + canonical rows into one table row (unique data-testid)", () => {
     const aliasRun: RunSummary = {
       runId: "customer-intake-modernization-run",
@@ -1384,7 +1491,7 @@ describe("RunsListClient inspector", () => {
     await vi.advanceTimersByTimeAsync(300);
 
     expect(runsListSearchParamsHarness.state.committedQuery).toContain("q=Demo");
-    expect(runsListSearchParamsHarness.state.committedQuery).not.toContain("sort=created-asc");
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("sort=created-asc");
 
     vi.useRealTimers();
   });
@@ -1903,6 +2010,190 @@ describe("RunsListClient inspector", () => {
     expect(nextLink).toHaveAttribute("href", expect.stringContaining("q=nomatch"));
     expect(nextLink).toHaveAttribute("href", expect.stringContaining("cursor=cursor-page-2"));
     expect(nextLink).toHaveAttribute("href", expect.stringContaining("page=2"));
+  });
+
+          it("preserves committed filter= when compareRuns is toggled while useSearchParams lags orphan context", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      "filter=orphan-candidates",
+    );
+
+    runsListSearchParamsHarness.applyRouterHref("/architecture/reviews");
+    runsListSearchParamsHarness.state.committedQuery = "filter=orphan-candidates";
+
+    fireEvent.click(within(screen.getByTestId(`runs-row-${sampleRun.runId}`)).getByRole("checkbox"));
+
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("filter=orphan-candidates");
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(`compareRuns=${sampleRun.runId}`);
+  });
+
+  it("preserves filter=orphan-candidates when Escape clears q= before useSearchParams catches up", async () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      "filter=orphan-candidates&q=Demo",
+    );
+
+    runsListSearchParamsHarness.applyRouterHref("/architecture/reviews?filter=orphan-candidates");
+
+    const filterInput = screen.getByLabelText(/Filter reviews by name or description/i);
+    fireEvent.keyDown(filterInput, { key: "Escape", code: "Escape" });
+
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("filter=orphan-candidates");
+    expect(runsListSearchParamsHarness.state.committedQuery).not.toContain("q=Demo");
+  });
+
+  it("preserves committed page= in sort chip href when useSearchParams lags on page 2", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient
+        runs={[sampleRun, secondRun]}
+        projectId="default"
+        page={2}
+        pageSize={20}
+        totalCount={40}
+      />,
+      "page=2&cursor=cursor-page-2",
+    );
+
+    runsListSearchParamsHarness.applyRouterHref("/architecture/reviews?page=1");
+    runsListSearchParamsHarness.state.committedQuery = "page=2&cursor=cursor-page-2&sort=created-asc";
+    fireEvent.popState(window);
+
+    const oldestFirst = screen.getByTestId("runs-list-sort-created-asc");
+
+    expect(oldestFirst).toHaveAttribute("href", expect.stringContaining("sort=created-asc"));
+    expect(oldestFirst).toHaveAttribute("href", expect.stringContaining("page=2"));
+    expect(oldestFirst).toHaveAttribute("href", expect.stringContaining("cursor=cursor-page-2"));
+  });
+
+it("preserves committed filter= in buyer scope chip href when useSearchParams lags after scope navigation", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      "filter=orphan-candidates",
+    );
+
+    runsListSearchParamsHarness.applyRouterHref("/architecture/reviews");
+    runsListSearchParamsHarness.state.committedQuery = "filter=orphan-candidates&scope=finalized";
+    fireEvent.popState(window);
+
+    const finalizedScope = screen.getByRole("link", { name: /show:\s*finalized packages/i });
+
+    expect(finalizedScope).toHaveAttribute("href", expect.stringContaining("filter=orphan-candidates"));
+    expect(finalizedScope).toHaveAttribute("href", expect.stringContaining("scope=finalized"));
+  });
+
+it("preserves committed scope= in the Previous pagination link when useSearchParams lags after scope navigation", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient
+        runs={[sampleRun, secondRun]}
+        projectId="default"
+        page={2}
+        pageSize={20}
+        totalCount={40}
+      />,
+      "page=2",
+    );
+
+    runsListSearchParamsHarness.state.committedQuery = "page=2&scope=finalized";
+    fireEvent.popState(window);
+
+    const previousLink = screen.getByRole("link", { name: /previous/i });
+
+    expect(previousLink).toHaveAttribute("href", expect.stringContaining("scope=finalized"));
+    expect(previousLink).toHaveAttribute("href", expect.stringContaining("page=1"));
+  });
+
+  it("preserves committed sort= in the Next pagination link when useSearchParams lags after sort navigation", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient
+        runs={[sampleRun, secondRun]}
+        projectId="default"
+        page={1}
+        pageSize={20}
+        totalCount={40}
+        nextCursor="cursor-page-2"
+      />,
+    );
+
+    runsListSearchParamsHarness.state.committedQuery = "sort=created-asc";
+    fireEvent.popState(window);
+
+    const nextLink = screen.getByRole("link", { name: "Next" });
+
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("sort=created-asc"));
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("page=2"));
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("cursor=cursor-page-2"));
+  });
+
+  it("preserves committed cursor when compareRuns is toggled while useSearchParams lags pagination", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    runsListSearchParamsHarness.state.routerQuery = "page=1";
+    runsListSearchParamsHarness.state.committedQuery = "page=2&cursor=cursor-page-2";
+
+    render(
+      <RunsListClient
+        runs={[sampleRun, secondRun]}
+        projectId="default"
+        page={2}
+        pageSize={20}
+        totalCount={40}
+        nextCursor="cursor-page-2"
+      />,
+    );
+
+    fireEvent.click(within(screen.getByTestId(`runs-row-${sampleRun.runId}`)).getByRole("checkbox"));
+    fireEvent.click(within(screen.getByTestId(`runs-row-${secondRun.runId}`)).getByRole("checkbox"));
+
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("cursor=cursor-page-2");
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("page=2");
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(`compareRuns=${sampleRun.runId}`);
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(secondRun.runId);
   });
 
   it("preserves compareRuns in debounced q= sync when compare was toggled before useSearchParams catches up", async () => {
