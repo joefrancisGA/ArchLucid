@@ -32,8 +32,14 @@ public static class HostedAzureInventoryEventGridSubscriptionCollector
 
         foreach (HostedAzureArmResourceRecord resource in resources)
         {
-            if (!IsEventGridSourceResourceType(resource.ResourceType) || string.IsNullOrWhiteSpace(resource.ResourceId))
+            if (!IsEventGridSourceResourceType(resource.ResourceType))
             {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(resource.ResourceId))
+            {
+                collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
                 continue;
             }
 
@@ -47,6 +53,12 @@ public static class HostedAzureInventoryEventGridSubscriptionCollector
                     "Event Grid subscription",
                     cancellationToken).ConfigureAwait(false);
 
+                if (listResult.StatusCode is < 200 or >= 300)
+                {
+                    collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+                    continue;
+                }
+
                 HostedAzureInventoryChildListPartialEnumeration.NotePartialCollection(
                     logger,
                     listResult,
@@ -55,10 +67,11 @@ public static class HostedAzureInventoryEventGridSubscriptionCollector
                     collectionWarnings,
                     AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
 
-                AddSubscriptions(resource.ResourceId.Trim(), listResult.Values, rows, seenKeys);
+                AddSubscriptions(resource.ResourceId.Trim(), listResult.Values, rows, seenKeys, collectionWarnings);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
+                collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
                 if (logger.IsEnabled(LogLevel.Debug))
                 {
                     logger.LogDebug(
@@ -83,6 +96,11 @@ public static class HostedAzureInventoryEventGridSubscriptionCollector
                     "subscription Event Grid subscription",
                     cancellationToken).ConfigureAwait(false);
 
+                if (listResult.StatusCode is < 200 or >= 300)
+                {
+                    collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+                }
+
                 HostedAzureInventoryChildListPartialEnumeration.NotePartialCollection(
                     logger,
                     listResult,
@@ -91,10 +109,11 @@ public static class HostedAzureInventoryEventGridSubscriptionCollector
                     collectionWarnings,
                     AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
 
-                AddSubscriptions(sourceResourceId, listResult.Values, rows, seenKeys);
+                AddSubscriptions(sourceResourceId, listResult.Values, rows, seenKeys, collectionWarnings);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
+                collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
                 if (logger.IsEnabled(LogLevel.Debug))
                 {
                     logger.LogDebug(
@@ -122,7 +141,8 @@ public static class HostedAzureInventoryEventGridSubscriptionCollector
         string sourceResourceId,
         IReadOnlyList<JsonElement> subscriptions,
         List<AzureInventoryEventGridSubscriptionRow> rows,
-        HashSet<string> seenKeys)
+        HashSet<string> seenKeys,
+        List<string> collectionWarnings)
     {
         foreach (JsonElement subscription in subscriptions)
         {
@@ -132,6 +152,7 @@ public static class HostedAzureInventoryEventGridSubscriptionCollector
                     out AzureInventoryEventGridSubscriptionRow? row)
                 || row is null)
             {
+                collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
                 continue;
             }
 
