@@ -50,15 +50,15 @@ public sealed class CycloneDxDependencyEvidenceReaderTests
     }
 
     [Theory]
-    [InlineData("01.2.3.0", DependencyMatchState.Affected)]
-    [InlineData("1.2.3rc1", DependencyMatchState.Unknown)]
-    [InlineData("1.2.4", DependencyMatchState.NotMatched)]
-    public void NumericReleaseEquivalenceIsConservative(string version, DependencyMatchState expected)
+    [InlineData("01.2.3.0", 0)]
+    [InlineData("1.2.3rc1", 2)]
+    [InlineData("1.2.4", 1)]
+    public void NumericReleaseEquivalenceIsConservative(string version, int expected)
     {
         var result = MaliciousDependencyMatcher.Assess(
             new("pypi", "example", version, DependencyEvidenceKind.Resolved, "build-42", Now),
             [new("pypi", "example", "1.2.3", "test", new Uri("https://example.org/advisory"),
                 Now, Now.AddDays(1))], Now, true);
-        Assert.Equal(expected, result.State);
+        Assert.Equal((DependencyMatchState)expected, result.State);
     }
 }
