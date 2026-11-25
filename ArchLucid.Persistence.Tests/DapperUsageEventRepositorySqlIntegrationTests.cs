@@ -102,4 +102,52 @@ public sealed class DapperUsageEventRepositorySqlIntegrationTests(SqlServerPersi
 
         rows.Should().ContainSingle(e => e.IdempotencyKey == idempotencyKey);
     }
+
+    [SkippableFact]
+    public async Task Api_request_events_with_shared_correlation_are_distinct_and_replays_are_deduplicated()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory connectionFactory = new(fixture.ConnectionString);
+        DapperUsageEventRepository repository = new(connectionFactory);
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        DateTimeOffset recordedUtc = DateTimeOffset.UtcNow;
+        const string correlationId = "shared-correlation";
+
+        UsageEvent CreateEvent(Guid id) => new()
+        {
+            Id = id,
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            Kind = UsageMeterKind.ApiRequest,
+            Quantity = 1,
+            RecordedUtc = recordedUtc,
+            CorrelationId = correlationId,
+            IdempotencyKey = UsageEventIdempotencyKeys.ForApiRequest(id)
+        };
+
+        UsageEvent first = CreateEvent(Guid.NewGuid());
+        UsageEvent second = CreateEvent(Guid.NewGuid());
+
+        // Both same-batch duplicates and a replay after commit must be harmless.
+        await repository.InsertBatchAsync([first, second, first], CancellationToken.None);
+        await repository.InsertBatchAsync([first, second], CancellationToken.None);
+        await repository.InsertAsync(first, CancellationToken.None);
+
+        DateTimeOffset periodStart = recordedUtc.AddHours(-1);
+        DateTimeOffset periodEnd = recordedUtc.AddHours(1);
+        IReadOnlyList<UsageEvent> rows = await repository.ListAsync(
+            tenantId, periodStart, periodEnd, UsageMeterKind.ApiRequest, 10, CancellationToken.None);
+
+        rows.Should().HaveCount(2);
+        rows.Select(e => e.Id).Should().BeEquivalentTo(new[] { first.Id, second.Id });
+        rows.Select(e => e.IdempotencyKey).Should().BeEquivalentTo(new[] { first.IdempotencyKey, second.IdempotencyKey });
+        rows.Should().OnlyContain(e => e.CorrelationId == correlationId && e.Quantity == 1);
+        IReadOnlyList<TenantUsageSummary> totals = await repository.AggregateByKindAsync(
+            tenantId, periodStart, periodEnd, CancellationToken.None);
+        totals.Should().ContainSingle(e => e.Kind == UsageMeterKind.ApiRequest && e.TotalQuantity == 2);
+    }
 }

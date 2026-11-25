@@ -15,11 +15,13 @@ public static class UsageEventIdempotencyKeys
         return Truncate($"llm:{scopeKey}:{UsageMeterKindSqlName(kind)}");
     }
 
-    public static string ForApiRequest(string traceIdentifier)
+    /// <summary>Keys one server-generated API usage event, not its correlation ID.</summary>
+    public static string ForApiRequest(Guid eventId)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(traceIdentifier);
+        if (eventId == Guid.Empty)
+            throw new ArgumentException("Expected a nonempty usage event ID.", nameof(eventId));
 
-        return Truncate($"api:{traceIdentifier}");
+        return $"api-event:{eventId:N}";
     }
 
     public static string ForArchitectureRun(string runId)

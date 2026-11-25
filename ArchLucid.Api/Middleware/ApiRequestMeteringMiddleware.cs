@@ -56,9 +56,12 @@ internal sealed class ApiRequestMeteringMiddleware(
 
         try
         {
+            // Correlation IDs may be shared by distinct requests; dedupe only a replay of this event.
+            Guid eventId = Guid.NewGuid();
             _apiRequestUsageBuffer.Enqueue(
                 new UsageEvent
                 {
+                    Id = eventId,
                     TenantId = scope.TenantId,
                     WorkspaceId = scope.WorkspaceId,
                     ProjectId = scope.ProjectId,
@@ -66,7 +69,7 @@ internal sealed class ApiRequestMeteringMiddleware(
                     Quantity = 1,
                     RecordedUtc = TimeProvider.System.GetUtcNow(),
                     CorrelationId = context.TraceIdentifier,
-                    IdempotencyKey = UsageEventIdempotencyKeys.ForApiRequest(context.TraceIdentifier)
+                    IdempotencyKey = UsageEventIdempotencyKeys.ForApiRequest(eventId)
                 });
         }
         catch (Exception ex) when (ex is not OperationCanceledException)

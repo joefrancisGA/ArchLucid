@@ -16,9 +16,23 @@ public sealed class UsageEventIdempotencyKeysTests
     }
 
     [SkippableFact]
-    public void ForApiRequest_uses_trace_identifier()
+    public void ForApiRequest_uses_stable_event_identity_in_new_namespace()
     {
-        UsageEventIdempotencyKeys.ForApiRequest("trace-abc").Should().Be("api:trace-abc");
+        Guid eventId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        string key = UsageEventIdempotencyKeys.ForApiRequest(eventId);
+
+        key.Should().Be("api-event:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        UsageEventIdempotencyKeys.ForApiRequest(eventId).Should().Be(key);
+        UsageEventIdempotencyKeys.ForApiRequest(Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"))
+            .Should().NotBe(key);
+        key.Length.Should().BeLessThanOrEqualTo(UsageEventIdempotencyKeys.MaxLength);
+    }
+
+    [SkippableFact]
+    public void ForApiRequest_rejects_empty_event_id()
+    {
+        Action act = () => UsageEventIdempotencyKeys.ForApiRequest(Guid.Empty);
+        act.Should().Throw<ArgumentException>();
     }
 
     [SkippableFact]
