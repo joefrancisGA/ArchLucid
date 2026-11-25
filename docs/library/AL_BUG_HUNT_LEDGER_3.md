@@ -378,6 +378,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-11-25 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with C0 control characters inside words (e.g. `tru` + U+000B + `e`) stayed closed because only Cf and Zs were stripped; strip Unicode Cc alongside Cf and Zs before script-digit and word matching. **valid-no-repro** pass-67 monitors (figure-space-only token closed, metrics close drops false, duplicate metrics first-wins, lone ellipsis path chip, href preserves fromSnapshot). Pass-68 reseed below. Scoped vitest **340/340**. Private beta: Invited operators who deep-link with control-character variants inside `remediationFactoryMetricsOpen` yes/true tokens open the executive metrics summary instead of landing with the panel closed.
+
 2026-11-25 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with figure-space separators inside words (e.g. `o` + U+2007 + `n`) stayed closed because only Cf characters were stripped; strip Unicode Zs alongside Cf before script-digit and word matching. **valid-no-repro** pass-66 monitors (combining marks inside true, literal zero drop on close, empty metrics param, single-id overflow null, href preserves toSnapshot). Pass-67 reseed below. Scoped vitest **338/338**. Private beta: Invited operators who deep-link with odd Unicode space inside `remediationFactoryMetricsOpen` yes/on tokens open the executive metrics summary instead of landing with the panel closed.
 2026-11-25 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — metrics tokens with combining marks after ASCII one (e.g. `1` + U+0301) stayed closed because only Cf stripping ran before digit/word matching; strip marks via NFKD after preserving script-digit and enclosed-one probes on the format-stripped surface. **valid-no-repro** pass-65 monitors (ZWSP-only closed, duplicate toSnapshot first-wins, critical-exposure hint absent, path chip trim-only, href preserves finding). Pass-66 reseed below. Scoped vitest **333/333**. Private beta: Invited operators who deep-link with combining-mark variants on `remediationFactoryMetricsOpen` open the executive metrics summary instead of landing with the panel closed.
 2026-11-25 thorough hunt (hit): no rotation (shouldRotate: false; hint override; low-yield streak 2/3). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — metrics disclosure tokens with trailing zero-width format characters (e.g. `1` + U+200B) stayed closed after `trim()` because format-category scalars were not stripped;  strip `\p{Cf}` before matching. **valid-no-repro** pass-64 writer monitors (stale zero, padded one, true base, selection/snapshot href). Pass-65 reseed below. Scoped vitest **327/327**. Private beta: Invited operators who deep-link with invisible format characters on `remediationFactoryMetricsOpen` (or other remediation-factory disclosure params using the shared parser) open the executive metrics summary instead of landing with the panel closed.
@@ -597,6 +599,20 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — empty metrics param — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `treats empty metrics disclosure param as closed on read`.
 - [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — single id list — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `returns null overflow line for a single short path id in the list`.
 - [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves toSnapshot param — **cheap-disproof 2026-11-25 thorough hunt (hit):** existing regression `remediationFactoryHrefFromSearch preserves a toSnapshot query param`.
+- [x] (superseded) pass-66 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (hit):** pass-67 reseed.
+- [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — vertical tab inside true word token — **proven 2026-11-25 thorough hunt (hit):** regression `treats true metrics disclosure token with vertical tab inside the word as open on read`.
+- [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — figure-space-only metrics token — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `treats figure-space-only metrics disclosure token as closed on read`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics close drops false token — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `drops false metrics disclosure token from base search when writing closed state`.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics param first-wins — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `uses the first metrics disclosure token when the query string repeats the param`.
+- [x] (valid-no-repro) `formatAttackPathReportPathChipLabel` — lone ellipsis path id — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `returns a lone ellipsis path id without adding a second ellipsis`.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves fromSnapshot param — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `remediationFactoryHrefFromSearch preserves a fromSnapshot query param`.
+
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — horizontal tab inside yes token — locus: Cc strip; input: `y` + U+0009 + `es`; pass-68 reseed.
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — treats NUL-only metrics disclosure token as closed — locus: empty after Cc strip; input: U+0000 only; pass-68 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate fromSnapshot first-wins — locus: URLSearchParams.get; input: repeated fromSnapshot; pass-68 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open over false base replaces with canonical `1` — locus: writer; input: open over false base; pass-68 reseed.
+- [ ] (candidate) `formatAttackPathReportPathChipLabel` — interior tab in short path id — locus: chip label trim; input: tab inside id; pass-68 reseed.
+
 - [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects unicode decimal two token — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** existing regression.
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics close drops unicode decimal one from base — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
 - [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — treats fullwidth FALSE metrics disclosure token as closed — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
@@ -1061,8 +1077,8 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 87
-- **bugs-found:** 75
+- **hunts:** 88
+- **bugs-found:** 76
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25

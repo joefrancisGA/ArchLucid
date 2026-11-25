@@ -798,6 +798,17 @@ describe("remediation-factory-url-state", () => {
     ).toBe(false);
   });
 
+  it("treats true metrics disclosure token with vertical tab inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tru\u000Be`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats figure-space-only metrics disclosure token as closed on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\u2007`).metricsSummaryOpen,
+    ).toBe(false);
+  });
   it("treats ON metrics disclosure token with figure space inside as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\u2007n`).metricsSummaryOpen,
