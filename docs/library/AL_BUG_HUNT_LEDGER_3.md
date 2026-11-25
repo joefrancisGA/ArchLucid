@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed→hit): `archlucid-contracts` pass-4 reseed. Scoped deserialization suites **22/22** on touched types. Private beta: policy-pack, intelligence recommendation, risk snapshot, and specialist review JSON null strings coalesce to defaults.
+> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-marketing-surfaces` pass-4 reseed. Scoped vitest marketing **683/685** (2 pre-existing branch failures). Private beta: n/a.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -10666,6 +10666,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-11-25 seed hunt (seed-only, dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; zone `lowYieldStreak` 1/3 seed-only at tail). Attempted failing repro on five pass-3 `(candidate)` monitors — **valid-no-repro** GetStarted skip-link vs path selection (`selects the sample path when the bottom sample link is activated`; primary `Choose a sample` control calls `selectSamplePath`), **invalid** ShowcaseQuickNav scroll-spy (`ShowcaseQuickNav` is static deep-link chrome without intersection observer), **valid-no-repro** SignupVerify resend remount (`readSignupVerifyResendCooldown` persists via `sessionStorage`), **valid-no-repro** SecureNow mailto parity (conversation link uses native `mailto:`; inline markdown fix family), **invalid** SeeItHero analytics swallow (hero CTAs are plain `Link`; Clarity guard lives on separate CTA modules). No hunt-ready promotion; pass-4 reseed below. Scoped vitest marketing **683/685** (`marketing-surface-hygiene`, `DemoPreviewMarketingBody` failures pre-existing). Private beta: n/a.
+
+
 2026-11-25 seed hunt (seed-only): no rotation (`shouldRotate: false`). Cheap-disproof on five pass-2 `(candidate)` monitors — **valid-no-repro** FAQ `forceOpen` linger (hashchange resync landed prior hunt; panel local `open` may persist by design), **valid-no-repro** pricing quote hash (`openForSamePageQuoteLink` click fallback), **valid-no-repro** privacy TOC mobile (shared `PrivacyPolicyTocList` + `syncUrlHash`; monitor), **valid-no-repro** walkthrough CTA http vs mailto (`CtaButton` http-only new tab), **valid-no-repro** `CtaButton` mixed href (`opensNewTab` only for http(s)). No hunt-ready promotion. Scoped vitest marketing **683/685** (`marketing-surface-hygiene`, `DemoPreviewMarketingBody` failures pre-existing on branch). Pass-3 reseed below. Private beta: n/a.
 
 
@@ -10685,11 +10688,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (superseded) pass-2 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed-only):** pass-3 reseed.
 
-- [ ] (candidate) `GetStartedPageClient` — sample path scroll without `selectSamplePath` on keyboard focus — locus: skip link vs path selector; input: keyboard-only navigation; monitor; pass-3 reseed.
-- [ ] (candidate) `ShowcaseQuickNav` — anchor jump without updating active section on slow scroll — locus: intersection observer; input: rapid nav clicks; monitor; pass-3 reseed.
-- [ ] (candidate) `SignupVerifyClient` — resend cooldown may reset on remount — locus: client state; input: strict-mode remount; monitor; pass-3 reseed.
-- [ ] (candidate) `SecureNowSampleView` — mailto CTA vs inline markdown mailto parity — locus: CTA href builder; input: sample page; monitor; pass-3 reseed.
-- [ ] (candidate) `SeeItHeroSection` — hero CTA analytics swallow vs navigation — locus: onClick ordering; input: analytics throw; monitor; pass-3 reseed.
+- [x] (valid-no-repro) pass-3 GetStarted keyboard skip vs sample selection — **cheap-disproof 2026-11-25 seed hunt:** bottom link + button regressions.
+- [x] (invalid) pass-3 ShowcaseQuickNav scroll-spy — **cheap-disproof 2026-11-25 seed hunt:** component has no intersection observer.
+- [x] (valid-no-repro) pass-3 SignupVerify resend remount cooldown — **cheap-disproof 2026-11-25 seed hunt:** sessionStorage-backed cooldown.
+- [x] (valid-no-repro) pass-3 SecureNow mailto parity — **cheap-disproof 2026-11-25 seed hunt:** dedicated mailto `Link`; inline mailto family.
+- [x] (invalid) pass-3 SeeItHero analytics swallow — **cheap-disproof 2026-11-25 seed hunt:** hero uses navigation links only.
+
+- [x] (superseded) pass-3 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed-only):** pass-4 reseed.
+
+- [ ] (candidate) `MarketingFaqPageClient` — `forceOpen` disclosure may stay open after hashchange to another category — locus: controlled vs local open state; input: TOC navigate away from open FAQ; monitor; pass-4 reseed.
+- [ ] (candidate) `MarketingPricingQuotePanel` — whitespace-only work email may pass trim gate — locus: required-field trim; input: spaces-only email; monitor; pass-4 reseed.
+- [ ] (candidate) `PrivacyPolicyTocList` — mobile disclosure sync on `hashchange` vs `pushState` without pop — locus: hash listener; input: in-app privacy TOC click; monitor; pass-4 reseed.
+- [ ] (candidate) `WalkthroughRequestCta` — non-http contact href tab policy — locus: `CtaButton`/`opensNewTab`; input: `tel:` or relative paths; monitor; pass-4 reseed.
+- [ ] (candidate) `MarketingTrustCenterRevisionHistory` — revision anchor focus without scroll on keyboard — locus: skip/anchor; input: keyboard activate revision link; monitor; pass-4 reseed.
+
 
 
 
@@ -10963,9 +10975,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
 - **related-pd-tb:** none

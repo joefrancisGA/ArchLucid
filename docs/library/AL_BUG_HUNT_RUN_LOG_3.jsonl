@@ -254,3 +254,4 @@
 {"set":3,"zoneId":"archlucid-contracts","outcome":"hit","note":"seed hunt seed→hit pass-3 reseed","productLine":"archlucid-shared","at":"2026-11-25T02:26:02.6067531Z","paths":["ArchLucid.Contracts","ArchLucid.Contracts.Tests","docs/library/AL_BUG_HUNT_LEDGER_3.md"]}
 {"set":3,"zoneId":"ui-runs-list","outcome":"dry","note":"seed hunt seed-only pass-2 reseed","productLine":"archlucid-shared","at":"2026-11-25T02:27:56.8079768Z","paths":["docs/library/AL_BUG_HUNT_LEDGER_3.md"]}
 {"set":3,"zoneId":"archlucid-contracts","outcome":"hit","note":"seed hunt seed→hit pass-4 reseed","productLine":"archlucid-shared","at":"2026-11-25T02:30:06.9250855Z","paths":["ArchLucid.Contracts","ArchLucid.Contracts.Tests","docs/library/AL_BUG_HUNT_LEDGER_3.md"]}
+{"set":3,"zoneId":"ui-marketing-surfaces","outcome":"dry","note":"seed hunt seed-only pass-4 reseed","productLine":"archlucid-shared","at":"2026-11-25T02:32:19.6837878Z","paths":["docs/library/AL_BUG_HUNT_LEDGER_3.md"]}
