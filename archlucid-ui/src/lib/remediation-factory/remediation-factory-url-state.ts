@@ -29,6 +29,34 @@ function readUuidParam(params: URLSearchParams, key: string): string | null {
 }
 
 
+const REMEDIATION_FACTORY_DISCLOSURE_DECIMAL_ONE_CODEPOINTS = new Set<number>([
+  0x0661, // ١ ARABIC-INDIC DIGIT ONE
+  0x06f1, // ۱ EXTENDED ARABIC-INDIC DIGIT ONE
+  0x0967, // १ DEVANAGARI DIGIT ONE
+  0x09e7, // ১ BENGALI DIGIT ONE
+  0x0e51, // ๑ THAI DIGIT ONE
+  0x1d7d1, // 𝟙 MATHEMATICAL DOUBLE-STRUCK DIGIT ONE
+]);
+
+function remediationFactoryDisclosureUnicodeDecimalOne(trimmed: string): boolean {
+  if (trimmed.length !== 1 || !/^\p{Nd}$/u.test(trimmed)) {
+    return false;
+  }
+
+  const codePoint = trimmed.codePointAt(0);
+
+  if (codePoint === undefined) {
+    return false;
+  }
+
+  if (REMEDIATION_FACTORY_DISCLOSURE_DECIMAL_ONE_CODEPOINTS.has(codePoint)) {
+    return true;
+  }
+
+  const nfkcAsciiDigit = trimmed.normalize("NFKC");
+
+  return nfkcAsciiDigit.length === 1 && nfkcAsciiDigit >= "0" && nfkcAsciiDigit <= "9" && nfkcAsciiDigit === "1";
+}
 const REMEDIATION_FACTORY_DISCLOSURE_ENCLOSED_ONE_CODEPOINTS = new Set<number>([
   0x24f5, // ⓵ DOUBLE CIRCLED DIGIT ONE
   0x2776, // ❶ DINGBAT NEGATIVE CIRCLED DIGIT ONE
@@ -53,6 +81,11 @@ function normalizeRemediationFactoryDisclosureOpenToken(raw: string | null | und
   if (nfkc === "一") {
     return "1";
   }
+
+  if (remediationFactoryDisclosureUnicodeDecimalOne(trimmed)) {
+    return "1";
+  }
+
 
   if (trimmed.length === 1) {
     const codePoint = trimmed.codePointAt(0);

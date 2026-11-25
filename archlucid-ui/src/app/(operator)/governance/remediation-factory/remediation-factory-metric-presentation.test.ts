@@ -1076,7 +1076,12 @@ describe("remediation-factory-metric-presentation", () => {
 
     expect(tiles.find((tile) => tile.id === "pattern-exact")?.valueFootnote).toBeUndefined();
   });
-  it("includes comparison population in outcome scope notes", () => {
+
+  it("risk-weighted-open tile never carries a valueFootnote when value is measuredZero", () => {
+    const tiles = buildRemediationFactoryExecutiveMetricTiles({ riskWeightedOpen: 0 } as RemediationFactoryMetrics, true);
+
+    expect(tiles.find((tile) => tile.id === "risk-weighted-open")?.valueFootnote).toBeUndefined();
+  });  it("includes comparison population in outcome scope notes", () => {
     expect(
       architectOutcomeMetricPresentation({
         value: 2,

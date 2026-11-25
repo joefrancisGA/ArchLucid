@@ -284,6 +284,67 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+  it("rejects CJK two metrics disclosure token on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\u4E8C`).metricsSummaryOpen,
+    ).toBe(false);
+  });
+
+  it("drops CJK one metrics token from base search when writing closed state", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: false,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\u4E00&foreign=keep`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBeNull();
+    expect(params.get("foreign")).toBe("keep");
+  });
+
+  it("treats fullwidth NO metrics disclosure token as closed on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\uFF2E\uFF4F`).metricsSummaryOpen,
+    ).toBe(false);
+  });
+
+  it("canonicalizes hangzhou-one open token to 1 when writing open state", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: true,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\u3021&foreign=keep`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
+    expect(params.get("foreign")).toBe("keep");
+  });
+
+  it("treats unicode decimal one metrics disclosure tokens as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\u0661`).metricsSummaryOpen,
+    ).toBe(true);
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\u09E7`).metricsSummaryOpen,
+    ).toBe(true);
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\u0E51`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("rejects unicode decimal two metrics disclosure token on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\u0662`).metricsSummaryOpen,
+    ).toBe(false);
+  });
   it("treats fullwidth OFF metrics disclosure token as closed on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\uFF2F\uFF26\uFF26`).metricsSummaryOpen,
