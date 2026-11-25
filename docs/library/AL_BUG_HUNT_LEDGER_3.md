@@ -3153,9 +3153,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (valid) pass-9 filter disclosure pending `q=` — **proven 2026-11-25 seed hunt (seed→hit):** `navigationSearch` on disclosure write; regression cited in hunt note.
 - [x] (valid) pass-10 projectId pagination lag — **proven 2026-11-25 seed hunt (seed→hit):** overlay + pagination builder; regression cited in hunt note.
-- [ ] (candidate) `RunsListClient` mobile inspector — narrow viewport popstate compare — locus: shell ref; pass-11 reseed.
-- [ ] (candidate) `useRunsList` `listContextFilter` — deep link `filter=` trim — locus: parse; pass-11 reseed.
-- [ ] (candidate) `RunsListWorkQueueTable` — section headers with compare + scope — locus: partition; pass-11 reseed.
+- [ ] (candidate) `RunsListClient` mobile inspector — narrow viewport popstate compare — locus: shell ref; pass-12 reseed.
+- [x] (valid) pass-11 listContextFilter trim — **proven 2026-11-25 seed hunt (seed→hit):** parseRunsListContextFilterFromSearch; regression cited in hunt note.
+- [ ] (candidate) `RunsListWorkQueueTable` — section headers with compare + scope — locus: partition; pass-12 reseed.
+- [ ] (candidate) `useRunsList` ilter= popstate — whitespace-only committed value clears context — locus: syncListContextFilterFromUrl; pass-12 reseed.
 
 - **id:** ui-runs-list
 - **status:** open
@@ -3163,9 +3164,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 10
+- **hunts:** 11
 - **last-hunt:** 2026-11-25
-- **bugs-found:** 7
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-bug:** never
 - **code-changed-since:** yes

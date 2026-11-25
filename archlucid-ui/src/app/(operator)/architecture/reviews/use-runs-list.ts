@@ -31,6 +31,7 @@ import {
   runsListEffectiveSearchFromSearch,
   runsListSearchHrefFromSearch,
 } from "@/lib/runs/runs-list-search-url";
+import { parseRunsListContextFilterFromSearch } from "@/lib/runs/runs-list-context-filter-url";
 import {
   parseRunsListSortFromSearch,
   sortOrderFromRunsListSort,
@@ -100,7 +101,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const { runs, projectId, page, pageSize, totalCount, nextCursor = null } = props;
   const pathname = usePathname() ?? "/architecture/reviews";
   const searchParams = useSearchParams();
-  const urlListContextFilter = searchParams.get("filter");
+  const urlListContextFilter = parseRunsListContextFilterFromSearch(searchParams.get("filter"));
   const urlBuyerPackageScope = parseBuyerPackageScopeFilter(searchParams.get("scope"));
   const urlFilterText = parseRunsListSearchQuery(searchParams.get("q"));
   const urlSortOrder = sortOrderFromRunsListSort(parseRunsListSortFromSearch(searchParams.get("sort")));
@@ -261,7 +262,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
 
   useEffect(() => {
     const syncListContextFilterFromUrl = (): void => {
-      const next = new URLSearchParams(readWindowLocationSearch()).get("filter");
+      const next = parseRunsListContextFilterFromSearch(new URLSearchParams(readWindowLocationSearch()).get("filter"));
 
       if (listContextFilterRef.current === next) {
         return;

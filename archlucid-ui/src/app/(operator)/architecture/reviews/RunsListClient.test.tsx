@@ -169,7 +169,17 @@ function renderRunsList(ui: ReactElement, searchQuery = "") {
   return render(<RunsListSearchParamsRerenderHost>{ui}</RunsListSearchParamsRerenderHost>);
 }
 
-describe("RunsListClient inspector", () => {
+describe("RunsListClient inspector", () => {  it("treats trimmed filter=orphan-candidates deep links as orphan-candidates context", () => {
+    renderRunsList(
+      <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
+      "filter=%20orphan-candidates%20",
+    );
+
+    expect(screen.getByTestId("runs-list-orphan-candidates-filter-banner")).toBeInTheDocument();
+  });
+
+
+
   it("preserves committed projectId in the Next pagination link when useSearchParams lags after project navigation", () => {
     const secondRun: RunSummary = {
       ...sampleRun,
