@@ -56,6 +56,10 @@ describe("attack-path-report-path-chip-label", () => {
     expect(formatAttackPathReportPathChipLabel("   ")).toBe("");
   });
 
+  it("returns null overflow line for whitespace-only path ids in the list", () => {
+    expect(attackPathReportPathChipOverflowLine(["   ", "\t"])).toBeNull();
+  });
+
   it("returns null overflow line for an empty path id list", () => {
     expect(attackPathReportPathChipOverflowLine([])).toBeNull();
   });

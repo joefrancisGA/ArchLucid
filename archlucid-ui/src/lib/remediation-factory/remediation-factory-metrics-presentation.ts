@@ -76,7 +76,7 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       id: "open-findings-factory",
       label: "Open findings (factory metrics)",
       scopeLine: WORKSPACE_SCOPE,
-      ruleLine: PRIORITIZATION_RULE,
+      ruleLine: metricsLoaded ? PRIORITIZATION_RULE : undefined,
       valueFootnote: metricsLoaded
         ? "Factory metrics API count — compare to queue only when both are loaded."
         : null,
@@ -86,7 +86,7 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       id: "risk-weighted-open",
       label: "Risk-weighted open",
       scopeLine: WORKSPACE_SCOPE,
-      ruleLine: `${PRIORITIZATION_RULE} · weighted sum, not a finding count`,
+      ruleLine: metricsLoaded ? `${PRIORITIZATION_RULE} · weighted sum, not a finding count` : undefined,
       value: formatDecimal(metrics?.riskWeightedOpen, 2),
     },
     {

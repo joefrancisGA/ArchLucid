@@ -381,6 +381,19 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker exhausted; continued `ui-lib-remediation-factory` pass-14 (`shouldRotate: false`). Promoted ruleLine on factory tiles — **proven** prioritization rule text showed on open-findings/risk-weighted tiles while `metricsLoaded` was false; gate `ruleLine` on `metricsLoaded`. Regression `omits ruleLine on open-findings-factory when metrics are unloaded`. **valid-no-repro** metrics closed drops `false` token, **valid-no-repro** padded `true` open parse, **valid-no-repro** whitespace-only overflow list, **valid-no-repro** href preserves `toSnapshot`. Scoped vitest **130/130**. Reseeded pass-15 below. Private beta: invited operators no longer see IE15 rule chrome under loading/not-computed metric tiles.
+
+- [x] (superseded) pass-14 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-15 reseed.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — ruleLine when unloaded — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics closed drops false token — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `drops false metrics disclosure token from base search when writing closed state`.
+- [x] (valid-no-repro) `parseRemediationFactoryMetricsSummaryOpen` — literal true with surrounding whitespace — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `treats a padded true metrics disclosure token as open on read`.
+- [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — whitespace-only ids in list — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `returns null overflow line for whitespace-only path ids in the list`.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves toSnapshot param — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — windowLine when unloaded — locus: static window text; monitor; pass-15 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics closed drops off token — locus: delete on false; monitor; pass-15 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — empty metrics param — locus: default closed; monitor; pass-15 reseed.
+- [ ] (candidate) `formatAttackPathReportPathChipLabel` — lone dots path id — locus: ellipsis passthrough; monitor; pass-15 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves selectedPath param — locus: disclosure writer; monitor; pass-15 reseed.
 2026-11-25 thorough hunt (seed→hit): automatic set-3 picker exhausted; continued `ui-lib-remediation-factory` pass-13 (`shouldRotate: false`). Promoted open-findings-factory static footnote — **proven** scope helper showed while `metricsLoaded` was false; gate on `metricsLoaded`. Regression `omits open-findings-factory footnote when metrics are unloaded`. **valid-no-repro** metrics closed drops `0` token, **valid-no-repro** whitespace-only chip label, **valid-no-repro** href preserves `fromSnapshot`, **valid-no-repro** independent first-wins finding/path reads. Scoped vitest **127/127**. Reseeded pass-14 below. Private beta: invited operators no longer see factory-vs-queue comparison footnote under not-measured open findings while metrics load.
 
 - [x] (superseded) pass-13 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-14 reseed.
@@ -546,8 +559,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 38
-- **bugs-found:** 16
+- **hunts:** 39
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
