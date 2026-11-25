@@ -416,6 +416,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         {
             if (!visitedLinks.Add(nextLink))
             {
+                truncated = true;
+                if (accepted == 0)
+                    onFailed();
                 break;
             }
 
@@ -424,6 +427,8 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             if (ShouldBreakForPageCap(requestCount))
             {
                 truncated = true;
+                if (accepted == 0)
+                    onFailed();
                 break;
             }
 
@@ -436,6 +441,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             if (!response.IsSuccessStatusCode)
             {
                 warnings.Add($"{companionName} collection failed; HTTP {(int)response.StatusCode}");
+                truncated = true;
                 if (accepted == 0)
                 {
                     onFailed();
@@ -456,6 +462,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             {
                 warnings.Add($"{companionName} collection failed; invalid JSON");
 
+                truncated = true;
                 if (accepted == 0)
                 {
                     onFailed();
@@ -468,6 +475,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             {
                 warnings.Add($"{companionName} collection failed; invalid JSON");
 
+                truncated = true;
                 if (accepted == 0)
                 {
                     onFailed();
@@ -479,21 +487,42 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             using (document)
             {
 
-                if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
-                    && valueElement.ValueKind == JsonValueKind.Array)
+                if (document.RootElement.ValueKind != JsonValueKind.Object
+                    || !document.RootElement.TryGetProperty("value", out JsonElement valueElement)
+                    || valueElement.ValueKind != JsonValueKind.Array)
                 {
-                    foreach (JsonElement item in valueElement.EnumerateArray())
+                    warnings.Add($"{companionName} collection failed; invalid list envelope");
+                    truncated = true;
+                    if (accepted == 0)
+                        onFailed();
+                    break;
+                }
+
+                foreach (JsonElement item in valueElement.EnumerateArray())
+                {
+                    if (item.ValueKind != JsonValueKind.Object)
                     {
-                        onItem(item);
-                        accepted++;
+                        truncated = true;
+                        continue;
                     }
+
+                    onItem(item);
+                    accepted++;
                 }
 
                 nextLink = null;
 
-                if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
-                    && nextLinkElement.ValueKind == JsonValueKind.String)
+                if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement))
                 {
+                    if (nextLinkElement.ValueKind == JsonValueKind.Null)
+                        break;
+
+                    if (nextLinkElement.ValueKind != JsonValueKind.String)
+                    {
+                        truncated = true;
+                        break;
+                    }
+
                     string? candidateNextLink = nextLinkElement.GetString();
 
                     if (!string.IsNullOrWhiteSpace(candidateNextLink))
@@ -506,6 +535,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
                     }
                 }
             }
+        }
+
+        if (truncated)
+        {
+            warnings.Add($"{companionName} collection incomplete");
+            if (accepted == 0)
+                onFailed();
         }
 
         return truncated;
