@@ -40,7 +40,7 @@ type LegacyOffsetPagedRunEnvelope = {
   hasMore: boolean;
 };
 
-function isLegacyOffsetPagedRunShape(data: Record<string, unknown>): boolean {
+function isLegacyOffsetPagedRunShape(data: Record<string, unknown>): data is LegacyOffsetPagedRunEnvelope {
   return (
     typeof data.totalCount === "number" &&
     Number.isFinite(data.totalCount) &&
