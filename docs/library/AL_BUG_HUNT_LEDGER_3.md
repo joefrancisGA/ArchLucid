@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 thorough hunt (hit): `ui-marketing-surfaces`. Scoped vitest **11/11** on touched marketing suites. Private beta: marketing mailto links and FAQ category navigation behave correctly for public visitors.
+> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed-only): `ui-marketing-surfaces` pass-3 reseed. Scoped vitest marketing **683/685** (2 pre-existing hygiene/demo failures). Private beta: n/a.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -10641,6 +10641,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-11-25 seed hunt (seed-only): no rotation (`shouldRotate: false`). Cheap-disproof on five pass-2 `(candidate)` monitors — **valid-no-repro** FAQ `forceOpen` linger (hashchange resync landed prior hunt; panel local `open` may persist by design), **valid-no-repro** pricing quote hash (`openForSamePageQuoteLink` click fallback), **valid-no-repro** privacy TOC mobile (shared `PrivacyPolicyTocList` + `syncUrlHash`; monitor), **valid-no-repro** walkthrough CTA http vs mailto (`CtaButton` http-only new tab), **valid-no-repro** `CtaButton` mixed href (`opensNewTab` only for http(s)). No hunt-ready promotion. Scoped vitest marketing **683/685** (`marketing-surface-hygiene`, `DemoPreviewMarketingBody` failures pre-existing on branch). Pass-3 reseed below. Private beta: n/a.
+
+
 2026-11-25 thorough hunt (hit): no rotation (`shouldRotate: false`). Attempted failing repro on two pass-1 `(candidate)` rows — **proven** `renderInline` treated `mailto:` like HTTP externals and set `target="_blank"`; HTTP-only blank-target attrs; regression `does not open mailto links in a new tab`; **proven** `MarketingFaqPageToc` `pushState` left `MarketingFaqPageClient` hash listeners stale; dispatch `HashChangeEvent` after category navigation; regression `dispatches a hashchange event when a category link is selected`. Scoped vitest **11/11**. Pass-2 reseed below. Private beta: public marketing visitors following mailto links no longer get an extra blank tab, and FAQ category TOC clicks refresh hash-driven disclosure state after deep-linking to a question.
 
 
@@ -10649,11 +10652,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `renderInline` — `mailto:` received `target="_blank"` — **hit 2026-11-25 thorough hunt:** HTTP-only new-tab attrs; regression above.
 - [x] (proven) `MarketingFaqPageToc` — `pushState` without `hashchange` — **hit 2026-11-25 thorough hunt:** dispatch `hashchange`; regression above.
 
-- [ ] (candidate) `MarketingFaqItemPanel` — forced-open state may linger after hash target changes — locus: `forceOpen` vs local `open`; input: TOC after item deep link; monitor; pass-2 reseed.
-- [ ] (candidate) `MarketingPricingQuotePanel` — quote hash listener vs header client navigation — locus: click fallback; input: pricing CTA without hashchange; monitor; pass-2 reseed.
-- [ ] (candidate) `privacy-policy` TOC — `replaceState` hash sync without `hashchange` on mobile variant — locus: mobile details TOC; input: section jump; monitor; pass-2 reseed.
-- [ ] (candidate) `WalkthroughRequestCta` — booking URL opens new tab while mailto fallback same-tab — locus: CTA mode switch; input: missing booking URL; monitor; pass-2 reseed.
-- [ ] (candidate) `CtaButton` — `opensNewTab` default for mixed mailto/http href — locus: prop contract; input: composite CTA config; monitor; pass-2 reseed.
+- [x] (valid-no-repro) pass-2 FAQ forceOpen linger — **cheap-disproof 2026-11-25 seed hunt:** hashchange fix; monitor.
+- [x] (valid-no-repro) pass-2 pricing quote hash — **cheap-disproof 2026-11-25 seed hunt:** click fallback.
+- [x] (valid-no-repro) pass-2 privacy mobile TOC — **cheap-disproof 2026-11-25 seed hunt:** shared list; monitor.
+- [x] (valid-no-repro) pass-2 walkthrough CTA tab — **cheap-disproof 2026-11-25 seed hunt:** intentional http vs mailto.
+- [x] (valid-no-repro) pass-2 CtaButton href mix — **cheap-disproof 2026-11-25 seed hunt:** http-only `_blank`.
+
+- [x] (superseded) pass-2 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed-only):** pass-3 reseed.
+
+- [ ] (candidate) `GetStartedPageClient` — sample path scroll without `selectSamplePath` on keyboard focus — locus: skip link vs path selector; input: keyboard-only navigation; monitor; pass-3 reseed.
+- [ ] (candidate) `ShowcaseQuickNav` — anchor jump without updating active section on slow scroll — locus: intersection observer; input: rapid nav clicks; monitor; pass-3 reseed.
+- [ ] (candidate) `SignupVerifyClient` — resend cooldown may reset on remount — locus: client state; input: strict-mode remount; monitor; pass-3 reseed.
+- [ ] (candidate) `SecureNowSampleView` — mailto CTA vs inline markdown mailto parity — locus: CTA href builder; input: sample page; monitor; pass-3 reseed.
+- [ ] (candidate) `SeeItHeroSection` — hero CTA analytics swallow vs navigation — locus: onClick ordering; input: analytics throw; monitor; pass-3 reseed.
+
 
 
 2026-10-30 seed hunt #80 (hit): proved `MarketingPricingQuotePanel` marked its email input `type="email"` but disabled native validation with `noValidate`, and the submit handler only checked presence, so malformed addresses could reach the quote API; added a format guard and `does not submit when the work email is malformed` in `MarketingPricingQuotePanel.test.tsx`. Focused quote-panel suite passed 3/3. Private beta: invited buyers who enter an invalid work email now receive immediate correction guidance instead of sending an unusable pricing request to the quote service.
@@ -10926,7 +10938,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 4
+- **hunts:** 5
 - **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
