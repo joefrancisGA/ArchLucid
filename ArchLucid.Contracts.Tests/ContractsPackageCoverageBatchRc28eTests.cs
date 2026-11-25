@@ -118,6 +118,82 @@ public sealed class ContractsPackageCoverageBatchRc28eTests
     }
 
     [Fact]
+    public void ValueReportReviewCycleSectionFormatter_keeps_baseline_measurement_delta_and_sample_count_distinct()
+    {
+        ValueReportSnapshot snapshot = CreateMeasuredSnapshot(
+            ReviewCycleBaselineProvenance.TenantSuppliedAtSignup,
+            tenantBaselineHours: 12.5m,
+            measuredHours: 8.25m,
+            delta: 4.25m,
+            deltaPct: 34m) with
+        {
+            RunsCompletedCount = 3,
+            ManifestsCommittedCount = 3,
+            MeasuredReviewCycleSampleSize = 3,
+        };
+        const string heading = "Review-cycle delta (before vs measured)";
+        const string baseline = "Baseline review cycle: 12.5 h (tenant-supplied at trial signup)";
+        const string measured = "Measured review cycle (this window): 8.25 h across 3 run(s)";
+        const string delta = "Delta: 4.25 h saved per run (34% improvement)";
+
+        IReadOnlyList<ValueReportReviewCycleParagraph> paragraphs =
+            ValueReportReviewCycleSectionFormatter.GetParagraphs(snapshot, SponsorRoiClaimDisposition.Pass);
+        StringBuilder markdown = new();
+        ValueReportReviewCycleSectionFormatter.AppendMarkdownSection(markdown, snapshot, SponsorRoiClaimDisposition.Pass);
+
+        paragraphs.Select(p => p.Text).Should().Equal(heading, baseline, measured, delta);
+        markdown.ToString().Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Should().Equal($"## {heading}", baseline, measured, delta);
+    }
+
+    [Fact]
+    public void ValueReportReviewCycleSectionFormatter_no_measurement_shows_a_note_without_claiming_savings()
+    {
+        ValueReportSnapshot snapshot = CreateMeasuredSnapshot(
+            ReviewCycleBaselineProvenance.NoMeasurementYet,
+            tenantBaselineHours: 12.5m,
+            measuredHours: null,
+            delta: null,
+            deltaPct: null) with
+        {
+            RunsCompletedCount = 0,
+            ManifestsCommittedCount = 0,
+        };
+        const string heading = "Review-cycle delta (before vs measured)";
+        const string note = "(No committed manifests in this window — measured review cycle is not yet available.)";
+
+        IReadOnlyList<ValueReportReviewCycleParagraph> paragraphs = ValueReportReviewCycleSectionFormatter.GetParagraphs(snapshot);
+        StringBuilder markdown = new();
+        ValueReportReviewCycleSectionFormatter.AppendMarkdownSection(markdown, snapshot);
+
+        paragraphs.Select(p => p.Text).Should().Equal(heading, note);
+        paragraphs[1].Italic.Should().BeTrue();
+        markdown.ToString().Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Should().Equal($"## {heading}", $"_{note}_");
+    }
+
+    [Fact]
+    public void ValueReportReviewCycleSectionFormatter_measured_zero_is_not_reported_as_missing()
+    {
+        ValueReportSnapshot snapshot = CreateMeasuredSnapshot(
+            ReviewCycleBaselineProvenance.TenantSuppliedAtSignup,
+            tenantBaselineHours: 2m,
+            measuredHours: 0m,
+            delta: 2m,
+            deltaPct: 100m);
+
+        IReadOnlyList<ValueReportReviewCycleParagraph> paragraphs =
+            ValueReportReviewCycleSectionFormatter.GetParagraphs(snapshot, SponsorRoiClaimDisposition.Pass);
+        StringBuilder markdown = new();
+        ValueReportReviewCycleSectionFormatter.AppendMarkdownSection(markdown, snapshot, SponsorRoiClaimDisposition.Pass);
+        const string measured = "Measured review cycle (this window): 0 h across 2 run(s)";
+
+        paragraphs.Select(p => p.Text).Should().ContainSingle(line => line == measured);
+        markdown.ToString().Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Should().ContainSingle(line => line == measured);
+    }
+
+    [Fact]
     public void ValueReportReviewCycleSectionFormatter_GetParagraphs_throws_when_snapshot_null()
     {
         FluentActions
