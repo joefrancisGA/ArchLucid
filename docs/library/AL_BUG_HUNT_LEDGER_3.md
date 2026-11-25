@@ -380,6 +380,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 seed hunt (seed→hit): picker `seedHunt`; continued `ui-lib-remediation-factory` (`shouldRotate: false`; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — NFKC fullwidth one token `１` stayed closed; normalize with `NFKC` before open-token matching. **valid-no-repro** comma-thousands rejection and comma writer canonicalization (regressions); **valid-no-repro** negative-zero tile and table monitors (regressions); **invalid** automation table hint at measuredZero (no hint field by design). Pass-51 reseed below. Scoped vitest **262/262**. Private beta: Invited operators who deep-link with fullwidth `remediationFactoryMetricsOpen` digits open the executive metrics summary instead of landing with the panel closed.
 2026-11-25 seed hunt (seed→hit): picker `seedHunt`; continued `ui-lib-remediation-factory` (`shouldRotate: false`; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — locale comma-decimal one token `1,0` stayed closed; accept finite comma decimals equal to one while rejecting thousands-style `1,000`. **valid-no-repro** exceptions-active zero expiring footnote (existing); **valid-no-repro** net-burn and risk-weighted zero chrome (regressions); **invalid** attack-path overflow whitespace-only list (existing). Pass-50 reseed below. Scoped vitest **256/256**. Private beta: Invited operators who deep-link with European-style `remediationFactoryMetricsOpen=1,0` open the executive metrics summary instead of landing with the panel closed.
 2026-11-25 seed hunt (seed→hit): picker `seedHunt`; continued `ui-lib-remediation-factory` (`shouldRotate: false`; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — radix-prefixed one tokens `0b1` and `0o1` stayed closed; accept `Number` literals when finite and equal to one. **valid-no-repro** pass-48 factory scopeLine and critical zero footnote; **valid-no-repro** factory compare footnote at zero (existing); **valid-no-repro** uppercase ON token (regression); **invalid** attack-path chip trim (existing regressions). Pass-49 reseed below. Scoped vitest **252/252**. Private beta: Invited operators who deep-link with radix-style `remediationFactoryMetricsOpen` values open the executive metrics summary instead of landing with the panel closed.
 2026-11-25 seed hunt (seed→hit): picker `seedHunt`; continued `ui-lib-remediation-factory` (`shouldRotate: false`; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — trailing-dot one token `1.` stayed closed; accept optional fractional digits after the dot when `Number` normalizes to one. **valid-no-repro** pass-47 executive tile percent `windowLine` at zero, risk-weighted scope at zero, critical table hint at `measuredZero`, factory `ruleLine` at zero (existing regression). Pass-48 reseed below. Scoped vitest **247/247**. Private beta: Invited operators who deep-link with `remediationFactoryMetricsOpen=1.` open the remediation-factory executive metrics summary instead of landing with the panel closed.
@@ -919,8 +920,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 71
-- **bugs-found:** 61
+- **hunts:** 72
+- **bugs-found:** 62
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25

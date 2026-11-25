@@ -464,6 +464,31 @@ describe("remediation-factory-metric-presentation", () => {
   });
 
 
+  it("keeps avg-age scopeLine when value is negative zero", () => {
+    const metrics = { averageAgeDays: -0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "avg-age")?.scopeLine).toBeDefined();
+    expect(tiles.find((tile) => tile.id === "avg-age")?.value).toBe("0.0");
+  });
+
+  it("keeps pattern-exact value when percent is negative zero", () => {
+    const metrics = { patternCoverageExactMatchPercent: -0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "pattern-exact")?.value).toBe("0%");
+  });
+
+  it("omits automation table hint when percent is measuredZero", () => {
+    const metrics = { automationPercent: 0 } as RemediationFactoryMetrics;
+    const table = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics,
+      openFindingsHref: "/security/findings",
+    });
+
+    expect(table.find((tile) => tile.key === "automation")?.presentation.state).toBe("measuredZero");
+    expect(table.find((tile) => tile.key === "automation")?.hint).toBeUndefined();
+  });
   it("keeps risk-weighted-open ruleLine when value is zero", () => {
     const metrics = { riskWeightedOpen: 0 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);

@@ -79,7 +79,7 @@ function setUuidParam(params: URLSearchParams, key: string, value: string | null
 }
 
 export function parseRemediationFactoryDisclosureOpenFromSearch(raw: string | null | undefined): boolean {
-  const normalized = raw?.trim().toLowerCase();
+  const normalized = raw?.trim().normalize("NFKC").toLowerCase();
 
   if (normalized === undefined || normalized.length === 0) {
     return false;
