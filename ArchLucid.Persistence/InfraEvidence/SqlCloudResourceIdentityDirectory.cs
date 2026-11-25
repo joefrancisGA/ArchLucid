@@ -417,58 +417,46 @@ public sealed partial class SqlCloudResourceIdentityDirectory(ISqlConnectionFact
         return (items, totalCount);
     }
 
-    private const string OpenOperationalFindingsCountSql = """
-        (SELECT COUNT(1)
-         FROM dbo.OperationalSecurityFindings f
-         WHERE f.TenantId = dbo.CloudResourceIdentities.TenantId
-           AND f.CloudResourceId = dbo.CloudResourceIdentities.CloudResourceId
-           AND f.Status IN (@FindingStatusOpen, @FindingStatusRecurred, @FindingStatusAwaitingVerification))
+    // Resource identity is tenant-deduplicated. Work items must also belong to
+    // the identity's workspace and project; a shared resource ID is not scope authority.
+    // Reuse the same row predicate for counts and queue membership.
+    private const string OpenOperationalFindingsRowsSql = """
+        FROM dbo.OperationalSecurityFindings f
+        WHERE f.TenantId = dbo.CloudResourceIdentities.TenantId
+          AND f.WorkspaceId = dbo.CloudResourceIdentities.WorkspaceId
+          AND f.ProjectId = dbo.CloudResourceIdentities.ProjectId
+          AND f.CloudResourceId = dbo.CloudResourceIdentities.CloudResourceId
+          AND f.Status IN (@FindingStatusOpen, @FindingStatusRecurred, @FindingStatusAwaitingVerification)
         """;
 
-    private const string OpenRemediationInstancesCountSql = """
-        (SELECT COUNT(1)
-         FROM dbo.RemediationInstances r
-         WHERE r.TenantId = dbo.CloudResourceIdentities.TenantId
-           AND r.CloudResourceId = dbo.CloudResourceIdentities.CloudResourceId
-           AND r.Status <> @RemediationStatusClosed)
+    private const string OpenRemediationInstancesRowsSql = """
+        FROM dbo.RemediationInstances r
+        WHERE r.TenantId = dbo.CloudResourceIdentities.TenantId
+          AND r.WorkspaceId = dbo.CloudResourceIdentities.WorkspaceId
+          AND r.ProjectId = dbo.CloudResourceIdentities.ProjectId
+          AND r.CloudResourceId = dbo.CloudResourceIdentities.CloudResourceId
+          AND r.Status <> @RemediationStatusClosed
         """;
 
-    private const string InventoryDriftChangeCountSql = """
-        (SELECT COUNT(1)
-         FROM dbo.AzureInventoryChanges c
-         WHERE c.TenantId = dbo.CloudResourceIdentities.TenantId
-           AND c.CloudResourceId = dbo.CloudResourceIdentities.CloudResourceId)
+    private const string InventoryDriftChangeRowsSql = """
+        FROM dbo.AzureInventoryChanges c
+        INNER JOIN dbo.AzureInventoryDiffs d ON d.DiffId = c.DiffId AND d.TenantId = c.TenantId
+        WHERE c.TenantId = dbo.CloudResourceIdentities.TenantId
+          AND d.WorkspaceId = dbo.CloudResourceIdentities.WorkspaceId
+          AND d.ProjectId = dbo.CloudResourceIdentities.ProjectId
+          AND c.CloudResourceId = dbo.CloudResourceIdentities.CloudResourceId
         """;
+
+    private const string OpenOperationalFindingsCountSql = "(SELECT COUNT(1) " + OpenOperationalFindingsRowsSql + ")";
+    private const string OpenRemediationInstancesCountSql = "(SELECT COUNT(1) " + OpenRemediationInstancesRowsSql + ")";
+    private const string InventoryDriftChangeCountSql = "(SELECT COUNT(1) " + InventoryDriftChangeRowsSql + ")";
 
     private static string BuildWorkQueueFilter(CloudResourceExplorerWorkQueue workQueue) =>
         workQueue switch
         {
-            CloudResourceExplorerWorkQueue.OpenFindings => """
-                AND EXISTS (
-                    SELECT 1
-                    FROM dbo.OperationalSecurityFindings f
-                    WHERE f.TenantId = dbo.CloudResourceIdentities.TenantId
-                      AND f.CloudResourceId = dbo.CloudResourceIdentities.CloudResourceId
-                      AND f.Status IN (@FindingStatusOpen, @FindingStatusRecurred, @FindingStatusAwaitingVerification)
-                )
-                """,
-            CloudResourceExplorerWorkQueue.OpenRemediation => """
-                AND EXISTS (
-                    SELECT 1
-                    FROM dbo.RemediationInstances r
-                    WHERE r.TenantId = dbo.CloudResourceIdentities.TenantId
-                      AND r.CloudResourceId = dbo.CloudResourceIdentities.CloudResourceId
-                      AND r.Status <> @RemediationStatusClosed
-                )
-                """,
-            CloudResourceExplorerWorkQueue.RecentDrift => """
-                AND EXISTS (
-                    SELECT 1
-                    FROM dbo.AzureInventoryChanges c
-                    WHERE c.TenantId = dbo.CloudResourceIdentities.TenantId
-                      AND c.CloudResourceId = dbo.CloudResourceIdentities.CloudResourceId
-                )
-                """,
+            CloudResourceExplorerWorkQueue.OpenFindings => $"AND EXISTS (SELECT 1 {OpenOperationalFindingsRowsSql})",
+            CloudResourceExplorerWorkQueue.OpenRemediation => $"AND EXISTS (SELECT 1 {OpenRemediationInstancesRowsSql})",
+            CloudResourceExplorerWorkQueue.RecentDrift => $"AND EXISTS (SELECT 1 {InventoryDriftChangeRowsSql})",
             _ => string.Empty,
         };
 
