@@ -24,6 +24,14 @@ describe("attack-path-report-path-chip-label", () => {
     expect(formatAttackPathReportPathChipLabel(overBoundary).length).toBeLessThan(overBoundary.length);
   });
 
+  it("shows overflow honesty copy only when a path id exceeds 48 characters", () => {
+    const atThreshold = "a".repeat(48);
+    const overThreshold = "a".repeat(49);
+
+    expect(attackPathReportPathChipOverflowLine([atThreshold])).toBeNull();
+    expect(attackPathReportPathChipOverflowLine([overThreshold])).toContain("Long path ids");
+  });
+
   it("returns null overflow line for an empty path id list", () => {
     expect(attackPathReportPathChipOverflowLine([])).toBeNull();
   });

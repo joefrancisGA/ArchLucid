@@ -228,4 +228,28 @@ describe("remediation-factory-url-state", () => {
     expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBeNull();
     expect(params.get("foreign")).toBe("keep");
   });
+  it("uses the first selectedFinding token when the query string repeats the param", () => {
+    const firstId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const secondId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    const parsed = parseRemediationFactoryUrlStateFromSearch(
+      `?${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=${firstId}&${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=${secondId}`,
+    );
+
+    expect(parsed.selectedFindingId).toBe(firstId);
+  });
+
+  it("writes metrics open as 1 when base search used a legacy yes token", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: true,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=yes`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
+  });
 });

@@ -381,19 +381,19 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
-2026-11-25 thorough hunt (dry): no rotation (`shouldRotate: false`). Attempted failing repro on five pass-8 `(candidate)` rows — all **valid-no-repro**: duplicate metrics param uses URLSearchParams first value (`uses the first metrics disclosure token when the query string repeats the param`), closed write drops legacy `yes` token (`drops yes metrics token from base search when writing closed state`), sub-point fraction rounding (`rounds sub-point percent fractions after normalization`), 29-char chip ellipsis boundary (`ellipsizes a 29-character path id while keeping a 28-character id verbatim`), unloaded negative net burn (`does not show net burn when metrics are unloaded even if netBurn is present`). Scoped vitest **102/102** (`remediation-factory`). Reseeded pass-9 below. Private beta: n/a.
+2026-11-25 thorough hunt (dry): no rotation (`shouldRotate: false`). Attempted failing repro on five pass-9 `(candidate)` rows — all **valid-no-repro**: duplicate selection UUID first-wins (`uses the first selectedFinding token when the query string repeats the param`), open write normalizes legacy `yes` to `1` (`writes metrics open as 1 when base search used a legacy yes token`), unity fraction vs 100 points (`keeps one hundred on the API points scale distinct from a unity fraction`), 49-char path honesty (`shows overflow honesty copy only when a path id exceeds 48 characters`), unloaded positive net burn (`does not show positive net burn when metrics are unloaded even if netBurn is present`). Scoped vitest **107/107** (`remediation-factory`). Reseeded pass-10 below. Private beta: n/a.
 
-- [x] (superseded) pass-8 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (dry):** pass-9 reseed.
-- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics params last-wins — **cheap-disproof 2026-11-25 thorough hunt (dry):** first-wins URLSearchParams contract; regression `uses the first metrics disclosure token when the query string repeats the param`.
-- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics closed drops yes token in base — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `drops yes metrics token from base search when writing closed state`.
-- [x] (valid-no-repro) `formatRemediationFactoryPercentDisplay` — sub-point fraction rounds — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `rounds sub-point percent fractions after normalization`.
-- [x] (valid-no-repro) `formatAttackPathReportPathChipLabel` — 29-char boundary — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `ellipsizes a 29-character path id while keeping a 28-character id verbatim`.
-- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — negative net burn when unloaded — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `does not show net burn when metrics are unloaded even if netBurn is present`.
-- [ ] (candidate) `readUuidParam` — duplicate selection UUID params first-wins — locus: URLSearchParams get; monitor; pass-9 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — open write replaces legacy yes with 1 — locus: metrics open write; monitor; pass-9 reseed.
-- [ ] (candidate) `formatRemediationFactoryPercentDisplay` — unity fraction 1.0 vs 100 points — locus: normalize branch; monitor; pass-9 reseed.
-- [ ] (candidate) `attackPathReportPathChipOverflowLine` — 49-char path id honesty threshold — locus: path-inspect honesty; monitor; pass-9 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — positive net burn when unloaded — locus: metricsLoaded guard; monitor; pass-9 reseed.
+- [x] (superseded) pass-9 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (dry):** pass-10 reseed.
+- [x] (valid-no-repro) `readUuidParam` — duplicate selection UUID params first-wins — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `uses the first selectedFinding token when the query string repeats the param`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — open write replaces legacy yes with 1 — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `writes metrics open as 1 when base search used a legacy yes token`.
+- [x] (valid-no-repro) `formatRemediationFactoryPercentDisplay` — unity fraction 1.0 vs 100 points — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `keeps one hundred on the API points scale distinct from a unity fraction`.
+- [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — 49-char path id honesty threshold — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `shows overflow honesty copy only when a path id exceeds 48 characters`.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — positive net burn when unloaded — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression `does not show positive net burn when metrics are unloaded even if netBurn is present`.
+- [ ] (candidate) `readUuidParam` — duplicate selectedPath params first-wins — locus: URLSearchParams get; monitor; pass-10 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — open write replaces legacy on with 1 — locus: metrics open write; monitor; pass-10 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — net-burn footnote when unloaded — locus: valueFootnote vs metricsLoaded; monitor; pass-10 reseed.
+- [ ] (candidate) `attackPathReportPathChipOverflowLine` — padded path id honesty after trim — locus: trim before length; monitor; pass-10 reseed.
+- [ ] (candidate) `formatRemediationFactoryPercentDisplay` — fractional values above 1 on points scale — locus: normalize branch; monitor; pass-10 reseed.
 2026-11-25 thorough hunt (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-6 `(candidate)` rows — all **valid-no-repro**: **valid-no-repro** `0` metrics token (`treats zero metrics disclosure token as closed on read`), **valid-no-repro** stale UUID on metrics write (`clears stale selection UUIDs when opening metrics from a populated base search`), **valid-no-repro** unity fraction display (`treats unity fraction as one hundred percent`), **valid-no-repro** all-short path overflow line (`returns null overflow line when every path id is short`), **valid-no-repro** disclosure-only href writer (`remediationFactoryHrefFromSearch preserves foreign query params without mutating selection`; stale selection via disclosure-only writer is intentional per hunt #2). Restored pass-5 URL monitors dropped in prior push. Scoped vitest **97/97** (`remediation-factory`). Reseeded pass-7 below. Private beta: n/a.
 
 - [x] (superseded) pass-6 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (dry):** pass-7 reseed.
@@ -482,7 +482,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-11-25

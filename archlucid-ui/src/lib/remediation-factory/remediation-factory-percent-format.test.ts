@@ -21,6 +21,11 @@ describe("formatRemediationFactoryPercentDisplay", () => {
     expect(formatRemediationFactoryPercentDisplay(0)).toBe("0%");
   });
 
+  it("keeps one hundred on the API points scale distinct from a unity fraction", () => {
+    expect(formatRemediationFactoryPercentDisplay(100)).toBe("100%");
+    expect(formatRemediationFactoryPercentDisplay(1.01)).toBe("1%");
+  });
+
   it("keeps 0–100 values as whole percents", () => {
     expect(formatRemediationFactoryPercentDisplay(87)).toBe("87%");
   });
