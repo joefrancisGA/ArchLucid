@@ -29,7 +29,6 @@ import {
   runsListClearSearchHrefFromSearch,
   runsListCompareInspectorNavigationSearchFromSearch,
   runsListEffectiveSearchFromSearch,
-  runsListNavigationSearchFromSearch,
   runsListSearchHrefFromSearch,
 } from "@/lib/runs/runs-list-search-url";
 import {
@@ -605,24 +604,19 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     setPaginationAnnouncement(`Page ${page} of ${pages}. ${totalLabel}.`);
   }, [page, pages, totalCount]);
 
-  const navigationSearch = runsListNavigationSearchFromSearch(
-    routerSearchString,
-    readWindowLocationSearch(),
-    filterText,
-  );
-  const paginationNavigationSearch = runsListCompareInspectorNavigationSearchFromSearch(
+  const navigationSearch = runsListCompareInspectorNavigationSearchFromSearch(
     routerSearchString,
     readWindowLocationSearch(),
     filterText,
   );
   const previousHref = runsListPreviousPageHrefFromSearch(
-    paginationNavigationSearch,
+    navigationSearch,
     pathname,
     projectId,
     pageSize,
   );
   const nextHref = runsListNextPageHrefFromSearch(
-    paginationNavigationSearch,
+    navigationSearch,
     pathname,
     projectId,
     pageSize,

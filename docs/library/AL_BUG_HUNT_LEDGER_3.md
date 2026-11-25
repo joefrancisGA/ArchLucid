@@ -2924,6 +2924,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-runs-list
 
 
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted pass-5 buyer scope chip — **proven** `BuyerPackageScopeFilterChips` hrefs used `navigationSearch` without committed `filter=` overlay when `useSearchParams` lagged after scope navigation; sort/pagination/scope chips now share `runsListCompareInspectorNavigationSearchFromSearch`. Regression `preserves committed filter= in buyer scope chip href when useSearchParams lags after scope navigation`. **valid-no-repro** debounced `q=` on page 2 (overlay includes `page`/`cursor`), **valid-no-repro** sort chip + compare lag (`navigationSearch` compare overlay), **valid-no-repro** Escape-then-debounce inspector (`clears inspectorRunId…` + debounce overlay), **valid-no-repro** third-compare keyboard notice (existing popstate/compare regressions). Focused `RunsListClient` vitest **83/83**. Reseeded five pass-6 `(candidate)` rows below. Private beta: orphan-candidates list context plus package-scope chips keep the context `filter=` in chip hrefs when the router is behind window.location.
+
+- [x] (superseded) pass-5 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-6 reseed.
+
+
+
 2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted pass-4 debounced `q=` — **proven** filter debounce and Escape clear rebuilt hrefs from `runsListNavigationSearchFromSearch` and dropped committed `sort=`/`scope=` when `useSearchParams` lagged; write paths and pagination overlay now merge committed `scope`/`filter` via `runsListCompareInspectorNavigationSearchFromSearch`. Regression flip on `debounced q= sync keeps pending filter text after unrelated sort= URL navigation` plus `preserves committed scope= in the Previous pagination link when useSearchParams lags after scope navigation`. **valid-no-repro** orphan `filter=` + compare bar (compare overlay + orphan popstate), **valid-no-repro** scope chip `inspectorRunId` lag (inspector popstate regressions), **valid-no-repro** `clearCompareSelection` on page 2 (pagination overlay on compare sync). Focused `RunsListClient` vitest **82/82**. Reseeded five pass-5 `(candidate)` rows below. Private beta: typing or clearing the reviews list filter no longer strips an active sort or package-scope when the router snapshot is behind committed window.location.
 
 - [x] (superseded) pass-4 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-5 reseed.
@@ -3101,11 +3107,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `BuyerPackageScopeFilterChips` — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** navigationSearch + inspector URL regressions.
 - [x] (valid-no-repro) `useRunsList` `clearCompareSelection` — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** compare clear uses overlay; pagination cursor regressions.
 
-- [ ] (candidate) `useRunsList` debounced `q=` — may drop committed `page`/`cursor` when router lags on page 2 — locus: debounce write; input: paginate then type filter; pass-5 reseed.
-- [ ] (candidate) `RunsListClient` sort chip href — committed `compareRuns` only on window — locus: sort href base; input: compare then sort chip with router lag; pass-5 reseed.
-- [ ] (candidate) `useRunsList` inspector debounce — Escape then timer may resurrect `inspectorRunId` from router — locus: debounce after Escape; input: Escape inspector then wait; pass-5 reseed.
-- [ ] (candidate) `BuyerPackageScopeFilterChips` — `filter=orphan-candidates` on committed during chip lag — locus: scope href; input: orphan URL then scope popstate; pass-5 reseed.
-- [ ] (candidate) `RunsListClient` — third-compare keyboard notice before popstate — locus: notice timing; input: rapid third select; pass-5 reseed.
+- [x] (valid-no-repro) `useRunsList` debounced `q=` on page 2 — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** debounce uses compare-inspector overlay.
+- [x] (valid-no-repro) `RunsListClient` sort chip href + compare lag — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** compare overlay on unified navigation base.
+- [x] (valid-no-repro) `useRunsList` inspector Escape then debounce — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** existing Escape/debounce regressions.
+- [x] (proven) `BuyerPackageScopeFilterChips` — committed `filter=` dropped on scope chip href when router lagged — **hit 2026-11-25 seed hunt (seed→hit):** unified chip `navigationSearch` overlay; regression above.
+- [x] (valid-no-repro) `RunsListClient` third-compare keyboard notice — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** compare notice popstate regressions.
+
+- [ ] (candidate) `RunsListClient` sort chip href — committed `page` on page 2 while router lags — locus: navigationSearch; input: paginate then sort chip; pass-6 reseed.
+- [ ] (candidate) `useRunsList` compare URL sync — may omit `filter=` when overlay not unified on write — locus: compare href base; input: orphan filter + compare; pass-6 reseed.
+- [ ] (candidate) `RunsListClient` list context banner — clear button vs committed `filter=` lag — locus: banner clear href; input: popstate clear; pass-6 reseed.
+- [ ] (candidate) `BuyerPackageScopeFilterChips` — `q=` pending while scope chip navigates — locus: scope href pending q; input: type filter then scope; pass-6 reseed.
+- [ ] (candidate) `useRunsList` `clearFilterText` — may strip `filter=` context param — locus: clear href; input: orphan context then Escape filter; pass-6 reseed.
 
 - **id:** ui-runs-list
 - **status:** open
@@ -3113,9 +3125,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 4
+- **hunts:** 5
 - **last-hunt:** 2026-11-25
-- **bugs-found:** 3
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-bug:** never
 - **code-changed-since:** yes
