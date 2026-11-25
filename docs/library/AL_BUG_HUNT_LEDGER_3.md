@@ -1,7 +1,9 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt #29 (hit): `ui-lib-governance` pass-5 reseed. Assigned-to-me queue sort **5/5**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt #30 (hit): `ui-lib-governance` pass-6 reseed. Assigned-to-me queue sort **6/6**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
+
+2026-11-25 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted pass-5 contract `Warning` monitor — **proven** `severityRank` left Warning at rank 99 so `Info` (rank 4) sorted ahead of contract Warning; added `warning: 2` aligned with `FindingSeverity` ordering. **valid-no-repro** Error/High tie-break (shared rank 1 then `compareDue`), **valid-no-repro** `Denied` under rejected filter (`isRejectedStatus`), **valid-no-repro** hideGeneric `yes` (`parseGovernanceFindingsHideGenericFromSearch` accepts `1`/`true` only), **valid-no-repro** oldest-finding Error/Critical tie (helper ignores severity; due/aging only). Regression `ranks contract Warning severity ahead of Info`; assigned-to-me sort **6/6**. Reseeded five pass-6 `(candidate)` monitors. Private beta: invited operators see contract Warning findings above Info-class rows on the assigned-to-me default severity sort.
 
 2026-11-25 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted pass-4 `Error` severity monitor to hunt-ready — **proven** assigned-to-me `severityRank` treated contract `Error` as unknown (rank 99) while quick-approve and density sort treat Error as High-equivalent; extended map with `error`, `informational`, and `info` aligned to `governance-findings-density-sort`. **valid-no-repro** padded approval filter token (`parseGovernanceApprovalStatusFilter` trims), **valid-no-repro** clear-all decision-register lingering (no register params in clear-all mutate), **valid-no-repro** desk-cache scoped review open (production locator + registry path; local unrelated test drift). Regressions `ranks contract Error severity ahead of Medium` and `ranks informational severity after Low`; assigned-to-me sort **5/5**. Reseeded five pass-5 `(candidate)` monitors. Private beta: invited operators on the assigned-to-me queue see Error-severity findings sort with other High-class rows instead of at the bottom of the default severity sort.
 
@@ -43,11 +45,21 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 
 - [x] (superseded) pass-4 `(candidate)` queue — **superseded 2026-11-25 seed hunt (hit):** closed at zone header; see pass-5 reseed.
 
-- [ ] (candidate) `sortGovernanceAssignedToMeQueueRows` — `Warning` contract severity may sort unknown vs finalize gate — locus: severityRank map; input: Warning before Medium; pass-5 reseed.
-- [ ] (candidate) `compareGovernanceAssignedToMeQueueRows` — descending severity sort with tied Error/High ranks — locus: compareSeverity; input: Error vs High same rank tie-break; pass-5 reseed.
-- [ ] (candidate) `filterGovernanceApprovalsByStatusFilter` — denied vs rejected URL synonym — locus: isRejectedStatus; input: status Denied under rejected filter; pass-5 reseed.
-- [ ] (candidate) `governanceFindingsHideGenericHrefFromSearch` — hide flag `2` or `yes` in URL — locus: parse hide generic; input: hideGeneric=yes; pass-5 reseed.
-- [ ] (candidate) `resolveGovernanceAssignedToMeOldestFinding` — mixed Error/Critical severities on tie due dates — locus: oldest finding helper; input: critical vs error same due; pass-5 reseed.
+- [x] (proven) `sortGovernanceAssignedToMeQueueRows` — `Warning` contract severity may sort unknown vs finalize gate — **hit 2026-11-25 seed hunt #30:** `warning` rank 2; regression `ranks contract Warning severity ahead of Info`.
+- [x] (valid-no-repro) `compareGovernanceAssignedToMeQueueRows` — descending severity sort with tied Error/High ranks — **cheap-disproof 2026-11-25 seed hunt #30:** equal rank 1 then due-date tie-break.
+- [x] (valid-no-repro) `filterGovernanceApprovalsByStatusFilter` — denied vs rejected URL synonym — **cheap-disproof 2026-11-25 seed hunt #30:** `isRejectedStatus` matches denied.
+- [x] (valid-no-repro) `governanceFindingsHideGenericHrefFromSearch` — hide flag `2` or `yes` in URL — **cheap-disproof 2026-11-25 seed hunt #30:** parser accepts canonical `1`/`true` only.
+- [x] (valid-no-repro) `resolveGovernanceAssignedToMeOldestFinding` — mixed Error/Critical severities on tie due dates — **cheap-disproof 2026-11-25 seed hunt #30:** oldest helper does not compare severity.
+
+- [x] (superseded) pass-5 `(candidate)` queue — **superseded 2026-11-25 seed hunt #30 (hit):** closed at zone header; see pass-6 reseed.
+
+- [ ] (candidate) `severityRank` — legacy `High`/`Medium`/`Low` mixed with contract enums on one queue — locus: severityRank map; input: Critical vs High tie; pass-6 reseed.
+- [ ] (candidate) `sortGovernanceAssignedToMeQueueRows` — descending severity sort may invert due tie-break — locus: sortAsc false; input: same severity opposite due order; pass-6 reseed.
+- [ ] (candidate) `governanceApprovalStatusFilterLabel` — unknown filter enum exhaustiveness — locus: switch default; input: future filter value; pass-6 reseed.
+- [ ] (candidate) `governanceFindingsClearAllFiltersHref` — architecture scope preserved when clearing — locus: clear-all; input: architectureId + facets; pass-6 reseed.
+- [ ] (candidate) `compareGovernanceAssignedToMeQueueRows` — sourceReview sort ignores severity — locus: sortKey sourceReview; input: mixed severities same run label; pass-6 reseed.
+
+
 
 
 
@@ -83,8 +95,8 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 - **aliases:** governance lib; findings URL helpers
 - **paths:** archlucid-ui/src/lib/governance/
 - **test-filter:** lib/governance
-- **hunts:** 7
-- **bugs-found:** 3
+- **hunts:** 8
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25

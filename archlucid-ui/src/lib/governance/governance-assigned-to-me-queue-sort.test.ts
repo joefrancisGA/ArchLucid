@@ -68,4 +68,13 @@ describe("governance-assigned-to-me-queue-sort", () => {
 
     expect(rows.map((row) => row.findingId)).toEqual(["low", "info"]);
   });
+
+  it("ranks contract Warning severity ahead of Info", () => {
+    const rows = sortGovernanceAssignedToMeQueueRows([
+      baseRow({ findingId: "info", severity: "Info" }),
+      baseRow({ findingId: "warning", severity: "Warning" }),
+    ]);
+
+    expect(rows.map((row) => row.findingId)).toEqual(["warning", "info"]);
+  });
 });

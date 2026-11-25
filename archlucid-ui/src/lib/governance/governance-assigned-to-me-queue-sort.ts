@@ -7,6 +7,7 @@ const SEVERITY_ORDER: Readonly<Record<string, number>> = {
   critical: 0,
   error: 1,
   high: 1,
+  warning: 2,
   medium: 2,
   low: 3,
   informational: 4,
