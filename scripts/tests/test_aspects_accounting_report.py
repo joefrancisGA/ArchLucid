@@ -347,20 +347,12 @@ class AccountingReportTests(unittest.TestCase):
         result=sut.verified_subset(snap,expected_head="a"*40)
         self.assertEqual(result["oldest_900_first_parent_sha"],"b"*40)
         self.assertEqual(result["captured_utc"],"2026-11-23T17:00:00+00:00")
-        self.assertIn("Source-verified as-of UTC",sut.markdown({
-            "historical_900":{"actual_snapshots":79,
-              "latest_as_of_utc":"2026-11-22T14:43:00+00:00",
-              "latest_head_sha":"a"*40,"reported_defect_observations":463,
-              "reported_unique_reviewed_loc":343492,
-              "recomputed_defects_per_kloc":1.3479207667,
-              "recomputed_sma25":1.3431066973},
-            "provisional_700":{"observations":700,"backprojected_observations":100,
-              "workbook_observations":600,"latest_reported_defect_observations":491,
-              "latest_reported_cumulative_new_loc":343818,
-              "latest_provisional_defects_per_kloc":1.42808113,
-              "recomputed_sma25":1.39402217},
-            "current_verified_subset":result,"captured_utc":"2026-11-23T17:00:00+00:00"
-        }))
+        report, _, _ = sut.build_report(*fixture(), snap, expected_head="a"*40)
+        rendered = sut.markdown(report)
+        self.assertIn("Source-verified as-of UTC: **2026-11-23T17:00:00+00:00**", rendered)
+        cohort_line = next(line for line in rendered.splitlines()
+                           if "Oldest included 900 first-parent SHA:" in line)
+        self.assertIn("b"*40, cohort_line)
         missing_end=deepcopy(snap)
         del missing_end["cohort"]["oldest_included_sha"]
         with self.assertRaisesRegex(ValueError,"oldest 900 first-parent SHA"):
