@@ -40,6 +40,8 @@ public static class AzureInventoryEventGridSubscriptionSanitizer
             string? destinationHost,
             string? warningCode) = AzureInventoryEventGridDestinationExtractor.Extract(propertiesElement);
 
+        var deadLetter = AzureInventoryEventGridDeadLetterEvidence.Extract(propertiesElement);
+
         row = new AzureInventoryEventGridSubscriptionRow
         {
             SourceResourceId = sourceResourceId.Trim(),
@@ -49,6 +51,11 @@ public static class AzureInventoryEventGridSubscriptionSanitizer
             DestinationHost = destinationHost,
             DestinationKind = destinationKind,
             DeliveryAuthentication = AzureInventoryEventGridDeliveryAuthentication.Resolve(propertiesElement),
+            DeliveryUserAssignedIdentityResourceId = AzureInventoryEventGridDeliveryAuthentication.ReadUserAssignedIdentityResourceId(propertiesElement),
+            DeadLetterStatus = deadLetter.Status,
+            DeadLetterResourceId = deadLetter.ResourceId,
+            DeadLetterAuthentication = deadLetter.Authentication,
+            DeadLetterIdentityResourceId = deadLetter.IdentityResourceId,
             CollectionStatus = AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
             WarningCode = warningCode,
         };
