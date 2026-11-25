@@ -535,6 +535,11 @@ public sealed class HostedAzureExtractorClient(
         IReadOnlyList<HostedAzureArmResourceRecord> inventoryResources = resources;
         List<string> collectionWarnings = [];
 
+        if (subscriptionIds is HostedAzureManagementGroupSubscriptionCollection { PartialCollection: true })
+        {
+            collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+        }
+
         if (diagnosticSettingsResult.PartialCollection)
         {
             collectionWarnings.Add(AzureInventoryDiagnosticCompletenessWarningCodes.PartialCollection);
