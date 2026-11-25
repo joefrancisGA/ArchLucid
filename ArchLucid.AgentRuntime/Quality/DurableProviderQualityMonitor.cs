@@ -31,6 +31,10 @@ public sealed class DurableProviderQualityMonitor(
         return ExecuteAsync(sample.Key, state => state.Record(sample), cancellationToken);
     }
 
+    public Task<bool> SetOperatorOverrideAsync(
+        ProviderQualityKey key, TimeSpan? duration, Guid auditEventId, CancellationToken cancellationToken) =>
+        ExecuteAsync(key, state => state.SetOperatorOverride(key, duration, auditEventId), cancellationToken);
+
     public Task BindRecoveryTraceAsync(
         ProviderQualityKey key, Guid leaseId, string traceId, CancellationToken cancellationToken) =>
         ExecuteAsync(key, state => state.BindRecoveryTrace(key, leaseId, traceId), cancellationToken);

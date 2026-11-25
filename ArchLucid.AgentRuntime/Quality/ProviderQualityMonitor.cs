@@ -87,6 +87,7 @@ public interface IProviderQualityMonitor
 {
     Task<ProviderQualityAdmission> AdmitAsync(string? providerId, string? modelId, CancellationToken cancellationToken);
     Task<ProviderQualityRecordResult> RecordAsync(ProviderQualityAdjudication sample, CancellationToken cancellationToken);
+    Task<bool> SetOperatorOverrideAsync(ProviderQualityKey key, TimeSpan? duration, Guid auditEventId, CancellationToken cancellationToken);
     Task BindRecoveryTraceAsync(ProviderQualityKey key, Guid leaseId, string traceId, CancellationToken cancellationToken);
 }
 
@@ -119,6 +120,11 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
         cancellationToken.ThrowIfCancellationRequested();
         return Task.FromResult(Record(sample));
     }
+
+    // Platform overrides require shared state across replicas.
+    public Task<bool> SetOperatorOverrideAsync(
+        ProviderQualityKey key, TimeSpan? duration, Guid auditEventId, CancellationToken cancellationToken) =>
+        Task.FromResult(false);
 
     public Task BindRecoveryTraceAsync(ProviderQualityKey key, Guid leaseId, string traceId, CancellationToken cancellationToken)
     {
@@ -232,7 +238,7 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
 
             foreach ((ProviderQualityKey key, Entry entry) in _entries)
             {
-                if (key.ProviderId != provider || key.ModelId != model || !entry.Quarantined || entry.HumanOverride)
+                if (key.ProviderId != provider || key.ModelId != model || !entry.Quarantined || HasActiveOverride(entry))
                     continue;
 
                 selected = entry;
@@ -281,20 +287,35 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
         && entry.RecoveryProbeStartedUtc is { } started
         && _clock.GetUtcNow() - started < TimeSpan.FromSeconds(_options.RecoveryProbeLeaseSeconds);
 
-    public ProviderQualityRecordResult SetHumanOverride(ProviderQualityKey key, bool allow)
+    internal bool SetOperatorOverride(ProviderQualityKey key, TimeSpan? duration, Guid auditEventId)
     {
         ArgumentNullException.ThrowIfNull(key);
+        if (auditEventId == Guid.Empty || (duration is { } window
+            && (window < TimeSpan.FromMinutes(1) || window > TimeSpan.FromHours(1))))
+            return false;
+
         lock (_sync)
         {
-            Entry entry = Resolve(key);
-            bool changed = entry.HumanOverride != allow;
-            entry.HumanOverride = allow;
-            entry.LastReason = allow
-                ? "Human override permits this provider/model/version while quarantine history is retained."
-                : "Human override removed; quality quarantine applies again.";
-            return new ProviderQualityRecordResult(Snapshot(key, entry), changed, allow ? "override_enabled" : "override_removed");
+            if (!_entries.TryGetValue(key, out Entry? entry) || !entry.Quarantined)
+                return false;
+
+            if (duration is { } requested)
+            {
+                entry.OperatorOverrideUntilUtc = _clock.GetUtcNow() + requested;
+                ClearRecoveryProbe(entry);
+            }
+            else
+            {
+                entry.OperatorOverrideUntilUtc = null;
+            }
+
+            entry.OperatorOverrideAuditEventId = auditEventId;
+            return true;
         }
     }
+
+    private bool HasActiveOverride(Entry entry) =>
+        entry.OperatorOverrideUntilUtc is { } until && until > _clock.GetUtcNow();
 
     private Entry Resolve(ProviderQualityKey key)
     {
@@ -340,7 +361,7 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
         return Math.Max(0.0, (center - margin) / denominator);
     }
 
-    private static ProviderQualitySnapshot Snapshot(ProviderQualityKey key, Entry entry) =>
+    private ProviderQualitySnapshot Snapshot(ProviderQualityKey key, Entry entry) =>
         new(
             ProviderQualityKey.Create(key.ProviderId, key.ModelId, key.ModelVersion),
             entry.KnownSamples,
@@ -350,7 +371,7 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
             WilsonLowerBound(entry.BadSamples, entry.KnownSamples),
             entry.Quarantined,
             entry.QuarantinedUntilUtc,
-            entry.HumanOverride,
+            HasActiveOverride(entry),
             entry.RecoveryProbeInFlight,
             entry.LastReason);
 
@@ -384,7 +405,8 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
         public double BadWeight { get; set; }
         public bool Quarantined { get; set; }
         public DateTimeOffset? QuarantinedUntilUtc { get; set; }
-        public bool HumanOverride { get; set; }
+        public DateTimeOffset? OperatorOverrideUntilUtc { get; set; }
+        public Guid? OperatorOverrideAuditEventId { get; set; }
         public bool RecoveryProbeInFlight { get; set; }
         public DateTimeOffset? RecoveryProbeStartedUtc { get; set; }
         public Guid? RecoveryLeaseId { get; set; }

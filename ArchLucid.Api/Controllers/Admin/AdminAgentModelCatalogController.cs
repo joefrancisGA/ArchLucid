@@ -24,7 +24,7 @@ namespace ArchLucid.Api.Controllers.Admin;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin/agent-model-catalog")]
 [EnableRateLimiting("fixed")]
-public sealed class AdminAgentModelCatalogController(
+public sealed partial class AdminAgentModelCatalogController(
     IAgentModelCatalogRepository catalogRepository,
     IAgentModelCatalogEvaluationRecorder evaluationRecorder,
     IAgentModelCatalogFaithfulnessHarnessImporter faithfulnessHarnessImporter,
