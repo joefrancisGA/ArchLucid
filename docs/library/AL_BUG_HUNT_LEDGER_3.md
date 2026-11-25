@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt #4 (seed-only): `ui-lib-remediation-factory` pass-5 cheap-disproof. `remediation-factory` **88/88**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed→hit): `ui-marketing-surfaces` quote POST trim. MarketingPricingQuotePanel **8/8**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -11262,9 +11262,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 6
-- **bugs-found:** 3
-- **consecutive-dry-hunts:** 1
+- **hunts:** 7
+- **bugs-found:** 4
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
 - **related-pd-tb:** none

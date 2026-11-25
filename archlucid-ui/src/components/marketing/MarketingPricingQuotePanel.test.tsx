@@ -122,4 +122,30 @@ describe("MarketingPricingQuotePanel", () => {
 
     expect(fetch).not.toHaveBeenCalled();
   });
+  it("posts trimmed work email and company after validation", async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ ok: true }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<MarketingPricingQuotePanel openOnMount />);
+
+    fireEvent.change(screen.getByRole("textbox", { name: "Work email" }), {
+      target: { value: "  buyer@example.com  " },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "Company" }), {
+      target: { value: "  Contoso  " },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "Message" }), {
+      target: { value: "Please send pricing." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Submit quote request" }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+    });
+
+    const body = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
+
+    expect(body.workEmail).toBe("buyer@example.com");
+    expect(body.companyName).toBe("Contoso");
+  });
 });

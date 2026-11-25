@@ -286,3 +286,4 @@
 {"at":"2026-11-25T14:15:44.287Z","zoneId":"ui-lib-remediation-factory","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/remediation-factory/"]}
 
 {"at":"2026-11-25T14:18:10.768Z","zoneId":"ui-lib-remediation-factory","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/remediation-factory/"]}
+{"at":"2026-11-25T14:22:31.996Z","zoneId":"ui-marketing-surfaces","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/marketing/MarketingPricingQuotePanel.tsx","archlucid-ui/src/components/marketing/MarketingPricingQuotePanel.test.tsx"]}
