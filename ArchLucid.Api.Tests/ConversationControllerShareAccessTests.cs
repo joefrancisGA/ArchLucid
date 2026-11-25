@@ -99,9 +99,7 @@ public sealed class ConversationControllerShareAccessTests
         ConversationMessage[] foreign = Turn(thread, "foreign", "jwt:tenant:other", [A], 3);
         ConversationMessage[] legacy = Turn(thread, "legacy", Actor, [A], 4, legacy: true);
         ConversationMessage[] platform = Turn(thread, "platform", Actor, [A], 5, platform: true);
-        h.Messages.Setup(m => m.GetByThreadIdAsync(thread.ThreadId, PaginationDefaults.MaxListingTake,
-                CancellationToken.None))
-            .ReturnsAsync(permitted.Concat(revoked).Concat(foreign).Concat(legacy).Concat(platform).ToArray());
+        h.DirectMessages(thread, permitted.Concat(revoked).Concat(foreign).Concat(legacy).Concat(platform), permitted);
 
         IActionResult result = await h.Controller.GetMessages(thread.ThreadId, 2, CancellationToken.None);
         IReadOnlyList<ConversationMessage> rows = result.Should().BeOfType<OkObjectResult>().Which.Value
@@ -124,11 +122,28 @@ public sealed class ConversationControllerShareAccessTests
         ConversationThread thread = Thread(null);
         h.Threads.Setup(t => t.GetByIdAsync(thread.ThreadId, CancellationToken.None)).ReturnsAsync(thread);
         h.Project();
-        h.Messages.Setup(m => m.GetByThreadIdAsync(thread.ThreadId, PaginationDefaults.MaxListingTake,
-                CancellationToken.None))
-            .ReturnsAsync(Turn(thread, "legacy", Actor, [], 1, legacy: true));
+        h.DirectMessages(thread, Turn(thread, "legacy", Actor, [], 1, legacy: true), []);
 
         AssertStatus(await h.Controller.GetMessages(thread.ThreadId, ct: CancellationToken.None), 404);
+        h.Messages.Verify(m => m.GetAuthorizedMessagesAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(),
+            It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task GetMessages_does_not_load_pre_marker_questions_even_with_a_valid_answer_proof()
+    {
+        Harness h = new();
+        ConversationThread thread = Thread(A);
+        h.Threads.Setup(t => t.GetByIdAsync(thread.ThreadId, CancellationToken.None)).ReturnsAsync(thread);
+        h.CanRead(A, true);
+        h.Project(A);
+        ConversationMessage[] existing = Turn(thread, "existing", Actor, [A], 1);
+        existing[0].MetadataJson = "{}";
+        h.DirectMessages(thread, existing, []);
+
+        AssertStatus(await h.Controller.GetMessages(thread.ThreadId, ct: CancellationToken.None), 404);
+        h.Messages.Verify(m => m.GetAuthorizedMessagesAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(),
+            It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Theory]
@@ -146,9 +161,8 @@ public sealed class ConversationControllerShareAccessTests
 
         if (anchored)
         {
-            h.Messages.Setup(m => m.GetByThreadIdAsync(thread.ThreadId, PaginationDefaults.MaxListingTake,
-                CancellationToken.None)).ReturnsAsync(Turn(thread, "allowed", Actor, [A], 1)
-                    .Concat(Turn(thread, "unknown", Actor, [A, B], 2)).ToArray());
+            ConversationMessage[] allowed = Turn(thread, "allowed", Actor, [A], 1);
+            h.DirectMessages(thread, allowed.Concat(Turn(thread, "unknown", Actor, [A, B], 2)), allowed);
         }
 
         IActionResult result = await h.Controller.GetMessages(thread.ThreadId, ct: CancellationToken.None);
@@ -199,8 +213,10 @@ public sealed class ConversationControllerShareAccessTests
         visible.Title.Should().Be("Architecture Conversation");
         visible.LastUpdatedUtc.Should().Be(Stamp(paged ? 1 : 2));
         visible.CreatedUtc.Should().Be(visible.LastUpdatedUtc);
-        h.Messages.Verify(m => m.GetByThreadIdAsync(restricted.ThreadId, It.IsAny<int>(),
+        h.Messages.Verify(m => m.GetRecentProofsAsync(Scope, restricted.ThreadId, It.IsAny<int>(),
             It.IsAny<CancellationToken>()), Times.Never);
+        h.Messages.Verify(m => m.GetAuthorizedMessagesAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(),
+            It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()), Times.Never);
         h.Access.Verify(a => a.CanReadRunAsync(Scope, A, CancellationToken.None), Times.Once);
         h.Access.Verify(a => a.CanReadRunAsync(Scope, B, CancellationToken.None), Times.Once);
     }
@@ -257,7 +273,7 @@ public sealed class ConversationControllerShareAccessTests
         response.TotalCount.Should().Be(1);
         response.Items.Should().ContainSingle().Which.ThreadId.Should().Be(visible.ThreadId);
         h.Access.Verify(a => a.CanReadRunAsync(Scope, B, CancellationToken.None), Times.Once);
-        h.Messages.Verify(m => m.GetByThreadIdAsync(visible.ThreadId, 40, CancellationToken.None), Times.Once);
+        h.Messages.Verify(m => m.GetRecentProofsAsync(Scope, visible.ThreadId, 40, CancellationToken.None), Times.Once);
         h.Messages.VerifyNoOtherCalls();
     }
 
@@ -281,6 +297,7 @@ public sealed class ConversationControllerShareAccessTests
             {
                 ThreadId = thread.ThreadId, Role = ConversationMessageRole.User,
                 Content = question, CreatedUtc = Stamp(minute).AddSeconds(-1),
+                MetadataJson = AskHistoryEvidenceScope.CreateQuestionMetadata(thread.ThreadId, question),
             },
             new ConversationMessage
             {
@@ -332,7 +349,22 @@ public sealed class ConversationControllerShareAccessTests
                 .ReturnsAsync(((IReadOnlyList<ConversationThread>)threads, threads.Length));
 
         public void ListingMessages(ConversationThread thread, ConversationMessage[] messages) =>
-            Messages.Setup(m => m.GetByThreadIdAsync(thread.ThreadId, 40, CancellationToken.None))
-                .ReturnsAsync(messages);
+            Messages.Setup(m => m.GetRecentProofsAsync(Scope, thread.ThreadId, 40, CancellationToken.None))
+                .ReturnsAsync(messages.Select(ConversationProofRow.FromStoredMetadata).ToArray());
+
+        public void DirectMessages(ConversationThread thread, IEnumerable<ConversationMessage> candidates,
+            ConversationMessage[] expected)
+        {
+            Messages.Setup(m => m.GetRecentProofsAsync(Scope, thread.ThreadId,
+                    PaginationDefaults.MaxListingTake, CancellationToken.None))
+                .ReturnsAsync(candidates.Select(ConversationProofRow.FromStoredMetadata).ToArray());
+            if (expected.Length > 0)
+            {
+                var ids = expected.Select(m => m.MessageId).ToHashSet();
+                Messages.Setup(m => m.GetAuthorizedMessagesAsync(Scope, thread.ThreadId,
+                        It.Is<IReadOnlyCollection<Guid>>(requested => ids.SetEquals(requested)), CancellationToken.None))
+                    .ReturnsAsync(expected);
+            }
+        }
     }
 }

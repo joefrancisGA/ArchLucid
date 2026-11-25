@@ -5,11 +5,16 @@ on:
     paths:
       - 'ArchLucid.Api/Controllers/Planning/ConversationController.cs'
       - 'ArchLucid.Api.Tests/ConversationControllerShareAccessTests.cs'
+      - 'ArchLucid.Api.Tests/ConversationProofFirstHttpTests.cs'
+      - 'ArchLucid.Api.Tests/ConversationServiceTests.cs'
+      - 'ArchLucid.Core/Conversation/ConversationProofRow.cs'
+      - 'ArchLucid.Host.Core/Ask/ConversationService.cs'
       - 'ArchLucid.Host.Core/Services/Ask/AskHistoryEvidenceScope.cs'
       - 'ArchLucid.Host.Core/Services/Ask/IAskEvidenceAccess.cs'
       - 'ArchLucid.Api/Support/AskEvidenceAccess.cs'
       - 'ArchLucid.Application/Architecture/AuthorizedEvidenceRunResolver.cs'
       - 'ArchLucid.Persistence/Conversation/**'
+      - 'ArchLucid.Persistence.Tests/Contracts/*ConversationMessageRepositoryContractTests.cs'
       - '.github/workflows/fnd010-conversation-share-authorization.yml'
 permissions:
   contents: read
@@ -28,4 +33,47 @@ jobs:
       - name: Verify direct conversation and existing share authorization contracts
         run: >-
           dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj
-          --filter "FullyQualifiedName~ConversationControllerShareAccessTests|FullyQualifiedName~ConversationServiceTests|FullyQualifiedName~ArchitectureShareAccessGateNotFoundPolicyTests|FullyQualifiedName~RetrievalControllerShareAccessTests"
+          -c Release
+          --filter "FullyQualifiedName~ConversationControllerShareAccessTests|FullyQualifiedName~ConversationProofFirstHttpTests|FullyQualifiedName~ConversationServiceTests|FullyQualifiedName~ArchitectureShareAccessGateNotFoundPolicyTests|FullyQualifiedName~RetrievalControllerShareAccessTests"
+  scoped-history-storage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: 'LocalTesting123!'
+        ports:
+          - 1433:1433
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - uses: ./.github/actions/wait-for-sqlserver
+      - name: Verify SQL and in-memory conversation scope contracts
+        env:
+          ARCHLUCID_SQL_TEST: 'Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests'
+        run: >-
+          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~ConversationMessageRepositoryContractTests'
+          --logger 'trx;LogFileName=fnd061-conversation-scope.trx'
+      - name: Require the exact SQL proof-first case to execute
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          result, = Path("ArchLucid.Persistence.Tests/TestResults").glob("**/fnd061-conversation-scope.trx")
+          target = "DapperConversationMessageRepositoryContractTests.Proof_projection_and_exact_payload_selection_enforce_thread_and_scope"
+          root = ET.parse(result).getroot()
+          definition_ids = {
+              elem.get("id") for elem in root.findall(".//{*}UnitTest")
+              if any(target in (method.get("className", "") + "." + method.get("name", ""))
+                     for method in elem.findall("./{*}TestMethod"))
+          }
+          rows = [elem for elem in root.findall(".//{*}UnitTestResult")
+                  if elem.get("testId") in definition_ids or target in elem.get("testName", "")]
+          if len(rows) != 1 or rows[0].get("outcome") != "Passed":
+              raise SystemExit("Expected the exact SQL conversation scope case to execute and pass")
+          PY

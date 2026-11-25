@@ -85,19 +85,14 @@ public sealed class ConversationController(
             HashSet<Guid> authorizedRuns = new(projectRuns);
             authorizedRuns.UnionWith(anchors);
 
-            IReadOnlyList<ConversationMessage> messages =
-                await messageRepository.GetByThreadIdAsync(thread.ThreadId, ListingHistoryTake, ct);
-            IReadOnlyList<ConversationMessage> verified = AskHistoryEvidenceScope.SelectVerifiedTurns(
-                messages, thread.ThreadId, actorId!, authorizedRuns);
+            IReadOnlyList<ConversationProofRow> proofs =
+                await messageRepository.GetRecentProofsAsync(scope, thread.ThreadId, ListingHistoryTake, ct);
+            var verified = AskHistoryEvidenceScope.SelectVerifiedTurnReferences(
+                proofs, thread.ThreadId, actorId!, authorizedRuns);
             if (verified.Count == 0)
                 continue;
 
             // Do not reveal a title or last activity caused by an unverified turn.
-            ConversationMessage[] completed = verified
-                .Where(m => m.Role == ConversationMessageRole.Assistant).ToArray();
-            if (completed.Length == 0)
-                continue;
-
             visible.Add(new ConversationThread
             {
                 ThreadId = thread.ThreadId,
@@ -108,8 +103,8 @@ public sealed class ConversationController(
                 BaseRunId = thread.BaseRunId,
                 TargetRunId = thread.TargetRunId,
                 Title = "Architecture Conversation",
-                CreatedUtc = completed.Min(m => m.CreatedUtc),
-                LastUpdatedUtc = completed.Max(m => m.CreatedUtc),
+                CreatedUtc = verified.Min(turn => turn.Answer.CreatedUtc),
+                LastUpdatedUtc = verified.Max(turn => turn.Answer.CreatedUtc),
             });
         }
 
@@ -155,10 +150,21 @@ public sealed class ConversationController(
         HashSet<Guid> authorizedRuns = projectRuns ?? [];
         authorizedRuns.UnionWith(anchors);
 
-        // Read the bounded recent window before applying the caller's result limit. A denied
-        // recent turn must not crowd a permitted turn out of the requested response.
-        IReadOnlyList<ConversationMessage> messages = await messageRepository.GetByThreadIdAsync(
-            threadId, PaginationDefaults.MaxListingTake, ct);
+        // Verify the bounded proof window first. Denied turns never enter the payload query.
+        IReadOnlyList<ConversationProofRow> proofs = await messageRepository.GetRecentProofsAsync(
+            scope, threadId, PaginationDefaults.MaxListingTake, ct);
+        var pairs = AskHistoryEvidenceScope.SelectVerifiedTurnReferences(proofs, threadId, actorId!, authorizedRuns);
+        if (pairs.Count == 0)
+            return NotFoundThread();
+
+        var messageIds = pairs.SelectMany(pair => new[] { pair.Question.MessageId, pair.Answer.MessageId }).ToHashSet();
+        IReadOnlyList<ConversationMessage> messages = await messageRepository.GetAuthorizedMessagesAsync(
+            scope, threadId, messageIds, ct);
+        if (messages.Count != messageIds.Count || !messageIds.SetEquals(messages.Select(m => m.MessageId)) ||
+            messages.Any(m => m.ThreadId != threadId))
+            return NotFoundThread();
+
+        // Rebind the hydrated question text to the same proof before returning it.
         IReadOnlyList<ConversationMessage> verified = AskHistoryEvidenceScope.SelectVerifiedTurns(
             messages, threadId, actorId!, authorizedRuns);
         if (verified.Count == 0)

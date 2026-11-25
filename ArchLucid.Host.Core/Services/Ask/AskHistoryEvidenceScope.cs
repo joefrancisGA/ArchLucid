@@ -19,6 +19,10 @@ public sealed record AskHistoryEvidenceScope(string ActorKey, string[] RunKeys, 
             ? null
             : Digest(threadId, "actor", actorId);
 
+    public static string CreateQuestionMetadata(Guid threadId, string question) =>
+        string.IsNullOrWhiteSpace(question) ? "{}" :
+        JsonSerializer.Serialize(new { conversationQuestionKeyV1 = Digest(threadId, "question", question) }, JsonOptions);
+
     public static AskHistoryEvidenceScope? Create(
         Guid threadId, string actorId, IReadOnlySet<Guid> authorizedRuns, string question, bool platformCorporaRequested)
     {
@@ -61,9 +65,31 @@ public sealed record AskHistoryEvidenceScope(string ActorKey, string[] RunKeys, 
         string actorId, IReadOnlySet<Guid> authorizedRuns) =>
         SelectVerifiedTurnsCore(messages, threadId, actorId, authorizedRuns, "askEvidenceScopeV1");
 
+    /// <summary>Authorizes immutable references without reading message content.</summary>
+    public static IReadOnlyList<(ConversationProofRow Question, ConversationProofRow Answer)> SelectVerifiedTurnReferences(
+        IReadOnlyList<ConversationProofRow> proofs, Guid threadId, string actorId, IReadOnlySet<Guid> authorizedRuns) =>
+        SelectVerifiedPairs(
+            proofs.Where(row => row.MessageId != Guid.Empty).Select(row => new TurnCandidate<ConversationProofRow>(
+                row, row.ThreadId, row.Role, row.QuestionKey, ReadProof(row.AnswerProofJson))),
+            threadId, actorId, authorizedRuns);
+
     private static IReadOnlyList<ConversationMessage> SelectVerifiedTurnsCore(
         IReadOnlyList<ConversationMessage> messages, Guid threadId,
         string actorId, IReadOnlySet<Guid> authorizedRuns, string proofProperty)
+    {
+        var pairs = SelectVerifiedPairs(
+            messages.Select(message => new TurnCandidate<ConversationMessage>(
+                message, message.ThreadId, message.Role,
+                message.Role == ConversationMessageRole.User && !string.IsNullOrWhiteSpace(message.Content)
+                    ? Digest(threadId, "question", message.Content) : null,
+                message.Role == ConversationMessageRole.Assistant
+                    ? ReadProof(message.MetadataJson, proofProperty) : null)),
+            threadId, actorId, authorizedRuns);
+        return pairs.SelectMany(pair => new[] { pair.Question, pair.Answer }).ToList();
+    }
+
+    private static IReadOnlyList<(T Question, T Answer)> SelectVerifiedPairs<T>(
+        IEnumerable<TurnCandidate<T>> candidates, Guid threadId, string actorId, IReadOnlySet<Guid> authorizedRuns)
     {
         string? key = ActorKeyFor(threadId, actorId);
         if (key is null)
@@ -73,50 +99,57 @@ public sealed record AskHistoryEvidenceScope(string ActorKey, string[] RunKeys, 
             .Where(id => id != Guid.Empty)
             .Select(id => Digest(threadId, "run", id.ToString("D")))
             .ToHashSet(StringComparer.Ordinal);
-        Dictionary<string, ConversationMessage> priorQuestions = new(StringComparer.Ordinal);
-        List<ConversationMessage> verified = [];
-        foreach (ConversationMessage message in messages)
+        Dictionary<string, T> priorQuestions = new(StringComparer.Ordinal);
+        List<(T Question, T Answer)> verified = [];
+        foreach (TurnCandidate<T> candidate in candidates)
         {
-            if (message.ThreadId != threadId)
+            if (candidate.ThreadId != threadId)
                 continue;
 
-            if (message.Role == ConversationMessageRole.User)
+            if (candidate.Role == ConversationMessageRole.User)
             {
-                if (!string.IsNullOrWhiteSpace(message.Content))
-                    priorQuestions[Digest(threadId, "question", message.Content)] = message;
+                if (!string.IsNullOrWhiteSpace(candidate.QuestionKey))
+                    priorQuestions[candidate.QuestionKey] = candidate.Row;
                 continue;
             }
 
-            if (message.Role != ConversationMessageRole.Assistant ||
-                string.IsNullOrWhiteSpace(message.MetadataJson))
+            AskHistoryEvidenceScope? previous = candidate.Proof;
+            if (candidate.Role != ConversationMessageRole.Assistant || previous is null ||
+                previous.ActorKey != key || previous.RunKeys is null ||
+                previous.RunKeys.Any(runKey => !currentRuns.Contains(runKey)) ||
+                string.IsNullOrWhiteSpace(previous.QuestionKey) ||
+                !priorQuestions.TryGetValue(previous.QuestionKey, out T? question))
                 continue;
 
-            try
-            {
-                using JsonDocument json = JsonDocument.Parse(message.MetadataJson);
-                if (json.RootElement.ValueKind != JsonValueKind.Object ||
-                    !json.RootElement.TryGetProperty(proofProperty, out JsonElement proof) ||
-                    proof.ValueKind != JsonValueKind.Object)
-                    continue;
-
-                AskHistoryEvidenceScope? previous = proof.Deserialize<AskHistoryEvidenceScope>(JsonOptions);
-                if (previous is null || previous.ActorKey != key || previous.RunKeys is null ||
-                    previous.RunKeys.Any(runKey => !currentRuns.Contains(runKey)) ||
-                    string.IsNullOrWhiteSpace(previous.QuestionKey) ||
-                    !priorQuestions.TryGetValue(previous.QuestionKey, out ConversationMessage? question))
-                    continue;
-
-                // The completed turn binds its question by digest. Never pair arbitrary adjacent
-                // user rows (requests can interleave); do not persist duplicate question text or raw run IDs.
-                verified.Add(question);
-                verified.Add(message);
-            }
-            catch (JsonException)
-            {
-                // Missing/legacy/malformed provenance cannot be used for grounding.
-            }
+            // Bind by digest, not adjacency. Requests can interleave.
+            verified.Add((question, candidate.Row));
         }
 
         return verified;
     }
+
+    private static AskHistoryEvidenceScope? ReadProof(string? json, string? property = null)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return null;
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(json);
+            JsonElement proof = document.RootElement;
+            if (proof.ValueKind != JsonValueKind.Object ||
+                (property is not null && (!proof.TryGetProperty(property, out proof) ||
+                                         proof.ValueKind != JsonValueKind.Object)))
+                return null;
+
+            return proof.Deserialize<AskHistoryEvidenceScope>(JsonOptions);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
+
+    private readonly record struct TurnCandidate<T>(
+        T Row, Guid ThreadId, string Role, string? QuestionKey, AskHistoryEvidenceScope? Proof);
 }
