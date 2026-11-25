@@ -4,6 +4,7 @@ import {
   RESOURCE_HUB_FINDING_ID_PARAM,
   RESOURCE_HUB_INSTANCE_ID_PARAM,
   RESOURCE_HUB_SEED_NODE_ID_PARAM,
+  RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM,
   buildInfrastructureAskHref,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
@@ -19,6 +20,7 @@ const INFRASTRUCTURE_ASK_TARGET_PARAMS = [
   RESOURCE_HUB_INSTANCE_ID_PARAM,
   RESOURCE_HUB_CORRESPONDENCE_ID_PARAM,
   RESOURCE_HUB_SEED_NODE_ID_PARAM,
+  RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM,
 ] as const;
 
 export function parseInfrastructureAskOpenFromSearch(raw: string | null | undefined): boolean {

@@ -29,6 +29,7 @@ export type InfraEvidenceAskScopeKeyInput = {
   readonly assessmentId?: string;
   readonly auditEvidenceSnapshotId?: string;
   readonly controlId?: string;
+  readonly securityEvidencePathId?: string;
   readonly workQueue?: string;
   readonly hubTab?: string;
 };
@@ -102,6 +103,7 @@ export function buildInfraEvidenceAskScopeKey(input: InfraEvidenceAskScopeKeyInp
     normalizeScopePart(input.assessmentId),
     normalizeScopePart(input.auditEvidenceSnapshotId),
     normalizeScopePart(input.controlId),
+    normalizeScopePart(input.securityEvidencePathId),
     normalizeScopePart(input.workQueue),
     normalizeScopePart(input.hubTab),
   ];

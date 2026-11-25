@@ -50,6 +50,19 @@ describe("buildInfrastructureAskHandoffHref", () => {
     expect(href).toContain("details=1");
     expect(href).not.toContain("findingId=");
   });
+  it("preserves securityEvidencePathId in overlay handoff", () => {
+    const href = buildInfrastructureAskHandoffHref(
+      "/infrastructure/diagrams",
+      "snapshotId=11111111-1111-1111-1111-111111111111",
+      {
+        snapshotId: "11111111-1111-1111-1111-111111111111",
+        securityEvidencePathId: "22222222-2222-2222-2222-222222222222",
+        hubTab: "remediation",
+      },
+    );
+    expect(href).toContain("securityEvidencePathId=22222222-2222-2222-2222-222222222222");
+    expect(href).toContain("tab=remediation");
+  });
 });
 
 describe("infrastructureAskDrawerCloseHref", () => {

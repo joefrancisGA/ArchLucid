@@ -62,6 +62,18 @@ def validate(root: Path = ROOT) -> list[str]:
     if "AskEvidenceRowCap = 50" not in prompt:
         errors.append("Ask evidence cap must remain 50")
 
+    ui_honesty = (
+        root / "archlucid-ui/src/lib/infra-evidence/infrastructure-ask-ranked-path-honesty-copy.ts"
+    )
+    if ui_honesty.is_file():
+        ui_text = ui_honesty.read_text(encoding="utf-8")
+        if "does not change the rank" not in ui_text:
+            errors.append("UI ranked path Ask copy must state rank unchanged")
+        if "50" not in ui_text:
+            errors.append("UI ranked path Ask copy must cite 50-row cap")
+    else:
+        errors.append("UI ranked path Ask honesty copy file is missing")
+
     return errors
 
 

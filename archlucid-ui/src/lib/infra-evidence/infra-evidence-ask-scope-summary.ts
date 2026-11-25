@@ -25,6 +25,7 @@ export type InfraEvidenceAskScopeSummaryInput = {
   readonly auditEvidenceSnapshotId?: string;
   readonly controlId?: string;
   readonly workQueue?: CloudResourceExplorerWorkQueue;
+  readonly securityEvidencePathId?: string;
 };
 
 export type InfraEvidenceAskSnapshotFreshness = {
@@ -133,6 +134,10 @@ export function formatInfraEvidenceAskScopeStack(input: InfraEvidenceAskScopeSum
     && input.controlId.trim().length > 0
   ) {
     segments.push(`audit control ${input.controlId.trim()}`);
+  }
+
+  if (input.securityEvidencePathId != null && input.securityEvidencePathId.trim().length > 0) {
+    segments.push(`stored security evidence path ${input.securityEvidencePathId.trim()}`);
   }
 
   if (input.workQueue != null && input.workQueue !== "all") {

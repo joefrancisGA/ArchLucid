@@ -84,6 +84,10 @@ import {
 } from "@/lib/product-line/path-inspect-long-path-id-honesty-copy";
 import { PATH_INSPECT_PARTIAL_CAPTURE_LINE } from "@/lib/product-line/path-inspect-partial-capture-honesty-copy";
 import { SecureNowInfraPartialCaptureStrip } from "@/components/product-line/SecureNowInfraPartialCaptureStrip";
+import { RemediationFactoryRankedPathAskHandoff } from "@/components/remediation-factory/RemediationFactoryRankedPathAskHandoff";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { SECURENOW_INVESTIGATION_EFFORT_PATH } from "@/lib/product-line/securenow-investigation-effort-copy";
 import {
   OPERATOR_QUERY_GC_MS,
@@ -802,6 +806,8 @@ export function SecurityEvidencePathInspectPanel(props: {
       : useSimulatorForExplanation
         ? SECURENOW_PATH_INSPECT_EXPLANATION_SIMULATOR_CONFIG_LINE
         : SECURENOW_PATH_INSPECT_EXPLANATION_REAL_MODE_LINE;
+  const { productLine } = useProductLine();
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
   const instancesQuery = useQuery({
     queryKey: ["remediation-instances", "by-finding", props.findingId],
     queryFn: () => fetchRemediationInstances({ findingId: props.findingId }),
@@ -1016,6 +1022,12 @@ export function SecurityEvidencePathInspectPanel(props: {
             findingId={props.findingId}
             pathId={resolvedPathId}
             verificationId={advisoryInstance?.verificationSnapshotId ?? advisoryInstance?.instanceId ?? null}
+          />
+          <RemediationFactoryRankedPathAskHandoff
+            testId="security-evidence-path-inspect-ranked-path-ask"
+            snapshotId={pathQuery.data.snapshotId ?? null}
+            securityEvidencePathId={resolvedPathId}
+            disabled={partialCapture}
           />
           <div className="flex flex-wrap items-center gap-2">
             <StatusTag kind="neutral" label={formatSecurityEvidencePathKindLabel(pathQuery.data.pathKind)} title={pathQuery.data.pathKind} />
