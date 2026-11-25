@@ -1,6 +1,6 @@
 import { buildGovernanceFindingsQueueHref } from "@/lib/metric-count-presentation";
 import type { RemediationFactoryMetrics } from "@/lib/remediation-factory-types";
-import { parseNonNegativeFiniteNumber } from "@/lib/parse-finite-number";
+import { parseFiniteNumber, parseNonNegativeFiniteNumber } from "@/lib/parse-finite-number";
 import {
   formatRemediationFactoryPercentPoints,
   REMEDIATION_FACTORY_PERCENT_POPULATION_LINE,
@@ -55,8 +55,19 @@ export function remediationFactoryCountMetricPresentation(input: {
   readonly value: number | null | undefined;
   readonly scopeNote: string;
   readonly href?: string;
+  readonly signedCount?: boolean;
 }): RemediationFactoryMetricPresentation {
-  if (input.value === null || input.value === undefined) {
+  const normalized = parseFiniteNumber(input.value);
+
+  if (normalized === null) {
+    return {
+      displayValue: REVIEW_SCORECARD_EMPTY_VALUE,
+      scopeNote: REVIEW_SCORECARD_NOT_MEASURED_LABEL,
+      state: "notMeasured",
+    };
+  }
+
+  if (input.signedCount !== true && normalized < 0) {
     return {
       displayValue: REVIEW_SCORECARD_EMPTY_VALUE,
       scopeNote: REVIEW_SCORECARD_NOT_MEASURED_LABEL,
@@ -65,9 +76,9 @@ export function remediationFactoryCountMetricPresentation(input: {
   }
 
   return {
-    displayValue: String(input.value),
+    displayValue: String(normalized),
     scopeNote: input.scopeNote,
-    state: input.value === 0 ? "measuredZero" : "measured",
+    state: normalized === 0 ? "measuredZero" : "measured",
     href: input.href,
   };
 }
@@ -77,7 +88,9 @@ export function remediationFactoryDecimalMetricPresentation(input: {
   readonly fractionDigits?: number;
   readonly scopeNote: string;
 }): RemediationFactoryMetricPresentation {
-  if (input.value === null || input.value === undefined) {
+  const normalized = parseFiniteNumber(input.value);
+
+  if (normalized === null) {
     return {
       displayValue: REVIEW_SCORECARD_EMPTY_VALUE,
       scopeNote: REVIEW_SCORECARD_NOT_MEASURED_LABEL,
@@ -86,9 +99,9 @@ export function remediationFactoryDecimalMetricPresentation(input: {
   }
 
   return {
-    displayValue: input.value.toFixed(input.fractionDigits ?? 2),
+    displayValue: normalized.toFixed(input.fractionDigits ?? 2),
     scopeNote: input.scopeNote,
-    state: input.value === 0 ? "measuredZero" : "measured",
+    state: normalized === 0 ? "measuredZero" : "measured",
   };
 }
 
@@ -97,7 +110,9 @@ export function remediationFactoryPercentMetricPresentation(input: {
   readonly scopeNote: string;
   readonly plainScopeNote?: boolean;
 }): RemediationFactoryMetricPresentation {
-  if (input.value === null || input.value === undefined) {
+  const normalized = parseNonNegativeFiniteNumber(input.value);
+
+  if (normalized === null) {
     return {
       displayValue: REVIEW_SCORECARD_EMPTY_VALUE,
       scopeNote: REVIEW_SCORECARD_NOT_MEASURED_LABEL,
@@ -111,9 +126,9 @@ export function remediationFactoryPercentMetricPresentation(input: {
       : `${WORKSPACE_METRICS_SCOPE}. ${REMEDIATION_FACTORY_PERCENT_POPULATION_LINE} ${input.scopeNote}`;
 
   return {
-    displayValue: formatRemediationFactoryPercentPoints(input.value),
+    displayValue: formatRemediationFactoryPercentPoints(normalized),
     scopeNote,
-    state: input.value === 0 ? "measuredZero" : "measured",
+    state: normalized === 0 ? "measuredZero" : "measured",
   };
 }
 
@@ -155,11 +170,15 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
         value: metrics?.criticalExposureCount,
         scopeNote: REMEDIATION_FACTORY_CRITICAL_EXPOSURE_HELPER,
         href: buildGovernanceFindingsQueueHref({ filter: "critical-error" }),
-      }),
-      hint:
-        metrics?.criticalExposureCount === 0
-          ? "No critical-or-error findings in this metric for the current scope."
-          : undefined,
+      }),      hint: (() => {
+        const count = parseNonNegativeFiniteNumber(metrics?.criticalExposureCount);
+
+        if (count === 0) {
+          return "No critical-or-error findings in this metric for the current scope.";
+        }
+
+        return undefined;
+      })(),
     },
     {
       key: "recurrence",
@@ -175,6 +194,7 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
       presentation: remediationFactoryCountMetricPresentation({
         value: metrics?.netBurn,
         scopeNote: REMEDIATION_FACTORY_NET_BURN_HELPER,
+        signedCount: true,
       }),
     },
     {

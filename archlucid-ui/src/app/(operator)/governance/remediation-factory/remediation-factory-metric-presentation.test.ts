@@ -23,6 +23,28 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "automation")?.value).toBe("1%");
   });
 
+  it("renders non-finite critical exposure counts as not measured", () => {
+    const metrics = { criticalExposureCount: Number.NaN } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics,
+      openFindingsHref: "/security/findings",
+    });
+    const presentation = tiles.find((tile) => tile.key === "critical-exposure")?.presentation;
+
+    expect(presentation?.displayValue).toBe("Not measured");
+    expect(presentation?.state).toBe("notMeasured");
+    expect(tiles.find((tile) => tile.key === "critical-exposure")?.hint).toBeUndefined();
+  });
+
+  it("keeps signed net burn values in the executive table", () => {
+    const metrics = { netBurn: -3 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics,
+      openFindingsHref: "/security/findings",
+    });
+
+    expect(tiles.find((tile) => tile.key === "net-burn")?.presentation.displayValue).toBe("-3");
+  });
   it("renders a missing count as not measured", () => {
     expect(remediationFactoryCountMetricPresentation({ value: null, scopeNote: "scope" })).toEqual(
       expect.objectContaining({
