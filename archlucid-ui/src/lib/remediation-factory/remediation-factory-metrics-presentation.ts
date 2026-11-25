@@ -145,16 +145,18 @@ export function buildRemediationFactoryExecutiveMetricTiles(
   const criticalExposureValue = formatCount(metrics?.criticalExposureCount);
   const openFindingsFactoryValue = formatCount(metrics?.openFindings);
   const riskWeightedOpenValue = formatDecimal(metrics?.riskWeightedOpen, 2);
+  const patternExactPercentValue = formatPercentPoints(metrics?.patternCoverageExactMatchPercent);
 
   return [
     {
       id: "open-findings-queue",
       label: "Open findings (queue)",
       scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
-      windowLine: windowLineWhenLoaded(
-        "Governance queue open filter — may differ from factory metrics API.",
-      ),
-      value: formatCount(metrics?.openFindings),
+      windowLine:
+        openFindingsFactoryValue !== null
+          ? windowLineWhenLoaded("Governance queue open filter — may differ from factory metrics API.")
+          : undefined,
+      value: openFindingsFactoryValue,
       href: openFindingsHref,
     },
     {
@@ -175,7 +177,7 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
       ruleLine:
         metricsLoaded && riskWeightedOpenValue !== null
-          ? `${PRIORITIZATION_RULE} ? weighted sum, not a finding count`
+          ? `${PRIORITIZATION_RULE} · weighted sum, not a finding count`
           : undefined,
       value: riskWeightedOpenValue,
     },
@@ -219,8 +221,11 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       id: "pattern-exact",
       label: "Pattern exact match %",
       scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
-      windowLine: windowLineWhenLoaded(REMEDIATION_FACTORY_PERCENT_POPULATION_LINE),
-      value: formatPercentPoints(metrics?.patternCoverageExactMatchPercent),
+      windowLine:
+        patternExactPercentValue !== null
+          ? windowLineWhenLoaded(REMEDIATION_FACTORY_PERCENT_POPULATION_LINE)
+          : undefined,
+      value: patternExactPercentValue,
     },
     {
       id: "automation",

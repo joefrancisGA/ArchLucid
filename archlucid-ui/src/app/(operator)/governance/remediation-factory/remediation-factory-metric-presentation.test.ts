@@ -240,6 +240,30 @@ describe("remediation-factory-metric-presentation", () => {
 
 
 
+
+  it("uses middle dot in risk-weighted ruleLine when value is measured", () => {
+    const metrics = { riskWeightedOpen: 1.2 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "risk-weighted-open")?.ruleLine).toContain("· weighted sum");
+    expect(tiles.find((tile) => tile.id === "risk-weighted-open")?.ruleLine).not.toContain("? weighted sum");
+  });
+
+  it("omits open-findings-queue windowLine when open findings count is not returned", () => {
+    const metrics = { automationPercent: 5 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "open-findings-queue")?.value).toBeNull();
+    expect(tiles.find((tile) => tile.id === "open-findings-queue")?.windowLine).toBeUndefined();
+  });
+
+  it("omits pattern-exact windowLine when percent is not returned", () => {
+    const metrics = { automationPercent: 5 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "pattern-exact")?.value).toBeNull();
+    expect(tiles.find((tile) => tile.id === "pattern-exact")?.windowLine).toBeUndefined();
+  });
   it("omits ruleLine on risk-weighted-open when value is not returned", () => {
     const metrics = { openFindings: 1 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
