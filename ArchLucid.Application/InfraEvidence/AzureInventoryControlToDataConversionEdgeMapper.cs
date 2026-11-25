@@ -49,7 +49,8 @@ public static class AzureInventoryControlToDataConversionEdgeMapper
                 assignment,
                 roleDefinitionId);
 
-            if (!AzureInventoryControlPlaneBuiltinRoles.IsContributorOrOwner(roleName))
+            if (!AzureInventoryControlPlaneBuiltinRoles.IsContributorOrOwner(roleName)
+                && !string.Equals(roleName, "EventGrid Contributor", StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
@@ -78,7 +79,8 @@ public static class AzureInventoryControlToDataConversionEdgeMapper
                     roleName,
                     resource.ResourceType,
                     resource.Properties);
-                AddCodeControlEdge(
+                if (AzureInventoryControlPlaneBuiltinRoles.IsContributorOrOwner(roleName))
+                    AddCodeControlEdge(
                     relationships,
                     relationshipKeys,
                     principalNodeId,
