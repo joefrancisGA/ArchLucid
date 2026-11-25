@@ -7,17 +7,20 @@ namespace ArchLucid.Core.Tests.Pagination;
 [Trait("Category", "Unit")]
 public sealed class PagedResponseBuilderTests
 {
-    [Fact]
-    public void Build_ReturnsSlice_AndTotalCount()
+    [Theory]
+    [InlineData(4, false)]
+    [InlineData(5, true)]
+    public void Build_ReturnsSlice_AndDistinguishesAnExactlyFullLastPage(int totalCount, bool hasMore)
     {
-        IReadOnlyList<int> all = [1, 2, 3, 4, 5];
+        IReadOnlyList<int> all = Enumerable.Range(1, totalCount).ToArray();
 
         PagedResponse<int> page = PagedResponseBuilder.Build(all, 2, 2);
 
         page.Items.Should().Equal(3, 4);
-        page.TotalCount.Should().Be(5);
+        page.TotalCount.Should().Be(totalCount);
         page.Page.Should().Be(2);
         page.PageSize.Should().Be(2);
+        page.HasMore.Should().Be(hasMore);
     }
 
     [Fact]
