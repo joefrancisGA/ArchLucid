@@ -82,15 +82,15 @@ public sealed class LlmMonthlySpendPlanIdTests
     }
 
     [Fact]
-    public void FromCommercialPackaging_maps_professional_label_even_when_subscription_is_one_seat()
+    public void FromCommercialPackaging_does_not_use_architect_for_one_seat_with_two_workspaces()
     {
-        BillingSubscriptionSnapshot subscription = new("stripe", nameof(TenantTier.Standard), 1, 1, "Active");
+        BillingSubscriptionSnapshot subscription = new("stripe", nameof(TenantTier.Standard), 1, 2, "Active");
 
         string? planId = LlmMonthlySpendPlanId.FromCommercialPackaging(
-            CommercialPackagingTierLabels.Professional,
+            CommercialPackagingTierLabels.Team,
             subscription);
 
-        planId.Should().Be(LlmMonthlySpendPlanId.Professional);
+        planId.Should().Be(LlmMonthlySpendPlanId.Team);
     }
 
     [Fact]
