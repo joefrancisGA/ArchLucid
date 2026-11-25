@@ -1101,6 +1101,88 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.Single(result.Values);
     }
 
+    [Theory]
+    [InlineData("{")]
+    [InlineData("[]")]
+    [InlineData("{}")]
+    [InlineData("{\"value\":null}")]
+    [InlineData("{\"value\":[],\"nextLink\":42}")]
+    [InlineData("{\"value\":[null]}")]
+    public async Task ListChildResourcesWithStatusAsync_marks_malformed_page_partial(string body)
+    {
+        using HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            }));
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        HostedAzureArmChildCollectionReadResult result = await client.ListChildResourcesWithStatusAsync(
+            "token", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventGrid/topics/topic1",
+            "eventSubscriptions", "2022-06-15", CancellationToken.None);
+
+        Assert.True(result.PartialCollection);
+        Assert.Empty(result.Values);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ListChildResourcesWithStatusAsync_marks_empty_prefix_partial_on_failure_or_cycle(bool cycle)
+    {
+        const string parent = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventGrid/topics/topic1";
+        string next = $"https://management.azure.com{parent}/eventSubscriptions?api-version=2022-06-15&$skiptoken=page2";
+        int requests = 0;
+        using HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int count = Interlocked.Increment(ref requests);
+                if (count > 3)
+                    throw new InvalidOperationException("Pagination did not terminate.");
+
+                if (!cycle && count == 3)
+                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.Forbidden));
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(
+                        "{\"value\":[],\"nextLink\":\"" + next + "\"}"),
+                });
+            });
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        HostedAzureArmChildCollectionReadResult result = await client.ListChildResourcesWithStatusAsync(
+            "token", parent, "eventSubscriptions", "2022-06-15", CancellationToken.None);
+
+        Assert.True(result.PartialCollection);
+        Assert.Empty(result.Values);
+        Assert.Equal(3, requests);
+    }
+
+    [Fact]
+    public async Task ListChildResourcesWithStatusAsync_valid_empty_terminal_page_is_complete()
+    {
+        using HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("{\"value\":[],\"nextLink\":null}"),
+            }));
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        HostedAzureArmChildCollectionReadResult result = await client.ListChildResourcesWithStatusAsync(
+            "token", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventGrid/topics/topic1",
+            "eventSubscriptions", "2022-06-15", CancellationToken.None);
+
+        Assert.False(result.PartialCollection);
+        Assert.Empty(result.Values);
+    }
+
     [Fact]
     public async Task ListChildJsonElementsAsync_rejects_next_link_for_different_parent_resource_id()
     {
