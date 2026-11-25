@@ -11,6 +11,7 @@ export function DriftClaimOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="governance-infrastructure-drift"
+      sourcesTestId="infra-drift-sources"
       sourcesIntro={GOVERNANCE_INFRASTRUCTURE_DRIFT_SOURCES_INTRO}
       sources={GOVERNANCE_INFRASTRUCTURE_DRIFT_SOURCES}
     />
