@@ -87,6 +87,10 @@ public sealed class LlmCompletionAccountingTelemetry
             .ConfigureAwait(false);
     }
 
+    internal void LogPreCallReservationReleaseFailure(Exception exception, string budgetPeriod) =>
+        _logger.LogWarning(exception, "Could not release {BudgetPeriod} LLM budget reservation after preflight failed.",
+            budgetPeriod);
+
     private async Task TryRecordLlmUsageMeteringAsync(
         ScopeContext scope,
         int promptTok,
