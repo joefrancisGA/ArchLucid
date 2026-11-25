@@ -29,40 +29,31 @@ function readUuidParam(params: URLSearchParams, key: string): string | null {
 }
 
 
-const REMEDIATION_FACTORY_DISCLOSURE_DECIMAL_ONE_CODEPOINTS = new Set<number>([
-  0x0661, // ١ ARABIC-INDIC DIGIT ONE
-  0x06f1, // ۱ EXTENDED ARABIC-INDIC DIGIT ONE
-  0x0967, // १ DEVANAGARI DIGIT ONE
-  0x09e7, // ১ BENGALI DIGIT ONE
-  0x0e51, // ๑ THAI DIGIT ONE
-  0x1d7d1, // 𝟙 MATHEMATICAL DOUBLE-STRUCK DIGIT ONE
-  0x0be7, // ௧ TAMIL DIGIT ONE
-  0x0c67, // ౧ TELUGU DIGIT ONE
-  0x1041, // ၁ MYANMAR DIGIT ONE
-  0x17e1, // ១ KHMER DIGIT ONE
-  0x0ae7, // ૧ GUJARATI DIGIT ONE
-  0x0d67, // ൧ MALAYALAM DIGIT ONE
-  0x0ce7, // ೧ KANNADA DIGIT ONE
-  0x0b67, // ୧ ORIYA DIGIT ONE
-  0x0ed1, // ໑ LAO DIGIT ONE
-  0x0f21, // ༡ TIBETAN DIGIT ONE
-  0x0a67, // ੧ GURMUKHI DIGIT ONE
-  0x1811, // ᠑ MONGOLIAN DIGIT ONE
-  0xabf1, // ꯱ MEETEI MAYEK DIGIT ONE
-  0x1b51, // ᭑ BALINESE DIGIT ONE
-  0x1947, // ᥇ LIMBU DIGIT ONE
-  0x19d1, // ᧑ NEW TAI LUE DIGIT ONE
-  0x1bb1, // ᮱ SUNDANESE DIGIT ONE
-  0x1c41, // ᱁ LEPCHA DIGIT ONE
-  0x1c51, // ᱑ OL CHIKI DIGIT ONE
-  0xa9d1, // ꧑ JAVANESE DIGIT ONE
-  0xaa51, // ꩑ CHAM DIGIT ONE
-  0x11067, // ꤷ KAYAH LI DIGIT ONE
-  0x11651, // ᛕ MYANMAR SHAN DIGIT ONE
-  0x11c51, // 𑱑 BHAIKSUKI DIGIT ONE
-  0x16b51, // 𖭑 PAU CIN HAU DIGIT ONE
-]);
 
+function remediationFactoryDisclosureDecimalRunDigitOne(codePoint: number): boolean {
+  if (codePoint <= 0) {
+    return false;
+  }
+
+  const previous = String.fromCodePoint(codePoint - 1);
+  const twoBackCodePoint = codePoint - 2;
+
+  if (twoBackCodePoint < 0) {
+    return /^\p{Nd}$/u.test(previous);
+  }
+
+  const twoBack = String.fromCodePoint(twoBackCodePoint);
+
+  if (!/^\p{Nd}$/u.test(previous)) {
+    return false;
+  }
+
+  if (/^\p{Nd}$/u.test(twoBack)) {
+    return false;
+  }
+
+  return true;
+}
 
 function remediationFactoryDisclosureScalarCodePoint(trimmed: string): number | undefined {
   let codePoint: number | undefined;
@@ -96,7 +87,7 @@ function remediationFactoryDisclosureUnicodeDecimalOne(trimmed: string): boolean
     return false;
   }
 
-  if (REMEDIATION_FACTORY_DISCLOSURE_DECIMAL_ONE_CODEPOINTS.has(codePoint)) {
+  if (remediationFactoryDisclosureDecimalRunDigitOne(codePoint)) {
     return true;
   }
 

@@ -378,6 +378,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-11-25 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** emediationFactoryDisclosureUnicodeDecimalOne — decimal-run digit-one detection relied on a growing code-point allowlist and still missed unlisted Nd scripts; recognize Unicode decimal digit one by Nd decade position (digit one immediately after digit zero). **valid-no-repro** pass-61 monitor regressions. Pass-62 reseed below. Scoped vitest **318/318**. Private beta: Invited operators who deep-link with any standard Unicode decimal digit one on emediationFactoryMetricsOpen open the executive metrics summary instead of landing with the panel closed.
 2026-11-25 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** parseRemediationFactoryDisclosureOpenFromSearch — supplementary-plane decimal-one tokens (Kayah Li, Myanmar Shan, Bhaiksuki, Pau Cin Hau) stayed closed because disclosure parsing used UTF-16 unit length instead of scalar count; count Unicode scalars and allowlist additional digit-one code points. **valid-no-repro** pass-60 monitor regressions (Gurmukhi two, Gurmukhi close, lone fullwidth T, Mongolian writer, exceptions-active footnote at zero). Pass-61 reseed below. Scoped vitest **313/313**. Private beta: Invited operators who deep-link with supplementary-plane script decimal emediationFactoryMetricsOpen one digits open the executive metrics summary instead of landing with the panel closed.
 2026-11-25 seed hunt (seed→hit): picker `seedHunt`; continued `ui-lib-remediation-factory` (`shouldRotate: false`; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — Gujarati, Malayalam, Kannada, Oriya, Lao, and Tibetan decimal-one glyphs stayed closed; extend `REMEDIATION_FACTORY_DISCLOSURE_DECIMAL_ONE_CODEPOINTS`. **valid-no-repro** khmer decimal two rejection (regression), **valid-no-repro** Tamil decimal one drop on close (regression), **valid-no-repro** fullwidth ZERO closed (regression), **valid-no-repro** Arabic decimal-one writer canonical `1` (regression), **valid-no-repro** critical-exposure valueFootnote at measured zero (regression). Pass-59 reseed below. Scoped vitest **303/303**. Private beta: Invited operators who deep-link with additional Indic and SEA script decimal `remediationFactoryMetricsOpen` one digits open the executive metrics summary instead of landing with the panel closed.
 2026-11-25 seed hunt (seed→hit): picker `seedHunt`; continued `ui-lib-remediation-factory` (`shouldRotate: false`; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — Tamil, Myanmar, and other unlisted Unicode decimal one glyphs stayed closed; extend decimal-one allowlist for additional scripts. **valid-no-repro** unicode decimal two rejection (existing), **valid-no-repro** unicode decimal one drop on close (regression), **valid-no-repro** fullwidth FALSE closed (regression), **valid-no-repro** CJK-one writer canonical `1` (regression), **valid-no-repro** open-findings-factory valueFootnote at measured zero (intentional compare copy; regression). Pass-58 reseed below. Scoped vitest **297/297**. Private beta: Invited operators who deep-link with additional script-native decimal `remediationFactoryMetricsOpen` one digits open the executive metrics summary instead of landing with the panel closed.
@@ -546,11 +547,20 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open over Mongolian decimal-one base replaces with canonical 1 — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression in url-state tests.
 - [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps exceptions-active valueFootnote when count is measuredZero — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression in metric-presentation tests.
 
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects Kayah Li decimal two token — locus: disclosure parse; input: `𑁨`; monitor; pass-61 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops Kayah Li decimal one from base — locus: writer; input: `𑁧` base; monitor; pass-61 reseed.
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — treats fullwidth ON metrics disclosure token as open — locus: disclosure parse; input: `Ｏ`; monitor; pass-61 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open over Pau Cin Hau decimal-one base replaces with canonical 1 — locus: writer; input: `𖭑` base; monitor; pass-61 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps net-burn valueFootnote when count is measuredZero — locus: tile chrome; input: netBurnCount 0; monitor; pass-61 reseed.
+- [x] (superseded) pass-61 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (hit):** pass-62 reseed.
+- [x] (proven) `remediationFactoryDisclosureUnicodeDecimalOne` — decimal-run digit one detection — **proven 2026-11-25 thorough hunt (hit):** regressions in url-state tests.
+
+- [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects Kayah Li decimal two token — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression in url-state tests.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics close drops Kayah Li decimal one from base — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression in url-state tests.
+- [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — treats fullwidth ON metrics disclosure token as closed — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `treats lone fullwidth O metrics disclosure token as closed on read`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open over Pau Cin Hau decimal-one base replaces with canonical 1 — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression in url-state tests.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps net-burn valueFootnote when count is measuredZero — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression in metric-presentation tests.
+
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects Myanmar Shan decimal two token — locus: disclosure parse; input: Shan digit two; monitor; pass-62 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops Bhaiksuki decimal one from base — locus: writer; input: `𑱑` base; monitor; pass-62 reseed.
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — treats fullwidth YES metrics disclosure token as open — locus: disclosure parse; input: `Ｙ`; monitor; pass-62 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open over Kayah Li decimal-one base replaces with canonical 1 — locus: writer; input: `𑁧` base; monitor; pass-62 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps open-findings-queue valueFootnote when count is measuredZero — locus: tile chrome; input: openFindingsQueueCount 0; monitor; pass-62 reseed.
 - [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects unicode decimal two token — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** existing regression.
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics close drops unicode decimal one from base — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
 - [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — treats fullwidth FALSE metrics disclosure token as closed — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
@@ -1015,8 +1025,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 81
-- **bugs-found:** 71
+- **hunts:** 82
+- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
