@@ -92,7 +92,8 @@ if ($DryRun) {
 git fetch origin $TargetBranch
 
 if (Test-Path -LiteralPath $worktreePath) {
-    git worktree remove --force $worktreePath 2>$null
+        git worktree remove -f -f -- $worktreePath 2>$null
+        Remove-Item -LiteralPath $worktreePath -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item -Recurse -Force $worktreePath -ErrorAction SilentlyContinue
 }
 
@@ -124,8 +125,10 @@ finally {
     Set-Location -LiteralPath $repoRoot
 
     if (Test-Path -LiteralPath $worktreePath) {
-        git worktree remove --force $worktreePath 2>$null
+        git worktree remove -f -f -- $worktreePath 2>$null
+        Remove-Item -LiteralPath $worktreePath -Recurse -Force -ErrorAction SilentlyContinue
     }
 
     git branch -D $worktreeBranch 2>$null | Out-Null
+    git worktree prune 2>$null | Out-Null
 }
