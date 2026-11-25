@@ -157,8 +157,8 @@ public sealed class RunGraphQueryServiceTests
             executionMode.Object,
             traceRepository,
             Mock.Of<IDbConnectionFactory>(),
-            new AuthorityRunInventoryQuery(authorityRunRepository, Mock.Of<IAgentExecutionTraceRepository>()),
-            gate ?? Mock.Of<IArchitectureShareAccessGate>());
+            new AuthorityRunInventoryQuery(runs.Object, traceRepository),
+            Mock.Of<IArchitectureShareAccessGate>());
 
         RunGraphDetailQueryResult result = await sut.GetRunDetailAsync(routeRunId, CancellationToken.None);
 
@@ -340,5 +340,7 @@ public sealed class RunGraphQueryServiceTests
             authorityQueryService,
             Mock.Of<IEffectiveAgentExecutionModeAccessor>(),
             Mock.Of<IAgentExecutionTraceRepository>(),
-            Mock.Of<IDbConnectionFactory>());
+            Mock.Of<IDbConnectionFactory>(),
+            new AuthorityRunInventoryQuery(authorityRunRepository, Mock.Of<IAgentExecutionTraceRepository>()),
+            gate ?? Mock.Of<IArchitectureShareAccessGate>());
 }
