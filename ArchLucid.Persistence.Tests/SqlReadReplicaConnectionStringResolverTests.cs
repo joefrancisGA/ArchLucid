@@ -46,6 +46,22 @@ public sealed class SqlReadReplicaConnectionStringResolverTests
         actual.Should().Be("failover");
     }
 
+    [Theory]
+    [InlineData(" legacy ", " secondary ", "secondary")]
+    [InlineData(" legacy ", "   ", "legacy")]
+    [InlineData("   ", "   ", null)]
+    public void Resolve_GoldenManifestLookup_uses_trimmed_secondary_or_legacy_or_primary(
+        string legacy, string failover, string? expected)
+    {
+        SqlReadReplicaSettings settings = new()
+        {
+            AuthorityRunListReadsConnectionString = legacy,
+            FailoverGroupReadOnlyListenerConnectionString = failover
+        };
+        SqlReadReplicaConnectionStringResolver.Resolve(ReadReplicaQueryRoute.GoldenManifestLookup, settings)
+            .Should().Be(expected);
+    }
+
     [SkippableFact]
     public void Resolve_Governance_Falls_back_to_legacy_when_failover_empty()
     {

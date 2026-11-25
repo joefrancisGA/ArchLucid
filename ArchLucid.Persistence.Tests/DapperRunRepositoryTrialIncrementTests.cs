@@ -57,6 +57,9 @@ public sealed class DapperRunRepositoryTrialIncrementTests(SqlServerPersistenceF
         int successes = 0;
         int trialFailures = 0;
         Task[] tasks = new Task[6];
+        TaskCompletionSource ready = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource start = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        int arrived = 0;
 
         for (int i = 0; i < tasks.Length; i++)
         {
@@ -74,6 +77,10 @@ public sealed class DapperRunRepositoryTrialIncrementTests(SqlServerPersistenceF
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 };
 
+                if (Interlocked.Increment(ref arrived) == tasks.Length)
+                    ready.TrySetResult();
+                await start.Task;
+
                 try
                 {
                     await repo.SaveAsync(run, CancellationToken.None);
@@ -84,6 +91,15 @@ public sealed class DapperRunRepositoryTrialIncrementTests(SqlServerPersistenceF
                     Interlocked.Increment(ref trialFailures);
                 }
             });
+        }
+
+        try
+        {
+            await ready.Task.WaitAsync(TimeSpan.FromSeconds(30));
+        }
+        finally
+        {
+            start.TrySetResult();
         }
 
         await Task.WhenAll(tasks);
@@ -101,6 +117,12 @@ public sealed class DapperRunRepositoryTrialIncrementTests(SqlServerPersistenceF
                 cancellationToken: CancellationToken.None));
 
         used.Should().Be(5);
+        int persisted = await verify.QuerySingleAsync<int>(
+            new CommandDefinition(
+                "SELECT COUNT(*) FROM dbo.Runs WHERE TenantId = @Id;",
+                new { Id = tenantId },
+                cancellationToken: CancellationToken.None));
+        persisted.Should().Be(5);
     }
 
     [SkippableFact]
