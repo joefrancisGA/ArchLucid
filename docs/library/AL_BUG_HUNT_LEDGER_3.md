@@ -409,11 +409,18 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — net-burn windowLine when net burn absent — **proven 2026-11-25 thorough hunt (hit):** regression cited in hunt note.
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open clears stale `0` token from base — **cheap-disproof 2026-11-25 thorough hunt (hit):** existing regression.
 
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — exceptions-active windowLine when count absent — locus: tile chrome; input: missing exceptionsActive; monitor; pass-41 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — open-findings-factory scopeLine when count absent — locus: tile chrome; input: missing openFindings; monitor; pass-41 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — critical-exposure href when count absent — locus: tile link; input: missing criticalExposureCount; monitor; pass-41 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded `1` from base — locus: writer; input: padded one; monitor; pass-41 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — net-burn valueFootnote when weekly present but netBurn absent — locus: tile footnote; input: weekly without netBurn; monitor; pass-41 reseed.
+- [x] (superseded) pass-41 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (hit):** pass-42 reseed.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — exceptions-active windowLine when count absent — **proven 2026-11-25 thorough hunt (hit):** regression cited in hunt note.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — open-findings-factory scopeLine when count absent — **proven 2026-11-25 thorough hunt (hit):** regression cited in hunt note.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — critical-exposure href when count absent — **proven 2026-11-25 thorough hunt (hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded `1` from base — **cheap-disproof 2026-11-25 thorough hunt (hit):** existing regression.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — net-burn valueFootnote when weekly present but netBurn absent — **cheap-disproof 2026-11-25 thorough hunt (hit):** existing regression.
+
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — open-findings-queue scopeLine when count absent — locus: tile chrome; input: missing openFindings; monitor; pass-42 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — exceptions-active scopeLine when count absent — locus: tile chrome; input: missing exceptionsActive; monitor; pass-42 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — pattern-exact scopeLine when percent absent — locus: tile chrome; input: missing percent; monitor; pass-42 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — automation scopeLine when percent absent — locus: tile chrome; input: missing automationPercent; monitor; pass-42 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — risk-weighted-open scopeLine when value absent — locus: tile chrome; input: missing riskWeightedOpen; monitor; pass-42 reseed.
 
 
 
