@@ -287,6 +287,38 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "critical-exposure")?.valueFootnote).toBeNull();
   });
 
+  it("omits critical-exposure zero footnote when count is fractional", () => {
+    const metrics = { criticalExposureCount: 0.4 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "critical-exposure")?.value).toBeNull();
+    expect(tiles.find((tile) => tile.id === "critical-exposure")?.valueFootnote).toBeNull();
+  });
+
+  it("omits exceptions-active table hint when expiring-soon is NaN", () => {
+    const metrics = { exceptionsActive: 2, exceptionsExpiringSoon: Number.NaN } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics,
+      openFindingsHref: "/security/findings",
+    });
+
+    expect(tiles.find((tile) => tile.key === "exceptions-active")?.hint).toBeUndefined();
+  });
+
+  it("omits net-burn footnote when weekly remediated is negative", () => {
+    const metrics = { createdThisWeek: 2, remediatedThisWeek: -1, netBurn: 3 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "net-burn")?.valueFootnote).toBeNull();
+  });
+
+  it("formats average age to one decimal in metric tiles", () => {
+    const metrics = { averageAgeDays: 1.55 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "avg-age")?.value).toBe("1.6");
+  });
+
   it("omits fractional open findings in metric tiles", () => {
     const metrics = { openFindings: 2.3 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);

@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 `ui-lib-remediation-factory` pass-30 net-burn footnote vs fractional net burn. **163/163**. — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-infra-resource-hub` pass-496 cheap-disproof. ResourceHubClient **148/148**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 `ui-lib-remediation-factory` pass-31 dry cheap-disproof. **167/167**. — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-infra-resource-hub` pass-496 cheap-disproof. ResourceHubClient **148/148**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -381,6 +381,21 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 thorough hunt (dry): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-31 (`shouldRotate: false`; hint override). Closed five pass-31 monitors — **valid-no-repro** critical zero footnote vs fractional raw (regression added), **valid-no-repro** exceptions table hint when expiringSoon NaN, **valid-no-repro** negative weekly remediated footnote, **valid-no-repro** fractional average age tile (one-decimal contract), **valid-no-repro** padded `on` metrics parse (regression added). Pass-32 reseed below. Scoped vitest **167/167**. Private beta: n/a.
+
+- [x] (superseded) pass-31 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (dry):** pass-32 reseed.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — critical zero footnote vs fractional raw — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression added.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricPresentations` — exceptions hint when expiringSoon NaN — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression added.
+- [x] (valid-no-repro) `netBurnWeeklyFootnoteWhenLoaded` — negative weekly remediated — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression added.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — fractional average age tile — **cheap-disproof 2026-11-25 thorough hunt (dry):** one-decimal format is intentional.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — metrics open `on` with padding — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression added.
+
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — critical zero footnote vs raw -0 — locus: tile footnote; input: -0 exposure; monitor; pass-32 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — exceptions hint when expiringSoon is Infinity — locus: table hints; input: Infinity; monitor; pass-32 reseed.
+- [ ] (candidate) `netBurnWeeklyFootnoteWhenLoaded` — footnote when net burn zero but weekly counts fractional — locus: footnote; input: 1.1 created; monitor; pass-32 reseed.
+- [ ] (candidate) `remediationFactoryDecimalMetricPresentation` — average age table when negative — locus: table value; input: -1 days; monitor; pass-32 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — metrics open `ON` mixed case with padding — locus: parse; input: padded ON; monitor; pass-32 reseed.
+
 2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-30 (`shouldRotate: false`; hint override). **proven** `buildRemediationFactoryExecutiveMetricTiles` — net-burn tile could show weekly Created/Remediated footnote while the net-burn value was `Not returned` when `netBurn` was fractional but weekly counts were integers; gate footnote on displayed net-burn. Regression `omits net-burn footnote when net burn is fractional but weekly counts are integers`. **valid-no-repro** negative expiring table hint, **valid-no-repro** negative weekly created footnote, **valid-no-repro** critical negative zero footnote, **valid-no-repro** fractional open findings href (table), **valid-no-repro** padded yes metrics parse (regression added). Pass-31 reseed below. Scoped vitest **163/163**. Private beta: invited operators no longer see weekly burn breakdown footnotes on the net-burn tile when net burn itself is not measured.
 
 - [x] (superseded) pass-30 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-31 reseed.
@@ -390,12 +405,6 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — critical footnote with negative count — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** regression added.
 - [x] (valid-no-repro) `remediationFactoryCountMetricPresentation` — open findings href when fractional — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** regression added.
 - [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — metrics open `yes` with padding — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** regression added.
-
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — critical zero footnote when raw count is fractional — locus: tile footnote; input: 0.4 exposure; monitor; pass-31 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — exceptions hint when expiringSoon is NaN — locus: table hints; input: NaN expiring; monitor; pass-31 reseed.
-- [ ] (candidate) `netBurnWeeklyFootnoteWhenLoaded` — negative weekly remediated — locus: footnote; input: -1 remediated; monitor; pass-31 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — fractional average age tile — locus: tile value; input: 1.55 days; monitor; pass-31 reseed.
-- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — metrics open `on` with padding — locus: parse; input: padded on; monitor; pass-31 reseed.
 
 2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-29 (`shouldRotate: false`; hint override). **proven** `buildRemediationFactoryExecutiveMetricPresentations` — exceptions-active table hint still rendered fractional `expiringSoon` (e.g. `1.5 expiring soon`) after tile footnotes gained integer guards; require whole numbers before emitting hint. Regression `omits exceptions-active table hint when expiring-soon count is fractional`. **valid-no-repro** negative expiring footnote (parseNonNegativeFiniteNumber), **valid-no-repro** fractional recurrence tile (formatCount), **valid-no-repro** risk-weighted decimal fraction, **valid-no-repro** metrics open TRUE (existing parse test), **valid-no-repro** open findings href when count absent. Pass-30 reseed below. Scoped vitest **158/158**. Private beta: invited operators no longer see fractional expiring-soon counts in the exceptions-active executive table hint.
 
@@ -736,7 +745,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
