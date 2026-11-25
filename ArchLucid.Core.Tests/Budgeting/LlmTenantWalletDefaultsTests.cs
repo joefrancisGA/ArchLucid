@@ -31,4 +31,11 @@ public sealed class LlmTenantWalletDefaultsTests
 
         LlmTenantWalletDefaults.ApplyOverageMarkup(actualUsd).Should().Be(0.01m);
     }
+
+    [Fact]
+    public void ApplyOverageMarkup_rounds_a_half_cent_up()
+    {
+        // $0.075 × 1.4 = $0.105. Banker's rounding would debit $0.10.
+        LlmTenantWalletDefaults.ApplyOverageMarkup(0.075m).Should().Be(0.11m);
+    }
 }

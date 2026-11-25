@@ -31,4 +31,16 @@ public sealed class BillingPlanMutationPolicyTests
 
         BillingPlanMutationPolicy.WebhookPlanMutationsEnabled(billing).Should().BeFalse();
     }
+
+    [Fact]
+    public void WebhookPlanMutationsEnabled_true_when_marketplace_provider_and_ga_on()
+    {
+        BillingOptions billing = new()
+        {
+            Provider = BillingProviderNames.AzureMarketplace,
+            AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = true }
+        };
+
+        BillingPlanMutationPolicy.WebhookPlanMutationsEnabled(billing).Should().BeTrue();
+    }
 }

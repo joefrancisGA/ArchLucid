@@ -55,45 +55,14 @@ internal static class FourRealityResourceAccessReader
     {
         ArgumentNullException.ThrowIfNull(properties);
 
-        foreach (KeyValuePair<string, string> entry in properties)
+        // Public access configuration and endpoint approval are independent observations.
+        // A private endpoint record alone does not establish network isolation.
+        return AzureInventoryPublicNetworkAccessResolver.ResolvePublicAccess(properties) switch
         {
-
-            if (entry.Key.Contains("enablePublicNetworkAccess", StringComparison.OrdinalIgnoreCase)
-                && entry.Value.Equals("true", StringComparison.OrdinalIgnoreCase))
-            {
-                return FourRealityAccessPosture.Public;
-            }
-
-            if (entry.Key.Contains("publicNetworkAccess", StringComparison.OrdinalIgnoreCase)
-                && !entry.Value.Equals("Disabled", StringComparison.OrdinalIgnoreCase)
-                && !entry.Value.Equals("false", StringComparison.OrdinalIgnoreCase))
-            {
-                return FourRealityAccessPosture.Public;
-            }
-        }
-
-        if (properties.Keys.Any(key => key.Contains("privateEndpointConnections", StringComparison.OrdinalIgnoreCase)))
-        {
-            return FourRealityAccessPosture.Private;
-        }
-
-        foreach (KeyValuePair<string, string> entry in properties)
-        {
-
-            if (entry.Key.Contains("enablePublicNetworkAccess", StringComparison.OrdinalIgnoreCase)
-                && entry.Value.Equals("false", StringComparison.OrdinalIgnoreCase))
-            {
-                return FourRealityAccessPosture.Private;
-            }
-
-            if (entry.Key.Contains("publicNetworkAccess", StringComparison.OrdinalIgnoreCase)
-                && entry.Value.Equals("Disabled", StringComparison.OrdinalIgnoreCase))
-            {
-                return FourRealityAccessPosture.Private;
-            }
-        }
-
-        return FourRealityAccessPosture.Unknown;
+            AzureInventoryPublicNetworkAccessResolver.ObservedPublicAccess.Enabled => FourRealityAccessPosture.Public,
+            AzureInventoryPublicNetworkAccessResolver.ObservedPublicAccess.Disabled => FourRealityAccessPosture.Private,
+            _ => FourRealityAccessPosture.Unknown,
+        };
     }
 
     public static FourRealityAccessPosture ReadTerraformIntendedPosture(IReadOnlyDictionary<string, string> properties)

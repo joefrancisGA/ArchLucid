@@ -52,6 +52,24 @@ public static class AzureInventorySecurityBaselineClassifier
             ? " Resource id was not stored; name was used to locate the row."
             : string.Empty;
 
+        if (resourceType.Equals("Microsoft.EventGrid/topics", StringComparison.OrdinalIgnoreCase)
+            || resourceType.Equals("Microsoft.EventGrid/domains", StringComparison.OrdinalIgnoreCase))
+        {
+            row.TryGetProperty("properties", out JsonElement eventGridProperties);
+            EventGridLocalAuthenticationPosture posture = EvaluateEventGridLocalAuthentication(eventGridProperties);
+            if (posture == EventGridLocalAuthenticationPosture.Disabled)
+                return null;
+
+            return new InventorySecurityBaselineFinding(
+                resourceId,
+                resourceType,
+                (posture == EventGridLocalAuthenticationPosture.Enabled
+                    ? "Event Grid local authentication is enabled. Migrate publishers to Microsoft Entra authentication before disabling local authentication."
+                    : "Insufficient evidence: Event Grid local authentication is unverified. Collect the explicit disableLocalAuth setting before concluding compliance.")
+                + fallbackDisclosure,
+                "event-grid-local-authentication");
+        }
+
         if (!row.TryGetProperty("properties", out JsonElement properties))
         {
             return null;
@@ -88,6 +106,48 @@ public static class AzureInventorySecurityBaselineClassifier
         }
 
         return null;
+    }
+
+    public enum EventGridLocalAuthenticationPosture
+    {
+        InsufficientEvidence,
+        Enabled,
+        Disabled,
+    }
+
+    public static EventGridLocalAuthenticationPosture EvaluateEventGridLocalAuthentication(JsonElement properties)
+    {
+        if (properties.ValueKind != JsonValueKind.Object)
+            return EventGridLocalAuthenticationPosture.InsufficientEvidence;
+
+        bool? disabled = null;
+        foreach (JsonProperty property in properties.EnumerateObject())
+        {
+            if (!property.Name.Equals("disableLocalAuth", StringComparison.OrdinalIgnoreCase)
+                && !property.Name.Equals("properties.disableLocalAuth", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            bool value;
+            if (property.Value.ValueKind is JsonValueKind.True or JsonValueKind.False)
+                value = property.Value.GetBoolean();
+            else if (property.Value.ValueKind == JsonValueKind.String
+                     && bool.TryParse(property.Value.GetString(), out bool parsed))
+                value = parsed;
+            else
+                return EventGridLocalAuthenticationPosture.InsufficientEvidence;
+
+            if (disabled.HasValue && disabled.Value != value)
+                return EventGridLocalAuthenticationPosture.InsufficientEvidence;
+
+            disabled = value;
+        }
+
+        return disabled switch
+        {
+            true => EventGridLocalAuthenticationPosture.Disabled,
+            false => EventGridLocalAuthenticationPosture.Enabled,
+            _ => EventGridLocalAuthenticationPosture.InsufficientEvidence,
+        };
     }
 
     private static bool HasBlobPublicAccessEnabled(JsonElement properties)

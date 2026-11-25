@@ -8,6 +8,10 @@ public static class AzureInventoryBuiltInRoleDefinitionNames
     private static readonly Dictionary<string, string> GuidToRoleName =
         new(StringComparer.OrdinalIgnoreCase)
         {
+            ["d5a91429-5739-47e2-a06b-3470a27159e7"] = "EventGrid Data Sender",
+            ["1e241071-0855-49ea-94dc-649edcd759de"] = "EventGrid Contributor",
+            ["428e0ff0-5e57-4d9c-a221-2c70d0e0a443"] = "EventGrid EventSubscription Contributor",
+            ["2414bbcf-6497-4faf-8c65-045460748405"] = "EventGrid EventSubscription Reader",
             ["8e3af657-a8ff-443c-a75c-2fe8c4bcb635"] = "Owner",
             ["b24988ac-6180-42a0-ab88-20f7382dd24c"] = "Contributor",
             ["acdd72a7-3385-48ef-bd42-f60684581c14"] = "Reader",

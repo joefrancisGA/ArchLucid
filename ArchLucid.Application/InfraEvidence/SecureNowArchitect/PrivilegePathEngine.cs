@@ -136,6 +136,11 @@ public sealed class PrivilegePathEngine(
                 candidate.HasInsufficientEvidenceHop,
                 candidate.ScopeTaggedProduction);
 
+            string? publisherReview = EventGridPublisherPrivilegeReview.Evaluate(candidate);
+            string description = PrivilegePathNarrative.BuildDescription(candidate);
+            if (publisherReview is not null)
+                description += " " + EventGridPublisherPrivilegeReview.Describe(publisherReview);
+
             ingestItems.Add(new OperationalSecurityFindingIngestItem
             {
                 Provider = CloudProvider.Azure,
@@ -149,7 +154,7 @@ public sealed class PrivilegePathEngine(
                 ControlId = SecureNowArchitectConstants.PrivilegePathControlId,
                 ControlFramework = SecureNowArchitectConstants.SourceSystem,
                 Title = PrivilegePathNarrative.BuildTitle(candidate),
-                Description = PrivilegePathNarrative.BuildDescription(candidate),
+                Description = description,
                 Severity = severity.Severity,
                 BusinessCriticality = severity.BusinessCriticality,
                 BlastRadius = severity.BlastRadius,
@@ -160,6 +165,7 @@ public sealed class PrivilegePathEngine(
                     ["pathKind"] = PathKind.Privilege.ToString(),
                     ["hopCount"] = candidate.Hops.Count.ToString(),
                     ["identityEvidenceIncomplete"] = identityCoverageIncomplete ? "true" : "false",
+                    ["eventGridPublisherReview"] = publisherReview,
                 },
             });
         }

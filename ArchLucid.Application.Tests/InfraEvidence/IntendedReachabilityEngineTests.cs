@@ -521,6 +521,19 @@ public sealed class IntendedReachabilityEngineTests
             .Should().Be(PathConfidenceBand.InsufficientEvidence);
     }
 
+    [Theory]
+    [InlineData("Approved", true)]
+    [InlineData("Pending", false)]
+    [InlineData("Rejected", false)]
+    [InlineData("Unknown", false)]
+    public void Build_private_endpoint_only_graph_requires_approval(string status, bool expected)
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildPrivateEndpointSqlSnapshot(status);
+        InventoryReachabilityPathGraphSnapshot graph = InventoryReachabilityPathGraph.Build(snapshot);
+
+        graph.PrivateEndpointOnlyArmIds.Contains(SqlArm).Should().Be(expected);
+    }
+
     [Fact]
     public void Enumerate_private_endpoint_only_sql_produces_no_internet_paths()
     {
@@ -650,7 +663,7 @@ public sealed class IntendedReachabilityEngineTests
         };
     }
 
-    private static AzureInventorySnapshotDetailReadModel BuildPrivateEndpointSqlSnapshot()
+    private static AzureInventorySnapshotDetailReadModel BuildPrivateEndpointSqlSnapshot(string approvalStatus = "Approved")
     {
         Guid sqlRowId = Guid.NewGuid();
         const string privateEndpointArm =
@@ -670,7 +683,9 @@ public sealed class IntendedReachabilityEngineTests
                 {
                     ResourceRowId = sqlRowId,
                     PropertyKey = "privateEndpointConnections",
-                    PropertyValue = "[{\"id\":\"/subscriptions/sub/.../privateEndpointConnections/peconn1\"}]",
+                    PropertyValue = $"""
+                        [{"id":"/subscriptions/sub/.../privateEndpointConnections/peconn1","properties":{"privateLinkServiceConnectionState":{"status":"{{approvalStatus}}"}}}]
+                        """,
                 },
                 new AzureInventoryResourcePropertyReadModel
                 {

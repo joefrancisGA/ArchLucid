@@ -7,12 +7,14 @@ namespace ArchLucid.Core.Tests.Metering;
 [Trait("Category", "Unit")]
 public sealed class UsageEventIdempotencyKeysTests
 {
-    [SkippableFact]
-    public void ForLlmTokens_builds_stable_kind_specific_key()
+    [Theory]
+    [InlineData(UsageMeterKind.LlmPromptTokens, "llm:activity-1:LlmPromptTokens")]
+    [InlineData(UsageMeterKind.LlmCompletionTokens, "llm:activity-1:LlmCompletionTokens")]
+    public void ForLlmTokens_builds_stable_kind_specific_key(UsageMeterKind kind, string expected)
     {
-        string key = UsageEventIdempotencyKeys.ForLlmTokens("activity-1", UsageMeterKind.LlmPromptTokens);
+        string key = UsageEventIdempotencyKeys.ForLlmTokens("activity-1", kind);
 
-        key.Should().Be("llm:activity-1:LlmPromptTokens");
+        key.Should().Be(expected);
     }
 
     [SkippableFact]

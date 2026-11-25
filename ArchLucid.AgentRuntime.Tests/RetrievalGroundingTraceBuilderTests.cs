@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.AgentRuntime;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Core.Scoping;
@@ -63,6 +65,32 @@ public sealed class RetrievalGroundingTraceBuilderTests
         insert.DocumentIdsJson.Should().Contain("doc-a");
         insert.AgentExecutionTraceId.Should().Be("trace-abc");
         insert.RetrievedChunkIds.Should().Equal("chunk-1", "chunk-2");
+    }
+
+    [Fact]
+    public void Build_keeps_valid_json_for_a_retrieval_trace_that_exceeds_both_storage_limits()
+    {
+        ScopeContext scope = new();
+        RetrievalHit[] hits = Enumerable.Range(0, 50).Select(i => new RetrievalHit
+        {
+            ChunkId = $"chunk-{i}-" + new string('c', 250),
+            DocumentId = $"document-{i}-" + new string('d', 200),
+            Score = 0.9,
+        }).ToArray();
+        RetrievalGroundingTraceInsert insert = RetrievalGroundingTraceBuilder.Build(
+            scope, Guid.NewGuid(), "Topology", new RetrievalQuery { QueryText = "query" }, hits);
+
+        Assert.NotNull(insert.ScoresJson);
+        Assert.NotNull(insert.DocumentIdsJson);
+        Assert.InRange(insert.ScoresJson.Length, 2, RetrievalGroundingTraceBounds.MaxScoresJsonLength);
+        Assert.InRange(insert.DocumentIdsJson.Length, 2, RetrievalGroundingTraceBounds.MaxDocumentIdsJsonLength);
+
+        using JsonDocument scores = JsonDocument.Parse(insert.ScoresJson);
+        using JsonDocument docs = JsonDocument.Parse(insert.DocumentIdsJson);
+        Assert.InRange(scores.RootElement.GetArrayLength(), 1, hits.Length - 1);
+        Assert.InRange(docs.RootElement.GetArrayLength(), 1, hits.Length - 1);
+        Assert.Equal(hits[0].ChunkId, scores.RootElement[0].GetProperty("chunkId").GetString());
+        Assert.Equal(hits[0].DocumentId, docs.RootElement[0].GetString());
     }
 
     [Fact]

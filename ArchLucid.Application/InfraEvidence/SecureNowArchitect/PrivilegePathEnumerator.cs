@@ -440,7 +440,8 @@ internal static class PrivilegePathEnumerator
     {
         candidate = null!;
 
-        if (!AzureInventoryControlPlaneBuiltinRoles.IsContributorOrOwner(mappedRole))
+        if (!AzureInventoryControlPlaneBuiltinRoles.IsContributorOrOwner(mappedRole)
+            && !string.Equals(mappedRole, "EventGrid Contributor", StringComparison.OrdinalIgnoreCase))
         {
             return false;
         }

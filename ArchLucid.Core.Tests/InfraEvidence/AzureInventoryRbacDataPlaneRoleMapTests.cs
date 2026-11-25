@@ -8,6 +8,10 @@ namespace ArchLucid.Core.Tests.InfraEvidence;
 public sealed class AzureInventoryRbacDataPlaneRoleMapTests
 {
     [Theory]
+    [InlineData("EventGrid Data Sender", AzureInventoryDerivedDataPlanePermission.Write)]
+    [InlineData("EventGrid Contributor", AzureInventoryDerivedDataPlanePermission.None)]
+    [InlineData("EventGrid EventSubscription Contributor", AzureInventoryDerivedDataPlanePermission.None)]
+    [InlineData("EventGrid EventSubscription Reader", AzureInventoryDerivedDataPlanePermission.None)]
     [InlineData("Reader", AzureInventoryDerivedDataPlanePermission.Read)]
     [InlineData("Storage Blob Data Reader", AzureInventoryDerivedDataPlanePermission.Read)]
     [InlineData("Key Vault Secrets User", AzureInventoryDerivedDataPlanePermission.Read)]

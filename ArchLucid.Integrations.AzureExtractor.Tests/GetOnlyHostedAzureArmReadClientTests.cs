@@ -76,6 +76,164 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.Equal(partial, Assert.IsType<HostedAzureArmTypeListCollection>(result).PartialCollection);
     }
 
+    [Theory]
+    [InlineData("builtin")]
+    [InlineData("definition")]
+    [InlineData("assignment-document")]
+    [InlineData("assignment")]
+    [InlineData("group-assignment")]
+    public async Task PolicyListings_distinguish_denied_reads_from_complete_empty(string family)
+    {
+        const string subscription = "11111111-1111-1111-1111-111111111111";
+        using HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.Forbidden)));
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        if (family is "assignment" or "group-assignment")
+        {
+            IReadOnlyList<HostedAzureArmPolicyAssignmentRecord> assignments = family == "assignment"
+                ? await client.ListSubscriptionPolicyAssignmentsAsync("token", subscription, CancellationToken.None)
+                : await client.ListManagementGroupPolicyAssignmentsAsync("token", "mg-test", CancellationToken.None);
+            Assert.Empty(assignments);
+            Assert.True(Assert.IsType<HostedAzureArmPolicyCollection<HostedAzureArmPolicyAssignmentRecord>>(assignments)
+                .PartialCollection);
+            return;
+        }
+
+        var documents = await (family switch
+        {
+            "builtin" => client.ListBuiltInPolicyDefinitionDocumentsAsync("token", CancellationToken.None),
+            "definition" => client.ListSubscriptionPolicyDefinitionDocumentsAsync("token", subscription, CancellationToken.None),
+            "assignment-document" => client.ListSubscriptionPolicyAssignmentDocumentsAsync("token", subscription, CancellationToken.None),
+            _ => throw new InvalidOperationException("Unexpected family."),
+        });
+        Assert.Empty(documents);
+        Assert.True(Assert.IsType<HostedAzureArmPolicyCollection<System.Text.Json.JsonElement>>(documents).PartialCollection);
+    }
+
+    [Theory]
+    [InlineData("cycle")]
+    [InlineData("http")]
+    [InlineData("malformed")]
+    [InlineData("complete")]
+    public async Task PolicyDefinitionListing_preserves_valid_prefix_and_completeness(string scenario)
+    {
+        const string subscription = "11111111-1111-1111-1111-111111111111";
+        const string next = "https://management.azure.com/subscriptions/" + subscription
+            + "/providers/Microsoft.Authorization/policyDefinitions?api-version=2021-06-01&$skiptoken=page2";
+        int requests = 0;
+        using HttpMessageHandler handler = new RecordingHandler((_, _) =>
+        {
+            int count = Interlocked.Increment(ref requests);
+            if (count > 2)
+                throw new InvalidOperationException("Pagination did not terminate.");
+            if (count == 2 && scenario == "http")
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+
+            string body = count == 1
+                ? "{\"value\":[{\"id\":\"/providers/Microsoft.Authorization/policyDefinitions/policy1\"}],\"nextLink\":\"" + next + "\"}"
+                : scenario switch
+                {
+                    "cycle" => "{\"value\":[],\"nextLink\":\"" + next + "\"}",
+                    "malformed" => "{}",
+                    "complete" => """{"value":[],"nextLink":null}""",
+                    _ => throw new InvalidOperationException("Unexpected scenario."),
+                };
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        var documents = await client.ListSubscriptionPolicyDefinitionDocumentsAsync(
+            "token", subscription, CancellationToken.None);
+
+        Assert.Equal(2, requests);
+        Assert.Single(documents);
+        Assert.Equal(scenario != "complete",
+            Assert.IsType<HostedAzureArmPolicyCollection<System.Text.Json.JsonElement>>(documents).PartialCollection);
+    }
+
+    [Theory]
+    [InlineData("linkedservices")]
+    [InlineData("datasets")]
+    [InlineData("pipelines")]
+    [InlineData("triggers")]
+    [InlineData("integrationruntimes")]
+    [InlineData("dataflows")]
+    public async Task FactoryMetadataListings_report_incomplete_on_server_failure(string family)
+    {
+        const string factory = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/f1";
+        using HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError)));
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        var result = await (family switch
+        {
+            "linkedservices" => client.ListFactoryLinkedServicesAsync("token", factory, CancellationToken.None),
+            "datasets" => client.ListFactoryDatasetsAsync("token", factory, CancellationToken.None),
+            "pipelines" => client.ListFactoryPipelinesAsync("token", factory, CancellationToken.None),
+            "triggers" => client.ListFactoryTriggersAsync("token", factory, CancellationToken.None),
+            "integrationruntimes" => client.ListFactoryIntegrationRuntimesAsync("token", factory, CancellationToken.None),
+            "dataflows" => client.ListFactoryDataflowsAsync("token", factory, CancellationToken.None),
+            _ => throw new InvalidOperationException("Unexpected family."),
+        });
+
+        Assert.Empty(result);
+        Assert.True(Assert.IsType<HostedAzureAdfCollection<System.Text.Json.JsonElement>>(result).PartialCollection);
+    }
+
+    [Theory]
+    [InlineData("cycle")]
+    [InlineData("http")]
+    [InlineData("malformed")]
+    [InlineData("complete")]
+    public async Task FactoryMetadataListing_preserves_valid_prefix_and_completeness(string scenario)
+    {
+        const string factory = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/f1";
+        const string next = "https://management.azure.com" + factory + "/datasets?api-version=2018-06-01&$skiptoken=page2";
+        int requests = 0;
+        using HttpMessageHandler handler = new RecordingHandler((_, _) =>
+        {
+            int count = Interlocked.Increment(ref requests);
+            if (count > 2)
+                throw new InvalidOperationException("Pagination did not terminate.");
+            if (count == 2 && scenario == "http")
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.Forbidden));
+
+            string body = count == 1
+                ? "{\"value\":[{\"name\":\"dataset1\"}],\"nextLink\":\"" + next + "\"}"
+                : scenario switch
+                {
+                    "cycle" => "{\"value\":[],\"nextLink\":\"" + next + "\"}",
+                    "malformed" => "{}",
+                    "complete" => """{"value":[],"nextLink":null}""",
+                    _ => throw new InvalidOperationException("Unexpected scenario."),
+                };
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        var result = await client.ListFactoryDatasetsAsync("token", factory, CancellationToken.None);
+
+        Assert.Equal(2, requests);
+        Assert.Single(result);
+        Assert.Equal(scenario != "complete",
+            Assert.IsType<HostedAzureAdfCollection<System.Text.Json.JsonElement>>(result).PartialCollection);
+    }
+
     [Fact]
     public async Task ListSubscriptionResourcesAsync_uses_get_only_against_management_azure_com()
     {
