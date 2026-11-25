@@ -284,3 +284,5 @@
 {"at":"2026-11-25T14:03:53.217Z","zoneId":"ui-help-docs","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx"]}
 {"at":"2026-11-25T14:09:36.653Z","zoneId":"ui-lib-remediation-factory","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/remediation-factory/remediation-factory-metrics-presentation.ts"]}
 {"at":"2026-11-25T14:15:44.287Z","zoneId":"ui-lib-remediation-factory","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/remediation-factory/"]}
+
+{"at":"2026-11-25T14:18:10.768Z","zoneId":"ui-lib-remediation-factory","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/remediation-factory/"]}

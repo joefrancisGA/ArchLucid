@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt #3 (seed-only): `ui-lib-remediation-factory` pass-4 cheap-disproof. `remediation-factory` **88/88**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt #4 (seed-only): `ui-lib-remediation-factory` pass-5 cheap-disproof. `remediation-factory` **88/88**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -453,9 +453,9 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
 - **related-pd-tb:** none
