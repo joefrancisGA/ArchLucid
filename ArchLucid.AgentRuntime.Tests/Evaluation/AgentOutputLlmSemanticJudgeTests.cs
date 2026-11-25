@@ -114,6 +114,40 @@ public sealed class AgentOutputLlmSemanticJudgeTests
         result.Rationale.Should().Contain("evidence");
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task TryJudgeAsync_distinguishes_caller_cancellation_from_provider_cancellation(bool cancelCaller)
+    {
+        using CancellationTokenSource caller = new();
+        Mock<IAgentCompletionClient> completion = new();
+        completion.Setup(c => c.CompleteJsonAsync(
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .Returns((string _, string _, int? _, float? _, CancellationToken linked) =>
+            {
+                if (cancelCaller)
+                {
+                    caller.Cancel();
+                    return Task.FromCanceled<string>(linked);
+                }
+
+                return Task.FromCanceled<string>(new CancellationToken(true));
+            });
+        AgentOutputLlmSemanticJudge judge = CreateJudge(completion.Object, enabled: true, mode: "Real");
+
+        Task<AgentOutputLlmJudgeParsedResult?> evaluation =
+            judge.TryJudgeAsync("trace-1", "{}", AgentType.Topology, caller.Token);
+
+        if (cancelCaller)
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => evaluation);
+        else
+            Assert.Null(await evaluation);
+
+        completion.Verify(c => c.CompleteJsonAsync(
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static AgentOutputLlmSemanticJudge CreateJudge(
         IAgentCompletionClient completionClient,
         bool enabled,
