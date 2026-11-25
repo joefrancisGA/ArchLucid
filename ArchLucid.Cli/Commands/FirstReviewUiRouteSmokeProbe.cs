@@ -145,10 +145,6 @@ internal static class FirstReviewUiRouteSmokeProbe
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(uiBaseUrl);
 
-        return new HttpClient
-        {
-            Timeout = TimeSpan.FromMinutes(2),
-            BaseAddress = new Uri(uiBaseUrl.Trim().TrimEnd('/') + "/"),
-        };
+        return ArchLucidCliHttpClientFactory.CreateWithBaseAddress(uiBaseUrl, TimeSpan.FromMinutes(2));
     }
 }

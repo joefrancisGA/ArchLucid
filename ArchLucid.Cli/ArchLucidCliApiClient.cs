@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
@@ -84,37 +84,8 @@ public sealed partial class ArchLucidApiClient
 
     private static HttpClient CreateHttpClient(string normalizedBaseUrl, bool useRetry,
         CliResilienceOptions? httpResilience = null,
-        ArchLucidProjectScaffolder.ArchLucidCliConfig? cliConfig = null)
-    {
-        HttpMessageHandler inner = new HttpClientHandler
-        {
-            // API may respond with Content-Encoding: gzip/br (see AddArchLucidResponseCompression). Without this,
-            // NSwag's stream deserializer fails with JsonException on compressed bodies (lock-baseline, doctor, etc.).
-            AutomaticDecompression = DecompressionMethods.All
-        };
-
-        if (useRetry)
-
-            inner = new CliRetryDelegatingHandler(httpResilience) { InnerHandler = inner };
-
-        HttpClient http = new(inner, true) { BaseAddress = new Uri(normalizedBaseUrl + "/"), Timeout = TimeSpan.FromSeconds(30) };
-        http.DefaultRequestHeaders.Add("Accept", "application/json");
-
-        string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");
-
-        if (!string.IsNullOrWhiteSpace(apiKey))
-        {
-            http.DefaultRequestHeaders.Remove("X-Api-Key");
-            http.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
-        }
-
-        ArchLucidProjectScaffolder.ArchLucidCliConfig? effectiveConfig =
-            cliConfig ?? CliCommandShared.TryLoadConfigFromCwd();
-        CliScopeHeaders.Apply(http, effectiveConfig);
-
-        return http;
-    }
-
+        ArchLucidProjectScaffolder.ArchLucidCliConfig? cliConfig = null) =>
+        ArchLucidCliHttpClientFactory.CreateApiClient(normalizedBaseUrl, useRetry, httpResilience, cliConfig);
     /// <summary>
     ///     CLI subcommands that call REST routes not covered by the generated OpenAPI client reuse the same decompress,
     ///     retry, and API-key behavior as <see cref="ArchLucidApiClient" />.

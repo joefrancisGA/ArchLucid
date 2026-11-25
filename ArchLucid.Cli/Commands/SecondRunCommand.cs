@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Net.Http.Headers;
 
 using ArchLucid.Application.Operator;
@@ -198,7 +198,7 @@ internal static class SecondRunCommand
     {
         try
         {
-            using HttpClient http = new();
+            using HttpClient http = ArchLucidCliHttpClientFactory.CreateDefault();
             http.Timeout = TimeSpan.FromSeconds(60);
             http.BaseAddress = new Uri(apiBaseUrl.TrimEnd('/') + "/");
             http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/markdown"));

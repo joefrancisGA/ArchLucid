@@ -24,7 +24,7 @@ internal static partial class ConfigCheckCommand
             return (null, "API: (skip) set ARCHLUCID_API_KEY (Admin) to merge GET /v1/admin/config-summary presence.");
         }
 
-        using HttpClient c = new();
+        using HttpClient c = ArchLucidCliHttpClientFactory.CreateDefault();
         c.BaseAddress = new Uri(
             baseUrl
                 .Trim()

@@ -37,7 +37,7 @@ internal static class TrialSmokeCommand
             ? CliCommandShared.GetBaseUrl(config)
             : options.ApiBaseUrl!.Trim().TrimEnd('/');
 
-        using HttpClient http = new();
+        using HttpClient http = ArchLucidCliHttpClientFactory.CreateDefault();
         http.BaseAddress = new Uri(baseUrl + "/");
         http.DefaultRequestHeaders.Add("Accept", "application/json");
 

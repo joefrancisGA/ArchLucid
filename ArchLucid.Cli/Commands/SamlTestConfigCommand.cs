@@ -15,7 +15,7 @@ namespace ArchLucid.Cli.Commands;
 [ExcludeFromCodeCoverage(Justification = "Console/report integration; diagnostics covered by Core tests.")]
 internal static class SamlTestConfigCommand
 {
-    private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(30) };
+    private static readonly HttpClient Http = ArchLucidCliHttpClientFactory.CreateDefault(TimeSpan.FromSeconds(30));
 
     private static readonly JsonSerializerOptions JsonWriter = new()
     {

@@ -112,7 +112,7 @@ internal static class ConfigBootstrapCommand
 
         bool ownsClient = httpClient is null;
 
-        httpClient ??= new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+        httpClient ??= ArchLucidCliHttpClientFactory.CreateDefault(TimeSpan.FromSeconds(30));
 
         try
         {

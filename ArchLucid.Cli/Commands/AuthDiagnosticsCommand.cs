@@ -35,7 +35,7 @@ internal static class AuthDiagnosticsCommand
             return CliExitCode.ConfigurationError;
         }
 
-        using HttpClient httpClient = new() { BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/") };
+        using HttpClient httpClient = ArchLucidCliHttpClientFactory.CreateWithBaseAddress(baseUrl);
         using HttpRequestMessage request = new(HttpMethod.Get, "v1/admin/auth/configuration-diagnostics");
         request.Headers.Add("X-Api-Key", apiKey);
 

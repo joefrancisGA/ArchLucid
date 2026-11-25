@@ -29,7 +29,7 @@ internal static class AuthTokenClaimsDiagnosticClient
         }
 
         bool ownsClient = httpClient is null;
-        HttpClient client = httpClient ?? new HttpClient { BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/") };
+        HttpClient client = httpClient ?? ArchLucidCliHttpClientFactory.CreateWithBaseAddress(baseUrl);
 
         try
         {

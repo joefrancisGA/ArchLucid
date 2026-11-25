@@ -7,7 +7,7 @@ namespace ArchLucid.Cli.Commands;
 /// <summary>Offline SSO/OIDC/SAML configuration preflight (assessment improvement #13).</summary>
 internal static class AuthSsoPreflightEvaluator
 {
-    private static readonly HttpClient DefaultHttp = new() { Timeout = TimeSpan.FromSeconds(20) };
+    private static readonly HttpClient DefaultHttp = ArchLucidCliHttpClientFactory.CreateDefault(TimeSpan.FromSeconds(20));
 
     internal static async Task<IReadOnlyList<AuthSsoPreflightCheckResult>> EvaluateAsync(
         IConfiguration configuration,
