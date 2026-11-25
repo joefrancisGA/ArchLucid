@@ -1,4 +1,7 @@
+using System.Text.Json;
+
 using ArchLucid.AgentRuntime.Quality;
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Scoping;
@@ -35,14 +38,31 @@ public sealed class IndependentProviderQualityObserverTests
         monitor.VerifyNoOtherCalls();
     }
 
-    [Fact]
-    public async Task Live_response_reports_one_contradiction_for_the_actual_provider_deployment_and_version()
+    [Theory]
+    [InlineData("scoped")]
+    [InlineData("foreign")]
+    [InlineData("mismatch")]
+    [InlineData("legacy")]
+    public async Task Live_response_reports_one_contradiction_and_only_attaches_matching_provenance(string scenario)
     {
         ProviderQualityKey key = ProviderQualityKey.Create("azure-openai", "actual-fallback", "v7");
         Mock<IProviderQualityMonitor> monitor = new(MockBehavior.Strict);
         Mock<IAuditService> audit = new(MockBehavior.Strict);
         ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
         string response = new("sensitive answer body".AsSpan());
+        Guid explanationId = Guid.NewGuid(), resourceId = Guid.NewGuid(), snapshotId = Guid.NewGuid(), rowId = Guid.NewGuid();
+        var verification = new PublicNetworkAccessVerification(
+            resourceId, PublicNetworkAccessVerificationOutcome.Contradicted, snapshotId,
+            new DateTime(2026, 11, 25, 0, 0, 0, DateTimeKind.Utc))
+        {
+            Evidence = new PublicNetworkAccessVerificationEvidence(
+                "azure-inventory-public-network-access/1", scope.TenantId, scope.WorkspaceId,
+                scenario == "foreign" ? Guid.NewGuid() : scope.ProjectId, rowId, "publicNetworkAccess", 24),
+        };
+        InventoryFalsificationProbe? probe = scenario == "legacy" ? null : new InventoryFalsificationProbe(
+            scenario == "mismatch" ? InventoryFalsificationOutcome.SurvivedWithinTestedScope : InventoryFalsificationOutcome.Refuted,
+            "The explicit Azure property only, for the cited resource and snapshot.", verification);
+        AuditEvent? persisted = null;
         monitor.Setup(x => x.RecordAsync(It.Is<ProviderQualityAdjudication>(item => item.Key == key
                 && item.Label == ProviderQualityLabel.Contradicted && item.Independent
                 && item.SeverityWeight == 4 && item.SampleId.Length == 64
@@ -53,6 +73,7 @@ public sealed class IndependentProviderQualityObserverTests
         audit.Setup(x => x.LogAsync(It.Is<AuditEvent>(item => item.TenantId == scope.TenantId
                 && item.WorkspaceId == scope.WorkspaceId && item.ProjectId == scope.ProjectId
                 && !item.DataJson.Contains(response, StringComparison.Ordinal)), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((item, _) => persisted = item)
             .Returns(Task.CompletedTask);
 
         IndependentProviderQualityObserver observer = new(monitor.Object, audit.Object);
@@ -65,10 +86,18 @@ public sealed class IndependentProviderQualityObserverTests
         }, ct);
 
         result.Sample.Should().NotBeNull();
-        await result.Sample!.RecordAsync(scope, Guid.NewGuid(), IndependentProviderClaimOutcome.Contradicted, true, ct);
-        await result.Sample.RecordAsync(scope, Guid.NewGuid(), IndependentProviderClaimOutcome.Contradicted, true, ct);
+        await result.Sample!.RecordAsync(scope, explanationId, IndependentProviderClaimOutcome.Contradicted, true, probe, ct);
+        await result.Sample.RecordAsync(scope, Guid.NewGuid(), IndependentProviderClaimOutcome.Contradicted, true, probe, ct);
         monitor.Verify(x => x.RecordAsync(It.IsAny<ProviderQualityAdjudication>(), ct), Times.Once);
         audit.Verify(x => x.LogAsync(It.IsAny<AuditEvent>(), ct), Times.Once);
+
+        using JsonDocument payload = JsonDocument.Parse(persisted!.DataJson);
+        payload.RootElement.GetProperty("explanationId").GetGuid().Should().Be(explanationId);
+        JsonElement provenance = payload.RootElement.GetProperty("inventoryFalsification");
+        if (scenario == "scoped")
+            provenance.Deserialize<InventoryFalsificationProbe>().Should().Be(probe);
+        else
+            provenance.ValueKind.Should().Be(JsonValueKind.Null);
     }
 
     [Theory]
@@ -113,7 +142,7 @@ public sealed class IndependentProviderQualityObserverTests
         }, ct);
 
         observed.Sample.Should().NotBeNull();
-        await observed.Sample!.RecordAsync(scope, explanationId, outcome, true, ct);
+        await observed.Sample!.RecordAsync(scope, explanationId, outcome, true, null, ct);
         ProviderQualitySnapshot state = monitor.GetSnapshot(key);
         state.Quarantined.Should().BeTrue();
         state.RecoveryProbeInFlight.Should().BeFalse();

@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Scoping;
@@ -70,7 +71,7 @@ public sealed class IndependentProviderQualityObserver(IProviderQualityMonitor m
 
         public async Task RecordAsync(
             ScopeContext scope, Guid storedExplanationId, IndependentProviderClaimOutcome outcome, bool material,
-            CancellationToken cancellationToken)
+            InventoryFalsificationProbe? inventoryFalsification, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(scope);
             cancellationToken.ThrowIfCancellationRequested();
@@ -126,8 +127,41 @@ public sealed class IndependentProviderQualityObserver(IProviderQualityMonitor m
                         result.Snapshot.DecisionWindowWeightedBadRate,
                         result.Snapshot.DecisionWindowWilsonLowerBound,
                         adjudicatorKind = method,
+                        inventoryFalsification = MatchAuditProvenance(scope, outcome, inventoryFalsification),
                     }),
                 }, cancellationToken).ConfigureAwait(false);
         }
+    }
+
+    private static InventoryFalsificationProbe? MatchAuditProvenance(
+        ScopeContext scope, IndependentProviderClaimOutcome outcome, InventoryFalsificationProbe? probe)
+    {
+        if (probe is null || string.IsNullOrWhiteSpace(probe.Coverage))
+            return null;
+
+        if (probe.Verification is not { } verification)
+            return outcome == IndependentProviderClaimOutcome.Unknown &&
+                probe.Outcome is InventoryFalsificationOutcome.Untestable or InventoryFalsificationOutcome.HumanReviewRequired
+                ? probe : null;
+
+        if (verification is not { Evidence: { } evidence, SnapshotId: Guid snapshotId, CapturedUtc: DateTime captured } ||
+            verification.CloudResourceId == Guid.Empty || snapshotId == Guid.Empty || captured == default ||
+            evidence.TenantId != scope.TenantId || evidence.WorkspaceId != scope.WorkspaceId ||
+            evidence.ProjectId != scope.ProjectId || evidence.ResourceRowId == Guid.Empty ||
+            string.IsNullOrWhiteSpace(evidence.VerifierVersion) || string.IsNullOrWhiteSpace(evidence.PropertyKey) ||
+            evidence.MaximumCaptureAgeHours <= 0)
+            return null;
+
+        // Never attach a record that tells a different story from the adjudication.
+        return (outcome, probe.Outcome, verification.Outcome) switch
+        {
+            (IndependentProviderClaimOutcome.Supported, InventoryFalsificationOutcome.SurvivedWithinTestedScope,
+                PublicNetworkAccessVerificationOutcome.Verified) => probe,
+            (IndependentProviderClaimOutcome.Contradicted, InventoryFalsificationOutcome.Refuted,
+                PublicNetworkAccessVerificationOutcome.Contradicted) => probe,
+            (IndependentProviderClaimOutcome.Unknown, InventoryFalsificationOutcome.Untestable,
+                PublicNetworkAccessVerificationOutcome.Unverified) => probe,
+            _ => null,
+        };
     }
 }

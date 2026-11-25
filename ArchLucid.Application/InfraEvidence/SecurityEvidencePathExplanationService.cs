@@ -287,7 +287,8 @@ public sealed class SecurityEvidencePathExplanationService(
             {
                 try
                 {
-                    await qualitySample.RecordAsync(scope, explanationId, claimOutcome, material, cancellationToken).ConfigureAwait(false);
+                    await qualitySample.RecordAsync(scope, explanationId, claimOutcome, material,
+                        record.InventoryFalsification, cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
                 {
