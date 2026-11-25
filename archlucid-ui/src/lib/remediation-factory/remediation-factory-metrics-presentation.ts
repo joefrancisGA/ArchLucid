@@ -9,7 +9,7 @@ import { parseFiniteNumber, parseNonNegativeFiniteNumber } from "@/lib/parse-fin
 export type RemediationFactoryMetricTile = {
   readonly id: string;
   readonly label: string;
-  readonly scopeLine: string;
+  readonly scopeLine?: string;
   readonly windowLine?: string;
   readonly ruleLine?: string;
   readonly value: string | null;
@@ -65,15 +65,23 @@ export function buildRemediationFactoryExecutiveMetricTiles(
 
   
 
-  function windowLineWhenLoaded(line: string): string | undefined {
+  function metricTileChromeWhenLoaded(line: string): string | undefined {
     return metricsLoaded ? line : undefined;
+  }
+
+  function windowLineWhenLoaded(line: string): string | undefined {
+    return metricTileChromeWhenLoaded(line);
+  }
+
+  function scopeLineWhenLoaded(line: string): string | undefined {
+    return metricTileChromeWhenLoaded(line);
   }
 
   return [
     {
       id: "open-findings-queue",
       label: "Open findings (queue)",
-      scopeLine: WORKSPACE_SCOPE,
+      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
       windowLine: windowLineWhenLoaded(
         "Governance queue open filter — may differ from factory metrics API.",
       ),
@@ -83,7 +91,7 @@ export function buildRemediationFactoryExecutiveMetricTiles(
     {
       id: "open-findings-factory",
       label: "Open findings (factory metrics)",
-      scopeLine: WORKSPACE_SCOPE,
+      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
       ruleLine: metricsLoaded ? PRIORITIZATION_RULE : undefined,
       valueFootnote: metricsLoaded
         ? "Factory metrics API count — compare to queue only when both are loaded."
@@ -93,14 +101,14 @@ export function buildRemediationFactoryExecutiveMetricTiles(
     {
       id: "risk-weighted-open",
       label: "Risk-weighted open",
-      scopeLine: WORKSPACE_SCOPE,
+      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
       ruleLine: metricsLoaded ? `${PRIORITIZATION_RULE} · weighted sum, not a finding count` : undefined,
       value: formatDecimal(metrics?.riskWeightedOpen, 2),
     },
     {
       id: "critical-exposure",
       label: "Critical exposure",
-      scopeLine: WORKSPACE_SCOPE,
+      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
       windowLine: windowLineWhenLoaded(
         "Factory metric — linked queue uses critical-error filter and may differ.",
       ),
@@ -116,7 +124,7 @@ export function buildRemediationFactoryExecutiveMetricTiles(
     {
       id: "recurrence",
       label: "Recurrence (7d)",
-      scopeLine: WORKSPACE_SCOPE,
+      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
       windowLine: windowLineWhenLoaded(
         `${METRICS_WINDOW} · findings that reopened after remediation in this metric`,
       ),
@@ -125,7 +133,7 @@ export function buildRemediationFactoryExecutiveMetricTiles(
     {
       id: "net-burn",
       label: "Net burn (7d)",
-      scopeLine: WORKSPACE_SCOPE,
+      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
       windowLine: windowLineWhenLoaded(
         `${METRICS_WINDOW} · opened minus remediated — not cloud spend`,
       ),
@@ -138,21 +146,21 @@ export function buildRemediationFactoryExecutiveMetricTiles(
     {
       id: "pattern-exact",
       label: "Pattern exact match %",
-      scopeLine: WORKSPACE_SCOPE,
+      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
       windowLine: windowLineWhenLoaded(REMEDIATION_FACTORY_PERCENT_POPULATION_LINE),
       value: formatPercentPoints(metrics?.patternCoverageExactMatchPercent),
     },
     {
       id: "automation",
       label: "Automation %",
-      scopeLine: WORKSPACE_SCOPE,
+      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
       windowLine: windowLineWhenLoaded(REMEDIATION_FACTORY_PERCENT_POPULATION_LINE),
       value: formatPercentPoints(metrics?.automationPercent),
     },
     {
       id: "exceptions-active",
       label: "Exceptions active",
-      scopeLine: WORKSPACE_SCOPE,
+      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
       windowLine: windowLineWhenLoaded("Current snapshot — not the 7-day window"),
       valueFootnote:
         !metricsLoaded || metrics == null ? null : `${METRICS_WINDOW} · ${metrics.exceptionsExpiringSoon} expiring soon`,
@@ -161,7 +169,7 @@ export function buildRemediationFactoryExecutiveMetricTiles(
     {
       id: "avg-age",
       label: "Average age (days)",
-      scopeLine: WORKSPACE_SCOPE,
+      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
       value: formatDecimal(metrics?.averageAgeDays, 1),
     },
   ];

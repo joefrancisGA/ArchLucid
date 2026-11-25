@@ -45,6 +45,12 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "pattern-exact")?.value).toBe("150%");
   });
 
+  it("omits scopeLine on executive metric tiles when metrics are unloaded", () => {
+    const metrics = { openFindings: 3, automationPercent: 10 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, false);
+
+    expect(tiles.every((tile) => tile.scopeLine === undefined)).toBe(true);
+  });
   it("omits windowLine on executive metric tiles when metrics are unloaded", () => {
     const metrics = {
       openFindings: 3,

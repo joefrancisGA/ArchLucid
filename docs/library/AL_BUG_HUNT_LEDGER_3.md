@@ -379,6 +379,21 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-16 (`shouldRotate: false`; hint override). **proven** `scopeLine` on executive tiles — workspace scope chrome showed under `Loading metrics…` while `metricsLoaded` was false; gate via `scopeLineWhenLoaded` and omit in `MetricTileBody` when undefined. Regression `omits scopeLine on executive metric tiles when metrics are unloaded`. **valid-no-repro** metrics `no` token not in open allowlist, **valid-no-repro** duplicate metrics param (`URLSearchParams.get` first token), **valid-no-repro** overflow with single long path id, **invalid** path alias param (no alias in url-state). Pass-17 reseed below. Scoped vitest **134/134**. Private beta: invited operators no longer see workspace scope helper copy on remediation factory metric tiles while metrics are still loading.
+
+- [x] (superseded) pass-16 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-17 reseed.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — scopeLine when unloaded — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics closed drops `no` token — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `no` not in open parse allowlist; closed write deletes param.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics param — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `URLSearchParams.get` first-wins on read.
+- [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — single id list — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** threshold regression without overflow line.
+- [x] (invalid) `remediationFactoryHrefFromSearch` — path alias param — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** only `selectedPath` param is defined.
+
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — label line when unloaded — locus: tile label always visible; monitor; pass-17 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics closed drops `NO` token — locus: case-fold parse; monitor; pass-17 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — yes metrics token — locus: open parse allowlist; monitor; pass-17 reseed.
+- [ ] (candidate) `formatAttackPathReportPathChipLabel` — trim-only id — locus: empty after trim; monitor; pass-17 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves finding param on pathname-only href — locus: disclosure writer; monitor; pass-17 reseed.
+
 2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-15 (`shouldRotate: false`; hint override). **proven** `windowLine` on executive metric tiles — static window/helper copy rendered while `metricsLoaded` was false; gate via `windowLineWhenLoaded`. Regression `omits windowLine on executive metric tiles when metrics are unloaded`. **valid-no-repro** metrics closed drops `off` token (`treats OFF metrics disclosure token as closed` + closed write drops param), **valid-no-repro** empty metrics param defaults closed (`parseRemediationFactoryMetricsSummaryOpen`), **valid-no-repro** lone dots chip label (`formatAttackPathReportPathChipLabel` returns `...`), **valid-no-repro** href preserves foreign params (`remediationFactoryHrefFromSearch` + round-trip `selectedPath`). Pass-16 reseed below. Scoped vitest **133/133**. Private beta: invited operators no longer see rolling-window and population helper lines under loading/not-computed remediation factory metric tiles.
 
 - [x] (superseded) pass-15 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-16 reseed.
