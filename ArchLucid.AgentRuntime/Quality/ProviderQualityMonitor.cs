@@ -68,7 +68,10 @@ public sealed record ProviderQualitySnapshot(
     DateTimeOffset? QuarantinedUntilUtc,
     bool HumanOverride,
     bool RecoveryProbeInFlight,
-    string? LastReason);
+    string? LastReason,
+    int DecisionWindowKnownSamples = 0,
+    double DecisionWindowWeightedBadRate = 0,
+    double DecisionWindowWilsonLowerBound = 0);
 
 public sealed record ProviderQualityRecordResult(
     ProviderQualitySnapshot Snapshot,
@@ -186,6 +189,11 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
                     entry.Quarantined = false;
                     entry.QuarantinedUntilUtc = null;
                     ClearRecoveryProbe(entry);
+                    // Keep lifetime evidence and replay protection. Only the next trip decision starts fresh.
+                    entry.DecisionKnownBaseline = entry.KnownSamples;
+                    entry.DecisionBadBaseline = entry.BadSamples;
+                    entry.DecisionWeightBaseline = entry.TotalWeight;
+                    entry.DecisionBadWeightBaseline = entry.BadWeight;
                     entry.LastReason = "Independent recovery probe was supported.";
                     return new ProviderQualityRecordResult(Snapshot(adjudication.Key, entry), true, "recovered");
                 }
@@ -194,9 +202,8 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
                 return new ProviderQualityRecordResult(Snapshot(adjudication.Key, entry), true, "reopened");
             }
 
-            double weightedRate = WeightedBadRate(entry);
-            double lowerBound = WilsonLowerBound(entry.BadSamples, entry.KnownSamples);
-            bool enoughEvidence = entry.KnownSamples >= _options.MinimumIndependentKnownSamples;
+            (int decisionKnown, double weightedRate, double lowerBound) = DecisionWindow(entry);
+            bool enoughEvidence = decisionKnown >= _options.MinimumIndependentKnownSamples;
             bool suspect = enoughEvidence
                 && weightedRate >= _options.MaximumWeightedBadRate
                 && lowerBound >= _options.MinimumWilsonBadRate;
@@ -206,7 +213,7 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
                 entry.Quarantined = true;
                 entry.QuarantinedUntilUtc = _clock.GetUtcNow().AddSeconds(_options.QuarantineSeconds);
                 entry.LastReason =
-                    $"Independent provider-quality tripwire opened after {entry.KnownSamples} known samples; "
+                    $"Independent provider-quality tripwire opened after {decisionKnown} known samples in the current decision window; "
                     + $"weighted bad rate {weightedRate:F3}, Wilson lower bound {lowerBound:F3}.";
                 return new ProviderQualityRecordResult(Snapshot(adjudication.Key, entry), true, "quarantined");
             }
@@ -344,8 +351,16 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
         entry.RecoveryTraceId = null;
     }
 
-    private static double WeightedBadRate(Entry entry) =>
-        entry.TotalWeight <= 0 ? 0.0 : Math.Clamp(entry.BadWeight / entry.TotalWeight, 0.0, 1.0);
+    private static double WeightedBadRate(double badWeight, double totalWeight) =>
+        totalWeight <= 0 ? 0.0 : Math.Clamp(badWeight / totalWeight, 0.0, 1.0);
+
+    private static (int Known, double WeightedRate, double WilsonLower) DecisionWindow(Entry entry)
+    {
+        int known = entry.KnownSamples - entry.DecisionKnownBaseline;
+        int bad = entry.BadSamples - entry.DecisionBadBaseline;
+        return (known, WeightedBadRate(entry.BadWeight - entry.DecisionBadWeightBaseline,
+            entry.TotalWeight - entry.DecisionWeightBaseline), WilsonLowerBound(bad, known));
+    }
 
     private static double WilsonLowerBound(int bad, int total)
     {
@@ -361,19 +376,25 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
         return Math.Max(0.0, (center - margin) / denominator);
     }
 
-    private ProviderQualitySnapshot Snapshot(ProviderQualityKey key, Entry entry) =>
-        new(
+    private ProviderQualitySnapshot Snapshot(ProviderQualityKey key, Entry entry)
+    {
+        (int known, double weightedRate, double lowerBound) = DecisionWindow(entry);
+        return new ProviderQualitySnapshot(
             ProviderQualityKey.Create(key.ProviderId, key.ModelId, key.ModelVersion),
             entry.KnownSamples,
             entry.UnknownSamples,
             entry.BadSamples,
-            WeightedBadRate(entry),
+            WeightedBadRate(entry.BadWeight, entry.TotalWeight),
             WilsonLowerBound(entry.BadSamples, entry.KnownSamples),
             entry.Quarantined,
             entry.QuarantinedUntilUtc,
             HasActiveOverride(entry),
             entry.RecoveryProbeInFlight,
-            entry.LastReason);
+            entry.LastReason,
+            known,
+            weightedRate,
+            lowerBound);
+    }
 
     internal string ExportState() => JsonSerializer.Serialize(_entries.Select(static pair =>
         new PersistedEntry(pair.Key, pair.Value)).ToArray());
@@ -403,6 +424,10 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
         public int BadSamples { get; set; }
         public double TotalWeight { get; set; }
         public double BadWeight { get; set; }
+        public int DecisionKnownBaseline { get; set; }
+        public int DecisionBadBaseline { get; set; }
+        public double DecisionWeightBaseline { get; set; }
+        public double DecisionBadWeightBaseline { get; set; }
         public bool Quarantined { get; set; }
         public DateTimeOffset? QuarantinedUntilUtc { get; set; }
         public DateTimeOffset? OperatorOverrideUntilUtc { get; set; }
