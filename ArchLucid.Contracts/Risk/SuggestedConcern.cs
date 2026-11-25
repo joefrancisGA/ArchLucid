@@ -11,11 +11,13 @@ public sealed class SuggestedConcern
     } = Guid.NewGuid().ToString("N");
 
     /// <summary>Plain language, specific, references named entities from customer context.</summary>
+    private string statement = string.Empty;
+
     public string Statement
     {
-        get;
-        set;
-    } = null!;
+        get => statement;
+        set => statement = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>Must contain at least two held facts (named entities) to pass the quality gate.</summary>
     private List<string> relatedFactRefs = [];

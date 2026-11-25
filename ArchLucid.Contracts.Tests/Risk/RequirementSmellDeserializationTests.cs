@@ -61,4 +61,21 @@ public sealed class RequirementSmellDeserializationTests
         smell.EvidenceRefs.Should().NotBeNull();
         smell.EvidenceRefs.Should().BeEmpty();
     }
+    [Fact]
+    public void Deserialize_null_requirement_id_and_rationale_yield_empty_strings_not_null()
+    {
+        const string json = """
+            {
+              "requirementId": null,
+              "kind": 0,
+              "rationale": null,
+              "evidenceRefs": []
+            }
+            """;
+
+        RequirementSmell smell = JsonSerializer.Deserialize<RequirementSmell>(json, ContractJson.Default)!;
+
+        smell.RequirementId.Should().BeEmpty();
+        smell.Rationale.Should().BeEmpty();
+    }
 }

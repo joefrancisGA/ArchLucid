@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed→hit): `archlucid-contracts` pass-7 reseed. CanonicalObject identity coalesce. Scoped deserialization **12/12**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed→hit): `archlucid-contracts` pass-8 reseed. Risk snapshot child string coalesce. Scoped deserialization **12/12**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -8945,6 +8945,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; hit-rate cooldown waived). Promoted pass-7 `SuggestedConcern.Statement` and `RequirementSmell.RequirementId`/`Rationale` — **proven** explicit JSON `null` left `null!` references; `CoalesceRequired` on backing-field setters; regressions `Deserialize_null_statement_yields_empty_string_not_null`, `Deserialize_null_requirement_id_and_rationale_yield_empty_strings_not_null`. Pass-8 reseed below. Scoped deserialization **12/12**. Private beta: risk snapshot child JSON with null headline fields deserializes to empty strings so risk assessment replay does not null-reference stored concern and smell rows.
+
+
 2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; zone cooled by hit-rate, waiver empty hypothesis list). Promoted pass-6 `CanonicalObject.ObjectType`/`SourceType`/`SourceId` — **proven** explicit JSON `null` left `null!` references; `CoalesceRequired` on backing-field setters; regression `Deserialize_null_identity_columns_yield_empty_strings_not_null`. **valid-no-repro** pass-6 `ContextSnapshot.CanonicalObjects` (`Coalesce` + `ContextSnapshotDeserializationTests`). Pass-7 reseed below. Scoped deserialization **12/12**. Private beta: context ingest JSON with null canonical identity fields deserializes to empty strings so knowledge-graph replay does not null-reference stored canonical rows.
 
 
@@ -8978,11 +8981,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) pass-6 `ContextSnapshot.CanonicalObjects` — **cheap-disproof 2026-11-25 seed hunt:** `Coalesce` on list setter; snapshot deserialization regression.
 - [x] (superseded) pass-6 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-7 reseed.
 
-- [ ] (candidate) `SuggestedConcern.Statement` — explicit JSON `null` on risk concern headline — locus: auto-property setter; input: risk snapshot child row; monitor; pass-7 reseed.
-- [ ] (candidate) `RequirementSmell.RequirementId` / `Rationale` — explicit JSON `null` on smell headline fields — locus: auto-property setters; input: risk snapshot child row; monitor; pass-7 reseed.
-- [ ] (candidate) `ComplianceRule` rule headline strings — explicit JSON `null` on nested rule rows inside `ComplianceRulePack.Rules` — locus: `ComplianceRule` setters; input: pack import child array; monitor; pass-7 reseed.
-- [ ] (candidate) `ComplianceRule.Severity` / `Priority` — explicit JSON `null` may bypass string initializer defaults — locus: auto-property setters; input: rule row with null severity; monitor; pass-7 reseed.
-- [ ] (candidate) `ContextSnapshot.ProjectId` — explicit JSON `null` may bypass `= ""` initializer — locus: auto-property setter; input: snapshot JSON; monitor; pass-7 reseed.
+- [x] (proven) `SuggestedConcern.Statement` — explicit JSON `null` on risk concern headline — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regression above.
+- [x] (proven) `RequirementSmell.RequirementId` / `Rationale` — explicit JSON `null` on smell headline fields — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regression above.
+- [x] (superseded) pass-7 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-8 reseed.
+
+- [ ] (candidate) `ComplianceRule` rule headline strings — explicit JSON `null` on nested rule rows inside `ComplianceRulePack.Rules` — locus: `ComplianceRule` setters; input: pack import child array; monitor; pass-8 reseed.
+- [ ] (candidate) `ComplianceRule.Severity` / `Priority` — explicit JSON `null` may bypass string initializer defaults — locus: auto-property setters; input: rule row with null severity; monitor; pass-8 reseed.
+- [ ] (candidate) `ContextSnapshot.ProjectId` — explicit JSON `null` may bypass `= ""` initializer — locus: auto-property setter; input: snapshot JSON; monitor; pass-8 reseed.
+- [ ] (candidate) `RiskSnapshot.ReviewRunId` sibling string columns on nested lists — locus: risk snapshot deserialize; input: null child rows inside `Concerns`; monitor; pass-8 reseed.
+- [ ] (candidate) `ComplianceRuleApplicabilityConditions` nullable gate object strings — locus: nested applicability; input: rule row with null applicability strings; monitor; pass-8 reseed.
+
 
 
 
@@ -9135,8 +9143,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 9
-- **bugs-found:** 8
+- **hunts:** 10
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25

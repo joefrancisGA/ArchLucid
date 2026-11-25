@@ -98,4 +98,20 @@ public sealed class SuggestedConcernDeserializationTests
         concern.RelatedFactRefs.Should().NotBeNull();
         concern.RelatedFactRefs.Should().BeEmpty();
     }
+    [Fact]
+    public void Deserialize_null_statement_yields_empty_string_not_null()
+    {
+        const string json = """
+            {
+              "statement": null,
+              "source": 0,
+              "consequence": 0,
+              "reversibility": 0
+            }
+            """;
+
+        SuggestedConcern concern = JsonSerializer.Deserialize<SuggestedConcern>(json, ContractJson.Default)!;
+
+        concern.Statement.Should().BeEmpty();
+    }
 }
