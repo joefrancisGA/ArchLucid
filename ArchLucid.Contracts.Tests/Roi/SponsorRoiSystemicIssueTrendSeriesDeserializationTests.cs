@@ -25,4 +25,25 @@ public sealed class SponsorRoiSystemicIssueTrendSeriesDeserializationTests
         result.Should().NotBeNull();
         result!.Points.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_populated_series_preserves_monthly_counts_in_order()
+    {
+        const string json = """
+            {
+              "findingId": "finding-123",
+              "points": [
+                {"monthKey": "2026-04", "count": 2},
+                {"monthKey": "2026-05", "count": 5}
+              ]
+            }
+            """;
+
+        SponsorRoiSystemicIssueTrendSeries result =
+            JsonSerializer.Deserialize<SponsorRoiSystemicIssueTrendSeries>(json, ContractJson.CamelCaseCompact)!;
+
+        result.FindingId.Should().Be("finding-123");
+        result.Points.Select(point => (point.MonthKey, point.Count))
+            .Should().Equal(("2026-04", 2), ("2026-05", 5));
+    }
 }
