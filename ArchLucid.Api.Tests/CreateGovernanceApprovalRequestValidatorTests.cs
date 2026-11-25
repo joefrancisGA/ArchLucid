@@ -46,25 +46,30 @@ public sealed class CreateGovernanceApprovalRequestValidatorTests
         result.IsValid.Should().BeTrue();
     }
 
-    [Fact]
-    public void Validate_passes_for_custom_environment_slugs_up_to_sixty_four_characters()
+    [Theory]
+    [InlineData(64, 64, null)]
+    [InlineData(65, 64, nameof(CreateGovernanceApprovalRequest.SourceEnvironment))]
+    [InlineData(64, 65, nameof(CreateGovernanceApprovalRequest.TargetEnvironment))]
+    public void Validate_checks_custom_environment_slug_length_boundary(
+        int sourceLength, int targetLength, string? invalidProperty)
     {
-        string sourceSlug = "staging-" + new string('a', 32);
-        string targetSlug = "approved-" + new string('b', 31);
-
         CreateGovernanceApprovalRequest request = new()
         {
             RunId = "run-1",
             ManifestVersion = "v1",
-            SourceEnvironment = sourceSlug,
-            TargetEnvironment = targetSlug,
+            SourceEnvironment = new string('a', sourceLength),
+            TargetEnvironment = new string('b', targetLength),
         };
 
         ValidationResult result = _validator.Validate(request);
 
-        result.IsValid.Should().BeTrue();
-        sourceSlug.Length.Should().Be(40);
-        targetSlug.Length.Should().Be(40);
+        result.IsValid.Should().Be(invalidProperty is null);
+        if (invalidProperty is not null)
+        {
+            ValidationFailure failure = Assert.Single(result.Errors);
+            Assert.Equal(invalidProperty, failure.PropertyName);
+            Assert.Contains("64 characters", failure.ErrorMessage);
+        }
     }
 
     [Fact]

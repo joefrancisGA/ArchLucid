@@ -16,30 +16,24 @@ public sealed class PreCommitGateHostedAppsettingsTests
     private static string ProductionJsonPath =>
         Path.Combine(AppContext.BaseDirectory, "appsettings.Production.json");
 
-    [SkippableFact]
+    [Fact]
     public void Staging_appsettings_enables_pre_commit_gate()
     {
-        Skip.IfNot(File.Exists(StagingJsonPath), $"Expected {StagingJsonPath} (copy from ArchLucid.Api via csproj).");
-
         ReadOptions(StagingJsonPath).PreCommitGateEnabled.Should().BeTrue();
     }
 
-    [SkippableFact]
+    [Fact]
     public void Production_appsettings_enables_pre_commit_gate()
     {
-        Skip.IfNot(File.Exists(ProductionJsonPath), $"Expected {ProductionJsonPath} (copy from ArchLucid.Api via csproj).");
-
         ReadOptions(ProductionJsonPath).PreCommitGateEnabled.Should().BeTrue();
     }
 
     private static string DevelopmentJsonPath =>
         Path.Combine(FindRepoRoot(), "ArchLucid.Api", "appsettings.Development.json");
 
-    [SkippableFact]
+    [Fact]
     public void Development_appsettings_enables_pre_commit_gate()
     {
-        Skip.IfNot(File.Exists(DevelopmentJsonPath), $"Expected {DevelopmentJsonPath}.");
-
         ReadOptions(DevelopmentJsonPath).PreCommitGateEnabled.Should().BeTrue();
     }
 
