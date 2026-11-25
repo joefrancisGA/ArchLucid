@@ -83,6 +83,47 @@ function formatEntitySectionHonestyLine(
   return null;
 }
 
+
+function buildArchitectureDiagramNodeEntityFingerprint(entity: ArchitectureStructuredEntity): string {
+  const label = entity.label.trim().toLowerCase();
+  const detail = entity.detail?.trim().toLowerCase() ?? "";
+
+  return `${label}\u001f${detail}`;
+}
+
+function architectureDiagramNodeOverrideKey(
+  node: Pick<ArchitectureDiagramNode, "kind" | "provenance" | "entityFingerprint">,
+): string {
+  return `${node.kind}\u001f${node.provenance}\u001f${node.entityFingerprint}`;
+}
+
+function resolveArchitectureDiagramNodeOverride(
+  node: ArchitectureDiagramNode,
+  nodeOverrideById: ReadonlyMap<string, ArchitectureDiagramNode>,
+  nodeOverrideByFingerprint: ReadonlyMap<string, ArchitectureDiagramNode>,
+): ArchitectureDiagramNode {
+  if (node.entityFingerprint.length > 0) {
+    const byFingerprint = nodeOverrideByFingerprint.get(architectureDiagramNodeOverrideKey(node));
+
+    if (byFingerprint !== undefined) {
+      return byFingerprint;
+    }
+  }
+
+  const override = nodeOverrideById.get(node.id);
+
+  if (override !== undefined) {
+    if (node.entityFingerprint.length > 0 && override.entityFingerprint.length === 0) {
+      return node;
+    }
+
+    if (override.entityFingerprint.length === 0 || override.entityFingerprint === node.entityFingerprint) {
+      return override;
+    }
+  }
+
+  return node;
+}
 function sanitizeNodeId(label: string, kind: ArchitectureDiagramNodeKind, index: number): string {
   const base = label
     .toLowerCase()
@@ -99,6 +140,7 @@ function createNode(
   provenance: ArchitectureContentProvenance,
   usedIds: Set<string>,
   index: number,
+  entityFingerprint: string,
 ): ArchitectureDiagramNode {
   let candidate = sanitizeNodeId(label, kind, index);
   let suffix = 0;
@@ -117,6 +159,7 @@ function createNode(
     provenance,
     removed: false,
     accepted: provenance === "asserted",
+    entityFingerprint,
   };
 }
 
@@ -142,7 +185,7 @@ function addEntityNodes(
       displayLabel = resolveArchitectureDiagramNodeDisplayLabel(entity.label);
     }
 
-    nodes.push(createNode(displayLabel, kind, entity.provenance, usedIds, index));
+    nodes.push(createNode(displayLabel, kind, entity.provenance, usedIds, index, buildArchitectureDiagramNodeEntityFingerprint(entity)));
     index += 1;
   }
 }
@@ -592,14 +635,19 @@ export function applyArchitectureDiagramOverrides(
   nodeOverrides: readonly ArchitectureDiagramNode[],
   edgeOverrides: readonly ArchitectureDiagramEdge[],
 ): ArchitectureDiagramModel {
-  const nodeOverrideMap = new Map(nodeOverrides.map((node) => [node.id, node]));
+  const nodeOverrideById = new Map(nodeOverrides.map((node) => [node.id, node]));
+  const nodeOverrideByFingerprint = new Map(
+    nodeOverrides
+      .filter((override) => override.entityFingerprint.length > 0)
+      .map((override) => [architectureDiagramNodeOverrideKey(override), override]),
+  );
   const edgeOverrideById = new Map(edgeOverrides.map((edge) => [edge.id, edge]));
   const edgeOverrideByEndpoints = new Map(
     edgeOverrides.map((edge) => [flowEdgeDedupeKey(edge), edge]),
   );
 
   return {
-    nodes: model.nodes.map((node) => nodeOverrideMap.get(node.id) ?? node),
+    nodes: model.nodes.map((node) => resolveArchitectureDiagramNodeOverride(node, nodeOverrideById, nodeOverrideByFingerprint)),
     edges: model.edges
       .map((edge) => resolveArchitectureDiagramEdgeOverride(edge, edgeOverrideById, edgeOverrideByEndpoints))
       .filter((edge) => !edge.removed),

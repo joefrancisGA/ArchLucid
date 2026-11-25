@@ -9,6 +9,8 @@ export type ArchitectureDiagramNode = {
   readonly provenance: ArchitectureContentProvenance;
   readonly removed: boolean;
   readonly accepted: boolean;
+  /** Stable per-entity identity for override replay when generated node ids shift after brief edits. */
+  readonly entityFingerprint: string;
 };
 
 export type ArchitectureDiagramEdge = {

@@ -7,6 +7,7 @@ import {
   getJson,
   postJson,
   primaryDescriptionFromSources,
+  shouldRequestGoldenFixtureForGoldenTest,
 } from "./architecture-intelligence-client-api";
 import type {
   ClosedLoopReasoningResult,
@@ -272,7 +273,7 @@ export function useArchitectureIntelligenceActions(
   ]);
 
   const runGoldenTest = useCallback(async () => {
-    const useFixture = architectureDescription.trim().length === 0 && hydratedSourceTexts.length === 0;
+    const useFixture = shouldRequestGoldenFixtureForGoldenTest(architectureDescription, hydratedSourceTexts);
 
     setLoadingAction("golden");
     setError(null);

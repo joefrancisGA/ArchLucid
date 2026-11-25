@@ -40,9 +40,7 @@ type LegacyOffsetPagedRunEnvelope = {
   hasMore: boolean;
 };
 
-function isLegacyOffsetPagedRunEnvelope(
-  data: Record<string, unknown>,
-): data is LegacyOffsetPagedRunEnvelope {
+function isLegacyOffsetPagedRunShape(data: Record<string, unknown>): boolean {
   return (
     typeof data.totalCount === "number" &&
     Number.isFinite(data.totalCount) &&
@@ -54,6 +52,7 @@ function isLegacyOffsetPagedRunEnvelope(
   );
 }
 
+
 type CursorPagedRunEnvelope = {
   requestedTake: number;
   hasMore: boolean;
@@ -62,7 +61,12 @@ type CursorPagedRunEnvelope = {
 };
 
 function isCursorPagedRunEnvelope(data: Record<string, unknown>): data is CursorPagedRunEnvelope {
-  return typeof data.requestedTake === "number" && Number.isFinite(data.requestedTake) && typeof data.hasMore === "boolean";
+  return (
+    typeof data.requestedTake === "number"
+    && Number.isFinite(data.requestedTake)
+    && Number.isInteger(data.requestedTake)
+    && typeof data.hasMore === "boolean"
+  );
 }
 
 function normalizeRunSummaryItems(rawItems: unknown): { ok: true; items: RunSummary[] } | { ok: false; message: string } {
@@ -116,8 +120,12 @@ export function coerceRunSummaryPaged(
 
   const items = normalizedItems.items;
 
-  if (isLegacyOffsetPagedRunEnvelope(data)) {
-    if (data.page < 1 || data.pageSize < 1) {
+  if (isLegacyOffsetPagedRunShape(data)) {
+    if (!Number.isInteger(data.totalCount) || !Number.isInteger(data.page) || !Number.isInteger(data.pageSize)) {
+      return { ok: false, message: "Paged runs response has invalid page or pageSize." };
+    }
+
+    if (data.page < 1 || data.pageSize < 1 || data.totalCount < 0) {
       return { ok: false, message: "Paged runs response has invalid page or pageSize." };
     }
 

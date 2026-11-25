@@ -51,6 +51,13 @@ export function useBooleanSearchParamUrlSync(
       const fromUrl = readOpenFromUrl();
 
       if (fromUrl === null) {
+        const defaultOpen = parseOpenFromSearch(null);
+
+        if (openRef.current !== defaultOpen) {
+          openRef.current = defaultOpen;
+          setOpenState(defaultOpen);
+        }
+
         return;
       }
 

@@ -1,15 +1,32 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 seed hunt (seed-only): `infra-evidence-diagrams`. Closed pass-27 race/URL monitors via existing cancellation, snapshot reset, and regressions. Reseed pass-28. Scoped vitest **96/111** (15 pre-existing workbench failures). Private beta: n/a.
+> **Scope:** Contributor-reference — hunt 2026-11-24 thorough hunt (dry): `ui-host-gate` pass-2 reseed. Scoped vitest **27/27**. Private beta: n/a.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
+2026-11-24 thorough hunt #3 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-1 `(candidate)` rows — **proven** `resolveGovernanceAssignedToMeOldestFinding` treated missing `agingDays` as `-1`, so a zero-day row beat a sooner-due row without stored aging; **valid-no-repro** `compareSeverity` title-case ranks (register mapper keeps trimmed API casing; monitor for lowercase drift vs density sort), **valid-no-repro** `parseGovernanceFindingsSearchQuery` padding (`matchesGovernanceFindingsSearchQuery` trims before matching; writer trims on replace), **valid-no-repro** `isApprovedStatus` excluding `Promoted`/`Activated` (Approved filter matches workflow `Approved` status; help guide models post-approval states separately), **valid-no-repro** `parseDecisionRegisterCategoryFromSearch` padding (decision-register page trims on filter apply). Regression `uses soonest due date when aging days are not stored on a row`; oldest-finding suite **4/4** with assigned-to-me sort, approval filter, findings search, and density sort **12/12** scoped. Reseeded five pass-2 `(candidate)` monitors below. Private beta: invited operators on the assigned-to-me governance queue now see the oldest-action callout prefer the finding with the sooner due date when aging days are not stored, instead of a zero-day row with a later due date.
 
 2026-11-23 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reread findings search, approval status filter, assigned-to-me sort, density sort, and due-date helpers after the 2026-11-23 dry pass. No row met hunt-ready: approval status still matches only `approved` (Promoted/Activated remain uncited), and assigned-to-me severity ranks use title case while the findings signal sort lowercases. Seeded five `(candidate)` monitors. Private beta: n/a.
 
-- [ ] (candidate) `compareSeverity` — title-case severity ranks only — locus: `SEVERITY_ORDER` keys `Critical`/`High`; input: queue row severity `critical`; wrong outcome: rank 99 while `sortGovernanceFindingsRowsBySignal` ranks it first; reachability: register mapper stores trimmed API severity (monitor; shipped enums are title case).
-- [ ] (candidate) `parseGovernanceFindingsSearchQuery` — reader keeps padding the writer strips — locus: returns `raw` untrimmed; input: `q=%20vault%20`; wrong outcome: URL chip and matcher disagree until the next write; reachability: pasted findings search (monitor; matcher trims).
-- [ ] (candidate) `isApprovedStatus` — `Promoted` and `Activated` miss the approved filter — locus: equality on `approved` only; input: approval row status `Promoted`; wrong outcome: row hidden under Approved; reachability: approval queue status strings (monitor; prior dry pass did not cite a producer).
-- [ ] (candidate) `resolveGovernanceAssignedToMeOldestFinding` — null `agingDays` sorts as `-1` — locus: `?? -1`; input: finding with null aging and an older due date; wrong outcome: a zero-aging row wins oldest; reachability: assigned-to-me rows missing aging (monitor).
-- [ ] (candidate) `parseDecisionRegisterCategoryFromSearch` — reader does not trim — locus: returns raw category; input: `category=%20Risk%20`; wrong outcome: filter chip misses the trimmed writer value; reachability: decision register category URL (monitor).
+- [x] (valid-no-repro) `compareSeverity` — title-case severity ranks only — **cheap-disproof 2026-11-24 thorough hunt #3:** API/register rows use trimmed title-case severity; density sort lowercases by design (monitor).
+- [x] (valid-no-repro) `parseGovernanceFindingsSearchQuery` — reader keeps padding the writer strips — **cheap-disproof 2026-11-24 thorough hunt #3:** matcher trims; debounced writer normalizes URL.
+- [x] (valid-no-repro) `isApprovedStatus` — `Promoted` and `Activated` miss the approved filter — **cheap-disproof 2026-11-24 thorough hunt #3:** Approved filter targets `Approved` workflow status; Promoted/Activated remain monitor-only.
+- [x] (proven) `resolveGovernanceAssignedToMeOldestFinding` — null `agingDays` sorts as `-1` — **hit 2026-11-24 thorough hunt #3:** compare aging only when both rows store aging; regression `uses soonest due date when aging days are not stored on a row`.
+- [x] (valid-no-repro) `parseDecisionRegisterCategoryFromSearch` — reader does not trim — **cheap-disproof 2026-11-24 thorough hunt #3:** `use-decision-register-page` trims on filter apply.
+
+- [x] (superseded) pass-1 `(candidate)` queue — **superseded 2026-11-24 thorough hunt #3 (mixed dry + hit):** closed at zone header; see pass-2 reseed.
+
+- [x] (valid-no-repro) `compareGovernanceAssignedToMeQueueRows` — lowercase API severity may sort after title-case Low — **cheap-disproof 2026-11-24 seed hunt (seed-only):** API rows use title-case severity; monitor for lowercase drift.
+- [x] (valid-no-repro) `parseGovernanceFindingsSearchQuery` — untrimmed `q` may show padding in search input before debounced replace — **cheap-disproof 2026-11-24 seed hunt (seed-only):** row matching trims; writer normalizes URL on replace.
+- [x] (valid-no-repro) `filterGovernanceApprovalsByStatusFilter` — `Promoted` rows under Approved filter — **cheap-disproof 2026-11-24 seed hunt (seed-only):** Approved filter matches `Approved` status only (monitor).
+- [x] (valid-no-repro) `governanceFindingsSearchHrefFromSearch` — whitespace-only `q` delete vs reader raw — **cheap-disproof 2026-11-24 seed hunt (seed-only):** href helper deletes `q` when trim is empty.
+- [x] (valid-no-repro) `decisionRegisterCategoryHrefFromSearch` — padded category in URL until operator edits — **cheap-disproof 2026-11-24 seed hunt (seed-only):** category href trims on write.
+
+- [x] (superseded) pass-2 `(candidate)` queue — **superseded 2026-11-24 seed hunt (seed-only):** closed at zone header; see pass-3 reseed.
+
+- [ ] (candidate) `compareGovernanceAssignedToMeQueueRows` — normalize severity rank when API emits lowercase enums — locus: `SEVERITY_ORDER` map; input: `critical` before `Medium`; monitor; pass-3 reseed.
+- [ ] (candidate) `governanceFindingsHideGenericHrefFromSearch` — toggling hide-generic may retain padded `q` from prior URL — locus: hide-generic href merge; input: `q=%20vault%20&hideGeneric=1`; monitor; pass-3 reseed.
+- [ ] (candidate) `filterGovernanceApprovalsByStatusFilter` — `inreview` vs `InReview` pending bucket — locus: `isPendingStatus`; input: mixed-case pending status; monitor; pass-3 reseed.
+- [ ] (candidate) `resolveGovernanceQueueDueDateMs` — whitespace-only `revisitDueUtc` may beat waiver date — locus: due-date resolver; input: revisit ` ` + waiver ISO; monitor; pass-3 reseed.
+- [ ] (candidate) `isLowInsightDensityScore` — NaN density may hide rows when hide-generic is on — locus: density filter; input: `insightDensityScore: NaN`; monitor; pass-3 reseed.
 2026-11-23 thorough hunt (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). The only hunt-ready row was a reseed stub with no locus, input, or wrong outcome, so it is `(invalid)`. Re-read `governanceFindingsClearAllFiltersHref`, `governanceFindingsClearReviewScopeHref`, `governanceFindingsNlTitleHrefFromSearch`, and `resolveGovernanceScopedReviewOpenHref`. Cheap-disproof closed the four pass-1 monitors: clear-all deletes `bulkDispConfirm`, clear-scope deletes keyboard triage params, row review href trims `runId` before encoding, and title facets go through `URLSearchParams.set`. Inverse checks on architecture-id case, approval status `Promoted`/`Activated`, and the untrimmed findings search reader did not meet the hunt-ready bar. Private beta: n/a.
 
 2026-11-20 thorough hunt #2 (hit): cheap-disproof closed four header `(hunt-ready)` URL helpers — **valid-no-repro** `governanceFindingsClearAllFiltersHref` drops bulk confirm without selection (`governance-findings-clear-all-filters-url.test.ts`), **valid-no-repro** `governanceFindingsClearReviewScopeHref` clears keyboard triage with `runId` removal (suite), **valid-no-repro** `governanceFindingQueueRowReviewHref` trims padded ids via `resolveGovernanceScopedReviewOpenHref`, **valid-no-repro** NL title/`URLSearchParams` encoding for embedded `=` (title facet join path). Promoted architecture scope chip: `governanceFindingsArchitectureScopeHrefFromSearch` wrote whitespace-only `architectureId` into the URL instead of canonical `all`; normalize trim and map empty to `architectureId=all`; regression `treats whitespace-only architecture id as all-architectures scope without dropping filters`; architecture-scope suite **6/6**. Scoped governance URL cluster **26/26** (pick-review, clear filters, clear scope, architecture-scope). Private beta: bad architecture scope input no longer leaves padded `architectureId` query junk on the findings queue.
@@ -41,11 +58,11 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 - **aliases:** governance lib; findings URL helpers
 - **paths:** archlucid-ui/src/lib/governance/
 - **test-filter:** lib/governance
-- **hunts:** 2
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-23
-- **last-bug:** never
+- **hunts:** 5
+- **bugs-found:** 1
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -160,7 +177,7 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 - **aliases:** product line lib; SecureNow routing
 - **paths:** archlucid-ui/src/lib/product-line/
 - **test-filter:** lib/product-line
-- **hunts:** 21
+- **hunts:** 31
 - **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
@@ -316,15 +333,18 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** infra evidence UI lib
 - **paths:** archlucid-ui/src/lib/infra-evidence/
 - **test-filter:** lib/infra-evidence
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 24
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ## Zone: ui-lib-remediation-factory
+
+2026-11-24 thorough hunt #2 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on eight open `(candidate)` rows — **valid-no-repro** metrics flag parse (`trim().toLowerCase()` accepts padded `true`/`1`; no failing repro for `TRUE` with spaces), **valid-no-repro** `remediationFactoryHrefFromSearch` misuse (disclosure-only empty `mutate`; monitor), **valid-no-repro** negative percent display (`formatRemediationFactoryPercentPoints` on executive tiles; lineage caller guards non-finite before `formatRemediationFactoryPercentDisplay`), **valid-no-repro** short path chip labels (`formatAttackPathReportPathChipLabel` returns trimmed ids <=28 chars; honesty regressions in round-63/74), **valid-no-repro** duplicate stub monitors (same four themes as detailed rows). Scoped vitest **12/12** (`remediation-factory` **8/8**, `governance-lineage-metric-format` **4/4**). Reseeded five pass-2 `(candidate)` monitors below. Private beta: n/a.
+
 
 2026-11-20 thorough hunt #1 (hit): cheap-disproof closed four seed monitors outside lib URL/metrics scope — **valid-no-repro** pattern catalog defaulting lives in app/API layers not `src/lib/remediation-factory`, **valid-no-repro** wave grouping keys are server persistence not lib, **valid-no-repro** `buildRemediationFactoryExecutiveMetricTiles` always returns a tile array with `null` cell values when metrics are unloaded (no null aggregate object), **valid-no-repro** route/product-line policy is enforced via `remediationFactoryPathForProductLine` in app hooks not `remediationFactoryHrefFromSearch` (disclosure-only operator writer). Promoted `remediationFactoryUrlStateToSearchParams`: padded or whitespace-only `selectedFindingId` wrote raw query values while parse trimmed on read — symmetric `normalizeUuidQueryValue` + `setUuidParam` on write for all selection UUID params; regressions trim padding and drop whitespace-only ids; `remediation-factory-url-state` vitest **4/4**. Reseeded four `(candidate)` monitors below. Private beta: selection URL no longer retains blank `selectedFinding` tokens.
 
@@ -334,19 +354,31 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (valid-no-repro) factory metrics aggregation empty catalog null — **cheap-disproof 2026-11-20 thorough hunt #1:** tiles array always defined.
 - [x] (valid-no-repro) route safety cross product line — **cheap-disproof 2026-11-20 thorough hunt #1:** pathname resolution in app `useRemediationFactoryUrlState`.
 
-- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — padded metrics disclosure flag variants beyond `1`/`true` — locus: boolean parse; input: `TRUE` with spaces; wrong outcome: panel closed; reachability: metrics summary drawer URL.
-- [ ] (candidate) `remediationFactoryHrefFromSearch` — mutates selection params when used with non-disclosure switch — locus: operator writer contract; input: misuse from new caller; wrong outcome: dropped facets; reachability: future deep links (monitor).
-- [ ] (candidate) `formatRemediationFactoryPercentDisplay` — negative API percent may round oddly — locus: non-finite guard; input: negative fraction; wrong outcome: misleading `-%` tile; reachability: executive metrics strip.
-- [ ] (candidate) `attack-path-report-path-chip-label` — extremely short path ids after trim — locus: ellipsis threshold; input: 3-char id; wrong outcome: odd chip label; reachability: attack path report chips.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — padded metrics disclosure flag variants beyond `1`/`true` — **cheap-disproof 2026-11-24 thorough hunt #2:** `trim().toLowerCase()` on parse.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — mutates selection params when used with non-disclosure switch — **cheap-disproof 2026-11-24 thorough hunt #2:** disclosure-only writer; monitor.
+- [x] (valid-no-repro) `formatRemediationFactoryPercentDisplay` — negative API percent may round oddly — **cheap-disproof 2026-11-24 thorough hunt #2:** executive tiles use `formatRemediationFactoryPercentPoints`; lineage guards non-finite.
+- [x] (valid-no-repro) `attack-path-report-path-chip-label` — extremely short path ids after trim — **cheap-disproof 2026-11-24 thorough hunt #2:** short ids pass through by design.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — metrics disclosure boolean parse edge — **cheap-disproof 2026-11-24 thorough hunt #2:** duplicate stub; see detailed row.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — operator writer misuse guard — **cheap-disproof 2026-11-24 thorough hunt #2:** duplicate stub; see detailed row.
+- [x] (valid-no-repro) `formatRemediationFactoryPercentDisplay` — negative percent display — **cheap-disproof 2026-11-24 thorough hunt #2:** duplicate stub; see detailed row.
+- [x] (valid-no-repro) `attack-path-report-path-chip-label` — short path id chip label — **cheap-disproof 2026-11-24 thorough hunt #2:** duplicate stub; see detailed row.
+
+- [x] (superseded) post-#1 `(candidate)` queue (eight rows) — **superseded 2026-11-24 thorough hunt #2 (dry):** closed at zone header; see pass-2 reseed.
+
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — `yes`/`on` metrics open tokens may disagree with writer `1` — locus: boolean parse; input: `remediationFactoryMetricsOpen=yes`; monitor; pass-2 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — stale metrics param when toggling open off with foreign query — locus: delete on false; input: base search retains param; monitor; pass-2 reseed.
+- [ ] (candidate) `formatRemediationFactoryPercentPoints` — non-finite percent may render `NaN%` — locus: Math.round; input: NaN; wrong outcome: literal NaN chip; reachability: misuse without lineage guard (monitor).
+- [ ] (candidate) `formatAttackPathReportPathChipLabel` — whitespace-only path id may render empty chip — locus: trim; input: `   `; monitor; pass-2 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — undefined metrics with loaded flag true — locus: tile builder; input: loaded without payload; monitor; pass-2 reseed.
 
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/remediation-factory`. Seeded five `(hunt-ready)` rows; no production change.
 
 ### Hypotheses
 
-- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — metrics disclosure boolean parse edge — monitor; thorough hunt #1 reseed.
-- [ ] (candidate) `remediationFactoryHrefFromSearch` — operator writer misuse guard — monitor; thorough hunt #1 reseed.
-- [ ] (candidate) `formatRemediationFactoryPercentDisplay` — negative percent display — monitor; thorough hunt #1 reseed.
-- [ ] (candidate) `attack-path-report-path-chip-label` — short path id chip label — monitor; thorough hunt #1 reseed.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — metrics disclosure boolean parse edge — **superseded 2026-11-24 thorough hunt #2:** closed above.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — operator writer misuse guard — **superseded 2026-11-24 thorough hunt #2:** closed above.
+- [x] (valid-no-repro) `formatRemediationFactoryPercentDisplay` — negative percent display — **superseded 2026-11-24 thorough hunt #2:** closed above.
+- [x] (valid-no-repro) `attack-path-report-path-chip-label` — short path id chip label — **superseded 2026-11-24 thorough hunt #2:** closed above.
 
 - **id:** ui-lib-remediation-factory
 - **status:** open
@@ -354,14 +386,15 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 0
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **hunts:** 25
+- **bugs-found:** 8
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ## Zone: ui-hooks-shared
+2026-11-24 thorough hunt #3 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). **Invalid** hunt-ready reseed stub (no locus/input/wrong outcome). Attempted failing repro on five post-#2 `(candidate)` rows — **proven** `useBooleanSearchParamUrlSync` ignored `popstate` when the boolean param was removed (`fromUrl === null` early return left disclosure open); sync now applies `parseOpenFromSearch(null)`; regression `syncs closed when the search param is removed from the URL`; **valid-no-repro** wizard debounce unmount (intentional cancel without flush; regression `cancels a pending debounced persist on unmount without flushing later writes`), **valid-no-repro** `useViewportNarrow` first paint (documented `false` until `matchMedia`), **valid-no-repro** run-summary visibility resume double-fetch (`ensureFallbackInterval` no-ops when interval exists; poll-policy regressions), **valid-no-repro** wrong wizard snapshot version (`readWizardSessionSnapshot` version gate returns null). Scoped vitest **15/15** (`use-boolean-search-param-url-sync`, `useViewportNarrow`, `use-wizard-session-persistence`, `run-summary-stream-poll-policy`). Reseeded five pass-3 `(candidate)` monitors below. Private beta: invited operators no longer see disclosure chrome stay open when a sibling navigation strips the boolean query param from the URL.
 
 2026-11-21 thorough hunt #2 (dry): cheap-disproved five seed `(hunt-ready)` rows — **valid-no-repro** boolean URL-sync hooks commit via `commitHrefIfChanged` (`replaceState` only, open-ref dedupe, popstate resync; `use-boolean-search-param-url-sync.test.ts`), **valid-no-repro** debounced wizard persist clears pending timeout on unmount without post-navigation flush (`use-wizard-session-persistence` unmount regression; restore URL uses same commit helper with href equality guard), **valid-no-repro** `useViewportNarrow` intentionally defaults `false` until `matchMedia` effect runs (`useViewportNarrow.test.ts`), **valid-no-repro** run-summary HTTP fallback gated by `shouldRunRunSummaryFallbackPoll` (no poll while SSE connected, hidden, or complete; visibility resume does not overlap SSE — extended poll-policy regression), **valid-no-repro** corrupted wizard session JSON returns `null` from `readWizardSessionSnapshot` (parse catch; lib + hook layers). Scoped vitest **18/18** across new hook tests, wizard persist, poll policy. Reseeded five `(candidate)` monitor rows below. Private beta: n/a.
 
@@ -371,17 +404,25 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (valid-no-repro) polling visibility duplicate fetch — cheap-disproof 2026-11-21 thorough hunt #2.
 - [x] (valid-no-repro) session storage JSON parse stale mount — cheap-disproof 2026-11-21 thorough hunt #2.
 
-- [ ] (candidate) `useBooleanSearchParamUrlSync` — missing search param vs explicit `panel=0` may disagree when `parseOpenFromSearch` treats empty as closed — locus: null param branch; input: delete param while UI open; wrong outcome: stale open UI; reachability: operator disclosure chips.
-- [ ] (candidate) `useWizardSessionPersistence` — debounced unmount cancel may drop last keystroke before navigation — locus: no unmount flush; input: navigate mid-debounce; wrong outcome: lost draft; reachability: reviews-new wizards (monitor product intent).
-- [ ] (candidate) `useViewportNarrow` — wide-default-first paint on narrow devices — locus: initial false; input: phone inspector; wrong outcome: layout flash; reachability: docked vs sheet inspector (monitor).
-- [ ] (candidate) `useRunSummaryStream` — visibility resume immediate `tickFallback` may double-fetch with in-flight interval tick — locus: ensureFallbackInterval; input: refocus during poll-fallback; wrong outcome: duplicate GET; reachability: run status banners (monitor).
-- [ ] (candidate) `readWizardSessionSnapshot` — schema-valid JSON with wrong `v` may leave hook pending restore empty while storage still populated — locus: version gate; input: manual v0 blob; wrong outcome: confusing empty restore; reachability: wizard resume strip.
+- [x] (proven) `useBooleanSearchParamUrlSync` — missing search param vs explicit `panel=0` may disagree when `parseOpenFromSearch` treats empty as closed — **hit 2026-11-24 thorough hunt #3:** apply `parseOpenFromSearch(null)` when param absent on popstate sync; regression above.
+- [x] (valid-no-repro) `useWizardSessionPersistence` — debounced unmount cancel may drop last keystroke before navigation — **cheap-disproof 2026-11-24 thorough hunt #3:** intentional unmount cancel regression.
+- [x] (valid-no-repro) `useViewportNarrow` — wide-default-first paint on narrow devices — **cheap-disproof 2026-11-24 thorough hunt #3:** documented initial `false`.
+- [x] (valid-no-repro) `useRunSummaryStream` — visibility resume immediate `tickFallback` may double-fetch with in-flight interval tick — **cheap-disproof 2026-11-24 thorough hunt #3:** poll-policy guard; monitor.
+- [x] (valid-no-repro) `readWizardSessionSnapshot` — schema-valid JSON with wrong `v` may leave hook pending restore empty while storage still populated — **cheap-disproof 2026-11-24 thorough hunt #3:** version gate returns null by design.
+
+- [x] (invalid) reseed after hunt #2 — **cheap-disproof 2026-11-24 thorough hunt #3:** no locus, input, or wrong outcome.
+
+- [x] (superseded) post-#2 `(candidate)` queue — **superseded 2026-11-24 thorough hunt #3 (mixed dry + hit):** closed at zone header; see pass-3 reseed.
+
+- [ ] (candidate) `useBooleanSearchParamUrlSync` — `parseOpenFromSearch(null)` default may disagree with param-absent first paint — locus: initial state vs popstate; input: mount with no param while default open; monitor; pass-3 reseed.
+- [ ] (candidate) `useWizardSessionPersistence` — remote draft load error may skip local restore — locus: non-transient API failure branch; input: denied draft fetch; monitor; pass-3 reseed.
+- [ ] (candidate) `useViewportNarrow` — resize without `matchMedia` event on zoom — locus: listener lifecycle; input: desktop zoom; monitor; pass-3 reseed.
+- [ ] (candidate) `useRunSummaryStream` — SSE error may leave `fallbackStartedRef` set blocking restart — locus: fallbackStartedRef; input: SSE fail then retry token; monitor; pass-3 reseed.
+- [ ] (candidate) `commitHrefIfChanged` — `notify: false` may skip popstate listeners on same-tab replace — locus: restore URL sync; input: wizard restore confirm; monitor; pass-3 reseed.
 
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/hooks`. Seeded five `(hunt-ready)` rows; no production change.
 
 ### Hypotheses
-
-- [ ] (hunt-ready) reseed after hunt #2; prior queue closed in zone header diary.
 
 - **id:** ui-hooks-shared
 - **status:** open
@@ -389,11 +430,11 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** shared React hooks
 - **paths:** archlucid-ui/src/hooks/
 - **test-filter:** src/hooks
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 25
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ## Zone: ui-form-validation
@@ -1154,11 +1195,11 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 24
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2253,11 +2294,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 24
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2390,11 +2431,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-11-01 thorough hunt #169 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `cli-draft-new` (dry **#166**, **#167**, **#168** / run log). Picker applied **`-AvoidZoneId cli-draft-new`** and returned `cli-terraform-evidence` (`shouldRotate: true`; reason: *3 consecutive low-yield hunt(s) on 'cli-draft-new' (outcomes: dry, dry, dry).*). Cheap-disproof closed five header `(candidate)` monitor rows from hunt #157 reseed — **valid-no-repro** composition metadata cites `no Azure apply` (regression `DefaultApplyOrderRoots_composition_metadata_lines_cite_no_azure_apply`), **valid-no-repro** metadata-only rows omitted from leaf extract (regression `DefaultApplyOrderRoots_extract_leaf_paths_omits_metadata_only_rows_for_leaf_planners`), **valid-no-repro** em-dash split preserves path suffix (regression `ExtractLeafPaths_splits_only_on_first_em_dash_for_annotated_lines`), **valid-no-repro** consumption APIM ordering between edge and monitoring (regression `DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring`), **valid-no-repro** reference doc orchestrator legacy row (regression `Reference_doc_advanced_table_documents_orchestrator_as_legacy_only_multi_root_row`). Reseeded five `(candidate)` monitor rows below (hunt **#169**). `DeploymentEvidenceTerraformReferenceTests` and `DeploymentEvidenceReportMarkdownTests` passed **55/55**; `assert_terraform_root_ordering_sync.py` OK. Run-log low-yield streak on `cli-terraform-evidence` is **0/3** before this record (rotation from `cli-draft-new`). **This dry starts 1/3** on `cli-terraform-evidence` in the run log. Private beta: n/a.
 
-- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — numbered terraform list may include a zero-based index — locus: list index helper; input: off-by-one compose edit; wrong outcome: apply order mislabeled; reachability: monitor `Compose_terraform_section_never_uses_zero_based_list_index` (hunt #169).
-- [ ] (candidate) `DefaultApplyOrderRoots` — hosted-wave partition boundaries may drift from `$foundationWaveLeaves` / `$platformWaveLeaves` / `$appWaveLeaves` — locus: wave slice guards; input: ps1 wave edit; wrong outcome: silent hosted slice mismatch; reachability: monitor `DefaultApplyOrderRoots_hosted_wave_partitions_match_apply_saas_ps1_wave_arrays` (hunt #169).
-- [ ] (candidate) `infra/apply-saas.ps1` — hosted-wave concatenation may diverge from `$multiRootSequence` minus orchestrator — locus: flatten identity; input: ps1 concat edit; wrong outcome: leaf parity without concat guard; reachability: monitor `ReadApplySaasHostedWaveLeaves_concatenation_equals_multi_root_sequence_minus_orchestrator` (hunt #169).
-- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — numbered list may omit a default apply-order line verbatim — locus: terraform foreach; input: compose edit; wrong outcome: incomplete apply order; reachability: monitor `Compose_numbered_list_includes_every_default_apply_order_root_line_verbatim` (hunt #169).
-- [ ] (candidate) `DefaultApplyOrderRoots` — evidence list may drift from exactly twenty entries — locus: twenty-entry guard; input: partial root add; wrong outcome: silent apply-saas desync; reachability: monitor `DefaultApplyOrderRoots_lists_exactly_twenty_entries` (hunt #169).
+2026-11-24 thorough hunt #171 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-169 `(candidate)` monitor rows — all **valid-no-repro** via existing regression locks: zero-based compose indices (`Compose_terraform_section_never_uses_zero_based_list_index` in `DeploymentEvidenceReportMarkdownTests`), hosted-wave partition parity (`DefaultApplyOrderRoots_hosted_wave_partitions_match_apply_saas_ps1_wave_arrays`), hosted concat vs `$multiRootSequence` minus orchestrator (`ReadApplySaasHostedWaveLeaves_concatenation_equals_multi_root_sequence_minus_orchestrator`), verbatim numbered apply-order lines (`Compose_numbered_list_includes_every_default_apply_order_root_line_verbatim`), twenty-entry evidence list (`DefaultApplyOrderRoots_lists_exactly_twenty_entries`). `DeploymentEvidenceTerraformReferenceTests` **48/48**; paired compose guards **55/55** with `DeploymentEvidenceReportMarkdownTests`. Reseeded five pass-4 `(candidate)` monitors below. Private beta: n/a.
+
+- [x] (valid-no-repro) `DeploymentEvidenceReportMarkdown.Compose` — numbered terraform list may include a zero-based index — **cheap-disproof 2026-11-24 thorough hunt #171:** regression `Compose_terraform_section_never_uses_zero_based_list_index`.
+- [x] (valid-no-repro) `DefaultApplyOrderRoots` — hosted-wave partition boundaries may drift from `$foundationWaveLeaves` / `$platformWaveLeaves` / `$appWaveLeaves` — **cheap-disproof 2026-11-24 thorough hunt #171:** regression `DefaultApplyOrderRoots_hosted_wave_partitions_match_apply_saas_ps1_wave_arrays`.
+- [x] (valid-no-repro) `infra/apply-saas.ps1` — hosted-wave concatenation may diverge from `$multiRootSequence` minus orchestrator — **cheap-disproof 2026-11-24 thorough hunt #171:** regression `ReadApplySaasHostedWaveLeaves_concatenation_equals_multi_root_sequence_minus_orchestrator`.
+- [x] (valid-no-repro) `DeploymentEvidenceReportMarkdown.Compose` — numbered list may omit a default apply-order line verbatim — **cheap-disproof 2026-11-24 thorough hunt #171:** regression `Compose_numbered_list_includes_every_default_apply_order_root_line_verbatim`.
+- [x] (valid-no-repro) `DefaultApplyOrderRoots` — evidence list may drift from exactly twenty entries — **cheap-disproof 2026-11-24 thorough hunt #171:** regression `DefaultApplyOrderRoots_lists_exactly_twenty_entries`.
+
+- [x] (superseded) pass-169 `(candidate)` queue — **superseded 2026-11-24 thorough hunt #171 (dry):** closed at zone header; see pass-4 reseed.
+
+- [ ] (candidate) `DefaultApplyOrderRoots` — first hosted leaf may align to composition wave list index — locus: wave boundary; input: slice edit; wrong outcome: off-by-one hosted start; reachability: monitor `DefaultApplyOrderRoots_first_hosted_leaf_is_not_at_composition_wave_list_index` (pass-4 reseed).
+- [ ] (candidate) `DefaultApplyOrderRoots` — path prefix `StartsWith` may admit parent directory false positives — locus: path equality; input: sibling path prefix; wrong outcome: duplicate apply target; reachability: monitor `DefaultApplyOrderRoots_exact_path_equality_rejects_prefix_starts_with_matching` (pass-4 reseed).
+- [ ] (candidate) `infra/apply-saas.ps1` — legacy leaf branch may assign hosted-wave leaves to multi-root — locus: legacy branch; input: ps1 branch edit; wrong outcome: wrong sequence variable; reachability: monitor `Apply_saas_ps1_legacy_leaf_roots_branch_assigns_multi_root_sequence_not_hosted_wave_leaves` (pass-4 reseed).
+- [ ] (candidate) `REFERENCE_SAAS_STACK_ORDER.md` — advanced table row numbers may skip or duplicate — locus: reference table; input: row renumber; wrong outcome: operator doc drift; reachability: monitor `Reference_doc_advanced_table_row_numbers_are_contiguous_one_through_sixteen` (pass-4 reseed).
+- [ ] (candidate) `DefaultApplyOrderRoots` — pilot profile metadata row may be mistaken for leaf apply target — locus: metadata-only pilot entry; input: annotation edit; wrong outcome: pilot in leaf extract; reachability: monitor `DefaultApplyOrderRoots_pilot_profile_entry_documents_metadata_only_default_profile` (pass-4 reseed).
+
+
 
 - [x] (valid-no-repro) `DefaultApplyOrderRoots` — composition metadata lines may drop `no Azure apply` prose — locus: composition annotation suffixes; input: annotation edit; wrong outcome: executable misread; reachability: monitor `DefaultApplyOrderRoots_composition_metadata_lines_cite_no_azure_apply` (hunt #157) — **cheap-disproof 2026-11-01 thorough hunt #169:** hunt #157 reseed queue.
 - [x] (valid-no-repro) `DefaultApplyOrderRoots` — `ExtractLeafPaths` may include metadata-only rows for leaf planners — locus: metadata filter; input: composition row in leaf extract; wrong outcome: wrong apply target; reachability: monitor `DefaultApplyOrderRoots_extract_leaf_paths_omits_metadata_only_rows_for_leaf_planners` (hunt #157) — **cheap-disproof 2026-11-01 thorough hunt #169:** hunt #157 reseed queue.
@@ -2591,11 +2644,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 0
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **hunts:** 25
+- **bugs-found:** 8
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3247,11 +3300,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 24
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3387,11 +3440,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 24
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3622,14 +3675,39 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-webhooks-settings
 
+2026-11-24 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone `ui-webhooks-settings` at **3/3** seed-only after this record — zone eligible for low-yield park on next automatic pick). Cheap-disproof closed five pass-4 `(candidate)` monitors — **valid-no-repro** refresh during in-flight test (`refreshSubscriptions` resets connection-test state by design; regressions `clears webhook test results when manual subscription refresh succeeds` / invalidates stale completions), **valid-no-repro** create during peer `testingId` (parallel mutations acceptable; create gated on `hasLoadedSuccessfully`/`isSaving` not peer tests), **valid-no-repro** continue-last scroll with expanded error panel (`openSubscription` scrolls subscription row to center and focuses test button), **valid-no-repro** disable confirm during create `isSaving` (independent dialog surfaces; server ordering), **valid-no-repro** scope-switch stale list apply (`scopeGenerationRef` + `loadRequestRef` guards; regression `does not show subscriptions from a previous workspace when list completes after scope switch`). Reseeded five pass-5 `(candidate)` rows below. Scoped `page.test.tsx` vitest **96/96** (-t Webhooks). No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `WebhooksSettingsClient` refresh during `testingId` — **cheap-disproof 2026-11-24 seed hunt:** intentional test reset on refresh.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations.submit` — create not gated on peer `testingId` — **cheap-disproof 2026-11-24 seed hunt:** intentional parallel ops.
+- [x] (valid-no-repro) `WebhooksSettingsClient.openSubscription` — scroll with inline test error panel — **cheap-disproof 2026-11-24 seed hunt:** row-level scroll + test focus.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations.confirmDisableSubscription` — disable during create save — **cheap-disproof 2026-11-24 seed hunt:** separate confirm flow.
+- [x] (valid-no-repro) `useWebhooksSettingsLoad.load` — rows after scope switch mid-request — **cheap-disproof 2026-11-24 seed hunt:** generation guards; scope-switch regression.
+- [x] (superseded) pass-4 `(candidate)` queue — **superseded 2026-11-24 seed hunt (seed-only):** closed at zone header; see pass-5 reseed.
+
+- [ ] (candidate) `WebhooksSettingsClient` refresh control — manual refresh not disabled while create `isSaving` — locus: `RefreshButton busy={loading}` only; input: slow create POST then Refresh before list reload completes; wrong outcome: refresh clears save-in-flight state or races post-create reload; monitor.
+- [ ] (candidate) `useWebhooksSettingsMutations.onToggle` — row disable/enable while save success callout visible — locus: toggle does not clear `saveSuccessMessage`; input: successful create then immediate toggle on existing row; wrong outcome: contradictory success + mutation chrome; monitor.
+- [ ] (candidate) `WebhooksCreateSubscriptionForm` — save enabled when `canSubmitForm` false during transient `useWatch` lag — locus: disabled prop vs `handleSubmit`; input: blur required fields then immediate save click; wrong outcome: submit handler runs before zod revalidates; monitor against duplicate-submit tests.
+- [ ] (candidate) `useWebhooksSettingsMutations` URL-sync — `webhookDisableId` for already-disabled webhook row — locus: disable confirm opens without state change; input: deep link disable id on disabled row; wrong outcome: noop confirm still opens; monitor.
+- [ ] (candidate) `WebhooksSettingsClient.configurationStatusBlock` — active count subtitle when all loaded webhook rows are disabled — locus: `activeSubscriptionCount` zero with nonzero `webhookRows.length`; input: inventory all disabled; wrong outcome: status tag reads active while subtitle pluralizes count; monitor against refresh status tests.
+
+
+2026-11-24 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone `ui-webhooks-settings` at **2/3** seed-only before this record). Cheap-disproof closed five pass-3 `(candidate)` monitors — **valid-no-repro** continue-last id before test result (`writeWebhookSubscriptionLastViewedId` on operator interaction; continue-last is last-viewed not last-success; resolver prefers stored id in `webhookRows`), **valid-no-repro** `secretVisible` after failed create (form state preserved for retry; scope change resets visibility), **valid-no-repro** enable deep-link for non-webhook id (`webhookRows.find` clears stale param; regression `clears stale webhookEnableId from the URL when the subscription is missing from loaded rows`), **valid-no-repro** configuration subtitle flicker (`loading` branch shows loading copy before verified status; regressions `shows loading configuration status instead of stale active count during subscription refresh`), **valid-no-repro** toggle during in-flight test on same row (toggle gated on list `loading` only by design; parallel test/toggle acceptable; regression `allows webhook test while subscription list reload is in flight`). Reseeded five pass-4 `(candidate)` rows below. Scoped `page.test.tsx` vitest **96/96** (-t Webhooks). No production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `useWebhooksSettingsConnectionTest.onTestWebhook` — continue-last id written before transport result — **cheap-disproof 2026-11-24 seed hunt:** last-viewed semantics; stored id match in table.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations.submit` — failed create leaves `secretVisible` true — **cheap-disproof 2026-11-24 seed hunt:** intentional retry UX; scope reset clears.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations` URL-sync — `webhookEnableId` for row absent from `webhookRows` — **cheap-disproof 2026-11-24 seed hunt:** clears URL; regression above.
+- [x] (valid-no-repro) `useWebhooksSettings.refreshSubscriptions` — stale subtitle before `loading` flips — **cheap-disproof 2026-11-24 seed hunt:** loading configuration copy; refresh status regressions.
+- [x] (valid-no-repro) `WebhooksSubscriptionsTable` — toggle during row test `aria-busy` — **cheap-disproof 2026-11-24 seed hunt:** intentional; list reload blocks toggle not test overlap.
+- [x] (superseded) pass-3 `(candidate)` queue — **superseded 2026-11-24 seed hunt (seed-only):** closed at zone header; see pass-4 reseed.
+
+
+
+2026-11-24 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Cheap-disproof closed five open `(candidate)` rows from the 2026-11-01 reseed (pass-2) — **valid-no-repro** duplicate-name guard scoped to `webhookRows` (create duplicate check is webhook-inventory local; cross-channel routing names are not webhook table duplicates; regressions `rejects duplicate subscription names locally` / save readiness copy), **valid-no-repro** stale `items` after failed reload (`hasLoadedSuccessfully` false blocks create/submit and hides verified inventory UI; regression `blocks create when manual refresh fails after subscriptions loaded`), **valid-no-repro** silent second test click (`WebhooksSubscriptionsTable` disables other test buttons and shows pending label while `testingId` is set; regression `shows test pending label while a test event is in flight`), **valid-no-repro** failure banner cleared at load start (`clears page failure after manual refresh succeeds following a failed refresh` and related recovery family), **valid-no-repro** create submit vs enable/disable busy (`WebhooksCreateSubscriptionForm` save disabled while `loading`/`isSaving`; enable confirm is a separate dialog; overlapping mutations acceptable with server ordering). Reseeded five pass-3 `(candidate)` rows below. Scoped `page.test.tsx` vitest **96/96** (-t Webhooks). No production code changed. Private beta: n/a.
+- [x] (valid-no-repro) `WebhooksSettingsClient` form submit guard — `onSubmit` vs `enableBusy`/`disableBusy` — **cheap-disproof 2026-11-24 seed hunt:** save gated on `loading`/`isSaving`/`hasLoadedSuccessfully`; modal confirm surface.
+- [x] (superseded) pass-2 `(candidate)` queue — **superseded 2026-11-24 seed hunt (seed-only):** closed at zone header; see pass-3 reseed.
+
+
 2026-11-01 seed hunt (seed-only): reread `WebhooksSettingsClient`, `use-webhooks-settings.ts`, load/mutation/connection-test boundaries, and the four open `(candidate)` rows; cheap-disproof closed all four (colon-delimited scope keys lack a reachable colon-bearing operator-scope id; newest-request load failure precedence is intentional; toggle URL writes use committed search via `readWindowLocationSearch`/`resolveWebhookToggleIdForUrlSync`; duplicate mounted shells with the same subscription id are not a route invariant). No row met the hunt-ready bar for promotion; focused webhooks folder vitest passed **98/98**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
-
-- [ ] (candidate) `useWebhooksSettingsMutations.submit` — duplicate-name guard compares trimmed names only against `webhookRows`, not other `listAlertRoutingSubscriptions` channels still in `items` — locus: `options.webhookRows.some` before `createAlertRoutingSubscription`; input: API inventory includes a non-`OnCallWebhook` alert routing subscription whose name matches the create form (case-insensitive); wrong outcome: client submits create and surfaces server conflict only after POST; reachability: workspace with email/Teams routing subscription names visible only outside the webhook table filter.
-- [ ] (candidate) `useWebhooksSettingsLoad.load` — failed reload leaves prior `items` in memory while UI gates rendering on `hasLoadedSuccessfully` — locus: catch path sets failure without clearing `items`; input: successful hydration followed by rejected manual Refresh; wrong outcome: URL-sync or mutation helpers that scan `webhookRows` while `hasLoadedSuccessfully` is false still see stale rows; reachability: manual Refresh after a populated list (monitor against existing refresh-failure regressions).
-- [ ] (candidate) `useWebhooksSettingsConnectionTest.onTestWebhook` — second test click while `testingId` is set returns silently with no operator feedback — locus: early return when `testingId !== null`; input: operator clicks Send test on subscription B while subscription A’s test is in flight; wrong outcome: no toast, inline result, or disabled affordance explaining the ignored click; reachability: two-row subscriptions table with slow `testWebhookSubscription` responses.
-- [ ] (candidate) `useWebhooksSettingsLoad.load` — reload preamble clears `failure` before the network completes — locus: `setFailure(null)` at load start; input: page shows list load error, operator clicks Refresh; wrong outcome: page-level alert disappears during in-flight reload even when the refresh will fail again; reachability: Refresh control after initial `listAlertRoutingSubscriptions` failure (monitor existing recovery refresh tests).
-- [ ] (candidate) `WebhooksSettingsClient` form submit guard — `onSubmit` prevents double save via `isSavingRef` but not while enable/disable confirmation dialogs are busy — locus: form `onSubmit` vs `enableBusy`/`disableBusy`; input: operator confirms enable on a row then immediately submits the create form before toggle reload finishes; wrong outcome: overlapping create and toggle mutations without explicit blocking copy; reachability: create form plus open enable confirmation with slow toggle API.
-
 2026-10-31 seed hunt (seed-only): re-read `WebhooksSettingsClient`, `useWebhooksSettings`, the mutation/load boundaries, and the focused 97-test webhook suite after recent refresh/toggle churn; existing regressions cover the reachable loading, failure, scope-generation, URL-confirmation, and mutation-state branches, so no new hunt-ready candidate was promoted. No production change. Private beta: n/a.
 
 2026-10-21 thorough hunt (dry, lane C): cheap-disproved the four bounded `(candidate)` rows (scope-key colon collision, latest-load failure precedence, toggle URL `searchParams` snapshot, unscoped test-button lookup); webhooks folder vitest 62/62; no production or regression change.
@@ -3640,10 +3718,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 0
+- **hunts:** 3
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **last-hunt:** 2026-11-24
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3723,11 +3801,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 24
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3849,13 +3927,39 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
+2026-11-24 thorough hunt #2 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-1 `(candidate)` rows — **valid-no-repro** sitemap vs `isMarketingOnlyPath` drift (`isMarketingOnlyPath` includes `MARKETING_SITEMAP_PATHNAMES` directly), **valid-no-repro** `EXTRA_MARKETING_PREFIXES` registration gap (process monitor for new `/campaign/` trees), **valid-no-repro** retired shim import drift (`RETIRED_*` bookmarks already in `LEGACY_OPERATOR_PATH_PREFIXES`), **valid-no-repro** `www.` redirect port drop (`appOrigin`/`publicOrigin` full URLs; regression `matches split hosts that differ only by port`), **valid-no-repro** backslash pathname segments (`normalizeHostGatePathname` URL resolution + monitor for malformed bookmarks). Scoped vitest **27/27** (`host-gate.test.ts`). Reseeded five pass-2 `(candidate)` monitors below. Private beta: n/a.
+
+2026-11-24 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `MARKETING_SITEMAP_PATHNAMES` class `(candidate)` — live `(marketing)` SecureNow and digest sponsor routes were absent from `isMarketingOnlyPath`, so split-site visitors on the app host saw marketing pages without public-host redirect. Added SecureNow path constants and a `/digest/` prefix to the extra marketing classifier lists. Regressions `treats SecureNow and digest sponsor marketing paths as marketing-only` and `redirects app-host SecureNow marketing paths to the public origin` failed first; host-gate vitest **27/27**. Cheap-disproof closed four pass-1 monitors — **valid-no-repro** encoded tab/newline pathname (`URL` pathname resolution + existing percent-encoded segment regression), **valid-no-repro** bare `?` search on redirect (intentional query preservation), **valid-no-repro** punycode Host vs Unicode origin (defer; no split-host IDN fixture), **valid-no-repro** `LEGACY_OPERATOR_PATH_PREFIXES` workbook drift (retired shim paths already wired in `LEGACY_OPERATOR_PATH_PREFIXES` + focused legacy regressions). Reseeded five pass-2 `(candidate)` monitors. Private beta: invited buyers who open SecureNow SKU, sample, Why SecureNow, or sponsor digest links on the app host are redirected to the public marketing site instead of staying on operator-host routing.
+
+- [x] (proven) `isMarketingOnlyPath` — SecureNow and digest marketing App Router paths omitted from classifier — **hit 2026-11-24 seed hunt:** extra exact paths + `/digest/` prefix; regressions above.
+- [x] (valid-no-repro) `normalizeHostGatePathname` — encoded tab/newline may skip handoff — **cheap-disproof 2026-11-24 seed hunt:** pathname resolves through `URL`; monitor only.
+- [x] (valid-no-repro) `decideHostGateRedirect` — bare `?` search on redirect — **cheap-disproof 2026-11-24 seed hunt:** preserves query string by design.
+- [x] (valid-no-repro) `hostsMatch` — punycode vs Unicode apex — **cheap-disproof 2026-11-24 seed hunt:** defer until IDN split-host fixture.
+- [x] (valid-no-repro) `LEGACY_OPERATOR_PATH_PREFIXES` — workbook-only retired path drift — **cheap-disproof 2026-11-24 seed hunt:** shims imported; legacy bookmark regressions cover handoff.
+
+- [x] (valid-no-repro) `MARKETING_SITEMAP_PATHNAMES` — indexable marketing paths still missing from `isMarketingOnlyPath` when not duplicated in EXTRA lists — **cheap-disproof 2026-11-24 thorough hunt #2:** sitemap array included in classifier.
+- [x] (valid-no-repro) `EXTRA_MARKETING_PREFIXES` — new marketing subtree without prefix registration — **cheap-disproof 2026-11-24 thorough hunt #2:** process monitor; `/digest/` covered in hunt #1 hit.
+- [x] (valid-no-repro) `isOperatorPath` — retired shim added to traffic module but not `LEGACY_OPERATOR_PATH_PREFIXES` — **cheap-disproof 2026-11-24 thorough hunt #2:** shim imports in legacy prefix list.
+- [x] (valid-no-repro) `decideHostGateRedirect` — `www.` app host marketing redirect location preserves port — **cheap-disproof 2026-11-24 thorough hunt #2:** non-default port regression.
+- [x] (valid-no-repro) `normalizeHostGatePathname` — backslash segments after decode — **cheap-disproof 2026-11-24 thorough hunt #2:** URL pathname resolution; monitor.
+
+- [x] (superseded) pass-1 `(candidate)` queue — **superseded 2026-11-24 thorough hunt #2 (dry):** closed at zone header; see pass-2 reseed.
+
+- [ ] (candidate) `isMarketingOnlyPath` — sitemap paths with trailing slash may diverge from canonical strip — locus: trailing slash trim; input: `/welcome/`; monitor; pass-2 reseed.
+- [ ] (candidate) `decideHostGateRedirect` — marketing redirect on app host may drop encoded search — locus: `pathAndQuery` preservation; input: percent-encoded query; monitor; pass-2 reseed.
+- [ ] (candidate) `isOperatorPath` — `/api/proxy` handoff contract — locus: proxy exclusion; input: API proxy path; monitor; pass-2 reseed.
+- [ ] (candidate) `hostsMatch` — IPv6 literal Host header — locus: URL host parse; input: bracketed IPv6; defer; pass-2 reseed.
+- [ ] (candidate) `normalizeHostGatePathname` — dot-segment collapse after decode — locus: URL resolution; input: `/architecture/./reviews`; monitor; pass-2 reseed.
+
+
+
 2026-11-01 seed hunt (seed-only): zone cooled but hypothesis list empty (cooldown waived). Reread `decideHostGateRedirect`, `normalizeHostGatePathname`, marketing/operator prefix matrices, trailing-dot host parity, `/api/proxy` marketing stay-put contract, and legacy bookmark coverage against traffic workbook exports. No new reachable mechanism-backed row met the hunt-ready bar; existing regressions cover duplicate-slash, dot-segment, percent-decode, casing, trailing-slash marketing handoff, and query preservation. Host-gate vitest passed **25/25**. Reseeded five follow-on `(candidate)` rows below. No production code changed. Private beta: n/a.
 
-- [ ] (candidate) `MARKETING_SITEMAP_PATHNAMES` — new public marketing App Router paths may omit sitemap registration and stay `next` on the app host — locus: `isMarketingOnlyPath` exact list vs live `(marketing)` routes; input: newly shipped `/marketing/*` path absent from sitemap constant; wrong outcome: operator shell on public content; reachability: audit sitemap constant against App Router marketing segments.
-- [ ] (candidate) `normalizeHostGatePathname` — pathname containing a literal tab or newline after decode may fail URL resolution and skip handoff — locus: `decodeURIComponent` + `new URL` catch branch; input: encoded `%09` or `%0A` inside path segment; wrong outcome: marketing host `next` for operator bookmark; reachability: add classifier test if product accepts encoded whitespace segments.
-- [ ] (candidate) `decideHostGateRedirect` — `search` that is only `?` may produce `pathAndQuery` with bare `?` on redirect — locus: `${pathname}${input.search}`; input: operator redirect with `search: "?"`; wrong outcome: app origin URL with empty query key; reachability: monitor query preservation regressions.
-- [ ] (candidate) `hostsMatch` — punycode `Host` header vs Unicode configured public origin may fail split-host match — locus: `normalizeRequestHost` vs `hostnameFromOrigin`; input: IDN apex in env with ASCII Host or reverse; wrong outcome: operator path stays on marketing host; reachability: defer until split-host fixture documents IDN pair.
-- [ ] (candidate) `LEGACY_OPERATOR_PATH_PREFIXES` — retired bookmark constants added in traffic modules but not imported into `host-gate.ts` may skip marketing→app handoff — locus: prefix list drift vs `RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS`; input: newly retired shim path in workbook only; wrong outcome: marketing 404 chrome; reachability: CI drift guard or periodic workbook/host-gate reconcile (process).
+- [x] (candidate) `MARKETING_SITEMAP_PATHNAMES` — new public marketing App Router paths may omit sitemap registration and stay `next` on the app host — locus: `isMarketingOnlyPath` exact list vs live `(marketing)` routes; input: newly shipped `/marketing/*` path absent from sitemap constant; wrong outcome: operator shell on public content; reachability: audit sitemap constant against App Router marketing segments. — **superseded 2026-11-24 seed hunt:** see hunt block above.
+- [x] (candidate) `normalizeHostGatePathname` — pathname containing a literal tab or newline after decode may fail URL resolution and skip handoff — locus: `decodeURIComponent` + `new URL` catch branch; input: encoded `%09` or `%0A` inside path segment; wrong outcome: marketing host `next` for operator bookmark; reachability: add classifier test if product accepts encoded whitespace segments. — **superseded 2026-11-24 seed hunt:** see hunt block above.
+- [x] (candidate) `decideHostGateRedirect` — `search` that is only `?` may produce `pathAndQuery` with bare `?` on redirect — locus: `${pathname}${input.search}`; input: operator redirect with `search: "?"`; wrong outcome: app origin URL with empty query key; reachability: monitor query preservation regressions. — **superseded 2026-11-24 seed hunt:** see hunt block above.
+- [x] (candidate) `hostsMatch` — punycode `Host` header vs Unicode configured public origin may fail split-host match — locus: `normalizeRequestHost` vs `hostnameFromOrigin`; input: IDN apex in env with ASCII Host or reverse; wrong outcome: operator path stays on marketing host; reachability: defer until split-host fixture documents IDN pair. — **superseded 2026-11-24 seed hunt:** see hunt block above.
+- [x] (candidate) `LEGACY_OPERATOR_PATH_PREFIXES` — retired bookmark constants added in traffic modules but not imported into `host-gate.ts` may skip marketing→app handoff — locus: prefix list drift vs `RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS`; input: newly retired shim path in workbook only; wrong outcome: marketing 404 chrome; reachability: CI drift guard or periodic workbook/host-gate reconcile (process). — **superseded 2026-11-24 seed hunt:** see hunt block above.
 
 2026-10-31 seed hunt (seed-only): reviewed the complete host-gate decision matrix again, including configured-origin precedence, `www` equivalence, non-default ports, invalid Host fallback, decoded path normalization, API proxy exclusions, and legacy operator handoff. All reachable branches are covered by the existing contract tests or conservatively return `next`; no new mechanism-backed candidate met the hunt-ready bar. Host-gate vitest passed 25/25 and no production code changed.
 
@@ -3877,7 +3981,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-31 seed hunt (seed-only): fresh reread covered host/path normalization, duplicate and dot segments, percent decoding, marketing/operator prefix coverage, public/app origin matching, query preservation, and the recent split-host churn. The focused host-gate suite passed 23/23; no new reachable mechanism-backed candidate met the hunt-ready bar and no production code changed.
 
-**Hunts:** 23 · **Bugs found:** 7 · **Consecutive dry hunts:** 0
+**Hunts:** 24 · **Bugs found:** 8 · **Consecutive dry hunts:** 0
 
 - [x] (invalid) `normalizeHostGatePathname` — encoded `%3F` in `/architecture/reviews%3Ftab=activity` must redirect as the canonical operator route — **cheap-disproof 2026-10-31 seed hunt:** preserving the encoded delimiter makes this a distinct final path segment, so it does not satisfy the `/architecture/reviews` prefix contract; no host-gate defect was established.
 
@@ -3975,11 +4079,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host gate; split site host
 - **paths:** archlucid-ui/src/lib/host-gate.ts
 - **test-filter:** host-gate
-- **hunts:** 0
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **hunts:** 25
+- **bugs-found:** 8
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4000,6 +4104,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: ui-architecture-intelligence
+
+2026-11-24 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone **`securenow-question-queue`** hit at run-log tail). Reread `buildRequest`, `shouldRequestGoldenFixtureForGoldenTest`, action POST gates, and product-context hydration after attachment-only hit family; cheap-disproof closed prior empty-reasoning publish gate (`hasActionableArchitectureIntelligenceResult`), whitespace-only source context (`hasUsableArchitectureSourceText`), and non-canonical filename casing drift (product loader emits exact `architecture-description.txt`). No row met hunt-ready; reseeded five pass-51 `(candidate)` monitors below. Scoped vitest **15/15** (`architecture-intelligence-client-api.test.ts`, `architecture-intelligence-page-helpers.test.ts`, `use-architecture-intelligence-product-context.test.ts`, `architecture-intelligence-analysis-checklist.test.ts`). Private beta: n/a.
+
+- [ ] (candidate) `buildRequest` — hydrated canonical `architecture-description.txt` with whitespace-only body ships on continue/publish when textarea empty — locus: hydrated branch without operator override; input: whitespace canonical row (monitor).
+- [ ] (candidate) `continueWithAnswers` / `publishRun` — POST without `architectureDescription.trim()` guard unlike `runReasoningWithOptions` — locus: shared `buildRequest`; input: cleared textarea after prior reasoning (monitor).
+- [ ] (candidate) `canAnalyzeHydratedReview` — `productContextStatus === "loaded"` on attachment-only intake while description textarea empty — locus: analyze gate vs inbound copy; input: attachment-only deep link (monitor).
+- [ ] (candidate) `loadGoldenFixture` — `markProductContextLoaded(sources.length > 0)` ignores whitespace-only fixture bodies — locus: fixture hydration; input: blank fixture source row (monitor).
+- [ ] (candidate) `ArchitectureIntelligencePageClient.test.tsx` — full page-client Vitest file VM heap blocks new action-state repros — locus: test harness; input: isolated regression pattern (monitor).
+
+2026-11-24 seed hunt (seed→hit): no rotation (shouldRotate: false). Promoted attachment-only hydrated intake in buildRequest and runGoldenTest; architecture-intelligence-client-api Vitest 5/5. Private beta: invited architects on attachment-only deep links now send correctly labeled architecture text for reasoning posts and get fixture-backed golden tests when they have not supplied a primary brief.
 
 2026-10-31 thorough hunt (dry): attempted the retained empty-reasoning publish-gate candidate with an isolated page-client test selection, but Vitest exhausted the VM heap before producing a reliable repro; the candidate remains open for a lower-memory harness. The focused checklist suite passed 5/5 and no production change was made. Private beta: n/a.
 
@@ -4073,11 +4187,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 0
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **hunts:** 4
+- **bugs-found:** 2
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4100,8 +4214,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureIntelligencePageClient` publish action gate — an empty reasoning response with a returned `runId` enabled “Publish to findings/advisory” because the button checked only `runState.kind === "reasoning"`; the gate now requires `hasActionableArchitectureIntelligenceResult(runState)`; regression `does not mark analysis complete when reasoning returns no actionable result` now also asserts the publish button is disabled.
 - [x] (proven) `useArchitectureIntelligenceActions.runReasoningWithOptions` — a failed reasoning/analyze retry retained the prior successful result and publish affordance; clear `runState` before the POST; regression `clears completed reasoning output before a retry that fails`.
-- [ ] (candidate) `useArchitectureIntelligenceActions.runGoldenTest` — an attachment-only hydrated review makes `useFixture` false because it checks `hydratedSourceTexts.length`, so “Run golden test” may post non-canonical source text instead of loading the reachable golden fixture; input: deep-linked product context containing a non-empty attachment but no `architecture-description.txt`; wrong outcome: the fallback fixture path is skipped despite no editable architecture description; mechanism and endpoint contract need an isolated repro.
-- [ ] (candidate) `buildRequest` — edited freeform description is written into hydrated source index 0 rather than the canonical `architecture-description.txt` source; input: a reachable hydrated source list whose attachment precedes the canonical description; wrong outcome: the request labels edited architecture text as the attachment and leaves the canonical source stale; current product loader ordering keeps the canonical source first, so this remains a candidate pending a reachable alternate ordering.
+- [x] (proven) `useArchitectureIntelligenceActions.runGoldenTest` — attachment-only hydrated intake skipped useGoldenFixture — **hit 2026-11-24 seed hunt:** shouldRequestGoldenFixtureForGoldenTest; regression `requests golden fixture for attachment-only hydrated intake with empty description field`.
+- [x] (proven) `buildRequest` — attachment-only hydrated intake mislabeled edited description at index 0 — **hit 2026-11-24 seed hunt:** prepend/update architecture-description.txt; regression `adds canonical architecture description when hydrated intake is attachment-only`.
 
 - [x] (proven) `useArchitectureIntelligenceActions.runReasoningWithOptions` — architecture-intelligence run POST without `runId` cleared `activeRunId` and dropped scope chrome for `contextRunId` deep links; fixed by only calling `setActiveRunId` when the response carries a non-empty trimmed id; regression `keeps contextRunId scope banner when reasoning response omits runId`.
 - [x] (proven) `ArchitectureIntelligencePageClient` — reasoning result kind alone marked analysis complete before a usable result payload existed — **hit 2026-10-31 thorough hunt:** `hasActionableArchitectureIntelligenceResult` requires actionable model/review/recommendation/violation/interview/adversarial/validation content; regressions in `architecture-intelligence-analysis-checklist.test.ts`.
@@ -7666,7 +7780,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7685,7 +7799,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7704,7 +7818,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7723,7 +7837,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7801,7 +7915,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 
 - **id:** ui-oidc
 - **status:** open
@@ -7810,7 +7924,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7821,7 +7935,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7832,7 +7946,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7843,7 +7957,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7854,7 +7968,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7865,7 +7979,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7876,7 +7990,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7887,7 +8001,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7898,7 +8012,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7909,7 +8023,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7920,7 +8034,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7931,7 +8045,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7942,7 +8056,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7953,7 +8067,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7964,7 +8078,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8907,11 +9021,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 3
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9053,7 +9167,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10015,11 +10129,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 3
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10762,11 +10876,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 3
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10893,7 +11007,39 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 134 · **Bugs found:** 133 · **Consecutive dry hunts:** 0
+**Hunts:** 136 · **Bugs found:** 135 · **Consecutive dry hunts:** 0
+
+2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`). Attempted failing repro on five pass-**31** monitors — **proven** legacy offset `coerceRunSummaryPaged` accepted negative `totalCount` (integer guard only); **valid-no-repro** fractional `totalCount` (same integer gate as hunt prior); **valid-no-repro** negative `pageSize` (`pageSize < 1`); **valid-no-repro** `coerceRunDetail` whitespace `createdUtc` (regression `rejects missing string createdUtc`); **valid-no-repro** `coerceGraphViewModel` non-array `nodes` (zod array schema); **valid-no-repro** `operator-shell-status-scope-cache` (regression `clears scope-agnostic shell caches when operator scope changes`). Reject `totalCount < 0` in legacy offset branch; regressions `rejects legacy offset envelope when totalCount is negative` and `rejects legacy offset envelope when totalCount is fractional`. Scoped `operator-response-guards.test.ts` **67/67**. Reseeded five pass-**32** `(candidate)` rows below. Private beta: Invited operators no longer see negative total-run counts in home pagination when the API returns malformed legacy offset metadata.
+
+- [x] (proven) `coerceRunSummaryPaged` — legacy offset negative `totalCount` — **hit 2026-11-24 seed hunt:** `totalCount < 0` guard; regression `rejects legacy offset envelope when totalCount is negative`.
+- [x] (valid-no-repro) `coerceRunSummaryPaged` — legacy offset `totalCount` fractional — **cheap-disproof 2026-11-24 seed hunt:** integer gate; regression `rejects legacy offset envelope when totalCount is fractional`.
+- [x] (valid-no-repro) `coerceRunSummaryPaged` — legacy offset negative finite `pageSize` — **cheap-disproof 2026-11-24 seed hunt:** existing `pageSize < 1`.
+- [x] (valid-no-repro) `coerceRunDetail` — whitespace-only `createdUtc` — **cheap-disproof 2026-11-24 seed hunt:** manual fallback trim guard.
+- [x] (valid-no-repro) `coerceGraphViewModel` — non-array `nodes` — **cheap-disproof 2026-11-24 seed hunt:** zod rejects; regression `rejects missing nodes`.
+- [x] (valid-no-repro) `operator-shell-status-scope-cache` — tenant switch cache leak — **cheap-disproof 2026-11-24 seed hunt:** scope-cache suite.
+
+- [ ] (candidate) `coerceRunSummaryPaged` — keyset `hasMore` true with empty items and null cursor — monitor; pass 32 reseed.
+- [ ] (candidate) `coerceRunSummaryList` — padded `runId` on list row passes trim schema — monitor; pass 32 reseed.
+- [ ] (candidate) `coerceManifestSummary` — whitespace-only `ruleSetVersion` — monitor; pass 32 reseed.
+- [ ] (candidate) `coerceReplayResponse` — `hasValidationNotes` false while notes non-empty — monitor; pass 32 reseed.
+- [ ] (candidate) `operator-recent-views` — pathname label maps unknown governance subpath — monitor; pass 32 reseed.
+
+- [x] (superseded) pass **#31** monitor queue — **superseded 2026-11-24 seed hunt (hit):** see header and pass **#32** reseed.
+2026-11-24 seed hunt (hit): no rotation (`shouldRotate: false`). Cheap-disproof closed three pass-**30** monitors — **valid-no-repro** negative manifest `decisionCount` (`operatorNonNegativeInteger.min(0)`); **valid-no-repro** empty-string replay `validation.notes` (`z.string()` allows `""` by design); **valid-no-repro** cross-tab scope storage rapid switch (`operator-scope-storage.cross-tab.test.ts`). **Proven** legacy offset `coerceRunSummaryPaged` accepted fractional `page` / `pageSize`; integer validation on legacy offset fields; regressions `rejects legacy offset envelope when pageSize is fractional` and `rejects legacy offset envelope when page index is fractional`. Scoped `operator-response-guards.test.ts` **65/65**. Reseeded five pass-**31** `(candidate)` rows below. Private beta: Invited operators on the home runs list no longer hydrate fractional legacy page or page-size values into the paging chrome when the API returns malformed offset metadata.
+
+- [x] (proven) `coerceRunSummaryPaged` — legacy offset envelope accepts fractional `pageSize` — **hit 2026-11-24 seed hunt:** integer guard; regression `rejects legacy offset envelope when pageSize is fractional`.
+- [x] (proven) `coerceRunSummaryPaged` — legacy offset envelope accepts fractional `page` index — **hit 2026-11-24 seed hunt:** same; regression `rejects legacy offset envelope when page index is fractional`.
+- [x] (valid-no-repro) `coerceManifestSummary` — negative `decisionCount` passes counter guard — **cheap-disproof 2026-11-24 seed hunt:** `operatorNonNegativeInteger`.
+- [x] (valid-no-repro) `coerceReplayResponse` — empty-string `validation.notes` entries — **cheap-disproof 2026-11-24 seed hunt:** empty strings valid.
+- [x] (valid-no-repro) `operator-scope-storage` — cross-tab refresh stale tenant — **cheap-disproof 2026-11-24 seed hunt:** cross-tab suite.
+
+- [x] (proven) pass-31 fractional totalCount — **closed 2026-11-24 seed hunt (second pass).**
+- [x] (valid-no-repro) pass-31 negative pageSize — **closed 2026-11-24 seed hunt (second pass).**
+- [x] (valid-no-repro) pass-31 createdUtc — **closed 2026-11-24 seed hunt (second pass).**
+- [x] (valid-no-repro) pass-31 graph nodes — **closed 2026-11-24 seed hunt (second pass).**
+- [x] (valid-no-repro) pass-31 scope cache — **closed 2026-11-24 seed hunt (second pass).**
+
+- [x] (superseded) pass **#30** monitor queue — **superseded 2026-11-24 seed hunt (hit):** see header and pass **#31** reseed.
 
 2026-11-17 thorough hunt #500 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**28** monitor rows from hunt **#499** reseed — **proven** manifest summary fractional / non-finite counters (`z.number()` without integer guard) and replay `validation.notes` accepting non-string entries (would crash `sortReplayNotes` on replay panel render); **valid-no-repro** `manifestComparison` without `diffs` (manual fallback already rejects) and keyset `nextCursor` trim regression lane (hunt **#499** regression `trims padding on keyset nextCursor tokens`). Extended `operatorNonNegativeInteger` and `z.array(z.string())` on replay notes; regressions `rejects fractional manifest counter values`, `rejects non-finite manifest counter values`, `rejects validation.notes entries that are not strings`, and `rejects manifestComparison object without diffs array`. Scoped `operator-response-guards.test.ts` **62/62**. Private beta: Invited operators no longer see corrupted manifest header counts or a client crash when replay validation notes contain null entries.
 
@@ -10903,11 +11049,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `coerceRunComparison` — `manifestComparison` empty object without `diffs` array passes — **cheap-disproof 2026-11-17 thorough hunt #500:** manual path requires `diffs` array; regression above.
 - [x] (valid-no-repro) `coerceRunSummaryPaged` — keyset envelope preserves untrimmed `nextCursor` outer padding on valid tokens — **cheap-disproof 2026-11-17 thorough hunt #500:** hunt **#499** trim guard; regression `trims padding on keyset nextCursor tokens`.
 
-- [ ] (candidate) `coerceManifestSummary` — negative `warningCount` passes zod number check — locus: `operatorNonNegativeInteger` regression lane; input: `{ warningCount: -1, …required fields }`; monitor; pass 29 reseed.
-- [ ] (candidate) `coerceManifestSummary` — `Infinity` in `unresolvedIssueCount` passes counter guard — locus: finite integer counters; input: `{ unresolvedIssueCount: Infinity, … }`; monitor; pass 29 reseed.
-- [ ] (candidate) `coerceReplayResponse` — numeric `validation.notes` entries pass array guard — locus: replay notes string guard; input: `{ notes: [1], … }`; monitor; pass 29 reseed.
-- [ ] (candidate) `coerceRunSummaryPaged` — keyset envelope accepts fractional `requestedTake` as pageSize — locus: keyset take integer guard; input: `{ requestedTake: 20.5, items: [], hasMore: false }`; monitor; pass 29 reseed.
-- [ ] (candidate) `coerceRunSummaryPaged` — legacy offset `totalCount` `NaN` passes paging envelope — locus: legacy offset numeric guard; input: `{ totalCount: NaN, page: 1, pageSize: 20, hasMore: false, items: [] }`; monitor; pass 29 reseed.
+- [x] (valid-no-repro) `coerceManifestSummary` — negative `warningCount` — **cheap-disproof 2026-11-24 seed hunt:** `operatorNonNegativeInteger` `.min(0)`; regression `rejects fractional manifest counter values` class.
+- [x] (valid-no-repro) `coerceManifestSummary` — `Infinity` in `unresolvedIssueCount` — **cheap-disproof 2026-11-24 seed hunt:** `.finite()` on `operatorNonNegativeInteger`; regression `rejects non-finite manifest counter values`.
+- [x] (valid-no-repro) `coerceReplayResponse` — numeric `validation.notes` entries — **cheap-disproof 2026-11-24 seed hunt:** regression `rejects validation.notes entries that are not strings` (hunt **#500**).
+- [x] (proven) `coerceRunSummaryPaged` — fractional keyset `requestedTake` — **hit 2026-11-24 seed hunt:** integer guard on `requestedTake`; regression `rejects keyset envelope when requestedTake is fractional`.
+- [x] (valid-no-repro) `coerceReplayResponse` — numeric `validation.notes` entries — **cheap-disproof 2026-11-24 seed hunt:** regression `rejects validation.notes entries that are not strings` (hunt **#500**).
+- [x] (proven) `coerceRunSummaryPaged` — legacy fractional `pageSize` — **hit 2026-11-24 seed hunt.**
+- [x] (proven) `coerceRunSummaryPaged` — legacy fractional `page` — **hit 2026-11-24 seed hunt.**
+- [x] (valid-no-repro) `coerceManifestSummary` — negative `decisionCount` — **cheap-disproof 2026-11-24 seed hunt.**
+- [x] (valid-no-repro) `coerceReplayResponse` — empty-string notes — **cheap-disproof 2026-11-24 seed hunt.**
+- [x] (valid-no-repro) `operator-scope-storage` — cross-tab stale tenant — **cheap-disproof 2026-11-24 seed hunt.**
+
 
 2026-11-17 thorough hunt #499 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**27** monitor rows from hunt **#498** reseed — **proven** keyset `coerceRunSummaryPaged` treating whitespace-only `nextCursor` as a live pagination token (`length > 0` without trim); **valid-no-repro** replay `mode` whitespace (hunt **#197** `operatorNonEmptyTrimmedString`; regression `rejects whitespace-only mode`); **invalid** optional `contentUrl` (field not in artifact descriptor contract) and golden `baseManifestId` (schema uses `baseRunId`/`targetRunId`); **invalid** graph node `id` whitespace (graph guard validates `nodes`/`edges` array shells only by design, hunt **#498**-class). Scoped `operator-response-guards.test.ts` **58/58**. Private beta: Invited operators no longer advance home runs pagination with a whitespace-only keyset cursor token when the API returns padded `nextCursor` values.
 
@@ -11639,11 +11791,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 5
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12546,7 +12698,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12567,7 +12719,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -13219,7 +13371,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 **Hunts:** 81 · **Bugs found:** 51 · **Consecutive dry hunts:** 0
@@ -13529,8 +13681,40 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ---
 
-## Zone: ui-governance-findings-queue
+## Zone: ui-governance-findings-queue-11-24 thorough hunt #498 (dry): no rotation (shouldRotate: false; reason: No low-yield streak; keep default picker choice.; streak zone infra-evidence-diagrams at run-log tail is 1/3 before this record). Attempted failing repro on five pass-34 monitor rows — **valid-no-repro** saved view load retaining hideGeneric (workspace/run-scoped href rebuild omits hideGeneric; hook resets from storage when param absent; use-governance-findings-queue-saved-views.test.ts clears stale runId), **valid-no-repro** clear-all retaining hideGeneric (distinct from show-all; intentional filter chrome; show-all regression clears hideGeneric), **valid-no-repro** pick-review retaining focusedFinding when switching runId (triage cursor preserved by design; pick-review clears confirm params; regression family), **valid-no-repro** clear review scope retaining q (intentional; regression removes runId while preserving register/facet/search), **valid-no-repro** whitespace scopedRunId in applyFindingsSavedViewFilters (saved-views hook requires trim().length > 0 before run-scoped navigation; run-scoped href trims). Reseeded five pass-35 (candidate) rows. Scoped vitest **35/35** across clear-all, clear-scope, pick-review, saved-views hook, saved-view helpers. Private beta: n/a.
 
+
+2026-11-24 thorough hunt (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**33** monitor rows — **valid-no-repro** `governanceFindingsWorkspaceSavedViewHref` / `governanceFindingsRunScopedSavedViewHref` rebuild from saved filters only (`router.replace` replaces full href; regressions in `governance-findings-saved-view-helpers.test.ts` and `use-governance-findings-queue-saved-views.test.ts`); **valid-no-repro** `governanceFindingsClearAllFiltersHref` retaining `focusedFinding` (triage cursor, not a register/facet filter; regression `preserves focusedFinding triage cursor while clearing register and facet filters`); **valid-no-repro** `useGovernanceRecordCorrectionUrlSync` vs pick-review (`governanceFindingsPickReviewForTriageHref` deletes `govCorrection*`; pick-review suite **7/7**); **valid-no-repro** clear review scope + `focusedFinding` (cursor hook strips unknown ids; regression `preserves focusedFinding while clearing review scope`). Scoped vitest **31/31** across saved-view, clear-all, clear-scope, pick-review, saved-views hook. Reseeded five pass-**34** `(candidate)` rows below. Private beta: n/a.
+
+- [x] (valid-no-repro) `governanceFindingsWorkspaceSavedViewHref` — saved workspace view load may retain `govCorrection*` from prior URL — **cheap-disproof 2026-11-24 thorough hunt:** href builder ignores current query; hook `router.replace` uses rebuilt href only; regressions above.
+- [x] (valid-no-repro) `governanceFindingsRunScopedSavedViewHref` — run-scoped saved view may retain stale `kbDisp*` — **cheap-disproof 2026-11-24 thorough hunt:** same full-href replace path; saved-view helper regression above.
+- [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — may retain `focusedFinding` when clearing filters — **cheap-disproof 2026-11-24 thorough hunt:** intentional triage cursor; regression above.
+- [x] (valid-no-repro) `useGovernanceRecordCorrectionUrlSync` — correction dialog vs pick-review navigation ordering — **cheap-disproof 2026-11-24 thorough hunt:** pick-review href clears confirm params before navigation; pick-review suite.
+- [x] (valid-no-repro) `GovernanceFindingsQueueScopeSection` — clear review scope link vs `focusedFinding` triage cursor — **cheap-disproof 2026-11-24 thorough hunt:** `governanceFindingsClearReviewScopeHref` preserves cursor; unknown ids stripped after scope change via triage hook.
+
+- [x] (valid-no-repro) `useGovernanceFindingsQueueSavedViews` — loading saved view may retain `hideGeneric` from prior URL — **cheap-disproof 2026-11-24 thorough hunt #498:** full-href replace omits hideGeneric; visibility hook falls back when param absent; saved-views hook tests.
+- [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — may retain `hideGeneric` when clearing register/facet filters (distinct from show-all) — **cheap-disproof 2026-11-24 thorough hunt #498:** intentional; show-all path clears hideGeneric (regression in clear-all suite).
+- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may retain `focusedFinding` when switching `runId` without architecture scope — **cheap-disproof 2026-11-24 thorough hunt #498:** triage cursor param; pick-review confirm-param clear regression family.
+- [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — may retain `q` search when clearing run scope — **cheap-disproof 2026-11-24 thorough hunt #498:** regression preserves register/facet/search while dropping runId.
+- [x] (valid-no-repro) `applyFindingsSavedViewFilters` — malformed `scopedRunId` whitespace may load run scope — **cheap-disproof 2026-11-24 thorough hunt #498:** saved-views hook gates on trim; run-scoped href trims runId.
+- [x] (superseded) pass-34 `(candidate)` queue — **superseded 2026-11-24 thorough hunt #498 (dry):** closed at zone header; see pass-35 reseed.
+
+- [x] (valid-no-repro) `useGovernanceFindingsHideGenericState` — saved-view navigation may leave checkbox on while URL omits hideGeneric — **cheap-disproof 2026-11-24 seed hunt (seed-only):** storage fallback after param strip is intentional; URL-sync regression.
+- [x] (valid-no-repro) `governanceFindingsPickReviewForTriageHref` — may drop focusedFinding when architecture scope forces full query reset — **cheap-disproof 2026-11-24 seed hunt (seed-only):** architecture scope reset clears register/facet params by design; pick-review suite **7/7**.
+- [x] (valid-no-repro) `governanceFindingsWorkspaceSavedViewHref` — may retain stale kbDisp params from currentSearch if helper regresses to merge — **cheap-disproof 2026-11-24 seed hunt (seed-only):** helper rebuilds from saved filters only; saved-view helper regressions.
+- [x] (valid-no-repro) `useGovernanceFindingsQueueSavedViews` — clearAllFilters may leave hideGeneric in URL while resetting register state — **cheap-disproof 2026-11-24 seed hunt (seed-only):** clear-all vs show-all split; not a saved-view load path.
+- [x] (valid-no-repro) `applyFindingsSavedViewFilters` — non-string scopedRunId should not throw when persisted payload is malformed — **cheap-disproof 2026-11-24 seed hunt (seed-only):** `typeof` guard coerces to `null`; no throw path.
+
+- [x] (superseded) pass-35 `(candidate)` queue — **superseded 2026-11-24 seed hunt (seed-only):** closed at zone header; see pass-36 reseed.
+
+- [ ] (candidate) `governanceFindingsRunScopedSavedViewHref` — run-scoped saved view load may retain stale `focusedFinding` when `scopedRunId` changes — locus: run-scoped href builder; input: focusedFinding + prior runId + load run-scoped view for run-2; monitor; pass-36 reseed.
+- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — may strip `hideGeneric` when clearing run scope (regression vs clear-all split) — locus: clear-review-scope helper; input: hideGeneric=1 + runId + clear scope; monitor; pass-36 reseed.
+- [ ] (candidate) `applyFindingsSavedViewFilters` — non-string `registerFilter` may coerce to unsafe register chip — locus: saved-view parse; input: registerFilter number; wrong outcome: non-`all` filter without string token; monitor; pass-36 reseed.
+- [ ] (candidate) `normalizeFindingsNaturalLanguageFacets` — unknown `severity` string may survive as active facet — locus: NL facet normalization; input: severity `URGENT`; wrong outcome: matcher drift vs chip; monitor; pass-36 reseed.
+- [ ] (candidate) `GovernanceFindingsQueueClient` — full client Vitest selection VM heap blocks new router-replace ordering repros — locus: large client suite; input: isolated regression harness; monitor; pass-36 reseed.
+
+
+- [x] (superseded) pass **#33** monitor `(candidate)` queue — **superseded 2026-11-24 thorough hunt:** see hunt header above and pass **#34** reseed.
 2026-11-17 thorough hunt #508 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-**32** monitor rows — **proven** `governanceFindingsClearReviewScopeHref` still left `govCorrection*` after Clear review scope (hunt **#507** clear-all class incomplete on scope clear); **proven** `governanceFindingsPickReviewForTriageHref` retained keyboard + record-correction confirm params when switching `runId` (hunt **#1375** bulk-clear class); **valid-no-repro** `showAllFilteredFindings` + `govCorrection*` (delegates to clear-all helper fixed hunt **#507**); **valid-no-repro** `focusedFinding` surviving clear-all with open triage (triage cursor URL sync rewrites when panel open); **valid-no-repro** keyboard host pending after URL `kbDisp` strip (`FindingKeyboardTriageHost` effect clears pending when params empty). Regressions `clears record-correction confirm params when clearing review scope` and `clears stale keyboard and record-correction confirm params when picking a review`; pick-review **6/6** + clear-review-scope **6/6**. Reseeded five pass-**33** `(candidate)` rows below. Private beta: picking another review or clearing review scope on the governance findings queue no longer keeps record-correction or keyboard disposition confirms tied to the prior run.
 
 - [x] (proven) `governanceFindingsPickReviewForTriageHref` — stale `govCorrection*` / `kbDisp*` on pick review — **hit 2026-11-17 thorough hunt #508:** delete confirm param families on pick-review navigation; regression above.
@@ -13539,11 +13723,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (valid-no-repro) `GovernanceFindingsQueueClient` — `focusedFinding` survives clear-all with open triage — **cheap-disproof 2026-11-17 thorough hunt #508:** triage cursor sync owns `focusedFinding` while open.
 - [x] (valid-no-repro) `FindingKeyboardTriageHost` — pending confirm after scope clear strips `kbDisp` — **cheap-disproof 2026-11-17 thorough hunt #508:** URL sync effect nulls pending when params absent.
 
-- [ ] (candidate) `governanceFindingsWorkspaceSavedViewHref` — saved workspace view load may retain `govCorrection*` from prior URL — locus: saved-view href builder; input: correction params + load view; monitor; pass 33 reseed.
-- [ ] (candidate) `governanceFindingsRunScopedSavedViewHref` — run-scoped saved view may retain stale `kbDisp*` — locus: run-scoped saved-view href; input: keyboard confirm + saved run scope; monitor; pass 33 reseed.
-- [ ] (candidate) `governanceFindingsClearAllFiltersHref` — may retain `focusedFinding` when clearing filters — locus: clear-all helper; input: open triage deep link + clear all; monitor; pass 33 reseed.
-- [ ] (candidate) `useGovernanceRecordCorrectionUrlSync` — correction dialog vs pick-review navigation ordering — locus: run change with open correction; input: pick review while correction armed; monitor; pass 33 reseed.
-- [ ] (candidate) `GovernanceFindingsQueueScopeSection` — clear review scope link vs `focusedFinding` triage cursor — locus: scope clear + triage URL; input: scoped run + focusedFinding; monitor; pass 33 reseed.
+- [x] (valid-no-repro) `governanceFindingsWorkspaceSavedViewHref` — pass 33 monitor — **superseded 2026-11-24 thorough hunt:** closed in hunt header above.
+- [x] (valid-no-repro) `governanceFindingsRunScopedSavedViewHref` — pass 33 monitor — **superseded 2026-11-24 thorough hunt:** closed in hunt header above.
+- [x] (valid-no-repro) `governanceFindingsClearAllFiltersHref` — pass 33 monitor — **superseded 2026-11-24 thorough hunt:** closed in hunt header above.
+- [x] (valid-no-repro) `useGovernanceRecordCorrectionUrlSync` — pass 33 monitor — **superseded 2026-11-24 thorough hunt:** closed in hunt header above.
+- [x] (valid-no-repro) `GovernanceFindingsQueueScopeSection` — pass 33 monitor — **superseded 2026-11-24 thorough hunt:** closed in hunt header above.
 
 - [x] (superseded) pass **#32** monitor `(candidate)` queue — **superseded 2026-11-17 thorough hunt #508:** see hunt **#508** header and pass **#33** reseed.
 
@@ -13601,11 +13785,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 0
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **hunts:** 5
+- **bugs-found:** 2
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -13789,11 +13973,11 @@ ABQ-09 churn hotspot.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 3
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -13976,13 +14160,32 @@ ABQ-09 churn hotspot.
 ---
 
 ## Zone: ui-infra-resource-hub
-2026-11-04 thorough hunt #493 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `securenow-question-queue` (dry **#490**, **#491**, **#492** / run log; picker **`shouldRotate: true`** with **`-AvoidZoneId securenow-question-queue`** → `ui-infra-resource-hub`; reason: *3 consecutive low-yield hunt(s) on 'securenow-question-queue' (outcomes: dry, dry, dry).*). Attempted failing repro on five header `(candidate)` monitor rows from hunt **#489** reseed; cheap-disproof closed all five — **valid-no-repro** Ask handoff `snapshotId` with duplicate `tab=` (`infrastructureAskHandoffSearch` + resolved snapshot regressions; `preserves hub snapshot and runId on stale audit scope banner audit tab link`; hunt **#237** reseed family), **valid-no-repro** stale banner `auditTabHref` omitting `runId` with duplicate tabs (`preserves hub snapshot and runId on stale audit scope banner audit tab link`; `preserves runId when switching hub tabs from the tab bar`; hunt **#237** reseed family), **valid-no-repro** `setActiveTab` dropping explorer `workQueue` with duplicate `tab=` (`preserves explorer workQueue when switching hub tabs from the tab bar`; `uses the last tab query value and canonicalizes duplicate tab params on load`; hunt **#237** reseed family), **valid-no-repro** diagram tab badge saturated `[state-machine-gap]` (regression `shows tab count badges for findings and drift`; hunt **#237** reseed family), **valid-no-repro** drift `diffId` whitespace trim (defer trim class; hunt **#237** reseed family). Reseeded five follow-on `(candidate)` rows below (regression family hunt **#241** reseed). Scoped **145/145** `ResourceHubClient.test.tsx` + `infra-evidence-hub-tab-query.test.ts`. **This dry starts 1/3** on `ui-infra-resource-hub` at run-log tail (prior hub dry **#489** separated by securenow **#490**–**#492**). Private beta: n/a.
+2026-11-24 thorough hunt #495 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone **`ui-claim-discipline-policy`** at run-log tail is **1/3** seed-only before this record). Attempted failing repro on five header `(candidate)` monitor rows from hunt **#494** reseed; cheap-disproof closed all five — **valid-no-repro** Ask handoff `snapshotId` with duplicate `tab=` (`infrastructureAskHandoffSearch` builds from `resourceHubFilterHrefFromSearch`; regressions `omits duplicate stale tab params on drift Infrastructure Ask links`, `preserves hub snapshot and runId on stale audit scope banner audit tab link`; hunt **#237** reseed family), **valid-no-repro** stale banner `auditTabHref` omitting `runId` with duplicate tabs (`preserves hub snapshot and runId on stale audit scope banner audit tab link`; `preserves runId when switching hub tabs from the tab bar`; hunt **#237** reseed family), **valid-no-repro** `setActiveTab` dropping explorer `workQueue` with duplicate `tab=` (`preserves explorer workQueue when switching hub tabs from the tab bar`; `uses the last tab query value and canonicalizes duplicate tab params on load`; hunt **#237** reseed family), **valid-no-repro** diagram tab badge saturated `[state-machine-gap]` (regression `shows tab count badges for findings and drift`; hunt **#237** reseed family), **valid-no-repro** drift `diffId` whitespace trim (defer trim class; hunt **#237** reseed family). Reseeded five follow-on `(candidate)` rows below (hunt **#495** reseed). Scoped **143/143** `ResourceHubClient.test.tsx` + **23/23** `infra-evidence-hub-filter-url.test.ts`. **This dry starts 1/3** on `ui-infra-resource-hub` at run-log tail (prior hub **hit #494** separated by claim-discipline seed-only). Private beta: n/a.
 
-- [ ] (candidate) `ResourceHubClient` `infrastructureAskHandoffSearch` — handoff may drop `runId` when duplicate tab keys precede dedupe — locus: scoped Ask handoff builder; input: duplicate `tab=` + hub `runId`; monitor; hunt **#493** reseed.
-- [ ] (candidate) `ResourceHubClient` stale audit scope banner — `clearAuditScopeHref` may retain partial audit ids when URL mixes linked + unlinked scope — locus: stale banner clear link; input: mixed audit scope params; monitor; hunt **#493** reseed.
-- [ ] (candidate) `ResourceHubClient` tab dedupe on load — may drop `workQueue` when last tab wins over explorer queue tab — locus: initial tab canonicalization; input: duplicate `tab=` + `workQueue`; monitor; hunt **#493** reseed.
-- [ ] (candidate) `ResourceHubClient` findings tab badge — saturated `[state-machine-gap]` operational vs architecture sum — monitor; hunt **#493** reseed.
-- [ ] (candidate) `ResourceHubDriftChangesTable` — whitespace-only `changeId` on drift workbench deep link — defer trim class; monitor; hunt **#493** reseed.
+- [ ] (candidate) `ResourceHubClient` `infrastructureAskHandoffSearch` — handoff may drop `runId` when duplicate tab keys precede dedupe — locus: scoped Ask handoff builder; input: duplicate `tab=` + hub `runId`; monitor; hunt **#495** reseed.
+- [ ] (candidate) `ResourceHubClient` stale audit scope banner — `clearAuditScopeHref` may retain partial audit ids when URL mixes linked + unlinked scope — locus: stale banner clear link; input: mixed audit scope params; monitor; hunt **#495** reseed.
+- [ ] (candidate) `ResourceHubClient` tab dedupe on load — may drop `workQueue` when last tab wins over explorer queue tab — locus: initial tab canonicalization; input: duplicate `tab=` + `workQueue`; monitor; hunt **#495** reseed.
+- [ ] (candidate) `ResourceHubClient` findings tab badge — saturated `[state-machine-gap]` operational vs architecture sum — monitor; hunt **#495** reseed.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — whitespace-only `changeId` on drift workbench deep link — defer trim class; monitor; hunt **#495** reseed.
+
+- [x] (valid-no-repro) `ResourceHubClient` `infrastructureAskHandoffSearch` — handoff may drop `snapshotId` when duplicate `tab=` keys precede dedupe — locus: scoped Ask handoff builder; input: duplicate `tab=` + pinned snapshot; monitor; hunt **#494** reseed. — **cheap-disproof 2026-11-24 thorough hunt #495:** scoped handoff + stale banner snapshot regressions (hunt **#237** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` stale audit scope banner — `auditTabHref` may omit `runId` when duplicate tab keys present — locus: stale banner audit tab link; input: duplicate `tab=` + `runId`; monitor; hunt **#494** reseed. — **cheap-disproof 2026-11-24 thorough hunt #495:** stale banner audit tab + runId preservation family (hunt **#237** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` `setActiveTab` — may drop explorer `workQueue` when switching tabs with duplicate `tab=` query — locus: tab bar navigation; input: `workQueue=…` + duplicate tabs; monitor; hunt **#494** reseed. — **cheap-disproof 2026-11-24 thorough hunt #495:** tab-bar runId + explorer `workQueue` regressions (hunt **#237** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` diagram tab badge — saturated `[state-machine-gap]` preview slice vs hub row total — monitor; hunt **#494** reseed. — **cheap-disproof 2026-11-24 thorough hunt #495:** saturated monitor; `shows tab count badges for findings and drift` (hunt **#237** reseed family).
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — whitespace-only `diffId` on drift workbench deep link — defer trim class; monitor; hunt **#494** reseed. — **cheap-disproof 2026-11-24 thorough hunt #495:** defer trim class (hunt **#237** reseed family).
+
+2026-11-24 thorough hunt #494 (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; continuing `ui-infra-resource-hub` after hunt **#493** pass-493 `(candidate)` queue). Attempted failing repro on five header `(candidate)` monitor rows — `ResourceHubClient.test.tsx` failed at transform (`}` expected ~2337) before assertions; proved **(proven)** terraform not-mapped `EnterpriseCompactEmptyState` `footer` rendered two sibling JSX nodes without a fragment wrapper when `overviewPartialCapture` is present (score-lift round 128); fixed with `<>...</>` matching the diagram empty-state pattern. Cheap-disproof closed all five pass-493 monitors — **valid-no-repro** Ask handoff `runId` with duplicate `tab=` (`infrastructureAskHandoffSearch` + tab-bar/Ask regressions; hunt **#241** reseed family), **valid-no-repro** stale banner `clearAuditScopeHref` partial audit ids (`buildInfraEvidenceClearAuditScopeHref`; hunt **#241** reseed family), **valid-no-repro** tab dedupe dropping explorer `workQueue` (`uses the last tab query value and canonicalizes duplicate tab params on load`; hunt **#237** reseed family), **valid-no-repro** findings tab badge saturated `[state-machine-gap]` (`shows tab count badges for findings and drift`; hunt **#237** reseed family), **valid-no-repro** drift `changeId` whitespace trim (defer trim class; hunt **#237** reseed family). Reseeded five follow-on `(candidate)` rows below (hunt **#494** reseed). Scoped **143/143** `ResourceHubClient.test.tsx`. Private beta: invited operators can open the infrastructure resource hub and Terraform tab again when partial-capture honesty copy is shown; the prior TSX compile error blocked that route from building.
+
+
+- [x] (proven) `ResourceHubClient` terraform not-mapped empty-state `footer` — sibling JSX nodes in `footer` without a fragment wrapper broke TSX compile and blocked resource-hub tests — **hit 2026-11-24 thorough hunt #494:** wrap stored-empty and partial-capture honesty lines in `<>...</>`; `ResourceHubClient.test.tsx` + `score-lift-round119-mounted-contract.test.ts` cite partial-capture testid.
+
+- [x] (valid-no-repro) `ResourceHubClient` `infrastructureAskHandoffSearch` — handoff may drop `runId` when duplicate tab keys precede dedupe — locus: scoped Ask handoff builder; input: duplicate `tab=` + hub `runId`; monitor; hunt **#493** reseed. — **cheap-disproof 2026-11-24 thorough hunt #494:** Ask/tab-bar runId regression family (hunt **#241** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` stale audit scope banner — `clearAuditScopeHref` may retain partial audit ids when URL mixes linked + unlinked scope — locus: stale banner clear link; input: mixed audit scope params; monitor; hunt **#493** reseed. — **cheap-disproof 2026-11-24 thorough hunt #494:** stale banner clear-link family (hunt **#241** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` tab dedupe on load — may drop `workQueue` when last tab wins over explorer queue tab — locus: initial tab canonicalization; input: duplicate `tab=` + `workQueue`; monitor; hunt **#493** reseed. — **cheap-disproof 2026-11-24 thorough hunt #494:** tab dedupe on load + explorer `workQueue` family (hunt **#237** reseed family).
+- [x] (valid-no-repro) `ResourceHubClient` findings tab badge — saturated `[state-machine-gap]` operational vs architecture sum — monitor; hunt **#493** reseed. — **cheap-disproof 2026-11-24 thorough hunt #494:** `shows tab count badges for findings and drift` (hunt **#237** reseed family).
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — whitespace-only `changeId` on drift workbench deep link — defer trim class; monitor; hunt **#493** reseed. — **cheap-disproof 2026-11-24 thorough hunt #494:** defer trim class (hunt **#237** reseed family).
+
+2026-11-04 thorough hunt #493 (dry, rotation): **Zone rotation** after **3 consecutive low-yield** outcomes on `securenow-question-queue` (dry **#490**, **#491**, **#492** / run log; picker **`shouldRotate: true`** with **`-AvoidZoneId securenow-question-queue`** → `ui-infra-resource-hub`; reason: *3 consecutive low-yield hunt(s) on 'securenow-question-queue' (outcomes: dry, dry, dry).*). Attempted failing repro on five header `(candidate)` monitor rows from hunt **#489** reseed; cheap-disproof closed all five — **valid-no-repro** Ask handoff `snapshotId` with duplicate `tab=` (`infrastructureAskHandoffSearch` + resolved snapshot regressions; `preserves hub snapshot and runId on stale audit scope banner audit tab link`; hunt **#237** reseed family), **valid-no-repro** stale banner `auditTabHref` omitting `runId` with duplicate tabs (`preserves hub snapshot and runId on stale audit scope banner audit tab link`; `preserves runId when switching hub tabs from the tab bar`; hunt **#237** reseed family), **valid-no-repro** `setActiveTab` dropping explorer `workQueue` with duplicate `tab=` (`preserves explorer workQueue when switching hub tabs from the tab bar`; `uses the last tab query value and canonicalizes duplicate tab params on load`; hunt **#237** reseed family), **valid-no-repro** diagram tab badge saturated `[state-machine-gap]` (regression `shows tab count badges for findings and drift`; hunt **#237** reseed family), **valid-no-repro** drift `diffId` whitespace trim (defer trim class; hunt **#237** reseed family). Reseeded five follow-on `(candidate)` rows below (regression family hunt **#241** reseed). Scoped **145/145** `ResourceHubClient.test.tsx` + `infra-evidence-hub-tab-query.test.ts`. **This dry starts 1/3** on `ui-infra-resource-hub` at run-log tail (prior hub dry **#489** separated by securenow **#490**–**#492**). Private beta: n/a.
 
 - [x] (valid-no-repro) `ResourceHubClient` `infrastructureAskHandoffSearch` — handoff may drop `snapshotId` when duplicate `tab=` keys precede dedupe — locus: scoped Ask handoff builder; input: duplicate `tab=` + pinned snapshot; monitor; hunt **#489** reseed. — **cheap-disproof 2026-11-04 thorough hunt #493:** scoped handoff + stale banner snapshot regressions (hunt **#237** reseed family).
 - [x] (valid-no-repro) `ResourceHubClient` stale audit scope banner — `auditTabHref` may omit `runId` when duplicate tab keys present — locus: stale banner audit tab link; input: duplicate `tab=` + `runId`; monitor; hunt **#489** reseed. — **cheap-disproof 2026-11-04 thorough hunt #493:** stale banner audit tab + runId preservation family (hunt **#237** reseed family).
@@ -14978,7 +15181,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **duplicate `tab` query keys ignored trailing value** — `URLSearchParams.get` and `activeTab` used the first `tab` entry, so bookmarks like `tab=not-a-real-tab&tab=drift` opened Overview while a valid Drift tab was last; resolve active tab from the last `tab` value via `readResourceHubTabFromSearchParams` and dedupe on load; regression `uses the last tab query value and canonicalizes duplicate tab params on load`; cheap-disproof closed tab casing (normalize effect), empty `tab=` (whitespace normalize), manual Retry (generation guard), and terraform method-without-address (empty-state boundary); scoped ResourceHubClient vitest 140/140 plus filter-url unit test. Private beta: duplicated hub tab query keys in shared links honor the last tab segment and collapse to a single canonical param.
@@ -15001,7 +15204,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **whitespace-only `tab` query left in resource hub URL** — hunt 118 normalized unknown tab tokens but returned early when `tab` trimmed empty, so `tab=%20%20%20` deep links kept a useless query key while Overview rendered; extend tab normalize effect to rewrite whitespace-only `tab` params; regression `normalizes whitespace-only tab query param via router on load`; cheap-disproof closed Ask handoff stale tab (normalize on load), busy id on tab switch (monitor), hub tab badges (saturated), drift change ids (defer); scoped ResourceHubClient vitest 139/139. Private beta: whitespace-only hub tab query noise is stripped from shared URLs the same way invalid tab typos are.
@@ -15024,7 +15227,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **invalid `tab` query left in resource hub URL** — `parseResourceHubTabFromSearch` rendered overview for typos like `tab=not-a-real-tab` but never rewrote the query string, so copied links and workbench exits kept a non-tab value while the UI showed Overview; normalize invalid tab params via `router.replace` on load; regression `normalizes invalid tab query param via router on load`; cheap-disproof closed in-flight create busy on tab switch (monitor), dismiss dialog while busy (Radix blocks cancel), concurrent two-finding create (single busy id by design), and drift badge vs preview slice (intentional); scoped ResourceHubClient vitest 138/138. Private beta: mistyped or stale hub tab query strings no longer linger in the address bar after the hub opens on Overview.
@@ -15047,7 +15250,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below (keyboard tab shortcuts share `setActiveTab` with hunt 116 dialog dismiss, audit scope chip hidden when `hasUnlinkedAuditScopeInUrl` during defer load, finding action messages intentionally cleared on tab change, diagram whitespace correspondence id covered by regression, workQueue on audit clear covered by regressions); seeded five follow-on `(candidate)` rows; scoped ResourceHubClient vitest 137/137; no production or test code changed.
@@ -15070,7 +15273,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **create-remediation confirm dialog left open after hub tab switch** — `setActiveTab` cleared finding action toasts but not `pendingRemediationFinding`, so leaving Findings with the confirm open and selecting another hub tab left a modal scoped to the prior tab’s finding; dismiss pending remediation on tab change; regression `closes create-remediation dialog when switching hub tabs`; cheap-disproof closed `suppressLinkedAuditScopeRefetch` skip (scope reset clears suppress), technical-key URL normalize (bookmark parity), whitespace terraform address (existing regression), hub tab badges (saturated monitor), and remediation cache invalidate (scope guards); scoped ResourceHubClient vitest 137/137. Private beta: operators switching resource-hub sections no longer see a stale “Create remediation instance?” confirm for a finding from the tab they left.
@@ -15094,7 +15297,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below (terraform overview quick link polish, `resourceTitle` hub reset parity with `clears prior hub evidence when cloudResourceId changes`, manual Retry `loadRequestGeneration` guard, cold snapshot bookmark remount monitor, drift change-id trim defer); seeded five follow-on `(candidate)` rows; scoped ResourceHubClient vitest 136/136; no production or test code changed.
@@ -15117,7 +15320,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stale URL audit scope on cross-workbench drift link** after `cloudResourceId` change — workbench/Ask audit context still trusted URL triples and prior-resource `hub.auditLineageLink` while the in-memory hub row or loading gap did not match the new `cloudResourceId`; add `hubMatchesActiveResource`, treat mismatched or unavailable lineage as unlinked, and defer URL audit params on workbench exits until the matching hub row loads; regression `omits stale URL audit scope on drift workbench link after cloudResourceId changes`; cheap-disproof closed terraform workbench row omission (intentional), `switchActiveAuditControl` deps (fixed hunt 113), ARM copy (polish), and drift change-id trim (defer); scoped ResourceHubClient vitest 136/136. Private beta: switching resource hubs no longer opens drift workbench pre-filtered to another resource’s audit control ids carried in the query string.
@@ -15140,7 +15343,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **prior resource hub snapshot on cross-workbench drift link** after `cloudResourceId` change — `resolvedSnapshotId` read `hub.currentConfiguration.snapshotId` before the in-memory hub row matched the new `cloudResourceId`, so drift (and sibling) workbench exits could carry the previous resource’s inventory snapshot until fetch settled; gate hub-derived snapshot resolution on `hub.cloudResourceId === cloudResourceId` and align snapshot ref updates; regression `omits stale snapshotId on drift workbench link after cloudResourceId changes`; cheap-disproof closed terraform quick link (polish), Ask handoff monitor row, manual Retry (generation guard), and drift change-id trim (defer); scoped ResourceHubClient vitest 135/135. Private beta: switching resource hubs no longer opens drift workbench with another resource’s snapshot id while the hub panel is still showing stale evidence.
@@ -15163,7 +15366,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stale URL `runId` on cross-workbench links** after `cloudResourceId` change — hunt 111 stopped stale run pins on hub fetch, scope strip, and URL normalization, but overview and tab workbench/Ask hrefs still read raw `runId` from search params until `router.replace` completed, so remediation and sibling exits could briefly carry another resource’s review run; thread `resolvedRunId` through cross-workbench, drift, diagram, Ask, and diagram-reconcile remediation href builders; regression `omits stale runId on remediation workbench link after cloudResourceId changes`; cheap-disproof closed terraform quick link (polish), ARM copy (polish), cold bookmark remount (monitor), and drift change-id trim (defer); scoped ResourceHubClient vitest 134/134. Private beta: opening remediation or other infrastructure workbenches from a resource hub after switching resources no longer embeds a prior resource’s `runId` in the link.
@@ -15186,7 +15389,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stale URL `runId` on hub fetch** after `cloudResourceId` change — client-side hub navigation reused the prior resource’s architecture-review `runId` query on fetch and scope strip while snapshot pin fixes ignored inactive snapshot params only; add per-resource URL run pin refs/bootstrap (parallel to snapshot), `resolvedRunId` for hub API calls and scope strip, and extend inactive-pin URL normalization to drop or rewrite stale `runId`; regression `ignores stale runId on hub fetch after cloudResourceId changes`; cheap-disproof closed cold bookmark remount (monitor), terraform quick link (polish), manual Retry (generation guard), and drift change-id trim (defer); scoped ResourceHubClient vitest 133/133. Private beta: switching resource hubs no longer scopes evidence to another resource’s review run id left in the URL.
@@ -15209,7 +15412,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **URL snapshot pin re-established on in-app resource switch** — the pin ref initializer treated any URL `snapshotId` as pinned for the current `cloudResourceId`, and the bootstrap path could run before inactive-pin URL normalization, so client-side hub navigation could briefly honor another resource’s snapshot query again; track per-resource bootstrap, clear the pin on `cloudResourceId` change without re-pinning from a carried query, and defer inactive-pin `router.replace` until bootstrap completes; scoped ResourceHubClient vitest 132/132 (existing regressions for stale fetch, URL normalize, and scope strip). Private beta: switching between resource hubs in one session no longer re-applies a carried snapshot query as a pin for the new resource.
@@ -15232,7 +15435,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stale `snapshotId` left in browser URL** after `cloudResourceId` change — hunts 106–107 ignored inactive URL pins for fetch and scope-strip copy, but the address bar still carried the prior resource’s `snapshotId` until the operator switched tabs, so copied/bookmarked links reopened the wrong pin; `router.replace` via `resourceHubFilterHrefFromSearch` when URL `snapshotId` is present but the per-resource pin ref is cleared, rewriting to `resolvedSnapshotId` (or dropping the param); regression `normalizes stale URL snapshotId via router after cloudResourceId changes`; cheap-disproof closed scope-key monitor row, terraform quick link (polish), ARM copy (polish), and drift change-id trim (defer); scoped ResourceHubClient vitest 132/132. Private beta: copying the resource hub URL after switching to another cloud resource no longer preserves another resource’s snapshot id in the query string.
@@ -15255,7 +15458,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed-only): re-read `ResourceHubClient` after per-resource URL snapshot pin + scope-strip label fixes (hunts 106–107); no new hunt-ready defect without another saturated `[state-machine-gap]` async-guard synonym; cheap-disproof closed cross-workbench remediation/drift hrefs (`resolvedSnapshotId`), tab `setActiveTab` URL rewrite, technical disclosure URL sync (`resourceHubFilterHrefFromSearch` overlay), manual Retry (`loadRequestGeneration`), and terraform quick link (polish); seeded five follow-on `(candidate)` rows; scoped ResourceHubClient vitest 131/131; no production code changed. Private beta: n/a.
@@ -15278,7 +15481,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **misleading pinned snapshot label** after `cloudResourceId` change — hunt 106 stopped honoring a carried URL `snapshotId` on hub fetch, but `snapshotPinned` still keyed only on raw query length, so the scope strip kept showing **Pinned snapshot** and copy implying URL intent while evidence loaded unpinned; align `snapshotPinned` with the same per-resource URL pin ref as `resolvedSnapshotId`; regression `shows latest snapshot label when URL snapshotId is stale after cloudResourceId changes`; cheap-disproof closed technical disclosure carryover (URL-synced), terraform tab quick link (polish), drift change-id trim (deferred), and hub fetch pin (prior hit); scoped ResourceHubClient vitest 131/131. Private beta: switching resource hubs no longer tells operators their snapshot is URL-pinned when the hub is actually showing latest inventory for the new resource.
@@ -15301,7 +15504,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stale URL `snapshotId` pin** after `cloudResourceId` change — Next.js reused `ResourceHubClient` with the prior resource’s `snapshotId` still in the query string, and `loadHub` fell back to raw URL `snapshotId` when the resolved pin was empty, so the hub API loaded the wrong snapshot for the new cloud resource; honor URL snapshot pins only for the resource that introduced or last changed the pin, clear the pin on `cloudResourceId` change, and fetch with `resolvedSnapshotId` only; regression `ignores URL snapshotId pin on hub fetch immediately after cloudResourceId changes`; cheap-disproof closed implicit snapshot retention (prior hit), scope-key hub reset (prior hit), terraform tab quick link (polish), drift change-id trim (deferred), and manual Retry generation guard; scoped ResourceHubClient vitest 130/130. Private beta: navigating from one resource hub to another no longer reuses the previous resource’s pinned snapshot id from the URL when loading evidence for the new resource.
@@ -15325,7 +15528,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **lost implicit snapshot pin** when audit scope changes without URL `snapshotId` — scope reset cleared `hub` so `resolvedSnapshotId` became empty and the next `loadHub` called the API without the hub-derived snapshot the operator was already viewing; retain `lastResolvedHubSnapshotIdRef` across scope reloads on the same resource and clear it only on `cloudResourceId` change; regression `retains implicit snapshot pin on hub fetch when audit scope changes and URL omits snapshotId`; cheap-disproof closed load-error scope transition (scope effect clears), tab badge counts (scoped fetch), shortcuts while loading (`hub != null` gate), and snapshot strip label (tracks resolved id); scoped ResourceHubClient vitest 129/129. Private beta: operators who change audit scope on an unpinned resource hub keep viewing the same captured snapshot instead of silently re-querying without a snapshot id.
@@ -15348,7 +15551,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed-only): re-read `ResourceHubClient.tsx` after unified `hubClientScopeKey` reset (hunt 103); confirmed scope transitions clear hub/load error/remediation UI and in-flight remediation uses scope-key ref + unconditional `finally` busy clear; no new hunt-ready defect without another `[state-machine-gap]` synonym (saturated 14d); cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on rows; scoped `FullyQualifiedName~ResourceHubClient` filter 128/128; no production code changed. Private beta: n/a.
@@ -15371,7 +15574,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stale hub on pinned snapshot change** — hub reset ran only on `cloudResourceId` change, so changing `snapshotId` / run / audit URL scope reused the client and left the prior snapshot’s tables and title visible until the next fetch completed; reset hub, generation, and remediation UI state on any `buildResourceHubClientScopeKey` change (consolidated scope effect); regression `clears prior hub evidence when pinned snapshotId changes`; cheap-disproof closed terraform tab quick link (polish), drift change-id trim (deferred), technical disclosure carryover (URL sync), double-fetch on unlinked audit (intentional), and terraform workbench row (omitted); scoped ResourceHubClient vitest 128/128. Private beta: changing pinned snapshot on a resource hub no longer flashes the previous snapshot’s evidence while the new scope loads.
@@ -15394,7 +15597,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stuck “Creating…”** on findings after hub URL scope change during in-flight remediation — scope-key guards skipped success UI but `finally` only cleared `findingActionBusyId` when scope still matched, so changing pinned snapshot (without `cloudResourceId` change) left the create-remediation button disabled with “Creating…” after the ignored async completed; always clear busy/dialog in `finally`; extended regression `ignores in-flight create remediation when snapshot scope changes before the API returns`; cheap-disproof closed manual Retry race (generation guard), terraform tab quick link (polish), drift change-id trim (deferred), technical disclosure carryover (URL sync), and ARM copy polish; scoped ResourceHubClient vitest 127/127. Private beta: changing snapshot scope mid remediation create no longer leaves the findings action stuck in a permanent busy state.
@@ -15417,7 +15620,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **in-flight create remediation** after hub URL scope change (snapshot / run / audit params) — the prior `cloudResourceId`-only guard missed snapshot-scope navigation on the same resource, so a completing remediation could still apply success messages and call a stale `loadHub` closure for the old snapshot; capture `buildResourceHubClientScopeKey` at confirm time and compare against `hubClientScopeKeyRef` after each await; regression `ignores in-flight create remediation when snapshot scope changes before the API returns`; cheap-disproof closed terraform tab quick link (polish), drift change-id trim (deferred), double-fetch on unlinked audit (intentional), retainFindingMessages-only snapshot reload (covered by scope key), and terraform workbench row (omitted per regression); scoped ResourceHubClient vitest 127/127. Private beta: changing pinned snapshot or audit scope on a resource hub during remediation create no longer shows a success banner for the prior scope or reloads evidence for the wrong snapshot.
@@ -15440,7 +15643,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stale hub evidence** when `cloudResourceId` changes without remount — client state (`hub`, audit inline-hydrate refs) stayed on the prior resource while the Next.js client reused `ResourceHubClient`, so operators could briefly see the previous resource title, tables, and scoped counts after navigating to another cloud resource id; reset hub/load error/finding messages, bump in-flight generation, and clear audit hydrate suppress refs when `cloudResourceId` changes; regression `clears prior hub evidence when cloudResourceId changes`; cheap-disproof closed terraform tab quick link (polish), drift change-id trim (deferred), and inline probe+scoped fetch cost (monitor); scoped ResourceHubClient vitest 124/124. Private beta: switching between resource hub routes no longer flashes the prior resource evidence while the new hub loads.
@@ -15462,7 +15665,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **hub reload** skipped after inline audit hydrate when URL audit scope changes — `suppressLinkedAuditScopeRefetchRef` suppressed any `loadHub` with a non-empty `hubFetchAuditScope`, so switching the linked audit control (or otherwise changing the audit triple in the URL) before the duplicate effect refetch could leave stale scoped hub evidence on screen; only suppress the immediate duplicate refetch when the URL audit triple still matches the inline-hydrated scope, clear stale suppress flags otherwise, and bump request generation after the suppress decision; regression `refetches hub evidence when linked audit control in the URL changes`; cheap-disproof closed terraform tab quick link (polish), drift change-id trim (deferred), and unlinked double-fetch (intentional); scoped ResourceHubClient vitest 123/123. Private beta: changing audit scope on a resource hub URL always reloads evidence for the new control instead of reusing the prior scoped payload.
@@ -15484,7 +15687,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **hub load** flashing unscoped evidence when URL carries a linked audit triple — the deferred-audit first fetch still called `setHub` with unscoped API results before the audit-scoped refetch, so tab badges (e.g. findings counts) could show unscoped totals until the second fetch completed; when lineage confirms the URL triple, chain an audit-scoped hub fetch inside `loadHub` before committing hub state and suppress the redundant post-hydration refetch; regression `presents audit-scoped hub counts when URL carries linked audit scope`; cheap-disproof closed terraform overview quick link (polish), drift change-id trim (deferred), and buyer-polished ARM copy (intentional); scoped ResourceHubClient vitest 122/122. Private beta: landing on a resource hub with a valid audit scope in the URL no longer briefly shows unscoped finding/drift counts before scoped evidence loads.
@@ -15506,7 +15709,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **hub fetch** retaining URL audit scope when lineage is unavailable — `hubFetchAuditScope` forwarded a full in-URL audit triple after the hub payload reported `auditLineageLink.available === false`, so evidence hub API/cache keys still used audit params the UI could not validate (overview shows lineage-unavailable while URL still carried assessment/snapshot/control ids); omit audit scope from hub fetch unless lineage is available and the triple is linked; regression `omits URL audit scope from hub fetch when audit lineage is unavailable`; cheap-disproof closed terraform overview quick link (polish), drift change-id trim (deferred), and linked-audit second fetch (intentional after lineage loads); scoped ResourceHubClient vitest 121/121. Private beta: opening a resource hub with audit query params while audit lineage is degraded no longer triggers a scoped hub API call keyed on that unvalidated triple.
@@ -15528,7 +15731,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **hub fetch** sending unlinked URL audit scope before lineage loads — `hubFetchAuditScope` forwarded the in-URL audit triple on the first fetch while `hub` was still null, so the evidence hub API/cache could key off a control id the UI later flags as unlinked; defer URL audit scope until hub payload is available and keep a stable empty scope object so unrelated reloads do not retrigger `loadHub`; regression `never passes unlinked URL audit controlId to hub fetch`; cheap-disproof closed terraform overview quick link (polish), drift change-id trim (deferred), and double-fetch monitor row; scoped ResourceHubClient vitest 125/125. Private beta: landing with a broken audit control in the URL no longer triggers a scoped hub API call with that invalid triple before the stale-scope banner appears.
@@ -15550,7 +15753,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **hub fetch** omitting resolved snapshot when URL has no `snapshotId` — `loadHub` always passed raw URL `snapshotId` (empty when omitted) so the evidence hub API/cache never received the configuration snapshot the UI already surfaces via `resolvedSnapshotId`; pass `resolvedSnapshotId` when non-empty and refetch when hub payload pins the default snapshot; regression `passes resolved snapshot id to hub fetch when URL omits snapshotId`; cheap-disproof closed terraform overview quick link (polish), resourceGroup DRY helper, and drift change-id trim (deferred); scoped ResourceHubClient vitest 124/124. Private beta: opening a resource hub without `snapshotId` in the URL still loads evidence for the snapshot shown in the scope strip instead of an unscoped cache/API call.
@@ -15572,7 +15775,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **hub fetch** scoped with invalid URL audit params — `loadHub` forwarded raw `assessmentId` / snapshot / `controlId` query segments even when the URL only had partial audit params or an unlinked triple, so the evidence hub API/cache key used audit scope the UI already treated as stale; derive `hubFetchAuditScope` from a full linked URL scope only and refetch without audit params once unlinked scope is detected; regressions `omits partial stale URL assessmentId from hub fetch` and `omits unlinked URL audit scope from hub fetch after lineage loads`; cheap-disproof closed drift/finding Ask partial inheritance (hunt #91 handoff base), terraform overview link polish, and drift change-id trim (deferred); scoped ResourceHubClient vitest 123/123. Private beta: resource hub evidence loads no longer key off broken partial or unlinked audit query params that the stale-scope banner already flags.
@@ -15594,7 +15797,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **Infrastructure Ask handoff** retaining partial stale URL audit params — `infrastructureAskHandoffSearch` was raw `searchParams`, so `buildInfrastructureAskHandoffHref` merged overlay params atop a lone `assessmentId` (or other partial audit query) even while the stale-scope banner was visible; strip audit query keys from the handoff base when `showStaleAuditScopeBanner` before Ask merges `askAuditContext`; regressions `clears partial stale URL audit params on overview Infrastructure Ask link` and unavailable-lineage variant; cheap-disproof closed stale-banner partial audit tab link (covered by hunt #90 workbench rewrite), buyer-polished ARM copy, and drift diffId trim (deferred); scoped ResourceHubClient vitest 121/121. Private beta: opening Ask from the resource hub no longer carries a broken partial audit query left in the URL when the stale-scope warning is showing.
@@ -15616,7 +15819,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stale banner Open audit tab** link keeping unlinked URL audit params — `InfraAuditLineageUnavailableBanner` `auditTabHref` only patched tab/snapshot/runId atop `searchParams`, so unlinked `controlId` values survived the “Open audit tab” action despite the stale-scope warning; rewrite audit query fields from `workbenchLinkAuditContext` (hub/primary-match scope) when building the stale-banner audit tab href; regression `clears unlinked audit scope from stale banner Open audit tab link`; cheap-disproof closed overview terraform workbench row (intentionally omitted per regression), resourceGroup DRY helper, and drift change-id trim (deferred); scoped ResourceHubClient vitest 119/119. Private beta: clearing a bad audit scope in the URL and opening the audit tab no longer re-applies the same invalid control id.
@@ -15638,7 +15841,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **ARM path copy** beside omission copy — identifier strip showed `Copy ARM resource path` while `externalResourceId` was whitespace-only, so the control looked actionable but clipboard write was a silent no-op; hide the copy button unless trimmed `externalResourceId` is non-empty (keep cloud-resource copy fallback only while hub is null); regression extended `shows ARM resource path omission copy when externalResourceId is whitespace-only`; cheap-disproof closed partial stale URL chip (already hidden via `auditScopeActive`), overview terraform quick link (polish), and resourceGroup DRY helper; scoped ResourceHubClient vitest 118/118. Private beta: when capture did not store an ARM path, the resource hub no longer shows a broken copy affordance next to the omission message.
@@ -15660,7 +15863,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **audit scope chip** beside stale unlinked URL banner — `InfraEvidenceAuditScopeBar` already hid when `hasUnlinkedAuditScopeInUrl`, but the tab-strip chip still rendered “Audit scoped” with hub-derived audit params while the stale-scope banner said URL scope could not be resolved; align chip visibility with the scope bar (`workbenchLinkAuditContext` present and URL scope linked); regression `hides audit scope chip when URL audit scope is unlinked in hub matches`; cheap-disproof closed ARM copy button whitespace (CopyIdButton trims/no-op), overview terraform quick link (polish), and drift change-id trim (deferred); scoped ResourceHubClient vitest 118/118. Private beta: operators with an invalid audit scope in the URL no longer see a conflicting “Audit scoped” chip above the stale-scope warning.
@@ -15682,7 +15885,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **terraform tab** faux mapping UI when address not stored — without a captured terraform address the tab still rendered the full “Advisory Terraform mapping” block with omission copy and generation method, unlike the dedicated terraform workbench not-mapped empty state; when `!hasTerraformMapping`, show `EnterpriseCompactEmptyState` with shared not-mapped copy and drift workbench action; regression extended `treats whitespace-only terraform address as not stored on the terraform tab`; cheap-disproof closed overview terraform quick link (feature), Ask stale/unlinked precedence (prior hits), and drift change-id trim (deferred); scoped ResourceHubClient vitest 117/117. Private beta: operators without a terraform mapping see the same not-mapped guidance on the resource hub terraform tab as on the terraform workbench instead of a misleading advisory section.
@@ -15704,7 +15907,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **terraform tab** offering workbench when no address is stored — `hasTerraformMapping` was computed but unused, so operators still saw “Open terraform workbench” beside omission copy when `terraformAddress` was whitespace-only; gate the terraform workbench link on `hasTerraformMapping` and keep drift export available; extended regression `treats whitespace-only terraform address as not stored on the terraform tab`; cheap-disproof closed audit chip unlinked URL (hub-scoped href via `workbenchLinkAuditContext`), overview resourceGroup DRY helper, and drift change-id trim class (deferred); scoped ResourceHubClient vitest 117/117. Private beta: the resource hub terraform tab no longer sends operators to an empty terraform workbench when capture did not store a mapping.
@@ -15726,7 +15929,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stale unlinked URL** with whitespace-only hub link ids dropping workbench audit scope — after hunt #84 cleared stale URL params, `askAuditContext` still relied on hub link fields that trim empty, so remediation and other exits lost audit scope when the URL carried an unlinked triple and capture stored whitespace-only link ids despite valid `matches`; when the stale banner is shown and hub link ids do not resolve, fall back to the primary match row before merging ask context; regression `uses primary match audit scope on overview remediation when URL scope is unlinked and hub link ids are whitespace-only`; cheap-disproof closed stale URL hub-link fallback (prior hit), partial URL + whitespace lineage (prior hit), and overview resourceGroup trim; scoped ResourceHubClient vitest 117/117. Private beta: with an invalid audit scope in the URL and blank link-level ids on the hub payload, cross-workbench links still carry audit scope from the first listed match instead of dropping it.
@@ -15748,7 +15951,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **stale URL audit scope** leaking into workbench links — when the stale-scope banner was shown (`hasStaleInfraEvidenceAuditUrlParams` or unlinked full triple), `askAuditContext` still merged raw URL audit params into `resolveInfrastructureAskAuditContext`, so overview remediation and other exits carried the invalid `controlId` (or partial params) despite the banner; omit URL audit fields when `showStaleAuditScopeBanner` and fall back to hub payload only; regression `uses hub audit scope on overview remediation link when URL audit scope is unlinked`; cheap-disproof closed partial URL backfill (prior hit), lineage-derived context, and stale banner visibility; scoped ResourceHubClient vitest 116/116. Private beta: when audit scope in the URL cannot be resolved, cross-workbench links no longer propagate that stale scope and instead use the hub’s linked audit ids when available.
@@ -15771,7 +15974,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **partial URL audit params** blocking match backfill — `urlSpecifiesAuditScope` treated any single audit query param as a full scope, so a lone `assessmentId` in the URL skipped primary-match backfill for empty snapshot/control ids when hub link ids were whitespace-only and lineage failed; require all three URL audit params before treating scope as URL-complete; regression `resolves audit lineage when URL has only assessmentId and hub link audit ids are whitespace-only`; cheap-disproof closed ask context from lineage (prior hit), overview resourceGroup trim, and full triple URL scope; scoped ResourceHubClient vitest 115/115. Private beta: operators with a partial audit query on the resource hub still get lineage and workbench audit scope when capture left link ids blank but listed valid matches.
@@ -15794,7 +15997,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted **workbench/Ask audit context** missing after whitespace-only hub link ids — `resolvedAuditLineage` backfilled ids from `matches` but `askAuditContext` still read raw link fields through `resolveInfrastructureAskAuditContext`, so overview remediation and other workbench exits dropped audit query params when link ids trimmed empty; prefer `resolvedAuditLineage` ids when lineage resolves; regression `includes resolved audit scope on overview remediation link when hub link audit ids are whitespace-only`; cheap-disproof closed primary-match backfill (prior hit), audit scope chip path, and `resourceHubFilterHrefFromSearch` trim; scoped ResourceHubClient vitest 114/114. Private beta: cross-workbench links keep assessment audit scope when capture stored whitespace-only link ids but valid match rows still resolve lineage.
@@ -15817,7 +16020,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **hub link audit ids** with valid `matches` — after trim, link-level `assessmentId` / snapshot / `controlId` were empty while `matches` held real rows, so `resolvedAuditLineage` returned null and the audit tab showed degraded copy; when URL omits audit scope, backfill empty trimmed link ids from the first match row before lookup; regression `resolves audit lineage from the first match when hub link audit ids are whitespace-only`; cheap-disproof closed padded link id trim (prior hit), `switchActiveAuditControl` href writer trim in `resourceHubFilterHrefFromSearch`, and findings pagination empty caption; scoped ResourceHubClient vitest 113/113. Private beta: operators still see audit lineage on the resource hub when capture stored whitespace-only link ids but listed valid match rows.
@@ -15840,7 +16043,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted padded **`auditLineageLink` ids** breaking lineage resolution — `resolvedAuditLineage` compared raw hub link ids to `matches` rows without trimming, so padded link-level assessment/snapshot/control ids failed strict equality and the audit tab fell through to degraded copy even when matches were valid; trim resolved ids and compare trimmed match keys; also trim when detecting stale URL audit scope against padded match rows; regressions padded hub link ids without URL scope and padded match rows with trimmed URL scope; cheap-disproof closed diagram correspondenceId actions (prior hit), findings `hasMore` with zero items caption, and overview resourceGroup trim; scoped ResourceHubClient vitest 112/112. Private beta: operators land on audit lineage and control links when capture padded audit ids with whitespace, instead of a false degraded or stale-scope state.
@@ -15863,7 +16066,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only / padded **`diagramCorrespondence.correspondenceId`** on diagram tab actions — reconciliation, remediation factory, and Ask buttons always rendered when correspondence payload was non-null even though workbench/ask URL builders drop whitespace-only ids, so operators saw scoped actions without a usable `correspondenceId`; trim gate hides actions and shows omission copy; suppress conflict remediation href when trim empty; regressions whitespace omission and padded Ask `href`; cheap-disproof closed overview audit degradedReason (prior hit), drift Ask `diffId` trim at URL layer, and pagination caption when `totalCount <= visibleCount`; scoped ResourceHubClient vitest 110/110. Private beta: on the resource hub diagram tab, operators no longer see reconciliation or Ask controls that omit correspondence context when capture stored only whitespace in `correspondenceId`.
@@ -15886,7 +16089,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted overview **audit lineage unavailable** copy when `degradedReason` is whitespace-only — overview passed raw `degradedReason` into `InfraAuditLineageUnavailableBanner` so whitespace fell through to the generic “hub and workbench links stay resource-scoped only” suffix while the audit tab already used `formatStoredInfraEvidenceHubField` with the default “No audit evidence snapshot rows…” paragraph; align overview with the same formatter/default; regression `shows default audit degraded copy on overview when degradedReason is whitespace-only`; cheap-disproof closed architecture finding id Ask (prior hit), overview `resourceGroup` inline trim, and exotic drift `changeType` tag kind; scoped ResourceHubClient vitest 108/108. Private beta: on the resource hub overview tab, operators see the same honest audit-lineage unavailable explanation as on the audit tab when capture stored only whitespace in `degradedReason`.
@@ -15909,7 +16112,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only / padded **architecture-review finding id** on Ask handoff — architecture stream still passed raw `item.id` into `buildHubFindingAskHref` and test ids while operational rows already used `findingIdTrimmed`, so whitespace-only ids rendered a broken Ask link and padded ids could ship encoded spaces in `findingId`; reuse trim gate with omission copy; regressions `shows finding id omission copy on architecture review rows when finding id is whitespace-only` and padded Ask `href`; cheap-disproof closed operational finding id (prior hit), overview audit `degradedReason` banner parity (component trims; audit tab uses formatter), and remediation blocker join mix; scoped ResourceHubClient vitest 107/107. Private beta: architecture-review finding rows on the resource hub findings tab no longer expose a misleading Ask link when capture stored only whitespace in finding `id`, and padded ids open Infrastructure Ask with a trimmed `findingId`.
@@ -15932,7 +16135,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **operational finding id** on findings rows — operational-security actions used raw `item.id` for factory/Ask/create links and `findingActionMessages` lookup while create flow keyed messages by trimmed id, so whitespace-only ids showed broken actions and padded ids could miss status text; trim gate shows omission copy and hides actions; regressions `shows finding id omission copy and hides operational actions when finding id is whitespace-only` and padded-id API/message parity; cheap-disproof closed remediation failure blockers (prior hit), overview `resourceGroup`/`region` formatter parity candidate deferred, and drift `changeType` exotic tag; scoped ResourceHubClient vitest 105/105. Private beta: on the resource hub findings tab, operators see “Finding id was not stored.” instead of dead factory or create links when capture stored only whitespace in finding `id`, and padded ids still wire remediation actions and status messages correctly.
@@ -15955,7 +16158,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **remediation create failure blockers** — `blockers.join(" ")` stayed truthy for whitespace-only entries so the UI skipped `errorMessage` and the generic `"Remediation create failed."` fallback and instead showed omission copy after `formatStoredInfraEvidenceHubField`; trim/filter blockers before join and trim `errorMessage` before fallback; regressions `shows generic remediation create failed when blockers are whitespace-only` and whitespace-only `errorMessage`; cheap-disproof closed remediation tab `instanceId` (prior hit), overview `resourceGroup`/`region` inline trim, and drift `changeType` normalize; scoped ResourceHubClient vitest 103/103. Private beta: after a failed create-remediation from a finding, operators see the generic failure line instead of “Remediation action message was not stored.” when the API returns only whitespace blockers or error text.
@@ -15978,7 +16181,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **remediation tab instanceId** on listed instances — remediation rows always rendered factory/Ask links using raw `item.instanceId` so whitespace-only ids produced broken workbench handoffs; trim gate hides actions and shows omission copy; regression `does not show remediation tab factory links when instanceId is whitespace-only`; cheap-disproof closed create-from-finding `instanceId` (prior hit), failure `blockers.join` (status formatter), and overview `resourceGroup` inline trim; scoped ResourceHubClient vitest 102/102. Private beta: on the resource hub remediation tab, operators see “Remediation instance id was not stored.” instead of misleading factory links when capture stored only whitespace in `instanceId`.
@@ -16001,7 +16204,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **remediation instanceId** after successful create-from-finding — `instanceId != null` let whitespace-only ids render a broken “Open in factory” link without a usable `instanceId` query param; trim gate when storing success message and before link; regression `does not show Open in factory when create remediation returns whitespace-only instanceId`; cheap-disproof closed blocker-join failure text (status formatter), confirm `resourceTitle` (path segment trim + display normalizer), and drift `changeType` whitespace; scoped ResourceHubClient vitest 101/101. Private beta: after creating remediation from a finding, operators no longer see a factory link when the API returns only whitespace in `instanceId`.
@@ -16024,7 +16227,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **finding title** in create-remediation confirm dialog — table row already used omission copy but `findingTitle` prop passed raw `title` so dialog `<dd>` showed whitespace; `formatStoredInfraEvidenceHubField` on confirm payload; regression `shows finding title omission copy in create-remediation confirm dialog when title is whitespace-only`; cheap-disproof closed drift `changeType` (normalize already maps to “Change type was not stored.”), blocker-join failure message (display formatter covers), and network `relationshipType` (prior regression); scoped ResourceHubClient vitest 100/100. Private beta: confirming remediation create from a finding with a blank stored title shows “Finding title was not stored.” in the dialog instead of an empty Finding line.
@@ -16047,7 +16250,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **drift riskClassification** on drift tab — `riskClassification != null` let whitespace-only values render an empty `SeverityTag` instead of omission copy; trim gate before tag vs “Risk classification was not stored.”; regression `shows drift risk omission copy when riskClassification is whitespace-only`; cheap-disproof closed finding blocker-join (display formatter covers), pending dialog title (trim gate), and work queue banner (no repro); scoped ResourceHubClient vitest 99/99. Private beta: drift rows show “Risk classification was not stored.” when capture stored only whitespace in `riskClassification`.
@@ -16070,7 +16273,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **finding remediation action message** on findings tab — per-finding status paragraph rendered `findingActionMessages[id].message` raw so whitespace-only `errorMessage` / blocker join produced an empty `<p role="status">`; use `formatStoredInfraEvidenceHubField`; regression `shows remediation action omission copy when create remediation returns whitespace-only errorMessage`; cheap-disproof closed hub load error (prior hit), drift `riskClassification` (seeded below), and pending dialog title trim (already gated); scoped ResourceHubClient vitest 98/98. Private beta: after create-remediation from a finding, operators see “Remediation action message was not stored.” instead of a blank status line when the API returns only whitespace.
@@ -16094,7 +16297,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16133,7 +16336,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16158,7 +16361,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16183,7 +16386,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16208,7 +16411,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16233,7 +16436,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16258,7 +16461,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16283,7 +16486,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16308,7 +16511,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16333,7 +16536,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16358,7 +16561,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16383,7 +16586,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16408,7 +16611,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16433,7 +16636,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16458,7 +16661,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16483,7 +16686,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16508,7 +16711,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16533,7 +16736,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16558,7 +16761,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16575,7 +16778,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16600,7 +16803,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16625,7 +16828,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16650,7 +16853,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16675,7 +16878,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16700,7 +16903,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16725,7 +16928,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16750,7 +16953,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16793,11 +16996,11 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 0
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **hunts:** 5
+- **bugs-found:** 3
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 2026-10-20 seed hunt (seed→hit): promoted failed reload stale hub candidate; regression `clears_hub_evidence_when_a_newer_URL_selection_fails_to_load`; 55 scoped ResourceHubClient tests passed.
 
 - **related-pd-tb:** none
@@ -16945,6 +17148,28 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-claim-discipline-policy
 
+2026-11-24 thorough hunt #501 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-44 `(candidate)` monitors — **valid-no-repro** Terraform TOC/orientation parity (visible `help-governance-infrastructure-terraform` band intentionally keeps claim TOC row; `HelpGovernanceInfrastructureTerraformGuideView` regression asserts heading ids and orientation strip); **invalid** mismatched `claimHeadingId` on omitted infra slug (all `help-governance-infrastructure-*` guides use visible bands with matching `GOVERNANCE_INFRASTRUCTURE_*_CLAIM_HEADING_ID` constants); **valid-no-repro** infra omit-set sibling drift-only (`passes governance infrastructure drift help claim through for visible-band orientation slug`; terraform/resources/diagrams share visible-band pattern); **valid-no-repro** admin `part="sources"` / omitted slugs (`administration settings evidence strips` regressions; `resolveClaimDisciplineForStrip` suppresses duplicate claim while sources render); **invalid** whitespace-padded slug (registry `stripSlug` values are static literals with no padded config/OpenAPI source). Reseeded five pass-45 `(candidate)` monitors below. Scoped vitest **44/44** (`claim-discipline-policy.test.ts`, `administration-settings-claim-discipline-strips.test.tsx`, `HelpGovernanceInfrastructureTerraformGuideView.test.tsx`). Private beta: n/a.
+
+- [x] (valid-no-repro) `HelpGovernanceInfrastructureTerraformGuideView` — TOC keeps claim heading id while header paragraph repeats orientation claim — **cheap-disproof 2026-11-24 thorough hunt #501:** visible-band infra help design; guide regression + orientation strip claim heading id matches TOC.
+- [x] (invalid) `resolveGuideHeadingsForStrip` — mismatched `claimHeadingId` constant leaves orphan TOC anchor on omitted infra help slug — **cheap-disproof 2026-11-24 thorough hunt #501:** no omitted `help-governance-infrastructure-*` slug; filter only applies when band omitted.
+- [x] (valid-no-repro) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` — newly shipped `help-governance-infrastructure-*` sibling omits drift only while others stay visible — **cheap-disproof 2026-11-24 thorough hunt #501:** drift visible by design; policy regression above.
+- [x] (valid-no-repro) `EvidenceOrientationSourcesAndClaimStrip` — `part="sources"` on visible slug suppresses claim while header fold omits bottom band — **cheap-disproof 2026-11-24 thorough hunt #501:** admin settings sources-only strips + `resolveClaimDisciplineForStrip` on omitted slugs (hunt **#43** family).
+- [x] (invalid) `shouldOmitClaimDisciplineBand` — whitespace-padded stripSlug misses omit set exact key — **cheap-disproof 2026-11-24 thorough hunt #501:** no reachable padded slug input; literals only.
+
+- [ ] (candidate) `EvidenceOrientationClaimAndSourcesStrip` — `!whereToGoNextVisible && resolvedClaim === undefined` returns null and drops sources on visible workbench slugs — locus: early return; input: working workspace + sources-only infra strip (monitor).
+- [ ] (candidate) `resolveGuideHeadingsForStrip` — help guide uses `help-governance-infrastructure-*` slug while workbench orientation uses registry slug without `help-` prefix — locus: dual slug surfaces; input: terraform/resources workbench pair (monitor).
+- [ ] (candidate) `EvidenceOrientationClaimCallout` — omitted `claimHeadingId` defaults to `{slug}-claim-discipline-heading` diverging from help guide TOC constants — locus: default anchor; input: marketing `part="claim"` strips (monitor).
+- [ ] (candidate) `expectsVisibleClaimDisciplineBand` — new artifact export slug ships without omit entry while print orientation must stay visible — locus: omit set growth; input: package-print exception pattern (monitor).
+- [ ] (candidate) `resolveGuideHeadingsForStrip` — guide passes strip slug A while footer orientation strip passes alias B on same page — locus: alias map; input: cloud-connections help family (monitor).
+
+2026-11-24 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone **`ui-infra-resource-hub`** at run-log tail after hunt **#494** hit). Reread `claim-discipline-policy.ts`, infrastructure help guide `resolveGuideHeadingsForStrip` call sites, orientation strip registry, and focused tests; cheap-disproof closed three pass-43 `(candidate)` monitors — **valid-no-repro** specialty walkthrough header/TOC parity (`drops specialty walkthrough claim TOC row when help-specialty-walkthroughs omits the orientation band`; `does not list a claim-discipline TOC entry on the specialty walkthrough catalog headings`), **valid-no-repro** empty visible-band claim shell (`still renders an empty claim callout shell when claim prop is an empty string on a visible slug`), **valid-no-repro** legacy alias drift (`omits legacy orientation strip slug aliases that differ from registry help-topic slugs`). No row met hunt-ready; reseeded five pass-44 `(candidate)` monitors below. Scoped **51/51** (`claim-discipline-policy.test.ts`, `EvidenceOrientationClaimAndSourcesStrip.test.tsx`, `administration-settings-claim-discipline-strips.test.tsx`). Private beta: n/a.
+
+- [x] (superseded) pass-44 (candidate) queue — **superseded 2026-11-24 thorough hunt #501:** closed at zone header; see pass-45 reseed.
+
+- [x] (valid-no-repro) `resolveGuideHeadingsForStrip` — buyer-polished specialty walkthrough header claim lacks anchor id matching filtered TOC — locus: header vs TOC parity; input: HS shell only (monitor). — **cheap-disproof 2026-11-24 seed hunt:** specialty walkthrough TOC + heading filter regressions (hunt **#43** family).
+- [x] (valid-no-repro) `EvidenceOrientationSourcesAndClaimStrip` — `part="both"` with empty claim still renders empty callout — locus: split vs combined parts; input: registry strips using `claim=""` (monitor). — **cheap-disproof 2026-11-24 seed hunt:** intentional empty callout shell regression (hunt **#43** family).
+- [x] (valid-no-repro) `CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES` — alias target removed from omit set leaves legacy slug visible — locus: alias map drift; input: policy edit regression (monitor). — **cheap-disproof 2026-11-24 seed hunt:** legacy alias unit coverage (hunt **#43** family).
+
 2026-10-30 thorough hunt #43 (dry): cheap-disproof closed the three seeded candidates — specialty walkthrough heading/TOC parity is covered by `drops specialty walkthrough claim TOC row`, empty visible claims are explicitly covered by the evidence-orientation regression, and policy alias behavior is covered by the legacy alias tests. Focused claim-discipline and orientation suites passed 40/40; no production code changed.
 
 - [x] (valid-no-repro) `resolveGuideHeadingsForStrip` — buyer-polished specialty walkthrough header claim lacks anchor id matching filtered TOC — **cheap-disproof 2026-10-30 thorough hunt #43:** `drops specialty walkthrough claim TOC row when help-specialty-walkthroughs omits the orientation band` covers the omitted-band heading filter.
@@ -16953,9 +17178,6 @@ ABQ-09 churn hotspot.
 
 2026-10-30 thorough hunt #2 (dry): cheap-disproof closed three open `(candidate)` rows — specialty walkthrough catalog never listed a claim TOC row (`does not list a claim-discipline TOC entry on the specialty walkthrough catalog headings`; `resolveGuideHeadingsForStrip` would drop the heading when omitted); empty-string `claim` on visible slugs still mounts the callout shell by design, while split `part="sources"` strips suppress claim (`still renders an empty claim callout shell when claim prop is an empty string on a visible slug`, `SecurityTrustEvidenceOrientationStrip` regression); help registry slug scan found zero header-claim topics missing from `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS`. Reseeded three follow-on `(candidate)` rows. 33 scoped tests across `claim-discipline-policy`, orientation strip, and specialty walkthrough suites passed; no production code changed.
 
-- [ ] (candidate) `resolveGuideHeadingsForStrip` — buyer-polished specialty walkthrough header claim lacks anchor id matching filtered TOC — locus: header vs TOC parity; input: HS shell only (monitor).
-- [ ] (candidate) `EvidenceOrientationSourcesAndClaimStrip` — `part="both"` with empty claim still renders empty callout — locus: split vs combined parts; input: registry strips using `claim=""` (monitor).
-- [ ] (candidate) `CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES` — alias target removed from omit set leaves legacy slug visible — locus: alias map drift; input: policy edit regression (monitor).
 
 2026-10-30 thorough hunt (dry): re-promoted the three open `(candidate)` rows — repo scan of orientation `slug` props found zero legacy alias gaps (`Legacy alias gaps: []`); specialty infra help guides such as `help-governance-infrastructure-drift` intentionally keep visible bands where the orientation strip owns the sole claim (`passes governance infrastructure drift help claim through for visible-band orientation slug`); undefined claim passthrough on visible slugs remains intentional for sources-only strips (`allows undefined claim passthrough on visible slugs when callers omit copy`). Reseeded three follow-on `(candidate)` rows. 31 scoped `claim-discipline-policy` tests passed; no production code changed.
 
@@ -16971,11 +17193,11 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 0
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **hunts:** 5
+- **bugs-found:** 2
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -17100,19 +17322,41 @@ ABQ-09 churn hotspot.
 2026-10-03 thorough hunt (dry): `securenow-question-queue` — cheap-disproved the empty-`AzureResourceId` candidate because inventory resource identifiers are non-nullable at the model and database boundary; the scoped test project could not compile because of unrelated pre-existing ARCH006/ARCH006a analyzer errors across Persistence.
 
 ## Zone: securenow-question-queue
+2026-11-24 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted pass-47 `secureNowQuestionDispositionResponseResourceIdMatchesRequest` ARM resource id casing drift — POST validator used ordinal equality while Application `NormalizeResourceId` uses `ToLowerInvariant`; case-insensitive match after trim; regressions `treats case-only resource id differences as matching the submitted request` and `accepts POST answer when response resource id differs only by case from the submitted write`. Cheap-disproof closed four sibling pass-47 monitors (**invalid** MERGE, **invalid** optimistic merge, **valid-no-repro** fingerprint case, **valid-no-repro** list envelope). Reseeded five pass-48 `(candidate)` monitors below. Scoped vitest **151/151**. Private beta: SecureNow resource-scope saves no longer fail silently on lowercased ARM resource ids from the API.
+
+- [x] (proven) `secureNowQuestionDispositionResponseResourceIdMatchesRequest` — ARM resource id case drift — **hit 2026-11-24 seed hunt.**
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — MERGE collision — **cheap-disproof 2026-11-24 seed hunt.**
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge — **cheap-disproof 2026-11-24 seed hunt.**
+- [x] (valid-no-repro) `secureNowQuestionDispositionResponseEvidenceFingerprintMatchesRequest` — fingerprint case — **cheap-disproof 2026-11-24 seed hunt.**
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — `{ items }` envelope — **cheap-disproof 2026-11-24 seed hunt.**
+
+- [ ] (candidate) `reopenSecureNowQuestion` — reopen POST resource id casing — monitor.
+- [ ] (candidate) `secureNowQuestionDispositionResponseSourceMatchesRequest` — source casing on POST — monitor.
+- [ ] (candidate) `secureNowQuestionDispositionResponseScopeKindMatchesRequest` — scope kind casing — monitor.
+- [ ] (candidate) `ignoreSecureNowQuestion` — dismiss POST resource id casing — monitor.
+- [ ] (candidate) `SecureNowQuestionCompiler` — list resourceId vs normalized join — monitor.
+
+2026-11-24 thorough hunt #496 (hit): no rotation (shouldRotate: false; reason: No low-yield streak; keep default picker choice.; streak zone ui-infra-resource-hub at run-log tail is 1/3 dry before this record). Promoted pass-46 secureNowQuestionDispositionResponseSubscriptionIdMatchesRequest casing drift — POST disposition validator compared subscription ids with ordinal equality while Application identity and disposition writes normalize with ToLowerInvariant; successful answers could return undefined when the API returned lowercase subscription GUIDs. Case-insensitive match after trim; regressions treats case-only subscription id differences as matching the submitted request and accepts POST answer when response subscription id differs only by case from the submitted write. Cheap-disproof closed four sibling pass-46 monitors — valid-no-repro reopen snapshot trim (secureNowQuestionListedSnapshotMatchesContext + POST trim regression family), valid-no-repro list status casing (secureNowQuestionDispositionStatusCanonical lowercases), valid-no-repro reopen QuestionKey echo (shared POST key matcher family from seed hunt), valid-no-repro provider mutation focus after POST (reload-only identity; key matcher parity). Reseeded five pass-47 (candidate) rows. Scoped vitest 148/148 securenow-question-queue-api.test.ts. Private beta: SecureNow answer save no longer fails silently when the disposition API returns a normalized lowercase subscription id while the operator submitted mixed-case ARM subscription scope.
+
 2026-11-24 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone **`securenow-question-queue`** was **1/3** seed-only at tail). Promoted pass-45 compiler/UI **`NormalizeQuestionKey`** casing drift — POST disposition validator compared question keys with ordinal equality while Application persists **`ToLowerInvariant`**; successful answers could return `undefined` when list JSON carried mixed case. Case-insensitive match in `secureNowQuestionDispositionResponseQuestionKeyMatchesRequest`; regressions on matcher + answer POST path. Cheap-disproof closed four sibling pass-45 monitors — **valid-no-repro** reopen source/scope gate (reopen write omits `source`; `isUsable` still validates stored fields), **valid-no-repro** inferred fingerprint preflight vs answer write (intentional list exemption), **invalid** NoOp repository on InMemory host, **valid-no-repro** whitespace `expectedListedDispositionId` skip (regression family). Reseeded five pass-46 `(candidate)` rows. Scoped vitest **146/146** `securenow-question-queue-api.test.ts`. Product commit **`18261c6f69`**. Private beta: SecureNow save after answer no longer fails silently when the API returns a normalized lowercase question key.
 
-- [ ] (candidate) `secureNowQuestionDispositionResponseSubscriptionIdMatchesRequest` — subscription id case drift vs server `Normalize` ToLowerInvariant — locus: POST match; monitor; pass-46 reseed.
-- [ ] (candidate) `reopenSecureNowQuestion` — POST reopen accepts response when listed snapshot id trim mismatches active context — locus: snapshot guard; monitor; pass-46 reseed.
-- [ ] (candidate) `listSecureNowQuestions` — status string with mixed casing dropped from review filters — locus: status map; input: `Open` vs `open`; monitor; pass-46 reseed.
-- [ ] (candidate) `SecureNowQuestionDispositionService.ReopenAsync` — reopen returns stored mixed-case `QuestionKey` without re-normalizing — locus: reopen record echo; monitor; pass-46 reseed.
-- [ ] (candidate) `securenow-question-queue-provider` — mutation reload focus when answered row question key casing changes after POST — locus: identity focus; monitor; pass-46 reseed.
+- [x] (proven) `secureNowQuestionDispositionResponseSubscriptionIdMatchesRequest` — subscription id case drift vs server Normalize ToLowerInvariant — **hit 2026-11-24 thorough hunt #496:** case-insensitive match after trim; regressions above.
+- [x] (valid-no-repro) `reopenSecureNowQuestion` — POST reopen accepts response when listed snapshot id trim mismatches active context — **cheap-disproof 2026-11-24 thorough hunt #496:** `secureNowQuestionListedSnapshotMatchesContext` trims both sides; POST regression `accepts POST answer responses when the snapshot id matches after trim`.
+- [x] (valid-no-repro) `listSecureNowQuestions` — status string with mixed casing dropped from review filters — **cheap-disproof 2026-11-24 thorough hunt #496:** `secureNowQuestionDispositionStatusCanonical` lowercases before open/answered/dismissed classification.
+- [x] (valid-no-repro) `SecureNowQuestionDispositionService.ReopenAsync` — reopen returns stored mixed-case `QuestionKey` without re-normalizing — **cheap-disproof 2026-11-24 thorough hunt #496:** UI POST validator uses case-insensitive question key matcher (seed hunt family); server echo casing does not reject reopen.
+- [x] (valid-no-repro) `securenow-question-queue-provider` — mutation reload focus when answered row question key casing changes after POST — **cheap-disproof 2026-11-24 thorough hunt #496:** reload-only provider; POST acceptance now case-insensitive on keys and subscription ids.
 
 - [x] (proven) `SecureNowQuestionCompiler.NormalizeQuestionKey` / `secureNowQuestionDispositionResponseQuestionKeyMatchesRequest` — UI ordinal POST key match vs compiler/service ToLowerInvariant — **hit 2026-11-24 seed hunt:** case-insensitive matcher; regressions `treats case-only question key differences as matching` and `accepts POST answer when response question key differs only by case from the submitted write`.
 - [x] (valid-no-repro) `reopenSecureNowQuestion` — POST response `source`/`scopeKind` not matched to write body — **cheap-disproof 2026-11-24 seed hunt (pass-45):** reopen omits `source`; response still must pass `isUsable`.
 - [x] (valid-no-repro) `secureNowListedQuestionRowPassesOpenMutationPreflight` — inferred fingerprint skip vs answer POST — **cheap-disproof 2026-11-24 seed hunt (pass-45):** intentional inferred-connection list gate; answer supplies fingerprint.
 - [x] (invalid) `NoOpSecureNowQuestionDispositionRepository` — InMemory host drops dispositions — **cheap-disproof 2026-11-24 seed hunt (pass-45):** by-design dev binding; pilot uses SQL.
 - [x] (valid-no-repro) `secureNowQuestionDispositionResponseListedDispositionIdMatches` — whitespace-only expected id skips check — **cheap-disproof 2026-11-24 seed hunt (pass-45):** regression `skips validation when the listed row has no stored disposition id`.
+
+
+- [x] (superseded) pass-46 `(candidate)` queue — **superseded 2026-11-24 thorough hunt #496 (hit):** closed at zone header; see pass-47 reseed.
+
+- [x] (superseded) pass-47 `(candidate)` queue — **superseded 2026-11-24 seed hunt (seed→hit):** closed at zone header; see pass-48 reseed.
+
 
 - [x] (superseded) pass-45 `(candidate)` queue — **superseded 2026-11-24 seed hunt (seed→hit):** closed at zone header; see pass-46 reseed.
 2026-11-24 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone **`ui-lib-api`** at run-log tail). Reread queue API, provider, compiler, and disposition service paths; closed five pass-44 `(candidate)` monitors from hunt **#494** reseed via cheap-disproof (MERGE integration **invalid**; subscription list/compiler drift **valid-no-repro**; inferred-connection reload **valid-no-repro**; open keyed preflight drop **valid-no-repro**; optimistic JSON merge **invalid**). No row met hunt-ready; reseeded five pass-45 `(candidate)` monitors below. Scoped vitest **145/145** (`securenow-question-queue-api.test.ts`, `securenow-question-queue-provider.test.ts`). Private beta: n/a.
@@ -19191,7 +19435,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -19216,7 +19460,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -19241,7 +19485,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -19266,7 +19510,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -19291,7 +19535,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -19310,7 +19554,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -19329,7 +19573,7 @@ ABQ-09 churn hotspot.
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -19348,7 +19592,7 @@ ABQ-09 churn hotspot.
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -19481,7 +19725,7 @@ ABQ-09 churn hotspot.
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
 - **consecutive-dry-hunts:** 0
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -19537,11 +19781,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 4
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -19659,7 +19903,10 @@ ABQ-09 churn hotspot.
 - [x] (proven) `secureNowQuestionDispositionShowsAnswerActions` / open queue filters — omitted `status` with stored answer metadata still showed answer chrome and counted as open after hunt #83; infer closed metadata from answer fields when status is trimmed-null; regressions `shows stored answer metadata instead of answer actions when status is omitted but answer fields are stored` and `excludes rows with omitted status but stored answer metadata from the open queue`.
 - [x] (proven) `SecureNowQuestionQueue` / `securenow-question-queue-provider` — list payloads could carry `isExpired: false` while `expirationUtc` was already in the past, so details read “Not expired” and open filtering kept stale rows until reload; `secureNowQuestionShowsExpired`; regressions `returns true when expirationUtc is in the past even if isExpired is false` and `marks expiration as expired in details when expirationUtc is past but isExpired is false`.
 ## Zone: infra-evidence-diagrams
+2026-11-24 seed hunt (seed→hit): no rotation (shouldRotate: false; reason: No low-yield streak; keep default picker choice.). Promoted pass-29 dependency seed blocked dialog stale after successful render retry — the neighborhood blocked-reason effect set the modal when resolveDependencyNeighborhoodSeedBlockedReason returned a value but never cleared it when a later render succeeded; add else branch to clear dependencySeedBlockedDialog when blockedReason is null; regression dismisses the dependency seed blocked dialog after a successful render retry. Cheap-disproof closed four sibling pass-29 monitors — valid-no-repro subscription filter retry vs stale preview (loadGeneration in preview deps plus selectedSnapshotIdRef guards; hunt #496 family), valid-no-repro deep-linked missing snapshot vs seed blocked dialog (deepLinkedSnapshotMissing suppresses render; selectedSnapshotId effect clears dialog), valid-no-repro declared panel during connections load error (fetch effect cancels; error state on declared edge panel), valid-no-repro URL snapshot hydration vs blocked dialog (selectedSnapshotId clear effect from pass-28 hit). Reseeded five pass-30 (candidate) rows. Scoped vitest 67/81 DiagramsWorkbenchClient (15 pre-existing failures unchanged). Private beta: invited operators who retry a failed dependency-neighborhood render no longer keep the stale blocked modal after the diagram succeeds.
 
+
+2026-11-24 thorough hunt (hit): no rotation (`shouldRotate: false`). Promoted pass-28 dependency seed blocked dialog after snapshot navigation — the modal from an empty neighborhood on snapshot A stayed open after the snapshot picker moved to snapshot B because neither `handleSnapshotChange` nor URL-driven snapshot updates cleared `dependencySeedBlockedDialog`; clear it when `selectedSnapshotId` changes; regression `dismisses the dependency seed blocked dialog when the snapshot picker changes`; cheap-disproof closed the other four pass-28 monitors (preview/render guards, mode change clears `mermaidView`, outline swap clears declared-edge fetch, camera focus nonce gated on non-empty focus ids). DiagramsWorkbenchClient targeted vitest 3/3 on seed-blocked regressions. Private beta: invited operators who change infra diagram snapshots no longer see a stale dependency-neighborhood blocked modal tied to the prior snapshot.
 2026-11-24 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Continuation on pass-27 monitors. Cheap-disproof closed all five — **valid-no-repro** `loadSeedCatalog` stale apply (effect `cancelled` + catalog reset on snapshot; catalog regressions), **valid-no-repro** `loadPreview` `finally`/`loadingPreview` (hunt **#496** family), **valid-no-repro** `loadRender` stuck flag (regression `drops stale in-flight render when URL snapshot id changes before the prior request completes`), **valid-no-repro** outline unknown-filter on cleared seed (reset effect on `startingResourceSeedId`), **invalid** inert `evidenceFamily` URL when filter disabled. Reseeded five pass-28 `(candidate)` monitors. Scoped vitest **96/111** (15 pre-existing workbench failures). Private beta: n/a.
 
 - [x] (valid-no-repro) `DiagramsWorkbenchClient.loadSeedCatalog` — pass-27 monitor — **cheap-disproof 2026-11-24 seed hunt:** cancellation + catalog reset.
@@ -19668,11 +19915,11 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `InfraEvidenceDiagramOutline` unknown-filter scope — pass-27 monitor — **cheap-disproof 2026-11-24 seed hunt:** seed clear effect.
 - [x] (invalid) `DiagramsWorkbenchClient` `evidenceFamily` URL when filter off — pass-27 monitor — **cheap-disproof 2026-11-24 seed hunt:** inert param.
 
-- [ ] (candidate) `DiagramsWorkbenchClient` — `loadGeneration` retry vs slow preview — monitor; pass-28.
-- [ ] (candidate) `DiagramsWorkbenchClient` — `mermaidView` URL after mode change — monitor; pass-28.
-- [ ] (candidate) `DiagramsWorkbenchClient` — seed blocked dialog after snapshot change — monitor; pass-28.
-- [ ] (candidate) `InfraEvidenceDiagramOutline` — declared-connections fetch vs outline swap — monitor; pass-28.
-- [ ] (candidate) `DiagramsWorkbenchClient` — camera focus nonce without focus nodes — monitor; pass-28.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — `loadGeneration` retry vs slow preview — **cheap-disproof 2026-11-24 thorough hunt:** preview effect cancels in-flight fetches and resets snapshot-scoped preview state on `selectedSnapshotId` change (hunt **#496** family).
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — `mermaidView` URL after mode change — **cheap-disproof 2026-11-24 thorough hunt:** `handleModeChange` / `handleResourceGroupPickerChange` strip `mermaidView` via `syncUrl`.
+- [x] (proven) `DiagramsWorkbenchClient` — seed blocked dialog after snapshot change — **hit 2026-11-24 thorough hunt:** clear `dependencySeedBlockedDialog` when `selectedSnapshotId` changes; regression `dismisses the dependency seed blocked dialog when the snapshot picker changes`.
+- [x] (valid-no-repro) `InfraEvidenceDiagramOutline` — declared-connections fetch vs outline swap — **cheap-disproof 2026-11-24 thorough hunt:** outline `useEffect` clears `selectedDeclaredEdge` and `declaredConnections` on `outline` change; fetch effect uses `cancelled` guard.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — camera focus nonce without focus nodes — **cheap-disproof 2026-11-24 thorough hunt:** `cameraFocusNonce` bumps only when `cameraFocusNodeIds.length > 0`.
 
 2026-11-24 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone **`securenow-question-queue`** cleared by hit at tail). Reread DiagramsWorkbenchClient and InfraEvidenceDiagramOutline; closed five pass-26 `(candidate)` monitors — **valid-no-repro** seed catalog stale apply (regressions `does not keep the prior snapshot executive seed catalog after the snapshot picker changes` and `refreshes dependency seed catalog when the URL snapshot id changes`; `seedCatalogOutline` reset on `selectedSnapshotId`), **valid-no-repro** `loadingPreview` stuck (preview `finally` respects effect cancellation; missing-snapshot path disables mode picker via `diagramTypePickerEnabled`), **valid-no-repro** PNG export snapshot mismatch (`runPngExport` uses current `selectedSnapshotId`; regression `passes the active render query to PNG export`), **valid-no-repro** declared edge panel with cleared inventory selection (inventory panel is controlled; declared selection is independent by design), **valid-no-repro** family chip on zero-edge snapshot (`resolveSelectableInfraEvidenceDiagramFamily` + URL sync effect; regression `falls back to All when the selected family has no edges on the diagram`). No hunt-ready row promoted; reseeded five pass-27 `(candidate)` monitors. Scoped vitest **64/79** DiagramsWorkbenchClient + **32/32** InfraEvidenceDiagramOutline (15 pre-existing workbench failures unrelated to this pass). Private beta: n/a.
 
@@ -19692,11 +19939,11 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 1
-- **bugs-found:** 0
+- **hunts:** 3
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
-- **last-bug:** never
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -19745,6 +19992,12 @@ ABQ-09 churn hotspot.
 
 2026-10-08 seed hunt (hit): Full subscription Show network details was dropped before compile. Merge kept a false default when another display flag built compile options, and the peel-budget options copy omitted IncludeNetworkDetails on every render. Regression `Render_full_subscription_keeps_network_details_when_another_display_flag_is_set` passed with the preview-flag regression.
 
+
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — subscription filter retry vs stale preview — **cheap-disproof 2026-11-24 seed hunt (seed→hit):** loadGeneration in preview effect deps; selectedSnapshotIdRef on apply (hunt #496 family).
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — deep-linked missing snapshot vs seed blocked dialog — **cheap-disproof 2026-11-24 seed hunt (seed→hit):** deepLinkedSnapshotMissing skips render/preview; selectedSnapshotId clears dialog.
+- [x] (proven) `DiagramsWorkbenchClient` — render retry generation vs stale blocked dialog — **hit 2026-11-24 seed hunt (seed→hit):** clear dialog when blockedReason is null; regression above.
+- [x] (valid-no-repro) `InfraEvidenceDiagramOutline` — declared panel open during connections load error — **cheap-disproof 2026-11-24 seed hunt (seed→hit):** declared fetch uses cancelled guard; connectionsError surfaces on panel.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — URL snapshot hydration vs blocked dialog — **cheap-disproof 2026-11-24 seed hunt (seed→hit):** selectedSnapshotId effect clears dialog (pass-28 family).
 ### Hypotheses
 
 - [x] (proven) `InfraEvidenceSnapshotMermaidService.TryGetPreviewAsync` — a reachable preview request with `includeRecoveryServices=true`, `includeCrossGroupFanOut=true`, or `includeAvdAssets=true` rendered modes without those compile options because only `includePrivateEndpointNodes` was forwarded; fixed by merging all display flags into preview compile options; regression `Preview_applies_all_requested_display_flags_to_mode_renders`
@@ -19803,21 +20056,50 @@ ABQ-09 churn hotspot.
 2026-10-03 seed hunt (seed-only): `ui-architecture-diagram` — re-read diagram focus, model/override, neighborhood-map generation/parsing, storage, and existing tests; generator aggregation invalidated duplicate-link and duplicate-type-key candidates, while no remaining candidate met the same-run repro bar. 18 focused tests passed.
 
 ## Zone: ui-architecture-diagram
+2026-11-24 thorough hunt #500 (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted pass-3 monitor legacy node overrides without `entityFingerprint`. Id-only overrides still matched after reorder when live nodes carried fingerprints, reintroducing the duplicate-label mis-removal class for device-local storage saved before the fingerprint ship. `resolveArchitectureDiagramNodeOverride` now skips id fallback when the live node has a fingerprint but the override does not. Regression `ignores legacy id-only node overrides when the live node has an entity fingerprint` failed first; override-edge **3/3**, click-focus **5/5**, connector-visibility **1/1**. Cheap-disproof closed four pass-3 monitors — **valid-no-repro** `outlineNodeMatchesDomFocus` duplicate title (no cited duplicate forest outline), **valid-no-repro** detail whitespace fingerprint (trim alignment on label and detail), **valid-no-repro** `architectureDiagramNodeOverrideKey` cross-kind collision (override key includes `kind`), **valid-no-repro** unlabeled `node_${index}` path (id fallback remains for fingerprintless nodes; monitor). Reseeded five pass-4 `(candidate)` monitors. Private beta: Older saved diagram node hides that lack fingerprints no longer remove a different duplicate-labeled entity after the brief reorders.
+
+- [x] (proven) `applyArchitectureDiagramOverrides` — legacy node overrides without `entityFingerprint` attach after reorder — **hit 2026-11-24 thorough hunt #500:** skip id fallback when live node has fingerprint; regression above.
+- [x] (valid-no-repro) `outlineNodeMatchesDomFocus` — first outline node wins a shared title token — **cheap-disproof 2026-11-24 thorough hunt #500:** monitor; no reachable duplicate forest fixture.
+- [x] (valid-no-repro) `buildArchitectureDiagramNodeEntityFingerprint` — detail whitespace collapse — **cheap-disproof 2026-11-24 thorough hunt #500:** fingerprint uses same trim as model build.
+- [x] (valid-no-repro) `architectureDiagramNodeOverrideKey` — same label across kinds — **cheap-disproof 2026-11-24 thorough hunt #500:** key includes `kind` and `provenance`.
+- [x] (valid-no-repro) `applyArchitectureDiagramOverrides` — unlabeled `node_${index}` overrides — **cheap-disproof 2026-11-24 thorough hunt #500:** id fallback retained when fingerprint empty on both sides.
+
+- [ ] (candidate) `applyArchitectureDiagramOverrides` — two unlabeled entities share empty fingerprint and one removal hides both — locus: fingerprint map; input: duplicate `\u001f` keys; wrong outcome: both nodes removed; reachability: blank-label entity pairs (monitor).
+- [ ] (candidate) `outlineNodeMatchesDomFocus` — first outline node wins a shared title token — locus: outline walk; input: two nodes whose labels normalize to the same token; wrong outcome: click dimming uses the earlier node; reachability: forest outline with duplicate display names (monitor).
+- [ ] (candidate) `buildArchitectureDiagramNodeEntityFingerprint` — label trim diverges from display label normalization — locus: `resolveArchitectureDiagramNodeDisplayLabel`; input: decorative whitespace label; wrong outcome: override miss; reachability: asserted entities with odd label padding (monitor).
+- [ ] (candidate) `resolveArchitectureDiagramNodeOverride` — stale fingerprint on override with shifted id — locus: fingerprint map without id guard; input: override fingerprint matches wrong positional id; wrong outcome: mis-apply removal; reachability: edited brief after override save (monitor).
+- [ ] (candidate) `sanitizeNodeId` — duplicate blank labels collide on `system_node_N` suffix — locus: `usedIds` suffix loop; input: three unlabeled entities; wrong outcome: override targets wrong suffix; reachability: multiple blank entities (monitor).
+
+2026-11-24 thorough hunt #499 (hit): rotation (`shouldRotate: true`; reason: *3x seed-only on `ui-webhooks-settings`*). Promoted pass-2 monitor `applyArchitectureDiagramOverrides` — node overrides keyed only by generated id. Duplicate-labeled entities with different detail text lost the wrong node when brief entity order changed (same class as the prior edge endpoint-key fix). Overrides now resolve by `entityFingerprint` (`label` + detail) before positional id. Regression `applies node removal by entity fingerprint when positional node ids shift after reorder` failed first; override-edge **2/2**, click-focus **5/5**, connector-visibility **1/1**. Cheap-disproof closed four remaining pass-2 monitors. Reseeded five pass-3 `(candidate)` monitors. Private beta: operators who hide one of two same-labeled systems on the architecture diagram keep that specific queue hidden after the brief reorders entities, instead of removing the other duplicate.
+
+- [x] (proven) `applyArchitectureDiagramOverrides` — node overrides keyed only by generated id — **hit 2026-11-24 thorough hunt #499:** fingerprint match before id; regression `applies node removal by entity fingerprint when positional node ids shift after reorder`.
+- [x] (valid-no-repro) `outlineNodeMatchesDomFocus` — first outline node wins a shared title token — **cheap-disproof 2026-11-24 thorough hunt #499:** no cited duplicate forest title in reachable outline.
+- [x] (valid-no-repro) `readEdgeEndpointTokens` — bundle attributes win over `data-from`/`data-to` when both exist — **cheap-disproof 2026-11-24 thorough hunt #499:** bundle token helper regressions.
+- [x] (valid-no-repro) `resolveDiagramClickFocus` — bundled edge stays when any endpoint is kept — **cheap-disproof 2026-11-24 thorough hunt #499:** click-focus bundle regressions.
+- [x] (valid-no-repro) `sanitizeNodeId` — empty label uses `node_${index}` — **cheap-disproof 2026-11-24 thorough hunt #499:** labeled duplicate class closed by fingerprint; unlabeled monitor only.
+
+- [x] (candidate) `applyArchitectureDiagramOverrides` — legacy node overrides without `entityFingerprint` may attach to the wrong duplicate after reorder — locus: id-only fallback branch; input: stored override lacks fingerprint, two `Queue` nodes swap order; wrong outcome: removal follows id not intent; reachability: device-local overrides saved before fingerprint ship (monitor). — **superseded 2026-11-24 thorough hunt #500:** see hunt block above.
+- [x] (candidate) `outlineNodeMatchesDomFocus` — first outline node wins a shared title token — locus: outline walk; input: two nodes whose labels normalize to the same token; wrong outcome: click dimming uses the earlier node; reachability: forest outline with duplicate display names (monitor). — **superseded 2026-11-24 thorough hunt #500:** see hunt block above.
+- [x] (candidate) `buildArchitectureDiagramNodeEntityFingerprint` — detail whitespace collapse diverges from brief entity text — locus: trim/lowercase; input: detail with interior double spaces; wrong outcome: override fingerprint misses live node; reachability: edited entity detail strings (monitor). — **superseded 2026-11-24 thorough hunt #500:** see hunt block above.
+- [x] (candidate) `architectureDiagramNodeOverrideKey` — same label and detail across system vs stakeholder kinds — locus: kind in override key; input: duplicate fingerprint text on different kinds; wrong outcome: removal hits both kinds; reachability: mixed sections with colliding labels (monitor). — **superseded 2026-11-24 thorough hunt #500:** see hunt block above.
+- [x] (candidate) `applyArchitectureDiagramOverrides` — unlabeled `node_${index}` overrides after blank entity insert — locus: id fallback without fingerprint; input: insert unlabeled row before another; wrong outcome: wrong blank node removed; reachability: briefs with missing labels (monitor). — **superseded 2026-11-24 thorough hunt #500:** see hunt block above.
+
 
 2026-11-23 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Hit-rate cooldown waived (empty hypothesis queue). Reread overrides, click-focus, connector visibility, node id allocation, and SVG sanitize after the bundle-filter hit. No row met hunt-ready: duplicate-label node overrides are order-ambiguous (same label, kind, and provenance), and first-title outline matches need a cited duplicate forest title. Seeded five `(candidate)` monitors. Private beta: n/a.
 
-- [ ] (candidate) `applyArchitectureDiagramOverrides` — node overrides keyed only by generated id — locus: `nodeOverrideMap`; input: two systems share a label, operator removes `system_queue_1`, then entity order swaps; wrong outcome: the other queue is removed; reachability: brief entities with duplicate labels and device-local overrides (monitor; identity is not unique).
-- [ ] (candidate) `outlineNodeMatchesDomFocus` — first outline node wins a shared title token — locus: outline walk; input: two nodes whose labels normalize to the same token; wrong outcome: click dimming uses the earlier node; reachability: forest outline with duplicate display names (monitor).
-- [ ] (candidate) `readEdgeEndpointTokens` — bundle attributes win over `data-from`/`data-to` when both exist — locus: `??` preference; input: edge with disagreeing bundle and single endpoints; wrong outcome: family filter shows the wrong line; reachability: bundled private-endpoint SVG (monitor).
-- [ ] (candidate) `resolveDiagramClickFocus` — bundled edge stays when any endpoint is kept — locus: `from.some` and `to.some`; input: bundle `vault vault-2` to `vnet-a` while focus is `vault-2` only; wrong outcome: unrelated vault stays undimmed; reachability: forest bundle edges (monitor).
-- [ ] (candidate) `sanitizeNodeId` — empty label uses `node_${index}` — locus: id fallback; input: unlabeled entity inserted before another unlabeled node; wrong outcome: stored removal applies to a different blank node; reachability: sections with missing labels (monitor).
+- [x] (candidate) `applyArchitectureDiagramOverrides` — node overrides keyed only by generated id — locus: `nodeOverrideMap`; input: two systems share a label, operator removes `system_queue_1`, then entity order swaps; wrong outcome: the other queue is removed; reachability: brief entities with duplicate labels and device-local overrides (monitor; identity is not unique). — **superseded 2026-11-24 thorough hunt #499:** see hunt block above.
+- [x] (candidate) `outlineNodeMatchesDomFocus` — first outline node wins a shared title token — locus: outline walk; input: two nodes whose labels normalize to the same token; wrong outcome: click dimming uses the earlier node; reachability: forest outline with duplicate display names (monitor). — **superseded 2026-11-24 thorough hunt #499:** see hunt block above.
+- [x] (candidate) `readEdgeEndpointTokens` — bundle attributes win over `data-from`/`data-to` when both exist — locus: `??` preference; input: edge with disagreeing bundle and single endpoints; wrong outcome: family filter shows the wrong line; reachability: bundled private-endpoint SVG (monitor). — **superseded 2026-11-24 thorough hunt #499:** see hunt block above.
+- [x] (candidate) `resolveDiagramClickFocus` — bundled edge stays when any endpoint is kept — locus: `from.some` and `to.some`; input: bundle `vault vault-2` to `vnet-a` while focus is `vault-2` only; wrong outcome: unrelated vault stays undimmed; reachability: forest bundle edges (monitor). — **superseded 2026-11-24 thorough hunt #499:** see hunt block above.
+- [x] (candidate) `sanitizeNodeId` — empty label uses `node_${index}` — locus: id fallback; input: unlabeled entity inserted before another unlabeled node; wrong outcome: stored removal applies to a different blank node; reachability: sections with missing labels (monitor). — **superseded 2026-11-24 thorough hunt #499:** see hunt block above.
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. Evidence-family filtering hid every bundled forest edge because `applyConnectorVisibility` read only `data-from`/`data-to` while the generator emits `data-bundle-from`/`data-bundle-to` for collapsed private-endpoint lines. Shared helper now token-matches bundle endpoints like click-focus and connector selection. Regression `keeps bundled edges visible when the family filter lists an endpoint pair`; connector-visibility + click-focus 6/6. Private beta: filtering the inventory diagram by evidence family keeps bundled connector lines on the canvas instead of hiding them all.
 
 - [x] (proven) `applyConnectorVisibility` — family filter ignored bundled edge endpoint attributes — **proven 2026-11-23 seed hunt:** bundle-only SVG edges were always `display:none` under family filter; bundle token matching now mirrors selection dimming.
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `applyArchitectureDiagramOverrides` `(candidate)`. Device-local edge overrides keyed only `edge_0`; inserting a data-flow row before restore removed the wrong connector after positional ids shifted. Overrides now match endpoints when stored ids no longer align. Regression `applies edge removal by stable endpoints when positional edge ids shift` failed first (`edge_0` removal dropped `Gamma -> Alpha`), then model suites passed 12/12. Private beta: operators who hid a diagram connector keep that same flow hidden after the brief gains new flows, instead of losing a different line.
 
 - [x] (proven) `applyArchitectureDiagramOverrides` — persisted edge overrides keyed only by generated positional ids — **proven 2026-11-23 seed hunt:**`edge_0` removal after reorder deleted `Gamma -> Alpha`; endpoint-keyed overrides now apply safely.
-2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. After the dom-id mapping hit, `resolveInventoryDiagramClickFocusId` still compared the full accessibility `<title>` (for example `vm-app (Virtual machine)`) only to outline `node.id`, so forest inventory clicks kept the Mermaid slug and neighbor dimming failed. Mapping now matches flowchart dom slugs, stripped title resource names, and outline labels. Regression `maps forest accessibility titles to outline ids for neighbor dimming` failed first (focus stayed `flowchart-vm-app-0`), then click-focus passed 5/5. Private beta: clicking a resource on a forest inventory diagram keeps its linked neighbors visible instead of dimming the entire canvas.
+- [x] (proven) `applyArchitectureDiagramOverrides` in `architecture-diagram-model.ts` — persisted node overrides keyed only by generated positional ids — **proven 2026-11-24 thorough hunt #499:** duplicate labels with distinct detail mis-applied removal after reorder; `entityFingerprint` match before id.
+- [x] (proven) `resolveArchitectureDiagramNodeOverride` — legacy id-only overrides applied after entity reorder — **proven 2026-11-24 thorough hunt #500:** skip id fallback when live node has fingerprint; regression `ignores legacy id-only node overrides when the live node has an entity fingerprint`.
 
 - [x] (proven) `resolveInventoryDiagramClickFocusId` — accessibility title only matched outline id, not resource label — **proven 2026-11-23 seed hunt:** title `vm-app (Virtual machine)` did not resolve to outline `vm-app`; title tokens and dom slug now align with label and resource name.
 2026-11-23 seed hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Empty queue. Inventory diagram click focus passed Mermaid dom ids such as `flowchart-api-0` into `resolveDiagramClickFocus` while the outline stores logical ids such as `api`, so one-hop neighbors were dimmed. `resolveInventoryDiagramClickFocusId` maps the node title to the outline id on click and when applying dim classes. Regression `maps a flowchart node id to the outline id before resolving neighbors` failed first (received `flowchart-api-0`), then click-focus passed 4/4. Private beta: clicking an inventory diagram node with an outline loaded keeps its linked neighbors visible instead of dimming the whole plate.
@@ -19858,11 +20140,11 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 10
-- **bugs-found:** 8
+- **hunts:** 12
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-23
-- **last-bug:** 2026-11-23
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -19888,6 +20170,12 @@ ABQ-09 churn hotspot.
 - [x] (invalid) `DiagramNeighborhoodMapView` link rows — the inventory SVG generator aggregates links by neighborhood pair before emission, so repeated same-endpoint links are not a reachable product input.
 - [x] (invalid) `DiagramNeighborhoodMapView.renderTypeChip` — the inventory SVG generator groups type metadata by name before emission, so repeated same-name type chips are not a reachable product input.
 
+
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — subscription filter retry vs stale preview — **cheap-disproof 2026-11-24 seed hunt (seed→hit):** loadGeneration in preview effect deps; selectedSnapshotIdRef on apply (hunt #496 family).
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — deep-linked missing snapshot vs seed blocked dialog — **cheap-disproof 2026-11-24 seed hunt (seed→hit):** deepLinkedSnapshotMissing skips render/preview; selectedSnapshotId clears dialog.
+- [x] (proven) `DiagramsWorkbenchClient` — render retry generation vs stale blocked dialog — **hit 2026-11-24 seed hunt (seed→hit):** clear dialog when blockedReason is null; regression above.
+- [x] (valid-no-repro) `InfraEvidenceDiagramOutline` — declared panel open during connections load error — **cheap-disproof 2026-11-24 seed hunt (seed→hit):** declared fetch uses cancelled guard; connectionsError surfaces on panel.
+- [x] (valid-no-repro) `DiagramsWorkbenchClient` — URL snapshot hydration vs blocked dialog — **cheap-disproof 2026-11-24 seed hunt (seed→hit):** selectedSnapshotId effect clears dialog (pass-28 family).
 ### Hypotheses
 
 - [x] (proven) `useArchitectureDiagramPanel` / `ArchitectureDiagramPanel` — `highlightedNodeId` from the findings dual-pane was read only when `diagramModel` changed, so a later highlight left the first provenance node selected — **hit 2026-10-09 seed hunt:** effect depends on `highlightedNodeId`. Regression `moves provenance selection when the highlighted node changes after the diagram is ready`.

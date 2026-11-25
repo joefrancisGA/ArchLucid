@@ -2328,20 +2328,22 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   },
                 ]}
                 footer={
-                  <p
-                    className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-                    data-testid="resource-hub-terraform-not-mapped-stored-empty-not-load-failure"
-                  >
-                    {RESOURCE_HUB_TERRAFORM_NOT_MAPPED_STORED_EMPTY_NOT_LOAD_FAILURE_LINE}
-                  </p>
-                {overviewPartialCapture ? (
-                  <p
-                    className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-                    data-testid="resource-hub-terraform-not-mapped-partial-capture-not-load-failure"
-                  >
-                    {RESOURCE_HUB_TERRAFORM_NOT_MAPPED_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE}
-                  </p>
-                ) : null}
+                  <>
+                    <p
+                      className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="resource-hub-terraform-not-mapped-stored-empty-not-load-failure"
+                    >
+                      {RESOURCE_HUB_TERRAFORM_NOT_MAPPED_STORED_EMPTY_NOT_LOAD_FAILURE_LINE}
+                    </p>
+                    {overviewPartialCapture ? (
+                      <p
+                        className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="resource-hub-terraform-not-mapped-partial-capture-not-load-failure"
+                      >
+                        {RESOURCE_HUB_TERRAFORM_NOT_MAPPED_PARTIAL_CAPTURE_NOT_LOAD_FAILURE_LINE}
+                      </p>
+                    ) : null}
+                  </>
                 }
               />
             ) : (

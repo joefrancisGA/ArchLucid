@@ -261,7 +261,8 @@ export function secureNowQuestionDispositionResponseSubscriptionIdMatchesRequest
     return false;
   }
 
-  return responseId === requestId;
+  // Application identity + disposition writes normalize subscription ids with ToLowerInvariant.
+  return responseId.toLowerCase() === requestId.toLowerCase();
 }
 
 /** Whether a POST disposition's resource id matches the submitted mutation request after trim. */
@@ -269,7 +270,11 @@ export function secureNowQuestionDispositionResponseResourceIdMatchesRequest(
   dispositionResourceId: string,
   requestResourceId: string,
 ): boolean {
-  return dispositionResourceId.trim() === requestResourceId.trim();
+  const responseResourceId = dispositionResourceId.trim();
+  const requestResourceIdNormalized = requestResourceId.trim();
+
+  // Application identity + disposition writes normalize resource ids with ToLowerInvariant.
+  return responseResourceId.toLowerCase() === requestResourceIdNormalized.toLowerCase();
 }
 
 function secureNowQuestionDispositionResponseTrimmedStringMatchesRequest(

@@ -90,4 +90,14 @@ describe("governanceFindingsClearAllFiltersHref", () => {
     expect(href).not.toContain("filter=");
     expect(href).not.toContain("q=");
   });
+  it("preserves focusedFinding triage cursor while clearing register and facet filters", () => {
+    const href = governanceFindingsClearAllFiltersHref(
+      "runId=run-1&filter=open&q=phi&focusedFinding=finding-1",
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings?runId=run-1&focusedFinding=finding-1");
+    expect(href).not.toContain("filter=");
+    expect(href).not.toContain("q=");
+  });
 });

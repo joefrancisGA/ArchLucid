@@ -2,7 +2,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { writeOperatorScopeToStorage } from "@/lib/operator/operator-scope-storage";
 
-import { getJson, postJson, primaryDescriptionFromSources } from "./architecture-intelligence-client-api";
+import {
+  buildRequest,
+  getJson,
+  postJson,
+  primaryDescriptionFromSources,
+  shouldRequestGoldenFixtureForGoldenTest,
+} from "./architecture-intelligence-client-api";
 
 describe("architecture-intelligence-client-api", () => {
   beforeEach(() => {
@@ -59,5 +65,46 @@ describe("architecture-intelligence-client-api", () => {
         },
       ]),
     ).toBe("");
+  });
+  it("adds canonical architecture description when hydrated intake is attachment-only", () => {
+    const request = buildRequest(
+      "Operator-authored architecture brief.",
+      "",
+      {},
+      {
+        hydratedSourceTexts: [
+          {
+            fileName: "network-diagram.png",
+            contentType: "image/png",
+            content: "attachment body",
+          },
+        ],
+      },
+    );
+
+    expect(request.sourceTexts).toEqual([
+      {
+        fileName: "architecture-description.txt",
+        contentType: "text/plain",
+        content: "Operator-authored architecture brief.",
+      },
+      {
+        fileName: "network-diagram.png",
+        contentType: "image/png",
+        content: "attachment body",
+      },
+    ]);
+  });
+
+  it("requests golden fixture for attachment-only hydrated intake with empty description field", () => {
+    expect(
+      shouldRequestGoldenFixtureForGoldenTest("", [
+        {
+          fileName: "network-diagram.png",
+          contentType: "image/png",
+          content: "attachment body",
+        },
+      ]),
+    ).toBe(true);
   });
 });

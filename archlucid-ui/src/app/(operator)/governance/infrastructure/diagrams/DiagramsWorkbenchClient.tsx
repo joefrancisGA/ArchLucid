@@ -1708,6 +1708,10 @@ export function DiagramsWorkbenchClient() {
   }, [selectedSnapshotId]);
 
   useEffect(() => {
+    setDependencySeedBlockedDialog(null);
+  }, [selectedSnapshotId]);
+
+  useEffect(() => {
     if (selectedSnapshotId.length === 0 || deepLinkedSnapshotMissing) {
       setModePreviews([]);
       setSnapshotCompletenessWarnings([]);
@@ -1876,6 +1880,8 @@ export function DiagramsWorkbenchClient() {
 
     if (blockedReason != null) {
       setDependencySeedBlockedDialog(blockedReason);
+    } else {
+      setDependencySeedBlockedDialog(null);
     }
   }, [
     appliedSeedNodeId,
