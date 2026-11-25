@@ -34,21 +34,32 @@ public sealed class CachingTenantSettingsRepositoryTests
         using CancellationTokenSource request = new();
         Guid tenantId = Guid.NewGuid();
         const string key = "example-setting";
+        TaskCompletionSource committed = new(TaskCreationOptions.RunContinuationsAsynchronously);
         Mock<ITenantSettingsRepository> inner = new(MockBehavior.Strict);
         inner.Setup(x => x.UpsertAsync(tenantId, key, "new", request.Token))
-            .Callback(request.Cancel).Returns(Task.CompletedTask);
+            .Returns(committed.Task);
         inner.Setup(x => x.DeleteAsync(tenantId, key, request.Token))
-            .Callback(request.Cancel).Returns(Task.CompletedTask);
+            .Returns(committed.Task);
         Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
         cache.Setup(x => x.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .Returns((string _, CancellationToken ct) => ct.IsCancellationRequested ? Task.FromCanceled(ct) : Task.CompletedTask);
         CachingTenantSettingsRepository repository = new(inner.Object, cache.Object);
 
-        if (delete)
-            await repository.DeleteAsync(tenantId, key, request.Token);
-        else
-            await repository.UpsertAsync(tenantId, key, "new", request.Token);
+        Task pending = delete
+            ? repository.DeleteAsync(tenantId, key, request.Token)
+            : repository.UpsertAsync(tenantId, key, "new", request.Token);
+        try
+        {
+            cache.Verify(x => x.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+            pending.IsCompleted.Should().BeFalse();
+        }
+        finally
+        {
+            request.Cancel();
+            committed.TrySetResult();
+        }
 
+        await pending;
         string cacheKeyPrefix = HotPathCacheKeys.TenantSetting(tenantId, key) + ":";
         cache.Verify(x => x.RemoveAsync(
             It.Is<string>(cacheKey => cacheKey.StartsWith(cacheKeyPrefix, StringComparison.Ordinal)),

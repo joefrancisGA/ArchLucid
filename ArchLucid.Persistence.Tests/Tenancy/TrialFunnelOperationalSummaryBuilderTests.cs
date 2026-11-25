@@ -66,6 +66,23 @@ public sealed class TrialFunnelOperationalSummaryBuilderTests
     }
 
     [Fact]
+    public void Build_sorts_unsorted_even_samples_before_computing_medians_and_ranges()
+    {
+        var summary = TrialFunnelOperationalSummaryBuilder.Build(
+            activeTrials: 2, periodDays: 30, comparePrevious: false,
+            signupAttempts: 4, signupFailures: 0, firstCommits: 4,
+            conversions: 0, checkouts: 0, budgetCutoffs: 0,
+            signupToCommitSeconds: [100.0, 10.0, 30.0, 20.0],
+            firstReviewCogsUsd: [9m, 1m, 4m, 2m],
+            costRatesConfigured: true, cohortRows: []);
+
+        summary.MedianSignupToFirstCommitSeconds.Should().Be(25.0);
+        summary.EstimatedFirstReviewCogsUsdLow.Should().Be(1m);
+        summary.EstimatedFirstReviewCogsUsdMid.Should().Be(3m);
+        summary.EstimatedFirstReviewCogsUsdHigh.Should().Be(9m);
+    }
+
+    [Fact]
     public void Build_returns_null_medians_when_signal_lists_empty()
     {
         var summary = TrialFunnelOperationalSummaryBuilder.Build(

@@ -16,6 +16,15 @@ public sealed class InMemoryTenantCatalogMigrationRepositoryTests
 
         await repository.InsertAsync(first, CancellationToken.None);
 
+        Guid foreignTenantId = Guid.NewGuid();
+        TenantCatalogMigrationRecord foreign = new()
+        {
+            MigrationId = Guid.NewGuid(),
+            TenantId = foreignTenantId
+        };
+        await repository.InsertAsync(foreign, CancellationToken.None);
+        (await repository.GetActiveByTenantIdAsync(foreignTenantId, CancellationToken.None)).Should().BeSameAs(foreign);
+
         Func<Task> insertSecond = async () => await repository.InsertAsync(second, CancellationToken.None);
         await insertSecond.Should().ThrowAsync<InvalidOperationException>();
         (await repository.GetActiveByTenantIdAsync(tenantId, CancellationToken.None)).Should().BeSameAs(first);
@@ -31,5 +40,7 @@ public sealed class InMemoryTenantCatalogMigrationRepositoryTests
 
         await replaceCompleted.Should().ThrowAsync<InvalidOperationException>();
         (await repository.GetByIdAsync(first.MigrationId, CancellationToken.None))!.IsActive.Should().BeFalse();
+        (await repository.GetActiveByTenantIdAsync(tenantId, CancellationToken.None)).Should().BeSameAs(second);
+        (await repository.GetActiveByTenantIdAsync(foreignTenantId, CancellationToken.None)).Should().BeSameAs(foreign);
     }
 }
