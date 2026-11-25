@@ -126,6 +126,27 @@ class EvidenceTests(unittest.TestCase):
             self.assertEqual(mod.verified_first_parent(".", SHA1, 2), {SHA1, SHA2})
             self.assertIn("--first-parent", invoke.call_args.args)
 
+    def test_verified_observation_uses_git_line_numbers_for_repeated_cr_before_lf(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            mod.git(repo, "init", "-q")
+            mod.git(repo, "config", "user.name", "Evidence Fixture")
+            mod.git(repo, "config", "user.email", "evidence@example.test")
+            mod.git(repo, "config", "core.autocrlf", "false")
+            (repo / "a.cs").write_bytes(b"first\r\r\n\r\r\nthird\r\r\n")
+            mod.git(repo, "add", "a.cs")
+            mod.git(repo, "commit", "-qm", "Git line numbering fixture")
+            baseline = mod.git(repo, "rev-parse", "HEAD").strip()
+
+            row = mod.verified_observation(repo, baseline, "a.cs", [[1, 1], [3, 3]])
+
+            self.assertEqual(row["blob"], mod.git(repo, "rev-parse", "HEAD:a.cs").strip())
+            self.assertEqual(row["spans"], [[1, 1], [3, 3]])
+            with self.assertRaisesRegex(ValueError, "blank lines: 2-2"):
+                mod.verified_observation(repo, baseline, "a.cs", [[2, 2]])
+            with self.assertRaisesRegex(ValueError, "exceeds source length: 4-4"):
+                mod.verified_observation(repo, baseline, "a.cs", [[4, 4]])
+
 
     def test_unverified_imports_cannot_affect_density(self):
         rows = [

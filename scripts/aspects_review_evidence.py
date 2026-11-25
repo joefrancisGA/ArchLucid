@@ -112,7 +112,7 @@ def coverage(records, baselines):
 
 def git(repo, *args):
     return subprocess.run(["git", "-C", str(repo), *args], check=True,
-                          capture_output=True, text=True).stdout
+                          capture_output=True).stdout.decode("utf-8")
 
 
 def verified_observation(repo, baseline, path, spans, defect_id=None):
@@ -124,7 +124,11 @@ def verified_observation(repo, baseline, path, spans, defect_id=None):
     blob = git(repo, "rev-parse", f"{baseline}:{path}").strip()
     if not SHA.fullmatch(blob):
         raise ValueError("Git did not resolve a source blob")
-    source = git(repo, "show", f"{baseline}:{path}").splitlines()
+    # Git line numbers advance at LF. Universal newline handling would count
+    # an extra physical line in a blob with repeated CR before an LF.
+    source = git(repo, "show", f"{baseline}:{path}").split("\n")
+    if not source[-1]:
+        source.pop()
     for start, end in parsed:
         if end > len(source):
             raise ValueError(f"Reviewed span exceeds source length: {start}-{end}")
