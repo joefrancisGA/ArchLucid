@@ -7,7 +7,6 @@ using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Http;
-using ArchLucid.Application.Runs;
 using ArchLucid.Application.Trust;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Configuration;
@@ -21,6 +20,7 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
+using RunSummaryProjection = ArchLucid.Application.Runs.RunSummaryProjection;
 
 namespace ArchLucid.Api.Services.Authority;
 
