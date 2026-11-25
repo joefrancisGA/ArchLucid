@@ -72,6 +72,42 @@ public sealed class AzureInventoryPrivateEndpointDnsJoinIndexTests
         index.TryHasDnsJoin(pe, vnet).Should().BeTrue();
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Multiple_zone_groups_preserve_join_independent_of_order(bool reverse)
+    {
+        string vnet = BuildVnet("vnet-a");
+        string pe = BuildPrivateEndpoint("pe1");
+        string linked = BuildPrivateDnsZone("linked.example");
+        string unlinked = BuildPrivateDnsZone("unlinked.example");
+        AzureInventoryRelationshipArmTriple[] rows =
+        [
+            Triple(pe, linked, GraphEdgeInferenceSources.InventoryPeDnsZoneGroup),
+            Triple(pe, unlinked, GraphEdgeInferenceSources.InventoryPeDnsZoneGroup),
+            Triple(linked, vnet, GraphEdgeInferenceSources.InventoryPrivateDnsVnet),
+        ];
+        if (reverse)
+            Array.Reverse(rows);
+        AzureInventoryPrivateEndpointDnsJoinIndex.Build(rows).TryHasDnsJoin(pe, vnet).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Stale_materialized_reachability_is_not_a_verified_dns_join()
+    {
+        string app = BuildWebApp("app");
+        string target = BuildSqlServer("sql");
+        string pe = BuildPrivateEndpoint("pe1");
+        var index = AzureInventoryPrivateEndpointDnsJoinIndex.Build(
+        [
+            Triple(app, BuildSubnet(BuildVnet("vnet-a"), "subnet"), GraphEdgeInferenceSources.InventoryAppServiceSubnet),
+            Triple(pe, target, GraphEdgeInferenceSources.InventoryPrivateEndpoint),
+            Triple(app, target, GraphEdgeInferenceSources.InventoryPeReachableTarget),
+        ]);
+        index.HasPeReachableTarget(app, target).Should().BeFalse();
+        index.IsMissingDnsJoin(app, target).Should().BeTrue();
+    }
+
     private static AzureInventoryRelationshipArmTriple Triple(string from, string to, string inferenceSource) =>
         new(from, to, inferenceSource);
 
