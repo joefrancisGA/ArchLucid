@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent, type RefObject } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type MouseEvent, type RefObject } from "react";
 
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
@@ -86,6 +86,14 @@ export type UseRunsListResult = {
   clearCompareSelection: () => void;
   filterStatusLine: string;
 };
+
+function subscribeToCommittedLocationSearch(listener: () => void): () => void {
+  window.addEventListener("popstate", listener);
+
+  return () => {
+    window.removeEventListener("popstate", listener);
+  };
+}
 
 /** Page controller: runs list filter, sort, inspector, and pagination state. */
 export function useRunsList(props: RunsListClientProps): UseRunsListResult {
@@ -604,9 +612,14 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     setPaginationAnnouncement(`Page ${page} of ${pages}. ${totalLabel}.`);
   }, [page, pages, totalCount]);
 
+  const committedSearchForNavigation = useSyncExternalStore(
+    subscribeToCommittedLocationSearch,
+    readWindowLocationSearch,
+    () => "",
+  );
   const navigationSearch = runsListCompareInspectorNavigationSearchFromSearch(
     routerSearchString,
-    readWindowLocationSearch(),
+    committedSearchForNavigation,
     filterText,
   );
   const previousHref = runsListPreviousPageHrefFromSearch(

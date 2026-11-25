@@ -79,7 +79,7 @@ export function runsListNavigationSearchFromSearch(
   return merged.toString();
 }
 
-const COMPARE_INSPECTOR_PAGINATION_OVERLAY_PARAMS = ["page", "cursor", "sort", "scope", "filter"] as const;
+const COMPARE_INSPECTOR_PAGINATION_OVERLAY_PARAMS = ["page", "cursor", "sort", "scope", "filter", "projectId"] as const;
 
 /** Base for compare/inspector commits when pagination params are on committed window.location before App Router catches up. */
 export function runsListCompareInspectorNavigationSearchFromSearch(

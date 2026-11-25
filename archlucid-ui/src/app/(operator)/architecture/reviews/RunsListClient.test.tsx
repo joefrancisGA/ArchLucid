@@ -155,7 +155,7 @@ const sampleRun: RunSummary = {
 function RunsListSearchParamsRerenderHost({ children }: { readonly children: ReactNode }): ReactElement {
   useSyncExternalStore(
     runsListSearchParamsHarness.subscribe,
-    () => runsListSearchParamsHarness.state.routerQuery,
+    () => `${runsListSearchParamsHarness.state.routerQuery}\u0000${runsListSearchParamsHarness.state.committedQuery}`,
     () => "",
   );
 
@@ -170,6 +170,29 @@ function renderRunsList(ui: ReactElement, searchQuery = "") {
 }
 
 describe("RunsListClient inspector", () => {
+  it("preserves committed projectId in the Next pagination link when useSearchParams lags after project navigation", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={40} nextCursor="cursor-page-2" />,
+      "projectId=default&page=1",
+    );
+
+        runsListSearchParamsHarness.state.committedQuery = "projectId=acme&page=1&cursor=c1";
+    runsListSearchParamsHarness.applyRouterHref("/architecture/reviews?page=1");
+    fireEvent.popState(window);
+
+    const nextLink = screen.getByRole("link", { name: "Next" });
+
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("projectId=acme"));
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("page=2"));
+  });
+
+
       it("preserves pending q= when filter disclosure toggles before debounce completes", () => {
     buyerPolishedShellVitestOverride.value = true;
     runsListWorkspaceModeHarness.mode = "guided";

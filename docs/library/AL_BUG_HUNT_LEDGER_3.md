@@ -3152,10 +3152,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) pass-8 buyer card compare URL — **cheap-disproof 2026-11-25 seed hunt (seed-only):** clears stale compareRuns regression.
 
 - [x] (valid) pass-9 filter disclosure pending `q=` — **proven 2026-11-25 seed hunt (seed→hit):** `navigationSearch` on disclosure write; regression cited in hunt note.
-- [ ] (candidate) `useRunsList` `projectId` pagination href — default project strip vs committed — locus: nextHref builder; pass-10 reseed.
-- [ ] (candidate) `RunsListClient` mobile inspector — narrow viewport popstate compare — locus: shell ref; pass-10 reseed.
-- [ ] (candidate) `useRunsList` `listContextFilter` — deep link `filter=` trim — locus: parse; pass-10 reseed.
-- [ ] (candidate) `RunsListWorkQueueTable` — section headers with compare + scope — locus: partition; pass-10 reseed.
+- [x] (valid) pass-10 projectId pagination lag — **proven 2026-11-25 seed hunt (seed→hit):** overlay + pagination builder; regression cited in hunt note.
+- [ ] (candidate) `RunsListClient` mobile inspector — narrow viewport popstate compare — locus: shell ref; pass-11 reseed.
+- [ ] (candidate) `useRunsList` `listContextFilter` — deep link `filter=` trim — locus: parse; pass-11 reseed.
+- [ ] (candidate) `RunsListWorkQueueTable` — section headers with compare + scope — locus: partition; pass-11 reseed.
 
 - **id:** ui-runs-list
 - **status:** open
@@ -3163,9 +3163,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 9
+- **hunts:** 10
 - **last-hunt:** 2026-11-25
-- **bugs-found:** 6
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-bug:** never
 - **code-changed-since:** yes
