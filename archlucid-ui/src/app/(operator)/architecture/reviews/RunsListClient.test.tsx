@@ -1384,7 +1384,7 @@ describe("RunsListClient inspector", () => {
     await vi.advanceTimersByTimeAsync(300);
 
     expect(runsListSearchParamsHarness.state.committedQuery).toContain("q=Demo");
-    expect(runsListSearchParamsHarness.state.committedQuery).not.toContain("sort=created-asc");
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("sort=created-asc");
 
     vi.useRealTimers();
   });
@@ -1905,7 +1905,37 @@ describe("RunsListClient inspector", () => {
     expect(nextLink).toHaveAttribute("href", expect.stringContaining("page=2"));
   });
 
-    it("preserves committed sort= in the Next pagination link when useSearchParams lags after sort navigation", () => {
+      it("preserves committed scope= in the Previous pagination link when useSearchParams lags after scope navigation", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient
+        runs={[sampleRun, secondRun]}
+        projectId="default"
+        page={2}
+        pageSize={20}
+        totalCount={40}
+      />,
+      "page=2",
+    );
+
+    runsListSearchParamsHarness.state.committedQuery = "page=2&scope=finalized";
+    fireEvent.popState(window);
+
+    const previousLink = screen.getByRole("link", { name: /previous/i });
+
+    expect(previousLink).toHaveAttribute("href", expect.stringContaining("scope=finalized"));
+    expect(previousLink).toHaveAttribute("href", expect.stringContaining("page=1"));
+  });
+
+  it("preserves committed sort= in the Next pagination link when useSearchParams lags after sort navigation", () => {
     const secondRun: RunSummary = {
       ...sampleRun,
       runId: "00000000-0000-0000-0000-0000000000bb",

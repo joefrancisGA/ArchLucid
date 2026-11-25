@@ -2924,6 +2924,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-runs-list
 
 
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted pass-4 debounced `q=` — **proven** filter debounce and Escape clear rebuilt hrefs from `runsListNavigationSearchFromSearch` and dropped committed `sort=`/`scope=` when `useSearchParams` lagged; write paths and pagination overlay now merge committed `scope`/`filter` via `runsListCompareInspectorNavigationSearchFromSearch`. Regression flip on `debounced q= sync keeps pending filter text after unrelated sort= URL navigation` plus `preserves committed scope= in the Previous pagination link when useSearchParams lags after scope navigation`. **valid-no-repro** orphan `filter=` + compare bar (compare overlay + orphan popstate), **valid-no-repro** scope chip `inspectorRunId` lag (inspector popstate regressions), **valid-no-repro** `clearCompareSelection` on page 2 (pagination overlay on compare sync). Focused `RunsListClient` vitest **82/82**. Reseeded five pass-5 `(candidate)` rows below. Private beta: typing or clearing the reviews list filter no longer strips an active sort or package-scope when the router snapshot is behind committed window.location.
+
+- [x] (superseded) pass-4 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-5 reseed.
+
+
+
+
+
 2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted pass-3 `(candidate)` pagination Next — **proven** `useRunsList` Next/Previous hrefs used `navigationSearch` without committed `sort=`/`page`/`cursor` overlay while `useSearchParams` lagged after sort navigation; pagination hrefs now base on `runsListCompareInspectorNavigationSearchFromSearch`. Regression `preserves committed sort= in the Next pagination link when useSearchParams lags after sort navigation`. **valid-no-repro** scope chip during buyer filter lag (navigation merges pending `q=`; popstate scope regressions), **valid-no-repro** inspector activate with debounced `q=` + compare (pending filter regressions), **valid-no-repro** orphan `filter=` with inspector open (popstate banner regression), **valid-no-repro** keyboard third-compare notice timing (notice clears via popstate/compare regressions). Focused `RunsListClient` vitest **81/81**. Reseeded five pass-4 `(candidate)` rows below. Private beta: operators who change review list sort then paginate before the App Router catches up keep oldest-first (or chosen sort) on Next/Previous links instead of silently reverting to default sort.
 
 - [x] (superseded) pass-3 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-4 reseed.
@@ -3087,11 +3095,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `useRunsList` — inspector and filter URL writes merged stale committed search after soft navigation — **hit 2026-10-29 seed hunt:** `routerSearchString` from `useSearchParams` for write paths; regression `writes inspectorRunId from useSearchParams when window.location.search lags after soft navigation`.
 
-- [ ] (candidate) `RunsListClient` Previous on page 2 — committed `scope=` only on window while router lags — locus: paginationNavigationSearch; input: scope popstate then Previous; pass-4 reseed.
-- [ ] (candidate) `useRunsList` debounced empty `q=` — may drop committed `sort=` when router still default — locus: debounce write base; input: sort navigate then backspace-clear filter; pass-4 reseed.
-- [ ] (candidate) `RunsListClient` compare bar — pending `q=` with committed `filter=orphan-candidates` — locus: compare sync base; input: orphan URL then compare select with typed filter; pass-4 reseed.
-- [ ] (candidate) `BuyerPackageScopeFilterChips` — `inspectorRunId` on committed only during scope chip lag — locus: scope href merge; input: open inspector then scope popstate; pass-4 reseed.
-- [ ] (candidate) `useRunsList` `clearCompareSelection` — pagination `cursor=` may lag compare clear — locus: clear compare vs pagination overlay; input: compare on page 2 then clear bar; pass-4 reseed.
+- [x] (proven) `RunsListClient` Previous pagination — committed `scope=` dropped when router lags — **hit 2026-11-25 seed hunt (seed→hit):** pagination overlay includes `scope`; regression above.
+- [x] (proven) `useRunsList` debounced `q=` sync — committed `sort=` dropped when router lags during filter typing — **hit 2026-11-25 seed hunt (seed→hit):** compare-inspector overlay on debounce/clear; regression `debounced q= sync keeps pending filter text after unrelated sort= URL navigation`.
+- [x] (valid-no-repro) `RunsListClient` compare bar — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** compare sync uses overlay; orphan popstate regressions.
+- [x] (valid-no-repro) `BuyerPackageScopeFilterChips` — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** navigationSearch + inspector URL regressions.
+- [x] (valid-no-repro) `useRunsList` `clearCompareSelection` — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** compare clear uses overlay; pagination cursor regressions.
+
+- [ ] (candidate) `useRunsList` debounced `q=` — may drop committed `page`/`cursor` when router lags on page 2 — locus: debounce write; input: paginate then type filter; pass-5 reseed.
+- [ ] (candidate) `RunsListClient` sort chip href — committed `compareRuns` only on window — locus: sort href base; input: compare then sort chip with router lag; pass-5 reseed.
+- [ ] (candidate) `useRunsList` inspector debounce — Escape then timer may resurrect `inspectorRunId` from router — locus: debounce after Escape; input: Escape inspector then wait; pass-5 reseed.
+- [ ] (candidate) `BuyerPackageScopeFilterChips` — `filter=orphan-candidates` on committed during chip lag — locus: scope href; input: orphan URL then scope popstate; pass-5 reseed.
+- [ ] (candidate) `RunsListClient` — third-compare keyboard notice before popstate — locus: notice timing; input: rapid third select; pass-5 reseed.
 
 - **id:** ui-runs-list
 - **status:** open
@@ -3099,9 +3113,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 3
+- **hunts:** 4
 - **last-hunt:** 2026-11-25
-- **bugs-found:** 2
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-bug:** never
 - **code-changed-since:** yes

@@ -301,7 +301,11 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     const handle = window.setTimeout(() => {
       commitHrefIfChanged(
         runsListSearchHrefFromSearch(
-          runsListNavigationSearchFromSearch(routerSearchString, readWindowLocationSearch(), ""),
+          runsListCompareInspectorNavigationSearchFromSearch(
+            routerSearchString,
+            readWindowLocationSearch(),
+            filterText,
+          ),
           filterText,
           pathname,
         ),
@@ -324,7 +328,11 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     setFilterTextState("");
     commitHrefIfChanged(
       runsListClearSearchHrefFromSearch(
-        runsListNavigationSearchFromSearch(routerSearchString, readWindowLocationSearch(), ""),
+        runsListCompareInspectorNavigationSearchFromSearch(
+          routerSearchString,
+          readWindowLocationSearch(),
+          "",
+        ),
         pathname,
       ),
       { notify: false },
