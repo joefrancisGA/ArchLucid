@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Diagnostics;
@@ -335,6 +336,66 @@ public sealed class RealAgentExecutorStagedCriticTests
 
         await execution.WaitAsync(timeout.Token);
         await criticStarted.Task.WaitAsync(timeout.Token);
+    }
+
+    [Theory]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public async Task Caller_cancellation_is_not_reported_as_a_phase_failure(bool overlap, bool budgetAware)
+    {
+        using CancellationTokenSource caller = new();
+        TaskCompletionSource entered = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        RealAgentExecutor sut = CreateSut(
+            Options.Create(new StagedCriticAgentOptions
+            {
+                StagedCriticEnabled = true,
+                StagedCriticOverlapEnabled = overlap,
+                CriticTimeoutSeconds = 60
+            }),
+            new AgentOutputQualityGateOptions { PersistPartialOutputsOnBudgetExceeded = budgetAware },
+            new WaitForCancellationHandler(AgentType.Topology, entered),
+            new SimpleReturnHandler(AgentType.Compliance, "compliance-claim", "res-comp"),
+            new WaitForCancellationHandler(AgentType.Critic, entered));
+        AgentTask[] tasks = CreateStandardBatchTasks();
+        AgentEvidencePackage evidence = new();
+        Task<IReadOnlyList<AgentResult>> running = sut.ExecuteAsync(
+            tasks[0].RunId, MinimalRequest(), evidence, tasks, caller.Token);
+        try
+        {
+            await entered.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        }
+        finally
+        {
+            caller.Cancel();
+        }
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => running.WaitAsync(TimeSpan.FromSeconds(10)));
+        evidence.Notes.Should().NotContain(note => note.NoteType == EvidenceNoteTypes.CriticTimeout);
+    }
+
+    [Fact]
+    public async Task Critic_budget_failure_before_deadline_is_not_a_timeout()
+    {
+        RealAgentExecutor sut = CreateSut(
+            Options.Create(new StagedCriticAgentOptions { StagedCriticEnabled = true, CriticTimeoutSeconds = 60 }),
+            new AgentOutputQualityGateOptions { PersistPartialOutputsOnBudgetExceeded = true },
+            new SimpleReturnHandler(AgentType.Topology, "topology-claim", "res-topology"),
+            new BudgetGuardedCriticHandler());
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask[] tasks =
+        [
+            new AgentTask { RunId = runId, TaskId = "topology", AgentType = AgentType.Topology },
+            new AgentTask { RunId = runId, TaskId = "critic-finished", AgentType = AgentType.Critic },
+            new AgentTask { RunId = runId, TaskId = "critic-budget-denied", AgentType = AgentType.Critic },
+        ];
+        AgentEvidencePackage evidence = new();
+
+        AgentRunPartialBudgetException error = await Assert.ThrowsAsync<AgentRunPartialBudgetException>(
+            () => sut.ExecuteAsync(runId, MinimalRequest(), evidence, tasks, CancellationToken.None));
+
+        error.CompletedResults.Select(row => row.TaskId).Should().Equal("critic-finished");
+        evidence.Notes.Should().NotContain(note => note.NoteType == EvidenceNoteTypes.CriticTimeout);
     }
 
     [Fact]
@@ -707,6 +768,44 @@ public sealed class RealAgentExecutorStagedCriticTests
                 Claims = [],
                 EvidenceRefs = []
             };
+        }
+    }
+
+    private sealed class BudgetGuardedCriticHandler : IAgentHandler
+    {
+        public AgentType AgentType => AgentType.Critic;
+        public string AgentTypeKey => AgentTypeKeys.FromEnum(AgentType.Critic);
+
+        public Task<AgentResult> ExecuteAsync(string runId, ArchitectureRequest request, AgentEvidencePackage evidence,
+            AgentTask task, CancellationToken cancellationToken = default) =>
+            task.TaskId == "critic-budget-denied"
+                ? Task.FromException<AgentResult>(new CostLimitExceededException("Test budget exhausted"))
+                : Task.FromResult(new AgentResult
+                {
+                    RunId = runId,
+                    TaskId = task.TaskId,
+                    AgentType = AgentType.Critic,
+                    ResultId = "res-critic-finished",
+                    Claims = ["critic-claim"],
+                    EvidenceRefs = ["ev1"]
+                });
+    }
+
+    private sealed class WaitForCancellationHandler(AgentType agentType, TaskCompletionSource entered) : IAgentHandler
+    {
+        public AgentType AgentType => agentType;
+        public string AgentTypeKey => AgentTypeKeys.FromEnum(agentType);
+
+        public async Task<AgentResult> ExecuteAsync(
+            string runId,
+            ArchitectureRequest request,
+            AgentEvidencePackage evidence,
+            AgentTask task,
+            CancellationToken cancellationToken = default)
+        {
+            entered.TrySetResult();
+            await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+            throw new InvalidOperationException("Infinite delay completed unexpectedly.");
         }
     }
 
