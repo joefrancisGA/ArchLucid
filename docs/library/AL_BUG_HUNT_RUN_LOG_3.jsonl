@@ -279,3 +279,5 @@
 {"at":"2026-11-25T13:42:10.7871243Z","zoneId":"ui-lib-governance","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/governance/governance-assigned-to-me-queue-sort.ts"]}
 {"at":"2026-11-25T13:45:25.7364673Z","zoneId":"cli-terraform-evidence","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs"]}
 {"at":"2026-11-25T13:50:10.7579121Z","zoneId":"ui-auth-callback","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx"]}
+{"at":"2026-11-25T13:56:19.464Z","zoneId":"ui-lib-remediation-factory","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/remediation-factory/remediation-factory-url-state.ts"]}
+{"at":"2026-11-25T13:56:27.4839085Z","zoneId":"ui-lib-remediation-factory","outcome":"hit","productLine":"archlucid-shared"}

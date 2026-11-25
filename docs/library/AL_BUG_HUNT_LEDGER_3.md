@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 thorough hunt #32 (dry): `ui-auth-callback` pass-3 reseed. `AuthCallbackAccessPanel` **101/101**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed→hit): `ui-lib-remediation-factory` metrics disclosure `yes`/`on` parse. `remediation-factory-url-state` **6/6**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -82,6 +82,15 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 - [x] (valid-no-repro) `governanceFindingsClearReviewScopeHref` — keyboard triage params may linger — **cheap-disproof 2026-11-23 thorough hunt:** clear-scope deletes both keyboard triage params with `runId`.
 - [x] (valid-no-repro) `governanceFindingQueueRowReviewHref` — padded `runId` — **cheap-disproof 2026-11-23 thorough hunt:** `resolveGovernanceScopedReviewOpenHref` trims `runId` before the review path is built.
 - [x] (valid-no-repro) `governanceFindingsNlTitleHrefFromSearch` — embedded `=` in a title facet — **cheap-disproof 2026-11-23 thorough hunt:** the title is one `URLSearchParams.set` value, so `=` stays inside the parameter.
+
+
+- [x] (superseded) pass-2 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** closed at zone header; see pass-3 reseed.
+
+- [ ] (candidate) `parseRemediationFactoryMetricsSummaryOpen` — padded `true ` token — locus: trim+lower; monitor; pass-3 reseed.
+- [ ] (candidate) `normalizeUuidQueryValue` — NBSP-only snapshot id — locus: ECMA trim; monitor; pass-3 reseed.
+- [ ] (candidate) `formatRemediationFactoryPercentDisplay` — value exactly 1.0 fraction branch — locus: `value <= 1`; monitor; pass-3 reseed.
+- [ ] (candidate) `attackPathReportPathChipOverflowLine` — single long id among short ids — locus: honesty `.some`; monitor; pass-3 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — unrelated query param preservation — locus: operator href builder; monitor; pass-3 reseed.
 
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/governance` (nominate gap — app route zone did not cover lib URL helpers). Seeded five `(hunt-ready)` rows on findings queue URL builders; no production change.
 
