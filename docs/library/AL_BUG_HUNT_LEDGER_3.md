@@ -98,9 +98,7 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 - **test-filter:** lib/governance
 - **hunts:** 8
 - **bugs-found:** 4
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-25
-- **last-bug:** 2026-11-25
+- **consecutive-dry-hunts:** 0`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -561,9 +559,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **test-filter:** remediation-factory
 - **hunts:** 39
 - **bugs-found:** 17
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-25
-- **last-bug:** 2026-11-25
+- **consecutive-dry-hunts:** 0`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ## Zone: ui-hooks-shared
@@ -3895,9 +3891,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** HelpDocsClient
 - **hunts:** 27
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-25
-- **last-bug:** 2026-11-25
+- **consecutive-dry-hunts:** 0`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -4556,6 +4550,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ---
 
+2026-11-25 thorough hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Closed pass-54 monitors from the queued ledger rows (analyze CTA already aligned with `canAnalyzeHydratedReviewFromIntake`). **proven** analysis checklist — **proven** `descriptionWritten` used textarea trim only so attachment-only hydrated intake kept "Write a description" incomplete while Analyze was enabled; align with `architectureIntelligenceDescriptionStepComplete` / `requiresArchitectureDescriptionForMutation`. Regression `marks description complete for attachment-only hydrated intake without textarea text`. **valid-no-repro** pass-55 `runGoldenTest` empty sources without fixture, **valid-no-repro** fixture vs continue race, **valid-no-repro** duplicate canonical prepend, **invalid** publish toggle on dedicated publish endpoint. Pass-56 reseed below. Scoped vitest **17/17**. Private beta: invited architects on attachment-only review intake no longer see the analysis checklist stuck on an empty description when product source context is already loaded.
+
+- [x] (proven) ArchitectureIntelligencePageClient / analysis checklist — description step textarea-only — **proven 2026-11-25 thorough hunt (seed→hit):** rchitectureIntelligenceDescriptionStepComplete; regression cited in hunt note.
+- [x] (superseded) pass-54 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-55 reseed.
+- [x] (proven) `analyzeThisReview` — attachment-only analyze gate — **proven 2026-11-25 seed hunt (seed→hit):** `canAnalyzeHydratedReviewFromIntake`; regressions cited in hunt note.
+- [x] (valid-no-repro) `runGoldenTest` — empty `sourceTexts` without fixture — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `shouldRequestGoldenFixtureForGoldenTest`.
+- [x] (valid-no-repro) `loadGoldenFixture` — continue overlap — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** generation + invalidate guards.
+- [x] (valid-no-repro) `buildRequest` — duplicate canonical row — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** single prepend row.
+- [x] (invalid) `publishRun` — publish toggle ignored — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** endpoint always publishes gated output.
+
+- [ ] (candidate) `runGoldenTest` — no client-side requiresArchitectureDescriptionForMutation preflight — locus: emphasized step id; input: attachment-only loaded intake; monitor; pass-56 reseed.
+- [ ] (candidate) `runGoldenTest` — posts without mutation preflight — locus: golden POST; input: whitespace textarea and empty hydrated; monitor; pass-56 reseed.
+- [ ] (candidate) `runReasoningWithOptions` — clears `runState` before success on analyze path — locus: setRunState null at start; input: analyze retry; monitor; pass-56 reseed.
+- [ ] (candidate) `continueWithAnswers` — publish toggle not honored — locus: `publishToProduct` state; input: toggle off; monitor; pass-56 reseed.
+- [ ] (candidate) `parseArchitectureIntelligenceTierFromSearch` — invalid tier leaves checklist depth stale — locus: URL tier strip; input: bogus tier param; monitor; pass-56 reseed.
+
 2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-54 `(candidate)` monitors — **proven** `analyzeThisReview` / Analyze CTA gated on textarea trim while mutation guards accept attachment-only hydrated intake (`canAnalyzeHydratedReviewFromIntake` shares `requiresArchitectureDescriptionForMutation`); regression `canAnalyzeHydratedReviewFromIntake is true for attachment-only hydrated intake with an active run`, `analyzeThisReview posts when attachment-only hydrated intake can analyze`. **valid-no-repro** pass-54 `runGoldenTest` empty `sourceTexts` without fixture (`shouldRequestGoldenFixtureForGoldenTest` forces fixture when no canonical description), **valid-no-repro** `loadGoldenFixture` vs continue race (`invalidateInFlightActions` + `isStaleActionGeneration`), **valid-no-repro** `buildRequest` duplicate canonical prepend (single canonical row on description + attachment-only hydrated), **invalid** pass-54 `publishRun` publish toggle (`publishRun` endpoint intentionally always sets `publishToProduct: true`). Pass-55 reseed below. Scoped vitest **11/11**. Private beta: invited architects on attachment-only product review intake can use Analyze this review when the review scope is loaded, not only the generic reasoning CTA.
 
 2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; streak zone 1/3 dry). Promoted pass-53 `runReasoningWithOptions` attachment-only guard and `buildRequest` whitespace hygiene — **proven** textarea-only gate blocked attachment-only hydrated reasoning (`requiresArchitectureDescriptionForMutation` on `runReasoningWithOptions`); **proven** operator override left whitespace-only non-canonical hydrated rows in `sourceTexts` (filter after canonical map + prepended branch); regressions `runReasoning posts attachment-only hydrated intake when the textarea is empty`, `drops whitespace-only non-canonical hydrated rows when operator overrides canonical description`. **valid-no-repro** pass-53 `runGoldenTest` preflight (`shouldRequestGoldenFixtureForGoldenTest`), `publishToProduct` continue sync, `invalidateInFlightActions` generation guard. Pass-54 reseed below. Scoped vitest **19/19**. Private beta: invited architects with attachment-only deep-linked intake can run reasoning without a textarea brief, and outbound requests no longer ship whitespace-only stale hydrated rows beside an operator override.
@@ -4592,11 +4602,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) pass-53 `invalidateInFlightActions` stale generation — **cheap-disproof 2026-11-25 seed hunt:** `isStaleActionGeneration` on responses.
 - [x] (superseded) pass-53 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-54 reseed.
 
-- [ ] (candidate) `runGoldenTest` — should no-op when `buildRequest` yields empty `sourceTexts` and fixture not requested — locus: golden POST guard; input: whitespace-only hydrated without fixture; monitor; pass-54 reseed.
-- [ ] (candidate) `analyzeThisReview` — may still require textarea despite usable attachment context — locus: `canAnalyzeHydratedReview`; input: attachment-only hydrated; monitor; pass-54 reseed.
-- [ ] (candidate) `loadGoldenFixture` — race with `continueWithAnswers` in-flight — locus: `invalidateInFlightActions` + fixture fetch; input: overlap continue + fixture; monitor; pass-54 reseed.
-- [ ] (candidate) `buildRequest` — duplicate canonical row when hydrated lacks canonical filename — locus: prepend branch; input: description + attachment only; monitor; pass-54 reseed.
-- [ ] (candidate) `publishRun` — publish toggle off during publish POST — locus: `publishToProduct: true` hard-coded; input: operator unchecked publish; monitor; pass-54 reseed.
+
+
+
+
+
 
 
 
@@ -4675,11 +4685,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 7
-- **bugs-found:** 4
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-25
-- **last-bug:** 2026-11-25
+- **hunts:** 8
+- **bugs-found:** 5
+- **consecutive-dry-hunts:** 0`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9599,9 +9607,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~Contracts
 - **hunts:** 17
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-25
-- **last-bug:** 2026-11-25
+- **consecutive-dry-hunts:** 0`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11497,9 +11503,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** marketing
 - **hunts:** 10
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-25
-- **last-bug:** 2026-11-25
+- **consecutive-dry-hunts:** 0`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
