@@ -32,6 +32,8 @@ function readUuidParam(params: URLSearchParams, key: string): string | null {
 const REMEDIATION_FACTORY_DISCLOSURE_ENCLOSED_ONE_CODEPOINTS = new Set<number>([
   0x24f5, // ⓵ DOUBLE CIRCLED DIGIT ONE
   0x2776, // ❶ DINGBAT NEGATIVE CIRCLED DIGIT ONE
+  0x2160, // Ⅰ ROMAN NUMERAL ONE
+  0x2170, // ⅰ SMALL ROMAN NUMERAL ONE
 ]);
 
 function normalizeRemediationFactoryDisclosureOpenToken(raw: string | null | undefined): string | undefined {
@@ -47,8 +49,8 @@ function normalizeRemediationFactoryDisclosureOpenToken(raw: string | null | und
     return "1";
   }
 
-  if (nfkc.length === 1) {
-    const codePoint = nfkc.codePointAt(0);
+  if (trimmed.length === 1) {
+    const codePoint = trimmed.codePointAt(0);
 
     if (codePoint !== undefined && REMEDIATION_FACTORY_DISCLOSURE_ENCLOSED_ONE_CODEPOINTS.has(codePoint)) {
       return "1";

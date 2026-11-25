@@ -1046,6 +1046,24 @@ describe("remediation-factory-metric-presentation", () => {
     expect(formatArchitectOutcomeDeltaValue(3)).toBe("+3");
     expect(formatArchitectOutcomeDeltaValue(-2)).toBe("-2");
   });
+  it("treats string denominator one point zero as measured architect scope", () => {
+    expect(
+      architectOutcomeMetricPresentation({
+        value: 1,
+        denominator: "1.0" as unknown as number,
+        populationLabel: "Compared snapshots",
+      }).scopeNote,
+    ).toContain("1 resources");
+  });
+
+  it("omits net-burn table hint when net burn is measuredZero", () => {
+    const table = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics: { netBurn: 0, createdThisWeek: 0, remediatedThisWeek: 0 } as RemediationFactoryMetrics,
+      openFindingsHref: "/security/findings",
+    });
+
+    expect(table.find((row) => row.key === "net-burn")?.hint).toBeUndefined();
+  });
 
   it("includes comparison population in outcome scope notes", () => {
     expect(

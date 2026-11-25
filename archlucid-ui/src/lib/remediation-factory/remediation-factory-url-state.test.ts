@@ -223,7 +223,49 @@ describe("remediation-factory-url-state", () => {
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\u2776`).metricsSummaryOpen,
     ).toBe(true);
   });
-  it("canonicalizes comma-decimal open token to 1 when writing open state", () => {
+
+  it("treats roman numeral one metrics disclosure tokens as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\u2160`).metricsSummaryOpen,
+    ).toBe(true);
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\u2170`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats roman numeral two metrics disclosure token as closed on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\u2161`).metricsSummaryOpen,
+    ).toBe(false);
+  });
+
+  it("treats NFKC fullwidth TRUE metrics disclosure token as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\uFF54\uFF52\uFF55\uFF45`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("canonicalizes scientific-one open token to 1 when writing open state", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: true,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1e0&foreign=keep`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
+    expect(params.get("foreign")).toBe("keep");
+  });
+
+  it("treats enclosed-digit two metrics disclosure token as closed on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\u24F6`).metricsSummaryOpen,
+    ).toBe(false);
+  });  it("canonicalizes comma-decimal open token to 1 when writing open state", () => {
     const params = remediationFactoryUrlStateToSearchParams(
       {
         selectedFindingId: null,
