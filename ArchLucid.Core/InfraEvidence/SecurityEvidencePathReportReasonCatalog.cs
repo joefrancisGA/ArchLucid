@@ -23,6 +23,8 @@ public static class SecurityEvidencePathReportReasonCatalog
                 "This path is marked insufficient evidence and no more specific gap was recorded.",
             SecurityEvidencePathReportReasonCodes.ControlPlaneOnlyNoObservedTraffic =>
                 "The control plane allows this path. Observed traffic was not collected, so the path is not listed as vulnerable.",
+            SecurityEvidencePathReportReasonCodes.IncompleteIdentityEvidence =>
+                "Identity evidence is incomplete or its collection status is unverified. Observed paths remain actionable; additional privilege paths may exist, including when no paths were discovered.",
             SecurityEvidencePathReportReasonCodes.SearchStoppedMaxPaths =>
                 FormatLimitTemplate(
                     "Path search stopped after {limit} paths. Later paths in that engine were not enumerated.",
@@ -45,6 +47,8 @@ public static class SecurityEvidencePathReportReasonCatalog
     {
         string template = limitKind switch
         {
+            SecurityEvidencePathSearchLimitKind.IncompleteIdentityEvidence =>
+                "Parent privilege-path evidence is incomplete or unverified. Toxic combinations may be missing even when no combinations were discovered.",
             SecurityEvidencePathSearchLimitKind.MaxPaths =>
                 "Privilege or intended-reachability search stopped after {limit} paths. Toxic combinations use only the paths those engines stored.",
             SecurityEvidencePathSearchLimitKind.MaxDepth =>

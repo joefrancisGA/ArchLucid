@@ -34,6 +34,12 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
         Guid snapshotA = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa01");
         Guid snapshotB = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa02");
         Guid sharedRunId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        Guid deniedRunId = Guid.NewGuid();
+        Mock<IInfraEvidenceRunReadAccess> access = new(MockBehavior.Strict);
+        access.Setup(gate => gate.CanReadRunAsync(Scope, sharedRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        access.Setup(gate => gate.CanReadRunAsync(Scope, deniedRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
         snapshotRepository
@@ -57,6 +63,8 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
             [
                 new ArchitectureDiagramReconciliationSnapshotRunRecord { SnapshotId = snapshotA, RunId = sharedRunId },
                 new ArchitectureDiagramReconciliationSnapshotRunRecord { SnapshotId = snapshotB, RunId = sharedRunId },
+                new ArchitectureDiagramReconciliationSnapshotRunRecord { SnapshotId = snapshotA, RunId = deniedRunId },
+                new ArchitectureDiagramReconciliationSnapshotRunRecord { SnapshotId = snapshotB, RunId = deniedRunId },
             ]);
 
         Mock<IAuthorityQueryService> authorityQuery = new();
@@ -65,6 +73,11 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
                 Scope,
                 It.Is<IReadOnlyList<Guid>>(ids => ids.Count == 1 && ids[0] == sharedRunId),
                 It.IsAny<CancellationToken>()))
+            .Callback(() =>
+            {
+                access.Verify(gate => gate.CanReadRunAsync(Scope, sharedRunId, It.IsAny<CancellationToken>()), Times.Once);
+                access.Verify(gate => gate.CanReadRunAsync(Scope, deniedRunId, It.IsAny<CancellationToken>()), Times.Once);
+            })
             .ReturnsAsync(
             [
                 new RunManifestCompareSliceDto
@@ -84,7 +97,8 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
             new Mock<IAzureInventoryDiffRepository>().Object,
             reconciliation.Object,
             authorityQuery.Object,
-            ArchLucid.TestSupport.SealedManifest.SealedManifestHashTestSupport.CreateManifestHashService());
+            ArchLucid.TestSupport.SealedManifest.SealedManifestHashTestSupport.CreateManifestHashService(),
+            access.Object);
 
         PagedResponse<AzureInventorySnapshotRecord> response =
             await service.ListSnapshotsAsync(Scope, 1, 50, null, CancellationToken.None);
@@ -114,6 +128,8 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
                 It.Is<IReadOnlyList<Guid>>(ids => ids.Count == 1 && ids[0] == sharedRunId),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+        authorityQuery.VerifyNoOtherCalls();
+        access.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -164,6 +180,9 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
         Guid cloudResourceId = Guid.Parse("55555555-5555-5555-5555-555555555555");
 
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
+        snapshotRepository
+            .Setup(repo => repo.TryGetBySnapshotIdAsync(Scope, snapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AzureInventorySnapshotRecord { SnapshotId = snapshotId, TenantId = Scope.TenantId });
         snapshotRepository
             .Setup(repo => repo.ListResourcesBySnapshotIdAsync(Scope, snapshotId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
@@ -371,6 +390,25 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
         response.Should().NotBeNull();
         response!.Items.Should().ContainSingle();
         response.Items[0].CloudResourceId.Should().Be(CloudResourceId);
+    }
+
+    [Fact]
+    public async Task ListInventoryRowsForSnapshotAsync_rejects_out_of_scope_snapshot_before_citation_or_resource_reads()
+    {
+        Guid snapshotId = Guid.NewGuid();
+        Mock<IAzureInventorySnapshotRepository> snapshots = new(MockBehavior.Strict);
+        snapshots.Setup(repo => repo.TryGetBySnapshotIdAsync(Scope, snapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AzureInventorySnapshotRecord?)null);
+        Mock<IArchitectureDiagramReconciliationRepository> reconciliation = new(MockBehavior.Strict);
+        InfraEvidenceDriftWorkbenchQueryService service = CreateService(
+            snapshotRepository: snapshots.Object,
+            reconciliationRepository: reconciliation.Object);
+
+        (await service.ListInventoryRowsForSnapshotAsync(Scope, snapshotId, 1, 50)).Should().BeNull();
+
+        snapshots.Verify(repo => repo.TryGetBySnapshotIdAsync(Scope, snapshotId, It.IsAny<CancellationToken>()), Times.Once);
+        snapshots.VerifyNoOtherCalls();
+        reconciliation.VerifyNoOtherCalls();
     }
 
     private static InfraEvidenceDriftWorkbenchQueryService CreateService(

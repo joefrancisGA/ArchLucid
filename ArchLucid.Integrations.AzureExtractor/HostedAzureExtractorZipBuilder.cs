@@ -549,6 +549,7 @@ public static class HostedAzureExtractorZipBuilder
                 destinationResourceId = row.DestinationResourceId,
                 destinationHost = row.DestinationHost,
                 destinationKind = row.DestinationKind,
+                deliveryAuthentication = row.DeliveryAuthentication,
                 collectionStatus = row.CollectionStatus,
                 warningCode = row.WarningCode,
             })

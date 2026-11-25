@@ -9,12 +9,65 @@ namespace ArchLucid.Application.InfraEvidence.Mermaid;
 /// <summary>Wave-34 suggestions 395–396: infra snapshot export fail-closed when run-cited via diagram reconciliation.</summary>
 public static class InfraEvidenceSnapshotSealedManifestHashGuard
 {
-    public static async Task EnsureRunCitedSnapshotSealedOrThrowAsync(
+    public static Task EnsureRunCitedSnapshotSealedOrThrowAsync(
         ScopeContext scope,
         Guid snapshotId,
         IArchitectureDiagramReconciliationRepository reconciliationRepository,
         IAuthorityQueryService authorityQueryService,
         IManifestHashService manifestHashService,
+        CancellationToken cancellationToken) =>
+        EnsureCoreAsync(scope, snapshotId, reconciliationRepository, authorityQueryService,
+            manifestHashService, null, cancellationToken);
+
+    /// <summary>Only a readable run may cause its manifest to be loaded or invalidate this caller's snapshot read.</summary>
+    public static Task EnsureRunCitedSnapshotSealedOrThrowAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        IArchitectureDiagramReconciliationRepository reconciliationRepository,
+        IAuthorityQueryService authorityQueryService,
+        IManifestHashService manifestHashService,
+        Func<Guid, CancellationToken, Task<bool>> canReadRunAsync,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(canReadRunAsync);
+        return EnsureCoreAsync(scope, snapshotId, reconciliationRepository, authorityQueryService,
+            manifestHashService, canReadRunAsync, cancellationToken);
+    }
+
+    /// <summary>Authorizes distinct citations before passing only readable runs to the bulk manifest query.</summary>
+    public static async Task EnsureReadableCitedRunsSealedOrThrowAsync(
+        ScopeContext scope,
+        IEnumerable<Guid> runIds,
+        IAuthorityQueryService authorityQueryService,
+        IManifestHashService manifestHashService,
+        Func<Guid, CancellationToken, Task<bool>> canReadRunAsync,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(runIds);
+        ArgumentNullException.ThrowIfNull(canReadRunAsync);
+
+        List<Guid> readableRunIds = [];
+        foreach (Guid runId in DistinctNonEmptyRunIds(runIds))
+        {
+            if (await canReadRunAsync(runId, cancellationToken))
+                readableRunIds.Add(runId);
+        }
+
+        await GovernanceDispositionSealedManifestGuard.EnsureDistinctRunsSealedManifestHashOrThrowAsync(
+            readableRunIds, scope, authorityQueryService, manifestHashService, cancellationToken);
+    }
+
+    private static IEnumerable<Guid> DistinctNonEmptyRunIds(IEnumerable<Guid> runIds) =>
+        runIds.Where(candidate => candidate != Guid.Empty).Distinct();
+
+    private static async Task EnsureCoreAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        IArchitectureDiagramReconciliationRepository reconciliationRepository,
+        IAuthorityQueryService authorityQueryService,
+        IManifestHashService manifestHashService,
+        Func<Guid, CancellationToken, Task<bool>>? canReadRunAsync,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scope);
@@ -30,8 +83,11 @@ public static class InfraEvidenceSnapshotSealedManifestHashGuard
             snapshotId,
             cancellationToken);
 
-        foreach (Guid runId in runIds.Where(candidate => candidate != Guid.Empty).Distinct())
+        foreach (Guid runId in DistinctNonEmptyRunIds(runIds))
         {
+            if (canReadRunAsync is not null && !await canReadRunAsync(runId, cancellationToken))
+                continue;
+
             await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
                 runId,
                 scope,

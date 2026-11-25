@@ -50,6 +50,19 @@ internal static class AzureInventoryEventGridSubscriptionEdgeMapper
                 warnings.Add(subscription.WarningCode);
             }
 
+            string authentication = AzureInventoryEventGridDeliveryAuthentication.Normalize(subscription.DeliveryAuthentication);
+            if (authentication is AzureInventoryEventGridDeliveryAuthentication.Unknown
+                or AzureInventoryEventGridDeliveryAuthentication.DirectUnverified)
+            {
+                warnings.Add("eventgrid-destination-authentication-unverified");
+            }
+
+            if (string.IsNullOrWhiteSpace(subscription.DestinationResourceId)
+                && string.IsNullOrWhiteSpace(subscription.DestinationHost))
+            {
+                warnings.Add("eventgrid-destination-unverified");
+            }
+
             if (string.IsNullOrWhiteSpace(subscription.DestinationResourceId))
             {
                 continue;

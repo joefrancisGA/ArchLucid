@@ -6,7 +6,6 @@ using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Queries;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,6 +18,7 @@ public sealed partial class ArchitectureIntelligenceController
     [HttpPost("run")]
     [ProducesResponseType(typeof(ClosedLoopReasoningResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PostRunAsync(
         [FromBody] ClosedLoopReasoningRequest? request,
@@ -35,14 +35,40 @@ public sealed partial class ArchitectureIntelligenceController
             }
 
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-            IActionResult? sealedGuardResult = prepared.ContinueFromExistingRun && !string.IsNullOrWhiteSpace(prepared.RunId)
-                ? await EnsureRunSealedManifestReadAllowedAsync(prepared.RunId, cancellationToken)
-                : !string.IsNullOrWhiteSpace(prepared.RunId)
-                    ? await EnsureRunSealedManifestReadAllowedAsync(prepared.RunId, cancellationToken)
-                    : await EnsureArchitectureIntelligenceRunCreateSealedManifestAllowedAsync(scope, cancellationToken);
+            if (string.IsNullOrWhiteSpace(prepared.RunId))
+            {
+                if (prepared.ContinueFromExistingRun)
+                    return this.BadRequestProblem("Continue requests require a runId.", ProblemTypes.ValidationFailed);
 
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
+                string? actorId = GetStandaloneRunActorId();
+                if (actorId is null)
+                    return Forbid();
+
+                IActionResult? sealedGuardResult =
+                    await EnsureArchitectureIntelligenceRunCreateSealedManifestAllowedAsync(scope, cancellationToken);
+
+                if (sealedGuardResult is not null)
+                    return sealedGuardResult;
+
+                Guid newRunId = Guid.NewGuid();
+                await _standaloneRunStore.BindNewAsync(scope, newRunId, actorId, cancellationToken);
+                prepared.RunId = newRunId.ToString("D");
+            }
+            else
+            {
+                if (!Guid.TryParse(prepared.RunId, out Guid existingRunId) || existingRunId == Guid.Empty)
+                    return this.BadRequestProblem("RunId must be a non-empty GUID.", ProblemTypes.ValidationFailed);
+
+                // Even a re-extraction request with an ID can read the existing model and
+                // ledger and replace persisted output. It requires the same access as continue.
+                IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(
+                    scope, existingRunId, requireDecide: true, cancellationToken);
+
+                if (sealedGuardResult is not null)
+                    return sealedGuardResult;
+
+                prepared.RunId = existingRunId.ToString("D");
+            }
 
             ClosedLoopReasoningResult result = await _reasoningOrchestrator.RunAsync(prepared, cancellationToken);
 
@@ -77,6 +103,7 @@ public sealed partial class ArchitectureIntelligenceController
     [HttpPost("runs/{runId}/continue")]
     [ProducesResponseType(typeof(ClosedLoopReasoningResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PostContinueAsync(
         [FromRoute] string runId,
@@ -88,13 +115,18 @@ public sealed partial class ArchitectureIntelligenceController
             if (string.IsNullOrWhiteSpace(runId))
                 return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
 
-            IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+            if (!Guid.TryParse(runId, out Guid parsedRunId) || parsedRunId == Guid.Empty)
+                return this.BadRequestProblem("RunId must be a non-empty GUID.", ProblemTypes.ValidationFailed);
+
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(
+                scope, parsedRunId, requireDecide: true, cancellationToken);
 
             if (sealedGuardResult is not null)
                 return sealedGuardResult;
 
             request ??= new ClosedLoopReasoningRequest();
-            request.RunId = runId;
+            request.RunId = parsedRunId.ToString("D");
             request.ContinueFromExistingRun = true;
 
             if (!TryPrepareRequest(request, allowEmptySourcesForFixture: false, requireSourcesUnlessContinue: false, out ClosedLoopReasoningRequest prepared, out string? validationError, out bool bodyRequired))
@@ -135,6 +167,7 @@ public sealed partial class ArchitectureIntelligenceController
     [HttpPost("runs/{runId}/publish")]
     [ProducesResponseType(typeof(ArchitectureIntelligencePublishResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PostPublishAsync(
         [FromRoute] string runId,
@@ -146,13 +179,18 @@ public sealed partial class ArchitectureIntelligenceController
             if (string.IsNullOrWhiteSpace(runId))
                 return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
 
-            IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+            if (!Guid.TryParse(runId, out Guid parsedRunId) || parsedRunId == Guid.Empty)
+                return this.BadRequestProblem("RunId must be a non-empty GUID.", ProblemTypes.ValidationFailed);
+
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(
+                scope, parsedRunId, requireDecide: true, cancellationToken);
 
             if (sealedGuardResult is not null)
                 return sealedGuardResult;
 
             request ??= new ClosedLoopReasoningRequest();
-            request.RunId = runId;
+            request.RunId = parsedRunId.ToString("D");
             request.ContinueFromExistingRun = true;
             request.PublishToProduct = true;
 
@@ -210,19 +248,15 @@ public sealed partial class ArchitectureIntelligenceController
             if (string.IsNullOrWhiteSpace(runId))
                 return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
 
-            if (!Guid.TryParse(runId, out Guid parsedRunId))
-                return this.BadRequestProblem("RunId must be a GUID.", ProblemTypes.ValidationFailed);
+            if (!Guid.TryParse(runId, out Guid parsedRunId) || parsedRunId == Guid.Empty)
+                return this.BadRequestProblem("RunId must be a non-empty GUID.", ProblemTypes.ValidationFailed);
 
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-            RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, parsedRunId, cancellationToken);
+            IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(
+                scope, parsedRunId, requireDecide: false, cancellationToken);
 
-            if (detail?.GoldenManifest is not null)
-            {
-                IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
-
-                if (sealedGuardResult is not null)
-                    return sealedGuardResult;
-            }
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
             if (_knowledgeModelAccess is null)
                 return this.NotFoundProblem(

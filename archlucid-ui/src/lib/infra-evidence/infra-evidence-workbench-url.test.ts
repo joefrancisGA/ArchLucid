@@ -125,5 +125,14 @@ describe("infra-evidence-workbench-url", () => {
       }),
     ).toContain("securityEvidencePathId=22222222-2222-2222-2222-222222222222");
   });
+  it("builds remediation workbench links with securityEvidencePathId", () => {
+    expect(
+      buildRemediationWorkbenchHref({
+        cloudResourceId: "11111111-1111-1111-1111-111111111111",
+        securityEvidencePathId: "22222222-2222-2222-2222-222222222222",
+      }),
+    ).toContain("securityEvidencePathId=22222222-2222-2222-2222-222222222222");
+  });
+
 });
 

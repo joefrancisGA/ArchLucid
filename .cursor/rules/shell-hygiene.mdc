@@ -78,6 +78,23 @@ When orphaned agent shells accumulate or commands feel stuck:
 
 The script targets Cursor agent one-shot `powershell -c` wrappers and script runners. It skips integrated IDE terminal tabs (`-noexit`).
 
+
+## Agent worktree cleanup
+
+Ephemeral agent worktrees (`archlucid-pr-*`, `ArchLucid-al-bug-*`, `.worktrees/`) and stale `%TEMP%` clones can exhaust disk and block new shells with **ENOSPC**:
+
+```powershell
+.\scripts\cleanup-agent-worktrees.ps1 -DryRun -IncludeTempClones
+.\scripts\cleanup-agent-worktrees.ps1 -Force -IncludeTempClones
+```
+
+Register a **daily** Windows Scheduled Task (runs with `-Force`):
+
+```powershell
+.\scripts\Register-ArchLucidAgentWorktreeCleanupTask.ps1
+.\scripts\Register-ArchLucidAgentWorktreeCleanupTask.ps1 -Unregister
+```
+
 ## User overrides
 
 If the user says **no shell**, **read-only**, or **single-thread / at most one command per turn**, treat that as stricter than this rule for the rest of the session.

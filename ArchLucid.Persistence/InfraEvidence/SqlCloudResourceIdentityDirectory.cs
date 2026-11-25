@@ -215,14 +215,28 @@ public sealed partial class SqlCloudResourceIdentityDirectory(ISqlConnectionFact
         };
     }
 
-    public async Task<CloudResourceIdentityRecord?> TryGetByCloudResourceIdAsync(
+    public Task<CloudResourceIdentityRecord?> TryGetByCloudResourceIdAsync(
         ScopeContext scope,
         Guid cloudResourceId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        TryGetIdentityAsync(scope, cloudResourceId, requireProject: false, cancellationToken);
+
+    public Task<CloudResourceIdentityRecord?> TryGetByCloudResourceIdInScopeAsync(
+        ScopeContext scope,
+        Guid cloudResourceId,
+        CancellationToken cancellationToken = default) =>
+        TryGetIdentityAsync(scope, cloudResourceId, requireProject: true, cancellationToken);
+
+    private async Task<CloudResourceIdentityRecord?> TryGetIdentityAsync(
+        ScopeContext scope,
+        Guid cloudResourceId,
+        bool requireProject,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        if (cloudResourceId == Guid.Empty)
+        if (cloudResourceId == Guid.Empty || (requireProject &&
+            (scope.TenantId == Guid.Empty || scope.WorkspaceId == Guid.Empty || scope.ProjectId == Guid.Empty)))
             return null;
 
         const string sql = """
@@ -233,7 +247,8 @@ public sealed partial class SqlCloudResourceIdentityDirectory(ISqlConnectionFact
                                FirstSeenSnapshotId, LastSeenSnapshotId, FirstSeenUtc, LastSeenUtc
                            FROM dbo.CloudResourceIdentities
                            WHERE TenantId = @TenantId
-                               AND CloudResourceId = @CloudResourceId;
+                               AND CloudResourceId = @CloudResourceId
+                               AND (@RequireProject = 0 OR (WorkspaceId = @WorkspaceId AND ProjectId = @ProjectId));
                            """;
 
         using System.Data.IDbConnection conn =
@@ -244,7 +259,8 @@ public sealed partial class SqlCloudResourceIdentityDirectory(ISqlConnectionFact
                 sql,
                 new
                 {
-                    scope.TenantId,
+                    scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+                    RequireProject = requireProject,
                     CloudResourceId = cloudResourceId,
                 },
                 cancellationToken: cancellationToken));

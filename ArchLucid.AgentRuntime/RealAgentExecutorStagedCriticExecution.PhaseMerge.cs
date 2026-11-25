@@ -73,10 +73,10 @@ internal static partial class RealAgentExecutorStagedCriticExecution
                 .ConfigureAwait(false);
         }
 
+        // The phase also cancels its linked token on a budget failure. Only this timer owns timeouts.
+        using CancellationTokenSource criticTimeout = new(TimeSpan.FromSeconds(stagedOpts.CriticTimeoutSeconds));
         using CancellationTokenSource criticPhaseCancellation =
-            CancellationTokenSource.CreateLinkedTokenSource(linkedCancellation.Token);
-
-        criticPhaseCancellation.CancelAfter(TimeSpan.FromSeconds(stagedOpts.CriticTimeoutSeconds));
+            CancellationTokenSource.CreateLinkedTokenSource(linkedCancellation.Token, criticTimeout.Token);
 
         try
         {
@@ -90,7 +90,8 @@ internal static partial class RealAgentExecutorStagedCriticExecution
                     criticPhaseCancellation)
                 .ConfigureAwait(false);
         }
-        catch (Exception ex) when (IsStagedCriticPhaseTimeout(ex, criticPhaseCancellation, linkedCancellation))
+        catch (OperationCanceledException ex)
+            when (criticTimeout.IsCancellationRequested && !linkedCancellation.IsCancellationRequested)
         {
             if (dependencies.Logger.IsEnabled(LogLevel.Warning))
             {
@@ -114,25 +115,6 @@ internal static partial class RealAgentExecutorStagedCriticExecution
                 criticTasks,
                 stagedOpts.CriticTimeoutSeconds);
         }
-    }
-
-    private static bool IsStagedCriticPhaseTimeout(
-        Exception ex,
-        CancellationTokenSource criticPhaseCancellation,
-        CancellationTokenSource linkedCancellation)
-    {
-        if (criticPhaseCancellation.IsCancellationRequested && !linkedCancellation.IsCancellationRequested)
-            return true;
-
-        for (Exception? walker = ex; walker is not null; walker = walker.InnerException)
-        {
-            if (walker is OperationCanceledException
-                && criticPhaseCancellation.IsCancellationRequested
-                && !linkedCancellation.IsCancellationRequested)
-                return true;
-        }
-
-        return false;
     }
 
     private static void ReplaceStagedPriorSummaryNotes(AgentEvidencePackage evidence)

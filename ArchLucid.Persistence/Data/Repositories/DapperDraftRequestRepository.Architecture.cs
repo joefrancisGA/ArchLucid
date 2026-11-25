@@ -117,7 +117,8 @@ public sealed partial class DapperDraftRequestRepository
                            SET ArchitectureId = @ArchitectureId,
                                ReadModelJson = NULL,
                                ReadModelSchemaVersion = 0,
-                               UpdatedUtc = @UpdatedUtc
+                               UpdatedUtc = CASE WHEN @UpdatedUtc <= UpdatedUtc
+                                   THEN DATEADD(nanosecond, 100, UpdatedUtc) ELSE @UpdatedUtc END
                            WHERE DraftId = @DraftId
                              AND TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId

@@ -47,6 +47,7 @@ def prove(repo: Path, pinned: list[dict], audit: dict, recent: list[dict],
     observed: dict[tuple[str, str], dict] = {}
     trees: dict[tuple[str, str], str | None] = {}
     blobs: dict[str, list[str] | None] = {}
+    historical_blobs: dict[str, list[str] | None] = {}
 
     def tree(sha: str, path: str) -> str | None:
         key = (sha, path)
@@ -57,9 +58,20 @@ def prove(repo: Path, pinned: list[dict], audit: dict, recent: list[dict],
         return trees[key]
 
     def lines(blob: str) -> list[str] | None:
-        return blob_lines(repo, blob, blobs)
+        if blob not in blobs:
+            ok, raw = git(repo, "cat-file", "blob", blob)
+            blobs[blob] = None
+            if ok and b"\x00" not in raw:
+                try:
+                    # The follow-on ledger uses Git's LF offsets. Do not let
+                    # CRCRLF or embedded CR create phantom physical lines.
+                    content = raw.decode("utf-8").removesuffix("\n").split("\n")
+                    blobs[blob] = [line.removesuffix("\r") for line in content]
+                except UnicodeDecodeError:
+                    pass
+        return blobs[blob]
 
-    def add(sha: str, path: str, blob: str, selected: set[int]) -> None:
+    def add(sha: str, path: str, blob: str, selected: set[int]) -> list[str]:
         if (not isinstance(path, str) or not path or
                 not isinstance(blob, str) or not SHA.fullmatch(blob)
                 or tree(sha, path) != blob):
@@ -72,6 +84,7 @@ def prove(repo: Path, pinned: list[dict], audit: dict, recent: list[dict],
         if entry["blob"] != blob:
             raise ValueError("different blobs assigned to same reviewed commit/path")
         entry["selected"].update(selected)
+        return content
 
     pinned_rows = pinned_occurrences = 0
     for row in pinned:
@@ -86,7 +99,14 @@ def prove(repo: Path, pinned: list[dict], audit: dict, recent: list[dict],
         n = 0
         for source in sources:
             selected = intervals(source, "spans")
-            add(sha, source.get("path"), source.get("blob"), selected)
+            blob = source.get("blob")
+            content = add(sha, source.get("path"), blob, selected)
+            # Original workbook pins were audited with splitlines(). Only
+            # compare them with Git offsets when their coordinates agree.
+            original = blob_lines(repo, blob, historical_blobs)
+            last = max(selected)
+            if original is None or original[:last] != content[:last]:
+                raise ValueError("historical pin and Git line coordinates disagree")
             n += len(selected)
         if n != row.get("nonblank_reviewed_loc"):
             raise ValueError("reviewed LOC disagrees with original source audit")

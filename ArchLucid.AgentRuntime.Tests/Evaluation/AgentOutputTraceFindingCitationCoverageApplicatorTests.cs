@@ -65,6 +65,19 @@ public sealed class AgentOutputTraceFindingCitationCoverageApplicatorTests
         semantic.FindingCitationCoverageRatio.Should().Be(1.0);
     }
 
+    [Theory]
+    [InlineData("""{"findings":[null]}""")]
+    [InlineData("""{"findings":[{"findingId":"f-cited","severity":"High","description":"Evidence-backed finding.","enforcementTier":"PolicyViolation","evidenceRefs":["ev-1"]},null]}""")]
+    public void Apply_real_task_scores_null_finding_entries_as_malformed(string parsedJson)
+    {
+        AgentOutputSemanticScore semantic = new();
+
+        AgentOutputTraceFindingCitationCoverageApplicator.Apply(
+            semantic, parsedJson, StructuralExecutionMode.Real, hostAgentExecutionMode: "Real");
+
+        semantic.FindingCitationCoverageRatio.Should().Be(0.0);
+    }
+
     [Fact]
     public void Apply_simulator_task_leaves_finding_citation_coverage_ratio_null()
     {

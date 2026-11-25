@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-24 thorough hunt (dry): `ui-host-gate` pass-2 reseed. Scoped vitest **27/27**. Private beta: n/a.
+> **Scope:** Contributor-reference — hunt 2026-11-25 thorough hunt #25 (dry): `ui-auth-callback` pass-2 reseed after closing pass-1 monitors. Scoped `AuthCallbackAccessPanel` **101/101**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -394,6 +394,15 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ## Zone: ui-hooks-shared
+
+2026-11-25 seed hunt #4 (seed-only): no rotation (`shouldRotate: false`). After shipping deferred `archlucid-contracts` hit (`739037b3a9`). Cheap-disproof on five pass-5 `(candidate)` rows — **valid-no-repro** incremental findings refresh (`summary.runId !== options.runId` guard), **valid-no-repro** pinned review auto-close (404 gated on `notFound` + loading semantics; monitor), **valid-no-repro** `useAskStream.reset` clears `pendingRef` and flush timer, **valid-no-repro** marketing early-access double-submit (`canSubmit` requires `!busy`), **valid-no-repro** pin URL desync (monitor; `commitHrefIfChanged` pattern). **3× seed-only streak** — zone parks from automatic picks until hint. Scoped vitest **259/259** (one transient failure on first pass, green on retry). Pass-6 reseed below. Private beta: n/a.
+
+
+2026-11-25 seed hunt #3 (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone `ui-hooks-shared` **2×** seed-only including this run). Cheap-disproof on five pass-4 `(candidate)` rows — **valid-no-repro** `useAppShellState` help first paint (`use-help-panel.url-sync.test.ts` mounts with `?help=1`; effect sync matches URL before assertions), **valid-no-repro** `useBooleanSearchParamUrlSync` empty `panel=` (`get` returns `""` not absent; explicit empty is closed-by-parser contract), **valid-no-repro** wizard remote **403** discard (`does not expose a local draft when the remote API denies access`), **valid-no-repro** `useRunSummaryStream` `retryToken` (`fallbackStartedRef` reset at effect entry), **valid-no-repro** `useWorkingCreateStartHref` desk continuity (`useSyncExternalStore` + in-flight parent resolution). No hunt-ready promotion. Scoped vitest **259/259**. Reseeded pass-5 monitors below. Private beta: n/a.
+
+
+2026-11-25 seed hunt #2 (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reread `archlucid-ui/src/hooks/` after sync (mixed set-3 merges). No hunt-ready promotion — pass-3 `(candidate)` rows remain monitors until a thorough hunt. Fresh pass-4 reseed: `useAppShellState` help overlay initial state vs URL deep link, `useBooleanSearchParamUrlSync` empty-string param vs absent param default, `useWizardSessionPersistence` URL-restore branch when remote draft denied, `useRunSummaryStream` `retryToken` effect teardown vs `fallbackStartedRef`, `useWorkingCreateStartHref` desk continuity merge vs stale cache read. Scoped vitest **259/259**. Private beta: n/a.
+
 2026-11-24 thorough hunt #3 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). **Invalid** hunt-ready reseed stub (no locus/input/wrong outcome). Attempted failing repro on five post-#2 `(candidate)` rows — **proven** `useBooleanSearchParamUrlSync` ignored `popstate` when the boolean param was removed (`fromUrl === null` early return left disclosure open); sync now applies `parseOpenFromSearch(null)`; regression `syncs closed when the search param is removed from the URL`; **valid-no-repro** wizard debounce unmount (intentional cancel without flush; regression `cancels a pending debounced persist on unmount without flushing later writes`), **valid-no-repro** `useViewportNarrow` first paint (documented `false` until `matchMedia`), **valid-no-repro** run-summary visibility resume double-fetch (`ensureFallbackInterval` no-ops when interval exists; poll-policy regressions), **valid-no-repro** wrong wizard snapshot version (`readWizardSessionSnapshot` version gate returns null). Scoped vitest **15/15** (`use-boolean-search-param-url-sync`, `useViewportNarrow`, `use-wizard-session-persistence`, `run-summary-stream-poll-policy`). Reseeded five pass-3 `(candidate)` monitors below. Private beta: invited operators no longer see disclosure chrome stay open when a sibling navigation strips the boolean query param from the URL.
 
 2026-11-21 thorough hunt #2 (dry): cheap-disproved five seed `(hunt-ready)` rows — **valid-no-repro** boolean URL-sync hooks commit via `commitHrefIfChanged` (`replaceState` only, open-ref dedupe, popstate resync; `use-boolean-search-param-url-sync.test.ts`), **valid-no-repro** debounced wizard persist clears pending timeout on unmount without post-navigation flush (`use-wizard-session-persistence` unmount regression; restore URL uses same commit helper with href equality guard), **valid-no-repro** `useViewportNarrow` intentionally defaults `false` until `matchMedia` effect runs (`useViewportNarrow.test.ts`), **valid-no-repro** run-summary HTTP fallback gated by `shouldRunRunSummaryFallbackPoll` (no poll while SSE connected, hidden, or complete; visibility resume does not overlap SSE — extended poll-policy regression), **valid-no-repro** corrupted wizard session JSON returns `null` from `readWizardSessionSnapshot` (parse catch; lib + hook layers). Scoped vitest **18/18** across new hook tests, wizard persist, poll policy. Reseeded five `(candidate)` monitor rows below. Private beta: n/a.
@@ -414,11 +423,32 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 - [x] (superseded) post-#2 `(candidate)` queue — **superseded 2026-11-24 thorough hunt #3 (mixed dry + hit):** closed at zone header; see pass-3 reseed.
 
-- [ ] (candidate) `useBooleanSearchParamUrlSync` — `parseOpenFromSearch(null)` default may disagree with param-absent first paint — locus: initial state vs popstate; input: mount with no param while default open; monitor; pass-3 reseed.
-- [ ] (candidate) `useWizardSessionPersistence` — remote draft load error may skip local restore — locus: non-transient API failure branch; input: denied draft fetch; monitor; pass-3 reseed.
-- [ ] (candidate) `useViewportNarrow` — resize without `matchMedia` event on zoom — locus: listener lifecycle; input: desktop zoom; monitor; pass-3 reseed.
-- [ ] (candidate) `useRunSummaryStream` — SSE error may leave `fallbackStartedRef` set blocking restart — locus: fallbackStartedRef; input: SSE fail then retry token; monitor; pass-3 reseed.
-- [ ] (candidate) `commitHrefIfChanged` — `notify: false` may skip popstate listeners on same-tab replace — locus: restore URL sync; input: wizard restore confirm; monitor; pass-3 reseed.
+- [x] (superseded) pass-3 `(candidate)` queue — **superseded 2026-11-25 seed hunt #2 (seed-only):** closed at zone header; see pass-4 reseed.
+
+- [x] (valid-no-repro) `useAppShellState` — help overlay first paint — **cheap-disproof 2026-11-25 seed hunt #3:** help URL sync regression.
+- [x] (valid-no-repro) `useBooleanSearchParamUrlSync` — empty `panel=` — **cheap-disproof 2026-11-25 seed hunt #3:** explicit empty param semantics.
+- [x] (valid-no-repro) `useWizardSessionPersistence` — URL restore after remote denial — **cheap-disproof 2026-11-25 seed hunt #3:** **403** regression; URL-only restore deferred.
+- [x] (valid-no-repro) `useRunSummaryStream` — `retryToken` vs `fallbackStartedRef` — **cheap-disproof 2026-11-25 seed hunt #3:** effect reset.
+- [x] (valid-no-repro) `useWorkingCreateStartHref` — in-flight parent lag — **cheap-disproof 2026-11-25 seed hunt #3:** external store subscription.
+
+- [x] (superseded) pass-4 `(candidate)` queue — **superseded 2026-11-25 seed hunt #3 (seed-only):** closed at zone header; see pass-5 reseed.
+
+- [x] (valid-no-repro) pass-5 incremental findings refresh — **cheap-disproof 2026-11-25 seed hunt #4:** runId guard.
+- [x] (valid-no-repro) pass-5 pinned review 404 close — **cheap-disproof 2026-11-25 seed hunt #4:** monitor.
+- [x] (valid-no-repro) pass-5 ask stream reset flush — **cheap-disproof 2026-11-25 seed hunt #4:** reset clears pending.
+- [x] (valid-no-repro) pass-5 marketing double submit — **cheap-disproof 2026-11-25 seed hunt #4:** busy gate.
+- [x] (valid-no-repro) pass-5 pin URL desync — **cheap-disproof 2026-11-25 seed hunt #4:** monitor.
+
+- [x] (superseded) pass-5 `(candidate)` queue — **superseded 2026-11-25 seed hunt #4:** see pass-6 reseed.
+
+- [ ] (candidate) `useOidcSessionKeepalive` — heartbeat may run while document hidden — locus: interval without visibility gate; input: background tab; monitor; pass-6 reseed.
+- [ ] (candidate) `use-architecture-draft-work-lease` — lease heartbeat may continue after unmount race — locus: effect cleanup; input: fast route change; monitor; pass-6 reseed.
+- [ ] (candidate) `useKeyboardShortcuts` — duplicate handler registration on strict-mode remount — locus: listener attach; input: dev double mount; monitor; pass-6 reseed.
+- [ ] (candidate) `use-resume-pending-livelihood-mutation` — stale mutation resume after scope switch — locus: enabled flag; input: tenant switch; monitor; pass-6 reseed.
+- [ ] (candidate) `useSidebarNavGroupExpansion` — persisted expansion may disagree with URL on first paint — locus: storage read timing; input: deep link; monitor; pass-6 reseed.
+
+
+
 
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/hooks`. Seeded five `(hunt-ready)` rows; no production change.
 
@@ -430,10 +460,10 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** shared React hooks
 - **paths:** archlucid-ui/src/hooks/
 - **test-filter:** src/hooks
-- **hunts:** 25
+- **hunts:** 28
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-24
+- **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1707,13 +1737,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-draft-new
 
+2026-11-25 thorough hunt #192 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five hunt **#191** `(candidate)` monitor rows — **valid-no-repro** JSON pending MUST guard (`RunCoreAsync_json_output_with_pending_must_questions_returns_usage_error_without_readline`), **valid-no-repro** JSON missing intent preflight (`RunCoreAsync_json_output_missing_intent_text_returns_usage_error_before_connect`), **valid-no-repro** JSON missing business outcome preflight (`RunCoreAsync_json_output_missing_business_outcome_returns_usage_error_before_connect`), **valid-no-repro** JSON no-auto-execute execution flag (`RunCoreAsync_json_output_no_auto_execute_reports_execution_started_false_with_run_id`), **valid-no-repro** JSON space-padded intent length gate (`RunCoreAsync_json_output_intent_text_of_many_spaces_fails_length_gate_after_trim`). Hunt **#192** reseed below. Scoped `DraftNewCommandCoreTests` **73/73** (`RunAnalyzers=false`). **This dry completes 3/3** consecutive dry on `cli-draft-new` at run-log tail (zone eligible for low-yield park on automatic picks until a hint or hit). Private beta: n/a.
+
 2026-11-01 thorough hunt #191 (dry): no rotation (`shouldRotate: false`; reason: No low-yield streak; keep default picker choice; run-log low-yield streak on `cli-draft-new` is **1/3** before this record — dry **#190** only at tail). Attempted failing repro on five header `(candidate)` rows from hunt #190 reseed; cheap-disproof closed all five — **valid-no-repro** JSON whitespace-only intent preflight (regression `RunCoreAsync_json_output_whitespace_only_intent_text_returns_usage_error_without_prompting`), **valid-no-repro** JSON whitespace-only system name preflight (regression `RunCoreAsync_json_output_whitespace_only_system_name_returns_usage_error_without_json_envelope`), **valid-no-repro** JSON whitespace-only business outcome preflight (regression `RunCoreAsync_json_output_whitespace_only_business_outcome_returns_usage_error_without_json_envelope`), **valid-no-repro** JSON execute failure stderr-only (regression `RunCoreAsync_json_output_does_not_emit_ok_true_when_execute_fails`), **valid-no-repro** JSON progress line suppression (regression `RunCoreAsync_json_output_suppresses_human_progress_lines`). Reseeded five `(candidate)` monitor rows below (hunt **#191**). Scoped `DraftNewCommandCoreTests` **73/73** passed (`RunAnalyzers=false`). **This dry completes 2/3** on `cli-draft-new` in the run log (consecutive dry **#190** and **#191** at tail after this record). Private beta: n/a.
 
-- [ ] (candidate) `DraftNewCommandMustQuestionLoop` — pending MUST questions without `--skip-must-questions` may block on readline in JSON mode — locus: JSON pending guard; input: pending questions with `--json`; wrong outcome: interactive prompt; reachability: monitor `RunCoreAsync_json_output_with_pending_must_questions_returns_usage_error_without_readline` (hunt #191).
-- [ ] (candidate) `DraftNewCommandIntakeLoop.TryValidateJsonModeRequiredFlagsAsync` — missing intent text may reach connect in JSON mode — locus: JSON preflight; input: `--json` without intent text; wrong outcome: connect attempted; reachability: monitor `RunCoreAsync_json_output_missing_intent_text_returns_usage_error_before_connect` (hunt #191).
-- [ ] (candidate) `DraftNewCommandIntakeLoop.TryValidateJsonModeRequiredFlagsAsync` — missing business outcome may reach connect in JSON mode — locus: JSON preflight; input: `--json` without business outcome; wrong outcome: connect attempted; reachability: monitor `RunCoreAsync_json_output_missing_business_outcome_returns_usage_error_before_connect` (hunt #191).
-- [ ] (candidate) `DraftNewCommandIntakeLoop` — `--no-auto-execute` submit may misreport execution started — locus: submit JSON fields; input: submit without auto execute with `--json`; wrong outcome: wrong execution flag; reachability: monitor `RunCoreAsync_json_output_no_auto_execute_reports_execution_started_false_with_run_id` (hunt #191).
-- [ ] (candidate) `DraftNewCommandIntakeLoop.TryValidateJsonModeRequiredFlagsAsync` — intent text of many spaces may pass length gate after trim — locus: JSON trim + length gate; input: `--json` with space-padded intent; wrong outcome: connect attempted; reachability: monitor `RunCoreAsync_json_output_intent_text_of_many_spaces_fails_length_gate_after_trim` (hunt #191).
+- [x] (valid-no-repro) hunt **#191** `DraftNewCommandMustQuestionLoop` JSON pending guard — **cheap-disproof 2026-11-25 thorough hunt #192:** monitor above.
+- [x] (valid-no-repro) hunt **#191** missing intent JSON preflight — **cheap-disproof 2026-11-25 thorough hunt #192:** monitor above.
+- [x] (valid-no-repro) hunt **#191** missing business outcome JSON preflight — **cheap-disproof 2026-11-25 thorough hunt #192:** monitor above.
+- [x] (valid-no-repro) hunt **#191** no-auto-execute execution flag — **cheap-disproof 2026-11-25 thorough hunt #192:** monitor above.
+- [x] (valid-no-repro) hunt **#191** space-padded intent length gate — **cheap-disproof 2026-11-25 thorough hunt #192:** monitor above.
+- [x] (superseded) hunt **#191** `(candidate)` queue — **superseded 2026-11-25 thorough hunt #192:** hunt **#192** reseed.
+
+- [ ] (candidate) `DraftNewCommandIntakeLoop` — whitespace `api-base-url` may reach create in JSON mode — locus: URL trim preflight; input: `--json` with whitespace API base; wrong outcome: connect attempted; reachability: monitor `RunCoreAsync_json_output_whitespace_api_base_url_fails_connect_before_create` (hunt #192).
+- [ ] (candidate) `DraftNewCommandIntakeLoop` — submit success without `runId` may emit `ok:true` — locus: submit JSON envelope; input: submit body omitting run id; wrong outcome: success envelope; reachability: monitor `RunCoreAsync_json_output_submit_without_run_id_does_not_emit_ok_true` (hunt #192).
+- [ ] (candidate) `DraftNewCommandIntakeLoop` — patch conflict may still emit `ok:true` — locus: patch error branch; input: conflicted patch with `--json`; wrong outcome: success envelope; reachability: monitor `RunCoreAsync_json_output_patch_conflict_does_not_emit_ok_true` (hunt #192).
+- [ ] (candidate) `DraftNewCommandIntakeLoop` — connection failure may emit JSON `ok:true` — locus: transport error branch; input: failed TCP with `--json`; wrong outcome: success envelope; reachability: monitor `RunCoreAsync_json_output_connection_failure_stderr_only_without_ok_true` (hunt #192).
+- [ ] (candidate) `DraftNewCommandIntakeLoop` — create failure may emit JSON `ok:true` — locus: create error branch; input: failed create with `--json`; wrong outcome: success envelope; reachability: monitor `RunCoreAsync_json_output_create_failure_stderr_only_without_ok_true` (hunt #192).
 
 - [x] (superseded) hunt **#190** reseed `(candidate)` queue — **superseded 2026-11-01 thorough hunt #191:** closed at zone header; see hunt **#191** reseed.
 
@@ -2785,6 +2824,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-runs-list
 
+2026-11-25 seed hunt (seed-only, dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reread `useRunsList`, `RunsListClient`, and focused URL/popstate regressions; attempted failing repro on five pass-1 `(candidate)` monitors — **valid-no-repro** compare write path uses explicit `compareRuns`/`inspectorRunId` merge (`preserves pending text filter in compareRuns URL sync before q= debounce completes`, `does not rewrite inspectorRunId when compare is toggled after Escape while useSearchParams lags`, `writes inspectorRunId from useSearchParams when window.location.search lags after soft navigation`), **valid-no-repro** empty-filter debounce shares `runsListNavigationSearchFromSearch` overlay with compare (`preserves compareRuns in debounced q= sync when compare was toggled before useSearchParams catches up`; `preserves compareRuns when Escape clears the filter before useSearchParams catches up`), **valid-no-repro** orphan banner popstate (`hides orphan-candidates banner when filter= clears via popstate before useSearchParams catches up`), **valid-no-repro** inspector Escape vs debounce (`clears inspectorRunId from committed URL when Escape closes the inspector while useSearchParams still lags`; `preserves inspectorRunId in debounced q= sync when filter text is typed`), **valid-no-repro** compare bar with client filter (`keeps compareRuns selection when text filter hides one selected row`). No hunt-ready promotion; pass-2 reseed below. Scoped vitest **80/80**. Private beta: n/a.
+
+
 2026-11-01 thorough hunt (hit): promoted `clearFilterText` — Escape/immediate filter clear rebuilt hrefs from lagging `routerSearchString` only and dropped committed `compareRuns` after compare-then-filter; clear path now uses `runsListNavigationSearchFromSearch` before deleting `q=`, matching debounce and pagination overlay behavior. Regression `preserves compareRuns when Escape clears the filter before useSearchParams catches up`. Cheap-disproof closed four other open `(candidate)` rows — debounced sync already overlays committed compare/inspector (`preserves compareRuns in debounced q= sync when compare was toggled before useSearchParams catches up`; third-compare race reads committed window at timer fire); inspector debounce covered by `preserves inspectorRunId in debounced q= sync when filter text is typed` plus overlay; Previous href uses same overlay as popstate-narrowed committed compare; scope chips use `navigationSearch` not debounce write path. Focused `RunsListClient` vitest passed **73/73**. Reseeded five follow-on `(candidate)` rows below. Private beta: clearing the reviews list text filter with Escape no longer drops an active two-review compare selection when the router has not caught up.
 
 - [x] (proven) `useRunsList` `clearFilterText` — Escape clear dropped committed `compareRuns` when router lagged — **hit 2026-11-01 thorough hunt:** overlay base on clear href; regression above.
@@ -2793,11 +2835,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `RunsListClient` pagination Previous after popstate-narrowed compare — **cheap-disproof 2026-11-01 thorough hunt:** `navigationSearch` reflects committed compare ids post-popstate.
 - [x] (valid-no-repro) `useRunsList` buyer scope chip vs pending debounce — **cheap-disproof 2026-11-01 thorough hunt:** scope navigation uses `navigationSearch`; debounce does not mutate scope chip hrefs.
 
-- [ ] (candidate) `useRunsList` `syncCompareInspectorToUrl` — compare toggle base still uses `runsListEffectiveSearchFromSearch(routerSearchString)` without committed overlay — locus: compare write path; input: soft navigation updates router while committed window retains stale keys; wrong outcome: compare commit merges wrong keys; reachability: monitor `writes inspectorRunId from useSearchParams when window.location.search lags after soft navigation`.
-- [ ] (candidate) `RunsListClient` filter backspace-to-empty debounce — empty filter debounce may drop overlay compare when router lags — locus: debounced clear via timer not Escape; input: compare select then backspace filter empty; wrong outcome: committed compare cleared after debounce; reachability: extend backspace empty debounce test with lagging router harness.
-- [ ] (candidate) `useRunsList` `listContextFilter` orphan banner — popstate clears `filter=` while committed compare overlay pending — locus: orphan banner vs compare overlay; input: orphan deep link then compare select before router refresh; wrong outcome: banner/compare URL disagree; reachability: monitor orphan popstate regression.
-- [ ] (candidate) `RunsListClient` inspector Escape — clears committed `inspectorRunId` then debounced pending `q=` may restore stale inspector from router — locus: Escape close vs debounce overlay; input: open inspector, type filter, Escape inspector then filter; wrong outcome: inspector param returns on debounce; reachability: combine inspector Escape regressions with debounce overlay tests.
-- [ ] (candidate) `RunsListWorkQueueTable` — compare selection bar visible while filtered rows hide checkboxes and debounced `q=` clears compare — locus: filter narrowing vs selection bar; input: compare two rows then narrow filter hiding one id; wrong outcome: debounced sync drops compare despite bar; reachability: monitor `keeps compareRuns selection when text filter hides one selected row`.
+- [x] (valid-no-repro) pass-1 `syncCompareInspectorToUrl` router lag overlay — **cheap-disproof 2026-11-25 seed hunt:** compare/inspector href mutates explicit ids; regressions cited in hunt note.
+- [x] (valid-no-repro) pass-1 filter backspace empty debounce + compare lag — **cheap-disproof 2026-11-25 seed hunt:** debounce uses navigation overlay; compare preservation regressions.
+- [x] (valid-no-repro) pass-1 orphan banner vs compare overlay — **cheap-disproof 2026-11-25 seed hunt:** orphan popstate regression.
+- [x] (valid-no-repro) pass-1 inspector Escape vs debounced `q=` — **cheap-disproof 2026-11-25 seed hunt:** Escape clear + debounced inspector regressions.
+- [x] (valid-no-repro) pass-1 compare bar + narrowed filter debounce — **cheap-disproof 2026-11-25 seed hunt:** `keeps compareRuns selection when text filter hides one selected row`.
+
+- [x] (superseded) pass-1 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed-only):** pass-2 reseed.
+
+- [ ] (candidate) `useRunsList` `syncCompareInspectorToUrl` — committed `sort=`/`cursor=` only on window while router lags during compare toggle — locus: effective vs navigation base; input: soft nav leaves sort on committed search; monitor; pass-2 reseed.
+- [ ] (candidate) `RunsListClient` backspace-to-empty debounce — `compareRuns` with lagging router when filter cleared via timer not Escape — locus: debounced empty `q=`; input: compare then backspace empty before router refresh; monitor; pass-2 reseed.
+- [ ] (candidate) `useRunsList` orphan deep link — `filter=orphan-candidates` banner with pending compare overlay before router catches up — locus: listContextFilter read; input: orphan URL then compare select; monitor; pass-2 reseed.
+- [ ] (candidate) `RunsListClient` — filter typing after inspector Escape may resurrect `inspectorRunId` from lagging router — locus: debounce after Escape; input: open inspector, type filter, Escape, continue typing; monitor; pass-2 reseed.
+- [ ] (candidate) `useRunsList` `clearCompareSelection` — clears selection while debounced pending `q=` may restore prior `compareRuns` from router — locus: clear compare vs debounce timer; input: compare select, type filter, clear compare bar; monitor; pass-2 reseed.
+
 
 2026-11-01 thorough hunt (hit): promoted debounced `q=` sync — after compare toggles committed `compareRuns` before `useSearchParams` caught up, the 250ms filter effect rebuilt hrefs from `routerSearchString` only and wiped compare ids from committed search; debounce now uses the same `runsListNavigationSearchFromSearch` committed overlay as pagination/sort chips before applying `q=`. Regression `preserves compareRuns in debounced q= sync when compare was toggled before useSearchParams catches up`. Cheap-disproof closed four other open `(candidate)` rows — sort/scope hrefs already use `navigationSearch` overlay; popstate-narrowed compare stays in committed window so pagination overlay does not resurrect ids; zero-match Next keeps cursor via existing regression plus overlay; buyer card layout effect clears compare notice when compare UI hides. Focused `RunsListClient` vitest passed **72/72**. Reseeded five follow-on `(candidate)` rows below. Private beta: typing a text filter on the reviews list no longer drops an active two-review compare selection when the debounced `q=` sync runs before the router catches up.
 
@@ -2926,10 +2977,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 0
-- **last-hunt:** never
+- **hunts:** 1
+- **last-hunt:** 2026-11-25
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** never
 - **code-changed-since:** yes
 
@@ -3059,6 +3110,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
+2026-11-25 thorough hunt #25 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; `ui-claim-discipline-policy` parked at 3/3 dry). Attempted failing repro on five pass-1 `(candidate)` monitors — **valid-no-repro** whitespace-only required fields posting with server `validation_failed` (`posts whitespace-only name when native validation is bypassed`, `posts whitespace-only company when native validation is bypassed`); **valid-no-repro** non-409 failures keep generic submit copy (`shows generic submit error when the API returns validation_failed`, `does not parse JSON message field on non-409 API failures`); **valid-no-repro** honeypot whitespace POST contract (`posts honeypot websiteUrl without client-side trim`); **valid-no-repro** in-flight dismiss keeps counter/generation semantics without stuck submit (`dismisses the form via request access toggle while submit is in flight`, `does not enqueue a second POST when the form is toggled closed and reopened during an in-flight submit`, `submits successfully after toggling the request form closed and reopened without submitting`); **valid-no-repro** technical detail vs report-problem wiring (`wires report problem errorTitle to the access heading, not technicalDetail`; `omits technical detail paragraph when technicalDetail is whitespace only`). Pass-2 reseed below. Scoped `AuthCallbackAccessPanel` **101/101**. Private beta: n/a.
+
+- [x] (superseded) pass-1 `(candidate)` queue — **superseded 2026-11-25 thorough hunt #25 (dry):** see pass-2 reseed.
+- [x] (valid-no-repro) pass-1 whitespace-only required POST — **cheap-disproof 2026-11-25 thorough hunt #25:** server validation + generic error; regressions `posts whitespace-only name when native validation is bypassed` / company variant.
+- [x] (valid-no-repro) pass-1 `validation_failed` message copy — **cheap-disproof 2026-11-25 thorough hunt #25:** generic copy by design; regression `shows generic submit error when the API returns validation_failed`.
+- [x] (valid-no-repro) pass-1 honeypot whitespace normalization — **cheap-disproof 2026-11-25 thorough hunt #25:** server `trimOptional`; regression `posts honeypot websiteUrl without client-side trim`.
+- [x] (valid-no-repro) pass-1 `networkInFlightCount` silent block on reopen — **cheap-disproof 2026-11-25 thorough hunt #25:** counter cleared in `finally`; regressions `does not enqueue a second POST when the form is toggled closed and reopened during an in-flight submit` / `submits successfully after toggling the request form closed and reopened without submitting`.
+- [x] (valid-no-repro) pass-1 technicalDetail trim vs report-problem — **cheap-disproof 2026-11-25 thorough hunt #25:** support row uses access heading; regressions `wires report problem errorTitle to the access heading, not technicalDetail` / `omits technical detail paragraph when technicalDetail is whitespace only`.
+
+- [ ] (candidate) `onSubmit` — HTTP `400 invalid_json` may not surface generic submit error — locus: `!response.ok` branch; input: `invalid_json` error body from `POST /api/access-requests`; monitor; pass-2 reseed.
+- [ ] (candidate) `onSubmit` — second submit after toggle-dismiss mid-flight POST returns `502` may stay blocked — locus: `networkInFlightCount` finally + generation guard; input: dismiss during pending fetch then resubmit after `502`; monitor; pass-2 reseed.
+- [ ] (candidate) `onSubmit` — `fetch` rejection after `invalidateInFlightSubmit` may leave `submitting` true on reopen — locus: catch/finally when generation bumped; input: network throw after request-access dismiss; monitor; pass-2 reseed.
+- [ ] (candidate) `cloudPlatformFocus` — optional NBSP-only focus may POST non-null trimmed string — locus: `trim === "" ? null` coalesce; input: U+00A0 only in optional focus field; monitor; pass-2 reseed.
+- [ ] (candidate) `duplicate_recent` — HTTP `409` after rate-limit-shaped body may show duplicate copy when work email differs only by peripheral spaces — locus: `response.status === 409` branch; input: trimmed-equal emails differing only in spaces; monitor; pass-2 reseed.
+
+
+2026-11-25 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; `ui-claim-discipline-policy` parked at 3/3 dry). Reread `AuthCallbackAccessPanel` submit generation guards, honeypot posting contract, and unsupported-text rejection; no hunt-ready row promoted — **valid-no-repro** whitespace-only required fields round-trip API `validation_failed` with generic client error (`posts whitespace-only name when native validation is bypassed`; `shows generic submit error when the API returns validation_failed`); **valid-no-repro** honeypot peripheral whitespace (`posts honeypot websiteUrl without client-side trim`; `posts empty honeypot websiteUrl string for server trimOptional normalization`); **valid-no-repro** stale `204` after dismiss (`dismisses the form via request access toggle while submit is in flight`); **valid-no-repro** non-JSON failure bodies (`shows generic submit error when the API returns an HTML error body`). Pass-1 reseed below. Scoped `AuthCallbackAccessPanel` **101/101**. Private beta: n/a.
+
+
+
 2026-10-30 thorough hunt #35 (dry): cheap-disproof closed five candidate rows — generation guards ignore stale 204 success, browser email validation rejects embedded spaces while payload trim handles peripheral spaces, unsupported control characters use the generic submit error by design, in-flight cancellation is disabled and network counts are covered, and React escapes technical detail text. The focused `AuthCallbackAccessPanel.test.tsx` suite passed 101/101; no production code changed. Zone exhausted after all hypotheses were closed, three consecutive dry hunts, and no production-path commit since the last hunt.
 
 2026-10-30 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — generic `502` ignores JSON `message` (`does not parse JSON message field on non-409 API failures`); stale `204` after dismiss does not mount success (`dismisses the form via request access toggle while submit is in flight`); honeypot spaces posted raw for server trim (`posts honeypot websiteUrl without client-side trim`); blocked second submit is silent by design (`does not surface a submit error when a second submit is blocked while the first POST is still in flight`, `does not enqueue duplicate POST when submit is activated twice before in-flight guard applies`); leading-newline `technicalDetail` still renders (`renders technical detail when the prop begins with a leading newline`). Reseeded five follow-on `(candidate)` rows. 101 scoped `AuthCallbackAccessPanel` vitest tests passed; no production code changed.
@@ -3077,7 +3148,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `onSubmit` — duplicate rapid submit while `networkInFlightCount` > 0 surfaces operator error — **cheap-disproof 2026-10-30 thorough hunt:** silent early return intentional; regressions `does not surface a submit error when a second submit is blocked while the first POST is still in flight` and `does not enqueue duplicate POST when submit is activated twice before in-flight guard applies`.
 - [x] (invalid) `technicalDetail` — padded detail string renders with leading newline artifact — **cheap-disproof 2026-10-30 thorough hunt:** detail still visible; regression `renders technical detail when the prop begins with a leading newline`.
 
-**Hunts:** 50 · **Bugs found:** 7 · **Consecutive dry hunts:** 0
+**Hunts:** 51 · **Bugs found:** 7 · **Consecutive dry hunts:** 1
 
 2026-10-15 seed hunt (seed-only): cheap-disproved five open `(candidate)` rows; regression locks `shows generic submit error when the API returns an HTML error body`, `does not post access request when work email uses a non-ASCII domain label`, `posts access request with punycode-encoded work email`, `preserves multiline note line breaks in the POST body`, `omits the access request form from the DOM on the success view after a filled honeypot posts`, plus reaffirmed `keeps try again navigation enabled while submit is in flight`; reseeded five follow-on `(candidate)` rows; 98 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
@@ -3350,6 +3421,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-help-docs
 
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`). Promoted `mergeDocIndex` / `docIndexFetchedUrlHasDeepLinkSuffix` — fetched external https rows with only a `?` query suffix were not treated as deep links (hash-only branch), so a query row listed before the base vendor url dropped the base row via normalized-path dedupe; external query strings now count as deep-link suffixes (parity with hash fragments); regressions `renders the base external url when doc-index lists a query variant before the https row`, updated `renders fetched external doc links when only a query string differs on the same https url`. Scoped HelpDocsClient vitest **63/63**. Pass-1 reseed below. Private beta: help hub vendor links stay complete when doc-index lists tracked query urls before the base outbound row.
+
+- [x] (proven) `mergeDocIndex` — external query variant before https base dropped base row — **hit 2026-11-25 seed hunt:** `docIndexFetchedUrlHasDeepLinkSuffix` includes `parsed.search`; regressions above.
+- [x] (superseded) prior seed-only streak notes — **superseded 2026-11-25 seed hunt (seed→hit):** pass-1 reseed.
+
+- [ ] (candidate) `docIndexFetchedUrlHasDeepLinkSuffix` — malformed external url with only `?` and no params — locus: URL parse catch branch; input: `https://vendor/x?`; monitor; pass-1 reseed.
+- [ ] (candidate) `mergeDocIndex` — scheme-relative query variant before `//` base — locus: merge order; input: `//host/path?x` before `//host/path`; monitor; pass-1 reseed.
+- [ ] (candidate) `helpDocCategoriesForDisplay` — duplicate unknown categories after product-line static refresh — locus: category sort; input: SecureNow static swap; monitor; pass-1 reseed.
+- [ ] (candidate) `resolveHelpDocsStaticEntries` — product line swap mid-session leaves stale merged index until refetch — locus: static entries memo; input: product line context change; monitor; pass-1 reseed.
+- [ ] (candidate) `showPathChooserIntroduction` — CTA shows when only query-variant path chooser rows exist — locus: dedupe key compare; input: `/help/choose?ref=x`; monitor; pass-1 reseed.
+
+
 2026-11-01 seed hunt (seed-only): **rotation still requested** (`shouldRotate: true`; **6** consecutive low-yield hunts on `ui-help-docs`; `-AvoidZoneId ui-help-docs` applied but **`eligibleCount` 1**). Reread `useHelpDocsIndexQuery` fetch contract, `HELP_DOCS_STATIC_ENTRIES` fallback when fetch pending/fails, and `helpDocCategoriesForDisplay` known-vs-extra category ordering. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped HelpDocsClient vitest passed **61/61**. No production code changed.
 
 2026-11-01 seed hunt (seed-only): **rotation still requested** (`shouldRotate: true`; **5** consecutive low-yield hunts on `ui-help-docs`; `-AvoidZoneId ui-help-docs` applied but **`eligibleCount` 1**). Reread `parseHelpHubSearchQuery`, `helpHubSearchHrefFromSearch` / clear-search href builders, and URL `q` param sync vs debounced `router.replace`. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped HelpDocsClient vitest passed **61/61**. No production code changed.
@@ -3440,11 +3523,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 24
-- **bugs-found:** 8
+- **hunts:** 25
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-24
-- **last-bug:** 2026-11-24
+- **last-hunt:** 2026-11-25
+- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -4103,15 +4186,50 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ---
 
-## Zone: ui-architecture-intelligence
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-54 `(candidate)` monitors — **proven** `analyzeThisReview` / Analyze CTA gated on textarea trim while mutation guards accept attachment-only hydrated intake (`canAnalyzeHydratedReviewFromIntake` shares `requiresArchitectureDescriptionForMutation`); regression `canAnalyzeHydratedReviewFromIntake is true for attachment-only hydrated intake with an active run`, `analyzeThisReview posts when attachment-only hydrated intake can analyze`. **valid-no-repro** pass-54 `runGoldenTest` empty `sourceTexts` without fixture (`shouldRequestGoldenFixtureForGoldenTest` forces fixture when no canonical description), **valid-no-repro** `loadGoldenFixture` vs continue race (`invalidateInFlightActions` + `isStaleActionGeneration`), **valid-no-repro** `buildRequest` duplicate canonical prepend (single canonical row on description + attachment-only hydrated), **invalid** pass-54 `publishRun` publish toggle (`publishRun` endpoint intentionally always sets `publishToProduct: true`). Pass-55 reseed below. Scoped vitest **11/11**. Private beta: invited architects on attachment-only product review intake can use Analyze this review when the review scope is loaded, not only the generic reasoning CTA.
+
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; streak zone 1/3 dry). Promoted pass-53 `runReasoningWithOptions` attachment-only guard and `buildRequest` whitespace hygiene — **proven** textarea-only gate blocked attachment-only hydrated reasoning (`requiresArchitectureDescriptionForMutation` on `runReasoningWithOptions`); **proven** operator override left whitespace-only non-canonical hydrated rows in `sourceTexts` (filter after canonical map + prepended branch); regressions `runReasoning posts attachment-only hydrated intake when the textarea is empty`, `drops whitespace-only non-canonical hydrated rows when operator overrides canonical description`. **valid-no-repro** pass-53 `runGoldenTest` preflight (`shouldRequestGoldenFixtureForGoldenTest`), `publishToProduct` continue sync, `invalidateInFlightActions` generation guard. Pass-54 reseed below. Scoped vitest **19/19**. Private beta: invited architects with attachment-only deep-linked intake can run reasoning without a textarea brief, and outbound requests no longer ship whitespace-only stale hydrated rows beside an operator override.
+
+
+2026-11-25 seed hunt (seed-only, dry): no rotation (`shouldRotate: false`). Attempted failing repro on five pass-52 `(candidate)` monitors — **valid-no-repro** `runGoldenTest` without textarea guard (`buildRequest` filters whitespace-only hydrated rows; `shouldRequestGoldenFixtureForGoldenTest` enables fixture path when no canonical text), **valid-no-repro** `buildRequest` blank attachment metadata (whitespace filter on hydrated branch), **valid-no-repro** `analyzeThisReview` with whitespace textarea (`canAnalyzeHydratedReview` requires non-empty trim), **valid-no-repro** `primaryDescriptionFromSources` whitespace canonical (`trim` yields empty description; `hasUsableArchitectureSourceText` on fixture load), **valid-no-repro** analyze without `activeRunId` (`canAnalyzeHydratedReview` + analyze preflight error). No hunt-ready promotion; pass-53 reseed below. Scoped vitest **17/17**. Private beta: n/a.
+
+
+2026-11-25 thorough hunt (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone `ui-marketing-surfaces` 2/3 dry). Attempted failing repro on five pass-51 `(candidate)` monitors — **proven** `buildRequest` shipped whitespace-only canonical `architecture-description.txt` when the textarea was empty; **proven** `continueWithAnswers` / `publishRun` omitted the reasoning-path description guard; **proven** `loadGoldenFixture` marked context loaded from `sources.length` without usable bodies; **valid-no-repro** `canAnalyzeHydratedReview` (`architectureDescription.trim().length > 0` gate); **invalid** page-client VM heap harness (use focused helper suites). Fixes: filter whitespace-only hydrated rows in `buildRequest`, share `requiresArchitectureDescriptionForMutation` on continue/publish, `hasUsableArchitectureSourceText` for golden fixture load; regressions `drops whitespace-only hydrated sources when the architecture description field is empty`, `requiresArchitectureDescriptionForMutation is true when textarea and hydrated rows are blank`. Scoped vitest **17/17**. Pass-52 reseed below. Private beta: invited architects who clear the description field no longer continue or publish runs that silently carry whitespace-only hydrated intake, and golden-fixture load no longer marks product context loaded when fixture bodies are blank.
+
 
 2026-11-24 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone **`securenow-question-queue`** hit at run-log tail). Reread `buildRequest`, `shouldRequestGoldenFixtureForGoldenTest`, action POST gates, and product-context hydration after attachment-only hit family; cheap-disproof closed prior empty-reasoning publish gate (`hasActionableArchitectureIntelligenceResult`), whitespace-only source context (`hasUsableArchitectureSourceText`), and non-canonical filename casing drift (product loader emits exact `architecture-description.txt`). No row met hunt-ready; reseeded five pass-51 `(candidate)` monitors below. Scoped vitest **15/15** (`architecture-intelligence-client-api.test.ts`, `architecture-intelligence-page-helpers.test.ts`, `use-architecture-intelligence-product-context.test.ts`, `architecture-intelligence-analysis-checklist.test.ts`). Private beta: n/a.
 
-- [ ] (candidate) `buildRequest` — hydrated canonical `architecture-description.txt` with whitespace-only body ships on continue/publish when textarea empty — locus: hydrated branch without operator override; input: whitespace canonical row (monitor).
-- [ ] (candidate) `continueWithAnswers` / `publishRun` — POST without `architectureDescription.trim()` guard unlike `runReasoningWithOptions` — locus: shared `buildRequest`; input: cleared textarea after prior reasoning (monitor).
-- [ ] (candidate) `canAnalyzeHydratedReview` — `productContextStatus === "loaded"` on attachment-only intake while description textarea empty — locus: analyze gate vs inbound copy; input: attachment-only deep link (monitor).
-- [ ] (candidate) `loadGoldenFixture` — `markProductContextLoaded(sources.length > 0)` ignores whitespace-only fixture bodies — locus: fixture hydration; input: blank fixture source row (monitor).
-- [ ] (candidate) `ArchitectureIntelligencePageClient.test.tsx` — full page-client Vitest file VM heap blocks new action-state repros — locus: test harness; input: isolated regression pattern (monitor).
+- [x] (proven) `buildRequest` — whitespace-only canonical when textarea empty — **hit 2026-11-25 thorough hunt:** filter hydrated rows; regression above.
+- [x] (proven) `continueWithAnswers` / `publishRun` — missing description guard — **hit 2026-11-25 thorough hunt:** `requiresArchitectureDescriptionForMutation`.
+- [x] (valid-no-repro) `canAnalyzeHydratedReview` — attachment-only analyze without description — **cheap-disproof 2026-11-25 thorough hunt:** trim gate on description.
+- [x] (proven) `loadGoldenFixture` — loaded flag on blank fixture rows — **hit 2026-11-25 thorough hunt:** `hasUsableArchitectureSourceText`.
+- [x] (invalid) `ArchitectureIntelligencePageClient.test.tsx` VM heap — **cheap-disproof 2026-11-25 thorough hunt:** focused helper suites.
+
+- [x] (superseded) pass-51 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (hit):** pass-52 reseed.
+
+- [x] (valid-no-repro) pass-52 `runGoldenTest` guard gap — **cheap-disproof 2026-11-25 seed hunt:** fixture flag + buildRequest filter.
+- [x] (valid-no-repro) pass-52 blank attachment metadata — **cheap-disproof 2026-11-25 seed hunt:** whitespace filter.
+- [x] (valid-no-repro) pass-52 analyze with whitespace description — **cheap-disproof 2026-11-25 seed hunt:** `canAnalyzeHydratedReview` trim gate.
+- [x] (valid-no-repro) pass-52 `primaryDescriptionFromSources` whitespace — **cheap-disproof 2026-11-25 seed hunt:** trim + usable-source gate.
+- [x] (valid-no-repro) pass-52 analyze without run id — **cheap-disproof 2026-11-25 seed hunt:** analyze preflight + `canAnalyzeHydratedReview`.
+
+- [x] (superseded) pass-52 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed-only):** pass-53 reseed.
+
+- [x] (proven) `runReasoningWithOptions` — attachment-only hydrated intake blocked by textarea guard — **hit 2026-11-25 seed hunt:** `requiresArchitectureDescriptionForMutation`; regression above.
+- [x] (proven) `buildRequest` — stale whitespace non-canonical hydrated rows with operator override — **hit 2026-11-25 seed hunt:** post-map whitespace filter; regression above.
+- [x] (valid-no-repro) pass-53 `runGoldenTest` empty filtered sources — **cheap-disproof 2026-11-25 seed hunt:** golden fixture path.
+- [x] (valid-no-repro) pass-53 `publishToProduct` continue sync — **cheap-disproof 2026-11-25 seed hunt:** `publishToProduct` in continue body.
+- [x] (valid-no-repro) pass-53 `invalidateInFlightActions` stale generation — **cheap-disproof 2026-11-25 seed hunt:** `isStaleActionGeneration` on responses.
+- [x] (superseded) pass-53 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-54 reseed.
+
+- [ ] (candidate) `runGoldenTest` — should no-op when `buildRequest` yields empty `sourceTexts` and fixture not requested — locus: golden POST guard; input: whitespace-only hydrated without fixture; monitor; pass-54 reseed.
+- [ ] (candidate) `analyzeThisReview` — may still require textarea despite usable attachment context — locus: `canAnalyzeHydratedReview`; input: attachment-only hydrated; monitor; pass-54 reseed.
+- [ ] (candidate) `loadGoldenFixture` — race with `continueWithAnswers` in-flight — locus: `invalidateInFlightActions` + fixture fetch; input: overlap continue + fixture; monitor; pass-54 reseed.
+- [ ] (candidate) `buildRequest` — duplicate canonical row when hydrated lacks canonical filename — locus: prepend branch; input: description + attachment only; monitor; pass-54 reseed.
+- [ ] (candidate) `publishRun` — publish toggle off during publish POST — locus: `publishToProduct: true` hard-coded; input: operator unchecked publish; monitor; pass-54 reseed.
+
+
+
 
 2026-11-24 seed hunt (seed→hit): no rotation (shouldRotate: false). Promoted attachment-only hydrated intake in buildRequest and runGoldenTest; architecture-intelligence-client-api Vitest 5/5. Private beta: invited architects on attachment-only deep links now send correctly labeled architecture text for reasoning posts and get fixture-backed golden tests when they have not supplied a primary brief.
 
@@ -4187,11 +4305,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 4
-- **bugs-found:** 2
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-24
-- **last-bug:** 2026-11-24
+- **hunts:** 7
+- **bugs-found:** 4
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-25
+- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8877,16 +8995,104 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ---
 
-## Zone: archlucid-contracts
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; hit-rate cooldown waived). Attempted failing repro on five pass-11 `(candidate)` monitors — **proven** `ContextIngestionRequest.ProjectId` explicit JSON `null` bypassed `null!` initializer; `CoalesceRequired` on backing-field setter; regression `Deserialize_null_project_id_yields_empty_string_not_null`. **invalid** pass-11 `ArchitectureTradeoff` optional explanation strings (`string?` narrative fields; JSON null is valid absence), **valid-no-repro** pass-11 `WafPillar` numeric zero (defined enum value; invalid values throw per tradeoff suite), **valid-no-repro** pass-11 `GraphEdge` relationship strings (endpoint coalesce shipped), **valid-no-repro** pass-11 `ComplianceRulePack.Name` after child coalesce (pack identity coalesce prior hits). Pass-12 reseed below. Scoped deserialization **15/15**. Private beta: context ingest API JSON with null `projectId` deserializes to empty string so intake orchestration does not null-reference when replaying legacy ingest payloads.
+
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; hit-rate cooldown waived). Promoted pass-10 `CanonicalObject.ObjectId`, `ArchitectureTradeoff.Mechanism`/`TradeoffId`, and `ExecutionContextItem` key columns — **proven** explicit JSON `null` bypassed guid/`null!` initializers; `CoalesceRequired`; regressions `Deserialize_null_object_id_yields_empty_string_not_null`, `Deserialize_null_mechanism_and_tradeoff_id_yield_empty_strings_not_null`, `Deserialize_null_item_key_and_elicitation_question_key_yield_empty_strings_not_null`. **valid-no-repro** pass-10 nested `RequirementSmell.RequirementId` (prior hit), **invalid** `ContextSnapshot` Guid null columns (value types default to empty guid). Pass-11 reseed below. Scoped deserialization **15/15**. Private beta: risk snapshot and canonical ingest JSON with null nested id/mechanism fields deserializes to empty strings so replay paths do not null-reference.
+
+
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; hit-rate cooldown waived). Promoted pass-9 `ContextSnapshot.ProjectId`, `RiskSnapshot.SnapshotId`, and `SuggestedConcern.ConcernId` — **proven** explicit JSON `null` bypassed `=""` / guid initializers; `CoalesceRequired` on backing-field setters; regressions `Deserialize_null_project_id_yields_empty_string_not_null`, `Deserialize_null_snapshot_id_yields_empty_string_not_null`, `Deserialize_null_concern_id_yields_empty_string_not_null`. **valid-no-repro** pass-9 `ComplianceRulePack.Name`/`RulePackHash` (pack-level coalesce prior hit), **invalid** `ContextSnapshot.DeltaSummary` (nullable optional; null is valid). Pass-10 reseed below. Scoped deserialization **12/12**. Private beta: context and risk snapshot JSON with null project/snapshot/concern ids deserializes to empty strings so ingest and risk replay queries do not null-reference.
+
+
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; hit-rate cooldown waived). Promoted pass-8 `ComplianceRule` headline strings and `Severity`/`Priority` — **proven** explicit JSON `null` left `null!`/initializer defaults bypassed; `CoalesceRequired` / `CoalesceStringDefault`; regressions `Deserialize_null_rule_headline_strings_yield_empty_strings_not_null`, `Deserialize_null_severity_and_priority_yield_defaults_not_null`, `Deserialize_null_nested_rule_inside_pack_yields_empty_strings_not_null`. **valid-no-repro** pass-8 `RiskSnapshot.ReviewRunId` sibling (`CoalesceRequired` prior hit), **invalid** `ComplianceRuleApplicabilityConditions` applicability strings (list-only surface). Pass-9 reseed below. Scoped deserialization **6/6**. Private beta: compliance rule pack nested rule JSON with null headline or severity fields deserializes to empty strings and legacy defaults so pack import does not null-reference child rules.
+
+
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; hit-rate cooldown waived). Promoted pass-7 `SuggestedConcern.Statement` and `RequirementSmell.RequirementId`/`Rationale` — **proven** explicit JSON `null` left `null!` references; `CoalesceRequired` on backing-field setters; regressions `Deserialize_null_statement_yields_empty_string_not_null`, `Deserialize_null_requirement_id_and_rationale_yield_empty_strings_not_null`. Pass-8 reseed below. Scoped deserialization **12/12**. Private beta: risk snapshot child JSON with null headline fields deserializes to empty strings so risk assessment replay does not null-reference stored concern and smell rows.
+
+
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; zone cooled by hit-rate, waiver empty hypothesis list). Promoted pass-6 `CanonicalObject.ObjectType`/`SourceType`/`SourceId` — **proven** explicit JSON `null` left `null!` references; `CoalesceRequired` on backing-field setters; regression `Deserialize_null_identity_columns_yield_empty_strings_not_null`. **valid-no-repro** pass-6 `ContextSnapshot.CanonicalObjects` (`Coalesce` + `ContextSnapshotDeserializationTests`). Pass-7 reseed below. Scoped deserialization **12/12**. Private beta: context ingest JSON with null canonical identity fields deserializes to empty strings so knowledge-graph replay does not null-reference stored canonical rows.
+
+
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`). Promoted pass-5 `ComplianceRulePack.RulePackId`/`Name`/`RulePackHash`/`SourcePath` — **proven** explicit JSON `null` left `null!` references; `ContractCollectionDefaults.CoalesceRequired` on backing-field setters; regression `Deserialize_null_rule_pack_identity_strings_yield_empty_strings_not_null`. Pass-5 monitors for `CanonicalObject`, `SuggestedConcern`, `RequirementSmell`, and nested `ComplianceRule` remain open; pass-6 reseed below. Scoped deserialization **13/13**. Private beta: compliance rule pack import JSON with null pack identity fields deserializes to empty strings so governance compliance loaders do not null-reference when replaying stored packs.
+
+
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone `ui-architecture-intelligence` 1/3 dry). Promoted pass-4 `(candidate)` `AdversarialChallenge` — **proven** explicit JSON `null` on `ChallengeId`/`Hypothesis`/`FalsificationEvidenceNeeded` left `null!` references despite initializers; `ContractCollectionDefaults.CoalesceRequired` on backing-field setters; regression `Deserialize_null_narrative_strings_yield_empty_strings_not_null`. **valid-no-repro** pass-4 `ComplianceRulePack.Version` (`CoalesceRequired` + regression), `CanonicalObject.Name` (regression), `GraphNode.Label` (regression). Pass-5 reseed below. Scoped deserialization **22/22**. Private beta: persisted adversarial challenge JSON with null narrative fields deserializes to empty strings so intelligence challenge storage and UI replay do not null-reference when hydrating legacy blobs.
+
+
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone `ui-runs-list` 1/3 dry). Recovered omitted pass-3 monitors from prior reseed note and promoted — **proven** `PolicyPack.PackType`/`DistributionScope`, **proven** `ArchitectureRecommendation` required narrative strings, **proven** `SpecialistReviewFinding.FindingId`, **proven** `RiskSnapshot.ReviewRunId`/`TenantId` explicit JSON `null` despite defaults/`null!`; `CoalesceRequired` / `CoalesceStringDefault`; regressions `Deserialize_null_pack_type_and_distribution_scope_yield_defaults_not_null`, `Deserialize_null_narrative_strings_yield_empty_strings_not_null`, `Deserialize_null_finding_id_yields_empty_string_not_null`, `Deserialize_null_review_run_id_and_tenant_id_yield_empty_strings_not_null`. Scoped deserialization **22/22**. Pass-4 reseed below. Private beta: policy-pack, architecture intelligence recommendation, risk snapshot, and specialist review contract JSON with null labels or ids deserializes to empty strings or legacy pack defaults so operator governance and intelligence surfaces do not null-reference on replay.
+
+
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone `ui-infra-resource-hub` 1/3 dry). Promoted pass-2 `(candidate)` rows — **proven** `RecommendationRecord.Category`/`Rationale` (and sibling workflow text columns), **proven** `AlertRecord.Category`/`Description`/`DeduplicationKey`, **proven** `PolicyPack.CurrentVersion` explicit JSON `null` leaving null despite initializer; `ContractCollectionDefaults.CoalesceRequired` / `CoalesceStringDefault`; regressions `Deserialize_null_category_and_rationale_yields_empty_strings_not_null`, `Deserialize_null_category_dedup_key_and_description_yields_empty_strings_not_null`, `Deserialize_null_current_version_yields_default_label_not_null`; **valid-no-repro** `GovernanceApprovalRequest.RequestedBy` null (`CoalesceRequired` on setter; run-id regression family). Scoped deserialization **12/12** on touched suites. Pass-3 reseed below. Private beta: persisted advisory, alert, and policy-pack JSON with null category, rationale, description, dedupe key, or version label deserializes to empty or default version strings so workflow, notifications, and pack settings do not null-reference on replay.
+
+- [x] (proven) `PolicyPack.PackType` / `DistributionScope` — explicit JSON `null` on pack lifecycle labels — **hit 2026-11-25 seed hunt:** `CoalesceStringDefault`; regression above.
+- [x] (proven) `ArchitectureRecommendation` — required narrative `null!` strings — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regression above.
+- [x] (proven) `SpecialistReviewFinding.FindingId` — explicit JSON `null` on specialist finding id — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regression above.
+- [x] (proven) `RiskSnapshot.ReviewRunId` / `TenantId` — explicit JSON `null` on risk snapshot scope strings — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regression above.
+- [x] (superseded) pass-3 `(candidate)` queue (never materialized in ledger body) — **superseded 2026-11-25 seed hunt (seed→hit):** pass-4 reseed.
+
+- [x] (proven) `AdversarialChallenge` — triple `null!` narrative strings — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regression above.
+- [x] (valid-no-repro) pass-4 `ComplianceRulePack.Version` — **cheap-disproof 2026-11-25 seed hunt:** existing `CoalesceRequired` + regression.
+- [x] (valid-no-repro) pass-4 `CanonicalObject.Name` — **cheap-disproof 2026-11-25 seed hunt:** existing regression.
+- [x] (valid-no-repro) pass-4 `GraphNode.Label` — **cheap-disproof 2026-11-25 seed hunt:** `Deserialize_null_label_yields_empty_string_not_null`.
+- [x] (superseded) pass-4 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-5 reseed.
+
+- [x] (proven) `ComplianceRulePack.RulePackId` / `Name` / `RulePackHash` / `SourcePath` — explicit JSON `null` on compliance pack identity — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regression above.
+- [x] (superseded) pass-5 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-6 reseed.
+
+- [x] (proven) `CanonicalObject.ObjectType` / `SourceType` / `SourceId` — explicit JSON `null` on canonical identity — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regression above.
+- [x] (valid-no-repro) pass-6 `ContextSnapshot.CanonicalObjects` — **cheap-disproof 2026-11-25 seed hunt:** `Coalesce` on list setter; snapshot deserialization regression.
+- [x] (superseded) pass-6 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-7 reseed.
+
+- [x] (proven) `SuggestedConcern.Statement` — explicit JSON `null` on risk concern headline — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regression above.
+- [x] (proven) `RequirementSmell.RequirementId` / `Rationale` — explicit JSON `null` on smell headline fields — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regression above.
+- [x] (superseded) pass-7 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-8 reseed.
+
+- [x] (proven) `ComplianceRule` rule headline strings — explicit JSON `null` on nested rule rows — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regressions above.
+- [x] (proven) `ComplianceRule.Severity` / `Priority` — explicit JSON `null` bypassing initializer defaults — **hit 2026-11-25 seed hunt:** `CoalesceStringDefault`; regression above.
+- [x] (valid-no-repro) pass-8 `RiskSnapshot.ReviewRunId` sibling — **cheap-disproof 2026-11-25 seed hunt:** root scope strings already coalesce.
+- [x] (invalid) `ComplianceRuleApplicabilityConditions` gate strings — **cheap-disproof 2026-11-25 seed hunt:** optional `CloudProviders` list only.
+- [x] (superseded) pass-8 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-9 reseed.
+
+- [x] (proven) `ContextSnapshot.ProjectId` — explicit JSON `null` bypassing `=""` initializer — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regression above.
+- [x] (proven) `RiskSnapshot.SnapshotId` — explicit JSON `null` on snapshot key — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regression above.
+- [x] (proven) `SuggestedConcern.ConcernId` — explicit JSON `null` bypassing guid initializer — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regression above.
+- [x] (valid-no-repro) pass-9 `ComplianceRulePack.Name` / `RulePackHash` — **cheap-disproof 2026-11-25 seed hunt:** pack identity coalesce shipped prior run.
+- [x] (invalid) `ContextSnapshot.DeltaSummary` — **cheap-disproof 2026-11-25 seed hunt:** `string?` optional; JSON null is valid absence.
+- [x] (superseded) pass-9 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-10 reseed.
+
+- [x] (proven) `CanonicalObject.ObjectId` — explicit JSON `null` bypassing guid initializer — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regression above.
+- [x] (proven) `ArchitectureTradeoff` headline strings — explicit JSON `null` on mechanism/id — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regression above.
+- [x] (proven) `ExecutionContextItem` label/value strings — explicit JSON `null` on execution context keys — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regression above.
+- [x] (valid-no-repro) pass-10 nested `RequirementSmell` — **cheap-disproof 2026-11-25 seed hunt:** `RequirementId` coalesce prior hit.
+- [x] (invalid) `ContextSnapshot` GUID columns — **cheap-disproof 2026-11-25 seed hunt:** `Guid` value type; null token becomes empty guid.
+- [x] (superseded) pass-10 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-11 reseed.
+
+- [ ] (candidate) `ArchitectureTradeoff` optional explanation strings — explicit JSON `null` on nullable narrative fields — locus: nullable properties; input: conflicting tradeoff JSON; monitor; pass-11 reseed.
+- [ ] (candidate) `WafPillar` enum explicit JSON `0` on tradeoff rows — locus: enum defaults; input: numeric zero pillar; monitor; pass-11 reseed.
+- [ ] (candidate) `ContextIngestionRequest` headline strings — explicit JSON `null` on ingest request identity columns — locus: auto-property setters; input: ingest API JSON; monitor; pass-11 reseed.
+- [ ] (candidate) `GraphEdge` relationship strings — explicit JSON `null` on graph edge endpoints — locus: backing-field setters; input: topology export JSON; monitor; pass-11 reseed.
+- [ ] (candidate) `ComplianceRulePack.Name` round-trip with nested rules after child coalesce — locus: pack + child deserialize; input: null pack display name; monitor; pass-11 reseed.
+
+
+
+
+
+
+
+
+
+2026-11-25 thorough hunt #4 (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone `ui-hooks-shared` 2× seed-only). Attempted failing repro on five pass-1 `(candidate)` rows — **proven** `RecommendationRecord.Title`, `PolicyPack.Name`/`Description`, `AlertRecord.Title`/`TriggerValue`, and `ItsmIntegrationHealthStatusResponse.Status` explicit JSON `null` left reference null despite `null!`/empty initializers; `ContractCollectionDefaults.CoalesceRequired` on backing-field setters; regressions `Deserialize_null_title_yields_empty_string_not_null`, `Deserialize_null_name_yields_empty_string_not_null`, `Deserialize_null_description_yields_empty_string_not_null`, `Deserialize_null_title_yields_empty_string_not_null` (alert), `Deserialize_null_trigger_value_yields_empty_string_not_null`, `Deserialize_null_status_yields_empty_string_not_null` (ITSM health); **valid-no-repro** `GovernanceApprovalRequest.ApprovalRequestId` null mints id (`Deserialize_null_approval_request_id_mints_non_empty_id`). Scoped deserialization tests **14/14** on touched suites. Reseeded pass-2 monitors below. Private beta: persisted advisory, alert, policy-pack, and ITSM health JSON with null display or summary strings deserialize to empty strings so operator workflow, notifications, and integrations settings do not null-reference on replay.
+
 
 2026-10-29 seed hunt (seed→hit): re-read governance approval JSON after prior workflow `Status` null fix; promoted `GovernanceApprovalRequest` explicit JSON `null` on required string fields (`RunId`, `ManifestVersion`, `RequestedBy`, environment labels) bypassing `= string.Empty` / environment defaults; `ContractCollectionDefaults.CoalesceRequired` / `CoalesceStringDefault` on backing-field setters; `ApprovalRequestId` regen when null or empty; regression `Deserialize_null_run_id_yields_empty_string_not_null`; scoped GovernanceApprovalRequest deserialization tests 3/3; reseeded five follow-on `(candidate)` rows below. Private beta: governance approval JSON with null run or environment fields deserializes to legacy empty/default strings so promotion workflow UI and SQL MERGE paths do not null-reference when replaying stored requests.
 
 - [x] (proven) `GovernanceApprovalRequest.RunId` / `ManifestVersion` / `RequestedBy` / environment strings — explicit JSON `null` on required promotion strings — **hit 2026-10-29 seed hunt:** `CoalesceRequired` / `CoalesceStringDefault`; regression above.
-- [ ] (candidate) `RecommendationRecord.Title` — explicit JSON `null` on advisory recommendation title despite `= null!` initializer — locus: auto-property setter; input: persisted recommendation row JSON with `"title": null`; reachability: workflow persistence round-trip.
-- [ ] (candidate) `PolicyPack.Name` / `Description` — explicit JSON `null` on policy pack display fields — locus: auto-property setters; input: policy pack API JSON with null name; reachability: governance policy pack import.
-- [ ] (candidate) `AlertRecord.Title` / `TriggerValue` — explicit JSON `null` on alert headline or trigger summary — locus: auto-property setters; input: alert notification payload with null title; reachability: alert delivery webhook JSON.
-- [ ] (candidate) `GovernanceApprovalRequest.ApprovalRequestId` — explicit JSON `null` should mint a new id when absent — locus: `ApprovalRequestId` setter; input: `"approvalRequestId": null` on create payload (verify regen vs empty).
-- [ ] (candidate) `ItsmIntegrationHealthStatusResponse.Status` — explicit JSON `null` on integration health summary status — locus: `init` only property with `= string.Empty`; input: ITSM health probe JSON with null status; reachability: integrations settings health card.
+- [x] (proven) `RecommendationRecord.Title` — explicit JSON `null` on advisory title — **hit 2026-11-25 thorough hunt #4:** `CoalesceRequired`; regression above.
+- [x] (proven) `PolicyPack.Name` / `Description` — explicit JSON `null` on pack display fields — **hit 2026-11-25 thorough hunt #4:** `CoalesceRequired`; regressions above.
+- [x] (proven) `AlertRecord.Title` / `TriggerValue` — explicit JSON `null` on alert headline/trigger — **hit 2026-11-25 thorough hunt #4:** `CoalesceRequired`; regressions above.
+- [x] (valid-no-repro) `GovernanceApprovalRequest.ApprovalRequestId` — explicit JSON `null` mints id — **cheap-disproof 2026-11-25 thorough hunt #4:** existing setter regen; regression above.
+- [x] (proven) `ItsmIntegrationHealthStatusResponse.Status` — explicit JSON `null` on health summary — **hit 2026-11-25 thorough hunt #4:** `CoalesceRequired` on `init`; regression above.
+
+
 
 2026-10-29 seed hunt (seed→hit): promoted workflow `Status` explicit JSON `null` bypassing string initializers on `RecommendationRecord`, `AlertRecord`, `PolicyPack`, and `GovernanceApprovalRequest`; `ContractCollectionDefaults.CoalesceStringDefault` on all four setters with domain defaults (`Proposed`, `Open`, `Draft`, `Draft`); regressions `Deserialize_null_status_yields_*_not_null` per DTO; cheap-disproof closed `(candidate)` `GoldenManifestCreateTimePinCommitment` (still not whole-record JSON); scoped status deserialization tests 5/5 with prior RecommendationRecord JSON-column test; reseeded five follow-on `(candidate)` rows below. Private beta: advisory, alert, policy-pack, and governance-approval JSON with null status deserializes to each type's legacy default so operator workflow and integrations UI do not null-reference lifecycle filters.
 
@@ -9021,11 +9227,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 3
-- **bugs-found:** 2
+- **hunts:** 12
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-24
-- **last-bug:** 2026-11-24
+- **last-hunt:** 2026-11-25
+- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10601,10 +10807,44 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-11-25 seed hunt (seed-only, dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; zone `lowYieldStreak` 1/3 seed-only at tail). Attempted failing repro on five pass-3 `(candidate)` monitors — **valid-no-repro** GetStarted skip-link vs path selection (`selects the sample path when the bottom sample link is activated`; primary `Choose a sample` control calls `selectSamplePath`), **invalid** ShowcaseQuickNav scroll-spy (`ShowcaseQuickNav` is static deep-link chrome without intersection observer), **valid-no-repro** SignupVerify resend remount (`readSignupVerifyResendCooldown` persists via `sessionStorage`), **valid-no-repro** SecureNow mailto parity (conversation link uses native `mailto:`; inline markdown fix family), **invalid** SeeItHero analytics swallow (hero CTAs are plain `Link`; Clarity guard lives on separate CTA modules). No hunt-ready promotion; pass-4 reseed below. Scoped vitest marketing **683/685** (`marketing-surface-hygiene`, `DemoPreviewMarketingBody` failures pre-existing). Private beta: n/a.
+
+
+2026-11-25 seed hunt (seed-only): no rotation (`shouldRotate: false`). Cheap-disproof on five pass-2 `(candidate)` monitors — **valid-no-repro** FAQ `forceOpen` linger (hashchange resync landed prior hunt; panel local `open` may persist by design), **valid-no-repro** pricing quote hash (`openForSamePageQuoteLink` click fallback), **valid-no-repro** privacy TOC mobile (shared `PrivacyPolicyTocList` + `syncUrlHash`; monitor), **valid-no-repro** walkthrough CTA http vs mailto (`CtaButton` http-only new tab), **valid-no-repro** `CtaButton` mixed href (`opensNewTab` only for http(s)). No hunt-ready promotion. Scoped vitest marketing **683/685** (`marketing-surface-hygiene`, `DemoPreviewMarketingBody` failures pre-existing on branch). Pass-3 reseed below. Private beta: n/a.
+
+
+2026-11-25 thorough hunt (hit): no rotation (`shouldRotate: false`). Attempted failing repro on two pass-1 `(candidate)` rows — **proven** `renderInline` treated `mailto:` like HTTP externals and set `target="_blank"`; HTTP-only blank-target attrs; regression `does not open mailto links in a new tab`; **proven** `MarketingFaqPageToc` `pushState` left `MarketingFaqPageClient` hash listeners stale; dispatch `HashChangeEvent` after category navigation; regression `dispatches a hashchange event when a category link is selected`. Scoped vitest **11/11**. Pass-2 reseed below. Private beta: public marketing visitors following mailto links no longer get an extra blank tab, and FAQ category TOC clicks refresh hash-driven disclosure state after deep-linking to a question.
+
+
 2026-10-30 seed hunt #81 (seed-only): re-read marketing markdown link rendering, FAQ hash synchronization, privacy-policy navigation, and pricing quote interactions; no additional hypothesis met the hunt-ready reachability bar without a failing repro. Seeded two bounded candidates for a future thorough hunt.
 
-- [ ] (candidate) `renderInline` — `mailto:` markdown links are classified as external and receive `target="_blank"`; input: a buyer selects an email link rendered from a privacy/help markdown document; monitor whether browser mail-client handoff opens an unnecessary blank browsing context.
-- [ ] (candidate) `MarketingFaqPageToc` + `MarketingFaqPageClient` — category navigation uses `history.pushState` without a `hashchange` event; input: a visitor deep-links to an FAQ item, then selects a different category in the TOC; monitor whether the client’s hash-driven disclosure state remains stale.
+- [x] (proven) `renderInline` — `mailto:` received `target="_blank"` — **hit 2026-11-25 thorough hunt:** HTTP-only new-tab attrs; regression above.
+- [x] (proven) `MarketingFaqPageToc` — `pushState` without `hashchange` — **hit 2026-11-25 thorough hunt:** dispatch `hashchange`; regression above.
+
+- [x] (valid-no-repro) pass-2 FAQ forceOpen linger — **cheap-disproof 2026-11-25 seed hunt:** hashchange fix; monitor.
+- [x] (valid-no-repro) pass-2 pricing quote hash — **cheap-disproof 2026-11-25 seed hunt:** click fallback.
+- [x] (valid-no-repro) pass-2 privacy mobile TOC — **cheap-disproof 2026-11-25 seed hunt:** shared list; monitor.
+- [x] (valid-no-repro) pass-2 walkthrough CTA tab — **cheap-disproof 2026-11-25 seed hunt:** intentional http vs mailto.
+- [x] (valid-no-repro) pass-2 CtaButton href mix — **cheap-disproof 2026-11-25 seed hunt:** http-only `_blank`.
+
+- [x] (superseded) pass-2 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed-only):** pass-3 reseed.
+
+- [x] (valid-no-repro) pass-3 GetStarted keyboard skip vs sample selection — **cheap-disproof 2026-11-25 seed hunt:** bottom link + button regressions.
+- [x] (invalid) pass-3 ShowcaseQuickNav scroll-spy — **cheap-disproof 2026-11-25 seed hunt:** component has no intersection observer.
+- [x] (valid-no-repro) pass-3 SignupVerify resend remount cooldown — **cheap-disproof 2026-11-25 seed hunt:** sessionStorage-backed cooldown.
+- [x] (valid-no-repro) pass-3 SecureNow mailto parity — **cheap-disproof 2026-11-25 seed hunt:** dedicated mailto `Link`; inline mailto family.
+- [x] (invalid) pass-3 SeeItHero analytics swallow — **cheap-disproof 2026-11-25 seed hunt:** hero uses navigation links only.
+
+- [x] (superseded) pass-3 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed-only):** pass-4 reseed.
+
+- [ ] (candidate) `MarketingFaqPageClient` — `forceOpen` disclosure may stay open after hashchange to another category — locus: controlled vs local open state; input: TOC navigate away from open FAQ; monitor; pass-4 reseed.
+- [ ] (candidate) `MarketingPricingQuotePanel` — whitespace-only work email may pass trim gate — locus: required-field trim; input: spaces-only email; monitor; pass-4 reseed.
+- [ ] (candidate) `PrivacyPolicyTocList` — mobile disclosure sync on `hashchange` vs `pushState` without pop — locus: hash listener; input: in-app privacy TOC click; monitor; pass-4 reseed.
+- [ ] (candidate) `WalkthroughRequestCta` — non-http contact href tab policy — locus: `CtaButton`/`opensNewTab`; input: `tel:` or relative paths; monitor; pass-4 reseed.
+- [ ] (candidate) `MarketingTrustCenterRevisionHistory` — revision anchor focus without scroll on keyboard — locus: skip/anchor; input: keyboard activate revision link; monitor; pass-4 reseed.
+
+
+
 
 2026-10-30 seed hunt #80 (hit): proved `MarketingPricingQuotePanel` marked its email input `type="email"` but disabled native validation with `noValidate`, and the submit handler only checked presence, so malformed addresses could reach the quote API; added a format guard and `does not submit when the work email is malformed` in `MarketingPricingQuotePanel.test.tsx`. Focused quote-panel suite passed 3/3. Private beta: invited buyers who enter an invalid work email now receive immediate correction guidance instead of sending an unusable pricing request to the quote service.
 
@@ -10876,11 +11116,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 3
-- **bugs-found:** 2
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-24
-- **last-bug:** 2026-11-24
+- **hunts:** 6
+- **bugs-found:** 3
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-25
+- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -14160,13 +14400,25 @@ ABQ-09 churn hotspot.
 ---
 
 ## Zone: ui-infra-resource-hub
+
+2026-11-25 thorough hunt #496 (dry): no rotation (`shouldRotate: false`). Re-attempted failing repro on five pass-495 `(candidate)` monitors — **valid-no-repro** Ask handoff `runId` with duplicate `tab=` (`omits duplicate stale tab params on drift Infrastructure Ask links`, `preserves runId on drift Infrastructure Ask links`), **valid-no-repro** stale banner clear (`clears partial stale URL audit params on overview Infrastructure Ask link`, `preserves explorer workQueue on stale audit scope banner links`), **valid-no-repro** tab dedupe + `workQueue` (`uses the last tab query value and canonicalizes duplicate tab params on load`, `preserves explorer workQueue on overview Infrastructure Ask link`), **valid-no-repro** findings tab badge sum (`shows tab count badges for findings and drift`), **valid-no-repro** drift `changeId` trim (defer trim class; whitespace omission copy regressions). Scoped vitest **148/148**. Pass-496 reseed below. Private beta: n/a.
+
 2026-11-24 thorough hunt #495 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone **`ui-claim-discipline-policy`** at run-log tail is **1/3** seed-only before this record). Attempted failing repro on five header `(candidate)` monitor rows from hunt **#494** reseed; cheap-disproof closed all five — **valid-no-repro** Ask handoff `snapshotId` with duplicate `tab=` (`infrastructureAskHandoffSearch` builds from `resourceHubFilterHrefFromSearch`; regressions `omits duplicate stale tab params on drift Infrastructure Ask links`, `preserves hub snapshot and runId on stale audit scope banner audit tab link`; hunt **#237** reseed family), **valid-no-repro** stale banner `auditTabHref` omitting `runId` with duplicate tabs (`preserves hub snapshot and runId on stale audit scope banner audit tab link`; `preserves runId when switching hub tabs from the tab bar`; hunt **#237** reseed family), **valid-no-repro** `setActiveTab` dropping explorer `workQueue` with duplicate `tab=` (`preserves explorer workQueue when switching hub tabs from the tab bar`; `uses the last tab query value and canonicalizes duplicate tab params on load`; hunt **#237** reseed family), **valid-no-repro** diagram tab badge saturated `[state-machine-gap]` (regression `shows tab count badges for findings and drift`; hunt **#237** reseed family), **valid-no-repro** drift `diffId` whitespace trim (defer trim class; hunt **#237** reseed family). Reseeded five follow-on `(candidate)` rows below (hunt **#495** reseed). Scoped **143/143** `ResourceHubClient.test.tsx` + **23/23** `infra-evidence-hub-filter-url.test.ts`. **This dry starts 1/3** on `ui-infra-resource-hub` at run-log tail (prior hub **hit #494** separated by claim-discipline seed-only). Private beta: n/a.
 
-- [ ] (candidate) `ResourceHubClient` `infrastructureAskHandoffSearch` — handoff may drop `runId` when duplicate tab keys precede dedupe — locus: scoped Ask handoff builder; input: duplicate `tab=` + hub `runId`; monitor; hunt **#495** reseed.
-- [ ] (candidate) `ResourceHubClient` stale audit scope banner — `clearAuditScopeHref` may retain partial audit ids when URL mixes linked + unlinked scope — locus: stale banner clear link; input: mixed audit scope params; monitor; hunt **#495** reseed.
-- [ ] (candidate) `ResourceHubClient` tab dedupe on load — may drop `workQueue` when last tab wins over explorer queue tab — locus: initial tab canonicalization; input: duplicate `tab=` + `workQueue`; monitor; hunt **#495** reseed.
-- [ ] (candidate) `ResourceHubClient` findings tab badge — saturated `[state-machine-gap]` operational vs architecture sum — monitor; hunt **#495** reseed.
-- [ ] (candidate) `ResourceHubDriftChangesTable` — whitespace-only `changeId` on drift workbench deep link — defer trim class; monitor; hunt **#495** reseed.
+- [x] (valid-no-repro) pass-495 Ask handoff runId + duplicate tab — **cheap-disproof 2026-11-25 thorough hunt #496:** regressions above.
+- [x] (valid-no-repro) pass-495 stale banner partial audit on clear — **cheap-disproof 2026-11-25 thorough hunt #496:** regressions above.
+- [x] (valid-no-repro) pass-495 tab dedupe vs workQueue — **cheap-disproof 2026-11-25 thorough hunt #496:** regressions above.
+- [x] (valid-no-repro) pass-495 findings tab badge gap — **cheap-disproof 2026-11-25 thorough hunt #496:** badge regression.
+- [x] (valid-no-repro) pass-495 drift changeId whitespace — **cheap-disproof 2026-11-25 thorough hunt #496:** defer trim class.
+
+- [x] (superseded) pass-495 `(candidate)` queue — **superseded 2026-11-25 thorough hunt #496:** pass-496 reseed.
+
+- [ ] (candidate) `ResourceHubClient` — `suppressLinkedAuditScopeRefetchRef` may skip load on rapid audit control switch — locus: scope refetch guard; input: fast control chip clicks; monitor; pass-496 reseed.
+- [ ] (candidate) `ResourceHubClient` — `loadRequestGeneration` may apply late hub row after resource id change — locus: generation guard; input: rapid resource switch; monitor; pass-496 reseed.
+- [ ] (candidate) `ResourceHubClient` — `infraResourceHubTechnicalKey` URL sync vs terraform tab exit — locus: technical key normalize; input: leave terraform with open disclosure; monitor; pass-496 reseed.
+- [ ] (candidate) `ResourceHubClient` — partial capture empty stream copy vs hub totals — locus: SecureNow partial capture; input: partial snapshot badge; monitor; pass-496 reseed.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — duplicate `changeId` rows ask link collision — locus: test id suffix; input: shared changeId differing property; monitor; pass-496 reseed.
+
 
 - [x] (valid-no-repro) `ResourceHubClient` `infrastructureAskHandoffSearch` — handoff may drop `snapshotId` when duplicate `tab=` keys precede dedupe — locus: scoped Ask handoff builder; input: duplicate `tab=` + pinned snapshot; monitor; hunt **#494** reseed. — **cheap-disproof 2026-11-24 thorough hunt #495:** scoped handoff + stale banner snapshot regressions (hunt **#237** reseed family).
 - [x] (valid-no-repro) `ResourceHubClient` stale audit scope banner — `auditTabHref` may omit `runId` when duplicate tab keys present — locus: stale banner audit tab link; input: duplicate `tab=` + `runId`; monitor; hunt **#494** reseed. — **cheap-disproof 2026-11-24 thorough hunt #495:** stale banner audit tab + runId preservation family (hunt **#237** reseed family).
@@ -16996,10 +17248,10 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-24
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-24
 2026-10-20 seed hunt (seed→hit): promoted failed reload stale hub candidate; regression `clears_hub_evidence_when_a_newer_URL_selection_fails_to_load`; 55 scoped ResourceHubClient tests passed.
 
@@ -17148,6 +17400,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-claim-discipline-policy
 
+2026-11-25 thorough hunt #502 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-45 `(candidate)` monitors — **valid-no-repro** `EvidenceOrientationClaimAndSourcesStrip` sources-only early return (`omits sources-only strips when Where to go next is turned off` establishes intentional preference gating); **valid-no-repro** terraform/resources dual slug surfaces (`HelpGovernanceInfrastructureTerraformGuideView` regression; help strip passes `GOVERNANCE_INFRASTRUCTURE_TERRAFORM_HELP_CLAIM_HEADING_ID`; workbench `governance-infrastructure-terraform` orientation strip); **valid-no-repro** marketing `part="claim"` default anchor drift (signup split-band regression; infra help strips pass explicit claim heading ids); **valid-no-repro** `package-print` visible-band exception (`expectsVisibleClaimDisciplineBand` + empty-claim shell regression); **valid-no-repro** cloud-connections alias slug parity (`drops connect AWS claim TOC row when cloud-connections-aws omits the orientation band` + alias map). Pass-46 reseed below. Scoped vitest **54/54**. Private beta: n/a.
+
 2026-11-24 thorough hunt #501 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-44 `(candidate)` monitors — **valid-no-repro** Terraform TOC/orientation parity (visible `help-governance-infrastructure-terraform` band intentionally keeps claim TOC row; `HelpGovernanceInfrastructureTerraformGuideView` regression asserts heading ids and orientation strip); **invalid** mismatched `claimHeadingId` on omitted infra slug (all `help-governance-infrastructure-*` guides use visible bands with matching `GOVERNANCE_INFRASTRUCTURE_*_CLAIM_HEADING_ID` constants); **valid-no-repro** infra omit-set sibling drift-only (`passes governance infrastructure drift help claim through for visible-band orientation slug`; terraform/resources/diagrams share visible-band pattern); **valid-no-repro** admin `part="sources"` / omitted slugs (`administration settings evidence strips` regressions; `resolveClaimDisciplineForStrip` suppresses duplicate claim while sources render); **invalid** whitespace-padded slug (registry `stripSlug` values are static literals with no padded config/OpenAPI source). Reseeded five pass-45 `(candidate)` monitors below. Scoped vitest **44/44** (`claim-discipline-policy.test.ts`, `administration-settings-claim-discipline-strips.test.tsx`, `HelpGovernanceInfrastructureTerraformGuideView.test.tsx`). Private beta: n/a.
 
 - [x] (valid-no-repro) `HelpGovernanceInfrastructureTerraformGuideView` — TOC keeps claim heading id while header paragraph repeats orientation claim — **cheap-disproof 2026-11-24 thorough hunt #501:** visible-band infra help design; guide regression + orientation strip claim heading id matches TOC.
@@ -17156,11 +17410,18 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `EvidenceOrientationSourcesAndClaimStrip` — `part="sources"` on visible slug suppresses claim while header fold omits bottom band — **cheap-disproof 2026-11-24 thorough hunt #501:** admin settings sources-only strips + `resolveClaimDisciplineForStrip` on omitted slugs (hunt **#43** family).
 - [x] (invalid) `shouldOmitClaimDisciplineBand` — whitespace-padded stripSlug misses omit set exact key — **cheap-disproof 2026-11-24 thorough hunt #501:** no reachable padded slug input; literals only.
 
-- [ ] (candidate) `EvidenceOrientationClaimAndSourcesStrip` — `!whereToGoNextVisible && resolvedClaim === undefined` returns null and drops sources on visible workbench slugs — locus: early return; input: working workspace + sources-only infra strip (monitor).
-- [ ] (candidate) `resolveGuideHeadingsForStrip` — help guide uses `help-governance-infrastructure-*` slug while workbench orientation uses registry slug without `help-` prefix — locus: dual slug surfaces; input: terraform/resources workbench pair (monitor).
-- [ ] (candidate) `EvidenceOrientationClaimCallout` — omitted `claimHeadingId` defaults to `{slug}-claim-discipline-heading` diverging from help guide TOC constants — locus: default anchor; input: marketing `part="claim"` strips (monitor).
-- [ ] (candidate) `expectsVisibleClaimDisciplineBand` — new artifact export slug ships without omit entry while print orientation must stay visible — locus: omit set growth; input: package-print exception pattern (monitor).
-- [ ] (candidate) `resolveGuideHeadingsForStrip` — guide passes strip slug A while footer orientation strip passes alias B on same page — locus: alias map; input: cloud-connections help family (monitor).
+- [x] (valid-no-repro) pass-45 `EvidenceOrientationClaimAndSourcesStrip` sources-only + WTG off — **cheap-disproof 2026-11-25 thorough hunt #502:** intentional preference gate regression.
+- [x] (valid-no-repro) pass-45 terraform dual slug surfaces — **cheap-disproof 2026-11-25 thorough hunt #502:** help + workbench regressions.
+- [x] (valid-no-repro) pass-45 default `claimHeadingId` drift — **cheap-disproof 2026-11-25 thorough hunt #502:** explicit heading ids on infra help strips; signup split-band test.
+- [x] (valid-no-repro) pass-45 `package-print` omit growth — **cheap-disproof 2026-11-25 thorough hunt #502:** visible-band exception regressions.
+- [x] (valid-no-repro) pass-45 cloud-connections alias slugs — **cheap-disproof 2026-11-25 thorough hunt #502:** connect AWS TOC + alias map regressions.
+- [x] (superseded) pass-45 `(candidate)` queue — **superseded 2026-11-25 thorough hunt #502:** pass-46 reseed.
+
+- [ ] (candidate) `EvidenceOrientationSourcesSection` — sources section may return null when Where to go next hidden even though claim band still mounts — locus: WTG visibility gate; input: visible slug with claim + sources composite (monitor).
+- [ ] (candidate) `HelpGovernanceInfrastructureResourcesGuideView` — resources help slug may drift from resources workbench orientation registry slug — locus: dual slug surfaces; input: resources workbench pair (monitor).
+- [ ] (candidate) `CLAIM_DISCIPLINE_BAND_OMIT_STRIP_SLUG_ALIASES` — connect GCP legacy alias may omit while footer strip uses canonical slug — locus: alias map; input: connect-gcp family (monitor).
+- [ ] (candidate) `EvidenceOrientationSourcesAndClaimStrip` — split `part="sources"` on omitted slug may still render sources heading without claim anchor — locus: split-band composition; input: administration settings strips (monitor).
+- [ ] (candidate) `resolveGuideHeadingsForStrip` — specialty infra diagram help may keep claim TOC row while orientation strip uses mismatched heading id — locus: heading id constants; input: diagrams help guide (monitor).
 
 2026-11-24 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone **`ui-infra-resource-hub`** at run-log tail after hunt **#494** hit). Reread `claim-discipline-policy.ts`, infrastructure help guide `resolveGuideHeadingsForStrip` call sites, orientation strip registry, and focused tests; cheap-disproof closed three pass-43 `(candidate)` monitors — **valid-no-repro** specialty walkthrough header/TOC parity (`drops specialty walkthrough claim TOC row when help-specialty-walkthroughs omits the orientation band`; `does not list a claim-discipline TOC entry on the specialty walkthrough catalog headings`), **valid-no-repro** empty visible-band claim shell (`still renders an empty claim callout shell when claim prop is an empty string on a visible slug`), **valid-no-repro** legacy alias drift (`omits legacy orientation strip slug aliases that differ from registry help-topic slugs`). No row met hunt-ready; reseeded five pass-44 `(candidate)` monitors below. Scoped **51/51** (`claim-discipline-policy.test.ts`, `EvidenceOrientationClaimAndSourcesStrip.test.tsx`, `administration-settings-claim-discipline-strips.test.tsx`). Private beta: n/a.
 
@@ -20211,4 +20472,16 @@ ABQ-09 churn hotspot.
 2026-10-11 thorough hunt (dry): `host-core-jobs` — repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 thorough hunt (dry): `host-core-jobs` — repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 seed hunt (seed→hit): `ui-infra-resource-hub` — `ResourceHubClient` supplied `shortcutsTestId` to `InfraEvidenceWorkbenchHeaderActions`, but the shared header action wrapper dropped it, making the shortcut region unqueryable and breaking the focused ResourceHubClient test. The wrapper now applies the supplied test id; the focused ResourceHubClient, working-mode, and buyer-polished suites passed 52/52.
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -4,6 +4,8 @@ import { useCallback, type RefObject } from "react";
 
 import {
   buildRequest,
+  hasUsableArchitectureSourceText,
+  requiresArchitectureDescriptionForMutation,
   getJson,
   postJson,
   primaryDescriptionFromSources,
@@ -65,7 +67,7 @@ export function useArchitectureIntelligenceActions(
 
   const runReasoningWithOptions = useCallback(
     async (options?: { publish?: boolean; action?: "reasoning" | "analyze" }) => {
-      if (architectureDescription.trim().length === 0) {
+            if (requiresArchitectureDescriptionForMutation(architectureDescription, hydratedSourceTexts)) {
         setError("Architecture description is required (or load the golden fixture).");
 
         return;
@@ -153,6 +155,11 @@ export function useArchitectureIntelligenceActions(
   }, [canAnalyzeHydratedReview, runReasoningWithOptions, setError]);
 
   const continueWithAnswers = useCallback(async () => {
+    if (requiresArchitectureDescriptionForMutation(architectureDescription, hydratedSourceTexts)) {
+      setError("Architecture description is required (or load the golden fixture).");
+
+      return;
+    }
     if (!activeRunId) {
       setError("Run an architecture reasoning pass first to obtain a run id.");
 
@@ -217,6 +224,11 @@ export function useArchitectureIntelligenceActions(
   ]);
 
   const publishRun = useCallback(async () => {
+    if (requiresArchitectureDescriptionForMutation(architectureDescription, hydratedSourceTexts)) {
+      setError("Architecture description is required (or load the golden fixture).");
+
+      return;
+    }
     if (!activeRunId) {
       setError("Run an architecture reasoning pass first to obtain a run id.");
 
@@ -343,7 +355,7 @@ export function useArchitectureIntelligenceActions(
       setHydratedSourceTexts(sources);
       setArchitectureDescription(primaryDescriptionFromSources(sources));
       setPrioritiesRaw((fixture.declaredPriorities ?? []).join(", "));
-      markProductContextLoaded(sources.length > 0);
+      markProductContextLoaded(hasUsableArchitectureSourceText(sources));
     } catch (cause) {
       if (isStaleActionGeneration(actionGenerationRef, generation)) {
         return;

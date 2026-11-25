@@ -24,4 +24,23 @@ public sealed class Base64UrlCodecTests
         Base64UrlCodec.TryDecode(encoded, out byte[] decoded).Should().BeTrue();
         decoded.Should().Equal(payload);
     }
+
+    [Theory]
+    [InlineData("FF", "_w")]
+    [InlineData("FBFF", "-_8")]
+    [InlineData("FBFFFF", "-___")]
+    public void Encode_UsesTheUnpaddedUrlSafeAlphabet(string payloadHex, string expected)
+    {
+        Base64UrlCodec.Encode(Convert.FromHexString(payloadHex)).Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("_w", "FF")]
+    [InlineData("-_8", "FBFF")]
+    [InlineData("-___", "FBFFFF")]
+    public void TryDecode_AcceptsKnownUnpaddedUrlSafeVectors(string encoded, string expectedHex)
+    {
+        Base64UrlCodec.TryDecode(encoded, out byte[] bytes).Should().BeTrue();
+        bytes.Should().Equal(Convert.FromHexString(expectedHex));
+    }
 }

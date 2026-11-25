@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Audit;
@@ -17,6 +18,8 @@ public sealed partial class ArchitectureIntelligenceController
     [HttpPost("golden-test")]
     [ProducesResponseType(typeof(GoldenArchitectureTestResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PostGoldenTestAsync(
         [FromBody] ClosedLoopReasoningRequest? request,
         CancellationToken cancellationToken = default)
@@ -29,25 +32,51 @@ public sealed partial class ArchitectureIntelligenceController
             return this.BadRequestProblem(validationError!, ProblemTypes.ValidationFailed);
         }
 
-        GoldenArchitectureTestResult result = await _goldenArchitectureTestRunner.RunAsync(prepared, cancellationToken);
+        try
+        {
+            if (prepared.ContinueFromExistingRun && string.IsNullOrWhiteSpace(prepared.RunId))
+                return this.BadRequestProblem("Continue requests require a runId.", ProblemTypes.ValidationFailed);
 
-        await _auditService.LogAsync(
-            new AuditEvent
+            // The benchmark invokes the same orchestrator and can consume or update a run.
+            // Gate that path as well, even though the response only contains benchmark metrics.
+            if (!string.IsNullOrWhiteSpace(prepared.RunId))
             {
-                EventType = AuditEventTypes.ArchitectureIntelligenceGoldenTestCompleted,
-                DataJson = JsonSerializer.Serialize(new
-                {
-                    passed = result.Passed,
-                    plantedDefectRecall = result.PlantedDefectRecall,
-                    falsePositiveCount = result.FalsePositiveCount,
-                    falsePositivesByDimension = result.FalsePositivesByDimension,
-                    mutationChangedFindings = result.MutationChangedFindings,
-                    sourceCount = prepared.SourceTexts.Count,
-                }),
-            },
-            cancellationToken);
+                if (!Guid.TryParse(prepared.RunId, out Guid runId) || runId == Guid.Empty)
+                    return this.BadRequestProblem("RunId must be a non-empty GUID.", ProblemTypes.ValidationFailed);
 
-        return Ok(result);
+                IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(
+                    _scopeContextProvider.GetCurrentScope(), runId, requireDecide: true, cancellationToken);
+
+                if (sealedGuardResult is not null)
+                    return sealedGuardResult;
+
+                prepared.RunId = runId.ToString("D");
+            }
+
+            GoldenArchitectureTestResult result = await _goldenArchitectureTestRunner.RunAsync(prepared, cancellationToken);
+
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.ArchitectureIntelligenceGoldenTestCompleted,
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        passed = result.Passed,
+                        plantedDefectRecall = result.PlantedDefectRecall,
+                        falsePositiveCount = result.FalsePositiveCount,
+                        falsePositivesByDimension = result.FalsePositivesByDimension,
+                        mutationChangedFindings = result.MutationChangedFindings,
+                        sourceCount = prepared.SourceTexts.Count,
+                    }),
+                },
+                cancellationToken);
+
+            return Ok(result);
+        }
+        catch (ConflictException ex)
+        {
+            return MapArchitectureIntelligenceSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Returns the canonical golden incomplete-architecture fixture text for operator loading.</summary>

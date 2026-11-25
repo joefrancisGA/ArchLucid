@@ -35,6 +35,7 @@ public static class DeclarationSignalPolicyKeyMap
     private static readonly IReadOnlyDictionary<string, HashSet<string>> ThemeToRuleIds =
         new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase)
         {
+            ["event-grid-local-authentication"] = CreateThemeSet("sec-base-036"),
             ["data-protection"] = CreateThemeSet(
                 // CIS Azure — storage public access / network / SQL public
                 "cis-az-006", // Storage account public access disabled

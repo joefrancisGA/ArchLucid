@@ -1,4 +1,3 @@
-using System.Net.Http.Headers;
 using System.Text.Json;
 
 using ArchLucid.Core.AzureExtractor;
@@ -405,110 +404,26 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         Action onFailed,
         CancellationToken cancellationToken)
     {
-        string? nextLink =
-            $"https://management.azure.com/{listingRelativePath}?api-version={apiVersion}";
-        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
-        int requestCount = 0;
-        int accepted = 0;
-        bool truncated = false;
+        ArmPaginationResult result = await ReadArmObjectPagesAsync(
+            accessToken,
+            $"https://management.azure.com/{listingRelativePath}?api-version={apiVersion}",
+            candidate =>
+            {
+                HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(candidate, subscriptionId);
+                HostedAzureArmNextLinkValidator.EnsureTargetsExactArmRelativeListingPath(candidate, listingRelativePath);
+            },
+            onItem,
+            cancellationToken).ConfigureAwait(false);
 
-        while (!string.IsNullOrWhiteSpace(nextLink))
+        if (result.PartialCollection)
         {
-            if (!visitedLinks.Add(nextLink))
-            {
-                break;
-            }
-
-            requestCount++;
-
-            if (ShouldBreakForPageCap(requestCount))
-            {
-                truncated = true;
-                break;
-            }
-
-            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            using HttpResponseMessage response =
-                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                warnings.Add($"{companionName} collection failed; HTTP {(int)response.StatusCode}");
-                if (accepted == 0)
-                {
-                    onFailed();
-                }
-
-                break;
-            }
-
-            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-
-            JsonDocument? document;
-
-            try
-            {
-                document = await TryParseArmPaginationPageAsync(stream, accepted, cancellationToken).ConfigureAwait(false);
-            }
-            catch (JsonException)
-            {
-                warnings.Add($"{companionName} collection failed; invalid JSON");
-
-                if (accepted == 0)
-                {
-                    onFailed();
-                }
-
-                break;
-            }
-
-            if (document is null)
-            {
-                warnings.Add($"{companionName} collection failed; invalid JSON");
-
-                if (accepted == 0)
-                {
-                    onFailed();
-                }
-
-                break;
-            }
-
-            using (document)
-            {
-
-                if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
-                    && valueElement.ValueKind == JsonValueKind.Array)
-                {
-                    foreach (JsonElement item in valueElement.EnumerateArray())
-                    {
-                        onItem(item);
-                        accepted++;
-                    }
-                }
-
-                nextLink = null;
-
-                if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
-                    && nextLinkElement.ValueKind == JsonValueKind.String)
-                {
-                    string? candidateNextLink = nextLinkElement.GetString();
-
-                    if (!string.IsNullOrWhiteSpace(candidateNextLink))
-                    {
-                        HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(candidateNextLink, subscriptionId);
-                        HostedAzureArmNextLinkValidator.EnsureTargetsExactArmRelativeListingPath(
-                            candidateNextLink,
-                            listingRelativePath);
-                        nextLink = candidateNextLink;
-                    }
-                }
-            }
+            warnings.Add($"{companionName} collection failed; {result.FailureReason}");
+            warnings.Add($"{companionName} collection incomplete");
+            if (result.ObservedCount == 0)
+                onFailed();
         }
 
-        return truncated;
+        return result.PartialCollection;
     }
 
     private static HostedAzureArmDefenderPricingRecord? TryReadPricing(string subscriptionId, JsonElement item)

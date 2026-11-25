@@ -5,23 +5,29 @@ namespace ArchLucid.Contracts.Risk;
 /// <summary>Immutable risk analysis snapshot for one review run (mirrors <see cref="Findings.FindingsSnapshot" />).</summary>
 public sealed class RiskSnapshot
 {
+    private string snapshotId = string.Empty;
+
     public string SnapshotId
     {
-        get;
-        set;
-    } = Guid.NewGuid().ToString("N");
+        get => snapshotId;
+        set => snapshotId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string reviewRunId = string.Empty;
 
     public string ReviewRunId
     {
-        get;
-        set;
-    } = null!;
+        get => reviewRunId;
+        set => reviewRunId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string tenantId = string.Empty;
 
     public string TenantId
     {
-        get;
-        set;
-    } = null!;
+        get => tenantId;
+        set => tenantId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public DateTimeOffset CreatedAt
     {

@@ -7,15 +7,36 @@ namespace ArchLucid.Core.AzureExtractor;
 /// </summary>
 public static class AzureInventoryEventGridDestinationExtractor
 {
+    internal static bool TryResolveDestination(JsonElement properties, out JsonElement destination)
+    {
+        destination = default;
+        if (properties.ValueKind != JsonValueKind.Object)
+            return false;
+
+        if (properties.TryGetProperty("deliveryWithResourceIdentity", out JsonElement delivery)
+            && delivery.ValueKind != JsonValueKind.Null)
+        {
+            // Do not silently prefer one target when two delivery shapes are supplied.
+            if (properties.TryGetProperty("destination", out JsonElement direct)
+                && direct.ValueKind != JsonValueKind.Null)
+                return false;
+
+            return delivery.ValueKind == JsonValueKind.Object
+                && delivery.TryGetProperty("destination", out destination)
+                && destination.ValueKind == JsonValueKind.Object;
+        }
+
+        return properties.TryGetProperty("destination", out destination)
+            && destination.ValueKind == JsonValueKind.Object;
+    }
+
     public static (
         string DestinationKind,
         string? DestinationResourceId,
         string? DestinationHost,
         string? WarningCode) Extract(JsonElement propertiesElement)
     {
-        if (propertiesElement.ValueKind is not JsonValueKind.Object
-            || !propertiesElement.TryGetProperty("destination", out JsonElement destinationElement)
-            || destinationElement.ValueKind is not JsonValueKind.Object)
+        if (!TryResolveDestination(propertiesElement, out JsonElement destinationElement))
         {
             return (string.Empty, null, null, null);
         }

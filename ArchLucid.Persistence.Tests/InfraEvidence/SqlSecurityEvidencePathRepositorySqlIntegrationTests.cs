@@ -93,6 +93,34 @@ public sealed class SqlSecurityEvidencePathRepositorySqlIntegrationTests(SqlServ
         var malformed = (await explanations.ListByPathIdAsync(scope, pathId)).Single(row => row.ExplanationId == legacyId);
         malformed.InventoryFalsification.Should().BeNull();
         malformed.ExecutiveSummary.Should().Be("Historical text is not a verifier observation.");
+
+        Guid newestId = Guid.NewGuid();
+        await explanations.InsertAsync(new SecurityEvidencePathExplanationRecord
+        {
+            ExplanationId = newestId, PathId = pathId, TenantId = TenantA, CreatedUtc = captured.AddMinutes(1),
+            InventoryFalsification = contradicted,
+        });
+        var latest = (await explanations.ListLatestVerificationByPathsAsync(scope, snapshotId, [pathId, pathId, Guid.NewGuid()]))
+            .Should().ContainSingle().Which;
+        latest.ExplanationId.Should().Be(newestId);
+        latest.Verification.Should().Be(contradicted);
+        latest.RecordedUtc.Should().Be(captured.AddMinutes(1));
+
+        (await explanations.ListLatestVerificationByPathsAsync(scope, Guid.NewGuid(), [pathId])).Should().BeEmpty();
+        foreach (ScopeContext wrong in new ScopeContext[]
+        {
+            new() { TenantId = TenantB, WorkspaceId = WorkspaceId, ProjectId = ProjectId },
+            new() { TenantId = TenantA, WorkspaceId = Guid.NewGuid(), ProjectId = ProjectId },
+            new() { TenantId = TenantA, WorkspaceId = WorkspaceId, ProjectId = Guid.NewGuid() },
+        })
+            (await explanations.ListLatestVerificationByPathsAsync(wrong, snapshotId, [pathId])).Should().BeEmpty();
+
+        await explanations.InsertAsync(new SecurityEvidencePathExplanationRecord
+        {
+            ExplanationId = Guid.NewGuid(), PathId = pathId, TenantId = TenantA, CreatedUtc = captured.AddMinutes(2),
+            ExecutiveSummary = "Legacy text cannot establish verification.",
+        });
+        (await explanations.ListLatestVerificationByPathsAsync(scope, snapshotId, [pathId])).Should().BeEmpty();
     }
 
     [SkippableFact]

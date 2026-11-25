@@ -9496,6 +9496,17 @@
       "severity": "Warning",
       "priority": "P2",
       "description": "Stub for az-dr-007; see docs/samples/policy-packs/azure-resiliency-dr-rules-v1.json for narrative."
+    },
+    {
+      "ruleId": "sec-base-036",
+      "controlId": "SEC-BASE-036",
+      "controlName": "Event Grid local authentication disabled",
+      "appliesToCategory": "inventory:event-grid-local-authentication",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P0",
+      "description": "Inventory-specific control evaluated by the Azure inventory security baseline engine: explicit disableLocalAuth=true for custom topics and domains. Missing or conflicting evidence is unverified."
     }
   ]
 }

@@ -29,7 +29,8 @@ public static class InsightDensityLlmJudgmentParser
         {
             ParsedShape? parsed = JsonSerializer.Deserialize<ParsedShape>(rawJson, JsonRead);
 
-            if (parsed is null || string.IsNullOrWhiteSpace(parsed.FindingId))
+            if (parsed is null || string.IsNullOrWhiteSpace(parsed.FindingId)
+                || parsed.InsightDensityScore is not { } score)
             {
                 return null;
             }
@@ -42,7 +43,7 @@ public static class InsightDensityLlmJudgmentParser
             return new InsightDensityLlmJudgment
             {
                 FindingId = parsed.FindingId.Trim(),
-                InsightDensityScore = Math.Clamp(parsed.InsightDensityScore, 0, 100),
+                InsightDensityScore = Math.Clamp(score, 0, 100),
                 WhyThisIsNotGeneric = TrimToNull(parsed.WhyThisIsNotGeneric),
                 PrincipalArchitectValue = TrimToNull(parsed.PrincipalArchitectValue),
                 DecisionConsequence = TrimToNull(parsed.DecisionConsequence),
@@ -80,7 +81,7 @@ public static class InsightDensityLlmJudgmentParser
         }
 
         [JsonPropertyName("insightDensityScore")]
-        public int InsightDensityScore
+        public int? InsightDensityScore
         {
             get;
             set;

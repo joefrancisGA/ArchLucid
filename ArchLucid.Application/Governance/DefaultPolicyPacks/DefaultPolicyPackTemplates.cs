@@ -158,7 +158,8 @@ public static class DefaultPolicyPackTemplates
             "sec-base-027",
             "sec-base-028",
             "sec-base-029",
-            "sec-base-030"
+            "sec-base-030",
+            "sec-base-036"
           ],
           "alertRuleIds": [],
           "compositeAlertRuleIds": [],

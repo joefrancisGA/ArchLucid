@@ -73,14 +73,7 @@ public sealed class CachingAgentCompletionClient : IAgentStreamingCompletionClie
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
-        string key =
-            CacheKeyPrefix
-            + LlmCompletionCacheFingerprint.Compute(
-                _partitionByScope,
-                _deploymentName,
-                systemPrompt,
-                userPrompt,
-                scope);
+        string key = BuildCacheKey(systemPrompt, userPrompt, scope, maxTokens, temperature);
 
         string? cached = await _store.TryGetAsync(key, cancellationToken);
 
@@ -127,14 +120,7 @@ public sealed class CachingAgentCompletionClient : IAgentStreamingCompletionClie
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
-        string key =
-            CacheKeyPrefix
-            + LlmCompletionCacheFingerprint.Compute(
-                _partitionByScope,
-                _deploymentName,
-                systemPrompt,
-                userPrompt,
-                scope);
+        string key = BuildCacheKey(systemPrompt, userPrompt, scope, maxTokens, temperature);
 
         string? cached = await _store.TryGetAsync(key, cancellationToken).ConfigureAwait(false);
 
@@ -172,4 +158,11 @@ public sealed class CachingAgentCompletionClient : IAgentStreamingCompletionClie
         if (LlmCompletionCacheWireAdmission.IsAdmissible(assembled))
             await _store.SetAsync(key, assembled, _ttl, cancellationToken).ConfigureAwait(false);
     }
+
+    private string BuildCacheKey(string systemPrompt, string userPrompt, ScopeContext scope, int? maxTokens,
+        float? temperature) =>
+        CacheKeyPrefix + LlmCompletionCacheFingerprint.WithGenerationOptions(
+            LlmCompletionCacheFingerprint.Compute(_partitionByScope, _deploymentName, systemPrompt, userPrompt, scope),
+            maxTokens,
+            temperature);
 }

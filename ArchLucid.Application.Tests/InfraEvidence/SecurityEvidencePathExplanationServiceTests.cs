@@ -734,6 +734,17 @@ public sealed class SecurityEvidencePathExplanationServiceTests
 
     private sealed class CapturingExplanationRepository : ISecurityEvidencePathExplanationRepository
     {
+
+        public Task<IReadOnlyList<SecurityEvidencePathVerificationRecord>> ListLatestVerificationByPathsAsync(
+            ScopeContext scope,
+            Guid snapshotId,
+            IReadOnlyList<Guid> pathIds,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return Task.FromResult<IReadOnlyList<SecurityEvidencePathVerificationRecord>>([]);
+        }
+
         public SecurityEvidencePathExplanationRecord? LastInserted
         {
             get;

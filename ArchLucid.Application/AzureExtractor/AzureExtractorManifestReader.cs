@@ -92,7 +92,12 @@ public static class AzureExtractorManifestReader
                 scope,
                 switches,
                 azVersion,
-                rawJson.Trim());
+                rawJson.Trim())
+            {
+                CollectionWarnings = dto.Warnings?.Where(static warning => !string.IsNullOrWhiteSpace(warning))
+                    .Select(static warning => warning.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase).ToArray() ?? [],
+            };
 
             return (normalized, null);
         }
@@ -178,6 +183,12 @@ public static class AzureExtractorManifestReader
         }
 
         public string[]? SwitchesUsed
+        {
+            get;
+            init;
+        }
+
+        public string[]? Warnings
         {
             get;
             init;

@@ -7,6 +7,50 @@ namespace ArchLucid.ArtifactSynthesis.Tests.Classifiers;
 [Trait("Category", "Unit")]
 public sealed class AzureInventorySecurityBaselineClassifierTests
 {
+    [Theory]
+    [InlineData("{\"disableLocalAuth\":false}", "Enabled")]
+    [InlineData("{\"disableLocalAuth\":true}", "Disabled")]
+    [InlineData("{\"disableLocalAuth\":\"false\"}", "Enabled")]
+    [InlineData("{\"disableLocalAuth\":\"TRUE\"}", "Disabled")]
+    [InlineData("{\"properties.disableLocalAuth\":true}", "Disabled")]
+    [InlineData("{}", "InsufficientEvidence")]
+    [InlineData("{\"disableLocalAuth\":null}", "InsufficientEvidence")]
+    [InlineData("{\"disableLocalAuth\":\"unknown\"}", "InsufficientEvidence")]
+    [InlineData("{\"disableLocalAuth\":true,\"properties.disableLocalAuth\":false}", "InsufficientEvidence")]
+    [InlineData("{\"disableLocalAuth\":true,\"disableLocalAuth\":false}", "InsufficientEvidence")]
+    public void EvaluateEventGridLocalAuthentication_requires_consistent_explicit_evidence(
+        string propertiesJson, string expected)
+    {
+        using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(propertiesJson);
+        AzureInventorySecurityBaselineClassifier.EvaluateEventGridLocalAuthentication(document.RootElement)
+            .ToString().Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("topics", "false", "local authentication is enabled")]
+    [InlineData("domains", "false", "local authentication is enabled")]
+    [InlineData("topics", "null", "Insufficient evidence")]
+    [InlineData("domains", "true", null)]
+    [InlineData("systemTopics", "false", null)]
+    public void ClassifyFromResourcesJson_respects_event_grid_applicability(
+        string segment, string value, string? expectedMessage)
+    {
+        string json = $"""
+            [{"resourceType":"Microsoft.EventGrid/{{segment}}","resourceId":"resource1","properties":{"disableLocalAuth":{{value}}}}]
+            """;
+        var findings = AzureInventorySecurityBaselineClassifier.ClassifyFromResourcesJson(json);
+
+        if (expectedMessage is null)
+        {
+            findings.Should().BeEmpty();
+            return;
+        }
+
+        findings.Should().ContainSingle();
+        findings[0].ControlFamily.Should().Be("event-grid-local-authentication");
+        findings[0].Message.Should().Contain(expectedMessage);
+    }
+
     [Fact]
     public void ClassifyFromResourcesJson_flags_storage_account_with_blob_public_access()
     {

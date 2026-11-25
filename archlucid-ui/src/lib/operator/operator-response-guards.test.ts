@@ -44,6 +44,52 @@ describe("coerceRunSummaryList", () => {
 });
 
 describe("coerceRunSummaryPaged", () => {
+  it("prefers valid legacy offset metadata when both envelope shapes are present", () => {
+    const items = [{ runId: "r1" }];
+
+    expect(
+      coerceRunSummaryPaged(
+        {
+          items,
+          totalCount: 42,
+          page: 2,
+          pageSize: 20,
+          hasMore: true,
+          requestedTake: 5,
+          nextCursor: "cursor-token",
+        },
+        { page: 3 },
+      ),
+    ).toEqual({ ok: true, value: { items, totalCount: 42, page: 2, pageSize: 20, hasMore: true } });
+  });
+
+  it.each([
+    { field: "totalCount", invalidValue: Number.NaN },
+    { field: "page", invalidValue: Number.POSITIVE_INFINITY },
+    { field: "pageSize", invalidValue: Number.NEGATIVE_INFINITY },
+  ])("uses the keyset envelope when legacy $field is non-finite", ({ field, invalidValue }) => {
+    const items = [{ runId: "r1" }];
+
+    expect(
+      coerceRunSummaryPaged(
+        {
+          items,
+          totalCount: 42,
+          page: 2,
+          pageSize: 20,
+          hasMore: true,
+          requestedTake: 5,
+          nextCursor: "  cursor-token  ",
+          [field]: invalidValue,
+        },
+        { page: 3 },
+      ),
+    ).toEqual({
+      ok: true,
+      value: { items, totalCount: 16, page: 3, pageSize: 5, hasMore: true, nextCursor: "cursor-token" },
+    });
+  });
+
   it("trims padding on keyset nextCursor tokens", () => {
     const result = coerceRunSummaryPaged(
       {

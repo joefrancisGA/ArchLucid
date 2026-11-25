@@ -47,4 +47,23 @@ public sealed class GovernanceApprovalRequestDeserializationTests
         request.Should().NotBeNull();
         request!.RunId.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_approval_request_id_mints_non_empty_id()
+    {
+        const string json = """
+            {
+              "tenantId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              "workspaceId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              "projectId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+              "approvalRequestId": null
+            }
+            """;
+
+        GovernanceApprovalRequest? request =
+            JsonSerializer.Deserialize<GovernanceApprovalRequest>(json, ContractJson.CamelCaseCompact);
+
+        request.Should().NotBeNull();
+        request!.ApprovalRequestId.Should().NotBeNullOrEmpty();
+    }
 }

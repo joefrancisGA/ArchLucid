@@ -25,6 +25,24 @@ internal static class HostedAzureInventoryResourcePropertyExpander
 
         AddIdentityProperties(propertiesElement, properties);
 
+        if (resourceType.Equals("Microsoft.EventGrid/topics", StringComparison.OrdinalIgnoreCase)
+            || resourceType.Equals("Microsoft.EventGrid/domains", StringComparison.OrdinalIgnoreCase))
+        {
+            if (propertiesElement.TryGetProperty("disableLocalAuth", out JsonElement localAuth)
+                && localAuth.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            {
+                properties["disableLocalAuth"] = localAuth.GetBoolean();
+            }
+
+            if (propertiesElement.TryGetProperty("publicNetworkAccess", out JsonElement publicAccess)
+                && publicAccess.ValueKind == JsonValueKind.String)
+            {
+                properties["publicNetworkAccess"] = publicAccess.GetString();
+            }
+
+            AddJsonArrayProperty(propertiesElement, properties, "privateEndpointConnections");
+        }
+
         if (resourceType.Contains("virtualMachines", StringComparison.OrdinalIgnoreCase))
         {
             AddVirtualMachineNetworkProfileProperties(propertiesElement, properties);

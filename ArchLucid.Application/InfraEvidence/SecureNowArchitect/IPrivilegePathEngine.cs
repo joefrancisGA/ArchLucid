@@ -28,6 +28,9 @@ public sealed class PrivilegePathEngineResult
         init;
     }
 
+    /// <summary>Observed paths remain valid, but absence of further paths is not established.</summary>
+    public bool IdentityEvidenceIncomplete { get; init; }
+
     public int PathsDiscovered
     {
         get;

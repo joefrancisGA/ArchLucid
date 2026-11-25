@@ -4,17 +4,21 @@ namespace ArchLucid.Contracts.Compliance;
 
 public class ComplianceRulePack
 {
+    private string rulePackId = string.Empty;
+
     public string RulePackId
     {
-        get;
-        set;
-    } = null!;
+        get => rulePackId;
+        set => rulePackId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string name = string.Empty;
 
     public string Name
     {
-        get;
-        set;
-    } = null!;
+        get => name;
+        set => name = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     private string version = string.Empty;
 
@@ -24,17 +28,21 @@ public class ComplianceRulePack
         set => version = ContractCollectionDefaults.CoalesceRequired(value);
     }
 
+    private string rulePackHash = string.Empty;
+
     public string RulePackHash
     {
-        get;
-        set;
-    } = null!;
+        get => rulePackHash;
+        set => rulePackHash = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string sourcePath = string.Empty;
 
     public string SourcePath
     {
-        get;
-        set;
-    } = null!;
+        get => sourcePath;
+        set => sourcePath = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     private List<ComplianceRule> rules = [];
 

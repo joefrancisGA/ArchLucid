@@ -4,17 +4,21 @@ namespace ArchLucid.Contracts.Persistence.Context;
 
 public class CanonicalObject
 {
+    private string objectId = string.Empty;
+
     public string ObjectId
     {
-        get;
-        set;
-    } = Guid.NewGuid().ToString("N");
+        get => objectId;
+        set => objectId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string objectType = string.Empty;
 
     public string ObjectType
     {
-        get;
-        set;
-    } = null!;
+        get => objectType;
+        set => objectType = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     private string name = string.Empty;
 
@@ -24,17 +28,21 @@ public class CanonicalObject
         set => name = ContractCollectionDefaults.CoalesceRequired(value);
     }
 
+    private string sourceType = string.Empty;
+
     public string SourceType
     {
-        get;
-        set;
-    } = null!;
+        get => sourceType;
+        set => sourceType = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string sourceId = string.Empty;
 
     public string SourceId
     {
-        get;
-        set;
-    } = null!;
+        get => sourceId;
+        set => sourceId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     private Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase);
 

@@ -30,4 +30,88 @@ public sealed class PolicyPackDeserializationTests
         pack.Should().NotBeNull();
         pack!.Status.Should().Be(PolicyPackStatus.Draft);
     }
+
+    [Fact]
+    public void Deserialize_null_name_yields_empty_string_not_null()
+    {
+        const string json = """
+            {
+              "policyPackId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              "tenantId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              "workspaceId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+              "projectId": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+              "name": null,
+              "description": "d"
+            }
+            """;
+
+        PolicyPack? pack = JsonSerializer.Deserialize<PolicyPack>(json, ContractJson.CamelCaseCompact);
+
+        pack.Should().NotBeNull();
+        pack!.Name.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Deserialize_null_description_yields_empty_string_not_null()
+    {
+        const string json = """
+            {
+              "policyPackId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              "tenantId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              "workspaceId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+              "projectId": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+              "name": "n",
+              "description": null
+            }
+            """;
+
+        PolicyPack? pack = JsonSerializer.Deserialize<PolicyPack>(json, ContractJson.CamelCaseCompact);
+
+        pack.Should().NotBeNull();
+        pack!.Description.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Deserialize_null_current_version_yields_default_label_not_null()
+    {
+        const string json = """
+            {
+              "policyPackId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              "tenantId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              "workspaceId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+              "projectId": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+              "name": "n",
+              "description": "d",
+              "currentVersion": null
+            }
+            """;
+
+        PolicyPack? pack = JsonSerializer.Deserialize<PolicyPack>(json, ContractJson.CamelCaseCompact);
+
+        pack.Should().NotBeNull();
+        pack!.CurrentVersion.Should().Be("1.0.0");
+    }
+
+    [Fact]
+    public void Deserialize_null_pack_type_and_distribution_scope_yield_defaults_not_null()
+    {
+        const string json = """
+            {
+              "policyPackId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              "tenantId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              "workspaceId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+              "projectId": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+              "name": "n",
+              "description": "d",
+              "packType": null,
+              "distributionScope": null
+            }
+            """;
+
+        PolicyPack? pack = JsonSerializer.Deserialize<PolicyPack>(json, ContractJson.CamelCaseCompact);
+
+        pack.Should().NotBeNull();
+        pack!.PackType.Should().Be(PolicyPackType.BuiltIn);
+        pack.DistributionScope.Should().Be(PolicyPackDistributionScope.Platform);
+    }
 }

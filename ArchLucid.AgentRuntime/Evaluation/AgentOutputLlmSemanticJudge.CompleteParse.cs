@@ -90,7 +90,7 @@ public sealed partial class AgentOutputLlmSemanticJudge
 
             return null;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(ex, "LLM semantic judge failed for TraceId={TraceId}", traceId);

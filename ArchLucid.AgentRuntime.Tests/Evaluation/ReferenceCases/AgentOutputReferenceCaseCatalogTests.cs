@@ -14,6 +14,32 @@ namespace ArchLucid.AgentRuntime.Tests.Evaluation.ReferenceCases;
 public sealed class AgentOutputReferenceCaseCatalogTests
 {
     [Fact]
+    public void Cases_preserves_valid_entries_when_catalog_contains_null_and_blank_entries()
+    {
+        string fileName = Path.GetTempFileName();
+        try
+        {
+            File.WriteAllText(fileName, """
+                [{"caseId":"first","agentType":"Topology"},null,{"caseId":" "},{"caseId":"last","agentType":"Cost"}]
+                """);
+            Mock<IOptionsMonitor<AgentExecutionReferenceEvaluationOptions>> options = new();
+            options.SetupGet(m => m.CurrentValue).Returns(new AgentExecutionReferenceEvaluationOptions
+            {
+                Enabled = true,
+                ReferenceCasesPath = fileName,
+            });
+            AgentOutputReferenceCaseCatalog catalog = new(
+                options.Object, Path.GetTempPath(), NullLogger<AgentOutputReferenceCaseCatalog>.Instance);
+
+            catalog.Cases.Select(c => c.CaseId).Should().Equal("first", "last");
+        }
+        finally
+        {
+            File.Delete(fileName);
+        }
+    }
+
+    [Fact]
     public void Cases_reload_when_reference_evaluation_is_enabled_after_an_initial_disabled_read()
     {
         string directory = Path.Combine(Path.GetTempPath(), $"archlucid-reference-cases-{Guid.NewGuid():N}");

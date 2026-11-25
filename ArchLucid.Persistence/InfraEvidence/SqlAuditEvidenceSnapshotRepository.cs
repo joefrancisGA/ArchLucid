@@ -572,10 +572,13 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
         }
     }
 
-    public async Task<IReadOnlyList<AuditEvidenceSnapshotLineageContextRecord>> ListLineageContextsByCloudResourceIdAsync(
-        Guid tenantId,
+    public async Task<IReadOnlyList<AuditEvidenceSnapshotLineageContextRecord>> ListLineageContextsByCloudResourceIdInScopeAsync(
+        ProjectScopeKey scope,
         Guid cloudResourceId,
         int take,
+        Guid? assessmentId,
+        Guid? snapshotId,
+        Guid? controlId,
         CancellationToken cancellationToken = default)
     {
         if (cloudResourceId == Guid.Empty)
@@ -595,6 +598,8 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
                            INNER JOIN dbo.AuditEvidenceSnapshots s
                                ON s.AuditEvidenceSnapshotId = i.AuditEvidenceSnapshotId
                               AND s.TenantId = i.TenantId
+                           INNER JOIN dbo.AuditAssessments a
+                               ON a.AssessmentId = s.AssessmentId AND a.TenantId = s.TenantId
                            INNER JOIN dbo.AuditEvidenceRequirements r
                                ON r.RequirementId = i.RequirementId
                               AND r.TenantId = i.TenantId
@@ -602,7 +607,11 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
                                ON c.ControlId = r.ControlId
                               AND c.TenantId = r.TenantId
                            WHERE i.TenantId = @TenantId
+                             AND a.WorkspaceId = @WorkspaceId AND a.ProjectId = @ProjectId
                              AND i.CloudResourceId = @CloudResourceId
+                             AND (@AssessmentId IS NULL OR a.AssessmentId = @AssessmentId)
+                             AND (@SnapshotId IS NULL OR s.AuditEvidenceSnapshotId = @SnapshotId)
+                             AND (@ControlId IS NULL OR c.ControlId = @ControlId)
                            ORDER BY s.CreatedUtc DESC, c.ControlNumber ASC;
                            """;
 
@@ -611,7 +620,11 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
         IEnumerable<LineageContextRow> rows = await conn.QueryAsync<LineageContextRow>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, CloudResourceId = cloudResourceId, Take = resolvedTake },
+                new
+                {
+                    scope.TenantId, scope.WorkspaceId, scope.ProjectId, CloudResourceId = cloudResourceId,
+                    Take = resolvedTake, AssessmentId = assessmentId, SnapshotId = snapshotId, ControlId = controlId,
+                },
                 cancellationToken: cancellationToken));
 
         return rows

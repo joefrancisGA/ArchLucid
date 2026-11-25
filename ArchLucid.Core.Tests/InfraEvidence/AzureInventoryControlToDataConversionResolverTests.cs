@@ -8,6 +8,39 @@ namespace ArchLucid.Core.Tests.InfraEvidence;
 public sealed class AzureInventoryControlToDataConversionResolverTests
 {
     [Theory]
+    [InlineData("Owner", "topics", "false", true)]
+    [InlineData("Contributor", "domains", "false", true)]
+    [InlineData("EventGrid Contributor", "topics", "false", true)]
+    [InlineData("EventGrid Contributor", "topics", "true", false)]
+    [InlineData("Contributor", "topics", null, false)]
+    [InlineData("Owner", "topics", "unknown", false)]
+    [InlineData("EventGrid EventSubscription Contributor", "topics", "false", false)]
+    [InlineData("Owner", "systemTopics", "false", false)]
+    public void Event_grid_key_conversion_requires_explicit_local_auth(
+        string role, string segment, string? disableLocalAuth, bool expected)
+    {
+        Dictionary<string, string> properties = [];
+        if (disableLocalAuth is not null)
+            properties["disableLocalAuth"] = disableLocalAuth;
+        var result = AzureInventoryControlToDataConversionResolver.ResolveForResource(
+            role, $"Microsoft.EventGrid/{segment}", properties);
+        result.HasPermission.Should().Be(expected);
+        if (expected)
+        {
+            result.Permission.Should().Be(AzureInventoryDerivedDataPlanePermission.Write);
+            result.InferenceQualifier.Should().Be("event-grid-list-keys-local-auth-enabled");
+        }
+    }
+
+    [Fact]
+    public void Event_grid_contributor_does_not_convert_storage_permissions()
+    {
+        AzureInventoryControlToDataConversionResolver.ResolveForResource(
+            "EventGrid Contributor", "Microsoft.Storage/storageAccounts", null)
+            .HasPermission.Should().BeFalse();
+    }
+
+    [Theory]
     [InlineData("Contributor")]
     [InlineData("Owner")]
     public void ResolveForResource_storage_without_properties_assumes_platform_default_shared_key(string roleName)

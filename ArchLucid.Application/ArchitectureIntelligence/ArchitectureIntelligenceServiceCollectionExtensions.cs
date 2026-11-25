@@ -1,6 +1,7 @@
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.ArchitectureIntelligence.Stages;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
@@ -29,6 +30,7 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
 
         services.TryAddSingleton<IArchitectureIntelligencePersistence, InMemoryArchitectureIntelligencePersistence>();
+        services.TryAddSingleton<IArchitectureIntelligenceStandaloneRunStore, InMemoryArchitectureIntelligenceStandaloneRunStore>();
         services.TryAddSingleton<IImmutableSourceStore, InMemoryImmutableSourceStore>();
         services.RemoveAll<IAuthorityFindingsSnapshotUpdater>();
 

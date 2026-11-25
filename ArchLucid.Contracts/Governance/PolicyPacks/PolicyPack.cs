@@ -30,11 +30,13 @@ public class PolicyPack
         set;
     }
 
+    private string name = string.Empty;
+
     public string Name
     {
-        get;
-        set;
-    } = null!;
+        get => name;
+        set => name = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>
     ///     Stable bundled-pack identity (filename stem). Null for custom packs; matching prefers slug over display name.
@@ -45,27 +47,33 @@ public class PolicyPack
         set;
     }
 
+    private string description = string.Empty;
+
     public string Description
     {
-        get;
-        set;
-    } = null!;
+        get => description;
+        set => description = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string packType = PolicyPackType.BuiltIn;
 
     public string PackType
     {
-        get;
-        set;
-    } = PolicyPackType.BuiltIn;
+        get => packType;
+        set => packType = ContractCollectionDefaults.CoalesceStringDefault(value, PolicyPackType.BuiltIn);
+    }
 
     /// <summary>
     ///     Who may see or install this pack (<see cref="PolicyPackDistributionScope" />).
     ///     Orthogonal to <see cref="PackType" /> (authorship origin).
     /// </summary>
+    private string distributionScope = PolicyPackDistributionScope.Platform;
+
     public string DistributionScope
     {
-        get;
-        set;
-    } = PolicyPackDistributionScope.Platform;
+        get => distributionScope;
+        set => distributionScope = ContractCollectionDefaults.CoalesceStringDefault(value, PolicyPackDistributionScope.Platform);
+    }
 
     public string Status
     {
@@ -87,11 +95,13 @@ public class PolicyPack
         set;
     }
 
+    private string currentVersion = "1.0.0";
+
     public string CurrentVersion
     {
-        get;
-        set;
-    } = "1.0.0";
+        get => currentVersion;
+        set => currentVersion = ContractCollectionDefaults.CoalesceStringDefault(value, "1.0.0");
+    }
 
     public bool IsDeleted
     {

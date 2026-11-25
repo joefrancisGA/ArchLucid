@@ -1,3 +1,4 @@
+using ArchLucid.Core.InfraEvidence;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Abstractions.Integrations;
@@ -200,6 +201,21 @@ public sealed class HostedAzureExtractorClient(
 
         IReadOnlyList<HostedAzureArmResourceRecord> inventoryResources = resources;
         List<string> collectionWarnings = [];
+        collectionWarnings.AddRange(enrichResult.Warnings);
+        collectionWarnings.AddRange(paasEnrichResult.Warnings);
+
+        if (indexResources is HostedAzureArmResourceCollection { PartialCollection: true })
+        {
+            collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+        }
+        if (policyAssignments is HostedAzureArmPolicyCollection<HostedAzureArmPolicyAssignmentRecord> { PartialCollection: true })
+            collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+
+        if (adfLinkedServices is HostedAzureAdfCollection<AzureInventoryAdfLinkedServiceRow> { PartialCollection: true }
+            || adfPipelineMetadata.PartialCollection || adfExtendedMetadata.PartialCollection)
+        {
+            collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+        }
 
         if (diagnosticSettingsResult.PartialCollection)
         {
@@ -247,7 +263,11 @@ public sealed class HostedAzureExtractorClient(
             .ListSubscriptionPolicyAssignmentDocumentsAsync(accessToken.Token, subscriptionId, cancellationToken)
             .ConfigureAwait(false);
 
-        IReadOnlyList<AzureInventoryEntraGroupMembershipRow> entraGroupMemberships =
+        if (policyDefinitionDocuments is HostedAzureArmPolicyCollection<JsonElement> { PartialCollection: true }
+            || policyAssignmentDocuments is HostedAzureArmPolicyCollection<JsonElement> { PartialCollection: true })
+            collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+
+        EntraGroupMembershipGraphReadResult entraGroupMemberships =
             await TryReadEntraGroupMembershipsAsync(
                 credential,
                 roleAssignments,
@@ -262,6 +282,8 @@ public sealed class HostedAzureExtractorClient(
         HostedAzureDefenderCompanionCollectResult defenderCompanions =
             await CollectDefenderCompanionsOrEmptyAsync(accessToken.Token, subscriptionId, cancellationToken)
                 .ConfigureAwait(false);
+        collectionWarnings.AddRange(entraGroupMemberships.Warnings);
+        collectionWarnings.AddRange(addCredentialSnapshot.Warnings);
         collectionWarnings.AddRange(defenderCompanions.Warnings);
         collectionWarnings.AddRange(
             DefenderPlanCoverageWarnings.Create(defenderCompanions.Pricings, inventoryResources));
@@ -280,7 +302,7 @@ public sealed class HostedAzureExtractorClient(
             request.IncludeCost,
             collectionTimestampUtc,
             subscriptionName,
-            entraGroupMemberships,
+            entraGroupMemberships.Memberships,
             roleAssignments,
             networkAssociations,
             federatedCredentials,
@@ -372,6 +394,7 @@ public sealed class HostedAzureExtractorClient(
         List<HostedAzureArmDefenderVulnerabilityCountRecord> defenderVulnerabilityCounts = [];
         List<HostedAzureArmDefenderVulnerabilityFindingRecord> defenderVulnerabilityFindings = [];
         List<string> defenderCompanionWarnings = [];
+        List<string> resourceEnrichmentWarnings = [];
 
         standingRoleAssignments.AddRange(
             await _armReadClient
@@ -383,16 +406,23 @@ public sealed class HostedAzureExtractorClient(
                 .ListManagementGroupRoleEligibilitySchedulesAsync(accessTokenValue, managementGroupId, cancellationToken)
                 .ConfigureAwait(false));
 
-        policyAssignments.AddRange(
-            await _armReadClient
-                .ListManagementGroupPolicyAssignmentsAsync(accessTokenValue, managementGroupId, cancellationToken)
-                .ConfigureAwait(false));
+        IReadOnlyList<HostedAzureArmPolicyAssignmentRecord> groupPolicyAssignments = await _armReadClient
+            .ListManagementGroupPolicyAssignmentsAsync(accessTokenValue, managementGroupId, cancellationToken)
+            .ConfigureAwait(false);
+        bool policyAssignmentsPartial = groupPolicyAssignments is
+            HostedAzureArmPolicyCollection<HostedAzureArmPolicyAssignmentRecord> { PartialCollection: true };
+        policyAssignments.AddRange(groupPolicyAssignments);
+
+        bool subscriptionResourceCollectionPartial = false;
 
         foreach (string subscriptionId in subscriptionIds)
         {
             IReadOnlyList<HostedAzureArmResourceRecord> subscriptionIndexResources = await _armReadClient
                 .ListSubscriptionResourcesAsync(accessTokenValue, subscriptionId, cancellationToken)
                 .ConfigureAwait(false);
+
+            subscriptionResourceCollectionPartial |= subscriptionIndexResources is
+                HostedAzureArmResourceCollection { PartialCollection: true };
 
             HostedAzureArmNetworkResourceEnrichResult enrichResult = await HostedAzureArmNetworkResourceEnricher
                 .EnrichAsync(
@@ -414,6 +444,8 @@ public sealed class HostedAzureExtractorClient(
                     cancellationToken)
                 .ConfigureAwait(false);
 
+            resourceEnrichmentWarnings.AddRange(enrichResult.Warnings);
+            resourceEnrichmentWarnings.AddRange(paasEnrichResult.Warnings);
             resources.AddRange(paasEnrichResult.Resources);
 
             standingRoleAssignments.AddRange(
@@ -426,10 +458,12 @@ public sealed class HostedAzureExtractorClient(
                     .ListSubscriptionRoleEligibilitySchedulesAsync(accessTokenValue, subscriptionId, cancellationToken)
                     .ConfigureAwait(false));
 
-            policyAssignments.AddRange(
-                await _armReadClient
-                    .ListSubscriptionPolicyAssignmentsAsync(accessTokenValue, subscriptionId, cancellationToken)
-                    .ConfigureAwait(false));
+            IReadOnlyList<HostedAzureArmPolicyAssignmentRecord> subscriptionPolicyAssignments = await _armReadClient
+                .ListSubscriptionPolicyAssignmentsAsync(accessTokenValue, subscriptionId, cancellationToken)
+                .ConfigureAwait(false);
+            policyAssignmentsPartial |= subscriptionPolicyAssignments is
+                HostedAzureArmPolicyCollection<HostedAzureArmPolicyAssignmentRecord> { PartialCollection: true };
+            policyAssignments.AddRange(subscriptionPolicyAssignments);
 
             defenderSummaries.AddRange(
                 await _armReadClient
@@ -534,6 +568,25 @@ public sealed class HostedAzureExtractorClient(
 
         IReadOnlyList<HostedAzureArmResourceRecord> inventoryResources = resources;
         List<string> collectionWarnings = [];
+        collectionWarnings.AddRange(resourceEnrichmentWarnings);
+
+        if (subscriptionResourceCollectionPartial)
+        {
+            collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+        }
+
+        if (subscriptionIds is HostedAzureManagementGroupSubscriptionCollection { PartialCollection: true })
+        {
+            collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+        }
+        if (policyAssignmentsPartial)
+            collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+
+        if (adfLinkedServices is HostedAzureAdfCollection<AzureInventoryAdfLinkedServiceRow> { PartialCollection: true }
+            || adfPipelineMetadata.PartialCollection || adfExtendedMetadata.PartialCollection)
+        {
+            collectionWarnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+        }
 
         if (diagnosticSettingsResult.PartialCollection)
         {
@@ -550,7 +603,7 @@ public sealed class HostedAzureExtractorClient(
         }
 
         DateTimeOffset collectionTimestampUtc = TimeProvider.System.GetUtcNow();
-        IReadOnlyList<AzureInventoryEntraGroupMembershipRow> entraGroupMemberships =
+        EntraGroupMembershipGraphReadResult entraGroupMemberships =
             await TryReadEntraGroupMembershipsAsync(
                 credential,
                 roleAssignments,
@@ -562,6 +615,8 @@ public sealed class HostedAzureExtractorClient(
             managementGroupId,
             cancellationToken).ConfigureAwait(false);
 
+        collectionWarnings.AddRange(entraGroupMemberships.Warnings);
+        collectionWarnings.AddRange(addCredentialSnapshot.Warnings);
         collectionWarnings.AddRange(defenderCompanionWarnings);
         collectionWarnings.AddRange(
             DefenderPlanCoverageWarnings.Create(defenderPricings, inventoryResources));
@@ -572,7 +627,7 @@ public sealed class HostedAzureExtractorClient(
             request.IncludeCost,
             collectionTimestampUtc,
             subscriptionName: null,
-            entraGroupMemberships,
+            entraGroupMemberships.Memberships,
             roleAssignments,
             networkAssociations,
             federatedCredentials,
@@ -768,7 +823,9 @@ public sealed class HostedAzureExtractorClient(
             merged.Add(definition);
         }
 
-        return merged;
+        return new HostedAzureArmPolicyCollection<JsonElement>(merged,
+            builtInDefinitions is HostedAzureArmPolicyCollection<JsonElement> { PartialCollection: true }
+            || subscriptionDefinitions is HostedAzureArmPolicyCollection<JsonElement> { PartialCollection: true });
     }
 
     private static string? TryReadJsonStringProperty(JsonElement element, string propertyName)
@@ -782,7 +839,7 @@ public sealed class HostedAzureExtractorClient(
         return value.GetString();
     }
 
-    private async Task<IReadOnlyList<AzureInventoryEntraGroupMembershipRow>> TryReadEntraGroupMembershipsAsync(
+    private async Task<EntraGroupMembershipGraphReadResult> TryReadEntraGroupMembershipsAsync(
         TokenCredential credential,
         IReadOnlyList<HostedAzureArmRoleAssignmentRecord> roleAssignments,
         string scopeLabel,
@@ -791,7 +848,10 @@ public sealed class HostedAzureExtractorClient(
         EntraGroupMembershipGraphOptions graphOptions = _entraGroupMembershipGraphOptions.CurrentValue;
 
         if (!graphOptions.Enabled)
-            return [];
+            return new EntraGroupMembershipGraphReadResult
+            {
+                Warnings = [SecurityEvidenceEntraGroupAdapterWarnings.GraphDisabled],
+            };
 
         IReadOnlyList<string> seedGroupIds = ExtractGroupPrincipalIds(roleAssignments);
 
@@ -810,10 +870,9 @@ public sealed class HostedAzureExtractorClient(
                 scopeLabel,
                 graphResult.Warnings.FirstOrDefault());
 
-            return [];
         }
 
-        return graphResult.Memberships;
+        return graphResult;
     }
 
     private async Task<EntraAddCredentialGraphReadResult> TryReadEntraAddCredentialSnapshotAsync(
@@ -825,7 +884,10 @@ public sealed class HostedAzureExtractorClient(
 
         if (!graphOptions.Enabled)
         {
-            return EntraAddCredentialGraphReadResult.Empty();
+            return new EntraAddCredentialGraphReadResult
+            {
+                Warnings = [SecurityEvidenceAddCredentialAdapterWarnings.GraphNotCollected],
+            };
         }
 
         EntraAddCredentialGraphReadResult graphResult = await _entraAddCredentialGraphReader
@@ -843,7 +905,6 @@ public sealed class HostedAzureExtractorClient(
                 scopeLabel,
                 graphResult.Warnings.FirstOrDefault());
 
-            return EntraAddCredentialGraphReadResult.Empty();
         }
 
         return graphResult;

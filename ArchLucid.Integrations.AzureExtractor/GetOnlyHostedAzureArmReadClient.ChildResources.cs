@@ -159,99 +159,19 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
 
         string trimmedPath = relativePath.Trim().TrimStart('/');
         List<JsonElement> childResources = [];
-        string? nextLink = $"https://management.azure.com/{trimmedPath}?api-version={apiVersion}";
-        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
-        int requestCount = 0;
-        bool partialCollection = false;
+        ArmPaginationResult result = await ReadArmObjectPagesAsync(
+            accessToken,
+            $"https://management.azure.com/{trimmedPath}?api-version={apiVersion}",
+            candidate => HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(candidate, trimmedPath),
+            item => childResources.Add(item.Clone()),
+            cancellationToken).ConfigureAwait(false);
 
-        while (!string.IsNullOrWhiteSpace(nextLink))
+        if (result.PartialCollection && _logger.IsEnabled(LogLevel.Debug))
         {
-            if (!visitedLinks.Add(nextLink))
-            {
-                break;
-            }
-
-            requestCount++;
-
-            if (ShouldBreakForPageCap(requestCount))
-            {
-                if (childResources.Count > 0)
-                {
-                    partialCollection = true;
-                }
-
-                break;
-            }
-
-            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            using HttpResponseMessage response =
-                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                if (_logger.IsEnabled(LogLevel.Debug))
-                {
-                    _logger.LogDebug(
-                        "Hosted Azure extractor skipped {LogLabel} list for {Path}; HTTP {StatusCode}.",
-                        logLabel,
-                        // ARM resource paths are operational identifiers, not credentials or secrets.
-
-                        // codeql[cs/cleartext-storage-of-sensitive-information]
-                        trimmedPath,
-                        (int)response.StatusCode);
-                }
-
-                if (childResources.Count > 0)
-                {
-                    partialCollection = true;
-                }
-
-                break;
-            }
-
-            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-
-            using JsonDocument? document =
-                await TryParseArmPaginationPageAsync(stream, childResources.Count, cancellationToken).ConfigureAwait(false);
-
-            if (document is null)
-            {
-                if (childResources.Count > 0)
-                {
-                    partialCollection = true;
-                }
-
-                break;
-            }
-
-            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
-                && valueElement.ValueKind == JsonValueKind.Array)
-            {
-                foreach (JsonElement item in valueElement.EnumerateArray())
-                {
-                    childResources.Add(item.Clone());
-                }
-            }
-
-            nextLink = null;
-
-            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
-                && nextLinkElement.ValueKind == JsonValueKind.String)
-            {
-                string? candidateNextLink = nextLinkElement.GetString();
-
-                if (!string.IsNullOrWhiteSpace(candidateNextLink))
-                {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
-                        candidateNextLink,
-                        trimmedPath);
-                    nextLink = candidateNextLink;
-                }
-            }
+            _logger.LogDebug("Hosted Azure extractor retained incomplete {LogLabel} list: {Reason}.",
+                logLabel, result.FailureReason);
         }
 
-        return (childResources, partialCollection);
+        return (childResources, result.PartialCollection);
     }
 }

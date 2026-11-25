@@ -103,6 +103,11 @@ internal static class RealAgentExecutorParallelPhaseExecution
         if (budgetCause is not null)
             throw budgetCause;
 
+        // Match Task.WhenAll on cancellation, while keeping budget failures and partial results above.
+        Task<AgentResult>? cancelled = Array.Find(tasks, static task => task.IsCanceled);
+        if (cancelled is not null)
+            await cancelled.ConfigureAwait(false);
+
         if (orderedSuccesses.Length != phaseTasks.Count)
             throw new InvalidOperationException("Parallel agent scheduling finished without aligning task outcomes.");
 

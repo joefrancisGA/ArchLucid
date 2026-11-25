@@ -1,13 +1,17 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Integrations;
 
 /// <summary>Outbound ITSM connectivity for Jira / ServiceNow in the active tenant scope.</summary>
 public sealed class ItsmIntegrationHealthStatusResponse
 {
+    private string status = string.Empty;
+
     public string Status
     {
-        get;
-        init;
-    } = string.Empty;
+        get => status;
+        init => status = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public bool NativeEnabled
     {

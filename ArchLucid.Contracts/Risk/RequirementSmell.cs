@@ -4,11 +4,13 @@ namespace ArchLucid.Contracts.Risk;
 
 public sealed class RequirementSmell
 {
+    private string requirementId = string.Empty;
+
     public string RequirementId
     {
-        get;
-        set;
-    } = null!;
+        get => requirementId;
+        set => requirementId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public RequirementSmellKind Kind
     {
@@ -16,11 +18,13 @@ public sealed class RequirementSmell
         set;
     }
 
+    private string rationale = string.Empty;
+
     public string Rationale
     {
-        get;
-        set;
-    } = null!;
+        get => rationale;
+        set => rationale = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     private List<string> evidenceRefs = [];
 

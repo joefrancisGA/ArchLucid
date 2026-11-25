@@ -127,6 +127,8 @@ import {
   matchOperationalFinding,
 } from "@/lib/infra-evidence/infra-evidence-remediation-api";
 import { buildInfrastructureAskHandoffHref } from "@/lib/infra-evidence/infrastructure-ask-drawer-url";
+import { RemediationFactoryRankedPathAskHandoff } from "@/components/remediation-factory/RemediationFactoryRankedPathAskHandoff";
+import { RESOURCE_HUB_RANKED_PATH_ASK_SCOPE_LINE } from "@/lib/infra-evidence/resource-hub-ranked-path-ask-handoff-copy";
 import {
   parseResourceHubQueryValueFromSearch,
   parseResourceHubTabFromSearch,
@@ -143,6 +145,7 @@ import {
   RESOURCE_HUB_RUN_ID_PARAM,
   RESOURCE_HUB_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_TAB_PARAM,
+  RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM,
@@ -449,6 +452,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     searchParams.get(RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM),
   );
   const controlId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_CONTROL_ID_PARAM));
+  const urlSecurityEvidencePathId = parseResourceHubQueryValueFromSearch(
+    searchParams.get(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM),
+  );
   const workQueue = parseResourceExplorerWorkQueueFromSearch(searchParams.get(RESOURCE_EXPLORER_WORK_QUEUE_PARAM));
   const workQueueLabel = formatCloudResourceExplorerWorkQueueLabel(workQueue);
   const infraResourceHubTechnicalKeyParam = searchParams.get(INFRA_RESOURCE_HUB_TECHNICAL_KEY_PARAM);
@@ -1407,6 +1413,17 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-resource-hub-snapshot-honesty">
         {RESOURCE_HUB_INVENTORY_SNAPSHOT_HONESTY_LINE}
       </p>
+
+      {urlSecurityEvidencePathId.length > 0 && resolvedSnapshotId.length > 0 ? (
+        <RemediationFactoryRankedPathAskHandoff
+          testId="infra-resource-hub-ranked-path-ask-handoff"
+          snapshotId={resolvedSnapshotId}
+          securityEvidencePathId={urlSecurityEvidencePathId}
+          disabled={overviewPartialCapture}
+          hubTab={activeTab}
+          scopeLine={RESOURCE_HUB_RANKED_PATH_ASK_SCOPE_LINE}
+        />
+      ) : null}
 
       <main
         id={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PRIMARY_CONTENT_ID}

@@ -41,41 +41,53 @@ public class RecommendationRecord
         set;
     }
 
+    private string title = string.Empty;
+
     public string Title
     {
-        get;
-        set;
-    } = null!;
+        get => title;
+        set => title = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string category = string.Empty;
 
     public string Category
     {
-        get;
-        set;
-    } = null!;
+        get => category;
+        set => category = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string rationale = string.Empty;
 
     public string Rationale
     {
-        get;
-        set;
-    } = null!;
+        get => rationale;
+        set => rationale = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string suggestedAction = string.Empty;
 
     public string SuggestedAction
     {
-        get;
-        set;
-    } = null!;
+        get => suggestedAction;
+        set => suggestedAction = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string urgency = string.Empty;
 
     public string Urgency
     {
-        get;
-        set;
-    } = null!;
+        get => urgency;
+        set => urgency = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string expectedImpact = string.Empty;
 
     public string ExpectedImpact
     {
-        get;
-        set;
-    } = null!;
+        get => expectedImpact;
+        set => expectedImpact = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public int PriorityScore
     {

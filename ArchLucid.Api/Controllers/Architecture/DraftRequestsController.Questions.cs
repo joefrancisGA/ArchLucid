@@ -1,4 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Drafts;
@@ -24,6 +25,12 @@ public sealed partial class DraftRequestsController
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
+        DraftRequestAccessMetadata? access = await AuthorizeDraftQuestionAsync(
+            scope, draftId, requireDecide: false, cancellationToken);
+
+        if (access is null)
+            return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);
+
         IActionResult? sealedGuardResult =
             await EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken);
 
@@ -33,7 +40,7 @@ public sealed partial class DraftRequestsController
         try
         {
             DraftQuestionsResponse? result =
-                await _draftRequestService.GetQuestionsAsync(scope, draftId, cancellationToken);
+                await _draftRequestService.GetQuestionsAsync(scope, draftId, access.UpdatedUtc, cancellationToken);
 
             if (result is null)
                 return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);
@@ -68,6 +75,12 @@ public sealed partial class DraftRequestsController
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
+        DraftRequestAccessMetadata? access = await AuthorizeDraftQuestionAsync(
+            scope, draftId, requireDecide: true, cancellationToken);
+
+        if (access is null)
+            return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);
+
         IActionResult? sealedGuardResult =
             await EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken);
 
@@ -77,7 +90,7 @@ public sealed partial class DraftRequestsController
         try
         {
             DraftRequestResponse? updated =
-                await _draftRequestService.AnswerQuestionAsync(scope, draftId, body, cancellationToken);
+                await _draftRequestService.AnswerQuestionAsync(scope, draftId, body, access.UpdatedUtc, cancellationToken);
 
             if (updated is null)
                 return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);
@@ -179,6 +192,12 @@ public sealed partial class DraftRequestsController
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
+        DraftRequestAccessMetadata? access = await AuthorizeDraftQuestionAsync(
+            scope, draftId, requireDecide: true, cancellationToken);
+
+        if (access is null)
+            return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);
+
         IActionResult? sealedGuardResult =
             await EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken);
 
@@ -188,7 +207,7 @@ public sealed partial class DraftRequestsController
         try
         {
             DraftRequestResponse? updated =
-                await _draftRequestService.SkipQuestionAsync(scope, draftId, body, cancellationToken);
+                await _draftRequestService.SkipQuestionAsync(scope, draftId, body, access.UpdatedUtc, cancellationToken);
 
             if (updated is null)
                 return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);

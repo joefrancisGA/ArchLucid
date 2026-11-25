@@ -481,11 +481,58 @@ public sealed class PrivilegePathEngineTests
         typeof(PrivilegePathEngine).Should().NotImplement<IEffectfulFindingEngine>();
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task RunAsync_incomplete_identity_evidence_preserves_coverage_and_observed_paths(bool positive)
+    {
+        var original = BuildManagedIdentityBlobReaderSnapshot(Guid.NewGuid(), Guid.NewGuid());
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = SnapshotId,
+                TenantId = TenantId,
+                CaptureStatus = AzureInventoryCaptureStatus.Partial,
+                WarningCount = 1,
+                CompletenessWarningsJson = AzureInventorySnapshotCompletenessWarningsJson.Serialize(
+                    [SecurityEvidenceAddCredentialAdapterWarnings.GraphIncomplete]),
+            },
+            Resources = positive ? original.Resources : [],
+            Relationships = positive ? original.Relationships : [],
+            Properties = positive ? original.Properties : [],
+            RoleAssignments = positive ? original.RoleAssignments : [],
+        };
+        ScopeContext scope = CreateScope();
+        InMemorySecurityEvidencePathRepository paths = new();
+        InMemoryOperationalSecurityFindingRepository findings = new();
+        Mock<ISecurityEvidencePathSearchCoverageRepository> coverage = new();
+        coverage.Setup(r => r.ReplaceForEngineAsync(scope, SnapshotId,
+                SecurityEvidencePathSearchEngineNames.Privilege,
+                It.IsAny<IReadOnlyList<SecurityEvidencePathSearchCoverageRecord>>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        var engine = CreateEngine(snapshot, scope, paths, CreateIngestService(findings), coverage.Object);
+        var result = await engine.RunAsync(scope, SnapshotId, SecureNowArchitectConstants.SystemActorId);
+        result.Succeeded.Should().BeTrue();
+        result.IdentityEvidenceIncomplete.Should().BeTrue();
+        if (positive)
+            result.PathsDiscovered.Should().BeGreaterThan(0);
+        else
+            result.PathsDiscovered.Should().Be(0);
+        coverage.Verify(r => r.ReplaceForEngineAsync(scope, SnapshotId,
+            SecurityEvidencePathSearchEngineNames.Privilege,
+            It.Is<IReadOnlyList<SecurityEvidencePathSearchCoverageRecord>>(rows =>
+                rows.Any(row => row.LimitKind == SecurityEvidencePathSearchLimitKind.IncompleteIdentityEvidence
+                    && row.PathsEmitted == result.PathsDiscovered)), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
     private static PrivilegePathEngine CreateEngine(
         AzureInventorySnapshotDetailReadModel snapshot,
         ScopeContext scope,
         InMemorySecurityEvidencePathRepository pathRepository,
-        OperationalSecurityFindingIngestService ingestService)
+        OperationalSecurityFindingIngestService ingestService,
+        ISecurityEvidencePathSearchCoverageRepository? coverage = null)
     {
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
         snapshotRepository
@@ -497,7 +544,7 @@ public sealed class PrivilegePathEngineTests
             pathRepository,
             ingestService,
             NullLogger<PrivilegePathEngine>.Instance,
-            new NoOpSecurityEvidencePathSearchCoverageRepository());
+            coverage ?? new NoOpSecurityEvidencePathSearchCoverageRepository());
     }
 
     private static OperationalSecurityFindingIngestService CreateIngestService(

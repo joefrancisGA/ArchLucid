@@ -51,7 +51,7 @@ public sealed class AzureInventoryDiffServiceTests
         RecordingDiffConsumer consumer = new();
         AzureInventoryDiffService service = CreateService(
             diffRepository.Object,
-            snapshotRepository: null,
+            snapshotRepository: CreateCompleteSnapshotRepository(scope, snapshotAId, snapshotBId).Object,
             consumers: [consumer]);
 
         AzureInventoryDiffComputeResult result = await service.ComputeAndPersistDiffAsync(
@@ -271,7 +271,7 @@ public sealed class AzureInventoryDiffServiceTests
         RecordingDiffConsumer consumer = new();
         AzureInventoryDiffService service = CreateService(
             diffRepository.Object,
-            snapshotRepository: null,
+            snapshotRepository: CreateCompleteSnapshotRepository(scope, snapshotAId, snapshotBId).Object,
             consumers: [consumer]);
 
         AzureInventoryDiffComputeResult result = await service.ComputeAndPersistDiffAsync(
@@ -317,6 +317,75 @@ public sealed class AzureInventoryDiffServiceTests
             && change.OldValue == "prod"
             && change.NewValue == "staging");
         consumer.LastChanges.Should().BeEquivalentTo(result.Changes);
+    }
+
+    [Theory]
+    [InlineData(true, false)]
+    [InlineData(false, false)]
+    [InlineData(true, true)]
+    [InlineData(false, true)]
+    public async Task ComputeAndPersistDiffAsync_rejects_partial_capture_before_persist_or_replay(
+        bool partialIsPrior, bool existingDiff)
+    {
+        ScopeContext scope = CreateScope();
+        Guid snapshotAId = Guid.NewGuid();
+        Guid snapshotBId = Guid.NewGuid();
+        Mock<IAzureInventorySnapshotRepository> snapshots = CreateCompleteSnapshotRepository(
+            scope, snapshotAId, snapshotBId);
+        Guid partialId = partialIsPrior ? snapshotAId : snapshotBId;
+        snapshots.Setup(repository => repository.TryGetSnapshotDetailAsync(
+                MatchesScope(scope), partialId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AzureInventorySnapshotDetailReadModel
+            {
+                Header = new AzureInventorySnapshotRecord
+                {
+                    SnapshotId = partialId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    SubscriptionId = "sub",
+                    CaptureStatus = AzureInventoryCaptureStatus.Partial,
+                },
+            });
+
+        Mock<IAzureInventoryDiffRepository> diffs = new();
+        diffs.Setup(repository => repository.TryGetBySnapshotPairAsync(
+                scope, snapshotAId, snapshotBId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingDiff ? new AzureInventoryDiffSummaryRecord
+            {
+                DiffId = Guid.NewGuid(),
+                SnapshotAId = snapshotAId,
+                SnapshotBId = snapshotBId,
+            } : null);
+        RecordingDiffConsumer consumer = new();
+        AzureInventoryDiffService service = CreateService(diffs.Object, snapshots.Object, [consumer]);
+
+        AzureInventoryDiffComputeResult result = await service.ComputeAndPersistDiffAsync(
+            scope, snapshotAId, snapshotBId);
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Contain("Insufficient evidence");
+        consumer.InvocationCount.Should().Be(0);
+        diffs.Verify(repository => repository.InsertDiffAsync(
+            It.IsAny<ScopeContext>(), It.IsAny<AzureInventoryDiffPersistRequest>(),
+            It.IsAny<CancellationToken>()), Times.Never);
+        diffs.Verify(repository => repository.TryGetBySnapshotPairAsync(
+            It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    private static Mock<IAzureInventorySnapshotRepository> CreateCompleteSnapshotRepository(
+        ScopeContext scope, Guid snapshotAId, Guid snapshotBId)
+    {
+        Mock<IAzureInventorySnapshotRepository> snapshots = new();
+        foreach (Guid id in new[] { snapshotAId, snapshotBId })
+        {
+            snapshots.Setup(repository => repository.TryGetSnapshotDetailAsync(
+                    MatchesScope(scope), id, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(BuildSnapshotWithContentHash(id, [0x01]));
+        }
+
+        return snapshots;
     }
 
     private static AzureInventoryDiffService CreateService(

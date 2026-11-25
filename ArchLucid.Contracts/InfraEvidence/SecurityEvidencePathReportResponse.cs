@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.InfraEvidence;
@@ -25,4 +26,17 @@ public sealed class SecurityEvidencePathReportResponse
         get => unevaluatedGroups;
         init => unevaluatedGroups = ContractCollectionDefaults.CoalesceReadOnly(value);
     }
+
+    private IReadOnlyList<SecurityEvidencePathReportVerificationResponse> inventoryVerifications = [];
+
+    /// <summary>Latest recorded inventory checks for reported vulnerable paths. Missing entries are unknown.</summary>
+    public IReadOnlyList<SecurityEvidencePathReportVerificationResponse> InventoryVerifications
+    {
+        get => inventoryVerifications;
+        init => inventoryVerifications = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }
+
+/// <summary>A historical, property-scoped verification observation. It is not a path verdict.</summary>
+public sealed record SecurityEvidencePathReportVerificationResponse(
+    Guid PathId, Guid ExplanationId, DateTime RecordedUtc, InventoryFalsificationProbe Verification);

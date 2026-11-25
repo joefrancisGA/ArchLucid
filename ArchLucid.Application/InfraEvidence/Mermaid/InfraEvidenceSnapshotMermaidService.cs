@@ -34,7 +34,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
     IArchitectureDiagramReconciliationRepository reconciliationRepository,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
-    MermaidDiagramReadabilityThresholds? readabilityThresholds = null) : IInfraEvidenceSnapshotMermaidService
+    MermaidDiagramReadabilityThresholds? readabilityThresholds = null,
+    IInfraEvidenceRunReadAccess? runReadAccess = null) : IInfraEvidenceSnapshotMermaidService
 {
     private static readonly (string ModeKey, DiagramMode DiagramMode)[] PreviewModes =
     [
@@ -98,13 +99,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        await InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync(
-            scope,
-            snapshotId,
-            _reconciliationRepository,
-            _authorityQueryService,
-            _manifestHashService,
-            cancellationToken);
+        await EnsureReadableRunCitedSnapshotSealedAsync(scope, snapshotId, cancellationToken);
 
         AzureInventorySnapshotGraphResolveResult defaultGraphResult =
             await _graphResolver.TryResolveGraphAsync(
@@ -190,13 +185,7 @@ public sealed class InfraEvidenceSnapshotMermaidService(
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        await InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync(
-            scope,
-            snapshotId,
-            _reconciliationRepository,
-            _authorityQueryService,
-            _manifestHashService,
-            cancellationToken);
+        await EnsureReadableRunCitedSnapshotSealedAsync(scope, snapshotId, cancellationToken);
 
         if (!string.IsNullOrWhiteSpace(fallbackKey))
         {
@@ -379,6 +368,17 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             Value = wrappedPng ?? renderedPng,
         };
     }
+
+    private Task EnsureReadableRunCitedSnapshotSealedAsync(
+        ScopeContext scope, Guid snapshotId, CancellationToken cancellationToken) =>
+        InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync(
+            scope,
+            snapshotId,
+            _reconciliationRepository,
+            _authorityQueryService,
+            _manifestHashService,
+            (runId, ct) => runReadAccess?.CanReadRunAsync(scope, runId, ct) ?? Task.FromResult(false),
+            cancellationToken);
 
     private async Task<InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse>> RenderFallbackAsync(
         Guid snapshotId,

@@ -117,6 +117,21 @@ class Current900LineageTests(unittest.TestCase):
         self.assertEqual(o["git_proven_continuous_cross_revision_repeat_links"], 1)
         self.assertEqual(o["repeated_line_occurrences_within_reviewed_commit"], 3)
 
+    def test_followon_spans_use_git_lf_coordinates_for_doubled_crlf(self):
+        self.commit("stable\nreplaced\r\r\n\nnew\r\r\n", "doubled CRLF")
+        latest = git(self.repo, "rev-parse", "HEAD")
+        blob = git(self.repo, "rev-parse", "HEAD:a.cs")
+        recent = [{
+            "baseline": latest, "path": "a.cs", "blob": blob,
+            "spans": [[1, 2], [4, 4]], "verified": True, "defect_id": None,
+        }]
+        params = self.inputs(current=[latest, self.new, self.mid, self.old],
+                             recent=recent)
+        o = self.prove(params)
+        self.assertEqual(o["followon_line_occurrences"], 3)
+        self.assertEqual(o["exact_path_blob_line_union_only"], 5)
+        self.assertEqual(o["git_proven_continuous_cross_revision_repeat_links"], 1)
+
     def test_identical_endpoint_blob_after_reversion_is_not_automatic_lineage(self):
         self.commit("stable\nreplaced\n", "full revert to old blob")
         latest = git(self.repo, "rev-parse", "HEAD")

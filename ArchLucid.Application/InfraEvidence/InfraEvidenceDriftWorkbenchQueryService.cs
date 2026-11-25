@@ -1,4 +1,3 @@
-using ArchLucid.Application.Governance;
 using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Pagination;
@@ -16,7 +15,8 @@ public sealed class InfraEvidenceDriftWorkbenchQueryService(
     IAzureInventoryDiffRepository diffRepository,
     IArchitectureDiagramReconciliationRepository reconciliationRepository,
     IAuthorityQueryService authorityQueryService,
-    IManifestHashService manifestHashService) : IInfraEvidenceDriftWorkbenchQueryService
+    IManifestHashService manifestHashService,
+    IInfraEvidenceRunReadAccess? runReadAccess = null) : IInfraEvidenceDriftWorkbenchQueryService
 {
     private readonly IAzureInventorySnapshotRepository _snapshotRepository =
         snapshotRepository ?? throw new ArgumentNullException(nameof(snapshotRepository));
@@ -55,16 +55,12 @@ public sealed class InfraEvidenceDriftWorkbenchQueryService(
                 snapshotIds,
                 cancellationToken);
 
-        HashSet<Guid> distinctRunIds = snapshotRuns
-            .Select(row => row.RunId)
-            .Where(runId => runId != Guid.Empty)
-            .ToHashSet();
-
-        await GovernanceDispositionSealedManifestGuard.EnsureDistinctRunsSealedManifestHashOrThrowAsync(
-            distinctRunIds.ToList(),
+        await InfraEvidenceSnapshotSealedManifestHashGuard.EnsureReadableCitedRunsSealedOrThrowAsync(
             scope,
+            snapshotRuns.Select(row => row.RunId),
             _authorityQueryService,
             _manifestHashService,
+            (runId, ct) => CanReadCitedRunAsync(scope, runId, ct),
             cancellationToken);
 
         return PagedResponseBuilder.FromDatabasePage(items, totalCount, page, pageSize);
@@ -86,13 +82,7 @@ public sealed class InfraEvidenceDriftWorkbenchQueryService(
         if (snapshot is null)
             return null;
 
-        await InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync(
-            scope,
-            snapshotId,
-            _reconciliationRepository,
-            _authorityQueryService,
-            _manifestHashService,
-            cancellationToken);
+        await EnsureReadableRunCitedSnapshotSealedAsync(scope, snapshotId, cancellationToken);
 
         return await _diffRepository.ListDiffsBySnapshotIdAsync(scope, snapshotId, cancellationToken);
     }
@@ -117,21 +107,9 @@ public sealed class InfraEvidenceDriftWorkbenchQueryService(
         if (diff is null)
             return null;
 
-        await InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync(
-            scope,
-            diff.SnapshotAId,
-            _reconciliationRepository,
-            _authorityQueryService,
-            _manifestHashService,
-            cancellationToken);
+        await EnsureReadableRunCitedSnapshotSealedAsync(scope, diff.SnapshotAId, cancellationToken);
 
-        await InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync(
-            scope,
-            diff.SnapshotBId,
-            _reconciliationRepository,
-            _authorityQueryService,
-            _manifestHashService,
-            cancellationToken);
+        await EnsureReadableRunCitedSnapshotSealedAsync(scope, diff.SnapshotBId, cancellationToken);
 
         IReadOnlyList<AzureInventoryChangeRecord> existingChanges =
             await _diffRepository.ListChangesByDiffIdAsync(scope, diffId, cancellationToken);
@@ -199,13 +177,10 @@ public sealed class InfraEvidenceDriftWorkbenchQueryService(
             return null;
         }
 
-        await InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync(
-            scope,
-            snapshotId,
-            _reconciliationRepository,
-            _authorityQueryService,
-            _manifestHashService,
-            cancellationToken);
+        if (await _snapshotRepository.TryGetBySnapshotIdAsync(scope, snapshotId, cancellationToken) is null)
+            return null;
+
+        await EnsureReadableRunCitedSnapshotSealedAsync(scope, snapshotId, cancellationToken);
 
         IReadOnlyList<AzureInventoryResourceRecord>? resources =
             await _snapshotRepository.ListResourcesBySnapshotIdAsync(scope, snapshotId, cancellationToken);
@@ -232,6 +207,20 @@ public sealed class InfraEvidenceDriftWorkbenchQueryService(
 
         return PagedResponseBuilder.Build(items, page, pageSize);
     }
+
+    private Task EnsureReadableRunCitedSnapshotSealedAsync(
+        ScopeContext scope, Guid snapshotId, CancellationToken cancellationToken) =>
+        InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync(
+            scope,
+            snapshotId,
+            _reconciliationRepository,
+            _authorityQueryService,
+            _manifestHashService,
+            (runId, ct) => CanReadCitedRunAsync(scope, runId, ct),
+            cancellationToken);
+
+    private Task<bool> CanReadCitedRunAsync(ScopeContext scope, Guid runId, CancellationToken cancellationToken) =>
+        runReadAccess?.CanReadRunAsync(scope, runId, cancellationToken) ?? Task.FromResult(false);
 
     private static bool IsVisibleChange(AzureInventoryChangeRecord change)
     {

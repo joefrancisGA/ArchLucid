@@ -65,6 +65,42 @@ export async function getJson<T>(path: string): Promise<T> {
   return (await response.json()) as T;
 }
 
+
+export function hasUsableArchitectureSourceText(
+  sources: readonly ClosedLoopReasoningSourceText[],
+): boolean {
+  return sources.some((source) => source.content.trim().length > 0);
+}
+
+export function requiresArchitectureDescriptionForMutation(
+  architectureDescription: string,
+  hydratedSourceTexts: readonly ClosedLoopReasoningSourceText[],
+): boolean {
+  return (
+    architectureDescription.trim().length === 0 && !hasUsableArchitectureSourceText(hydratedSourceTexts)
+  );
+}
+
+export type ArchitectureIntelligenceProductContextStatus =
+  | "idle"
+  | "loading"
+  | "loaded"
+  | "empty"
+  | "failed";
+
+export function canAnalyzeHydratedReviewFromIntake(
+  productContextStatus: ArchitectureIntelligenceProductContextStatus,
+  activeRunId: string | null,
+  architectureDescription: string,
+  hydratedSourceTexts: readonly ClosedLoopReasoningSourceText[],
+): boolean {
+  return (
+    productContextStatus === "loaded" &&
+    (activeRunId?.trim().length ?? 0) > 0 &&
+    !requiresArchitectureDescriptionForMutation(architectureDescription, hydratedSourceTexts)
+  );
+}
+
 export function buildRequest(
   architectureDescription: string,
   prioritiesRaw: string,
@@ -90,7 +126,8 @@ export function buildRequest(
       );
 
       if (canonicalIndex >= 0) {
-        sourceTexts = hydrated.map((source, index) => {
+        sourceTexts = hydrated
+          .map((source, index) => {
           if (canonicalIndex === index) {
             return {
               ...source,
@@ -99,7 +136,8 @@ export function buildRequest(
           }
 
           return source;
-        });
+          })
+          .filter((source) => source.content.trim().length > 0);
       } else {
         sourceTexts = [
           {
@@ -107,11 +145,11 @@ export function buildRequest(
             contentType: DEFAULT_CONTENT_TYPE,
             content: trimmedDescription,
           },
-          ...hydrated,
+          ...hydrated.filter((source) => source.content.trim().length > 0),
         ];
       }
     } else {
-      sourceTexts = [...hydrated];
+      sourceTexts = hydrated.filter((source) => source.content.trim().length > 0);
     }
   } else if (trimmedDescription.length > 0) {
     sourceTexts = [

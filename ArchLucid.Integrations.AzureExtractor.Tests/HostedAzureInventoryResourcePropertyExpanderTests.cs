@@ -9,6 +9,31 @@ namespace ArchLucid.Integrations.AzureExtractor.Tests;
 [Trait("Category", "Unit")]
 public sealed class HostedAzureInventoryResourcePropertyExpanderTests
 {
+    [Theory]
+    [InlineData("Microsoft.EventGrid/topics")]
+    [InlineData("Microsoft.EventGrid/domains")]
+    public void Expand_captures_explicit_event_grid_security_properties(string resourceType)
+    {
+        using JsonDocument document = JsonDocument.Parse("""
+            {"disableLocalAuth":true,"publicNetworkAccess":"Disabled","privateEndpointConnections":[]}
+            """);
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            resourceType, document.RootElement, []);
+        Assert.Equal(true, properties["disableLocalAuth"]);
+        Assert.Equal("Disabled", properties["publicNetworkAccess"]);
+        Assert.Equal("[]", properties["privateEndpointConnections"]);
+    }
+
+    [Fact]
+    public void Expand_does_not_invent_event_grid_security_defaults()
+    {
+        using JsonDocument document = JsonDocument.Parse("{}");
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.EventGrid/topics", document.RootElement, []);
+        Assert.False(properties.ContainsKey("disableLocalAuth"));
+        Assert.False(properties.ContainsKey("publicNetworkAccess"));
+    }
+
     [Fact]
     public void Expand_preserves_nic_ip_configuration_subnet_index_when_earlier_slot_has_no_properties()
     {

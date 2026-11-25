@@ -16,7 +16,8 @@ public static class AuditControlEvaluationBuilder
         IReadOnlyList<AuditEvidenceRequirementSelectionRecord> selections,
         IReadOnlyList<string> approvedExceptionIds,
         IReadOnlyList<string> failingAzureResourceIds,
-        DateTime createdUtc)
+        DateTime createdUtc,
+        bool inventoryCaptureComplete = true)
     {
         ArgumentNullException.ThrowIfNull(selections);
         ArgumentNullException.ThrowIfNull(approvedExceptionIds);
@@ -63,8 +64,20 @@ public static class AuditControlEvaluationBuilder
                 ? AuditEvaluationOutcome.TechnicallySupported
                 : AuditEvaluationOutcome.TechnicallyNotSupported;
 
-        string evaluationText = BuildEvaluationText(passCount, applicableCount, approvedExceptionIds, failingAzureResourceIds);
+        // Observed failures remain actionable, but a partial capture cannot establish
+        // that all applicable resources satisfy a control (including exception-based passes).
+        if (!inventoryCaptureComplete && outcome == AuditEvaluationOutcome.TechnicallySupported)
+        {
+            outcome = AuditEvaluationOutcome.InsufficientEvidence;
+            confidence = 0m;
+        }
+
+        string evaluationText = !inventoryCaptureComplete
+            ? $"{InsufficientEvidenceLabel}: inventory capture is incomplete; {failingCount} observed failing resource(s) among {applicableCount} collected candidates. Full control coverage is unverified."
+            : BuildEvaluationText(passCount, applicableCount, approvedExceptionIds, failingAzureResourceIds);
         string formula = $"passCount={passCount}; applicableCount={applicableCount}; failingResources={failingCount}";
+        if (!inventoryCaptureComplete)
+            formula += "; inventoryCaptureComplete=false";
 
         AuditControlEvaluationRecord evaluation = new()
         {

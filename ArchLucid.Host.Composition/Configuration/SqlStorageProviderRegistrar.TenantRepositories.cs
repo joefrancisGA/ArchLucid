@@ -5,6 +5,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Admin;
 using ArchLucid.Core.AdminNotifications;
 using ArchLucid.Core.AiProviders;
@@ -143,6 +144,7 @@ internal sealed partial class SqlStorageProviderRegistrar
         RegisterTenantRepositoriesBillingWallet(services);
         services.AddScoped<IReferenceEvidenceRunLookup, SqlReferenceEvidenceRunLookup>();
         services.AddScoped<IArchitectureIntelligencePersistence, DapperArchitectureIntelligencePersistence>();
+        services.AddScoped<IArchitectureIntelligenceStandaloneRunStore, SqlArchitectureIntelligenceStandaloneRunStore>();
         services.AddArchitectureIntelligenceSqlPersistence();
     }
 }

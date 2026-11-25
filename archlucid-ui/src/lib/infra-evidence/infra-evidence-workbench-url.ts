@@ -143,6 +143,10 @@ export function buildRemediationWorkbenchHref(context: InfraEvidenceWorkbenchCon
     params.set(RESOURCE_HUB_CONTROL_ID_PARAM, context.controlId.trim());
   }
 
+  if (context.securityEvidencePathId != null && context.securityEvidencePathId.trim().length > 0) {
+    params.set(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM, context.securityEvidencePathId.trim());
+  }
+
   const query = params.toString();
   const remediationPath = remediationInstancesPathForProductLine(resolveProductLineId());
 
@@ -158,6 +162,7 @@ export function buildResourceHubWorkbenchHref(context: {
   readonly assessmentId?: string | null;
   readonly auditEvidenceSnapshotId?: string | null;
   readonly controlId?: string | null;
+  readonly securityEvidencePathId?: string | null;
 }): string {
   return resourceHubFilterHrefFromSearch(context.cloudResourceId, "", {
     tab: context.tab,
@@ -167,6 +172,7 @@ export function buildResourceHubWorkbenchHref(context: {
     assessmentId: context.assessmentId ?? undefined,
     auditEvidenceSnapshotId: context.auditEvidenceSnapshotId ?? undefined,
     controlId: context.controlId ?? undefined,
+    securityEvidencePathId: context.securityEvidencePathId ?? undefined,
   });
 }
 

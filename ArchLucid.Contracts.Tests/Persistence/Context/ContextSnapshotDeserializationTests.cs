@@ -31,4 +31,19 @@ public sealed class ContextSnapshotDeserializationTests
         result.Errors.Should().NotBeNull().And.BeEmpty();
         result.SourceHashes.Should().NotBeNull().And.BeEmpty();
     }
+    [Fact]
+    public void Deserialize_null_project_id_yields_empty_string_not_null()
+    {
+        const string json = """
+            {
+              "projectId": null
+            }
+            """;
+
+        ContextSnapshot? result =
+            JsonSerializer.Deserialize<ContextSnapshot>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.ProjectId.Should().BeEmpty();
+    }
 }

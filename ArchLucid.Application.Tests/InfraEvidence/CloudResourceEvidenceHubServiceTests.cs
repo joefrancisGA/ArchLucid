@@ -52,8 +52,11 @@ public sealed class CloudResourceEvidenceHubServiceTests
         result.ErrorMessage.Should().Contain("not found");
     }
 
-    [Fact]
-    public async Task TryGetHubAsync_wrong_tenant_returns_not_found()
+    [Theory]
+    [InlineData("tenant")]
+    [InlineData("workspace")]
+    [InlineData("project")]
+    public async Task TryGetHubAsync_wrong_scope_stops_before_reading_snapshot_evidence(string mismatch)
     {
         Guid cloudResourceId = Guid.NewGuid();
         ScopeContext scope = CreateScope();
@@ -62,16 +65,17 @@ public sealed class CloudResourceEvidenceHubServiceTests
         identityDirectory.Records[cloudResourceId] = new CloudResourceIdentityRecord
         {
             CloudResourceId = cloudResourceId,
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
+            TenantId = mismatch == "tenant" ? Guid.NewGuid() : scope.TenantId,
+            WorkspaceId = mismatch == "workspace" ? Guid.NewGuid() : scope.WorkspaceId,
+            ProjectId = mismatch == "project" ? Guid.NewGuid() : scope.ProjectId,
             Provider = CloudProvider.Azure,
             ExternalResourceIdNormalized =
                 "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-1",
             LastSeenSnapshotId = Guid.NewGuid(),
         };
 
-        CloudResourceEvidenceHubService service = CreateService(identityDirectory);
+        Mock<IAzureInventorySnapshotRepository> snapshots = new(MockBehavior.Strict);
+        CloudResourceEvidenceHubService service = CreateService(identityDirectory, snapshotRepository: snapshots.Object);
 
         CloudResourceEvidenceHubQueryResult result = await service.TryGetHubAsync(
             scope,
@@ -80,6 +84,7 @@ public sealed class CloudResourceEvidenceHubServiceTests
             CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();
+        snapshots.VerifyNoOtherCalls();
     }
 
 
@@ -705,6 +710,10 @@ public sealed class CloudResourceEvidenceHubServiceTests
 
             return Task.FromResult<CloudResourceIdentityRecord?>(null);
         }
+
+        public Task<CloudResourceIdentityRecord?> TryGetByCloudResourceIdInScopeAsync(
+            ScopeContext scope, Guid cloudResourceId, CancellationToken cancellationToken = default) =>
+            TryGetByCloudResourceIdAsync(scope, cloudResourceId, cancellationToken);
 
         public Task UpdateResourceCloudResourceIdAsync(
             ScopeContext scope,

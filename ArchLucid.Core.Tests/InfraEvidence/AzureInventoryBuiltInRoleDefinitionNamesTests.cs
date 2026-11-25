@@ -8,6 +8,10 @@ namespace ArchLucid.Core.Tests.InfraEvidence;
 public sealed class AzureInventoryBuiltInRoleDefinitionNamesTests
 {
     [Theory]
+    [InlineData("d5a91429-5739-47e2-a06b-3470a27159e7", "EventGrid Data Sender")]
+    [InlineData("1e241071-0855-49ea-94dc-649edcd759de", "EventGrid Contributor")]
+    [InlineData("428e0ff0-5e57-4d9c-a221-2c70d0e0a443", "EventGrid EventSubscription Contributor")]
+    [InlineData("2414bbcf-6497-4faf-8c65-045460748405", "EventGrid EventSubscription Reader")]
     [InlineData("090c5cfd-751d-490a-894a-3ce6f1109419", "Azure Service Bus Data Owner")]
     [InlineData("4f6d3b9b-027b-4f4c-9142-0e5a2a2247e0", "Azure Service Bus Data Receiver")]
     [InlineData("69a216fc-b8fb-44d8-bc22-1f3c2cd27a39", "Azure Service Bus Data Sender")]

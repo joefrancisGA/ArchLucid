@@ -71,6 +71,50 @@ public sealed class SqlAuditEvidenceProjectIsolationTests(SqlServerPersistenceFi
             CreatedUtc = DateTime.UtcNow,
         });
 
+        SqlAuditEvidenceSnapshotRepository snapshots = new(connection);
+        Guid cloudResource = Guid.NewGuid();
+        async Task<Guid> SeedSnapshotAsync(ProjectScopeKey scope, Guid assessment, DateTime created)
+        {
+            Guid snapshot = Guid.NewGuid();
+            byte[] hash = System.Security.Cryptography.SHA256.HashData(snapshot.ToByteArray());
+            await snapshots.InsertSnapshotInScopeAsync(scope, new AuditEvidenceSnapshotPersistRequest
+            {
+                Header = new()
+                {
+                    AuditEvidenceSnapshotId = snapshot, AssessmentId = assessment, TenantId = scope.TenantId,
+                    CollectionStartedUtc = created, CollectionCompletedUtc = created, CreatedUtc = created,
+                    SelectorVersionsJson = "{}", FrameworkVersion = "1.0", ControlCatalogVersion = "1.0",
+                    EvidenceHashSha256 = hash,
+                },
+                Items = [new()
+                {
+                    EvidenceRowId = Guid.NewGuid(), AuditEvidenceSnapshotId = snapshot, RequirementId = requirementId,
+                    TenantId = scope.TenantId, CloudResourceId = cloudResource, EvidenceType = "manual",
+                    CollectedUtc = created, CollectorVersion = "1", SelectorVersion = "1",
+                    EvidenceHashSha256 = hash, Summary = "Scoped fixture evidence",
+                }],
+            });
+            return snapshot;
+        }
+
+        DateTime created = DateTime.UtcNow;
+        Guid snapshotA = await SeedSnapshotAsync(scopeA, assessmentA, created);
+        Guid snapshotB = await SeedSnapshotAsync(scopeB, assessmentB, created.AddMinutes(1));
+        (await snapshots.ListLineageContextsByCloudResourceIdInScopeAsync(scopeA, cloudResource, 1, null, null, null))
+            .Should().ContainSingle().Which.AuditEvidenceSnapshotId.Should().Be(snapshotA);
+        (await snapshots.ListLineageContextsByCloudResourceIdInScopeAsync(scopeB, cloudResource, 25, assessmentB, snapshotB, controlId))
+            .Should().ContainSingle().Which.AssessmentId.Should().Be(assessmentB);
+        (await snapshots.ListLineageContextsByCloudResourceIdInScopeAsync(scopeA, cloudResource, 25, assessmentB, snapshotB, controlId))
+            .Should().BeEmpty();
+        (await snapshots.ListLineageContextsByCloudResourceIdInScopeAsync(scopeA, cloudResource, 25, assessmentA, snapshotB, controlId))
+            .Should().BeEmpty();
+        (await snapshots.ListLineageContextsByCloudResourceIdInScopeAsync(scopeA, Guid.NewGuid(), 25, assessmentA, snapshotA, controlId))
+            .Should().BeEmpty();
+        (await snapshots.ListLineageContextsByCloudResourceIdInScopeAsync(
+            ProjectScopeKey.Create(tenant, Guid.NewGuid(), projectA), cloudResource, 25, null, null, null)).Should().BeEmpty();
+        (await snapshots.ListLineageContextsByCloudResourceIdInScopeAsync(
+            ProjectScopeKey.Create(Guid.NewGuid(), workspace, projectA), cloudResource, 25, null, null, null)).Should().BeEmpty();
+
         AuditArchitectureEvidenceLinkRecord link = new()
         {
             LinkId = Guid.NewGuid(), TenantId = tenant, AssessmentId = assessmentA,

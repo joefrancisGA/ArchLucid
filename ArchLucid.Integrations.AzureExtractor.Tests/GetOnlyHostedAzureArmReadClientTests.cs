@@ -15,6 +15,225 @@ namespace ArchLucid.Integrations.AzureExtractor.Tests;
 
 public sealed class GetOnlyHostedAzureArmReadClientTests
 {
+    [Theory]
+    [InlineData("type")]
+    [InlineData("dns")]
+    [InlineData("peering")]
+    [InlineData("perimeter")]
+    [InlineData("monitor")]
+    public async Task TypedResourceListings_report_incomplete_on_denied_read(string family)
+    {
+        const string subscription = "11111111-1111-1111-1111-111111111111";
+        const string prefix = "/subscriptions/" + subscription + "/resourceGroups/rg/providers/";
+        using HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.Forbidden)));
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmResourceRecord> result = await (family switch
+        {
+            "type" => client.ListSubscriptionResourcesByTypeAsync("token", subscription,
+                "Microsoft.Network/virtualNetworks", CancellationToken.None),
+            "dns" => client.ListPrivateDnsZoneVirtualNetworkLinksAsync("token", subscription,
+                prefix + "Microsoft.Network/privateDnsZones/zone", CancellationToken.None),
+            "peering" => client.ListVirtualNetworkPeeringsAsync("token", subscription,
+                prefix + "Microsoft.Network/virtualNetworks/vnet", CancellationToken.None),
+            "perimeter" => client.ListNetworkSecurityPerimeterResourceAssociationsAsync("token", subscription,
+                prefix + "Microsoft.Network/networkSecurityPerimeters/nsp", CancellationToken.None),
+            "monitor" => client.ListMonitorPrivateLinkScopeScopedResourcesAsync("token", subscription,
+                prefix + "Microsoft.Insights/privateLinkScopes/scope", CancellationToken.None),
+            _ => throw new InvalidOperationException("Unexpected family."),
+        });
+
+        Assert.Empty(result);
+        Assert.True(Assert.IsType<HostedAzureArmTypeListCollection>(result).PartialCollection);
+    }
+
+    [Theory]
+    [InlineData("{}", true)]
+    [InlineData("{\"value\":[null]}", true)]
+    [InlineData("{\"value\":[],\"nextLink\":42}", true)]
+    [InlineData("{\"value\":[],\"nextLink\":null}", false)]
+    public async Task TypedResourceListing_distinguishes_malformed_from_complete_empty(string body, bool partial)
+    {
+        const string subscription = "11111111-1111-1111-1111-111111111111";
+        using HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            }));
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmResourceRecord> result = await client.ListVirtualNetworkPeeringsAsync(
+            "token", subscription,
+            "/subscriptions/" + subscription + "/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet",
+            CancellationToken.None);
+
+        Assert.Empty(result);
+        Assert.Equal(partial, Assert.IsType<HostedAzureArmTypeListCollection>(result).PartialCollection);
+    }
+
+    [Theory]
+    [InlineData("builtin")]
+    [InlineData("definition")]
+    [InlineData("assignment-document")]
+    [InlineData("assignment")]
+    [InlineData("group-assignment")]
+    public async Task PolicyListings_distinguish_denied_reads_from_complete_empty(string family)
+    {
+        const string subscription = "11111111-1111-1111-1111-111111111111";
+        using HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.Forbidden)));
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        if (family is "assignment" or "group-assignment")
+        {
+            IReadOnlyList<HostedAzureArmPolicyAssignmentRecord> assignments = family == "assignment"
+                ? await client.ListSubscriptionPolicyAssignmentsAsync("token", subscription, CancellationToken.None)
+                : await client.ListManagementGroupPolicyAssignmentsAsync("token", "mg-test", CancellationToken.None);
+            Assert.Empty(assignments);
+            Assert.True(Assert.IsType<HostedAzureArmPolicyCollection<HostedAzureArmPolicyAssignmentRecord>>(assignments)
+                .PartialCollection);
+            return;
+        }
+
+        var documents = await (family switch
+        {
+            "builtin" => client.ListBuiltInPolicyDefinitionDocumentsAsync("token", CancellationToken.None),
+            "definition" => client.ListSubscriptionPolicyDefinitionDocumentsAsync("token", subscription, CancellationToken.None),
+            "assignment-document" => client.ListSubscriptionPolicyAssignmentDocumentsAsync("token", subscription, CancellationToken.None),
+            _ => throw new InvalidOperationException("Unexpected family."),
+        });
+        Assert.Empty(documents);
+        Assert.True(Assert.IsType<HostedAzureArmPolicyCollection<System.Text.Json.JsonElement>>(documents).PartialCollection);
+    }
+
+    [Theory]
+    [InlineData("cycle")]
+    [InlineData("http")]
+    [InlineData("malformed")]
+    [InlineData("complete")]
+    public async Task PolicyDefinitionListing_preserves_valid_prefix_and_completeness(string scenario)
+    {
+        const string subscription = "11111111-1111-1111-1111-111111111111";
+        const string next = "https://management.azure.com/subscriptions/" + subscription
+            + "/providers/Microsoft.Authorization/policyDefinitions?api-version=2021-06-01&$skiptoken=page2";
+        int requests = 0;
+        using HttpMessageHandler handler = new RecordingHandler((_, _) =>
+        {
+            int count = Interlocked.Increment(ref requests);
+            if (count > 2)
+                throw new InvalidOperationException("Pagination did not terminate.");
+            if (count == 2 && scenario == "http")
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+
+            string body = count == 1
+                ? "{\"value\":[{\"id\":\"/providers/Microsoft.Authorization/policyDefinitions/policy1\"}],\"nextLink\":\"" + next + "\"}"
+                : scenario switch
+                {
+                    "cycle" => "{\"value\":[],\"nextLink\":\"" + next + "\"}",
+                    "malformed" => "{}",
+                    "complete" => """{"value":[],"nextLink":null}""",
+                    _ => throw new InvalidOperationException("Unexpected scenario."),
+                };
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        var documents = await client.ListSubscriptionPolicyDefinitionDocumentsAsync(
+            "token", subscription, CancellationToken.None);
+
+        Assert.Equal(2, requests);
+        Assert.Single(documents);
+        Assert.Equal(scenario != "complete",
+            Assert.IsType<HostedAzureArmPolicyCollection<System.Text.Json.JsonElement>>(documents).PartialCollection);
+    }
+
+    [Theory]
+    [InlineData("linkedservices")]
+    [InlineData("datasets")]
+    [InlineData("pipelines")]
+    [InlineData("triggers")]
+    [InlineData("integrationruntimes")]
+    [InlineData("dataflows")]
+    public async Task FactoryMetadataListings_report_incomplete_on_server_failure(string family)
+    {
+        const string factory = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/f1";
+        using HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError)));
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        var result = await (family switch
+        {
+            "linkedservices" => client.ListFactoryLinkedServicesAsync("token", factory, CancellationToken.None),
+            "datasets" => client.ListFactoryDatasetsAsync("token", factory, CancellationToken.None),
+            "pipelines" => client.ListFactoryPipelinesAsync("token", factory, CancellationToken.None),
+            "triggers" => client.ListFactoryTriggersAsync("token", factory, CancellationToken.None),
+            "integrationruntimes" => client.ListFactoryIntegrationRuntimesAsync("token", factory, CancellationToken.None),
+            "dataflows" => client.ListFactoryDataflowsAsync("token", factory, CancellationToken.None),
+            _ => throw new InvalidOperationException("Unexpected family."),
+        });
+
+        Assert.Empty(result);
+        Assert.True(Assert.IsType<HostedAzureAdfCollection<System.Text.Json.JsonElement>>(result).PartialCollection);
+    }
+
+    [Theory]
+    [InlineData("cycle")]
+    [InlineData("http")]
+    [InlineData("malformed")]
+    [InlineData("complete")]
+    public async Task FactoryMetadataListing_preserves_valid_prefix_and_completeness(string scenario)
+    {
+        const string factory = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/f1";
+        const string next = "https://management.azure.com" + factory + "/datasets?api-version=2018-06-01&$skiptoken=page2";
+        int requests = 0;
+        using HttpMessageHandler handler = new RecordingHandler((_, _) =>
+        {
+            int count = Interlocked.Increment(ref requests);
+            if (count > 2)
+                throw new InvalidOperationException("Pagination did not terminate.");
+            if (count == 2 && scenario == "http")
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.Forbidden));
+
+            string body = count == 1
+                ? "{\"value\":[{\"name\":\"dataset1\"}],\"nextLink\":\"" + next + "\"}"
+                : scenario switch
+                {
+                    "cycle" => "{\"value\":[],\"nextLink\":\"" + next + "\"}",
+                    "malformed" => "{}",
+                    "complete" => """{"value":[],"nextLink":null}""",
+                    _ => throw new InvalidOperationException("Unexpected scenario."),
+                };
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        var result = await client.ListFactoryDatasetsAsync("token", factory, CancellationToken.None);
+
+        Assert.Equal(2, requests);
+        Assert.Single(result);
+        Assert.Equal(scenario != "complete",
+            Assert.IsType<HostedAzureAdfCollection<System.Text.Json.JsonElement>>(result).PartialCollection);
+    }
+
     [Fact]
     public async Task ListSubscriptionResourcesAsync_uses_get_only_against_management_azure_com()
     {
@@ -61,6 +280,32 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.All(methods, method => Assert.Equal(HttpMethod.Get.Method, method));
         Assert.Single(resources);
         Assert.Equal("Microsoft.Storage/storageAccounts", resources[0].ResourceType);
+    }
+
+    [Theory]
+    [InlineData("{}", true)]
+    [InlineData("[]", true)]
+    [InlineData("{\"value\":[null]}", true)]
+    [InlineData("{\"value\":[{}]}", true)]
+    [InlineData("{\"value\":[],\"nextLink\":42}", true)]
+    [InlineData("{\"value\":[],\"nextLink\":null}", false)]
+    public async Task ListSubscriptionResourcesAsync_distinguishes_incomplete_from_valid_empty_inventory(
+        string body, bool partial)
+    {
+        using HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            }));
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmResourceRecord> resources = await client.ListSubscriptionResourcesAsync(
+            "token-abc", "11111111-1111-1111-1111-111111111111", CancellationToken.None);
+
+        Assert.Empty(resources);
+        Assert.Equal(partial, Assert.IsType<HostedAzureArmResourceCollection>(resources).PartialCollection);
     }
 
     [Fact]
@@ -114,6 +359,7 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.Equal(2, requestCount);
         Assert.NotEmpty(resources);
         Assert.Equal("sa1", resources[0].Name);
+        Assert.True(Assert.IsType<HostedAzureArmResourceCollection>(resources).PartialCollection);
     }
 
     [Fact]
@@ -167,6 +413,7 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.Equal(2, requestCount);
         Assert.Single(resources);
         Assert.Equal("sa1", resources[0].Name);
+        Assert.True(Assert.IsType<HostedAzureArmResourceCollection>(resources).PartialCollection);
     }
 
     [Fact]
@@ -224,6 +471,7 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.Equal(2, requestCount);
         Assert.Single(resources);
         Assert.Equal("sa1", resources[0].Name);
+        Assert.True(Assert.IsType<HostedAzureArmResourceCollection>(resources).PartialCollection);
     }
 
     [Fact]
@@ -910,6 +1158,64 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListChildResourcesWithStatusAsync_preserves_prefix_when_transport_fails()
+    {
+        const string parent = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventGrid/topics/topic1";
+        const string next = "https://management.azure.com" + parent
+            + "/eventSubscriptions?api-version=2022-06-15&$skiptoken=page2";
+        int requests = 0;
+        using HttpMessageHandler handler = new RecordingHandler((_, _) =>
+        {
+            int count = Interlocked.Increment(ref requests);
+            if (count == 3)
+                return Task.FromException<HttpResponseMessage>(new HttpRequestException("Transport failed"));
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("{\"value\":[{\"name\":\"sub1\"}],\"nextLink\":\"" + next + "\"}"),
+            });
+        });
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        HostedAzureArmChildCollectionReadResult result = await client.ListChildResourcesWithStatusAsync(
+            "token", parent, "eventSubscriptions", "2022-06-15", CancellationToken.None);
+
+        Assert.Equal(3, requests);
+        Assert.Single(result.Values);
+        Assert.True(result.PartialCollection);
+    }
+
+    [Fact]
+    public async Task ListChildResourcesWithStatusAsync_does_not_convert_cancellation_to_partial_success()
+    {
+        const string parent = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventGrid/topics/topic1";
+        int requests = 0;
+        using CancellationTokenSource cancellation = new();
+        using HttpMessageHandler handler = new RecordingHandler((_, _) =>
+        {
+            if (Interlocked.Increment(ref requests) == 2)
+            {
+                cancellation.Cancel();
+                return Task.FromCanceled<HttpResponseMessage>(cancellation.Token);
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""{"value":[]}"""),
+            });
+        });
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            client.ListChildResourcesWithStatusAsync("token", parent, "eventSubscriptions",
+                "2022-06-15", cancellation.Token));
+    }
+
+    [Fact]
     public async Task ListChildResourcesWithStatusAsync_retains_children_and_marks_partial_when_later_page_fails()
     {
         const string staticSiteId =
@@ -1099,6 +1405,88 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.Equal(200, result.StatusCode);
         Assert.True(result.PartialCollection);
         Assert.Single(result.Values);
+    }
+
+    [Theory]
+    [InlineData("{")]
+    [InlineData("[]")]
+    [InlineData("{}")]
+    [InlineData("{\"value\":null}")]
+    [InlineData("{\"value\":[],\"nextLink\":42}")]
+    [InlineData("{\"value\":[null]}")]
+    public async Task ListChildResourcesWithStatusAsync_marks_malformed_page_partial(string body)
+    {
+        using HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            }));
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        HostedAzureArmChildCollectionReadResult result = await client.ListChildResourcesWithStatusAsync(
+            "token", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventGrid/topics/topic1",
+            "eventSubscriptions", "2022-06-15", CancellationToken.None);
+
+        Assert.True(result.PartialCollection);
+        Assert.Empty(result.Values);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ListChildResourcesWithStatusAsync_marks_empty_prefix_partial_on_failure_or_cycle(bool cycle)
+    {
+        const string parent = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventGrid/topics/topic1";
+        string next = $"https://management.azure.com{parent}/eventSubscriptions?api-version=2022-06-15&$skiptoken=page2";
+        int requests = 0;
+        using HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int count = Interlocked.Increment(ref requests);
+                if (count > 3)
+                    throw new InvalidOperationException("Pagination did not terminate.");
+
+                if (!cycle && count == 3)
+                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.Forbidden));
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(
+                        "{\"value\":[],\"nextLink\":\"" + next + "\"}"),
+                });
+            });
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        HostedAzureArmChildCollectionReadResult result = await client.ListChildResourcesWithStatusAsync(
+            "token", parent, "eventSubscriptions", "2022-06-15", CancellationToken.None);
+
+        Assert.True(result.PartialCollection);
+        Assert.Empty(result.Values);
+        Assert.Equal(3, requests);
+    }
+
+    [Fact]
+    public async Task ListChildResourcesWithStatusAsync_valid_empty_terminal_page_is_complete()
+    {
+        using HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("{\"value\":[],\"nextLink\":null}"),
+            }));
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        HostedAzureArmChildCollectionReadResult result = await client.ListChildResourcesWithStatusAsync(
+            "token", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventGrid/topics/topic1",
+            "eventSubscriptions", "2022-06-15", CancellationToken.None);
+
+        Assert.False(result.PartialCollection);
+        Assert.Empty(result.Values);
     }
 
     [Fact]
@@ -1862,6 +2250,72 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
             CancellationToken.None);
 
         Assert.Null(name);
+    }
+
+    [Theory]
+    [InlineData("cycle")]
+    [InlineData("http")]
+    [InlineData("malformed")]
+    [InlineData("invalid-row")]
+    [InlineData("complete")]
+    public async Task ListManagementGroupSubscriptionIdsAsync_preserves_discovery_completeness(string scenario)
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string groupId = "mg-test";
+        const string next = "https://management.azure.com/providers/Microsoft.Management/managementGroups/mg-test/subscriptions?api-version=2020-05-01&$skiptoken=page2";
+        int requests = 0;
+        using HttpMessageHandler handler = new RecordingHandler((_, _) =>
+        {
+            int count = Interlocked.Increment(ref requests);
+            if (count > 2)
+                throw new InvalidOperationException("Pagination did not terminate.");
+            if (count == 2 && scenario == "http")
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.Forbidden));
+
+            string body = count == 1
+                ? $$"""
+                    {"value":[{"name":"{{subscriptionId}}"}],"nextLink":"{{next}}"}
+                    """
+                : scenario switch
+                {
+                    "cycle" => "{\"value\":[],\"nextLink\":\"" + next + "\"}",
+                    "malformed" => "{",
+                    "invalid-row" => """{"value":[{}]}""",
+                    "complete" => """{"value":[],"nextLink":null}""",
+                    _ => throw new InvalidOperationException("Unexpected scenario."),
+                };
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<string> result = await client.ListManagementGroupSubscriptionIdsAsync(
+            "token-abc", groupId, CancellationToken.None);
+
+        Assert.Equal(2, requests);
+        Assert.Equal(subscriptionId, Assert.Single(result));
+        Assert.Equal(scenario != "complete",
+            Assert.IsType<HostedAzureManagementGroupSubscriptionCollection>(result).PartialCollection);
+    }
+
+    [Fact]
+    public async Task ListManagementGroupSubscriptionIdsAsync_first_page_denied_is_not_complete_empty()
+    {
+        using HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.Forbidden)));
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<string> result = await client.ListManagementGroupSubscriptionIdsAsync(
+            "token-abc", "mg-test", CancellationToken.None);
+
+        Assert.Empty(result);
+        Assert.True(Assert.IsType<HostedAzureManagementGroupSubscriptionCollection>(result).PartialCollection);
     }
 
     [Fact]
@@ -3526,6 +3980,60 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
 
         Assert.Single(result.Pricings);
         Assert.Contains(result.Warnings, warning => warning.Contains("defender-pricings.json collection failed; invalid JSON", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData("cycle")]
+    [InlineData("http")]
+    [InlineData("malformed")]
+    [InlineData("invalid-next-link")]
+    public async Task CollectSubscriptionDefenderCompanionsAsync_reports_incomplete_assessment_listing(string failure)
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        string next = $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Security/assessments?api-version=2021-06-01&$skiptoken=page2";
+        int requests = 0;
+        using HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            if (!request.RequestUri!.AbsolutePath.EndsWith("/assessments", StringComparison.Ordinal))
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+
+            int count = Interlocked.Increment(ref requests);
+            if (count > 2)
+                throw new InvalidOperationException("Pagination did not terminate.");
+
+            if (count == 2 && failure == "http")
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+
+            string body = count == 1
+                ? $$"""
+                    {"value":[{"name":"assessment-1","properties":{"displayName":"Test","status":{"code":"Healthy"} } }],"nextLink":"{{next}}"}
+                    """
+                : failure switch
+                {
+                    "cycle" => "{\"value\":[],\"nextLink\":\"" + next + "\"}",
+                    "malformed" => "{}",
+                    "invalid-next-link" => """{"value":[],"nextLink":42}""",
+                    _ => throw new InvalidOperationException("Unexpected scenario."),
+                };
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        HostedAzureDefenderCompanionCollectResult result = await client.CollectSubscriptionDefenderCompanionsAsync(
+            "token-abc", subscriptionId, CancellationToken.None);
+
+        Assert.Equal(2, requests);
+        Assert.Single(result.AssessmentCounts);
+        Assert.Contains("defender-assessments-truncated", result.Warnings);
     }
 
     [Fact]

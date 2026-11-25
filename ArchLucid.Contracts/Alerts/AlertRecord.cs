@@ -67,25 +67,31 @@ public class AlertRecord
     }
 
     /// <summary>Short headline for UI and notifications.</summary>
+    private string title = string.Empty;
+
     public string Title
     {
-        get;
-        set;
-    } = null!;
+        get => title;
+        set => title = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>Domain grouping (e.g. rule type name or <c>CompositeAlert</c>).</summary>
+    private string category = string.Empty;
+
     public string Category
     {
-        get;
-        set;
-    } = null!;
+        get => category;
+        set => category = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>Typically <see cref="AlertSeverity" />.</summary>
+    private string severity = string.Empty;
+
     public string Severity
     {
-        get;
-        set;
-    } = null!;
+        get => severity;
+        set => severity = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>Lifecycle state (<see cref="AlertStatus" />).</summary>
     private string status = AlertStatus.Open;
@@ -97,18 +103,22 @@ public class AlertRecord
     }
 
     /// <summary>Compact metric or rule summary for triage.</summary>
+    private string triggerValue = string.Empty;
+
     public string TriggerValue
     {
-        get;
-        set;
-    } = null!;
+        get => triggerValue;
+        set => triggerValue = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>Longer explanation including metric context.</summary>
+    private string description = string.Empty;
+
     public string Description
     {
-        get;
-        set;
-    } = null!;
+        get => description;
+        set => description = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>Creation time (UTC).</summary>
     public DateTime CreatedUtc
@@ -146,11 +156,13 @@ public class AlertRecord
     }
 
     /// <summary>Key used to suppress duplicate fires (simple and composite evaluators).</summary>
+    private string deduplicationKey = string.Empty;
+
     public string DeduplicationKey
     {
-        get;
-        set;
-    } = null!;
+        get => deduplicationKey;
+        set => deduplicationKey = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>When true, the alert is hidden from default inbox listings.</summary>
     public bool IsArchived

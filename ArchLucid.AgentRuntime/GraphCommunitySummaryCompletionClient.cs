@@ -85,7 +85,7 @@ public sealed class GraphCommunitySummaryCompletionClient(
 
             return string.IsNullOrWhiteSpace(summary) ? communityContext : summary.Trim();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
         {
             _logger.LogWarning(
                 ex,

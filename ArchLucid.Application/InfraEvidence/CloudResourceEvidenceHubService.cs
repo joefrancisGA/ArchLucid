@@ -25,7 +25,8 @@ public sealed class CloudResourceEvidenceHubService(
     IArchitectureDiagramReconciliationRepository reconciliationRepository,
     IAuthorityQueryService authorityQueryService,
     ICloudResourceAuditLineageResolver auditLineageResolver,
-    IManifestHashService manifestHashService) : ICloudResourceEvidenceHubService
+    IManifestHashService manifestHashService,
+    IInfraEvidenceRunReadAccess? runReadAccess = null) : ICloudResourceEvidenceHubService
 {
     private const int RecentChangeTake = 25;
 
@@ -48,14 +49,15 @@ public sealed class CloudResourceEvidenceHubService(
         }
 
         CloudResourceIdentityRecord? identity =
-            await identityDirectory.TryGetByCloudResourceIdAsync(scope, cloudResourceId, cancellationToken);
+            await identityDirectory.TryGetByCloudResourceIdInScopeAsync(scope, cloudResourceId, cancellationToken);
 
-        if (identity is null || identity.TenantId != scope.TenantId)
+        if (identity is null || identity.CloudResourceId != cloudResourceId || identity.TenantId != scope.TenantId ||
+            identity.WorkspaceId != scope.WorkspaceId || identity.ProjectId != scope.ProjectId)
         {
             return new CloudResourceEvidenceHubQueryResult
             {
                 Succeeded = false,
-                ErrorMessage = "Cloud resource was not found in the current tenant scope.",
+                ErrorMessage = "Cloud resource was not found in the current project scope.",
             };
         }
 
@@ -80,6 +82,7 @@ public sealed class CloudResourceEvidenceHubService(
                 reconciliationRepository,
                 authorityQueryService,
                 manifestHashService,
+                (runId, ct) => runReadAccess?.CanReadRunAsync(scope, runId, ct) ?? Task.FromResult(false),
                 cancellationToken);
         }
 

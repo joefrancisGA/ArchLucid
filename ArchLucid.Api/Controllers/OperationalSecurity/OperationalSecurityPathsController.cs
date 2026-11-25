@@ -67,12 +67,15 @@ public sealed class OperationalSecurityPathsController(
         return Ok(response);
     }
 
+    /// <summary>Returns the scoped attack-path report or downloads that same report as JSON.</summary>
     [HttpGet("report")]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     [ProducesResponseType(typeof(SecurityEvidencePathReportResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAttackPathReport(
         [FromQuery] Guid snapshotId,
+        [FromQuery] bool download = false,
         CancellationToken cancellationToken = default)
     {
         if (snapshotId == Guid.Empty)
@@ -87,14 +90,19 @@ public sealed class OperationalSecurityPathsController(
             snapshotId,
             cancellationToken);
 
-        if (report is null)
+        if (report is null || report.SnapshotId != snapshotId)
         {
             return this.NotFoundProblem(
                 "Azure inventory snapshot was not found.",
                 ProblemTypes.ResourceNotFound);
         }
 
-        return Ok(report);
+        if (!download)
+            return Ok(report);
+
+        // Use the same MVC JSON settings and scoped response as the report, without rewriting its evidence.
+        Response.Headers.ContentDisposition = $"attachment; filename=\"securenow-attack-path-report-{snapshotId:N}.json\"";
+        return new JsonResult(report);
     }
 
     [HttpGet("ranked")]

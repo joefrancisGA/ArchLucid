@@ -33,14 +33,15 @@ public static class ProseAssumptionExtractionParser
 
             List<ProseAssumptionCandidate> candidates = [];
 
-            foreach (ParsedAssumptionShape row in parsed.Assumptions)
+            foreach (ParsedAssumptionShape? row in parsed.Assumptions)
             {
                 if (candidates.Count >= maxCandidates)
                 {
                     break;
                 }
 
-                if (string.IsNullOrWhiteSpace(row.Statement)
+                if (row is null
+                    || string.IsNullOrWhiteSpace(row.Statement)
                     || string.IsNullOrWhiteSpace(row.DocumentPath)
                     || string.IsNullOrWhiteSpace(row.QuotedSpan)
                     || row.LineNumber <= 0
@@ -72,7 +73,7 @@ public static class ProseAssumptionExtractionParser
     private sealed class ParsedShape
     {
         [JsonPropertyName("assumptions")]
-        public List<ParsedAssumptionShape>? Assumptions
+        public List<ParsedAssumptionShape?>? Assumptions
         {
             get;
             set;

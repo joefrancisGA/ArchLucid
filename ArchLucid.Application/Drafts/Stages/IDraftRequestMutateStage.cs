@@ -24,4 +24,11 @@ public interface IDraftRequestMutateStage
         CancellationToken cancellationToken);
 
     Task<DraftRequestResponse?> ReopenAsync(ScopeContext scope, Guid draftId, CancellationToken cancellationToken);
+
+    Task<DraftRequestResponse?> AnswerQuestionAsync(ScopeContext scope, Guid draftId,
+        AnswerDraftQuestionRequest request, DateTime? authorizedUpdatedUtc, CancellationToken cancellationToken);
+
+    Task<DraftRequestResponse?> SkipQuestionAsync(ScopeContext scope, Guid draftId,
+        SkipDraftQuestionRequest request, DateTime? authorizedUpdatedUtc, CancellationToken cancellationToken);
+
 }

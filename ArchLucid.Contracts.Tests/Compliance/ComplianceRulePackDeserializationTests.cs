@@ -42,4 +42,27 @@ public sealed class ComplianceRulePackDeserializationTests
         result.Should().NotBeNull();
         result!.Rules.Should().NotBeNull().And.BeEmpty();
     }
+    [Fact]
+    public void Deserialize_null_rule_pack_identity_strings_yield_empty_strings_not_null()
+    {
+        const string json = """
+            {
+              "rulePackId": null,
+              "name": null,
+              "rulePackHash": null,
+              "sourcePath": null,
+              "version": null
+            }
+            """;
+
+        ComplianceRulePack? result =
+            JsonSerializer.Deserialize<ComplianceRulePack>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.RulePackId.Should().BeEmpty();
+        result.Name.Should().BeEmpty();
+        result.RulePackHash.Should().BeEmpty();
+        result.SourcePath.Should().BeEmpty();
+        result.Version.Should().BeEmpty();
+    }
 }

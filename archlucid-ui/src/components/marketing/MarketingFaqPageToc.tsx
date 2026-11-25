@@ -84,6 +84,7 @@ export function MarketingFaqPageToc(props: MarketingFaqPageTocProps): React.JSX.
                 onClick={(event) => {
                   event.preventDefault();
                   window.history.pushState(null, "", `#${category.id}`);
+                  window.dispatchEvent(new HashChangeEvent("hashchange"));
                   document.getElementById(category.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
                 }}
               >

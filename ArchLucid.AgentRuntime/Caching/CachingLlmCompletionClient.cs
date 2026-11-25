@@ -75,7 +75,10 @@ public sealed class CachingLlmCompletionClient : IAgentCompletionClient
             ? "unknown"
             : labels.ModelDeploymentLabel.Trim();
 
-        string promptHash = LlmCompletionCacheFingerprint.ComputePromptHash(systemPrompt, userPrompt);
+        string promptHash = LlmCompletionCacheFingerprint.WithGenerationOptions(
+            LlmCompletionCacheFingerprint.ComputePromptHash(systemPrompt, userPrompt),
+            maxTokens,
+            temperature);
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
         EnsureScopePartitionAllowsCache(cacheOpts.PartitionByScope, scope, _simulator);

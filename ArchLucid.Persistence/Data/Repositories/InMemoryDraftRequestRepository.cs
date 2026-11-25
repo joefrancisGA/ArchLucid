@@ -16,28 +16,38 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
 
     /// <inheritdoc />
     public Task<DraftRequestResponse?> GetAsync(
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId,
-        Guid draftId,
-        CancellationToken cancellationToken)
+        Guid tenantId, Guid workspaceId, Guid projectId, Guid draftId, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-
-        if (!_drafts.TryGetValue(draftId, out InMemoryDraftRequestStoredDraft? stored))
-            return Task.FromResult<DraftRequestResponse?>(null);
-
-        if (!DraftRequestRepositoryCore.MatchesProjectScope(
-                tenantId,
-                workspaceId,
-                projectId,
-                stored.TenantId,
-                stored.WorkspaceId,
-                stored.ProjectId))
-            return Task.FromResult<DraftRequestResponse?>(null);
-
-        return Task.FromResult<DraftRequestResponse?>(Map(stored));
+        InMemoryDraftRequestStoredDraft? stored = FindScoped(tenantId, workspaceId, projectId, draftId);
+        return Task.FromResult(stored is null ? null : Map(stored));
     }
+
+    public Task<DraftRequestResponse?> GetAtAccessRevisionAsync(
+        Guid tenantId, Guid workspaceId, Guid projectId, Guid draftId,
+        DateTime expectedUpdatedUtc, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        InMemoryDraftRequestStoredDraft? stored = FindScoped(tenantId, workspaceId, projectId, draftId);
+        return Task.FromResult(stored is not null && stored.UpdatedUtc == expectedUpdatedUtc ? Map(stored) : null);
+    }
+
+    public Task<DraftRequestAccessMetadata?> GetAccessMetadataAsync(
+        Guid tenantId, Guid workspaceId, Guid projectId, Guid draftId, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        InMemoryDraftRequestStoredDraft? stored = FindScoped(tenantId, workspaceId, projectId, draftId);
+        return Task.FromResult(stored is null ? null : new DraftRequestAccessMetadata(
+            stored.DraftId, stored.TenantId, stored.WorkspaceId, stored.ProjectId, stored.ArchitectureId,
+            stored.CreatedByUserId, stored.Document.PriorRunId, stored.SpawnedRunId, stored.UpdatedUtc));
+    }
+
+    private InMemoryDraftRequestStoredDraft? FindScoped(Guid tenantId, Guid workspaceId, Guid projectId, Guid draftId) =>
+        _drafts.TryGetValue(draftId, out InMemoryDraftRequestStoredDraft? stored)
+        && DraftRequestRepositoryCore.MatchesProjectScope(
+            tenantId, workspaceId, projectId, stored.TenantId, stored.WorkspaceId, stored.ProjectId)
+            ? stored
+            : null;
 
     /// <inheritdoc />
     public Task<DraftRequestResponse> CreateAsync(
@@ -116,7 +126,22 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
         string? spawnedRunId,
         CancellationToken cancellationToken,
         Guid? spawnedArchitectureVersionId = null,
-        byte[]? spawnedDocumentContentHashSha256 = null)
+        byte[]? spawnedDocumentContentHashSha256 = null) =>
+        UpdateCoreAsync(tenantId, workspaceId, projectId, draftId, status, document, redirectReason,
+            spawnedRunId, spawnedArchitectureVersionId, spawnedDocumentContentHashSha256,
+            expectedUpdatedUtc: null, cancellationToken);
+
+    public Task<DraftRequestResponse?> UpdateAtAccessRevisionAsync(
+        DraftRequestResponse draft, CancellationToken cancellationToken) =>
+        UpdateCoreAsync(draft.TenantId, draft.WorkspaceId, draft.ProjectId, draft.DraftId, draft.Status,
+            draft.Document, draft.RedirectReason, draft.SpawnedRunId, draft.SpawnedArchitectureVersionId,
+            draft.SpawnedDocumentContentHashSha256, draft.UpdatedUtc, cancellationToken);
+
+    private Task<DraftRequestResponse?> UpdateCoreAsync(
+        Guid tenantId, Guid workspaceId, Guid projectId, Guid draftId, DraftRequestStatus status,
+        DraftRequestDocument document, string? redirectReason, string? spawnedRunId,
+        Guid? spawnedArchitectureVersionId, byte[]? spawnedDocumentContentHashSha256,
+        DateTime? expectedUpdatedUtc, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -133,6 +158,13 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
                     stored.ProjectId))
                 break;
 
+            if (expectedUpdatedUtc is DateTime expected && stored.UpdatedUtc != expected)
+                break;
+
+            DateTime now = TimeProvider.System.GetUtcNow().UtcDateTime;
+            if (now <= stored.UpdatedUtc)
+                now = stored.UpdatedUtc.AddTicks(1);
+
             InMemoryDraftRequestStoredDraft updated = stored with
             {
                 Status = status,
@@ -143,7 +175,7 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
                 DocumentContentHashSha256 = DraftDocumentContentFingerprint.Compute(document),
                 SpawnedDocumentContentHashSha256 = spawnedDocumentContentHashSha256?.ToArray()
                     ?? stored.SpawnedDocumentContentHashSha256,
-                UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                UpdatedUtc = now,
             };
 
             if (_drafts.TryUpdate(draftId, updated, stored))
@@ -381,10 +413,11 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
                     stored.ProjectId))
                 break;
 
+            DateTime now = TimeProvider.System.GetUtcNow().UtcDateTime;
             InMemoryDraftRequestStoredDraft updated = stored with
             {
                 ArchitectureId = architectureId,
-                UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                UpdatedUtc = now <= stored.UpdatedUtc ? stored.UpdatedUtc.AddTicks(1) : now,
             };
 
             if (_drafts.TryUpdate(draftId, updated, stored))

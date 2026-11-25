@@ -10,7 +10,8 @@ public static class AzureInventoryControlToDataConversionResolver
         string? resourceType,
         IReadOnlyDictionary<string, string>? properties)
     {
-        if (!AzureInventoryControlPlaneBuiltinRoles.IsContributorOrOwner(roleName))
+        if (!AzureInventoryControlPlaneBuiltinRoles.IsContributorOrOwner(roleName)
+            && !string.Equals(roleName, "EventGrid Contributor", StringComparison.OrdinalIgnoreCase))
         {
             return AzureInventoryControlToDataConversionResult.None;
         }
@@ -19,6 +20,39 @@ public static class AzureInventoryControlToDataConversionResolver
         {
             return AzureInventoryControlToDataConversionResult.None;
         }
+
+        if (resourceType.Equals("Microsoft.EventGrid/topics", StringComparison.OrdinalIgnoreCase)
+            || resourceType.Equals("Microsoft.EventGrid/domains", StringComparison.OrdinalIgnoreCase))
+        {
+            // Management-plane key retrieval can enable publishing only when local auth is explicitly enabled.
+            bool? disabled = null;
+            if (properties is not null)
+            {
+                foreach (KeyValuePair<string, string> property in properties)
+                {
+                    if (!property.Key.Equals("disableLocalAuth", StringComparison.OrdinalIgnoreCase)
+                        && !property.Key.Equals("properties.disableLocalAuth", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    if (!bool.TryParse(property.Value, out bool value)
+                        || (disabled.HasValue && disabled.Value != value))
+                        return AzureInventoryControlToDataConversionResult.None;
+
+                    disabled = value;
+                }
+            }
+
+            return disabled == false
+                ? new AzureInventoryControlToDataConversionResult
+                {
+                    Permission = AzureInventoryDerivedDataPlanePermission.Write,
+                    InferenceQualifier = "event-grid-list-keys-local-auth-enabled",
+                }
+                : AzureInventoryControlToDataConversionResult.None;
+        }
+
+        if (!AzureInventoryControlPlaneBuiltinRoles.IsContributorOrOwner(roleName))
+            return AzureInventoryControlToDataConversionResult.None;
 
         if (resourceType.Contains("Microsoft.Storage/storageAccounts", StringComparison.OrdinalIgnoreCase))
         {
