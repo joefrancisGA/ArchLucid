@@ -380,6 +380,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 seed hunt (seed→hit): picker `seedHunt`; continued `ui-lib-remediation-factory` (`shouldRotate: false`; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — Tamil, Myanmar, and other unlisted Unicode decimal one glyphs stayed closed; extend decimal-one allowlist for additional scripts. **valid-no-repro** unicode decimal two rejection (existing), **valid-no-repro** unicode decimal one drop on close (regression), **valid-no-repro** fullwidth FALSE closed (regression), **valid-no-repro** CJK-one writer canonical `1` (regression), **valid-no-repro** open-findings-factory valueFootnote at measured zero (intentional compare copy; regression). Pass-58 reseed below. Scoped vitest **297/297**. Private beta: Invited operators who deep-link with additional script-native decimal `remediationFactoryMetricsOpen` one digits open the executive metrics summary instead of landing with the panel closed.
+
 2026-11-25 seed hunt (seed→hit): picker `seedHunt`; continued `ui-lib-remediation-factory` (`shouldRotate: false`; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — Unicode decimal one glyphs (`١`, `১`, `๑`) stayed closed because only ASCII and NFKC-fullwidth paths matched; recognize known decimal-one code points and NFKC-normalized ASCII digits. **valid-no-repro** CJK two rejection (regression), **valid-no-repro** CJK one drop on close (regression), **valid-no-repro** fullwidth NO closed (regression), **valid-no-repro** hangzhou-one writer canonical `1` (regression), **invalid** risk-weighted valueFootnote at measuredZero (no field; regression). Pass-57 reseed below. Scoped vitest **292/292**. Private beta: Invited operators who deep-link with script-native decimal `remediationFactoryMetricsOpen` one digits open the executive metrics summary instead of landing with the panel closed.
 
 2026-11-25 seed hunt (seed→hit): picker `seedHunt`; continued `ui-lib-remediation-factory` (`shouldRotate: false`; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — CJK one and hangzhou numeral tokens (`一`, `〡`, `㆒`) stayed closed; map NFKC `一` and hangzhou code point before matching. **valid-no-repro** fullwidth OFF closed (regression), **valid-no-repro** roman-one writer canonical `1` (regression), **valid-no-repro** curly-brace one rejection (regression), **valid-no-repro** attack-path newline-only overflow (regression), **invalid** pattern-exact tile valueFootnote at measuredZero (no field; regression). Pass-56 reseed below. Scoped vitest **285/285**. Private beta: Invited operators who deep-link with CJK-style `remediationFactoryMetricsOpen=一` open the executive metrics summary instead of landing with the panel closed.
@@ -513,11 +515,20 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (superseded) pass-56 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-57 reseed.
 - [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — Unicode decimal one token — **proven 2026-11-25 seed hunt (seed→hit):** regressions in url-state tests.
 
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects unicode decimal two token — locus: disclosure parse; input: `٢`; monitor; pass-57 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops unicode decimal one from base — locus: writer; input: `١` base; monitor; pass-57 reseed.
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — treats fullwidth FALSE metrics disclosure token as closed — locus: disclosure parse; input: `ＦＡＬＳＥ`; monitor; pass-57 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open over CJK-one base replaces with canonical 1 — locus: writer; input: `一` base; monitor; pass-57 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps open-findings-factory valueFootnote when count is measuredZero — locus: tile chrome; input: openFindings 0; monitor; pass-57 reseed.
+
+- [x] (superseded) pass-57 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-58 reseed.
+- [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — additional unicode decimal one token — **proven 2026-11-25 seed hunt (seed→hit):** regressions in url-state tests.
+
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects khmer decimal two token — locus: disclosure parse; input: `២`; monitor; pass-58 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops Tamil decimal one from base — locus: writer; input: `௧` base; monitor; pass-58 reseed.
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — treats fullwidth ZERO metrics disclosure token as closed — locus: disclosure parse; input: `０`; monitor; pass-58 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open over unicode-decimal-one base replaces with canonical 1 — locus: writer; input: `١` base; monitor; pass-58 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps critical-exposure valueFootnote when count is measuredZero — locus: tile chrome; input: criticalExposureCount 0; monitor; pass-58 reseed.
+- [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects unicode decimal two token — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** existing regression.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics close drops unicode decimal one from base — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
+- [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — treats fullwidth FALSE metrics disclosure token as closed — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open over CJK-one base replaces with canonical 1 — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps open-findings-factory valueFootnote when count is measuredZero — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** intentional compare footnote; regression in metric-presentation tests.
 - [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects CJK two token — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics close drops CJK one from base — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
 - [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — treats fullwidth NO metrics disclosure token as closed — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
@@ -977,8 +988,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 77
-- **bugs-found:** 67
+- **hunts:** 78
+- **bugs-found:** 68
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25

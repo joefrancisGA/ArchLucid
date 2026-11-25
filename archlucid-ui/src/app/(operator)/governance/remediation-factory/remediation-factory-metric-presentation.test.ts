@@ -1090,4 +1090,9 @@ describe("remediation-factory-metric-presentation", () => {
       }).scopeNote,
     ).toContain("12 resources");
   });
-});
+
+  it("keeps open-findings-factory valueFootnote when count is measuredZero", () => {
+    const tiles = buildRemediationFactoryExecutiveMetricTiles({ openFindings: 0 } as RemediationFactoryMetrics, true);
+
+    expect(tiles.find((tile) => tile.id === "open-findings-factory")?.valueFootnote).toContain("compare");
+  });});
