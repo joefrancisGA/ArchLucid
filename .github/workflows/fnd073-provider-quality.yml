@@ -140,11 +140,22 @@ jobs:
                    for line in (node.text or "").splitlines()
                    if line.strip().startswith("FND073_REPLAY ")]
           if len(lines) != 1:
-              raise SystemExit("Expected exactly one synthetic replay measurement.")
+              raise SystemExit("Expected exactly one policy-representative replay measurement.")
+          required = (
+              "coverage=offline-policy-scenarios",
+              "coverage_limit=no-production-telemetry",
+              "no_customer_data=true",
+              "healthy_false_quarantines=0/16",
+              "degraded_detected=8/8",
+              "sql_p95_budget_ms=250",
+          )
+          if any(token not in lines[0] for token in required):
+              raise SystemExit("Replay measurement omitted required scope, outcome or latency evidence.")
           print(lines[0])
           with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a") as summary:
-              summary.write("### FND-073 isolated replay (synthetic cohorts, loopback SQL)\n\n")
-              summary.write("`" + lines[0] + "`\n")
+              summary.write("### FND-073 policy-representative offline replay (loopback SQL)\n\n")
+              summary.write("`" + lines[0] + "`\n\n")
+              summary.write("Coverage is limited to deterministic default-policy scenarios; this is not production telemetry.\n")
           PY
       - name: Remove disposable SQL Server
         if: always()

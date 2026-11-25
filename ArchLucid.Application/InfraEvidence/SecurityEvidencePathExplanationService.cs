@@ -154,7 +154,16 @@ public sealed class SecurityEvidencePathExplanationService(
                         cancellationToken);
                     string llmJson = observed.Response;
                     qualitySample = observed.Sample;
-                    if (!SecurityEvidencePathExplanationBuilder.TryParseLlmResponse(
+                    if (qualitySample?.IsSyntheticRecovery == true)
+                    {
+                        content = SecurityEvidencePathExplanationBuilder.BuildSimulatorExplanation(
+                            path, hops, cutPoints, allowedEvidenceRefs, rankContext);
+                        provenanceKind = ProvenanceKind.DeterministicInference;
+                        simulatorLabel = SecurityEvidencePathExplanationBuilder.SimulatorLabel;
+                        modelOutputRejection =
+                            "A synthetic provider recovery check ran instead of model path analysis. Showing the stored-path summary.";
+                    }
+                    else if (!SecurityEvidencePathExplanationBuilder.TryParseLlmResponse(
                             llmJson,
                             allowedEvidenceRefs,
                             allowedArmIds,

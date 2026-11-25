@@ -14,6 +14,9 @@ public enum IndependentProviderClaimOutcome
 /// <summary>One observation of a response whose actual provider and version are available.</summary>
 public interface IIndependentProviderQualitySample
 {
+    /// <summary>The response is a synthetic recovery artifact and must not be used as customer analysis.</summary>
+    bool IsSyntheticRecovery => false;
+
     Task RecordAsync(
         ScopeContext scope, Guid storedExplanationId, IndependentProviderClaimOutcome outcome, bool material,
         InventoryFalsificationProbe? inventoryFalsification, CancellationToken cancellationToken);
