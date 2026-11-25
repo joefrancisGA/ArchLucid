@@ -105,20 +105,20 @@ public sealed class AgentOutputReferenceCaseCatalog(
         try
         {
             string json = File.ReadAllText(path);
-            List<AgentOutputReferenceCaseDefinition>? list =
-                JsonSerializer.Deserialize<List<AgentOutputReferenceCaseDefinition>>(json, JsonOptions);
+            List<AgentOutputReferenceCaseDefinition?>? list =
+                JsonSerializer.Deserialize<List<AgentOutputReferenceCaseDefinition?>>(json, JsonOptions);
 
             if (list is null || list.Count == 0)
                 return [];
 
             List<AgentOutputReferenceCaseDefinition> valid = [];
 
-            foreach (AgentOutputReferenceCaseDefinition item in list)
+            foreach (AgentOutputReferenceCaseDefinition? item in list)
             {
-                if (string.IsNullOrWhiteSpace(item.CaseId))
+                if (item is null || string.IsNullOrWhiteSpace(item.CaseId))
                 {
                     _logger.LogWarning(
-                        "Skipping reference case with empty CaseId in {Path}.",
+                        "Skipping null or unnamed reference case in {Path}.",
                         LogSanitizer.Sanitize(path));
 
                     continue;
