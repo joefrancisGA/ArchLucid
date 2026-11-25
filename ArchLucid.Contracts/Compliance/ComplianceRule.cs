@@ -1,60 +1,80 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Compliance;
 
 public class ComplianceRule
 {
+    private string ruleId = string.Empty;
+
     public string RuleId
     {
-        get;
-        set;
-    } = null!;
+        get => ruleId;
+        set => ruleId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string controlId = string.Empty;
 
     public string ControlId
     {
-        get;
-        set;
-    } = null!;
+        get => controlId;
+        set => controlId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string controlName = string.Empty;
 
     public string ControlName
     {
-        get;
-        set;
-    } = null!;
+        get => controlName;
+        set => controlName = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string appliesToCategory = string.Empty;
 
     public string AppliesToCategory
     {
-        get;
-        set;
-    } = null!;
+        get => appliesToCategory;
+        set => appliesToCategory = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string requiredNodeType = string.Empty;
 
     public string RequiredNodeType
     {
-        get;
-        set;
-    } = null!;
+        get => requiredNodeType;
+        set => requiredNodeType = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string requiredEdgeType = string.Empty;
 
     public string RequiredEdgeType
     {
-        get;
-        set;
-    } = null!;
+        get => requiredEdgeType;
+        set => requiredEdgeType = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string severity = "Warning";
 
     public string Severity
     {
-        get;
-        set;
-    } = "Warning";
+        get => severity;
+        set => severity = ContractCollectionDefaults.CoalesceStringDefault(value, "Warning");
+    }
+
+    private string priority = "P1";
 
     public string Priority
     {
-        get;
-        set;
-    } = "P1";
+        get => priority;
+        set => priority = ContractCollectionDefaults.CoalesceStringDefault(value, "P1");
+    }
+
+    private string description = string.Empty;
 
     public string Description
     {
-        get;
-        set;
-    } = null!;
+        get => description;
+        set => description = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>Optional run-context gates. Null or empty means the rule always applies after governance filtering.</summary>
     public ComplianceRuleApplicabilityConditions? Applicability
