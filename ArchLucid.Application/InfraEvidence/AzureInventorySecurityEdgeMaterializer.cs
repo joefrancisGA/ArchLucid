@@ -280,6 +280,18 @@ public static class AzureInventorySecurityEdgeMaterializer
             {
                 warnings.Add("eventgrid-destination-rbac-unverified");
             }
+
+            if (!subscription.CollectionStatus.Equals(AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded,
+                    StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (subscription.DeadLetterStatus == "not-observed")
+                warnings.Add("eventgrid-dead-letter-not-observed");
+            else if (subscription.DeadLetterStatus != "configured"
+                || AzureInventoryEventGridDeadLetterEvidence.ValidateContainerResourceId(subscription.DeadLetterResourceId) is null)
+                warnings.Add("eventgrid-dead-letter-configuration-unverified");
+            else if (!AzureInventoryEventGridDestinationAuthorization.HasMatchingDeadLetterAssignment(subscription, resources, roleAssignments))
+                warnings.Add("eventgrid-dead-letter-rbac-unverified");
         }
 
         AzureInventoryLogicAppConnectionEdgeMapper.MapConnections(
