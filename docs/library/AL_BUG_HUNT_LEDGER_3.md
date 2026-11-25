@@ -2924,6 +2924,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-runs-list
 
 
+2026-11-25 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; **Cooled: true** with hit-rate cooldown waived — empty hypothesis list). Cheap-disproof on five pass-6 `(candidate)` monitors — **valid-no-repro** all five (regressions cited in hunt note). Added three monitor regressions; no production change. Reseeded pass-7 below. Private beta: n/a.
+
+
+
 2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted pass-5 buyer scope chip — **proven** `BuyerPackageScopeFilterChips` hrefs used `navigationSearch` without committed `filter=` overlay when `useSearchParams` lagged after scope navigation; sort/pagination/scope chips now share `runsListCompareInspectorNavigationSearchFromSearch`. Regression `preserves committed filter= in buyer scope chip href when useSearchParams lags after scope navigation`. **valid-no-repro** debounced `q=` on page 2 (overlay includes `page`/`cursor`), **valid-no-repro** sort chip + compare lag (`navigationSearch` compare overlay), **valid-no-repro** Escape-then-debounce inspector (`clears inspectorRunId…` + debounce overlay), **valid-no-repro** third-compare keyboard notice (existing popstate/compare regressions). Focused `RunsListClient` vitest **83/83**. Reseeded five pass-6 `(candidate)` rows below. Private beta: orphan-candidates list context plus package-scope chips keep the context `filter=` in chip hrefs when the router is behind window.location.
 
 - [x] (superseded) pass-5 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-6 reseed.
@@ -3113,11 +3117,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `BuyerPackageScopeFilterChips` — committed `filter=` dropped on scope chip href when router lagged — **hit 2026-11-25 seed hunt (seed→hit):** unified chip `navigationSearch` overlay; regression above.
 - [x] (valid-no-repro) `RunsListClient` third-compare keyboard notice — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** compare notice popstate regressions.
 
-- [ ] (candidate) `RunsListClient` sort chip href — committed `page` on page 2 while router lags — locus: navigationSearch; input: paginate then sort chip; pass-6 reseed.
-- [ ] (candidate) `useRunsList` compare URL sync — may omit `filter=` when overlay not unified on write — locus: compare href base; input: orphan filter + compare; pass-6 reseed.
-- [ ] (candidate) `RunsListClient` list context banner — clear button vs committed `filter=` lag — locus: banner clear href; input: popstate clear; pass-6 reseed.
-- [ ] (candidate) `BuyerPackageScopeFilterChips` — `q=` pending while scope chip navigates — locus: scope href pending q; input: type filter then scope; pass-6 reseed.
-- [ ] (candidate) `useRunsList` `clearFilterText` — may strip `filter=` context param — locus: clear href; input: orphan context then Escape filter; pass-6 reseed.
+- [x] (valid-no-repro) pass-6 sort chip page lag — **cheap-disproof 2026-11-25 seed hunt (seed-only):** `preserves committed page= in sort chip href when useSearchParams lags on page 2`.
+- [x] (valid-no-repro) pass-6 compare + orphan filter — **cheap-disproof 2026-11-25 seed hunt (seed-only):** `preserves committed filter= when compareRuns is toggled while useSearchParams lags orphan context`.
+- [x] (valid-no-repro) pass-6 list context banner — **cheap-disproof 2026-11-25 seed hunt (seed-only):** existing banner clear regression.
+- [x] (valid-no-repro) pass-6 pending q on chips — **cheap-disproof 2026-11-25 seed hunt (seed-only):** `preserves pending text filter in sort href before q= debounce completes`.
+- [x] (valid-no-repro) pass-6 Escape + orphan filter — **cheap-disproof 2026-11-25 seed hunt (seed-only):** `preserves filter=orphan-candidates when Escape clears q= before useSearchParams catches up`.
+
+- [ ] (candidate) `RunsListClient` buyer filter disclosure — `runsListFilterOpen` deep link — pass-7 reseed.
+- [ ] (candidate) `useRunsList` compare notice keyboard race — pass-7 reseed.
+- [ ] (candidate) `RunsListClient` resume strip + `q=` overlay — pass-7 reseed.
+- [ ] (candidate) `useRunsList` invalid inspector page 2 — pass-7 reseed.
+- [ ] (candidate) `RunsListWorkQueueTable` client re-sort vs URL lag — pass-7 reseed.
 
 - **id:** ui-runs-list
 - **status:** open
@@ -3125,7 +3135,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 5
+- **hunts:** 6
 - **last-hunt:** 2026-11-25
 - **bugs-found:** 4
 - **consecutive-dry-hunts:** 0

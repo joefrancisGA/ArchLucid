@@ -1905,7 +1905,78 @@ describe("RunsListClient inspector", () => {
     expect(nextLink).toHaveAttribute("href", expect.stringContaining("page=2"));
   });
 
-        it("preserves committed filter= in buyer scope chip href when useSearchParams lags after scope navigation", () => {
+          it("preserves committed filter= when compareRuns is toggled while useSearchParams lags orphan context", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      "filter=orphan-candidates",
+    );
+
+    runsListSearchParamsHarness.applyRouterHref("/architecture/reviews");
+    runsListSearchParamsHarness.state.committedQuery = "filter=orphan-candidates";
+
+    fireEvent.click(within(screen.getByTestId(`runs-row-${sampleRun.runId}`)).getByRole("checkbox"));
+
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("filter=orphan-candidates");
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(`compareRuns=${sampleRun.runId}`);
+  });
+
+  it("preserves filter=orphan-candidates when Escape clears q= before useSearchParams catches up", async () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      "filter=orphan-candidates&q=Demo",
+    );
+
+    runsListSearchParamsHarness.applyRouterHref("/architecture/reviews?filter=orphan-candidates");
+
+    const filterInput = screen.getByLabelText(/Filter reviews by name or description/i);
+    fireEvent.keyDown(filterInput, { key: "Escape", code: "Escape" });
+
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("filter=orphan-candidates");
+    expect(runsListSearchParamsHarness.state.committedQuery).not.toContain("q=Demo");
+  });
+
+  it("preserves committed page= in sort chip href when useSearchParams lags on page 2", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient
+        runs={[sampleRun, secondRun]}
+        projectId="default"
+        page={2}
+        pageSize={20}
+        totalCount={40}
+      />,
+      "page=2&cursor=cursor-page-2",
+    );
+
+    runsListSearchParamsHarness.applyRouterHref("/architecture/reviews?page=1");
+    runsListSearchParamsHarness.state.committedQuery = "page=2&cursor=cursor-page-2&sort=created-asc";
+    fireEvent.popState(window);
+
+    const oldestFirst = screen.getByTestId("runs-list-sort-created-asc");
+
+    expect(oldestFirst).toHaveAttribute("href", expect.stringContaining("sort=created-asc"));
+    expect(oldestFirst).toHaveAttribute("href", expect.stringContaining("page=2"));
+    expect(oldestFirst).toHaveAttribute("href", expect.stringContaining("cursor=cursor-page-2"));
+  });
+
+it("preserves committed filter= in buyer scope chip href when useSearchParams lags after scope navigation", () => {
     buyerPolishedShellVitestOverride.value = true;
     runsListWorkspaceModeHarness.mode = "guided";
 
