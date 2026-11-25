@@ -148,6 +148,7 @@ export function buildRemediationFactoryExecutiveMetricTiles(
   const patternExactPercentValue = formatPercentPoints(metrics?.patternCoverageExactMatchPercent);
   const automationPercentValue = formatPercentPoints(metrics?.automationPercent);
   const recurrenceCountValue = formatCount(metrics?.recurrenceCount);
+  const exceptionsActiveValue = formatCount(metrics?.exceptionsActive);
 
   return [
     {
@@ -164,7 +165,8 @@ export function buildRemediationFactoryExecutiveMetricTiles(
     {
       id: "open-findings-factory",
       label: "Open findings (factory metrics)",
-      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
+      scopeLine:
+        openFindingsFactoryValue !== null ? scopeLineWhenLoaded(WORKSPACE_SCOPE) : undefined,
       ruleLine:
         metricsLoaded && openFindingsFactoryValue !== null ? PRIORITIZATION_RULE : undefined,
       valueFootnote:
@@ -200,7 +202,10 @@ export function buildRemediationFactoryExecutiveMetricTiles(
             ? "No critical-or-error findings in this metric."
             : null,
       value: criticalExposureValue,
-      href: buildGovernanceFindingsQueueHref({ filter: "critical-error" }),
+      href:
+        criticalExposureValue !== null
+          ? buildGovernanceFindingsQueueHref({ filter: "critical-error" })
+          : undefined,
     },
     {
       id: "recurrence",
@@ -252,9 +257,12 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       id: "exceptions-active",
       label: "Exceptions active",
       scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
-      windowLine: windowLineWhenLoaded("Current snapshot — not the 7-day window"),
+      windowLine:
+        exceptionsActiveValue !== null
+          ? windowLineWhenLoaded("Current snapshot — not the 7-day window")
+          : undefined,
       valueFootnote: exceptionsExpiringFootnoteWhenLoaded(metricsLoaded, metrics),
-      value: formatCount(metrics?.exceptionsActive),
+      value: exceptionsActiveValue,
     },
     {
       id: "avg-age",

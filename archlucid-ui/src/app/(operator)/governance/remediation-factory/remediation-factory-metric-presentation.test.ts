@@ -289,6 +289,30 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "net-burn")?.value).toBeNull();
     expect(tiles.find((tile) => tile.id === "net-burn")?.windowLine).toBeUndefined();
   });
+
+  it("omits exceptions-active windowLine when count is not returned", () => {
+    const metrics = { automationPercent: 5 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "exceptions-active")?.value).toBeNull();
+    expect(tiles.find((tile) => tile.id === "exceptions-active")?.windowLine).toBeUndefined();
+  });
+
+  it("omits open-findings-factory scopeLine when open findings count is not returned", () => {
+    const metrics = { automationPercent: 5 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "open-findings-factory")?.value).toBeNull();
+    expect(tiles.find((tile) => tile.id === "open-findings-factory")?.scopeLine).toBeUndefined();
+  });
+
+  it("omits critical-exposure href when count is not returned", () => {
+    const metrics = { openFindings: 1 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "critical-exposure")?.value).toBeNull();
+    expect(tiles.find((tile) => tile.id === "critical-exposure")?.href).toBeUndefined();
+  });
   it("omits pattern-exact windowLine when percent is not returned", () => {
     const metrics = { automationPercent: 5 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);

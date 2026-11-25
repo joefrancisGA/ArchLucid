@@ -380,6 +380,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 thorough hunt (hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-41 (`shouldRotate: false`; hint override). **proven** `buildRemediationFactoryExecutiveMetricTiles` — exceptions-active tile still showed snapshot `windowLine` without a measured active count; **proven** open-findings factory tile still showed workspace `scopeLine` beside a not-returned count; **proven** critical-exposure tile still linked to the critical-error queue when the count was not returned. **valid-no-repro** metrics close drops padded `1` (existing regression), **valid-no-repro** net-burn weekly footnote without net burn (existing regression). Pass-42 reseed below. Scoped vitest **214/214**. Private beta: invited operators no longer see snapshot window copy, workspace scope chrome, or a queue deep link on factory metric tiles when the underlying count is not measured.
+
 2026-11-25 thorough hunt (hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-40 (`shouldRotate: false`; hint override). **proven** `buildRemediationFactoryExecutiveMetricTiles` — automation, critical-exposure, recurrence, and net-burn tiles still showed population or window `windowLine` chrome when the underlying metric was not returned; gate each `windowLine` on its measured formatter output (same class as pass-39 queue/pattern fixes). **valid-no-repro** metrics open replaces stale `0` token (regression `replaces zero metrics token with canonical one when writing open state`). Regressions added for all four tiles. Pass-41 reseed below. Scoped vitest **211/211**. Private beta: invited operators no longer see 7-day window or population helper copy on executive metric tiles when the API omitted that metric value.
 
 2026-11-25 thorough hunt (hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-39 (`shouldRotate: false`; hint override). **proven** `buildRemediationFactoryExecutiveMetricTiles` — risk-weighted `ruleLine` regressed to a `?` middle-dot typo after pass-38; restore `·`. **proven** open-findings queue tile still showed the governance-queue `windowLine` when `openFindings` was not returned; gate on measured count. **proven** pattern-exact tile still showed the population `windowLine` when percent was not returned; gate on measured percent. **valid-no-repro** net-burn table signed negative (existing regression), **valid-no-repro** metrics disclosure `-0` token (regression added), **valid-no-repro** metrics close drops padded `off` (regression added). Pass-40 reseed below. Scoped vitest **207/207**. Private beta: invited operators see correct prioritization punctuation on the risk-weighted tile, and no queue or pattern population chrome without measured values.
@@ -845,8 +847,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 62
-- **bugs-found:** 44
+- **hunts:** 63
+- **bugs-found:** 47
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
