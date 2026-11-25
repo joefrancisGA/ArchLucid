@@ -1,5 +1,6 @@
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.InfraEvidence;
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.InfraEvidence;
@@ -268,22 +269,44 @@ public sealed class SecurityEvidencePathExplanationServiceTests
         var explanation = persisted.LastInserted!;
         explanation.ProvenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
         explanation.ExecutiveSummary.Should().NotContain("the asset is unreachable");
+        explanation.InventoryFalsification.Should().NotBeNull();
+        var probe = explanation.InventoryFalsification!;
+        probe.Coverage.Should().Contain("explicit Azure property only");
+        probe.Outcome.Should().Be(rejection switch
+        {
+            null => InventoryFalsificationOutcome.SurvivedWithinTestedScope,
+            "Refuted" => InventoryFalsificationOutcome.Refuted,
+            "Untestable" => InventoryFalsificationOutcome.Untestable,
+            _ => InventoryFalsificationOutcome.HumanReviewRequired,
+        });
+        if (!stale && !wrongProject && typedClaim && citesHop)
+        {
+            probe.Verification.Should().NotBeNull();
+            var observation = probe.Verification!;
+            observation.CloudResourceId.Should().Be(resourceId);
+            observation.SnapshotId.Should().Be(path.SnapshotId);
+            observation.CapturedUtc.Should().Be(captured);
+            observation.Evidence.Should().Be(new PublicNetworkAccessVerificationEvidence(
+                InventoryPublicNetworkAccessVerifier.VerifierVersion, scope.TenantId, scope.WorkspaceId,
+                scope.ProjectId, rowId, "properties.publicNetworkAccess", 24));
+        }
+        else
+        {
+            probe.Verification.Should().BeNull();
+        }
+
         if (rejection is null)
         {
             explanation.ModelOutputRejection.Should().BeNull();
             explanation.ExecutiveSummary.Should().Contain("publicNetworkAccess=Disabled")
-                .And.Contain(captured.ToString("O")).And.Contain(path.SnapshotId.ToString("D"))
-                .And.Contain(resourceId.ToString("D")).And.Contain(rowId.ToString("D"))
                 .And.Contain(InventoryPublicNetworkAccessVerifier.VerifierVersion)
-                .And.Contain("Coverage: the explicit Azure property only.")
+                .And.Contain("does not establish network reachability or live state")
                 .And.Contain("survived within the tested scope");
         }
         else
         {
             explanation.ModelOutputRejection.Should().Contain(rejection);
-            if (rejection == "Refuted")
-                explanation.ModelOutputRejection.Should().Contain(path.SnapshotId.ToString("D"))
-                    .And.Contain(rowId.ToString("D")).And.Contain("explicit Azure property only");
+            explanation.ModelOutputRejection!.Length.Should().BeLessThanOrEqualTo(512);
             explanation.ExecutiveSummary.Should().NotContain("publicNetworkAccess=Disabled");
         }
 

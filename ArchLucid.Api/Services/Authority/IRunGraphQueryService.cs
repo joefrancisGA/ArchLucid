@@ -1,3 +1,5 @@
+using System.Security.Claims;
+
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Models.Graph;
 using ArchLucid.Contracts.Architecture;
@@ -23,6 +25,7 @@ public interface IRunGraphQueryService
     Task<RunRoiTelemetryQueryResult> GetRoiTelemetryAsync(CancellationToken cancellationToken);
 
     Task<RunListQueryResult> ListRunsAsync(
+        ClaimsPrincipal user,
         string? cursor,
         int? limit,
         int offset,

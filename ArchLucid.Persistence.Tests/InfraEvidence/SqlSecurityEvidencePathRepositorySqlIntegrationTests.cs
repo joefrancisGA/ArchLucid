@@ -1,4 +1,6 @@
 using System.Diagnostics;
+
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.AzureExtractor;
@@ -6,6 +8,8 @@ using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Models;
+
+using Dapper;
 
 using FluentAssertions;
 
@@ -19,6 +23,77 @@ public sealed class SqlSecurityEvidencePathRepositorySqlIntegrationTests(SqlServ
     private static readonly Guid TenantB = Guid.Parse("b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2");
     private static readonly Guid WorkspaceId = Guid.Parse("b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3");
     private static readonly Guid ProjectId = Guid.Parse("b4b4b4b4-b4b4-b4b4-b4b4-b4b4b4b4b4b4");
+
+    [SkippableFact]
+    public async Task Explanation_inventory_provenance_round_trips_only_in_the_authorized_path_scope()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlSecurityEvidencePathRepository paths = new(factory);
+        SqlSecurityEvidencePathExplanationRepository explanations = new(factory);
+        Guid snapshotId = await InsertSnapshotAsync(factory, TenantA);
+        Guid pathId = Guid.NewGuid();
+        DateTime captured = new(2026, 11, 24, 10, 0, 0, DateTimeKind.Utc);
+        await paths.InsertIfNotExistsAsync(
+            CreatePathHeader(pathId, TenantA, snapshotId, captured),
+            CreateHops(pathId, TenantA, PathConfidenceBand.Confirmed), CancellationToken.None);
+        ScopeContext scope = new() { TenantId = TenantA, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        var evidence = new PublicNetworkAccessVerificationEvidence(
+            "azure-inventory-public-network-access/1", TenantA, WorkspaceId, ProjectId,
+            Guid.NewGuid(), "properties.publicNetworkAccess", 24);
+        var observation = new PublicNetworkAccessVerification(
+            Guid.NewGuid(), PublicNetworkAccessVerificationOutcome.Verified, snapshotId, captured) { Evidence = evidence };
+        const string coverage = "The explicit Azure property only, for the cited resource and snapshot.";
+        var verified = new InventoryFalsificationProbe(InventoryFalsificationOutcome.SurvivedWithinTestedScope, coverage, observation);
+        var contradicted = new InventoryFalsificationProbe(InventoryFalsificationOutcome.Refuted, coverage,
+            observation with { Outcome = PublicNetworkAccessVerificationOutcome.Contradicted });
+        var unverified = new InventoryFalsificationProbe(InventoryFalsificationOutcome.Untestable, coverage,
+            observation with { Outcome = PublicNetworkAccessVerificationOutcome.Unverified });
+        var unbound = new InventoryFalsificationProbe(InventoryFalsificationOutcome.HumanReviewRequired, coverage, null);
+        var foreign = contradicted with { Verification = observation with
+            { Outcome = PublicNetworkAccessVerificationOutcome.Contradicted, Evidence = evidence with { ProjectId = Guid.NewGuid() } } };
+        var wrongSnapshot = verified with { Verification = observation with { SnapshotId = Guid.NewGuid() } };
+        var inconsistent = verified with { Outcome = InventoryFalsificationOutcome.Refuted };
+        var rows = new (InventoryFalsificationProbe? Stored, InventoryFalsificationProbe? Expected)[]
+        {
+            (verified, verified), (contradicted, contradicted), (unverified, unverified), (unbound, unbound),
+            (null, null), (foreign, null), (wrongSnapshot, null), (inconsistent, null),
+        };
+        Dictionary<Guid, InventoryFalsificationProbe?> expected = new();
+        Guid legacyId = Guid.Empty;
+        foreach (var (stored, expectedProbe) in rows)
+        {
+            Guid explanationId = Guid.NewGuid();
+            if (stored is null)
+                legacyId = explanationId;
+            await explanations.InsertAsync(new SecurityEvidencePathExplanationRecord
+            {
+                ExplanationId = explanationId, PathId = pathId, TenantId = TenantA, CreatedUtc = captured,
+                ExecutiveSummary = "Historical text is not a verifier observation.",
+                ProvenanceKind = ProvenanceKind.DeterministicInference,
+                InventoryFalsification = stored,
+            });
+            expected.Add(explanationId, expectedProbe);
+        }
+
+        (await explanations.ListByPathIdAsync(scope, pathId)).ToDictionary(row => row.ExplanationId, row => row.InventoryFalsification)
+            .Should().BeEquivalentTo(expected);
+        foreach (ScopeContext wrong in new ScopeContext[]
+        {
+            new() { TenantId = TenantB, WorkspaceId = WorkspaceId, ProjectId = ProjectId },
+            new() { TenantId = TenantA, WorkspaceId = Guid.NewGuid(), ProjectId = ProjectId },
+            new() { TenantId = TenantA, WorkspaceId = WorkspaceId, ProjectId = Guid.NewGuid() },
+        })
+            (await explanations.ListByPathIdAsync(wrong, pathId)).Should().BeEmpty();
+
+        using var conn = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+        await conn.ExecuteAsync(
+            "UPDATE dbo.SecurityEvidencePathExplanations SET InventoryFalsificationJson = N'{' WHERE ExplanationId = @legacyId",
+            new { legacyId });
+        var malformed = (await explanations.ListByPathIdAsync(scope, pathId)).Single(row => row.ExplanationId == legacyId);
+        malformed.InventoryFalsification.Should().BeNull();
+        malformed.ExecutiveSummary.Should().Be("Historical text is not a verifier observation.");
+    }
 
     [SkippableFact]
     public async Task Snapshot_read_rejects_other_tenant_project_and_snapshot()

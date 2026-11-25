@@ -1,3 +1,5 @@
+using System.Security.Claims;
+
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Models.Graph;
@@ -16,7 +18,9 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
+using RunSummaryProjection = ArchLucid.Application.Runs.RunSummaryProjection;
 
 namespace ArchLucid.Api.Services.Authority;
 
@@ -32,7 +36,9 @@ public sealed class RunGraphQueryService(
     IAuthorityQueryService authorityQueryService,
     IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
-    IDbConnectionFactory dbConnectionFactory) : IRunGraphQueryService
+    IDbConnectionFactory dbConnectionFactory,
+    AuthorityRunInventoryQuery inventoryQuery,
+    IArchitectureShareAccessGate architectureShareAccessGate) : IRunGraphQueryService
 {
     public async Task<RunGraphDetailQueryResult> GetRunDetailAsync(string runId, CancellationToken cancellationToken)
     {
@@ -216,6 +222,7 @@ public sealed class RunGraphQueryService(
     }
 
     public async Task<RunListQueryResult> ListRunsAsync(
+        ClaimsPrincipal user,
         string? cursor,
         int? limit,
         int offset,
@@ -224,35 +231,43 @@ public sealed class RunGraphQueryService(
         int pageSize,
         CancellationToken cancellationToken)
     {
-        if (!string.IsNullOrWhiteSpace(cursor))
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        bool useKeyset = !string.IsNullOrWhiteSpace(cursor);
+        int requestedTake = useKeyset ? RunPagination.ClampTake(take) : RunPagination.ClampLimit(limit ?? pageSize);
+        int visibleOffset = 0;
+        if (!useKeyset)
         {
-            int effectiveTake = RunPagination.ClampTake(take);
+            visibleOffset = offset > 0
+                ? RunPagination.NormalizeOffset(offset)
+                : PaginationDefaults.ToSkip(page, requestedTake);
+        }
+        (DateTime CreatedUtc, Guid RunId)? anchor = RunCursorCodec.TryDecode(cursor);
 
-            (IReadOnlyList<RunSummary> keysetSummaries, bool keysetHasMore, string? nextCursor) =
-                await runDetailQueryService.ListRunSummariesKeysetAsync(cursor, effectiveTake, cancellationToken);
-
-            string listFingerprint = $"keyset|cursor={cursor}|take={effectiveTake}";
-            string listEtag = RunListPageMapper.BuildEtag(keysetSummaries, listFingerprint);
-            CursorPagedResponse<RunListItemResponse> keysetBody =
-                RunListPageMapper.MapPage(keysetSummaries, keysetHasMore, nextCursor, effectiveTake);
-
-            return new RunListQueryResult { Body = keysetBody, Etag = listEtag };
+        async Task<bool> CanReadAsync(Guid runId, CancellationToken ct)
+        {
+            (bool found, bool allowed) = await architectureShareAccessGate.EvaluateRunReadAsync(user, scope, runId, ct);
+            return found && allowed;
         }
 
-        int effectiveLimit = RunPagination.ClampLimit(limit ?? pageSize);
-        int effectiveOffset = offset > 0
-            ? RunPagination.NormalizeOffset(offset)
-            : PaginationDefaults.ToSkip(page, effectiveLimit);
+        RunListPage visible = await AuthorityRunInventoryQuery.PageVisibleHeadersAsync(
+            inventoryQuery.EnumerateVisibleHeadersAsync(
+                scope, null, anchor?.CreatedUtc, anchor?.RunId, CanReadAsync, cancellationToken),
+            visibleOffset,
+            requestedTake,
+            cancellationToken);
 
-        (IReadOnlyList<RunSummary> offsetSummaries, bool offsetHasMore) =
-            await runDetailQueryService.ListRunSummariesOffsetAsync(effectiveOffset, effectiveLimit, cancellationToken);
-
-        string offsetFingerprint = $"offset|offset={effectiveOffset}|limit={effectiveLimit}";
-        string offsetEtag = RunListPageMapper.BuildEtag(offsetSummaries, offsetFingerprint);
-        CursorPagedResponse<RunListItemResponse> offsetBody =
-            RunListPageMapper.MapPage(offsetSummaries, offsetHasMore, nextCursor: null, effectiveLimit);
-
-        return new RunListQueryResult { Body = offsetBody, Etag = offsetEtag };
+        string? nextCursor = useKeyset && visible.HasMore
+            ? RunCursorCodec.Encode(visible.Items[^1].CreatedUtc, visible.Items[^1].RunId)
+            : null;
+        IReadOnlyList<RunSummary> summaries = visible.Items.Select(RunSummaryProjection.FromHeader).ToList();
+        string fingerprint = useKeyset
+            ? $"keyset|cursor={cursor}|take={requestedTake}"
+            : $"offset|offset={visibleOffset}|limit={requestedTake}";
+        return new RunListQueryResult
+        {
+            Body = RunListPageMapper.MapPage(summaries, visible.HasMore, nextCursor, requestedTake),
+            Etag = RunListPageMapper.BuildEtag(summaries, fingerprint, visible.HasMore, nextCursor),
+        };
     }
 
     private static RunGraphDetailQueryResult NotFoundDetail(string detail) =>

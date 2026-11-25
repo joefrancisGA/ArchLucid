@@ -273,3 +273,7 @@ This batch inspects **ten distinct mechanisms**, not ten claimed defects. All fi
 ## FND-010 / FND-061 adoption baseline — 2026-11-24
 
 See [source-level conformance baseline](FND010_CONFORMANCE_BASELINE_2026_11_24.md) and `config/architecture/fnd010-adoption-baseline.json`. Pinned master `d3aabdd478c97724193c20b29ea1ad189917b6b8`: 49 reviewed HTTP actions, 48 eligible/candidate; 17 conformant, seven partial, 19 gaps, five unverified and one static-catalog exemption. This is a 17-family initial cohort, not a repository-wide percentage. The existing 255-file registry and 590 controller-folder C# sources provide discovery scope. Reuse existing FND-017 advisory CI with source drift invalidation; focused scanner CI pending. Next: canonical AuthorityReadsController resource authorization, then coverage, technology ledger and agent evaluation. No new control family or comprehensive master build.
+
+### Revalidated adoption on merged master
+
+Pinned `f81ff8a23ca4096a18ffb5fbab76c189a150dbd4`. Revalidated the merged explanation, canonical authority, coverage, technology ledger and agent-evaluation paths, plus the canonical inventory. Added both architecture inventory action methods. The reviewed cohort is now **39 of 50 eligible or candidate actions conformant (78.00%)**, seven partial, three gaps, one unverified and one exemption. The three gaps share the draft-question scope-wide seal preflight, which runs before a resource share decision. See the [refreshed baseline](FND010_CONFORMANCE_BASELINE_2026_11_24.md) for the source evidence and next priority.

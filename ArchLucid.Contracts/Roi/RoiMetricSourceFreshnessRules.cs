@@ -20,7 +20,7 @@ public static class RoiMetricSourceFreshnessRules
         if (HasUnsourcedPositiveSavings(estimatedUsdSavings, sources))
             return "HOLD";
 
-        if (HasStaleExtractorWithPositiveSavings(extractorCollectionTimestampUtc, estimatedUsdSavings, utcNow))
+        if (HasOutOfWindowExtractorWithPositiveSavings(extractorCollectionTimestampUtc, estimatedUsdSavings, utcNow))
             return "HOLD";
 
         if (HasBenchmarkOnlySavingsClaim(estimatedUsdSavings, sources))
@@ -48,7 +48,7 @@ public static class RoiMetricSourceFreshnessRules
 
         return disposition switch
         {
-            "HOLD" => "**ROI freshness:** HOLD — positive savings appear without current source classification or extractor data is stale.",
+            "HOLD" => "**ROI freshness:** HOLD — positive savings lack source classification or extractor data is missing, stale, or future-dated.",
             "WARN" => "**ROI freshness:** WARN — savings lines rely on demo seed and/or benchmark assumptions; label before external send.",
             _ => string.Empty,
         };
@@ -62,7 +62,7 @@ public static class RoiMetricSourceFreshnessRules
         return sources.Count == 0;
     }
 
-    internal static bool HasStaleExtractorWithPositiveSavings(
+    private static bool HasOutOfWindowExtractorWithPositiveSavings(
         DateTime? extractorCollectionTimestampUtc,
         decimal? estimatedUsdSavings,
         DateTime utcNow)
@@ -73,11 +73,10 @@ public static class RoiMetricSourceFreshnessRules
         if (extractorCollectionTimestampUtc is null)
             return false;
 
-        DateTime collectedUtc = extractorCollectionTimestampUtc.Value.Kind == DateTimeKind.Utc
-            ? extractorCollectionTimestampUtc.Value
-            : extractorCollectionTimestampUtc.Value.ToUniversalTime();
+        DateTime collectedUtc = RoiCollectionTimestamp.NormalizeUtc(extractorCollectionTimestampUtc.Value);
+        TimeSpan age = RoiCollectionTimestamp.NormalizeUtc(utcNow) - collectedUtc;
 
-        return utcNow - collectedUtc > StaleExtractorThreshold;
+        return age < TimeSpan.Zero || age > StaleExtractorThreshold;
     }
 
     internal static bool HasBenchmarkOnlySavingsClaim(decimal? estimatedUsdSavings, IReadOnlyList<RoiMetricSourceRow> sources)

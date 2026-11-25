@@ -16,7 +16,8 @@ public static class DraftIntakeSealedManifestReadGuard
         IRunDetailQueryService runDetailQueryService,
         IAuthorityQueryService authorityQueryService,
         IManifestHashService manifestHashService,
-        CancellationToken cancellationToken) =>
+        CancellationToken cancellationToken,
+        Func<Guid, CancellationToken, Task<bool>>? canReadRun = null) =>
         RunInventorySealedManifestReadGuard.EnsureRunInventoryReadAllowedOrThrowAsync(
             tenantId,
             workspaceId,
@@ -24,5 +25,6 @@ public static class DraftIntakeSealedManifestReadGuard
             runDetailQueryService,
             authorityQueryService,
             manifestHashService,
-            cancellationToken);
+            cancellationToken,
+            canReadRun);
 }

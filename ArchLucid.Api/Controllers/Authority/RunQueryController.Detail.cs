@@ -164,6 +164,7 @@ public sealed partial class RunQueryController
         CancellationToken cancellationToken)
     {
         RunListQueryResult result = await runGraphQueryService.ListRunsAsync(
+            User,
             cursor,
             limit,
             offset,

@@ -1,10 +1,8 @@
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
-using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
-using ArchLucid.Core.Runs;
 
 namespace ArchLucid.Application;
 
@@ -15,21 +13,7 @@ public sealed partial class RunDetailQueryService
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         IReadOnlyList<RunRecord> records = await runRepository.ListRecentInScopeAsync(scope, 200, cancellationToken).ConfigureAwait(false);
-        return records.Select(r => new RunSummary
-        {
-            RunId = r.RunId.ToString("N"),
-            RequestId = r.ArchitectureRequestId ?? string.Empty,
-            Status = r.LegacyRunStatus ?? nameof(ArchitectureRunStatus.Created),
-            CreatedUtc = r.CreatedUtc,
-            CompletedUtc = r.CompletedUtc,
-            CurrentManifestVersion = r.CurrentManifestVersion,
-            SystemName = r.ProjectId,
-            IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r),
-            PackageOrigin = r.PackageOrigin,
-            GoldenManifestId = r.GoldenManifestId,
-            AuthorityLifecyclePhase = AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(r),
-            RowVersion = r.RowVersion
-        }).ToList();
+        return records.Select(RunSummaryProjection.FromHeader).ToList();
     }
 
     /// <inheritdoc/>
@@ -48,21 +32,7 @@ public sealed partial class RunDetailQueryService
         }
 
         RunListPage page = await runRepository.ListRecentInScopeKeysetAsync(scope, cursorUtc, cursorRunId, take, cancellationToken).ConfigureAwait(false);
-        IReadOnlyList<RunSummary> items = page.Items.Select(r => new RunSummary
-        {
-            RunId = r.RunId.ToString("N"),
-            RequestId = r.ArchitectureRequestId ?? string.Empty,
-            Status = r.LegacyRunStatus ?? nameof(ArchitectureRunStatus.Created),
-            CreatedUtc = r.CreatedUtc,
-            CompletedUtc = r.CompletedUtc,
-            CurrentManifestVersion = r.CurrentManifestVersion,
-            SystemName = r.ProjectId,
-            IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r),
-            PackageOrigin = r.PackageOrigin,
-            GoldenManifestId = r.GoldenManifestId,
-            AuthorityLifecyclePhase = AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(r),
-            RowVersion = r.RowVersion
-        }).ToList();
+        IReadOnlyList<RunSummary> items = page.Items.Select(RunSummaryProjection.FromHeader).ToList();
         string? next = null;
 
         if (!page.HasMore || page.Items.Count <= 0)
@@ -84,21 +54,7 @@ public sealed partial class RunDetailQueryService
             RunPagination.NormalizeOffset(offset),
             RunPagination.ClampLimit(limit),
             cancellationToken).ConfigureAwait(false);
-        IReadOnlyList<RunSummary> items = page.Items.Select(r => new RunSummary
-        {
-            RunId = r.RunId.ToString("N"),
-            RequestId = r.ArchitectureRequestId ?? string.Empty,
-            Status = r.LegacyRunStatus ?? nameof(ArchitectureRunStatus.Created),
-            CreatedUtc = r.CreatedUtc,
-            CompletedUtc = r.CompletedUtc,
-            CurrentManifestVersion = r.CurrentManifestVersion,
-            SystemName = r.ProjectId,
-            IsDeadLettered = RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(r),
-            PackageOrigin = r.PackageOrigin,
-            GoldenManifestId = r.GoldenManifestId,
-            AuthorityLifecyclePhase = AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(r),
-            RowVersion = r.RowVersion
-        }).ToList();
+        IReadOnlyList<RunSummary> items = page.Items.Select(RunSummaryProjection.FromHeader).ToList();
 
         return (items, page.HasMore);
     }

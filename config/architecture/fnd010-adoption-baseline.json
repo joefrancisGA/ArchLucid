@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "baselineCommit": "d3aabdd478c97724193c20b29ea1ad189917b6b8",
-  "scope": "Source-reviewed HTTP action-method cohort; aliases counted once. Not all repository routes. Resource-specific share/entitlement before evidence/cache/model access; identity-only discovery allowed. Partial = known adoption with unresolved pre-hydration/mode limitations. No mandatory-audit or runtime claim for share-gate paths.",
+  "baselineCommit": "f81ff8a23ca4096a18ffb5fbab76c189a150dbd4",
+  "scope": "Source-reviewed HTTP action-method cohort. Multiple route attributes on one method count once; distinct methods count separately. Resource-specific share/entitlement before evidence/cache/model access; identity-only discovery allowed. Partial = known adoption with unresolved pre-hydration/mode limitations. No mandatory-audit or runtime claim for share-gate paths.",
   "registryPath": "scripts/ci/data/route_tier_policy_nav_registry.json",
   "registryBlob": "a45a41f449fba38a2386355898d52c6713943c90",
   "controllerRegistryFiles": 255,
-  "controllerFolderCsFiles": 590,
+  "controllerFolderCsFiles": 591,
   "actions": [
     {
       "id": "AskController.GetTemplates",
@@ -40,7 +40,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
@@ -113,7 +113,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
@@ -186,7 +186,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
@@ -221,7 +221,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
@@ -256,7 +256,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Application/Architecture/AuthorizedEvidenceRunResolver.cs",
@@ -315,7 +315,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
@@ -370,7 +370,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
@@ -425,7 +425,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
@@ -491,7 +491,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Controllers/Findings/FindingInspectController.SealedManifestGuard.cs",
@@ -548,7 +548,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
@@ -604,7 +604,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Controllers/Planning/ComparisonController.SealedManifestGuard.cs",
@@ -646,7 +646,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/DocxExportController.SealedManifestGuard.cs",
@@ -670,144 +670,320 @@
       "controllerFile": "Planning/ExplanationController.cs",
       "action": "ExplainRun",
       "source": "ArchLucid.Api/Controllers/Planning/ExplanationController.RunExplain.cs",
-      "status": "gap",
-      "reason": "Pinned master enters scoped detail/seal hydration before resource-share decision; broad policy and seal validation do not replace sharing. #8046 proposes correction; not credited until merged and re-reviewed.",
+      "status": "conformant",
+      "reason": "Run Read denial is consumed before detail, provenance and explanation generation.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.RunExplain.cs",
-          "blob": "608a9daeceb03eaab03102ee890b43f3131c7bf0"
+          "blob": "980045db8405967665463365d13b0bbf8c7e019a"
         },
         {
           "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.cs",
-          "blob": "2b050539eda905f6471bf964999f6ff56c25c387"
+          "blob": "05f1458f9dd15681584657a3e1851c193c02e75f"
         },
         {
           "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.SealedManifestGuard.cs",
-          "blob": "b5585edb1ddac85db12fa905c16274f9a4fe0784"
+          "blob": "467aae14ff6d3a84d9480447c81bf1cbd388d6fc"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         }
       ],
-      "orderChecks": [],
-      "pendingPr": 8046
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.RunExplain.cs",
+          "start": "public async Task<IActionResult> ExplainRun(",
+          "tokens": [
+            "EnsureExplanationRunReadAllowedAsync(scope, runId, ct)",
+            "return shareDenied;",
+            "query.GetRunDetailAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.SealedManifestGuard.cs",
+          "start": "private Task<IActionResult?> EnsureExplanationRunReadAllowedAsync(",
+          "tokens": [
+            "runId == Guid.Empty",
+            "_architectureShareAccessGate.EnsureRunReadAllowedAsync(this, User, scope, runId, ct)"
+          ]
+        }
+      ]
     },
     {
       "id": "ExplanationController.AggregateRunExplanation",
       "controllerFile": "Planning/ExplanationController.cs",
       "action": "AggregateRunExplanation",
       "source": "ArchLucid.Api/Controllers/Planning/ExplanationController.RunExplain.cs",
-      "status": "gap",
-      "reason": "Pinned master enters scoped detail/seal hydration before resource-share decision; broad policy and seal validation do not replace sharing. #8046 proposes correction; not credited until merged and re-reviewed.",
+      "status": "conformant",
+      "reason": "Run Read denial is consumed before detail and scope-keyed explanation cache access.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.RunExplain.cs",
-          "blob": "608a9daeceb03eaab03102ee890b43f3131c7bf0"
+          "blob": "980045db8405967665463365d13b0bbf8c7e019a"
         },
         {
           "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.cs",
-          "blob": "2b050539eda905f6471bf964999f6ff56c25c387"
+          "blob": "05f1458f9dd15681584657a3e1851c193c02e75f"
         },
         {
           "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.SealedManifestGuard.cs",
-          "blob": "b5585edb1ddac85db12fa905c16274f9a4fe0784"
+          "blob": "467aae14ff6d3a84d9480447c81bf1cbd388d6fc"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+        },
+        {
+          "path": "ArchLucid.AgentRuntime/Explanation/CachingRunExplanationSummaryService.cs",
+          "blob": "72cdbd424f7a1125ed81765708c3ddad3524d42d"
+        },
+        {
+          "path": "ArchLucid.AgentRuntime/Explanation/RunExplanationSummaryService.cs",
+          "blob": "a3b76d919c01312df283ee5a9516d2334429b6a3"
         }
       ],
-      "orderChecks": [],
-      "pendingPr": 8046
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.RunExplain.cs",
+          "start": "public async Task<IActionResult> AggregateRunExplanation(",
+          "tokens": [
+            "EnsureExplanationRunReadAllowedAsync(scope, runId, ct)",
+            "return shareDenied;",
+            "query.GetRunDetailAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.SealedManifestGuard.cs",
+          "start": "private Task<IActionResult?> EnsureExplanationRunReadAllowedAsync(",
+          "tokens": [
+            "runId == Guid.Empty",
+            "_architectureShareAccessGate.EnsureRunReadAllowedAsync(this, User, scope, runId, ct)"
+          ]
+        }
+      ]
     },
     {
       "id": "ExplanationController.GetFindingExplainability",
       "controllerFile": "Planning/ExplanationController.cs",
       "action": "GetFindingExplainability",
       "source": "ArchLucid.Api/Controllers/Planning/ExplanationController.FindingExplain.cs",
-      "status": "gap",
-      "reason": "Pinned master enters scoped detail/seal hydration before resource-share decision; broad policy and seal validation do not replace sharing. #8046 proposes correction; not credited until merged and re-reviewed.",
+      "status": "conformant",
+      "reason": "Run Read denial is consumed before manifest and scoped finding-snapshot hydration.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.FindingExplain.cs",
-          "blob": "a745a2ef3e32c9026546efa763feb802b498196a"
+          "blob": "691a1bb70cb72ca331394d9daa9fe6b3d1a8cf9c"
         },
         {
           "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.cs",
-          "blob": "2b050539eda905f6471bf964999f6ff56c25c387"
+          "blob": "05f1458f9dd15681584657a3e1851c193c02e75f"
         },
         {
           "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.SealedManifestGuard.cs",
-          "blob": "b5585edb1ddac85db12fa905c16274f9a4fe0784"
+          "blob": "467aae14ff6d3a84d9480447c81bf1cbd388d6fc"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         }
       ],
-      "orderChecks": [],
-      "pendingPr": 8046
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.FindingExplain.cs",
+          "start": "public async Task<IActionResult> GetFindingExplainability(",
+          "tokens": [
+            "EnsureExplanationRunReadAllowedAsync(scope, runId, ct)",
+            "return shareDenied;",
+            "query.GetRunDetailAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.SealedManifestGuard.cs",
+          "start": "private Task<IActionResult?> EnsureExplanationRunReadAllowedAsync(",
+          "tokens": [
+            "runId == Guid.Empty",
+            "_architectureShareAccessGate.EnsureRunReadAllowedAsync(this, User, scope, runId, ct)"
+          ]
+        }
+      ]
     },
     {
       "id": "ExplanationController.GetFindingLlmAudit",
       "controllerFile": "Planning/ExplanationController.cs",
       "action": "GetFindingLlmAudit",
       "source": "ArchLucid.Api/Controllers/Planning/ExplanationController.FindingExplain.cs",
-      "status": "gap",
-      "reason": "Pinned master enters scoped detail/seal hydration before resource-share decision; broad policy and seal validation do not replace sharing. #8046 proposes correction; not credited until merged and re-reviewed.",
+      "status": "conformant",
+      "reason": "Run Read denial is consumed before detail and LLM audit inputs. Preferred trace selection is restricted to the authorized scoped run.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.FindingExplain.cs",
-          "blob": "a745a2ef3e32c9026546efa763feb802b498196a"
+          "blob": "691a1bb70cb72ca331394d9daa9fe6b3d1a8cf9c"
         },
         {
           "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.cs",
-          "blob": "2b050539eda905f6471bf964999f6ff56c25c387"
+          "blob": "05f1458f9dd15681584657a3e1851c193c02e75f"
         },
         {
           "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.SealedManifestGuard.cs",
-          "blob": "b5585edb1ddac85db12fa905c16274f9a4fe0784"
+          "blob": "467aae14ff6d3a84d9480447c81bf1cbd388d6fc"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+        },
+        {
+          "path": "ArchLucid.Application/Explanation/FindingLlmAuditService.cs",
+          "blob": "e115547efe2bad02d2c5777d938ee6a7727c9b9f"
         }
       ],
-      "orderChecks": [],
-      "pendingPr": 8046
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.FindingExplain.cs",
+          "start": "public async Task<IActionResult> GetFindingLlmAudit(",
+          "tokens": [
+            "EnsureExplanationRunReadAllowedAsync(scope, runId, ct)",
+            "return shareDenied;",
+            "query.GetRunDetailAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.SealedManifestGuard.cs",
+          "start": "private Task<IActionResult?> EnsureExplanationRunReadAllowedAsync(",
+          "tokens": [
+            "runId == Guid.Empty",
+            "_architectureShareAccessGate.EnsureRunReadAllowedAsync(this, User, scope, runId, ct)"
+          ]
+        }
+      ]
     },
     {
       "id": "ExplanationController.ExplainComparison",
       "controllerFile": "Planning/ExplanationController.cs",
       "action": "ExplainComparison",
       "source": "ArchLucid.Api/Controllers/Planning/ExplanationController.CompareHolistic.cs",
-      "status": "gap",
-      "reason": "Pinned master enters scoped detail/seal hydration before resource-share decision; broad policy and seal validation do not replace sharing. #8046 proposes correction; not credited until merged and re-reviewed.",
+      "status": "conformant",
+      "reason": "Read decisions for both exact run IDs are consumed before either seal read and manifest comparison.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.CompareHolistic.cs",
-          "blob": "332d29e169adcd0543810370e48c65c9da7c3a6c"
+          "blob": "85f6087b30f14f5dda46aae519985422b3989cbd"
         },
         {
           "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.cs",
-          "blob": "2b050539eda905f6471bf964999f6ff56c25c387"
+          "blob": "05f1458f9dd15681584657a3e1851c193c02e75f"
         },
         {
           "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.SealedManifestGuard.cs",
-          "blob": "b5585edb1ddac85db12fa905c16274f9a4fe0784"
+          "blob": "467aae14ff6d3a84d9480447c81bf1cbd388d6fc"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         }
       ],
-      "orderChecks": [],
-      "pendingPr": 8046
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.CompareHolistic.cs",
+          "start": "public async Task<IActionResult> ExplainComparison(",
+          "tokens": [
+            "EnsureExplanationRunReadAllowedAsync(scope, baseRunId, ct)",
+            "return baseDenied;",
+            "EnsureExplanationRunReadAllowedAsync(scope, targetRunId, ct)",
+            "return targetDenied;",
+            "EnsureCompareRunsSealedManifestReadAllowedAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.SealedManifestGuard.cs",
+          "start": "private Task<IActionResult?> EnsureExplanationRunReadAllowedAsync(",
+          "tokens": [
+            "runId == Guid.Empty",
+            "_architectureShareAccessGate.EnsureRunReadAllowedAsync(this, User, scope, runId, ct)"
+          ]
+        }
+      ]
     },
     {
       "id": "ExplanationController.HolisticCritic",
       "controllerFile": "Planning/ExplanationController.cs",
       "action": "HolisticCritic",
       "source": "ArchLucid.Api/Controllers/Planning/ExplanationController.CompareHolistic.cs",
-      "status": "gap",
-      "reason": "Pinned master enters scoped detail/seal hydration before resource-share decision; broad policy and seal validation do not replace sharing. #8046 proposes correction; not credited until merged and re-reviewed.",
+      "status": "conformant",
+      "reason": "Run Read denial is consumed before detail, summary cache and model invocation. ExecuteAuthority protects the POST.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.CompareHolistic.cs",
-          "blob": "332d29e169adcd0543810370e48c65c9da7c3a6c"
+          "blob": "85f6087b30f14f5dda46aae519985422b3989cbd"
         },
         {
           "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.cs",
-          "blob": "2b050539eda905f6471bf964999f6ff56c25c387"
+          "blob": "05f1458f9dd15681584657a3e1851c193c02e75f"
         },
         {
           "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.SealedManifestGuard.cs",
-          "blob": "b5585edb1ddac85db12fa905c16274f9a4fe0784"
+          "blob": "467aae14ff6d3a84d9480447c81bf1cbd388d6fc"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+        },
+        {
+          "path": "ArchLucid.Application/Explanation/HolisticCriticService.cs",
+          "blob": "eb69ba8b69ecae8b519b1eb5d45160f965a86e42"
+        },
+        {
+          "path": "ArchLucid.AgentRuntime/Explanation/CachingRunExplanationSummaryService.cs",
+          "blob": "72cdbd424f7a1125ed81765708c3ddad3524d42d"
+        },
+        {
+          "path": "ArchLucid.AgentRuntime/Explanation/RunExplanationSummaryService.cs",
+          "blob": "a3b76d919c01312df283ee5a9516d2334429b6a3"
         }
       ],
-      "orderChecks": [],
-      "pendingPr": 8046
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.CompareHolistic.cs",
+          "start": "public async Task<IActionResult> HolisticCritic(",
+          "tokens": [
+            "EnsureExplanationRunReadAllowedAsync(scope, runId, ct)",
+            "return shareDenied;",
+            "query.GetRunDetailAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Planning/ExplanationController.SealedManifestGuard.cs",
+          "start": "private Task<IActionResult?> EnsureExplanationRunReadAllowedAsync(",
+          "tokens": [
+            "runId == Guid.Empty",
+            "_architectureShareAccessGate.EnsureRunReadAllowedAsync(this, User, scope, runId, ct)"
+          ]
+        }
+      ]
     },
     {
       "id": "RunComparisonController.CompareAgentResults",
@@ -827,7 +1003,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunComparisonController.SealedManifestGuard.cs",
@@ -879,7 +1055,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunComparisonController.SealedManifestGuard.cs",
@@ -931,7 +1107,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunComparisonController.SealedManifestGuard.cs",
@@ -983,7 +1159,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunComparisonController.SealedManifestGuard.cs",
@@ -1035,7 +1211,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunComparisonController.SealedManifestGuard.cs",
@@ -1087,7 +1263,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunComparisonController.SealedManifestGuard.cs",
@@ -1139,7 +1315,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunComparisonController.SealedManifestGuard.cs",
@@ -1191,7 +1367,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Controllers/Planning/GraphController.cs",
@@ -1222,7 +1398,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Controllers/Planning/GraphController.cs",
@@ -1253,7 +1429,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Security/EvidenceReadAuthorizationGate.cs",
@@ -1322,7 +1498,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController.SealedManifestGuard.cs",
@@ -1337,7 +1513,7 @@
       "action": "ReasonDraft",
       "source": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
       "status": "partial",
-      "reason": "Merged service verifies execute actor, linked read/decide, prior-run authority and same-draft proof before model use. Raw draft/history read and upstream scope-wide seal guard remain to be reviewed under strict pre-read rules.",
+      "reason": "Downstream reasoning verifies execute actor, linked read/decide, prior-run authority and same-draft proof before model use. The upstream scope-wide seal preflight can load a manifest before a resource share decision. Raw draft and history pre-reads remain separately reviewable.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
@@ -1349,7 +1525,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "17013b05b7551f30ad8b7fb0955e0ae20cf9759e"
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         },
         {
           "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
@@ -1366,270 +1542,697 @@
         {
           "path": "ArchLucid.Host.Core/Services/Ask/DraftIntakeReasoningService.cs",
           "blob": "3eba785792cf46a5381d56b50ffb828d4d7755b3"
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.SealedManifestGuard.cs",
+          "blob": "2279f0f1fcecd0559d71d7e0ce0708d2880e9448"
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/DraftIntakeSealedManifestReadGuard.cs",
+          "blob": "231f4ecc27238447055d4a7cbd427a3f628f0af7"
+        },
+        {
+          "path": "ArchLucid.Application/Runs/RunInventorySealedManifestReadGuard.cs",
+          "blob": "372fe940fae880c46dbd87c67b56da87fba37fe6"
+        },
+        {
+          "path": "ArchLucid.Application/Governance/Posture/GovernancePostureSealedManifestHashGuard.cs",
+          "blob": "f3c9269d4d8fc5e90374fec57a1145918f78fc11"
+        },
+        {
+          "path": "ArchLucid.Application/Governance/GovernanceDispositionSealedManifestGuard.cs",
+          "blob": "55e640b848fee4bfa57b5a984e78e7234b2d5250"
+        },
+        {
+          "path": "ArchLucid.Application/RunDetailQueryService.ListSummaries.cs",
+          "blob": "fc1587cb140c0a520267a900d1e7a919aa2a6869"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
+          "start": "public async Task<IActionResult> ReasonDraft(",
+          "tokens": [
+            "EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken)",
+            "_draftIntakeReasoningService.ReasonAsync("
+          ]
+        }
+      ]
     },
     {
       "id": "DraftRequestsController.GetDraftQuestions",
       "controllerFile": "Architecture/DraftRequestsController.cs",
       "action": "GetDraftQuestions",
       "source": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
-      "status": "unverified",
-      "reason": "Scope-wide seal guard and role policy observed; downstream draft-share and mutation call chains not yet reviewed.",
+      "status": "gap",
+      "reason": "Scope-wide preflight can load the latest committed run's manifest before the draft-specific operation. It receives scope without a resource share decision. Downstream draft authorization is outside this finding.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
           "blob": "7101698d13728a41726deb26c4a4a93e162191e7"
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.SealedManifestGuard.cs",
+          "blob": "2279f0f1fcecd0559d71d7e0ce0708d2880e9448"
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/DraftIntakeSealedManifestReadGuard.cs",
+          "blob": "231f4ecc27238447055d4a7cbd427a3f628f0af7"
+        },
+        {
+          "path": "ArchLucid.Application/Runs/RunInventorySealedManifestReadGuard.cs",
+          "blob": "372fe940fae880c46dbd87c67b56da87fba37fe6"
+        },
+        {
+          "path": "ArchLucid.Application/Governance/Posture/GovernancePostureSealedManifestHashGuard.cs",
+          "blob": "f3c9269d4d8fc5e90374fec57a1145918f78fc11"
+        },
+        {
+          "path": "ArchLucid.Application/Governance/GovernanceDispositionSealedManifestGuard.cs",
+          "blob": "55e640b848fee4bfa57b5a984e78e7234b2d5250"
+        },
+        {
+          "path": "ArchLucid.Application/RunDetailQueryService.ListSummaries.cs",
+          "blob": "fc1587cb140c0a520267a900d1e7a919aa2a6869"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
+          "start": "public async Task<IActionResult> GetDraftQuestions(",
+          "tokens": [
+            "EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken)",
+            "_draftRequestService.GetQuestionsAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Governance/Posture/GovernancePostureSealedManifestHashGuard.cs",
+          "start": "public static async Task EnsureLatestCommittedRunSealedOrThrowAsync(",
+          "tokens": [
+            "ListRunSummariesKeysetAsync(null, 50, cancellationToken)",
+            "FirstOrDefault(IsCommittedSummary)",
+            "EnsureRunSealedManifestHashOrThrowAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Governance/GovernanceDispositionSealedManifestGuard.cs",
+          "start": "public static async Task EnsureRunSealedManifestHashOrThrowAsync(",
+          "tokens": [
+            "GetRunDetailForManifestCompareAsync(scope, runId, cancellationToken)"
+          ]
+        }
+      ]
     },
     {
       "id": "DraftRequestsController.AnswerQuestion",
       "controllerFile": "Architecture/DraftRequestsController.cs",
       "action": "AnswerQuestion",
       "source": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
-      "status": "unverified",
-      "reason": "Scope-wide seal guard and role policy observed; downstream draft-share and mutation call chains not yet reviewed.",
+      "status": "gap",
+      "reason": "Scope-wide preflight can load the latest committed run's manifest before the draft-specific operation. It receives scope without a resource share decision. Downstream draft authorization is outside this finding.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
           "blob": "7101698d13728a41726deb26c4a4a93e162191e7"
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.SealedManifestGuard.cs",
+          "blob": "2279f0f1fcecd0559d71d7e0ce0708d2880e9448"
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/DraftIntakeSealedManifestReadGuard.cs",
+          "blob": "231f4ecc27238447055d4a7cbd427a3f628f0af7"
+        },
+        {
+          "path": "ArchLucid.Application/Runs/RunInventorySealedManifestReadGuard.cs",
+          "blob": "372fe940fae880c46dbd87c67b56da87fba37fe6"
+        },
+        {
+          "path": "ArchLucid.Application/Governance/Posture/GovernancePostureSealedManifestHashGuard.cs",
+          "blob": "f3c9269d4d8fc5e90374fec57a1145918f78fc11"
+        },
+        {
+          "path": "ArchLucid.Application/Governance/GovernanceDispositionSealedManifestGuard.cs",
+          "blob": "55e640b848fee4bfa57b5a984e78e7234b2d5250"
+        },
+        {
+          "path": "ArchLucid.Application/RunDetailQueryService.ListSummaries.cs",
+          "blob": "fc1587cb140c0a520267a900d1e7a919aa2a6869"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
+          "start": "public async Task<IActionResult> AnswerQuestion(",
+          "tokens": [
+            "EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken)",
+            "_draftRequestService.AnswerQuestionAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Governance/Posture/GovernancePostureSealedManifestHashGuard.cs",
+          "start": "public static async Task EnsureLatestCommittedRunSealedOrThrowAsync(",
+          "tokens": [
+            "ListRunSummariesKeysetAsync(null, 50, cancellationToken)",
+            "FirstOrDefault(IsCommittedSummary)",
+            "EnsureRunSealedManifestHashOrThrowAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Governance/GovernanceDispositionSealedManifestGuard.cs",
+          "start": "public static async Task EnsureRunSealedManifestHashOrThrowAsync(",
+          "tokens": [
+            "GetRunDetailForManifestCompareAsync(scope, runId, cancellationToken)"
+          ]
+        }
+      ]
     },
     {
       "id": "DraftRequestsController.SkipQuestion",
       "controllerFile": "Architecture/DraftRequestsController.cs",
       "action": "SkipQuestion",
       "source": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
-      "status": "unverified",
-      "reason": "Scope-wide seal guard and role policy observed; downstream draft-share and mutation call chains not yet reviewed.",
+      "status": "gap",
+      "reason": "Scope-wide preflight can load the latest committed run's manifest before the draft-specific operation. It receives scope without a resource share decision. Downstream draft authorization is outside this finding.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
           "blob": "7101698d13728a41726deb26c4a4a93e162191e7"
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.SealedManifestGuard.cs",
+          "blob": "2279f0f1fcecd0559d71d7e0ce0708d2880e9448"
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/DraftIntakeSealedManifestReadGuard.cs",
+          "blob": "231f4ecc27238447055d4a7cbd427a3f628f0af7"
+        },
+        {
+          "path": "ArchLucid.Application/Runs/RunInventorySealedManifestReadGuard.cs",
+          "blob": "372fe940fae880c46dbd87c67b56da87fba37fe6"
+        },
+        {
+          "path": "ArchLucid.Application/Governance/Posture/GovernancePostureSealedManifestHashGuard.cs",
+          "blob": "f3c9269d4d8fc5e90374fec57a1145918f78fc11"
+        },
+        {
+          "path": "ArchLucid.Application/Governance/GovernanceDispositionSealedManifestGuard.cs",
+          "blob": "55e640b848fee4bfa57b5a984e78e7234b2d5250"
+        },
+        {
+          "path": "ArchLucid.Application/RunDetailQueryService.ListSummaries.cs",
+          "blob": "fc1587cb140c0a520267a900d1e7a919aa2a6869"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
+          "start": "public async Task<IActionResult> SkipQuestion(",
+          "tokens": [
+            "EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken)",
+            "_draftRequestService.SkipQuestionAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Governance/Posture/GovernancePostureSealedManifestHashGuard.cs",
+          "start": "public static async Task EnsureLatestCommittedRunSealedOrThrowAsync(",
+          "tokens": [
+            "ListRunSummariesKeysetAsync(null, 50, cancellationToken)",
+            "FirstOrDefault(IsCommittedSummary)",
+            "EnsureRunSealedManifestHashOrThrowAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Governance/GovernanceDispositionSealedManifestGuard.cs",
+          "start": "public static async Task EnsureRunSealedManifestHashOrThrowAsync(",
+          "tokens": [
+            "GetRunDetailForManifestCompareAsync(scope, runId, cancellationToken)"
+          ]
+        }
+      ]
     },
     {
       "id": "AuthorityReadsController.ListRuns",
       "controllerFile": "Authority/AuthorityReadsController.cs",
       "action": "ListRuns",
       "source": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
-      "status": "unverified",
-      "reason": "Scope inventory seal guard and keyset query observed; list filtering and underlying inventory reads need complete review.",
+      "status": "conformant",
+      "reason": "Exact scoped candidates are checked for read access before page/lookahead, seal selection and trace enrichment. Hidden candidates do not drive projection or seal selection.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
-          "blob": "61edc9259e8b61e689662a37852a98bea9c2e249"
+          "blob": "469c45f13422a7e04b0236e80a17b9027fd19a62"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.SealedManifestGuard.cs",
-          "blob": "1ab4b3bdb5fd078ca9fc6be33a96037cb4a9bfa8"
+          "blob": "c8822316c5ecfe748ff2d087aa5002a14e0e0e78"
         },
         {
           "path": "ArchLucid.Api/Support/AuthorityRunReadHandlers.cs",
-          "blob": "bb2d962dea1f6f22d8a23faceff1c21e8511e88d"
+          "blob": "cb1894908a9ea9007f1906571a6e5c9a89e569fa"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+        },
+        {
+          "path": "ArchLucid.Api/Support/AuthorityRunReadHandlers.Inventory.cs",
+          "blob": "72f1111be18db296367bc29c6dd46b2e667ae012"
+        },
+        {
+          "path": "ArchLucid.Persistence/Queries/AuthorityRunInventoryQuery.cs",
+          "blob": "9a0dc2a2b0c7316db3e84b748c0e90f42852f075"
+        },
+        {
+          "path": "ArchLucid.Application/Runs/RunInventorySealedManifestReadGuard.cs",
+          "blob": "372fe940fae880c46dbd87c67b56da87fba37fe6"
+        },
+        {
+          "path": "ArchLucid.Application/Governance/GovernanceDispositionSealedManifestGuard.cs",
+          "blob": "55e640b848fee4bfa57b5a984e78e7234b2d5250"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
+          "start": "public async Task<IActionResult> ListRuns(",
+          "tokens": [
+            "readHandlers.ReadInventoryAsync(User, scope,"
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Support/AuthorityRunReadHandlers.Inventory.cs",
+          "start": "public async Task<CursorPagedResponse<RunSummaryResponse>> ReadInventoryAsync(",
+          "tokens": [
+            ".EvaluateRunReadAsync(user, scope, runId, cancellationToken)",
+            "canRead = found && allowed",
+            "EnsureVisibleRunInventoryReadAllowedOrThrowAsync(",
+            "inventoryQuery.EnumerateVisibleHeadersAsync(",
+            "PageVisibleHeadersAsync(",
+            "inventoryQuery.EnumerateVisibleHeadersAsync(",
+            "ProjectSummariesAsync(scope, page.Items, ct)"
+          ]
+        },
+        {
+          "path": "ArchLucid.Persistence/Queries/AuthorityRunInventoryQuery.cs",
+          "start": "public async IAsyncEnumerable<RunRecord> EnumerateVisibleHeadersAsync(",
+          "tokens": [
+            "await canRead(candidate.RunId, ct)",
+            "yield return candidate"
+          ]
+        },
+        {
+          "path": "ArchLucid.Persistence/Queries/AuthorityRunInventoryQuery.cs",
+          "start": "public static async Task<RunListPage> PageVisibleHeadersAsync(",
+          "tokens": [
+            "await foreach (RunRecord run in visibleRuns.WithCancellation(ct))",
+            "if (offset > 0)",
+            "if (page.Count == take)",
+            "page.Add(run)"
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Runs/RunInventorySealedManifestReadGuard.cs",
+          "start": "public static async Task EnsureVisibleRunInventoryReadAllowedOrThrowAsync(",
+          "tokens": [
+            "await foreach (RunRecord run in visibleRuns.WithCancellation(ct))",
+            "EnsureRunSealedManifestHashOrThrowAsync(",
+            "run.RunId, scope"
+          ]
+        }
+      ]
     },
     {
       "id": "AuthorityReadsController.GetRunDetail",
       "controllerFile": "Authority/AuthorityReadsController.cs",
       "action": "GetRunDetail",
       "source": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
-      "status": "gap",
-      "reason": "Canonical /runs reads hydrate through AuthorityRunReadHandlers or direct authority query before any resource-share decision in the observed entry chain. Scope and hash checks alone do not establish run share authority. Prioritize canonical aliases.",
+      "status": "conformant",
+      "reason": "The exact run's Read denial is consumed before scoped run detail and downstream sealed response processing.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
-          "blob": "61edc9259e8b61e689662a37852a98bea9c2e249"
+          "blob": "469c45f13422a7e04b0236e80a17b9027fd19a62"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.SealedManifestGuard.cs",
-          "blob": "1ab4b3bdb5fd078ca9fc6be33a96037cb4a9bfa8"
+          "blob": "c8822316c5ecfe748ff2d087aa5002a14e0e0e78"
         },
         {
           "path": "ArchLucid.Api/Support/AuthorityRunReadHandlers.cs",
-          "blob": "bb2d962dea1f6f22d8a23faceff1c21e8511e88d"
+          "blob": "cb1894908a9ea9007f1906571a6e5c9a89e569fa"
         },
         {
           "path": "ArchLucid.Api/Support/AuthorityRunReadHandlers.SealedManifestGuard.cs",
           "blob": "e65205969896da71115818dcf667f0556af02a5b"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
+          "start": "public async Task<IActionResult> GetRunDetail(",
+          "tokens": [
+            "EnsureRunShareReadAllowedAsync(runId, ct)",
+            "return shareDenied;",
+            "readHandlers.GetRunDetailAsync(runId, ct)"
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
+          "start": "private Task<IActionResult?> EnsureRunShareReadAllowedAsync(",
+          "tokens": [
+            "_architectureShareAccessGate.EnsureRunReadAllowedAsync(",
+            "this, User, _scopeContextProvider.GetCurrentScope(), runId, ct)"
+          ]
+        }
+      ]
     },
     {
       "id": "AuthorityReadsController.GetRunManifest",
       "controllerFile": "Authority/AuthorityReadsController.cs",
       "action": "GetRunManifest",
       "source": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
-      "status": "gap",
-      "reason": "Canonical /runs reads hydrate through AuthorityRunReadHandlers or direct authority query before any resource-share decision in the observed entry chain. Scope and hash checks alone do not establish run share authority. Prioritize canonical aliases.",
+      "status": "conformant",
+      "reason": "The exact run's Read denial is consumed before scoped run detail and downstream sealed response processing.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
-          "blob": "61edc9259e8b61e689662a37852a98bea9c2e249"
+          "blob": "469c45f13422a7e04b0236e80a17b9027fd19a62"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.SealedManifestGuard.cs",
-          "blob": "1ab4b3bdb5fd078ca9fc6be33a96037cb4a9bfa8"
+          "blob": "c8822316c5ecfe748ff2d087aa5002a14e0e0e78"
         },
         {
           "path": "ArchLucid.Api/Support/AuthorityRunReadHandlers.cs",
-          "blob": "bb2d962dea1f6f22d8a23faceff1c21e8511e88d"
+          "blob": "cb1894908a9ea9007f1906571a6e5c9a89e569fa"
         },
         {
           "path": "ArchLucid.Api/Support/AuthorityRunReadHandlers.SealedManifestGuard.cs",
           "blob": "e65205969896da71115818dcf667f0556af02a5b"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
+          "start": "public async Task<IActionResult> GetRunManifest(",
+          "tokens": [
+            "EnsureRunShareReadAllowedAsync(runId, ct)",
+            "return shareDenied;",
+            "readHandlers.GetRunDetailAsync(runId, ct)"
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
+          "start": "private Task<IActionResult?> EnsureRunShareReadAllowedAsync(",
+          "tokens": [
+            "_architectureShareAccessGate.EnsureRunReadAllowedAsync(",
+            "this, User, _scopeContextProvider.GetCurrentScope(), runId, ct)"
+          ]
+        }
+      ]
     },
     {
       "id": "AuthorityReadsController.GetReviewTrail",
       "controllerFile": "Authority/AuthorityReadsController.cs",
       "action": "GetReviewTrail",
       "source": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
-      "status": "gap",
-      "reason": "Canonical /runs reads hydrate through AuthorityRunReadHandlers or direct authority query before any resource-share decision in the observed entry chain. Scope and hash checks alone do not establish run share authority. Prioritize canonical aliases.",
+      "status": "conformant",
+      "reason": "The exact run's Read denial is consumed before scoped run detail and downstream sealed response processing.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
-          "blob": "61edc9259e8b61e689662a37852a98bea9c2e249"
+          "blob": "469c45f13422a7e04b0236e80a17b9027fd19a62"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.SealedManifestGuard.cs",
-          "blob": "1ab4b3bdb5fd078ca9fc6be33a96037cb4a9bfa8"
+          "blob": "c8822316c5ecfe748ff2d087aa5002a14e0e0e78"
         },
         {
           "path": "ArchLucid.Api/Support/AuthorityRunReadHandlers.cs",
-          "blob": "bb2d962dea1f6f22d8a23faceff1c21e8511e88d"
+          "blob": "cb1894908a9ea9007f1906571a6e5c9a89e569fa"
         },
         {
           "path": "ArchLucid.Api/Support/AuthorityRunReadHandlers.SealedManifestGuard.cs",
           "blob": "e65205969896da71115818dcf667f0556af02a5b"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
+          "start": "public async Task<IActionResult> GetReviewTrail(",
+          "tokens": [
+            "EnsureRunShareReadAllowedAsync(runId, ct)",
+            "return shareDenied;",
+            "readHandlers.GetRunDetailAsync(runId, ct)"
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
+          "start": "private Task<IActionResult?> EnsureRunShareReadAllowedAsync(",
+          "tokens": [
+            "_architectureShareAccessGate.EnsureRunReadAllowedAsync(",
+            "this, User, _scopeContextProvider.GetCurrentScope(), runId, ct)"
+          ]
+        }
+      ]
     },
     {
       "id": "AuthorityReadsController.GetReviewTrailRationale",
       "controllerFile": "Authority/AuthorityReadsController.cs",
       "action": "GetReviewTrailRationale",
       "source": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
-      "status": "gap",
-      "reason": "Canonical /runs reads hydrate through AuthorityRunReadHandlers or direct authority query before any resource-share decision in the observed entry chain. Scope and hash checks alone do not establish run share authority. Prioritize canonical aliases.",
+      "status": "conformant",
+      "reason": "The exact run's Read denial is consumed before scoped run detail and downstream sealed response processing.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
-          "blob": "61edc9259e8b61e689662a37852a98bea9c2e249"
+          "blob": "469c45f13422a7e04b0236e80a17b9027fd19a62"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.SealedManifestGuard.cs",
-          "blob": "1ab4b3bdb5fd078ca9fc6be33a96037cb4a9bfa8"
+          "blob": "c8822316c5ecfe748ff2d087aa5002a14e0e0e78"
         },
         {
           "path": "ArchLucid.Api/Support/AuthorityRunReadHandlers.cs",
-          "blob": "bb2d962dea1f6f22d8a23faceff1c21e8511e88d"
+          "blob": "cb1894908a9ea9007f1906571a6e5c9a89e569fa"
         },
         {
           "path": "ArchLucid.Api/Support/AuthorityRunReadHandlers.SealedManifestGuard.cs",
           "blob": "e65205969896da71115818dcf667f0556af02a5b"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
+          "start": "public async Task<IActionResult> GetReviewTrailRationale(",
+          "tokens": [
+            "EnsureRunShareReadAllowedAsync(runId, ct)",
+            "return shareDenied;",
+            "readHandlers.GetRunDetailAsync(runId, ct)"
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
+          "start": "private Task<IActionResult?> EnsureRunShareReadAllowedAsync(",
+          "tokens": [
+            "_architectureShareAccessGate.EnsureRunReadAllowedAsync(",
+            "this, User, _scopeContextProvider.GetCurrentScope(), runId, ct)"
+          ]
+        }
+      ]
     },
     {
       "id": "AuthorityReadsController.GetReviewTrailProvenance",
       "controllerFile": "Authority/AuthorityReadsController.cs",
       "action": "GetReviewTrailProvenance",
       "source": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
-      "status": "gap",
-      "reason": "Canonical /runs reads hydrate through AuthorityRunReadHandlers or direct authority query before any resource-share decision in the observed entry chain. Scope and hash checks alone do not establish run share authority. Prioritize canonical aliases.",
+      "status": "conformant",
+      "reason": "The exact run's Read denial is consumed before entering the provenance core and its scoped detail read.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
-          "blob": "61edc9259e8b61e689662a37852a98bea9c2e249"
+          "blob": "469c45f13422a7e04b0236e80a17b9027fd19a62"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.SealedManifestGuard.cs",
-          "blob": "1ab4b3bdb5fd078ca9fc6be33a96037cb4a9bfa8"
+          "blob": "c8822316c5ecfe748ff2d087aa5002a14e0e0e78"
         },
         {
           "path": "ArchLucid.Api/Support/AuthorityRunReadHandlers.cs",
-          "blob": "bb2d962dea1f6f22d8a23faceff1c21e8511e88d"
+          "blob": "cb1894908a9ea9007f1906571a6e5c9a89e569fa"
         },
         {
           "path": "ArchLucid.Api/Support/AuthorityRunReadHandlers.SealedManifestGuard.cs",
           "blob": "e65205969896da71115818dcf667f0556af02a5b"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
+          "start": "public async Task<IActionResult> GetReviewTrailProvenance(",
+          "tokens": [
+            "EnsureRunShareReadAllowedAsync(runId, ct)",
+            "return shareDenied;",
+            "GetReviewTrailProvenanceCoreAsync(runId, ct)"
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
+          "start": "private Task<IActionResult?> EnsureRunShareReadAllowedAsync(",
+          "tokens": [
+            "_architectureShareAccessGate.EnsureRunReadAllowedAsync(",
+            "this, User, _scopeContextProvider.GetCurrentScope(), runId, ct)"
+          ]
+        }
+      ]
     },
     {
       "id": "AuthorityReadsController.GetReviewTrailExport",
       "controllerFile": "Authority/AuthorityReadsController.cs",
       "action": "GetReviewTrailExport",
       "source": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
-      "status": "gap",
-      "reason": "Canonical /runs reads hydrate through AuthorityRunReadHandlers or direct authority query before any resource-share decision in the observed entry chain. Scope and hash checks alone do not establish run share authority. Prioritize canonical aliases.",
+      "status": "conformant",
+      "reason": "The exact run's Read denial is consumed before scoped run detail and downstream sealed response processing.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
-          "blob": "61edc9259e8b61e689662a37852a98bea9c2e249"
+          "blob": "469c45f13422a7e04b0236e80a17b9027fd19a62"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.SealedManifestGuard.cs",
-          "blob": "1ab4b3bdb5fd078ca9fc6be33a96037cb4a9bfa8"
+          "blob": "c8822316c5ecfe748ff2d087aa5002a14e0e0e78"
         },
         {
           "path": "ArchLucid.Api/Support/AuthorityRunReadHandlers.cs",
-          "blob": "bb2d962dea1f6f22d8a23faceff1c21e8511e88d"
+          "blob": "cb1894908a9ea9007f1906571a6e5c9a89e569fa"
         },
         {
           "path": "ArchLucid.Api/Support/AuthorityRunReadHandlers.SealedManifestGuard.cs",
           "blob": "e65205969896da71115818dcf667f0556af02a5b"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
+          "start": "public async Task<IActionResult> GetReviewTrailExport(",
+          "tokens": [
+            "EnsureRunShareReadAllowedAsync(runId, ct)",
+            "return shareDenied;",
+            "readHandlers.GetRunDetailAsync(runId, ct)"
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/AuthorityReadsController.cs",
+          "start": "private Task<IActionResult?> EnsureRunShareReadAllowedAsync(",
+          "tokens": [
+            "_architectureShareAccessGate.EnsureRunReadAllowedAsync(",
+            "this, User, _scopeContextProvider.GetCurrentScope(), runId, ct)"
+          ]
+        }
+      ]
     },
     {
       "id": "RunCoverageController.GetRunCoverage",
       "controllerFile": "Authority/RunCoverageController.cs",
       "action": "GetRunCoverage",
       "source": "ArchLucid.Api/Controllers/Authority/RunCoverageController.cs",
-      "status": "gap",
-      "reason": "Seal helper directly hydrates run detail before any resource-share decision.",
+      "status": "conformant",
+      "reason": "The exact run's Read decision is consumed before sealed evidence hydration and the coverage operation.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunCoverageController.cs",
-          "blob": "322b9a57d0c4226e96a8adae256ec628882500ca"
+          "blob": "fab26aa4df21d08f51804605a66e019c5f8fadd0"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunCoverageController.SealedManifestGuard.cs",
           "blob": "044dbd3bfb609f49485381e1758d3e39e808813c"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/RunCoverageController.cs",
+          "start": "public async Task<IActionResult> GetRunCoverage(",
+          "tokens": [
+            "EnsureRunReadAllowedAsync(this, User, scope, runId, cancellationToken)",
+            "return accessResult;",
+            "EnsureSealedManifestReadAllowedAsync(",
+            "coverageQueryService.GetByRunIdAsync("
+          ]
+        }
+      ]
     },
     {
       "id": "RunCoverageController.GetAcknowledgedCoverage",
       "controllerFile": "Authority/RunCoverageController.cs",
       "action": "GetAcknowledgedCoverage",
       "source": "ArchLucid.Api/Controllers/Authority/RunCoverageController.Acknowledgement.cs",
-      "status": "gap",
-      "reason": "Each action calls seal helper that directly reads run detail before any resource share decision; mutation role alone is not Decide authorization.",
+      "status": "conformant",
+      "reason": "The exact run's Read decision is consumed before sealed evidence hydration and the coverage operation.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunCoverageController.Acknowledgement.cs",
-          "blob": "7170f6344d426aa31645df4b4cbc06c23b3fc813"
+          "blob": "9795083335e6a1eab53bb2b090bc76183f812e5d"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunCoverageController.SealedManifestGuard.cs",
@@ -1637,22 +2240,41 @@
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunCoverageController.cs",
-          "blob": "322b9a57d0c4226e96a8adae256ec628882500ca"
+          "blob": "fab26aa4df21d08f51804605a66e019c5f8fadd0"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/RunCoverageController.Acknowledgement.cs",
+          "start": "public async Task<IActionResult> GetAcknowledgedCoverage(",
+          "tokens": [
+            "EnsureRunReadAllowedAsync(this, User, scope, runId, cancellationToken)",
+            "return accessResult;",
+            "EnsureSealedManifestReadAllowedAsync(",
+            "acknowledgementService.GetAsync("
+          ]
+        }
+      ]
     },
     {
       "id": "RunCoverageController.PutAcknowledgedCoverage",
       "controllerFile": "Authority/RunCoverageController.cs",
       "action": "PutAcknowledgedCoverage",
       "source": "ArchLucid.Api/Controllers/Authority/RunCoverageController.Acknowledgement.cs",
-      "status": "gap",
-      "reason": "Each action calls seal helper that directly reads run detail before any resource share decision; mutation role alone is not Decide authorization.",
+      "status": "conformant",
+      "reason": "The exact run's Decide decision is consumed before sealed evidence hydration and the coverage operation. The existing mutation policy also applies.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunCoverageController.Acknowledgement.cs",
-          "blob": "7170f6344d426aa31645df4b4cbc06c23b3fc813"
+          "blob": "9795083335e6a1eab53bb2b090bc76183f812e5d"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunCoverageController.SealedManifestGuard.cs",
@@ -1660,22 +2282,41 @@
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunCoverageController.cs",
-          "blob": "322b9a57d0c4226e96a8adae256ec628882500ca"
+          "blob": "fab26aa4df21d08f51804605a66e019c5f8fadd0"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/RunCoverageController.Acknowledgement.cs",
+          "start": "public async Task<IActionResult> PutAcknowledgedCoverage(",
+          "tokens": [
+            "EnsureRunDecideAllowedAsync(this, User, scope, runId, cancellationToken)",
+            "return accessResult;",
+            "EnsureSealedManifestReadAllowedAsync(",
+            "acknowledgementService.PutAcknowledgementAsync("
+          ]
+        }
+      ]
     },
     {
       "id": "RunCoverageController.PatchRunCoveragePack",
       "controllerFile": "Authority/RunCoverageController.cs",
       "action": "PatchRunCoveragePack",
       "source": "ArchLucid.Api/Controllers/Authority/RunCoverageController.Acknowledgement.cs",
-      "status": "gap",
-      "reason": "Each action calls seal helper that directly reads run detail before any resource share decision; mutation role alone is not Decide authorization.",
+      "status": "conformant",
+      "reason": "The exact run's Decide decision is consumed before sealed evidence hydration and the coverage operation. The existing mutation policy also applies.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunCoverageController.Acknowledgement.cs",
-          "blob": "7170f6344d426aa31645df4b4cbc06c23b3fc813"
+          "blob": "9795083335e6a1eab53bb2b090bc76183f812e5d"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunCoverageController.SealedManifestGuard.cs",
@@ -1683,67 +2324,352 @@
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunCoverageController.cs",
-          "blob": "322b9a57d0c4226e96a8adae256ec628882500ca"
+          "blob": "fab26aa4df21d08f51804605a66e019c5f8fadd0"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/RunCoverageController.Acknowledgement.cs",
+          "start": "public async Task<IActionResult> PatchRunCoveragePack(",
+          "tokens": [
+            "EnsureRunDecideAllowedAsync(this, User, scope, runId, cancellationToken)",
+            "return accessResult;",
+            "EnsureSealedManifestReadAllowedAsync(",
+            "acknowledgementService.PatchPackExclusionAsync("
+          ]
+        }
+      ]
     },
     {
       "id": "RunAgentEvaluationController.GetRunAgentEvaluation",
       "controllerFile": "Authority/RunAgentEvaluationController.cs",
       "action": "GetRunAgentEvaluation",
       "source": "ArchLucid.Api/Controllers/Authority/RunAgentEvaluationController.cs",
-      "status": "gap",
-      "reason": "Scoped header existence only, then seal helper loads protected details before share authority; trace/evidence and semantic evaluation follow. Both route aliases count as one action.",
+      "status": "conformant",
+      "reason": "The parsed run GUID is authorized and denial returned before seal hydration, same-run trace and evidence-package reads, or semantic evaluation. Both route attributes map to one action. The package repositories' scope model is outside this endpoint-ordering claim.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunAgentEvaluationController.cs",
-          "blob": "d6660811580a4fb36055ef2d8683f1c309486474"
+          "blob": "96205426ba6044e3996749dbd7d39b7de046b76b"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunAgentEvaluationController.SealedManifestGuard.cs",
           "blob": "5f9e7759e86f3156bf2b073c802aebe4758c68a8"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+        },
+        {
+          "path": "ArchLucid.Persistence/Data/Repositories/AgentEvidencePackageRepository.cs",
+          "blob": "7a450705b4d185996573e8f43cd0c51698d5b0ab"
+        },
+        {
+          "path": "ArchLucid.Persistence/Data/Repositories/InMemoryAgentEvidencePackageRepository.cs",
+          "blob": "8d1cdefb4bfd161404494a628c53e6cedebf07d5"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/RunAgentEvaluationController.cs",
+          "start": "public async Task<IActionResult> GetRunAgentEvaluation(",
+          "tokens": [
+            "TryParseRunId(runId, out Guid runGuid)",
+            "EnsureRunReadAllowedAsync(",
+            "this, User, scope, runGuid",
+            "return denied;",
+            "EnsureSealedManifestReadAllowedAsync(scope, runGuid",
+            "agentExecutionTraceRepository.GetByRunIdAsync(",
+            "agentEvidencePackageRepository.GetByRunIdAsync("
+          ]
+        }
+      ]
     },
     {
       "id": "TechnologyLedgerController.GetTechnologyLedger",
       "controllerFile": "Authority/TechnologyLedgerController.cs",
       "action": "GetTechnologyLedger",
       "source": "ArchLucid.Api/Controllers/Authority/TechnologyLedgerController.cs",
-      "status": "gap",
-      "reason": "Seal helper reads run payload before resource share decision; execute role for patch does not prove Decide share.",
+      "status": "conformant",
+      "reason": "The exact run's Read decision is consumed before sealed evidence hydration and the ledger operation.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Authority/TechnologyLedgerController.cs",
-          "blob": "f57e85143094736b7f1217894b5cef97b01ecb8d"
+          "blob": "02b3c2d91d0f5f647c2d54afd4b7b6150ef10603"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/TechnologyLedgerController.SealedManifestGuard.cs",
           "blob": "7982b11c29b66732112892b4c2499b64be18ed93"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/TechnologyLedgerController.cs",
+          "start": "public async Task<IActionResult> GetTechnologyLedger(",
+          "tokens": [
+            "EnsureRunReadAllowedAsync(this, User, scope, runId, cancellationToken)",
+            "return shareDenied;",
+            "EnsureSealedManifestReadAllowedAsync(",
+            "technologyLedgerRunCommandService.GetByRunIdAsync("
+          ]
+        }
+      ]
     },
     {
       "id": "TechnologyLedgerController.PatchTechnologyLedgerEntry",
       "controllerFile": "Authority/TechnologyLedgerController.cs",
       "action": "PatchTechnologyLedgerEntry",
       "source": "ArchLucid.Api/Controllers/Authority/TechnologyLedgerController.cs",
-      "status": "gap",
-      "reason": "Seal helper reads run payload before resource share decision; execute role for patch does not prove Decide share.",
+      "status": "conformant",
+      "reason": "The exact run's Decide decision is consumed before sealed evidence hydration and the ledger operation. The existing mutation policy also applies.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Authority/TechnologyLedgerController.cs",
-          "blob": "f57e85143094736b7f1217894b5cef97b01ecb8d"
+          "blob": "02b3c2d91d0f5f647c2d54afd4b7b6150ef10603"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/TechnologyLedgerController.SealedManifestGuard.cs",
           "blob": "7982b11c29b66732112892b4c2499b64be18ed93"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/TechnologyLedgerController.cs",
+          "start": "public async Task<IActionResult> PatchTechnologyLedgerEntry(",
+          "tokens": [
+            "EnsureRunDecideAllowedAsync(this, User, scope, runId, cancellationToken)",
+            "return shareDenied;",
+            "EnsureSealedManifestReadAllowedAsync(",
+            "technologyLedgerRunCommandService.PatchEntryAsync("
+          ]
+        }
+      ]
+    },
+    {
+      "id": "RunQueryController.ListRuns",
+      "controllerFile": "Authority/RunQueryController.cs",
+      "action": "ListRuns",
+      "source": "ArchLucid.Api/Controllers/Authority/RunQueryController.Detail.cs",
+      "status": "conformant",
+      "reason": "This distinct HTTP action delegates the caller to the same scoped visible-header reader before offset/keyset paging and summary projection. Visible continuation participates in the ETag before conditional GET.",
+      "evidence": [
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/RunQueryController.Detail.cs",
+          "blob": "91ea9c6e044a182a827db038b6e14cb9ddba5a49"
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/RunQueryController.cs",
+          "blob": "18307a09540026a2c7082b6fc2f8838b1b983c5c"
+        },
+        {
+          "path": "ArchLucid.Api/Services/Authority/RunGraphQueryService.cs",
+          "blob": "a7096baebc699d1cb46b96a0d2f3bac56acccf85"
+        },
+        {
+          "path": "ArchLucid.Api/Support/RunListPageMapper.cs",
+          "blob": "384ef72c33f7165d8cdac75ce947bde4ea5c5cfe"
+        },
+        {
+          "path": "ArchLucid.Persistence/Queries/AuthorityRunInventoryQuery.cs",
+          "blob": "9a0dc2a2b0c7316db3e84b748c0e90f42852f075"
+        },
+        {
+          "path": "ArchLucid.Application/Runs/RunSummaryProjection.cs",
+          "blob": "7694282b57bbba5955bcf597ae6af76978401a65"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+        }
+      ],
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/RunQueryController.Detail.cs",
+          "start": "public Task<IActionResult> ListRuns(",
+          "tokens": [
+            "ListRunsCore(cursor, limit, offset, take, page, pageSize, cancellationToken)"
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/RunQueryController.Detail.cs",
+          "start": "private async Task<IActionResult> ListRunsCore(",
+          "tokens": [
+            "runGraphQueryService.ListRunsAsync(",
+            "User,",
+            "OkWithConditionalEtag("
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Services/Authority/RunGraphQueryService.cs",
+          "start": "public async Task<RunListQueryResult> ListRunsAsync(",
+          "tokens": [
+            "EvaluateRunReadAsync(user, scope, runId, ct)",
+            "return found && allowed;",
+            "PageVisibleHeadersAsync(",
+            "inventoryQuery.EnumerateVisibleHeadersAsync(",
+            "visibleOffset,",
+            "RunSummaryProjection.FromHeader",
+            "RunListPageMapper.BuildEtag(summaries, fingerprint, visible.HasMore, nextCursor)"
+          ]
+        },
+        {
+          "path": "ArchLucid.Persistence/Queries/AuthorityRunInventoryQuery.cs",
+          "start": "public async IAsyncEnumerable<RunRecord> EnumerateVisibleHeadersAsync(",
+          "tokens": [
+            "await canRead(candidate.RunId, ct)",
+            "yield return candidate"
+          ]
+        },
+        {
+          "path": "ArchLucid.Persistence/Queries/AuthorityRunInventoryQuery.cs",
+          "start": "public static async Task<RunListPage> PageVisibleHeadersAsync(",
+          "tokens": [
+            "await foreach (RunRecord run in visibleRuns.WithCancellation(ct))",
+            "if (offset > 0)",
+            "if (page.Count == take)",
+            "page.Add(run)"
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Support/RunListPageMapper.cs",
+          "start": "public static string BuildEtag(",
+          "tokens": [
+            "more={hasMore}|next={nextCursor}",
+            "ComputeRunListEtag("
+          ]
+        }
+      ]
+    },
+    {
+      "id": "RunQueryController.ListRunsLegacyAlias",
+      "controllerFile": "Authority/RunQueryController.cs",
+      "action": "ListRunsLegacyAlias",
+      "source": "ArchLucid.Api/Controllers/Authority/RunQueryController.Detail.cs",
+      "status": "conformant",
+      "reason": "This distinct HTTP action delegates the caller to the same scoped visible-header reader before offset/keyset paging and summary projection. Visible continuation participates in the ETag before conditional GET.",
+      "evidence": [
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/RunQueryController.Detail.cs",
+          "blob": "91ea9c6e044a182a827db038b6e14cb9ddba5a49"
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/RunQueryController.cs",
+          "blob": "18307a09540026a2c7082b6fc2f8838b1b983c5c"
+        },
+        {
+          "path": "ArchLucid.Api/Services/Authority/RunGraphQueryService.cs",
+          "blob": "a7096baebc699d1cb46b96a0d2f3bac56acccf85"
+        },
+        {
+          "path": "ArchLucid.Api/Support/RunListPageMapper.cs",
+          "blob": "384ef72c33f7165d8cdac75ce947bde4ea5c5cfe"
+        },
+        {
+          "path": "ArchLucid.Persistence/Queries/AuthorityRunInventoryQuery.cs",
+          "blob": "9a0dc2a2b0c7316db3e84b748c0e90f42852f075"
+        },
+        {
+          "path": "ArchLucid.Application/Runs/RunSummaryProjection.cs",
+          "blob": "7694282b57bbba5955bcf597ae6af76978401a65"
+        },
+        {
+          "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
+          "blob": "caf88cc540558c4a23aeaaaa3457888ff47885fc"
+        },
+        {
+          "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
+          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+        }
+      ],
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/RunQueryController.Detail.cs",
+          "start": "public Task<IActionResult> ListRunsLegacyAlias(",
+          "tokens": [
+            "ListRunsCore(cursor, limit, offset, take, page, pageSize, cancellationToken)"
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Authority/RunQueryController.Detail.cs",
+          "start": "private async Task<IActionResult> ListRunsCore(",
+          "tokens": [
+            "runGraphQueryService.ListRunsAsync(",
+            "User,",
+            "OkWithConditionalEtag("
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Services/Authority/RunGraphQueryService.cs",
+          "start": "public async Task<RunListQueryResult> ListRunsAsync(",
+          "tokens": [
+            "EvaluateRunReadAsync(user, scope, runId, ct)",
+            "return found && allowed;",
+            "PageVisibleHeadersAsync(",
+            "inventoryQuery.EnumerateVisibleHeadersAsync(",
+            "visibleOffset,",
+            "RunSummaryProjection.FromHeader",
+            "RunListPageMapper.BuildEtag(summaries, fingerprint, visible.HasMore, nextCursor)"
+          ]
+        },
+        {
+          "path": "ArchLucid.Persistence/Queries/AuthorityRunInventoryQuery.cs",
+          "start": "public async IAsyncEnumerable<RunRecord> EnumerateVisibleHeadersAsync(",
+          "tokens": [
+            "await canRead(candidate.RunId, ct)",
+            "yield return candidate"
+          ]
+        },
+        {
+          "path": "ArchLucid.Persistence/Queries/AuthorityRunInventoryQuery.cs",
+          "start": "public static async Task<RunListPage> PageVisibleHeadersAsync(",
+          "tokens": [
+            "await foreach (RunRecord run in visibleRuns.WithCancellation(ct))",
+            "if (offset > 0)",
+            "if (page.Count == take)",
+            "page.Add(run)"
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Support/RunListPageMapper.cs",
+          "start": "public static string BuildEtag(",
+          "tokens": [
+            "more={hasMore}|next={nextCursor}",
+            "ComputeRunListEtag("
+          ]
+        }
+      ]
     }
   ]
 }

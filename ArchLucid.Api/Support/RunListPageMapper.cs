@@ -11,10 +11,13 @@ namespace ArchLucid.Api.Support;
 public static class RunListPageMapper
 {
     /// <summary>
-    ///     Derives a strong ETag from the row versions on the page plus the request shape, so a client paging with
-    ///     different cursors or takes never receives a 304 for a different page.
+    ///     Derives a strong ETag from the visible rows, request shape and continuation metadata.
     /// </summary>
-    public static string BuildEtag(IReadOnlyList<RunSummary> summaries, string requestFingerprint)
+    public static string BuildEtag(
+        IReadOnlyList<RunSummary> summaries,
+        string requestFingerprint,
+        bool hasMore,
+        string? nextCursor)
     {
         ArgumentNullException.ThrowIfNull(summaries);
         ArgumentException.ThrowIfNullOrWhiteSpace(requestFingerprint);
@@ -23,7 +26,8 @@ public static class RunListPageMapper
             .Select(static summary => new RunSummaryRowVersionSlice(ParseRunId(summary.RunId), summary.RowVersion))
             .ToArray();
 
-        return ConditionalGetNegotiation.ComputeRunListEtag(slices, requestFingerprint);
+        string pageFingerprint = $"more={hasMore}|next={nextCursor}|{requestFingerprint}";
+        return ConditionalGetNegotiation.ComputeRunListEtag(slices, pageFingerprint);
     }
 
     /// <summary>Projects run summaries into the wire contract, preserving keyset continuation metadata.</summary>
