@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 `ui-lib-remediation-factory` pass-21 negative decimal risk-weighted. **143/143**. — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-infra-resource-hub` pass-496 cheap-disproof. ResourceHubClient **148/148**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 `ui-lib-remediation-factory` pass-22 pattern hint architect NaN. **145/145**. — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-infra-resource-hub` pass-496 cheap-disproof. ResourceHubClient **148/148**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -381,6 +381,22 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-22 (`shouldRotate: false`; hint override). **proven** executive table + architect outcome presentation — pattern ExactMatch drill-through hint showed while percent was **Not measured**; `architectOutcomeMetricPresentation` stringified non-finite deltas as `NaN`; gate hint on measured state and normalize architect deltas/denominators with `parseFiniteNumber`. Regressions `omits pattern-exact-match drill-through hint when percent is not measured`, `renders non-finite architect outcome deltas as not measured`. **valid-no-repro** snapshot identity href drops legacy yes on close, **valid-no-repro** disclosure parse rejects padded false, **valid-no-repro** percent above 100 on API points scale (existing tile test), **valid-no-repro** padded true metrics open parse. Pass-23 reseed below. Scoped vitest **145/145**. Private beta: invited operators no longer see misleading pattern drill-through copy beside empty pattern metrics or `NaN` architect comparison deltas on SecureNow outcome panels.
+
+- [x] (superseded) pass-22 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-23 reseed.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricPresentations` — pattern hint when percent absent — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (proven) `architectOutcomeMetricPresentation` — non-finite delta values — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — drops legacy yes on close — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** boolean href writer.
+- [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects padded false — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** mixed-case false regression.
+- [x] (valid-no-repro) `remediationFactoryPercentMetricPresentation` — fraction percent above 100 — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** existing tile test keeps uncapped API points.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — metrics open padded true — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** existing padded true regression.
+
+- [ ] (candidate) `remediationFactorySelectionIdentityDisclosureHrefFromSearch` — drops legacy yes on close — locus: boolean href writer; input: yes token; monitor; pass-23 reseed.
+- [ ] (candidate) `architectOutcomeDeltaScopeNote` — non-finite denominator — locus: scope note; input: NaN denominator; monitor; pass-23 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — automation static hints — locus: table hints; input: null metrics; monitor; pass-23 reseed.
+- [ ] (candidate) `remediationFactoryCountMetricPresentation` — Infinity count — locus: count parse; input: Infinity; monitor; pass-23 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — clears foreign params on metrics close — locus: writer hygiene; input: toggle closed; monitor; pass-23 reseed.
+
 2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-21 (`shouldRotate: false`; hint override). **proven** `remediationFactoryDecimalMetricPresentation` — negative risk-weighted open decimals rendered as `-1.50` in the executive table while tile chrome already rejected non-finite negatives; use `parseNonNegativeFiniteNumber`. Regression `renders negative risk-weighted open as not measured`. **valid-no-repro** selection identity href foreign params, **valid-no-repro** disclosure parse rejects `NaN` string, **valid-no-repro** tile formatter rejects negative open findings, **valid-no-repro** tab-only path overflow list. Pass-22 reseed below. Scoped vitest **143/143**. Private beta: invited operators no longer see negative risk-weighted open decimals in the remediation factory executive metrics table when the API returns invalid values.
 
 - [x] (superseded) pass-21 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-22 reseed.
@@ -389,12 +405,6 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects NaN string token — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** not in open allowlist.
 - [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — negative count when loaded — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `parseNonNegativeFiniteNumber` on counts.
 - [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — tab-only path id list — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** existing whitespace regression.
-
-- [ ] (candidate) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — drops legacy yes on close — locus: boolean href writer; input: toggle closed; monitor; pass-22 reseed.
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects padded false — locus: shared parse; input: false token; monitor; pass-22 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — pattern hint when percent absent — locus: static table hint; input: null metrics; monitor; pass-22 reseed.
-- [ ] (candidate) `remediationFactoryPercentMetricPresentation` — fraction percent above 100 — locus: points scale; input: 150; monitor; pass-22 reseed.
-- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — metrics open padded true — locus: disclosure parse; input: padded true; monitor; pass-22 reseed.
 
 2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-20 (`shouldRotate: false`; hint override). **proven** executive metrics table presentation — `remediationFactoryCountMetricPresentation` and siblings stringified non-finite API numbers as literal `NaN` in the SecureNow remediation factory table; normalize through `parseFiniteNumber` / `parseNonNegativeFiniteNumber`, treat invalid counts as **Not measured**, and keep signed net burn via `signedCount`; gate critical-exposure zero hint on parsed count. Regressions `renders non-finite critical exposure counts as not measured`, `keeps signed net burn values in the executive table`. **valid-no-repro** selection identity href canonical writer, **valid-no-repro** snapshot identity href foreign params, **valid-no-repro** duplicate `toSnapshot` first-wins, **invalid** snapshot identity url-state writer (param not in lib url-state). Pass-21 reseed below. Scoped vitest **142/142**. Private beta: invited operators no longer see `NaN` in remediation factory executive metrics table cells when the factory metrics payload returns non-finite values.
 
@@ -646,8 +656,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 43
-- **bugs-found:** 21
+- **hunts:** 44
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25

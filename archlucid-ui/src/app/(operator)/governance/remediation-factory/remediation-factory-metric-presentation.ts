@@ -143,6 +143,12 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
 }> {
   const metrics = input.metrics;
 
+  const patternExactMatchPresentation = remediationFactoryPercentMetricPresentation({
+    value: metrics?.patternCoverageExactMatchPercent,
+    scopeNote: REMEDIATION_FACTORY_PATTERN_EXACT_HELPER,
+    plainScopeNote: true,
+  });
+
   const openFindingsPresentation = remediationFactoryCountMetricPresentation({
     value: metrics?.openFindings,
     scopeNote: REMEDIATION_FACTORY_OPEN_FINDINGS_HELPER,
@@ -201,12 +207,11 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
     {
       key: "pattern-exact-match",
       label: "Pattern ExactMatch %",
-      presentation: remediationFactoryPercentMetricPresentation({
-        value: metrics?.patternCoverageExactMatchPercent,
-        scopeNote: REMEDIATION_FACTORY_PATTERN_EXACT_HELPER,
-        plainScopeNote: true,
-      }),
-      hint: "Pattern keys appear in the priority queue when recorded — not a drill-through from this tile alone.",
+      presentation: patternExactMatchPresentation,
+      hint:
+        patternExactMatchPresentation.state === "notMeasured"
+          ? undefined
+          : "Pattern keys appear in the priority queue when recorded — not a drill-through from this tile alone.",
     },
     {
       key: "automation",
@@ -274,7 +279,9 @@ export function architectOutcomeMetricPresentation(input: {
   readonly denominator: number | null | undefined;
   readonly populationLabel: string;
 }): RemediationFactoryMetricPresentation {
-  if (input.value === null || input.value === undefined) {
+  const normalized = parseFiniteNumber(input.value);
+
+  if (normalized === null) {
     return {
       displayValue: REVIEW_SCORECARD_EMPTY_VALUE,
       scopeNote: REVIEW_SCORECARD_NOT_MEASURED_LABEL,
@@ -283,11 +290,11 @@ export function architectOutcomeMetricPresentation(input: {
   }
 
   return {
-    displayValue: formatArchitectOutcomeDeltaValue(input.value),
+    displayValue: formatArchitectOutcomeDeltaValue(normalized),
     scopeNote: architectOutcomeDeltaScopeNote({
       denominator: input.denominator,
       populationLabel: input.populationLabel,
     }),
-    state: input.value === 0 ? "measuredZero" : "measured",
+    state: normalized === 0 ? "measuredZero" : "measured",
   };
 }

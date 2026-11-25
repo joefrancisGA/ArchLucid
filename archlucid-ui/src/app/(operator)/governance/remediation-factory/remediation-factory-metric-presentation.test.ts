@@ -23,6 +23,29 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "automation")?.value).toBe("1%");
   });
 
+  it("omits pattern-exact-match drill-through hint when percent is not measured", () => {
+    const tiles = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics: {} as RemediationFactoryMetrics,
+      openFindingsHref: "/security/findings",
+    });
+
+    expect(tiles.find((tile) => tile.key === "pattern-exact-match")?.hint).toBeUndefined();
+  });
+
+  it("renders non-finite architect outcome deltas as not measured", () => {
+    expect(
+      architectOutcomeMetricPresentation({
+        value: Number.NaN,
+        denominator: 12,
+        populationLabel: "Compared snapshots",
+      }),
+    ).toEqual(
+      expect.objectContaining({
+        displayValue: "Not measured",
+        state: "notMeasured",
+      }),
+    );
+  });
   it("renders negative risk-weighted open as not measured", () => {
     const metrics = { riskWeightedOpen: -1.5 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricPresentations({
