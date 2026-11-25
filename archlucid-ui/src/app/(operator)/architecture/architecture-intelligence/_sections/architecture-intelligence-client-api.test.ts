@@ -4,6 +4,7 @@ import { writeOperatorScopeToStorage } from "@/lib/operator/operator-scope-stora
 
 import {
   buildRequest,
+  canAnalyzeHydratedReviewFromIntake,
   requiresArchitectureDescriptionForMutation,
   getJson,
   postJson,
@@ -139,6 +140,18 @@ describe("architecture-intelligence-client-api", () => {
     ]);
   });
 
+
+  it("canAnalyzeHydratedReviewFromIntake is true for attachment-only hydrated intake with an active run", () => {
+    expect(
+      canAnalyzeHydratedReviewFromIntake("loaded", "run-1", "", [
+        {
+          fileName: "network-diagram.png",
+          contentType: "image/png",
+          content: "attachment body",
+        },
+      ]),
+    ).toBe(true);
+  });
   it("requiresArchitectureDescriptionForMutation is true when textarea and hydrated rows are blank", () => {
     expect(
       requiresArchitectureDescriptionForMutation("  ", [
@@ -190,3 +203,4 @@ describe("architecture-intelligence-client-api", () => {
     ]);
   });
 })
+

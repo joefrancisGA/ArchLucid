@@ -24,7 +24,11 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { useArchitectureIntelligenceSourceContextQuery } from "@/hooks/use-architecture-intelligence-source-context-query";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 
-import { hasUsableArchitectureSourceText, primaryDescriptionFromSources } from "./architecture-intelligence-client-api";
+import {
+  canAnalyzeHydratedReviewFromIntake,
+  hasUsableArchitectureSourceText,
+  primaryDescriptionFromSources,
+} from "./architecture-intelligence-client-api";
 import { architectureIntelligenceErrorToLoadFailure, shouldClearIntakeWhenInboundRunIdDropped } from "./architecture-intelligence-page-helpers";
 import { architectureIntelligenceSourceContextBlockedReason } from "@/lib/architecture/architecture-intelligence-source-context-blocked-reason";
 import type {
@@ -142,10 +146,12 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
   const [error, setError] = useState<string | null>(null);
   const [runState, setRunState] = useState<RunState | null>(null);
 
-  const canAnalyzeHydratedReview =
-    productContextStatus === "loaded" &&
-    (activeRunId?.trim().length ?? 0) > 0 &&
-    architectureDescription.trim().length > 0;
+  const canAnalyzeHydratedReview = canAnalyzeHydratedReviewFromIntake(
+    productContextStatus,
+    activeRunId,
+    architectureDescription,
+    hydratedSourceTexts,
+  );
 
   const retryProductContextLoad = useCallback(() => {
     setProductContextReloadNonce((previous) => previous + 1);
@@ -594,3 +600,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
 
 // Re-export for consumers that need finding/question types from the page facade.
 export type { FramingQuestion, SpecialistReviewFinding };
+
+
+
+

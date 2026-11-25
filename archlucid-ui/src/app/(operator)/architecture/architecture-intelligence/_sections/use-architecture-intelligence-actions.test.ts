@@ -71,4 +71,26 @@ describe("useArchitectureIntelligenceActions", () => {
         .mock.calls.some((call) => typeof call[0] === "string" && call[0].length > 0),
     ).toBe(false);
   });
+
+  it("analyzeThisReview posts when attachment-only hydrated intake can analyze", async () => {
+    const postJsonMock = vi.mocked(postJson);
+    postJsonMock.mockResolvedValue({
+      runId: "run-1",
+      specialistReviews: [],
+    });
+
+    const ctx = createContext({
+      activeRunId: "run-1",
+      canAnalyzeHydratedReview: true,
+    });
+    const { result } = renderHook(() => useArchitectureIntelligenceActions(ctx));
+
+    await act(async () => {
+      await result.current.analyzeThisReview();
+    });
+
+    expect(postJsonMock).toHaveBeenCalledOnce();
+    const body = postJsonMock.mock.calls[0]?.[1] as { publishToProduct?: boolean };
+    expect(body.publishToProduct).toBe(true);
+  });
 });

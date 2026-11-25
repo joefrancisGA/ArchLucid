@@ -81,6 +81,26 @@ export function requiresArchitectureDescriptionForMutation(
   );
 }
 
+export type ArchitectureIntelligenceProductContextStatus =
+  | "idle"
+  | "loading"
+  | "loaded"
+  | "empty"
+  | "failed";
+
+export function canAnalyzeHydratedReviewFromIntake(
+  productContextStatus: ArchitectureIntelligenceProductContextStatus,
+  activeRunId: string | null,
+  architectureDescription: string,
+  hydratedSourceTexts: readonly ClosedLoopReasoningSourceText[],
+): boolean {
+  return (
+    productContextStatus === "loaded" &&
+    (activeRunId?.trim().length ?? 0) > 0 &&
+    !requiresArchitectureDescriptionForMutation(architectureDescription, hydratedSourceTexts)
+  );
+}
+
 export function buildRequest(
   architectureDescription: string,
   prioritiesRaw: string,
