@@ -38,17 +38,17 @@ public sealed class GoldenManifestPayloadBlobEnvelopeTests
     {
         GoldenManifestPayloadBlobEnvelope original = GoldenManifestPayloadBlobEnvelope.FromSerializedSlices(
             """{"k":"m"}""",
-            "[]",
-            "{}",
-            "{}",
-            "{}",
-            "{}",
-            "{}",
-            "[]",
-            "[]",
-            "[]",
-            "[]",
-            "{}",
+            """["requirements"]""",
+            """{"topology":1}""",
+            """{"security":2}""",
+            """{"compliance":3}""",
+            """{"cost":4}""",
+            """{"constraints":5}""",
+            """["unresolved"]""",
+            """["decisions"]""",
+            """["assumptions"]""",
+            """["warnings"]""",
+            """{"provenance":6}""",
             """{"policy":{"notes":["No public SQL endpoints"]}}""");
 
         string json = original.ToJson();
@@ -91,6 +91,30 @@ public sealed class GoldenManifestPayloadBlobEnvelopeTests
         merged.MetadataJson.Should().Be("""{"k":"m"}""");
         merged.HasherBoundJson.Should().Contain("No public SQL endpoints");
         merged.HasherBoundJson.Should().Be(parsed.HasherBoundJson);
+        merged.RequirementsJson.Should().Be("""["requirements"]""");
+        merged.TopologyJson.Should().Be("""{"topology":1}""");
+        merged.SecurityJson.Should().Be("""{"security":2}""");
+        merged.ComplianceJson.Should().Be("""{"compliance":3}""");
+        merged.CostJson.Should().Be("""{"cost":4}""");
+        merged.ConstraintsJson.Should().Be("""{"constraints":5}""");
+        merged.UnresolvedIssuesJson.Should().Be("""["unresolved"]""");
+        merged.DecisionsJson.Should().Be("""["decisions"]""");
+        merged.AssumptionsJson.Should().Be("""["assumptions"]""");
+        merged.WarningsJson.Should().Be("""["warnings"]""");
+        merged.ProvenanceJson.Should().Be("""{"provenance":6}""");
+        merged.TenantId.Should().Be(row.TenantId);
+        merged.WorkspaceId.Should().Be(row.WorkspaceId);
+        merged.ProjectId.Should().Be(row.ProjectId);
+        merged.RunId.Should().Be(row.RunId);
+        merged.ContextSnapshotId.Should().Be(row.ContextSnapshotId);
+        merged.GraphSnapshotId.Should().Be(row.GraphSnapshotId);
+        merged.FindingsSnapshotId.Should().Be(row.FindingsSnapshotId);
+        merged.DecisionTraceId.Should().Be(row.DecisionTraceId);
+        merged.CreatedUtc.Should().Be(row.CreatedUtc);
+        merged.ManifestHash.Should().Be(row.ManifestHash);
+        merged.RuleSetId.Should().Be(row.RuleSetId);
+        merged.RuleSetVersion.Should().Be(row.RuleSetVersion);
+        merged.RuleSetHash.Should().Be(row.RuleSetHash);
         merged.ManifestId.Should().Be(row.ManifestId);
         merged.ManifestPayloadBlobUri.Should().Be("https://example/blob");
     }

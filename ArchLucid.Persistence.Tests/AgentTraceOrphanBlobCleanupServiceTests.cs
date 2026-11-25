@@ -35,7 +35,22 @@ public sealed class AgentTraceOrphanBlobCleanupServiceTests
             await File.WriteAllTextAsync(blobPath, "orphan trace");
             File.SetLastWriteTimeUtc(blobPath, DateTime.UtcNow.AddDays(-2));
 
+            Guid retainedTenant = Guid.NewGuid();
+            Guid liveRun = Guid.NewGuid();
+            Guid recentRun = Guid.NewGuid();
+            string liveDir = Path.Combine(containerDir, retainedTenant.ToString("D"), liveRun.ToString("D"));
+            string recentDir = Path.Combine(containerDir, retainedTenant.ToString("D"), recentRun.ToString("D"));
+            Directory.CreateDirectory(liveDir);
+            Directory.CreateDirectory(recentDir);
+            string liveBlob = Path.Combine(liveDir, "live.txt");
+            string recentBlob = Path.Combine(recentDir, "recent.txt");
+            await File.WriteAllTextAsync(liveBlob, "live trace");
+            File.SetLastWriteTimeUtc(liveBlob, DateTime.UtcNow.AddDays(-2));
+            await File.WriteAllTextAsync(recentBlob, "recent trace");
+
             Mock<IRunRepository> runs = new(MockBehavior.Strict);
+            runs.Setup(r => r.GetByRunIdAdminAsync(liveRun, CancellationToken.None))
+                .ReturnsAsync(new RunRecord { RunId = liveRun, TenantId = retainedTenant });
             runs.Setup(r => r.GetByRunIdAdminAsync(runId, CancellationToken.None))
                 .ReturnsAsync((RunRecord?)null);
             Mock<IOptionsMonitor<ArtifactLargePayloadOptions>> options = new();
@@ -52,6 +67,13 @@ public sealed class AgentTraceOrphanBlobCleanupServiceTests
 
             deleted.Should().Be(1);
             File.Exists(blobPath).Should().BeFalse();
+            File.Exists(liveBlob).Should().BeTrue();
+            File.Exists(recentBlob).Should().BeTrue();
+            (await File.ReadAllTextAsync(liveBlob)).Should().Be("live trace");
+            (await File.ReadAllTextAsync(recentBlob)).Should().Be("recent trace");
+            runs.Verify(r => r.GetByRunIdAdminAsync(runId, CancellationToken.None), Times.Once);
+            runs.Verify(r => r.GetByRunIdAdminAsync(liveRun, CancellationToken.None), Times.Once);
+            runs.VerifyNoOtherCalls();
             Directory.Exists(runDirectory).Should().BeFalse();
             Directory.Exists(tenantDirectory).Should().BeFalse();
             Directory.Exists(containerDir).Should().BeTrue();

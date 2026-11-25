@@ -78,11 +78,11 @@ public sealed class CachingRunRepositoryPassthroughTests
         Guid runId = Guid.NewGuid();
         DateTime occurredUtc = TimeProvider.System.UtcNowDateTime();
         using CancellationTokenSource caller = new();
+        TaskCompletionSource<bool> committed = new(TaskCreationOptions.RunContinuationsAsynchronously);
         Mock<IRunRepository> inner = new(MockBehavior.Strict);
         inner.Setup(r => r.TrySetOperatorGovernanceDispositionAsync(
                 scope, runId, "Approved", null, "actor", occurredUtc, caller.Token))
-            .Callback(caller.Cancel)
-            .ReturnsAsync(true);
+            .Returns(committed.Task);
 
         Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
         cache.Setup(c => c.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -97,10 +97,20 @@ public sealed class CachingRunRepositoryPassthroughTests
             .ReturnsAsync(new RunListScopeRevisionState { Revision = 1 });
         CachingRunRepository sut = new(inner.Object, cache.Object);
 
-        bool updated = await sut.TrySetOperatorGovernanceDispositionAsync(
+        Task<bool> pending = sut.TrySetOperatorGovernanceDispositionAsync(
             scope, runId, "Approved", null, "actor", occurredUtc, caller.Token);
+        try
+        {
+            cache.VerifyNoOtherCalls();
+            pending.IsCompleted.Should().BeFalse();
+        }
+        finally
+        {
+            caller.Cancel();
+            committed.TrySetResult(true);
+        }
 
-        updated.Should().BeTrue();
+        (await pending).Should().BeTrue();
         cache.Verify(c => c.RemoveAsync(HotPathCacheKeys.Run(scope, runId), CancellationToken.None), Times.Once);
         cache.Verify(c => c.RemoveAsync(revisionKey, CancellationToken.None), Times.Once);
     }
@@ -128,8 +138,8 @@ public sealed class CachingRunRepositoryPassthroughTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
-        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(new HotPathCacheOptions());
-        CachingRunRepository sut = new(inner.Object, hotPath);
+        Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
+        CachingRunRepository sut = new(inner.Object, cache.Object);
 
         bool updated = await sut.TrySetOperatorGovernanceDispositionAsync(
             scope,
@@ -141,5 +151,6 @@ public sealed class CachingRunRepositoryPassthroughTests
             CancellationToken.None);
 
         updated.Should().BeFalse();
+        cache.VerifyNoOtherCalls();
     }
 }
