@@ -178,7 +178,9 @@ import {
   parseInfraDiagramsResourceGroupName,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-resource-group-view";
 import { buildInfrastructureAskHandoffHref } from "@/lib/infra-evidence/infrastructure-ask-drawer-url";
-import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import { RemediationFactoryRankedPathAskHandoff } from "@/components/remediation-factory/RemediationFactoryRankedPathAskHandoff";
+import { DIAGRAMS_WORKBENCH_RANKED_PATH_ASK_SCOPE_LINE } from "@/lib/infra-evidence/diagrams-workbench-ranked-path-ask-handoff-copy";
+import { RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   INFRA_DIAGRAMS_RESOURCE_ID_DISCLOSURE_OPEN_PARAM,
   infraDiagramsResourceIdDisclosureHrefFromSearch,
@@ -448,6 +450,7 @@ export function DiagramsWorkbenchClient() {
   const urlCloudResourceId = parseInfraDiagramsCloudResourceIdFromSearch(
     searchParams.get(INFRA_DIAGRAMS_CLOUD_RESOURCE_ID_PARAM),
   );
+  const urlSecurityEvidencePathId = (searchParams.get(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM) ?? "").trim();
   const urlMermaidMode = parseInfraDiagramsMermaidModeFromSearch(searchParams.get(INFRA_DIAGRAMS_MERMAID_MODE_PARAM));
   const urlMermaidView = parseInfraDiagramsMermaidViewFromSearch(searchParams.get(INFRA_DIAGRAMS_MERMAID_VIEW_PARAM));
   const urlSeedNodeId = parseInfraDiagramsSeedNodeIdFromSearch(searchParams.get(INFRA_DIAGRAMS_SEED_NODE_ID_PARAM));
@@ -2153,6 +2156,16 @@ export function DiagramsWorkbenchClient() {
         />
       ) : null}
 
+      {urlSecurityEvidencePathId.length > 0 && snapshotResolvedForWorkbench && selectedSnapshotId.length > 0 ? (
+        <RemediationFactoryRankedPathAskHandoff
+          testId="infra-diagrams-ranked-path-ask-handoff"
+          snapshotId={selectedSnapshotId}
+          securityEvidencePathId={urlSecurityEvidencePathId}
+          hubTab="diagram"
+          scopeLine={DIAGRAMS_WORKBENCH_RANKED_PATH_ASK_SCOPE_LINE}
+        />
+      ) : null}
+
       <PageShortcutsDisclosure
         testId="infra-diagrams-page-shortcuts"
         entries={diagramsWorkbenchPageShortcutsDisclosureEntries()}
@@ -2926,6 +2939,7 @@ export function DiagramsWorkbenchClient() {
                   ? appliedSeedNodeId.trim()
                   : undefined,
               hubTab: "diagram",
+              securityEvidencePathId: urlSecurityEvidencePathId.length > 0 ? urlSecurityEvidencePathId : undefined,
               ...mergeInfrastructureAskAuditScope(auditScope),
             })}
           >

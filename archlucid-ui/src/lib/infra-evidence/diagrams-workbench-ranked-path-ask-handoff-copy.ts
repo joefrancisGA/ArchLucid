@@ -1,0 +1,6 @@
+import { REMEDIATION_FACTORY_RANKED_PATH_ASK_HANDOFF_LABEL } from "@/lib/remediation-factory/remediation-factory-ranked-path-ask-handoff-copy";
+
+export const DIAGRAMS_WORKBENCH_RANKED_PATH_ASK_HANDOFF_LABEL = REMEDIATION_FACTORY_RANKED_PATH_ASK_HANDOFF_LABEL;
+
+export const DIAGRAMS_WORKBENCH_RANKED_PATH_ASK_SCOPE_LINE =
+  "Diagrams workbench opens Infrastructure Ask with the stored path id on this URL. Diagram mode and snapshot filters stay unchanged." as const;

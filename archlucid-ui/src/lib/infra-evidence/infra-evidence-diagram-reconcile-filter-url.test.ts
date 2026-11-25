@@ -114,4 +114,13 @@ describe("infra-evidence-diagram-reconcile-filter-url", () => {
       }),
     ).toBeNull();
   });
+  it("preserves securityEvidencePathId on diagram reconcile workbench hrefs", () => {
+    expect(
+      buildDiagramReconcileWorkbenchHref({
+        snapshotId: "11111111-1111-1111-1111-111111111111",
+        securityEvidencePathId: "22222222-2222-2222-2222-222222222222",
+      }),
+    ).toContain("securityEvidencePathId=22222222-2222-2222-2222-222222222222");
+  });
+
 });
