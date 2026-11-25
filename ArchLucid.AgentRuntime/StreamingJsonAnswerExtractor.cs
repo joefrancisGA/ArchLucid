@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 
 namespace ArchLucid.AgentRuntime;
@@ -51,91 +52,127 @@ public sealed class StreamingJsonAnswerExtractor
             return null;
 
         ReadOnlySpan<char> span = json.AsSpan();
-        int searchFrom = 0;
+        int start = SkipJsonWhitespace(span, 0);
+        if (start >= span.Length || span[start] != '{')
+            return null;
 
-        while (searchFrom < span.Length)
+        int depth = 1;
+        for (int cursor = start + 1; cursor < span.Length; cursor++)
         {
-            int keyIndex = IndexOfPropertyKey(span, searchFrom, "answer");
-
-            if (keyIndex < 0)
-                return null;
-
-            int cursor = keyIndex + "answer".Length;
-
-            if (cursor < span.Length && span[cursor] == '"')
-                cursor++;
-
-            cursor = SkipJsonWhitespace(span, cursor);
-
-            if (cursor >= span.Length || span[cursor] != ':')
+            if (span[cursor] == '"')
             {
-                searchFrom = keyIndex + 1;
+                int end = FindStringEnd(span, cursor + 1);
+                if (end < 0)
+                    return null;
+
+                int separator = SkipJsonWhitespace(span, end + 1);
+                if (depth == 1 && separator < span.Length && span[separator] == ':'
+                    && span[(cursor + 1)..end].Equals("answer", StringComparison.OrdinalIgnoreCase))
+                {
+                    int valueStart = SkipJsonWhitespace(span, separator + 1);
+                    return valueStart < span.Length && span[valueStart] == '"'
+                        ? ReadAnswerPrefix(span, valueStart + 1)
+                        : null;
+                }
+
+                cursor = end;
                 continue;
             }
 
-            cursor++;
-            cursor = SkipJsonWhitespace(span, cursor);
-
-            if (cursor >= span.Length || span[cursor] != '"')
-                return null;
-
-            cursor++;
-
-            StringBuilder value = new();
-            bool complete = false;
-
-            while (cursor < span.Length)
+            if (span[cursor] is '{' or '[')
+                depth++;
+            else if (span[cursor] is '}' or ']')
             {
-                char c = span[cursor];
-
-                if (c == '\\')
-                {
-                    cursor++;
-
-                    if (cursor >= span.Length)
-                        break;
-
-                    char escaped = span[cursor];
-                    value.Append(UnescapeJsonChar(escaped));
-                    cursor++;
-                    continue;
-                }
-
-                if (c == '"')
-                {
-                    complete = true;
-                    break;
-                }
-
-                value.Append(c);
-                cursor++;
+                if (--depth == 0)
+                    return null;
             }
-
-            return complete || value.Length > 0 ? value.ToString() : null;
         }
 
         return null;
     }
 
-    private static int IndexOfPropertyKey(ReadOnlySpan<char> span, int start, string key)
+    private static int FindStringEnd(ReadOnlySpan<char> span, int start)
     {
-        ReadOnlySpan<char> keySpan = key.AsSpan();
-
-        for (int i = start; i <= span.Length - keySpan.Length - 1; i++)
+        for (int i = start; i < span.Length; i++)
         {
-            if (span[i] != '"')
-                continue;
-
-            if (!span.Slice(i + 1, keySpan.Length).Equals(keySpan, StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            int afterKey = i + 1 + keySpan.Length;
-
-            if (afterKey < span.Length && span[afterKey] == '"')
-                return i + 1;
+            if (span[i] == '\\')
+                i++;
+            else if (span[i] == '"')
+                return i;
         }
 
         return -1;
+    }
+
+    private static string? ReadAnswerPrefix(ReadOnlySpan<char> span, int cursor)
+    {
+        StringBuilder value = new();
+        while (cursor < span.Length)
+        {
+            char current = span[cursor++];
+            if (current == '"')
+                return value.ToString();
+
+            if (current == '\\')
+            {
+                if (cursor >= span.Length)
+                    break;
+
+                char escaped = span[cursor++];
+                if (escaped == 'u')
+                {
+                    if (!TryReadHexChar(span, ref cursor, out current))
+                        break;
+
+                    if (char.IsHighSurrogate(current))
+                    {
+                        if (span.Length - cursor < 2 || span[cursor] != '\\' || span[cursor + 1] != 'u')
+                            break;
+
+                        cursor += 2;
+                        if (!TryReadHexChar(span, ref cursor, out char low) || !char.IsLowSurrogate(low))
+                            break;
+
+                        value.Append(current).Append(low);
+                        continue;
+                    }
+                }
+                else
+                {
+                    current = UnescapeJsonChar(escaped);
+                    if (current == '\0')
+                        break;
+                }
+            }
+            else if (char.IsHighSurrogate(current))
+            {
+                if (cursor >= span.Length || !char.IsLowSurrogate(span[cursor]))
+                    break;
+
+                value.Append(current).Append(span[cursor++]);
+                continue;
+            }
+
+            if (char.IsLowSurrogate(current))
+                break;
+
+            value.Append(current);
+        }
+
+        // Incomplete escapes and surrogate pairs must not emit provisional characters.
+        return value.Length > 0 ? value.ToString() : null;
+    }
+
+    private static bool TryReadHexChar(ReadOnlySpan<char> span, ref int cursor, out char result)
+    {
+        result = default;
+        if (span.Length - cursor < 4 || !ushort.TryParse(span.Slice(cursor, 4),
+                NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out ushort codeUnit))
+            return false;
+
+        cursor += 4;
+        result = (char)codeUnit;
+        return true;
     }
 
     private static int SkipJsonWhitespace(ReadOnlySpan<char> span, int start)
@@ -159,6 +196,6 @@ public sealed class StreamingJsonAnswerExtractor
             'n' => '\n',
             'r' => '\r',
             't' => '\t',
-            _ => escaped
+            _ => '\0'
         };
 }

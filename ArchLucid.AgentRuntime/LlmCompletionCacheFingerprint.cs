@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text.Json;
 
@@ -26,7 +27,7 @@ public static class LlmCompletionCacheFingerprint
         ArgumentNullException.ThrowIfNull(scope);
 
         return ComputeFramedHash(
-            "completion-v2",
+            "completion-v3",
             partitionByScope ? FormatScopePartition(scope) : string.Empty,
             deploymentName,
             systemPrompt,
@@ -41,7 +42,20 @@ public static class LlmCompletionCacheFingerprint
         ArgumentNullException.ThrowIfNull(systemPrompt);
         ArgumentNullException.ThrowIfNull(userPrompt);
 
-        return ComputeFramedHash("prompt-v2", systemPrompt, userPrompt);
+        return ComputeFramedHash("prompt-v3", systemPrompt, userPrompt);
+    }
+
+    /// <summary>Separates explicit generation overrides from defaults and from each other.</summary>
+    internal static string WithGenerationOptions(string baseFingerprint, int? maxTokens, float? temperature)
+    {
+        if (maxTokens is null && temperature is null)
+            return baseFingerprint;
+
+        return ComputeFramedHash(
+            "generation-options-v1",
+            baseFingerprint,
+            maxTokens?.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
+            temperature?.ToString("R", CultureInfo.InvariantCulture) ?? string.Empty);
     }
 
     private static string ComputeFramedHash(params string[] segments)
