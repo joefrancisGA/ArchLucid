@@ -34,14 +34,18 @@ internal static class CycloneDxDependencyEvidenceReader
             {
                 var purl = String(component, "purl");
                 var version = String(component, "version");
-                if (purl is not null && purl.StartsWith("pkg:pypi/", StringComparison.Ordinal))
+                if (purl is not null && purl.StartsWith("pkg:", StringComparison.Ordinal) && purl.IndexOf('/') > 4)
                 {
-                    var body = purl["pkg:pypi/".Length..];
-                    var at = body.IndexOf('@');
+                    var slash = purl.IndexOf('/');
+                    var ecosystem = purl[4..slash];
+                    var body = purl[(slash + 1)..];
+                    var at = body.LastIndexOf('@');
                     if (at > 0 && !body.Contains('?') && !body.Contains('#') &&
-                        !body.Contains('%') && !body.Contains('/') &&
+                        !body.Contains('%') &&
+                        MaliciousDependencyMatcher.NormalizePackage(ecosystem, body[..at]) is not null &&
+                        MaliciousDependencyMatcher.NormalizeVersion(ecosystem, version) is not null &&
                         string.Equals(body[(at + 1)..], version, StringComparison.Ordinal))
-                        observations.Add(new("pypi", body[..at], version,
+                        observations.Add(new(ecosystem, body[..at], version,
                             DependencyEvidenceKind.Resolved, artifactId, observedAt));
                     else complete = false;
                 }
