@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed-only): `ui-marketing-surfaces` pass-6 cheap-disproof. marketing **685/687**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed→hit): `ui-marketing-surfaces` early-access POST trim. `use-marketing-early-access-submit` **5/5**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -2922,6 +2922,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: ui-runs-list
+
 
 2026-11-25 seed hunt (seed-only, dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reread `useRunsList`, `RunsListClient`, and focused URL/popstate regressions; attempted failing repro on five pass-1 `(candidate)` monitors — **valid-no-repro** compare write path uses explicit `compareRuns`/`inspectorRunId` merge (`preserves pending text filter in compareRuns URL sync before q= debounce completes`, `does not rewrite inspectorRunId when compare is toggled after Escape while useSearchParams lags`, `writes inspectorRunId from useSearchParams when window.location.search lags after soft navigation`), **valid-no-repro** empty-filter debounce shares `runsListNavigationSearchFromSearch` overlay with compare (`preserves compareRuns in debounced q= sync when compare was toggled before useSearchParams catches up`; `preserves compareRuns when Escape clears the filter before useSearchParams catches up`), **valid-no-repro** orphan banner popstate (`hides orphan-candidates banner when filter= clears via popstate before useSearchParams catches up`), **valid-no-repro** inspector Escape vs debounce (`clears inspectorRunId from committed URL when Escape closes the inspector while useSearchParams still lags`; `preserves inspectorRunId in debounced q= sync when filter text is typed`), **valid-no-repro** compare bar with client filter (`keeps compareRuns selection when text filter hides one selected row`). No hunt-ready promotion; pass-2 reseed below. Scoped vitest **80/80**. Private beta: n/a.
 
@@ -10953,6 +10954,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-marketing-surfaces
 
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted `useMarketingEarlyAccessSubmit` POST identity — **proven** `isSubmittableWorkEmail` validated trimmed input but `handleSubmit` posted raw `email` with surrounding whitespace after `canSubmit`; POST body now uses `email.trim()`; regression `posts trimmed work email after validation`. Scoped early-access hook **5/5**. Pass-8 reseed below. Private beta: anonymous visitors who request early access no longer send padded work-email values to the marketing waitlist API after client validation passes.
+
+- [ ] (candidate) `buildSelfDemoCtaHref` — whitespace booking URL may misroute before mailto — locus: env trim; input: padded booking URL; monitor; pass-8 reseed.
+- [ ] (candidate) `MarketingPricingQuotePanel` — duplicate hash open race on pricing — locus: quote hash handler; input: repeated hash navigation; monitor; pass-8 reseed.
+- [ ] (candidate) `renderInline` — `tel:` link new-tab policy — locus: http-only blank target; input: tel link in markdown; monitor; pass-8 reseed.
+- [ ] (candidate) `useMarketingEarlyAccessSubmit` — double submit while busy — locus: busy gate; input: rapid double click; monitor; pass-8 reseed.
+- [ ] (candidate) `SelfDemoRequestCta` — SSR placeholder origin before hydration — locus: localhost origin; input: no-JS contract; monitor; pass-8 reseed.
+
+
 2026-11-25 seed hunt (seed-only, dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; zone `lowYieldStreak` 1/3 seed-only at tail). Attempted failing repro on five pass-3 `(candidate)` monitors — **valid-no-repro** GetStarted skip-link vs path selection (`selects the sample path when the bottom sample link is activated`; primary `Choose a sample` control calls `selectSamplePath`), **invalid** ShowcaseQuickNav scroll-spy (`ShowcaseQuickNav` is static deep-link chrome without intersection observer), **valid-no-repro** SignupVerify resend remount (`readSignupVerifyResendCooldown` persists via `sessionStorage`), **valid-no-repro** SecureNow mailto parity (conversation link uses native `mailto:`; inline markdown fix family), **invalid** SeeItHero analytics swallow (hero CTAs are plain `Link`; Clarity guard lives on separate CTA modules). No hunt-ready promotion; pass-4 reseed below. Scoped vitest marketing **683/685** (`marketing-surface-hygiene`, `DemoPreviewMarketingBody` failures pre-existing). Private beta: n/a.
 
 
@@ -11262,9 +11272,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 9
-- **bugs-found:** 5
-- **consecutive-dry-hunts:** 1
+- **hunts:** 10
+- **bugs-found:** 6
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
 - **related-pd-tb:** none
@@ -11283,6 +11293,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `recordMarketingHeroCtaClarityEvent` — a failing Clarity implementation interrupts CTA analytics — **hit 2026-10-30 seed hunt #76:** catch analytics provider failures so CTA analytics becomes best-effort; regression `does not let a failing Clarity implementation interrupt the CTA` in `marketing-clarity-custom-event.test.ts`.
 - [x] (proven) `recordMarketingHeroCtaClarityEvent` — denied browser storage throws during consent lookup — **hit 2026-10-30 thorough hunt #75:** catch storage access failures and no-op analytics; regression `is a no-op when browser storage access is unavailable` in `marketing-clarity-custom-event.test.ts`.
 - [x] (proven) `MarketingResourcesMenu` — Escape closes the menu without restoring focus to the trigger — **hit 2026-10-30 thorough hunt #73:** focus the trigger after Escape closes the menu; regression `returns focus to the Resources trigger when Escape closes the menu` in `MarketingResourcesMenu.test.tsx`.
+- [x] (proven) `useMarketingEarlyAccessSubmit.handleSubmit` — client validation trims but POST sent padded `email` — **hit 2026-11-25 seed hunt (seed→hit):** POST `email.trim()` after `canSubmit`; regression `posts trimmed work email after validation` in `use-marketing-early-access-submit.test.ts`.
+
 - [x] (proven) `useMarketingEarlyAccessSubmit.handleSubmit` — non-2xx early-access responses expose upstream response bodies in the customer-facing error — **hit 2026-10-30 seed hunt #69:** discard upstream error bodies and use generic retry copy; regression `does not expose upstream failure details in the early-access error` in `use-marketing-early-access-submit.test.ts`.
 - [x] (proven) `MarketingFaqPageToc` category links — smooth-scroll interception drops the destination hash — **hit 2026-10-30 seed hunt #68:** write the category fragment with `history.pushState` before scrolling; regression `updates the URL hash when a category link is selected` in `MarketingFaqPageToc.test.tsx`.
 - [x] (proven) `MarketingPricingQuotePanel.onSubmit` — non-2xx quote responses expose upstream response bodies in the customer-facing error — **hit 2026-10-30 seed hunt #67:** discard upstream error bodies and use generic retry copy; regression `does not expose upstream failure details in the customer-facing error` in `MarketingPricingQuotePanel.test.tsx`.
