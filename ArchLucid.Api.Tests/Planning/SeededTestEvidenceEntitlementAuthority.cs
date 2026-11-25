@@ -18,6 +18,8 @@ internal sealed class SeededTestEvidenceEntitlementAuthority : IEvidenceEntitlem
     // Test-only counters; no caller identity, evidence content or tokens are recorded.
     public string DiagnosticCounts => $"ACL checks={Volatile.Read(ref _checkedRequests)}; seeded grants={Volatile.Read(ref _grantedRequests)}";
 
+    public int GrantedRequestCount => Volatile.Read(ref _grantedRequests);
+
     public void Allow(Guid runId)
     {
         if (runId == Guid.Empty)

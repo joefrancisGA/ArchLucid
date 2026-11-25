@@ -46,12 +46,17 @@ jobs:
       - name: Ensure SQL persistence test catalog
         run: bash scripts/ci/ensure-ci-sql-catalog.sh ArchLucidPersistenceTests
       - name: Compile API and test host
+        id: compile
         run: dotnet build ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release
       - name: Run FND-011 controller and projection tests
         run: dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release --no-build --filter "FullyQualifiedName~SecureNowSnapshotProjectionTests|FullyQualifiedName~SecureNowSnapshotHttpBoundaryTests|FullyQualifiedName~SecureNowSnapshotExchangeContractTests|FullyQualifiedName~SecureNowSnapshotSeededTenantIsolationTests"
+      - name: Require unknown graph run isolation for two SQL tenants
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
+        run: dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release --no-build --filter "FullyQualifiedName~SecureNowSnapshotTwoTenantHttpTests" --logger "console;verbosity=normal"
       - name: Run persisted tenant HTTP test
         run: dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release --no-build --filter "FullyQualifiedName~SecureNowPersistedTenantHttpTests"
       - name: Require owner 200 and foreign tenant 404 with exchange enabled
-        run: dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release --no-build --filter "FullyQualifiedName~SecureNowEnabledPersistedHttpTests"
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
+        run: dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release --no-build --filter "FullyQualifiedName~SecureNowEnabledPersistedHttpTests" --logger "console;verbosity=normal"
       - name: Verify official OpenAPI v1 snapshot
         run: bash scripts/ci/check_openapi_contract_snapshot.sh
