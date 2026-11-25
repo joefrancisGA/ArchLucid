@@ -1065,6 +1065,12 @@ describe("remediation-factory-metric-presentation", () => {
     expect(table.find((row) => row.key === "net-burn")?.hint).toBeUndefined();
   });
 
+  it("automation tile never carries a valueFootnote when percent is measuredZero", () => {
+    const tiles = buildRemediationFactoryExecutiveMetricTiles({ automationPercent: 0 } as RemediationFactoryMetrics, true);
+
+    expect(tiles.find((tile) => tile.id === "automation")?.valueFootnote).toBeUndefined();
+  });
+
   it("includes comparison population in outcome scope notes", () => {
     expect(
       architectOutcomeMetricPresentation({

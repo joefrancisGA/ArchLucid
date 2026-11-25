@@ -265,7 +265,36 @@ describe("remediation-factory-url-state", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\u24F6`).metricsSummaryOpen,
     ).toBe(false);
-  });  it("canonicalizes comma-decimal open token to 1 when writing open state", () => {
+  });
+  it("treats tortoise-shell bracket one metrics disclosure token as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\u30141\u3015`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats NFKC fullwidth YES metrics disclosure token as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\uFF59\uFF45\uFF53`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("drops enclosed-digit one metrics token from base search when writing closed state", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: false,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\u24F5&foreign=keep`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBeNull();
+    expect(params.get("foreign")).toBe("keep");
+  });
+
+  it("canonicalizes comma-decimal open token to 1 when writing open state", () => {
     const params = remediationFactoryUrlStateToSearchParams(
       {
         selectedFindingId: null,

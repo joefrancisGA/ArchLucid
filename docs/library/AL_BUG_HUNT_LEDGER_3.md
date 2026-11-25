@@ -380,6 +380,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 seed hunt (seed→hit): picker `seedHunt`; continued `ui-lib-remediation-factory` (`shouldRotate: false`; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — tortoise-shell bracket one token `〔1〕` stayed closed while ASCII and fullwidth bracket forms open; accept `〔1〕` after NFKC. **valid-no-repro** fullwidth YES open (regression), **valid-no-repro** enclosed-digit one drop on close (regression), **valid-no-repro** roman numeral two rejection (existing), **valid-no-repro** attack-path interior whitespace (regression), **invalid** automation tile valueFootnote at measuredZero (field absent by design; regression). Pass-55 reseed below. Scoped vitest **279/279**. Private beta: Invited operators who deep-link with `remediationFactoryMetricsOpen=〔1〕` open the executive metrics summary instead of landing with the panel closed.
+
 2026-11-25 seed hunt (seed→hit): picker `seedHunt`; continued `ui-lib-remediation-factory` (`shouldRotate: false`; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — roman numeral one tokens `Ⅰ` and `ⅰ` stayed closed because NFKC maps to letter `I`/`i` rather than digit one; recognize roman-one code points on the trimmed token before matching. **valid-no-repro** fullwidth TRUE open (regression), **valid-no-repro** scientific-one writer canonical `1` (regression), **valid-no-repro** enclosed-digit two rejection (regression), **valid-no-repro** architect string denominator `1.0` (regression), **invalid** net-burn table hint at measuredZero (no hint field; regression). Pass-54 reseed below. Scoped vitest **274/274**. Private beta: Invited operators who deep-link with roman-numeral `remediationFactoryMetricsOpen=Ⅰ` open the executive metrics summary instead of landing with the panel closed.
 
 2026-11-25 seed hunt (dry): picker `seedHunt`; continued `ui-lib-remediation-factory` (`shouldRotate: false`; hint override). Attempted failing repro on five pass-51 `(candidate)` monitors — **valid-no-repro** fullwidth TRUE open, **valid-no-repro** recurrence and open-findings-queue valueFootnote absence at zero, **valid-no-repro** net-burn table hint at measuredZero (no hint field), **valid-no-repro** scientific-one writer canonicalization, **valid-no-repro** exceptions footnote with only expiring zero (needs measured active). Regressions only; pass-52 reseed consumed pass-50 queue. Scoped vitest **266/266**. Private beta: n/a.
@@ -495,11 +497,20 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (superseded) pass-53 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-54 reseed.
 - [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — roman numeral one token — **proven 2026-11-25 seed hunt (seed→hit):** regressions in url-state tests.
 
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — treats fullwidth YES metrics disclosure token as open — locus: disclosure parse; input: `ＹＥＳ`; monitor; pass-54 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops enclosed-digit one from base — locus: writer; input: `⓵` base; monitor; pass-54 reseed.
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects roman numeral two token — locus: disclosure parse; input: `Ⅱ`; monitor; pass-54 reseed.
-- [ ] (candidate) `formatAttackPathReportPathChipLabel` — preserves interior whitespace in short ids — locus: chip label; input: `a b`; monitor; pass-54 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps automation valueFootnote when percent is measuredZero — locus: tile chrome; input: automationPercent 0; monitor; pass-54 reseed.
+
+- [x] (superseded) pass-54 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-55 reseed.
+- [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — tortoise-shell bracket one token — **proven 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
+
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — treats fullwidth OFF metrics disclosure token as closed — locus: disclosure parse; input: `ＯＦＦ`; monitor; pass-55 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open over roman-one base replaces with canonical 1 — locus: writer; input: `Ⅰ` base; monitor; pass-55 reseed.
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects curly-brace one token — locus: disclosure parse; input: `{1}`; monitor; pass-55 reseed.
+- [ ] (candidate) `attackPathReportPathChipOverflowLine` — ignores interior-newline-only ids — locus: overflow; input: `"\n"`; monitor; pass-55 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps pattern-exact valueFootnote when percent is measuredZero — locus: tile chrome; input: patternCoverageExactMatchPercent 0; monitor; pass-55 reseed.
+- [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — treats fullwidth YES metrics disclosure token as open — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics close drops enclosed-digit one from base — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
+- [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects roman numeral two token — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** existing regression.
+- [x] (valid-no-repro) `formatAttackPathReportPathChipLabel` — preserves interior whitespace in short ids — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in attack-path-report-path-chip-label tests.
+- [x] (invalid) `buildRemediationFactoryExecutiveMetricTiles` — keeps automation valueFootnote when percent is measuredZero — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** no valueFootnote field on automation tile.
 - [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — treats fullwidth TRUE metrics disclosure token as open — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open over scientific-one base replaces with canonical 1 — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
 - [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects enclosed-digit two token — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression in url-state tests.
@@ -944,8 +955,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 74
-- **bugs-found:** 64
+- **hunts:** 75
+- **bugs-found:** 65
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25

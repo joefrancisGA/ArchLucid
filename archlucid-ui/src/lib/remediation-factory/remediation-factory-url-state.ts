@@ -45,7 +45,7 @@ function normalizeRemediationFactoryDisclosureOpenToken(raw: string | null | und
 
   const nfkc = trimmed.normalize("NFKC");
 
-  if (nfkc === "(1)" || nfkc === "[1]") {
+  if (nfkc === "(1)" || nfkc === "[1]" || nfkc === "〔1〕") {
     return "1";
   }
 
