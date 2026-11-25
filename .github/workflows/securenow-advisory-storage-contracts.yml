@@ -1,0 +1,89 @@
+name: SecureNow advisory storage contracts
+
+on:
+  pull_request:
+    branches:
+      - master
+      - main
+      - codex/securenow-finding-observation-order
+      - codex/securenow-advisory-remediation-evidence
+    paths:
+      - '.github/workflows/securenow-advisory-storage-contracts.yml'
+      - 'ArchLucid.Application/InfraEvidence/OperationalSecurityFindings/**'
+      - 'ArchLucid.Application/InfraEvidence/RemediationInstances/**'
+      - 'ArchLucid.Core/InfraEvidence/AdvisoryRemediationEvidence.cs'
+      - 'ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/IOperationalSecurityFindingRepository.cs'
+      - 'ArchLucid.Persistence/InfraEvidence/SqlOperationalSecurityFindingRepository*.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/OperationalSecurityFindingIngestServiceTests.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/RemediationInstanceVerificationEvaluatorPropertyTests.cs'
+      - 'ArchLucid.Persistence.Tests/InfraEvidence/SqlOperationalSecurityFindingRepositorySqlIntegrationTests.cs'
+      - 'ArchLucid.Persistence.Tests/InfraEvidence/SqlRemediationInstanceApprovalProvenanceTests.cs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  advisory-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: 'Y'
+          MSSQL_SA_PASSWORD: 'LocalTesting123!'
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 30
+          --health-start-period 60s
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - uses: ./.github/actions/wait-for-sqlserver
+      - name: Advisory application regressions (Release)
+        run: >-
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~OperationalSecurityFindingIngestServiceTests|FullyQualifiedName~RemediationInstanceVerificationEvaluatorPropertyTests'
+          --logger 'trx;LogFileName=securenow-advisory-application.trx'
+      - name: Advisory SQL contracts (Release)
+        if: ${{ !cancelled() }}
+        env:
+          ARCHLUCID_SQL_TEST: 'Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests'
+        run: >-
+          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~Scoped_update_rejects_older_observation_without_writing_history|FullyQualifiedName~Advisory_close_requires_revision_bound_verified_proof_and_current_project|FullyQualifiedName~Advisory_source_append_is_idempotent_scoped_and_does_not_touch_observation'
+          --logger 'trx;LogFileName=securenow-advisory-sql.trx'
+      - name: Require all three SQL cases to execute
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import xml.etree.ElementTree as ET
+
+          path = "ArchLucid.Persistence.Tests/TestResults/securenow-advisory-sql.trx"
+          expected = {
+              "Scoped_update_rejects_older_observation_without_writing_history",
+              "Advisory_close_requires_revision_bound_verified_proof_and_current_project",
+              "Advisory_source_append_is_idempotent_scoped_and_does_not_touch_observation",
+          }
+          results = {
+              row.attrib["testName"].split(".")[-1]: row.attrib.get("outcome")
+              for row in ET.parse(path).findall(".//{*}UnitTestResult")
+          }
+          failures = {name: results.get(name, "Missing") for name in sorted(expected) if results.get(name) != "Passed"}
+          if failures:
+              raise SystemExit(f"Advisory SQL case(s) did not pass: {failures}")
+          print("All three advisory SQL cases executed and passed.")
+          PY
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: securenow-advisory-test-results
+          path: '**/TestResults/securenow-advisory-*.trx'

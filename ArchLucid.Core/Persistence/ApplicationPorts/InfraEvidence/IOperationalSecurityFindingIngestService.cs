@@ -18,7 +18,7 @@ public interface IOperationalSecurityFindingIngestService
         CancellationToken cancellationToken = default);
 }
 
-public sealed class OperationalSecurityFindingIngestItem
+public sealed record OperationalSecurityFindingIngestItem
 {
     public CloudProvider Provider
     {

@@ -165,6 +165,36 @@ public sealed class SqlOperationalSecurityFindingRepositorySqlIntegrationTests(S
         (await repository.ListObservationsByFindingAsync(TenantA, findingId)).Should().ContainSingle();
     }
 
+    [SkippableFact]
+    public async Task Advisory_source_append_is_idempotent_scoped_and_does_not_touch_observation()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlOperationalSecurityFindingRepository repository = new(new SqlConnectionFactory(fixture.ConnectionString));
+        ProjectScopeKey scope = ProjectScopeKey.Create(TenantA, WorkspaceId, ProjectId);
+        ProjectScopeKey foreign = ProjectScopeKey.Create(TenantA, WorkspaceId, Guid.NewGuid());
+        Guid findingId = Guid.NewGuid();
+        DateTime observedUtc = new(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc);
+        byte[] hash = [1, 2, 3, 4];
+        await repository.InsertAsync(
+            CreateFinding(findingId, TenantA, CloudProvider.Azure, "canonical", "source-append", observedUtc, hash),
+            [],
+            CreateObservation(findingId, TenantA, observedUtc, hash),
+            CancellationToken.None);
+
+        const string key = "securenow.advisory.source.fixture";
+        await repository.AppendAdvisorySourceInScopeAsync(foreign, findingId, key, "foreign");
+        (await repository.ListMetadataByFindingInScopeAsync(scope, findingId)).Should().BeEmpty();
+        await repository.AppendAdvisorySourceInScopeAsync(scope, findingId, key, "original");
+        await repository.AppendAdvisorySourceInScopeAsync(scope, findingId, key, "cannot replace");
+
+        (await repository.ListMetadataByFindingInScopeAsync(scope, findingId)).Should().ContainSingle()
+            .Which.MetadataValue.Should().Be("original");
+        OperationalSecurityFindingRecord stored = (await repository.TryGetByIdInScopeAsync(scope, findingId))!;
+        stored.LastObservedUtc.Should().Be(observedUtc);
+        stored.UpdatedUtc.Should().Be(observedUtc);
+        (await repository.ListObservationsByFindingInScopeAsync(scope, findingId)).Should().ContainSingle();
+    }
+
     private static OperationalSecurityFindingRecord CreateFinding(
         Guid findingId,
         Guid tenantId,

@@ -329,6 +329,222 @@ public sealed class OperationalSecurityFindingIngestServiceTests
             Metadata = new Dictionary<string, string?> { ["proof"] = evidence },
         };
 
+    [Fact]
+    public async Task Publisher_and_mirror_coalesce_without_overwriting_obligations()
+    {
+        InMemoryOperationalSecurityFindingRepository repository = new();
+        OperationalSecurityFindingIngestService sut = new(
+            repository, Mock.Of<IAuditService>(), NullLogger<OperationalSecurityFindingIngestService>.Instance);
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        DateTime first = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        OperationalSecurityFindingIngestItem publisher = CreateAliasedAdvisory("msrc", "MSRC-111", first);
+        OperationalSecurityFindingIngestItem mirror = CreateAliasedAdvisory(
+            "mirror", "MIR-111", first.AddDays(1), referenceOnly: true, providerFixed: true);
+        (await sut.IngestBatchAsync(scope, [mirror], "service@test")).FailedCount.Should().Be(1);
+        OperationalSecurityFindingBatchIngestResult initial = await sut.IngestBatchAsync(scope, [publisher], "service@test");
+        OperationalSecurityFindingBatchIngestResult replay = await sut.IngestBatchAsync(scope, [mirror, mirror], "feed@test");
+
+        replay.DeduplicatedCount.Should().Be(2);
+        replay.Items.Should().OnlyContain(result => result.FindingId == initial.Items[0].FindingId);
+        OperationalSecurityFindingRecord row = repository.StoredFindings.Should().ContainSingle().Which;
+        row.Status.Should().Be(OperationalSecurityFindingStatus.Open);
+        row.SourceFindingId.Should().StartWith("CVE-2026-12345:");
+        row.LastObservedUtc.Should().Be(first);
+        repository.StoredObservations.Should().ContainSingle();
+        repository.StoredMetadata.Count(value => value.MetadataKey.StartsWith("securenow.advisory.source.", StringComparison.Ordinal))
+            .Should().Be(2);
+    }
+
+    [Fact]
+    public async Task Revision_changes_only_target_deployment_and_cannot_come_from_a_different_publisher()
+    {
+        InMemoryOperationalSecurityFindingRepository repository = new();
+        OperationalSecurityFindingIngestService sut = new(
+            repository, Mock.Of<IAuditService>(), NullLogger<OperationalSecurityFindingIngestService>.Instance);
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        DateTime first = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        Guid other = Guid.NewGuid();
+        await sut.IngestBatchAsync(scope,
+            [CreateAliasedAdvisory("msrc", "MSRC-111", first), CreateAliasedAdvisory("msrc", "MSRC-111", first) with
+                { CloudResourceId = other }], "service@test");
+        OperationalSecurityFindingBatchIngestResult ignore = await sut.IngestBatchAsync(scope,
+            [CreateAliasedAdvisory("new-feed", "MSRC-111", first.AddDays(1), providerFixed: true)], "service@test");
+        ignore.FailedCount.Should().Be(1);
+
+        OperationalSecurityFindingBatchIngestResult cosmetic = await sut.IngestBatchAsync(scope,
+            [CreateAliasedAdvisory("msrc", "another-format", first.AddDays(2)) with { Title = "Retitled" }], "service@test");
+        cosmetic.DeduplicatedCount.Should().Be(1);
+        (await sut.IngestBatchAsync(scope,
+            [CreateAliasedAdvisory("msrc", "MSRC-111", first.AddDays(1), providerFixed: true)], "service@test"))
+            .FailedCount.Should().Be(1, "the authoritative replay advances its chronology without creating a new alert");
+
+        OperationalSecurityFindingBatchIngestResult revision = await sut.IngestBatchAsync(scope,
+            [CreateAliasedAdvisory("msrc", "MSRC-111", first.AddDays(3), providerFixed: true)], "service@test");
+        revision.IngestedCount.Should().Be(1);
+        repository.StoredFindings.Should().HaveCount(2);
+        repository.StoredFindings.Single(row => row.CloudResourceId == ProjectId).Status
+            .Should().Be(OperationalSecurityFindingStatus.Informational);
+        repository.StoredFindings.Single(row => row.CloudResourceId == other).Status
+            .Should().Be(OperationalSecurityFindingStatus.Open);
+        repository.StoredObservations.Should().HaveCount(3);
+    }
+
+    [Theory]
+    [InlineData(false, false, null)]
+    [InlineData(true, false, "existing-runtime-control")]
+    [InlineData(true, true, null)]
+    public async Task Advisory_uses_only_one_human_reviewed_crosswalk_control(
+        bool reviewed, bool ambiguous, string? expected)
+    {
+        InMemoryOperationalSecurityFindingRepository repository = new();
+        Mock<ISecurityCrosswalkService> crosswalk = new();
+        SecurityCrosswalkMappingRecord[] mappings = ambiguous
+            ? [MakeMapping("existing-runtime-control"), MakeMapping("another-control")]
+            : [MakeMapping("existing-runtime-control")];
+        crosswalk.Setup(service => service.ResolveEvaluationMappingsAsync(TenantId,
+                SecurityCrosswalkEndpointKind.DefenderRecommendation, "defender-recommendation", "2026.1",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SecurityCrosswalkResolveResult { EvaluationEligibleMappings = mappings });
+        OperationalSecurityFindingIngestService sut = new(repository, Mock.Of<IAuditService>(),
+            NullLogger<OperationalSecurityFindingIngestService>.Instance, crosswalk.Object);
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        DateTime first = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        (await sut.IngestBatchAsync(scope, [CreateAliasedAdvisory("msrc", "MSRC-111", first)], "service@test"))
+            .IngestedCount.Should().Be(1);
+        repository.StoredFindings.Should().ContainSingle().Which.ControlId.Should().Be(expected);
+
+        SecurityCrosswalkMappingRecord MakeMapping(string id) => new()
+        {
+            TargetEndpointId = id,
+            TargetEndpointKind = SecurityCrosswalkEndpointKind.ArchitecturePolicyRule,
+            MappingType = SecurityCrosswalkMappingType.Mitigates,
+            HumanVerified = reviewed,
+        };
+    }
+
+    [Fact]
+    public async Task Same_cve_on_one_resource_keeps_distinct_target_components()
+    {
+        InMemoryOperationalSecurityFindingRepository repository = new();
+        OperationalSecurityFindingIngestService sut = new(
+            repository, Mock.Of<IAuditService>(), NullLogger<OperationalSecurityFindingIngestService>.Instance);
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        OperationalSecurityFindingIngestItem first = CreateAliasedAdvisory(
+            "msrc", "MSRC-111", new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        const string aliasKey = "securenow.advisory-alias.v1";
+        Dictionary<string, string?> metadata = first.Metadata.ToDictionary(pair => pair.Key, pair => pair.Value);
+        metadata[aliasKey] = metadata[aliasKey]!.Replace("runtime/app", "runtime/admin", StringComparison.Ordinal);
+
+        OperationalSecurityFindingBatchIngestResult result =
+            await sut.IngestBatchAsync(scope, [first, first with { Metadata = metadata }], "service@test");
+
+        result.IngestedCount.Should().Be(2);
+        repository.StoredFindings.Select(row => row.SourceFindingId).Should().OnlyHaveUniqueItems();
+    }
+
+    [Fact]
+    public async Task Caller_cannot_write_reserved_canonical_source_or_provenance()
+    {
+        InMemoryOperationalSecurityFindingRepository repository = new();
+        OperationalSecurityFindingIngestService sut = new(
+            repository, Mock.Of<IAuditService>(), NullLogger<OperationalSecurityFindingIngestService>.Instance);
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+
+        OperationalSecurityFindingBatchIngestResult result = await sut.IngestBatchAsync(scope,
+            [CreateItem("ArchLucid.SecureNow.Advisory", "forged"), CreateItem("feed", "forged") with
+            {
+                Metadata = new Dictionary<string, string?> { ["securenow.advisory.source.fake"] = "forged" },
+            }], "service@test");
+
+        result.FailedCount.Should().Be(2);
+        repository.StoredFindings.Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData("high", false)]
+    public async Task Canonical_revision_reopens_a_closed_finding_only_when_effective_facts_change(
+        string? severity, bool deduplicated)
+    {
+        InMemoryOperationalSecurityFindingRepository repository = new();
+        OperationalSecurityFindingIngestService sut = new(
+            repository, Mock.Of<IAuditService>(), NullLogger<OperationalSecurityFindingIngestService>.Instance);
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        DateTime first = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        Guid pathId = Guid.NewGuid();
+        var initial = CreateAliasedAdvisory("msrc", "MSRC-111", first) with
+        {
+            RiskScore = 9.5m, Exploitability = "Known", Exposure = "Public",
+            BusinessCriticality = "High", BlastRadius = "Large", PathId = pathId,
+        };
+        (await sut.IngestBatchAsync(scope, [initial], "service@test")).IngestedCount.Should().Be(1);
+
+        OperationalSecurityFindingRecord prior = repository.StoredFindings.Should().ContainSingle().Which;
+        repository.StoredFindings[0] = new OperationalSecurityFindingMutation
+        {
+            FindingId = prior.FindingId,
+            CloudResourceId = prior.CloudResourceId,
+            Title = prior.Title,
+            Severity = prior.Severity,
+            RiskScore = prior.RiskScore,
+            Exploitability = prior.Exploitability,
+            Exposure = prior.Exposure,
+            BusinessCriticality = prior.BusinessCriticality,
+            BlastRadius = prior.BlastRadius,
+            PathId = prior.PathId,
+            LastObservedUtc = prior.LastObservedUtc,
+            UpdatedUtc = prior.UpdatedUtc,
+            PayloadHashSha256 = prior.PayloadHashSha256,
+            Status = OperationalSecurityFindingStatus.Closed,
+        }.ApplyTo(prior);
+
+        var result = await sut.IngestBatchAsync(scope,
+            [CreateAliasedAdvisory("msrc", "MSRC-111", first.AddDays(1)) with { Severity = severity }], "service@test");
+
+        result.DeduplicatedCount.Should().Be(deduplicated ? 1 : 0);
+        result.IngestedCount.Should().Be(deduplicated ? 0 : 1);
+        repository.StoredObservations.Should().HaveCount(deduplicated ? 1 : 2);
+        OperationalSecurityFindingRecord current = repository.StoredFindings.Should().ContainSingle().Which;
+        current.Status.Should().Be(deduplicated ? OperationalSecurityFindingStatus.Closed : OperationalSecurityFindingStatus.Recurred);
+        current.Severity.Should().Be(severity ?? prior.Severity);
+        current.RiskScore.Should().Be(prior.RiskScore);
+        current.PathId.Should().Be(pathId);
+    }
+
+    private static OperationalSecurityFindingIngestItem CreateAliasedAdvisory(
+        string source, string id, DateTime observedUtc, bool referenceOnly = false, bool providerFixed = false) =>
+        new()
+        {
+            Provider = CloudProvider.Azure,
+            SourceSystem = source,
+            SourceFindingId = id,
+            CloudResourceId = ProjectId,
+            ObservedUtc = observedUtc,
+            Title = "Runtime advisory",
+            Severity = "critical",
+            Metadata = new Dictionary<string, string?>
+            {
+                [AdvisoryRemediationEvidence.MetadataKey] = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    advisoryId = id,
+                    sourceUrl = "https://example.com/" + id,
+                    owner = providerFixed ? "Provider" : "Customer",
+                    providerFix = providerFixed ? "Fixed" : "NotApplicable",
+                    customerAction = providerFixed ? "NotRequired" : "Required",
+                }),
+                ["securenow.advisory-alias.v1"] = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    cveId = " cVe-2026-12345 ",
+                    targetKey = "runtime/app",
+                    revision = observedUtc.ToString("O"),
+                    referenceOnly,
+                    defenderRecommendationId = "defender-recommendation",
+                    crosswalkVersion = "2026.1",
+                }),
+            },
+        };
+
     private static OperationalSecurityFindingIngestItem CreateItem(string sourceSystem, string sourceFindingId) =>
         new()
         {
@@ -429,6 +645,22 @@ public sealed class OperationalSecurityFindingIngestServiceTests
             StoredFindings.Add(finding);
             StoredMetadata.AddRange(metadata);
             StoredObservations.Add(observation);
+            return Task.CompletedTask;
+        }
+
+        public Task AppendAdvisorySourceInScopeAsync(
+            ProjectScopeKey scope, Guid findingId, string key, string value,
+            CancellationToken cancellationToken = default)
+        {
+            if (StoredFindings.Any(row => row.FindingId == findingId && scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId))
+                && !StoredMetadata.Any(row => row.FindingId == findingId && row.MetadataKey == key))
+            {
+                StoredMetadata.Add(new OperationalSecurityFindingMetadataRecord
+                {
+                    MetadataRowId = Guid.NewGuid(), FindingId = findingId, TenantId = scope.TenantId,
+                    MetadataKey = key, MetadataValue = value,
+                });
+            }
             return Task.CompletedTask;
         }
 

@@ -14,7 +14,8 @@ namespace ArchLucid.Application.InfraEvidence.OperationalSecurityFindings;
 public sealed class OperationalSecurityFindingIngestService(
     IOperationalSecurityFindingRepository repository,
     IAuditService auditService,
-    ILogger<OperationalSecurityFindingIngestService> logger) : IOperationalSecurityFindingIngestService
+    ILogger<OperationalSecurityFindingIngestService> logger,
+    ISecurityCrosswalkService? crosswalk = null) : IOperationalSecurityFindingIngestService
 {
     public async Task<OperationalSecurityFindingBatchIngestResult> IngestBatchAsync(
         ScopeContext scope,
@@ -155,6 +156,20 @@ public sealed class OperationalSecurityFindingIngestService(
             return Rejected(index, "Invalid advisory evidence, deployment scope, or requested status.");
         }
 
+        if (AdvisoryAliasInput.UsesReservedIdentity(item))
+            return Rejected(index, "Canonical advisory identity and provenance fields are system-managed.");
+
+        KeyValuePair<string, string?>[] aliasEntries = item.Metadata
+            .Where(entry => string.Equals(entry.Key.Trim(), AdvisoryAliasInput.MetadataKey, StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        AdvisoryAliasInput? alias = aliasEntries.Length == 1 ? AdvisoryAliasInput.Parse(aliasEntries[0].Value) : null;
+        if (aliasEntries.Length != 0
+            && (alias is null || advisory is null || item.ObservedUtc is not { Kind: DateTimeKind.Utc }
+                || item.CloudResourceId == Guid.Empty
+                || !string.Equals(aliasEntries[0].Key, AdvisoryAliasInput.MetadataKey, StringComparison.Ordinal)
+                || !string.IsNullOrWhiteSpace(item.ControlId) || !string.IsNullOrWhiteSpace(item.ControlFramework)))
+            return Rejected(index, "Canonical advisories need scoped evidence, an explicit UTC revision time, and no submitted control identifier.");
+
         OperationalSecurityFindingStatus incomingStatus = advisory?.IsInformational == true
             ? OperationalSecurityFindingStatus.Informational
             : item.Status;
@@ -162,7 +177,33 @@ public sealed class OperationalSecurityFindingIngestService(
         try
         {
             DateTime observedUtc = item.ObservedUtc ?? TimeProvider.System.UtcNowDateTime();
-            byte[] payloadHash = OperationalSecurityFindingGuard.ComputePayloadHash(item);
+            KeyValuePair<string, string?> provenance = default;
+            string authority = item.SourceSystem.Trim().ToUpperInvariant();
+            if (alias is not null && advisory is not null)
+            {
+                provenance = alias.CreateProvenance(item, advisory, actorId);
+                string canonicalEvidence = alias.CanonicalEvidence(advisory);
+                if (provenance.Value is not { Length: <= 1024 } || canonicalEvidence.Length > 1024)
+                    return Rejected(index, "Canonical advisory evidence or provenance exceeds the metadata size limit.");
+
+                // Do not mint a control from a CVE, a URL or a scanner's suggested ID.
+                string? mappedControl = alias.ReferenceOnly
+                    ? null
+                    : await ResolveAdvisoryControlAsync(scope.TenantId, alias, cancellationToken);
+                item = item with
+                {
+                    SourceSystem = AdvisoryAliasInput.CanonicalSource,
+                    SourceFindingId = alias.FindingKey(item.CloudResourceId),
+                    ControlId = mappedControl,
+                    Metadata = new Dictionary<string, string?>
+                    {
+                        [AdvisoryRemediationEvidence.MetadataKey] = canonicalEvidence,
+                        [AdvisoryAliasInput.AuthorityKey] = authority,
+                        [provenance.Key] = provenance.Value,
+                    },
+                };
+                advisory = advisory with { AdvisoryId = alias.CveId };
+            }
 
             OperationalSecurityFindingRecord? existing = await repository.TryGetByNaturalKeyInScopeAsync(
                 scope.ToProjectScopeKey(),
@@ -171,8 +212,30 @@ public sealed class OperationalSecurityFindingIngestService(
                 item.SourceFindingId.Trim(),
                 cancellationToken);
 
+            // Hash the effective revision. Omitted fields retain their stored values;
+            // a canonical control mapping, by contrast, is replaced even when it resolves to null.
+            if (alias is not null && existing is not null)
+            {
+                item = item with
+                {
+                    Severity = item.Severity ?? existing.Severity,
+                    RiskScore = item.RiskScore ?? existing.RiskScore,
+                    Exploitability = item.Exploitability ?? existing.Exploitability,
+                    Exposure = item.Exposure ?? existing.Exposure,
+                    BusinessCriticality = item.BusinessCriticality ?? existing.BusinessCriticality,
+                    BlastRadius = item.BlastRadius ?? existing.BlastRadius,
+                    PathId = item.PathId ?? existing.PathId,
+                };
+            }
+
+            byte[] payloadHash = alias is not null && advisory is not null
+                ? alias.MaterialHash(item, advisory)
+                : OperationalSecurityFindingGuard.ComputePayloadHash(item);
+
             if (existing is null)
             {
+                if (alias?.ReferenceOnly == true)
+                    return Rejected(index, "A reference cannot create the canonical advisory. Submit publisher guidance first.");
                 Guid findingId = Guid.NewGuid();
                 OperationalSecurityFindingRecord finding = BuildFindingRecord(
                     findingId,
@@ -232,6 +295,31 @@ public sealed class OperationalSecurityFindingIngestService(
                 existing.PayloadHashSha256,
                 payloadHash);
 
+            bool mayRevise = alias is null || currentMetadata.Any(row =>
+                string.Equals(row.MetadataKey, AdvisoryAliasInput.AuthorityKey, StringComparison.Ordinal)
+                && string.Equals(row.MetadataValue, authority, StringComparison.Ordinal));
+            bool newSource = alias is not null && !currentMetadata.Any(row =>
+                string.Equals(row.MetadataKey, provenance.Key, StringComparison.Ordinal));
+
+            if (alias is not null && (alias.ReferenceOnly
+                    || (samePayload && (!mayRevise || observedUtc <= existing.LastObservedUtc))))
+            {
+                // Provenance-only reports do not touch observation time, lifecycle status, or verification proof.
+                if (newSource)
+                {
+                    await repository.AppendAdvisorySourceInScopeAsync(
+                        scope.ToProjectScopeKey(), existing.FindingId, provenance.Key, provenance.Value!, cancellationToken);
+                }
+
+                return new OperationalSecurityFindingIngestItemResult
+                {
+                    Index = index, Succeeded = true, WasDeduplicated = true, FindingId = existing.FindingId,
+                };
+            }
+
+            if (!mayRevise)
+                return Rejected(index, "Only the original publisher source may revise canonical advisory facts.");
+
             if (observedUtc < existing.LastObservedUtc || (advisory is not null && observedUtc == existing.LastObservedUtc))
             {
                 return new OperationalSecurityFindingIngestItemResult
@@ -251,7 +339,7 @@ public sealed class OperationalSecurityFindingIngestService(
                 OperationalSecurityFindingRecord touchRecord = CloneFinding(
                     existing,
                     lastObservedUtc: observedUtc,
-                    updatedUtc: observedUtc);
+                    updatedUtc: alias is null ? observedUtc : existing.UpdatedUtc);
 
                 await repository.UpdateInScopeAsync(
                     scope.ToProjectScopeKey(),
@@ -260,7 +348,8 @@ public sealed class OperationalSecurityFindingIngestService(
                         ExpectedPayloadHashSha256 = advisory is null ? null : existing.PayloadHashSha256,
                         ExpectedStatus = advisory is null ? null : existing.Status,
                     },
-                    [],
+                    newSource ? BuildMetadata(existing.FindingId, scope.TenantId,
+                        new Dictionary<string, string?> { [provenance.Key] = provenance.Value }).Select(ToMutation).ToList() : [],
                     observation: null,
                     cancellationToken);
 
@@ -289,8 +378,9 @@ public sealed class OperationalSecurityFindingIngestService(
                 externalResourceId: item.ExternalResourceId?.Trim() ?? existing.ExternalResourceId,
                 resourceType: item.ResourceType?.Trim() ?? existing.ResourceType,
                 subscriptionOrAccountId: item.SubscriptionOrAccountId?.Trim() ?? existing.SubscriptionOrAccountId,
-                controlId: item.ControlId?.Trim() ?? existing.ControlId,
-                controlFramework: item.ControlFramework?.Trim() ?? existing.ControlFramework,
+                controlId: alias is null ? item.ControlId?.Trim() ?? existing.ControlId : item.ControlId,
+                controlFramework: alias is null ? item.ControlFramework?.Trim() ?? existing.ControlFramework : null,
+                replaceControl: alias is not null,
                 title: item.Title.Trim(),
                 description: item.Description?.Trim() ?? existing.Description,
                 severity: item.Severity?.Trim() ?? existing.Severity,
@@ -363,6 +453,31 @@ public sealed class OperationalSecurityFindingIngestService(
         }
     }
 
+    private async Task<string?> ResolveAdvisoryControlAsync(
+        Guid tenantId, AdvisoryAliasInput alias, CancellationToken cancellationToken)
+    {
+        if (crosswalk is null || string.IsNullOrWhiteSpace(alias.DefenderRecommendationId)
+            || string.IsNullOrWhiteSpace(alias.CrosswalkVersion))
+            return null;
+
+        SecurityCrosswalkResolveResult result = await crosswalk.ResolveEvaluationMappingsAsync(
+            tenantId, SecurityCrosswalkEndpointKind.DefenderRecommendation,
+            alias.DefenderRecommendationId.Trim(), alias.CrosswalkVersion.Trim(), cancellationToken);
+        string[] controls = result.EvaluationEligibleMappings
+            .Where(mapping => mapping.HumanVerified
+                && mapping.TargetEndpointKind is SecurityCrosswalkEndpointKind.ArchitecturePolicyRule
+                    or SecurityCrosswalkEndpointKind.AuditControl
+                && mapping.MappingType is SecurityCrosswalkMappingType.Equivalent
+                    or SecurityCrosswalkMappingType.Mitigates
+                    or SecurityCrosswalkMappingType.Implements
+                && mapping.TargetEndpointId.Trim().Length is > 0 and <= 256)
+            .Select(mapping => mapping.TargetEndpointId.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Take(2)
+            .ToArray();
+        return controls.Length == 1 ? controls[0] : null;
+    }
+
     private static OperationalSecurityFindingIngestItemResult Rejected(int index, string error) =>
         new() { Index = index, Succeeded = false, ErrorMessage = error };
 
@@ -374,6 +489,7 @@ public sealed class OperationalSecurityFindingIngestService(
         string? subscriptionOrAccountId = null,
         string? controlId = null,
         string? controlFramework = null,
+        bool replaceControl = false,
         string? title = null,
         string? description = null,
         string? severity = null,
@@ -404,8 +520,8 @@ public sealed class OperationalSecurityFindingIngestService(
             ExternalResourceId = externalResourceId ?? source.ExternalResourceId,
             ResourceType = resourceType ?? source.ResourceType,
             SubscriptionOrAccountId = subscriptionOrAccountId ?? source.SubscriptionOrAccountId,
-            ControlId = controlId ?? source.ControlId,
-            ControlFramework = controlFramework ?? source.ControlFramework,
+            ControlId = replaceControl ? controlId : controlId ?? source.ControlId,
+            ControlFramework = replaceControl ? controlFramework : controlFramework ?? source.ControlFramework,
             Title = title ?? source.Title,
             Description = description ?? source.Description,
             Severity = severity ?? source.Severity,

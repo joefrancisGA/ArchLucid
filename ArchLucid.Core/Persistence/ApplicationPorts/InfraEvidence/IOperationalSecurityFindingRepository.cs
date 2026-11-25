@@ -280,6 +280,11 @@ public interface IOperationalSecurityFindingRepository
         OperationalSecurityFindingObservationRecord observation,
         CancellationToken cancellationToken = default);
 
+    Task AppendAdvisorySourceInScopeAsync(
+        ProjectScopeKey scope, Guid findingId, string key, string value,
+        CancellationToken cancellationToken = default) =>
+        throw new NotSupportedException("This store does not support canonical advisory provenance.");
+
     Task<bool> TryCloseVerifiedAdvisoryInScopeAsync(
         ProjectScopeKey scope,
         OperationalSecurityFindingRecord observedFinding,
