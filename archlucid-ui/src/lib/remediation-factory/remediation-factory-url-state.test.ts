@@ -825,6 +825,39 @@ describe("remediation-factory-url-state", () => {
   });
 
 
+
+  it("treats ON metrics disclosure token with ogham space inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\u1680n`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with ideographic space inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=t\u3000rue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats ON metrics disclosure token with braille blank inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\u2800n`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("canonicalizes metrics open to 1 when writing open state from a NO base", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: true,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=NO`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
+  });
   it("treats yes metrics disclosure token with Hangul filler inside the word as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=y\u3164es`).metricsSummaryOpen,

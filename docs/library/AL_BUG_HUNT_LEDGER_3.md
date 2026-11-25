@@ -378,6 +378,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-11-25 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with braille blank (U+2800) inside words (e.g. `o` + U+2800 + `n`) stayed closed because the symbol is not Cc/Cf/Z or Hangul filler; strip U+2800 with existing invisible scalar hygiene. **valid-no-repro** pass-70 monitors (ogham/ideographic space inside ON/true, duplicate finding first-wins, metrics open over NO base, interior newline in short path chip). Pass-71 reseed below. Scoped vitest **356/356**. Private beta: Invited operators who deep-link with braille-blank padding inside `remediationFactoryMetricsOpen` on/yes tokens open the executive metrics summary instead of landing with the panel closed.
 2026-11-25 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with Hangul filler letters inside words (e.g. `y` + U+3164 + `es`) stayed closed because filler Lo scalars were not stripped; strip U+115F/U+3164/U+FFA0 after existing Cc/Cf/Z hygiene. **valid-no-repro** pass-69 monitors (NBSP inside ON, BOM-only closed, duplicate selectedPath first-wins, metrics open over off base, interior tab in long overflow). Pass-70 reseed below. Scoped vitest **351/351**. Private beta: Invited operators who deep-link with Hangul-filler padding inside `remediationFactoryMetricsOpen` yes/on tokens open the executive metrics summary instead of landing with the panel closed.
 2026-11-25 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with Unicode line/paragraph separators inside words (e.g. `tru` + U+2028 + `e`, `o` + U+2029 + `n`) stayed closed because only Cc/Cf/Zs were stripped; strip Zl and Zp alongside existing disclosure hygiene. **valid-no-repro** pass-68 monitors (tab inside yes, NUL-only closed, duplicate fromSnapshot first-wins, metrics open over false base, interior tab path chip). Pass-69 reseed below. Scoped vitest **346/346**. Private beta: Invited operators who deep-link with line- or paragraph-separator variants inside `remediationFactoryMetricsOpen` yes/on tokens open the executive metrics summary instead of landing with the panel closed.
 2026-11-25 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with C0 control characters inside words (e.g. `tru` + U+000B + `e`) stayed closed because only Cf and Zs were stripped; strip Unicode Cc alongside Cf and Zs before script-digit and word matching. **valid-no-repro** pass-67 monitors (figure-space-only token closed, metrics close drops false, duplicate metrics first-wins, lone ellipsis path chip, href preserves fromSnapshot). Pass-68 reseed below. Scoped vitest **340/340**. Private beta: Invited operators who deep-link with control-character variants inside `remediationFactoryMetricsOpen` yes/true tokens open the executive metrics summary instead of landing with the panel closed.
@@ -1101,8 +1102,8 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 90
-- **bugs-found:** 78
+- **hunts:** 91
+- **bugs-found:** 79
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25

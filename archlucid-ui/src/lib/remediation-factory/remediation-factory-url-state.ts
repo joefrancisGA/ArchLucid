@@ -106,10 +106,10 @@ const REMEDIATION_FACTORY_DISCLOSURE_ENCLOSED_ONE_CODEPOINTS = new Set<number>([
 ]);
 
 function remediationFactoryDisclosureTrimFormatChars(value: string): string {
-  // Strip control/format/separator scalars and Hangul filler letters that trim() leaves inside copied query tokens.
+  // Strip control/format/separator scalars and Hangul filler letters and the braille blank symbol that trim() leaves inside copied query tokens.
   return value
     .replace(/[\p{Cc}\p{Cf}\p{Zl}\p{Zp}\p{Zs}]/gu, "")
-    .replace(/[\u115F\u3164\uFFA0]/gu, "")
+    .replace(/[\u115F\u3164\uFFA0\u2800]/gu, "")
     .trim();
 }
 

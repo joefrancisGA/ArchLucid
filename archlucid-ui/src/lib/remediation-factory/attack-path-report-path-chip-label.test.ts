@@ -15,6 +15,10 @@ describe("attack-path-report-path-chip-label", () => {
     expect(formatAttackPathReportPathChipLabel("...")).toBe("...");
   });
 
+
+  it("preserves interior newline in a short path id", () => {
+    expect(formatAttackPathReportPathChipLabel("ab\ncd")).toBe("ab\ncd");
+  });
   it("preserves interior whitespace in short path chip labels", () => {
     expect(formatAttackPathReportPathChipLabel("a b")).toBe("a b");
   });
