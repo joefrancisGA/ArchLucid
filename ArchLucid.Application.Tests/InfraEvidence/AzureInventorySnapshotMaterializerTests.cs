@@ -557,6 +557,8 @@ public sealed class AzureInventorySnapshotMaterializerTests
     [InlineData(false, AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration)]
     [InlineData(true, SecurityEvidenceAddCredentialAdapterWarnings.GraphIncomplete)]
     [InlineData(true, SecurityEvidenceAddCredentialAdapterWarnings.GraphForbidden)]
+    [InlineData(true, SecurityEvidenceEntraGroupAdapterWarnings.GraphIncomplete)]
+    [InlineData(true, SecurityEvidenceEntraGroupAdapterWarnings.GraphForbidden)]
     public async Task TryMaterializePackageAsync_preserves_collection_completeness(bool partial, string warning)
     {
         ScopeContext scope = new() { TenantId = Guid.NewGuid() };
