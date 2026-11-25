@@ -22,6 +22,19 @@ public sealed class IntegrationEventOutboxRetryCalculatorTests
     }
 
     [Theory]
+    [InlineData(2, 300, 4)]
+    [InlineData(3, 300, 8)]
+    [InlineData(5, 300, 32)]
+    [InlineData(8, 100, 100)]
+    [InlineData(1, 0, 1)]
+    [InlineData(30, 100000, 86400)]
+    public void DelayUntilNextAttempt_uses_exponential_growth_and_bounded_cap(int failures, int cap, int seconds)
+    {
+        IntegrationEventOutboxRetryCalculator.DelayUntilNextAttempt(failures, cap)
+            .Should().Be(TimeSpan.FromSeconds(seconds));
+    }
+
+    [Theory]
     [InlineData(0)]
     [InlineData(-1)]
     public void DelayUntilNextAttempt_rejects_non_positive(int n)

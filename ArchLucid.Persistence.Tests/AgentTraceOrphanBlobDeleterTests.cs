@@ -18,14 +18,21 @@ public sealed class AgentTraceOrphanBlobDeleterTests
     public async Task DeleteAzureOrphanBlobsAsync_counts_only_blobs_marked_for_deletion()
     {
         Mock<BlobContainerClient> container = new(MockBehavior.Strict);
-        container.SetupSequence(client => client.DeleteBlobIfExistsAsync(
-                It.IsAny<string>(), DeleteSnapshotsOption.IncludeSnapshots, null, CancellationToken.None))
-            .ReturnsAsync(Response.FromValue(false, Mock.Of<Response>()))
+        container.Setup(client => client.DeleteBlobIfExistsAsync(
+                "already-missing", DeleteSnapshotsOption.IncludeSnapshots, null, CancellationToken.None))
+            .ReturnsAsync(Response.FromValue(false, Mock.Of<Response>()));
+        container.Setup(client => client.DeleteBlobIfExistsAsync(
+                "still-present", DeleteSnapshotsOption.IncludeSnapshots, null, CancellationToken.None))
             .ReturnsAsync(Response.FromValue(true, Mock.Of<Response>()));
 
         int deleted = await AgentTraceOrphanBlobDeleter.DeleteAzureOrphanBlobsAsync(
             container.Object, ["already-missing", "still-present"], CancellationToken.None);
 
         deleted.Should().Be(1);
+        container.Verify(client => client.DeleteBlobIfExistsAsync(
+            "already-missing", DeleteSnapshotsOption.IncludeSnapshots, null, CancellationToken.None), Times.Once);
+        container.Verify(client => client.DeleteBlobIfExistsAsync(
+            "still-present", DeleteSnapshotsOption.IncludeSnapshots, null, CancellationToken.None), Times.Once);
+        container.VerifyNoOtherCalls();
     }
 }
