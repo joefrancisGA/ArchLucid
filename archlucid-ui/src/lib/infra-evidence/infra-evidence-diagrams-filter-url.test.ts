@@ -213,4 +213,13 @@ describe("infra-evidence-diagrams-filter-url", () => {
       ),
     ).toBe("/governance/infrastructure/diagrams?snapshotId=snap-1");
   });
+  it("preserves securityEvidencePathId on diagrams workbench hrefs", () => {
+    expect(
+      buildDiagramsWorkbenchHref({
+        snapshotId: "11111111-1111-1111-1111-111111111111",
+        securityEvidencePathId: "22222222-2222-2222-2222-222222222222",
+      }),
+    ).toContain("securityEvidencePathId=22222222-2222-2222-2222-222222222222");
+  });
+
 });

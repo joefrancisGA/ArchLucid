@@ -114,6 +114,9 @@ import { formatInfraEvidenceSnapshotLabel } from "@/lib/infra-evidence/format-in
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
 import { buildInfrastructureAskHandoffHref } from "@/lib/infra-evidence/infrastructure-ask-drawer-url";
+import { RemediationFactoryRankedPathAskHandoff } from "@/components/remediation-factory/RemediationFactoryRankedPathAskHandoff";
+import { DIAGRAM_RECONCILE_WORKBENCH_RANKED_PATH_ASK_SCOPE_LINE } from "@/lib/infra-evidence/diagram-reconcile-workbench-ranked-path-ask-handoff-copy";
+import { RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   INFRA_DIAGRAM_RECONCILE_RESOURCE_ID_DISCLOSURE_OPEN_PARAM,
@@ -285,6 +288,7 @@ function buildDiagramReconcileCorrespondenceAskHref(
   runId: string,
   scopedCloudResourceId?: string,
   auditScope?: ReturnType<typeof parseInfraEvidenceWorkbenchAuditScopeFromSearch>,
+  securityEvidencePathId?: string,
 ): string {
   const rowCloudResourceId = row.cloudResourceId != null && row.cloudResourceId.trim().length > 0
     ? row.cloudResourceId
@@ -301,6 +305,10 @@ function buildDiagramReconcileCorrespondenceAskHref(
     runId: runId.length > 0 ? runId : undefined,
     correspondenceId: row.correspondenceId,
     hubTab: "diagram",
+    securityEvidencePathId:
+      securityEvidencePathId != null && securityEvidencePathId.trim().length > 0
+        ? securityEvidencePathId.trim()
+        : undefined,
     ...mergeInfrastructureAskAuditScope(auditScope ?? null),
   });
 }
@@ -346,6 +354,7 @@ export function DiagramReconcileWorkbenchClient() {
   const urlCorrespondenceId = parseDiagramReconcileCorrespondenceIdFromSearch(
     searchParams.get(DIAGRAM_RECONCILE_CORRESPONDENCE_ID_PARAM),
   );
+  const urlSecurityEvidencePathId = (searchParams.get(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM) ?? "").trim();
   const diagramReconcileResourceIdOpenParam = searchParams.get(
     INFRA_DIAGRAM_RECONCILE_RESOURCE_ID_DISCLOSURE_OPEN_PARAM,
   );
@@ -1582,6 +1591,16 @@ export function DiagramReconcileWorkbenchClient() {
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagram-reconcile-snapshot-honesty">
         {DIAGRAM_RECONCILE_INVENTORY_SNAPSHOT_HONESTY_LINE}
       </p>
+
+      {urlSecurityEvidencePathId.length > 0 && scopedSnapshotId.length > 0 ? (
+        <RemediationFactoryRankedPathAskHandoff
+          testId="infra-diagram-reconcile-ranked-path-ask-handoff"
+          snapshotId={scopedSnapshotId}
+          securityEvidencePathId={urlSecurityEvidencePathId}
+          hubTab="diagram"
+          scopeLine={DIAGRAM_RECONCILE_WORKBENCH_RANKED_PATH_ASK_SCOPE_LINE}
+        />
+      ) : null}
       {isSecureNowProductLine(productLine) ? (
         <SecureNowInfraPartialCaptureStrip
           testId="infra-diagram-reconcile-partial-capture"
@@ -2360,6 +2379,7 @@ export function DiagramReconcileWorkbenchClient() {
                               runId,
                               urlCloudResourceId,
                               auditScope,
+                              urlSecurityEvidencePathId,
                             )}
                             data-testid={`infra-diagram-reconcile-ask-${row.correspondenceId}`}
                           >

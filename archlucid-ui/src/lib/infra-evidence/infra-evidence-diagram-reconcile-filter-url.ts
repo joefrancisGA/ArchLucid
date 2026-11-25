@@ -7,6 +7,7 @@ import {
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_CONTROL_ID_PARAM,
+  RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import type { DiagramInfrastructureCorrespondenceRow } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
 import type { DiagramReconcileMatchKindFilter } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
@@ -99,6 +100,7 @@ export function buildDiagramReconcileWorkbenchHref(context: {
   readonly assessmentId?: string | null;
   readonly auditEvidenceSnapshotId?: string | null;
   readonly controlId?: string | null;
+  readonly securityEvidencePathId?: string | null;
 }): string {
   const params = new URLSearchParams();
 
@@ -136,6 +138,10 @@ export function buildDiagramReconcileWorkbenchHref(context: {
 
   if (context.controlId != null && context.controlId.trim().length > 0) {
     params.set(RESOURCE_HUB_CONTROL_ID_PARAM, context.controlId.trim());
+  }
+
+  if (context.securityEvidencePathId != null && context.securityEvidencePathId.trim().length > 0) {
+    params.set(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM, context.securityEvidencePathId.trim());
   }
 
   const query = params.toString();
@@ -192,6 +198,7 @@ export function diagramReconcileFilterHrefFromSearch(
     readonly assessmentId?: string;
     readonly auditEvidenceSnapshotId?: string;
     readonly controlId?: string;
+    readonly securityEvidencePathId?: string;
   },
   pathname: string = GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
 ): string {
@@ -277,6 +284,16 @@ export function diagramReconcileFilterHrefFromSearch(
       params.delete(RESOURCE_HUB_CONTROL_ID_PARAM);
     } else {
       params.set(RESOURCE_HUB_CONTROL_ID_PARAM, trimmed);
+    }
+  }
+
+  if (patch.securityEvidencePathId !== undefined) {
+    const trimmed = patch.securityEvidencePathId.trim();
+
+    if (trimmed.length === 0) {
+      params.delete(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM);
+    } else {
+      params.set(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM, trimmed);
     }
   }
 

@@ -9,6 +9,7 @@ import {
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_CONTROL_ID_PARAM,
   RESOURCE_HUB_RUN_ID_PARAM,
+  RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 
 export const INFRA_DIAGRAMS_SNAPSHOT_ID_PARAM = "snapshotId";
@@ -239,6 +240,7 @@ export type InfraDiagramsWorkbenchContext = {
   readonly assessmentId?: string | null;
   readonly auditEvidenceSnapshotId?: string | null;
   readonly controlId?: string | null;
+  readonly securityEvidencePathId?: string | null;
 };
 
 export function buildDiagramsWorkbenchHref(context: InfraDiagramsWorkbenchContext = {}): string {
@@ -261,6 +263,7 @@ export function buildDiagramsWorkbenchHref(context: InfraDiagramsWorkbenchContex
     assessmentId: context.assessmentId ?? undefined,
     auditEvidenceSnapshotId: context.auditEvidenceSnapshotId ?? undefined,
     controlId: context.controlId ?? undefined,
+    securityEvidencePathId: context.securityEvidencePathId ?? undefined,
   });
 }
 
@@ -285,6 +288,7 @@ export function infraDiagramsFilterHrefFromSearch(
     readonly assessmentId?: string;
     readonly auditEvidenceSnapshotId?: string;
     readonly controlId?: string;
+    readonly securityEvidencePathId?: string;
   },
   pathname: string = GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
 ): string {
@@ -464,6 +468,16 @@ export function infraDiagramsFilterHrefFromSearch(
       params.delete(RESOURCE_HUB_CONTROL_ID_PARAM);
     } else {
       params.set(RESOURCE_HUB_CONTROL_ID_PARAM, trimmed);
+    }
+  }
+
+  if (patch.securityEvidencePathId !== undefined) {
+    const trimmed = patch.securityEvidencePathId.trim();
+
+    if (trimmed.length === 0) {
+      params.delete(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM);
+    } else {
+      params.set(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM, trimmed);
     }
   }
 
