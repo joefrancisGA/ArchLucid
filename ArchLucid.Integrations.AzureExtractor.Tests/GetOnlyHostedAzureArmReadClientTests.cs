@@ -63,6 +63,32 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.Equal("Microsoft.Storage/storageAccounts", resources[0].ResourceType);
     }
 
+    [Theory]
+    [InlineData("{}", true)]
+    [InlineData("[]", true)]
+    [InlineData("{\"value\":[null]}", true)]
+    [InlineData("{\"value\":[{}]}", true)]
+    [InlineData("{\"value\":[],\"nextLink\":42}", true)]
+    [InlineData("{\"value\":[],\"nextLink\":null}", false)]
+    public async Task ListSubscriptionResourcesAsync_distinguishes_incomplete_from_valid_empty_inventory(
+        string body, bool partial)
+    {
+        using HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            }));
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmResourceRecord> resources = await client.ListSubscriptionResourcesAsync(
+            "token-abc", "11111111-1111-1111-1111-111111111111", CancellationToken.None);
+
+        Assert.Empty(resources);
+        Assert.Equal(partial, Assert.IsType<HostedAzureArmResourceCollection>(resources).PartialCollection);
+    }
+
     [Fact]
     public async Task ListSubscriptionResourcesAsync_retains_resources_when_next_link_repeats()
     {
@@ -114,6 +140,7 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.Equal(2, requestCount);
         Assert.NotEmpty(resources);
         Assert.Equal("sa1", resources[0].Name);
+        Assert.True(Assert.IsType<HostedAzureArmResourceCollection>(resources).PartialCollection);
     }
 
     [Fact]
@@ -167,6 +194,7 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.Equal(2, requestCount);
         Assert.Single(resources);
         Assert.Equal("sa1", resources[0].Name);
+        Assert.True(Assert.IsType<HostedAzureArmResourceCollection>(resources).PartialCollection);
     }
 
     [Fact]
@@ -224,6 +252,7 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.Equal(2, requestCount);
         Assert.Single(resources);
         Assert.Equal("sa1", resources[0].Name);
+        Assert.True(Assert.IsType<HostedAzureArmResourceCollection>(resources).PartialCollection);
     }
 
     [Fact]
