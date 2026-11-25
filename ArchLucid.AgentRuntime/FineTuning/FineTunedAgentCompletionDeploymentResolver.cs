@@ -71,7 +71,7 @@ public sealed class FineTunedAgentCompletionDeploymentResolver(
 
             return fineTunedDeployment;
         }
-        catch (Exception exception)
+        catch (Exception exception) when (exception is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
         {
             _logger.LogWarning(
                 exception,
