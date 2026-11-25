@@ -1,0 +1,32 @@
+name: FND-061 Drift report authorization
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.Application/InfraEvidence/AzureInventoryDriftClassificationService.cs'
+      - 'ArchLucid.Api.Tests/InfraEvidence/DriftReportCitedRunHttpTests.cs'
+      - '.github/workflows/fnd061-drift-report.yml'
+      - 'ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceInventoryController*.cs'
+      - 'ArchLucid.Application/InfraEvidence/Mermaid/InfraEvidenceSnapshotSealedManifestHashGuard.cs'
+      - 'ArchLucid.Application/InfraEvidence/IInfraEvidenceRunReadAccess.cs'
+      - 'ArchLucid.Api/Support/AskEvidenceAccess.cs'
+      - 'ArchLucid.Api/Support/*ShareAccessGate.cs'
+      - 'ArchLucid.Persistence/InfraEvidence/SqlAzureInventoryDriftApprovalRepository.cs'
+
+permissions:
+  contents: read
+
+jobs:
+  drift-report-http:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - run: >-
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~DriftReportCitedRunHttpTests'
+          --logger 'console;verbosity=normal'
