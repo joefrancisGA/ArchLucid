@@ -10502,6 +10502,7 @@ export interface components {
             totalCount?: number;
         };
         SecurityEvidencePathReportResponse: {
+            inventoryVerifications?: components["schemas"]["SecurityEvidencePathReportVerificationResponse"][];
             /** Format: uuid */
             snapshotId?: string;
             unevaluatedGroups?: components["schemas"]["SecurityEvidencePathReportUnevaluatedGroupResponse"][];
@@ -10518,6 +10519,15 @@ export interface components {
             pathsEmitted?: null | number;
             reasonCode?: string;
             whyText?: string;
+        };
+        SecurityEvidencePathReportVerificationResponse: {
+            /** Format: uuid */
+            explanationId: string;
+            /** Format: uuid */
+            pathId: string;
+            /** Format: date-time */
+            recordedUtc: string;
+            verification: components["schemas"]["InventoryFalsificationProbe"];
         };
         SecurityEvidencePathRoutingResponse: {
             displayName?: null | string;
