@@ -287,12 +287,30 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "critical-exposure")?.valueFootnote).toBeNull();
   });
 
+  it("shows critical-exposure zero footnote when count is negative zero", () => {
+    const metrics = { criticalExposureCount: -0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "critical-exposure")?.value).toBe("0");
+    expect(tiles.find((tile) => tile.id === "critical-exposure")?.valueFootnote).toContain("No critical-or-error findings");
+  });
+
   it("omits critical-exposure zero footnote when count is fractional", () => {
     const metrics = { criticalExposureCount: 0.4 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
 
     expect(tiles.find((tile) => tile.id === "critical-exposure")?.value).toBeNull();
     expect(tiles.find((tile) => tile.id === "critical-exposure")?.valueFootnote).toBeNull();
+  });
+
+  it("omits exceptions-active table hint when expiring-soon is Infinity", () => {
+    const metrics = { exceptionsActive: 2, exceptionsExpiringSoon: Number.POSITIVE_INFINITY } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics,
+      openFindingsHref: "/security/findings",
+    });
+
+    expect(tiles.find((tile) => tile.key === "exceptions-active")?.hint).toBeUndefined();
   });
 
   it("omits exceptions-active table hint when expiring-soon is NaN", () => {
@@ -305,11 +323,36 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.key === "exceptions-active")?.hint).toBeUndefined();
   });
 
+  it("omits net-burn footnote when weekly created is fractional and net burn is zero", () => {
+    const metrics = { createdThisWeek: 1.1, remediatedThisWeek: 0, netBurn: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "net-burn")?.valueFootnote).toBeNull();
+  });
+
+  it("omits net-burn footnote when weekly counts disagree with net burn", () => {
+    const metrics = { createdThisWeek: 5, remediatedThisWeek: 3, netBurn: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "net-burn")?.value).toBe("0");
+    expect(tiles.find((tile) => tile.id === "net-burn")?.valueFootnote).toBeNull();
+  });
+
   it("omits net-burn footnote when weekly remediated is negative", () => {
     const metrics = { createdThisWeek: 2, remediatedThisWeek: -1, netBurn: 3 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
 
     expect(tiles.find((tile) => tile.id === "net-burn")?.valueFootnote).toBeNull();
+  });
+
+  it("renders negative average age as not measured in the executive table", () => {
+    const metrics = { averageAgeDays: -1 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics,
+      openFindingsHref: "/security/findings",
+    });
+
+    expect(tiles.find((tile) => tile.key === "average-age")?.presentation.state).toBe("notMeasured");
   });
 
   it("formats average age to one decimal in metric tiles", () => {

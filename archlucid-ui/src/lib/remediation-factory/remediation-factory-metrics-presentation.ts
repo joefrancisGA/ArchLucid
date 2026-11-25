@@ -37,6 +37,16 @@ function netBurnWeeklyFootnoteWhenLoaded(
     return null;
   }
 
+  const netBurn = parseFiniteNumber(metrics.netBurn);
+
+  if (netBurn === null || !Number.isInteger(netBurn)) {
+    return null;
+  }
+
+  if (created - remediated !== netBurn) {
+    return null;
+  }
+
   return `Created ${created} · Remediated ${remediated}`;
 }
 
