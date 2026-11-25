@@ -1,4 +1,5 @@
 using ArchLucid.Core.Conversation;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Services.Ask;
 using ArchLucid.Persistence.Conversation;
 
@@ -55,8 +56,15 @@ public sealed class ConversationService(
         return thread;
     }
 
-    public Task<IReadOnlyList<ConversationMessage>> GetHistoryAsync(Guid threadId, int take, CancellationToken ct) =>
-        messageRepository.GetByThreadIdAsync(threadId, take, ct);
+    public Task<IReadOnlyList<ConversationMessage>> GetVerifiedAskHistoryAsync(
+        ScopeContext scope, Guid threadId, int take, string actorId, IReadOnlySet<Guid> authorizedRuns, CancellationToken ct) =>
+        ConversationHistoryReader.ReadAskAsync(messageRepository, scope, threadId, take, actorId, authorizedRuns, ct);
+
+    public Task<IReadOnlyList<ConversationMessage>> GetVerifiedDraftHistoryAsync(
+        ScopeContext scope, Guid threadId, int take, Guid draftId, Guid? architectureId, string actorId,
+        IReadOnlySet<Guid> authorizedRuns, CancellationToken ct) =>
+        ConversationHistoryReader.ReadDraftAsync(
+            messageRepository, scope, threadId, take, draftId, architectureId, actorId, authorizedRuns, ct);
 
     public async Task AppendUserMessageAsync(Guid threadId, string content, CancellationToken ct)
     {

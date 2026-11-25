@@ -105,15 +105,15 @@ public sealed class AskServiceShareAccessTests
     }
 
     [Fact]
-    public async Task Workspace_retrieval_receives_only_authorized_runs_and_no_legacy_history()
+    public async Task Workspace_retrieval_and_history_receive_the_same_authorized_runs()
     {
         ConversationThread thread = Thread(null);
         Mock<IConversationService> conversation = new();
         conversation.Setup(c => c.GetOrCreateThreadAsync(null, Scope.TenantId, Scope.WorkspaceId,
             Scope.ProjectId, null, null, null, CancellationToken.None)).ReturnsAsync(thread);
-        conversation.Setup(c => c.GetHistoryAsync(thread.ThreadId, It.IsAny<int>(), CancellationToken.None))
-            .ReturnsAsync([new ConversationMessage { ThreadId = thread.ThreadId,
-                Role = ConversationMessageRole.Assistant, Content = "legacy-restricted-secret" }]);
+        conversation.Setup(c => c.GetVerifiedAskHistoryAsync(Scope, thread.ThreadId, It.IsAny<int>(), Actor,
+            It.Is<IReadOnlySet<Guid>>(ids => ids.SetEquals(new[] { A })), CancellationToken.None))
+            .ReturnsAsync([]);
 
         Mock<IAskEvidenceAccess> access = Access();
         access.Setup(a => a.CanReadRunAsync(Scope, A, CancellationToken.None)).ReturnsAsync(true);
@@ -136,7 +136,9 @@ public sealed class AskServiceShareAccessTests
         AskResponse result = await service.AskAsync(new AskRequest { Question = "Explain" }, Scope, CancellationToken.None);
 
         result.Answer.Should().NotBeNullOrEmpty();
-        prompt.Should().NotBeNull().And.NotContain("legacy-restricted-secret");
+        prompt.Should().NotBeNull();
+        conversation.Verify(c => c.GetVerifiedAskHistoryAsync(Scope, thread.ThreadId, It.IsAny<int>(), Actor,
+            It.Is<IReadOnlySet<Guid>>(ids => ids.SetEquals(new[] { A })), CancellationToken.None), Times.Once);
         retrieval.Verify(r => r.SearchAsync(It.Is<RetrievalQuery>(q =>
             q.AuthorizedEvidenceRunIds != null && q.AuthorizedEvidenceRunIds.SetEquals(new[] { A })), CancellationToken.None), Times.Once);
     }

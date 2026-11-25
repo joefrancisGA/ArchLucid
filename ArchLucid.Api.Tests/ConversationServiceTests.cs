@@ -1,5 +1,9 @@
+using System.Text.Json;
+
 using ArchLucid.Core.Conversation;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Ask;
+using ArchLucid.Host.Core.Services.Ask;
 using ArchLucid.Persistence.Conversation;
 
 using FluentAssertions;
@@ -191,28 +195,63 @@ public sealed class ConversationServiceTests
             Times.Once);
     }
 
-    [SkippableFact]
-    public async Task GetHistoryAsync_delegates_to_repository()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Model_history_loads_only_authorized_ask_or_draft_turns(bool forDraft)
     {
-        Guid threadId = Guid.NewGuid();
-        List<ConversationMessage> expected =
-        [
-            new()
-            {
-                MessageId = Guid.NewGuid(), ThreadId = threadId, Role = ConversationMessageRole.User, Content = "x"
-            }
-        ];
-
-        Mock<IConversationMessageRepository> messages = new();
-        messages
-            .Setup(x => x.GetByThreadIdAsync(threadId, 25, It.IsAny<CancellationToken>()))
+        ScopeContext scope = new() { TenantId = _tenant, WorkspaceId = _workspace, ProjectId = _project };
+        Guid threadId = Guid.NewGuid(), draftId = Guid.NewGuid(), archId = Guid.NewGuid(), runId = Guid.NewGuid();
+        const string actor = "current-actor";
+        HashSet<Guid> authorizedRuns = [runId];
+        ConversationMessage[] expected = Turn("allowed", actor, authorizedRuns, forDraft ? draftId : null, archId);
+        ConversationMessage[] stale = Turn("old question", actor, authorizedRuns, forDraft ? draftId : null, archId);
+        stale[0].MetadataJson = "{}";
+        var headers = expected
+            .Concat(Turn("denied run", actor, new HashSet<Guid> { Guid.NewGuid() }, forDraft ? draftId : null, archId))
+            .Concat(Turn("other actor", "foreign", authorizedRuns, forDraft ? draftId : null, archId))
+            .Concat(Turn("different proof kind", actor, authorizedRuns, forDraft ? null : draftId, archId))
+            .Concat(Turn("different draft", actor, authorizedRuns, Guid.NewGuid(), archId))
+            .Concat(stale)
+            .Select(ConversationProofRow.FromStoredMetadata).ToArray();
+        var allowedIds = expected.Select(m => m.MessageId).ToHashSet();
+        Mock<IConversationMessageRepository> messages = new(MockBehavior.Strict);
+        messages.Setup(r => r.GetRecentProofsAsync(scope, threadId, 25, CancellationToken.None)).ReturnsAsync(headers);
+        messages.Setup(r => r.GetAuthorizedMessagesAsync(scope, threadId,
+                It.Is<IReadOnlyCollection<Guid>>(ids => allowedIds.SetEquals(ids)), CancellationToken.None))
             .ReturnsAsync(expected);
-
         ConversationService sut = new(Mock.Of<IConversationThreadRepository>(), messages.Object);
 
-        IReadOnlyList<ConversationMessage> history = await sut.GetHistoryAsync(threadId, 25, CancellationToken.None);
+        IReadOnlyList<ConversationMessage> actual = forDraft
+            ? await sut.GetVerifiedDraftHistoryAsync(scope, threadId, 25, draftId, archId, actor, authorizedRuns, CancellationToken.None)
+            : await sut.GetVerifiedAskHistoryAsync(scope, threadId, 25, actor, authorizedRuns, CancellationToken.None);
+        actual.Should().Equal(expected);
+        messages.Verify(r => r.GetRecentProofsAsync(scope, threadId, 25, CancellationToken.None), Times.Once);
+        messages.Verify(r => r.GetAuthorizedMessagesAsync(scope, threadId,
+            It.Is<IReadOnlyCollection<Guid>>(ids => allowedIds.SetEquals(ids)), CancellationToken.None), Times.Once);
+        messages.VerifyNoOtherCalls();
 
-        history.Should().BeEquivalentTo(expected);
+        ConversationMessage[] Turn(string question, string owner, IReadOnlySet<Guid> runs, Guid? draft, Guid? architecture)
+        {
+            var proof = draft is Guid id
+                ? AskHistoryEvidenceScope.CreateForDraft(threadId, id, architecture, owner, runs, question)
+                : AskHistoryEvidenceScope.Create(threadId, owner, runs, question, false);
+            string property = draft.HasValue ? "draftIntakeEvidenceScopeV1" : "askEvidenceScopeV1";
+            return
+            [
+                new ConversationMessage
+                {
+                    ThreadId = threadId, Role = ConversationMessageRole.User, Content = question,
+                    MetadataJson = AskHistoryEvidenceScope.CreateQuestionMetadata(threadId, question),
+                },
+                new ConversationMessage
+                {
+                    ThreadId = threadId, Role = ConversationMessageRole.Assistant, Content = "answer " + question,
+                    MetadataJson = JsonSerializer.Serialize(new Dictionary<string, AskHistoryEvidenceScope?> { [property] = proof },
+                        new JsonSerializerOptions(JsonSerializerDefaults.Web)),
+                },
+            ];
+        }
     }
 
     [SkippableFact]
@@ -247,23 +286,26 @@ public sealed class ConversationServiceTests
     }
 
     [SkippableFact]
-    public async Task GetHistoryAsync_passes_take_limit_to_repository()
+    public async Task Unproven_history_has_no_payload_read()
     {
+        ScopeContext scope = new() { TenantId = _tenant, WorkspaceId = _workspace, ProjectId = _project };
         Guid threadId = Guid.NewGuid();
         const int take = 40;
 
-        Mock<IConversationMessageRepository> messages = new();
+        Mock<IConversationMessageRepository> messages = new(MockBehavior.Strict);
         messages
-            .Setup(x => x.GetByThreadIdAsync(threadId, take, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<ConversationMessage>());
+            .Setup(x => x.GetRecentProofsAsync(scope, threadId, take, CancellationToken.None))
+            .ReturnsAsync([new ConversationProofRow
+            { ThreadId = threadId, MessageId = Guid.NewGuid(), Role = ConversationMessageRole.Assistant }]);
 
         ConversationService sut = new(Mock.Of<IConversationThreadRepository>(), messages.Object);
 
-        await sut.GetHistoryAsync(threadId, take, CancellationToken.None);
+        var result = await sut.GetVerifiedAskHistoryAsync(scope, threadId, take, "current-actor",
+            new HashSet<Guid>(), CancellationToken.None);
 
-        messages.Verify(
-            x => x.GetByThreadIdAsync(threadId, take, It.IsAny<CancellationToken>()),
-            Times.Once);
+        result.Should().BeEmpty();
+        messages.Verify(x => x.GetRecentProofsAsync(scope, threadId, take, CancellationToken.None), Times.Once);
+        messages.VerifyNoOtherCalls();
     }
 
     [SkippableFact]
