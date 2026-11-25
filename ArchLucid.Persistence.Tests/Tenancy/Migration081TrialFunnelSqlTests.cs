@@ -25,6 +25,6 @@ public sealed class Migration081TrialFunnelSqlTests
         using StreamReader reader = new(stream);
         string sql = reader.ReadToEnd();
 
-        sql.Should().Contain("TrialFirstManifestCommittedUtc");
+        sql.Should().Contain("ALTER TABLE dbo.Tenants ADD TrialFirstManifestCommittedUtc DATETIMEOFFSET NULL;");
     }
 }

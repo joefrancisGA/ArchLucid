@@ -84,10 +84,13 @@ public sealed class InMemoryUsageEventRepositoryTests
         InMemoryUsageEventRepository repository = new();
         Guid tenantId = Guid.NewGuid();
         DateTimeOffset now = DateTimeOffset.UtcNow;
-        UsageEvent api = NewEvent(tenantId, UsageMeterKind.ApiRequest, quantity: 1, recordedUtc: now.AddMinutes(-1));
+        UsageEvent api = NewEvent(tenantId, UsageMeterKind.ApiRequest, quantity: 1, recordedUtc: now.AddMinutes(1));
         UsageEvent agent = NewEvent(tenantId, UsageMeterKind.AgentExecution, quantity: 2, recordedUtc: now);
+        UsageEvent olderAgent = NewEvent(tenantId, UsageMeterKind.AgentExecution, quantity: 3, recordedUtc: now.AddMinutes(-1));
 
-        await repository.InsertBatchAsync([api, agent], CancellationToken.None);
+        // A newer wrong-kind row detects a missing filter; two matching rows
+        // independently detect a missing minimum-take clamp or limit.
+        await repository.InsertBatchAsync([api, agent, olderAgent], CancellationToken.None);
 
         IReadOnlyList<UsageEvent> filtered = await repository.ListAsync(
             tenantId,
@@ -99,6 +102,34 @@ public sealed class InMemoryUsageEventRepositoryTests
 
         filtered.Should().ContainSingle();
         filtered[0].Kind.Should().Be(UsageMeterKind.AgentExecution);
+        filtered[0].Quantity.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task List_and_aggregate_use_inclusive_start_and_exclusive_end()
+    {
+        InMemoryUsageEventRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset start = new(2026, 11, 1, 0, 0, 0, TimeSpan.Zero);
+        DateTimeOffset end = start.AddDays(1);
+
+        await repository.InsertBatchAsync(
+            [
+                NewEvent(tenantId, UsageMeterKind.ApiRequest, 100, recordedUtc: start.AddTicks(-1)),
+                NewEvent(tenantId, UsageMeterKind.ApiRequest, 2, recordedUtc: start),
+                NewEvent(tenantId, UsageMeterKind.ApiRequest, 3, recordedUtc: end.AddTicks(-1)),
+                NewEvent(tenantId, UsageMeterKind.ApiRequest, 200, recordedUtc: end),
+                NewEvent(tenantId, UsageMeterKind.ApiRequest, 400, recordedUtc: end.AddTicks(1))
+            ],
+            CancellationToken.None);
+
+        IReadOnlyList<UsageEvent> rows = await repository.ListAsync(
+            tenantId, start, end, kindFilter: null, take: 10, CancellationToken.None);
+        rows.Select(row => row.Quantity).Should().Equal(3L, 2L);
+
+        IReadOnlyList<TenantUsageSummary> summaries = await repository.AggregateByKindAsync(
+            tenantId, start, end, CancellationToken.None);
+        summaries.Should().ContainSingle().Which.TotalQuantity.Should().Be(5);
     }
 
     [Fact]

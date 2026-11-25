@@ -26,8 +26,11 @@ public sealed class Migration115StructuredBaselineColumnsTests
         string sql = reader.ReadToEnd();
 
         sql.Should().Contain("BaselineManualPrepHoursPerReview");
-        sql.Should().Contain("CK_Tenants_BaselineManualPrepHoursPerReview_Positive");
-        sql.Should().Contain("CK_Tenants_BaselinePeoplePerReview_Positive");
-        sql.Should().Contain("CK_Tenants_ArchitectureTeamSize_Positive");
+        sql.Should().Contain("ADD CONSTRAINT CK_Tenants_BaselineManualPrepHoursPerReview_Positive");
+        sql.Should().Contain("CHECK (BaselineManualPrepHoursPerReview IS NULL OR BaselineManualPrepHoursPerReview > 0);");
+        sql.Should().Contain("ADD CONSTRAINT CK_Tenants_BaselinePeoplePerReview_Positive");
+        sql.Should().Contain("CHECK (BaselinePeoplePerReview IS NULL OR BaselinePeoplePerReview > 0);");
+        sql.Should().Contain("ADD CONSTRAINT CK_Tenants_ArchitectureTeamSize_Positive");
+        sql.Should().Contain("CHECK (ArchitectureTeamSize IS NULL OR ArchitectureTeamSize > 0);");
     }
 }

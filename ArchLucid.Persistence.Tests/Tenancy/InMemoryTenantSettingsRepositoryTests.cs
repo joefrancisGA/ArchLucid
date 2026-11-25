@@ -82,6 +82,26 @@ public sealed class InMemoryTenantSettingsRepositoryTests
     }
 
     [Fact]
+    public async Task Identical_normalized_setting_keys_are_isolated_between_tenants()
+    {
+        InMemoryTenantSettingsRepository repository = new();
+        Guid tenantA = Guid.NewGuid();
+        Guid tenantB = Guid.NewGuid();
+        const string key = "feature.flag";
+
+        await repository.UpsertAsync(tenantA, key, "first", CancellationToken.None);
+        (await repository.TryGetAsync(tenantB, key, CancellationToken.None)).Should().BeNull();
+
+        await repository.UpsertAsync(tenantB, " FEATURE.FLAG ", "second", CancellationToken.None);
+        (await repository.TryGetAsync(tenantA, key, CancellationToken.None)).Should().Be("first");
+        (await repository.TryGetAsync(tenantB, key, CancellationToken.None)).Should().Be("second");
+
+        await repository.DeleteAsync(tenantA, " FEATURE.FLAG ", CancellationToken.None);
+        (await repository.TryGetAsync(tenantA, key, CancellationToken.None)).Should().BeNull();
+        (await repository.TryGetAsync(tenantB, key, CancellationToken.None)).Should().Be("second");
+    }
+
+    [Fact]
     public async Task TryGetAsync_throws_when_tenant_id_empty()
     {
         InMemoryTenantSettingsRepository repository = new();
