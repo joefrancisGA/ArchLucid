@@ -24,14 +24,20 @@ public static class HostedAzureInventoryAdfExtendedMetadataCollector
         ArgumentNullException.ThrowIfNull(logger);
 
         List<AzureInventoryAdfTriggerRow> triggers = [];
+        bool partial = false;
         List<AzureInventoryAdfIntegrationRuntimeRow> integrationRuntimes = [];
         List<AzureInventoryAdfDataflowRow> dataflows = [];
 
         foreach (HostedAzureArmResourceRecord resource in resources)
         {
-            if (!AzureInventoryFactoryStyleResourceCatalog.IsFactoryStyleResourceType(resource.ResourceType)
-                || string.IsNullOrWhiteSpace(resource.ResourceId))
+            if (!AzureInventoryFactoryStyleResourceCatalog.IsFactoryStyleResourceType(resource.ResourceType))
             {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(resource.ResourceId))
+            {
+                partial = true;
                 continue;
             }
 
@@ -42,6 +48,7 @@ public static class HostedAzureInventoryAdfExtendedMetadataCollector
                 IReadOnlyList<JsonElement> triggerResources = await armReadClient
                     .ListFactoryTriggersAsync(accessToken, factoryResourceId, cancellationToken)
                     .ConfigureAwait(false);
+                partial |= triggerResources is HostedAzureAdfCollection<JsonElement> { PartialCollection: true };
 
                 foreach (JsonElement triggerResource in triggerResources)
                 {
@@ -53,11 +60,16 @@ public static class HostedAzureInventoryAdfExtendedMetadataCollector
                     {
                         triggers.Add(triggerRow);
                     }
+                    else
+                    {
+                        partial = true;
+                    }
                 }
 
                 IReadOnlyList<JsonElement> integrationRuntimeResources = await armReadClient
                     .ListFactoryIntegrationRuntimesAsync(accessToken, factoryResourceId, cancellationToken)
                     .ConfigureAwait(false);
+                partial |= integrationRuntimeResources is HostedAzureAdfCollection<JsonElement> { PartialCollection: true };
 
                 foreach (JsonElement integrationRuntimeResource in integrationRuntimeResources)
                 {
@@ -69,11 +81,16 @@ public static class HostedAzureInventoryAdfExtendedMetadataCollector
                     {
                         integrationRuntimes.Add(integrationRuntimeRow);
                     }
+                    else
+                    {
+                        partial = true;
+                    }
                 }
 
                 IReadOnlyList<JsonElement> datasetResources = await armReadClient
                     .ListFactoryDatasetsAsync(accessToken, factoryResourceId, cancellationToken)
                     .ConfigureAwait(false);
+                partial |= datasetResources is HostedAzureAdfCollection<JsonElement> { PartialCollection: true };
                 Dictionary<string, string> datasetLinkedServiceNames = [];
 
                 foreach (JsonElement datasetResource in datasetResources)
@@ -94,6 +111,7 @@ public static class HostedAzureInventoryAdfExtendedMetadataCollector
                 IReadOnlyList<JsonElement> dataflowResources = await armReadClient
                     .ListFactoryDataflowsAsync(accessToken, factoryResourceId, cancellationToken)
                     .ConfigureAwait(false);
+                partial |= dataflowResources is HostedAzureAdfCollection<JsonElement> { PartialCollection: true };
 
                 foreach (JsonElement dataflowResource in dataflowResources)
                 {
@@ -110,6 +128,7 @@ public static class HostedAzureInventoryAdfExtendedMetadataCollector
             }
             catch (HttpRequestException ex)
             {
+                partial = true;
                 if (logger.IsEnabled(LogLevel.Debug))
                 {
                     logger.LogDebug(
@@ -120,6 +139,7 @@ public static class HostedAzureInventoryAdfExtendedMetadataCollector
             }
             catch (InvalidOperationException ex)
             {
+                partial = true;
                 if (logger.IsEnabled(LogLevel.Debug))
                 {
                     logger.LogDebug(
@@ -132,6 +152,7 @@ public static class HostedAzureInventoryAdfExtendedMetadataCollector
 
         return new HostedAzureInventoryAdfExtendedMetadataCollectResult
         {
+            PartialCollection = partial,
             Triggers = triggers,
             IntegrationRuntimes = integrationRuntimes,
             Dataflows = dataflows,
@@ -141,6 +162,8 @@ public static class HostedAzureInventoryAdfExtendedMetadataCollector
 
 public sealed class HostedAzureInventoryAdfExtendedMetadataCollectResult
 {
+    public bool PartialCollection { get; init; }
+
     public IReadOnlyList<AzureInventoryAdfTriggerRow> Triggers
     {
         get;

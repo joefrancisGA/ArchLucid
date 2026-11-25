@@ -3,8 +3,6 @@ using System.Text.Json;
 
 using ArchLucid.Core.AzureExtractor;
 
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Integrations.AzureExtractor;
 
 public sealed partial class GetOnlyHostedAzureArmReadClient
@@ -110,101 +108,92 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         string trimmedFactoryId = factoryResourceId.Trim().TrimStart('/');
         string listingRelativePath = $"{trimmedFactoryId}/{childCollectionName}";
         List<JsonElement> childResources = [];
-        string? nextLink =
-            $"https://management.azure.com/{listingRelativePath}?api-version={apiVersion}";
+        string? nextLink = $"https://management.azure.com/{listingRelativePath}?api-version={apiVersion}";
         HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
         int requestCount = 0;
+        bool partial = false;
 
         while (!string.IsNullOrWhiteSpace(nextLink))
         {
-            if (!visitedLinks.Add(nextLink))
+            if (!visitedLinks.Add(nextLink) || ShouldBreakForPageCap(++requestCount))
             {
-                break;
-            }
-
-            requestCount++;
-
-            if (ShouldBreakForPageCap(requestCount))
-            {
+                partial = true;
                 break;
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-            using HttpResponseMessage response =
-                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-
-            if (ShouldBreakForFactoryPaginationTerminalHttpFailure(response, childResources.Count))
+            try
             {
-                break;
-            }
+                using HttpResponseMessage response =
+                    await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
-            if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
-            {
-                throw new HttpRequestException($"{logLabel} list returned Forbidden.", null, response.StatusCode);
-            }
-
-            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
-                throw new HttpRequestException($"{logLabel} list returned NotFound.", null, response.StatusCode);
-            }
-
-            if ((int)response.StatusCode == 429)
-            {
-                throw new HttpRequestException($"{logLabel} list returned TooManyRequests.", null, response.StatusCode);
-            }
-
-            if (!response.IsSuccessStatusCode)
-            {
-                if (_logger.IsEnabled(LogLevel.Debug))
+                if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogDebug(
-                        "Hosted Azure extractor skipped {LogLabel} list for factory {FactoryId}; HTTP {StatusCode}.",
-                        logLabel,
-                        trimmedFactoryId,
-                        (int)response.StatusCode);
+                    // Preserve the initial permission/throttling exception contract.
+                    if (requestCount == 1 && (int)response.StatusCode is 403 or 404 or 429)
+                        throw new HttpRequestException($"{logLabel} list failed.", null, response.StatusCode);
+
+                    partial = true;
+                    break;
                 }
 
-                break;
-            }
+                await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken)
+                    .ConfigureAwait(false);
+                using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
 
-            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-
-            using JsonDocument? document =
-                await TryParseArmPaginationPageAsync(stream, childResources.Count, cancellationToken).ConfigureAwait(false);
-
-            if (document is null)
-            {
-                break;
-            }
-
-            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
-                && valueElement.ValueKind == JsonValueKind.Array)
-            {
-                foreach (JsonElement item in valueElement.EnumerateArray())
+                JsonElement root = document.RootElement;
+                if (root.ValueKind != JsonValueKind.Object
+                    || !root.TryGetProperty("value", out JsonElement values)
+                    || values.ValueKind != JsonValueKind.Array)
                 {
+                    partial = true;
+                    break;
+                }
+
+                foreach (JsonElement item in values.EnumerateArray())
+                {
+                    if (item.ValueKind != JsonValueKind.Object)
+                    {
+                        partial = true;
+                        continue;
+                    }
+
                     childResources.Add(item.Clone());
                 }
-            }
 
-            nextLink = null;
+                nextLink = null;
+                if (!root.TryGetProperty("nextLink", out JsonElement continuation)
+                    || continuation.ValueKind == JsonValueKind.Null)
+                    continue;
 
-            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
-                && nextLinkElement.ValueKind == JsonValueKind.String)
-            {
-                string? candidateNextLink = nextLinkElement.GetString();
-
-                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                if (continuation.ValueKind != JsonValueKind.String)
                 {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
-                        candidateNextLink,
-                        listingRelativePath);
-                    nextLink = candidateNextLink;
+                    partial = true;
+                    break;
                 }
+
+                string? candidate = continuation.GetString();
+                if (!string.IsNullOrWhiteSpace(candidate))
+                {
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(candidate, listingRelativePath);
+                    nextLink = candidate;
+                }
+            }
+            catch (HttpRequestException) when (requestCount > 1)
+            {
+                partial = true;
+                break;
+            }
+            catch (Exception ex) when (ex is JsonException or IOException)
+            {
+                partial = true;
+                break;
             }
         }
 
-        return childResources;
+        return new HostedAzureAdfCollection<JsonElement>(childResources, partial);
     }
 }
