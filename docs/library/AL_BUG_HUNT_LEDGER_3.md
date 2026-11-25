@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed→hit): `ui-architecture-intelligence` pass-54 reseed. Scoped vitest **19/19**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 thorough hunt (dry): `cli-draft-new` hunt #192 reseed. Scoped `DraftNewCommandCoreTests` **73/73** (`RunAnalyzers=false`).
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -1736,6 +1736,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: cli-draft-new
+
+2026-11-25 thorough hunt #192 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five hunt **#191** `(candidate)` monitor rows — **valid-no-repro** JSON pending MUST guard (`RunCoreAsync_json_output_with_pending_must_questions_returns_usage_error_without_readline`), **valid-no-repro** JSON missing intent preflight (`RunCoreAsync_json_output_missing_intent_text_returns_usage_error_before_connect`), **valid-no-repro** JSON missing business outcome preflight (`RunCoreAsync_json_output_missing_business_outcome_returns_usage_error_before_connect`), **valid-no-repro** JSON no-auto-execute execution flag (`RunCoreAsync_json_output_no_auto_execute_reports_execution_started_false_with_run_id`), **valid-no-repro** JSON space-padded intent length gate (`RunCoreAsync_json_output_intent_text_of_many_spaces_fails_length_gate_after_trim`). Hunt **#192** reseed below. Scoped `DraftNewCommandCoreTests` **73/73** (`RunAnalyzers=false`). **This dry completes 3/3** consecutive dry on `cli-draft-new` at run-log tail (zone eligible for low-yield park on automatic picks until a hint or hit). Private beta: n/a.
 
 2026-11-01 thorough hunt #191 (dry): no rotation (`shouldRotate: false`; reason: No low-yield streak; keep default picker choice; run-log low-yield streak on `cli-draft-new` is **1/3** before this record — dry **#190** only at tail). Attempted failing repro on five header `(candidate)` rows from hunt #190 reseed; cheap-disproof closed all five — **valid-no-repro** JSON whitespace-only intent preflight (regression `RunCoreAsync_json_output_whitespace_only_intent_text_returns_usage_error_without_prompting`), **valid-no-repro** JSON whitespace-only system name preflight (regression `RunCoreAsync_json_output_whitespace_only_system_name_returns_usage_error_without_json_envelope`), **valid-no-repro** JSON whitespace-only business outcome preflight (regression `RunCoreAsync_json_output_whitespace_only_business_outcome_returns_usage_error_without_json_envelope`), **valid-no-repro** JSON execute failure stderr-only (regression `RunCoreAsync_json_output_does_not_emit_ok_true_when_execute_fails`), **valid-no-repro** JSON progress line suppression (regression `RunCoreAsync_json_output_suppresses_human_progress_lines`). Reseeded five `(candidate)` monitor rows below (hunt **#191**). Scoped `DraftNewCommandCoreTests` **73/73** passed (`RunAnalyzers=false`). **This dry completes 2/3** on `cli-draft-new` in the run log (consecutive dry **#190** and **#191** at tail after this record). Private beta: n/a.
 
@@ -20434,6 +20436,8 @@ ABQ-09 churn hotspot.
 2026-10-11 thorough hunt (dry): `host-core-jobs` — repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 thorough hunt (dry): `host-core-jobs` — repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 seed hunt (seed→hit): `ui-infra-resource-hub` — `ResourceHubClient` supplied `shortcutsTestId` to `InfraEvidenceWorkbenchHeaderActions`, but the shared header action wrapper dropped it, making the shortcut region unqueryable and breaking the focused ResourceHubClient test. The wrapper now applies the supplied test id; the focused ResourceHubClient, working-mode, and buyer-polished suites passed 52/52.
+
+
 
 
 
