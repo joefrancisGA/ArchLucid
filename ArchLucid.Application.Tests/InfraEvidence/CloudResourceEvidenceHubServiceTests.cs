@@ -385,6 +385,7 @@ public sealed class CloudResourceEvidenceHubServiceTests
             ProjectId = scope.ProjectId,
             Provider = CloudProvider.Azure,
             ExternalResourceIdNormalized = externalResourceId,
+            ResourceType = "Microsoft.Compute/virtualMachineScaleSets",
             LastSeenSnapshotId = snapshotId,
             SubscriptionOrAccountId = "sub",
         };
@@ -542,6 +543,8 @@ public sealed class CloudResourceEvidenceHubServiceTests
             CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
+        result.Hub!.ResourceType.Should().Be("Microsoft.Compute/virtualMachines",
+            "an explicitly selected snapshot supplies its own resource type");
         result.Hub!.CurrentConfiguration.Should().NotBeNull();
         result.Hub.CurrentConfiguration!.Properties.Should().HaveCount(1);
         result.Hub.CurrentConfiguration.Properties["vmSize"].Should().Be("Standard_D2s_v3");

@@ -14,8 +14,10 @@ namespace ArchLucid.Application.Tests.InfraEvidence;
 [Trait("Suite", "Application")]
 public sealed class CloudResourceExplorerQueryServiceTests
 {
-    [Fact]
-    public async Task ListCloudResourcesAsync_maps_work_counts_onto_summary()
+    [Theory]
+    [InlineData("gateway-pip", "gateway-pip")]
+    [InlineData(null, "gateway")]
+    public async Task ListCloudResourcesAsync_maps_scoped_name_and_work_counts_onto_summary(string? name, string expectedName)
     {
         ScopeContext scope = new() { TenantId = Guid.NewGuid() };
         Guid cloudResourceId = Guid.NewGuid();
@@ -42,7 +44,7 @@ public sealed class CloudResourceExplorerQueryServiceTests
                             CloudResourceId = cloudResourceId,
                             TenantId = scope.TenantId,
                             ExternalResourceIdNormalized = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gateway",
-                            DisplayName = "gateway-pip",
+                            DisplayName = name,
                             LastSeenUtc = lastSeenUtc,
                         },
                         WorkCounts = new CloudResourceExplorerWorkCounts
@@ -70,6 +72,7 @@ public sealed class CloudResourceExplorerQueryServiceTests
         response.Items.Should().ContainSingle();
         CloudResourceSummary summary = response.Items.Single();
         summary.CloudResourceId.Should().Be(cloudResourceId);
+        summary.DisplayName.Should().Be(expectedName);
         summary.WorkCounts.Should().NotBeNull();
         summary.WorkCounts!.OpenOperationalFindingsCount.Should().Be(2);
         summary.WorkCounts.OpenRemediationInstancesCount.Should().Be(1);

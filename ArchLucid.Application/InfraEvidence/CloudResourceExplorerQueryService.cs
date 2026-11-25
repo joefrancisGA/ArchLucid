@@ -49,7 +49,9 @@ public sealed class CloudResourceExplorerQueryService(ICloudResourceIdentityDire
             {
                 CloudResourceId = row.Identity.CloudResourceId,
                 ExternalResourceId = row.Identity.ExternalResourceIdNormalized,
-                DisplayName = row.Identity.DisplayName,
+                DisplayName = string.IsNullOrWhiteSpace(row.Identity.DisplayName)
+                    ? GetResourceName(row.Identity.ExternalResourceIdNormalized)
+                    : row.Identity.DisplayName,
                 ResourceType = row.Identity.ResourceType,
                 ResourceGroup = row.Identity.ResourceGroupOrProject,
                 Region = row.Identity.Region,
@@ -61,5 +63,11 @@ public sealed class CloudResourceExplorerQueryService(ICloudResourceIdentityDire
         (int safePage, int safePageSize) = PaginationDefaults.Normalize(page, pageSize);
 
         return PagedResponseBuilder.FromDatabasePage(summaries, totalCount, safePage, safePageSize);
+    }
+
+    private static string? GetResourceName(string normalizedResourceId)
+    {
+        int start = normalizedResourceId.LastIndexOf('/') + 1;
+        return start < normalizedResourceId.Length ? normalizedResourceId[start..] : null;
     }
 }
