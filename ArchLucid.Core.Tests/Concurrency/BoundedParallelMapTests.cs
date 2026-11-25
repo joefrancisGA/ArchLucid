@@ -64,6 +64,65 @@ public sealed class BoundedParallelMapTests
     }
 
     [Fact]
+    public async Task MapAsync_DoesNotInvokeSelector_WhenCallerIsAlreadyCancelled()
+    {
+        using CancellationTokenSource cancellation = new();
+        cancellation.Cancel();
+        int invoked = 0;
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => BoundedParallelMap.MapAsync(
+            [1, 2],
+            configuredMaxConcurrent: 2,
+            (item, _) =>
+            {
+                Interlocked.Increment(ref invoked);
+                return Task.FromResult(item);
+            },
+            cancellation.Token));
+
+        Volatile.Read(ref invoked).Should().Be(0);
+    }
+
+    [Fact]
+    public async Task MapAsync_PropagatesCallerCancellation_ToAnActiveSelector()
+    {
+        using CancellationTokenSource cancellation = new();
+        TaskCompletionSource started = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource release = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TimeSpan timeout = TimeSpan.FromSeconds(10);
+
+        Task<int[]> mapped = BoundedParallelMap.MapAsync(
+            [1, 2],
+            configuredMaxConcurrent: 2,
+            async (item, token) =>
+            {
+                started.TrySetResult();
+                await release.Task.WaitAsync(token);
+                return item;
+            },
+            cancellation.Token);
+
+        try
+        {
+            await started.Task.WaitAsync(timeout);
+            cancellation.Cancel();
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => mapped.WaitAsync(timeout));
+        }
+        finally
+        {
+            release.TrySetResult();
+            try
+            {
+                await mapped.WaitAsync(timeout);
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected on the real path. Also drain selectors if an assertion fails.
+            }
+        }
+    }
+
+    [Fact]
     public async Task MapAsync_throws_for_null_items()
     {
         Func<Task> act = async () => await BoundedParallelMap.MapAsync<int, int>(

@@ -105,11 +105,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
             $"https://management.azure.com/{listingRelativePath}?api-version={ResourcesApiVersion}";
         HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
         int requestCount = 0;
+        bool partialCollection = false;
 
         while (!string.IsNullOrWhiteSpace(nextLink))
         {
             if (!visitedLinks.Add(nextLink))
             {
+                partialCollection = true;
                 break;
             }
 
@@ -117,6 +119,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             if (ShouldBreakForPageCap(requestCount))
             {
+                partialCollection = true;
                 break;
             }
 
@@ -126,26 +129,40 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
             using HttpResponseMessage response =
                 await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
-            if (ShouldBreakForPaginationHttpFailure(response, resources.Count))
+            if (ShouldBreakForPaginationHttpFailure(response, requestCount - 1))
             {
+                partialCollection = true;
                 break;
             }
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
             using JsonDocument? document =
-                await TryParseArmPaginationPageAsync(stream, resources.Count, cancellationToken).ConfigureAwait(false);
+                await TryParseArmPaginationPageAsync(stream, requestCount - 1, cancellationToken).ConfigureAwait(false);
 
             if (document is null)
             {
+                partialCollection = true;
                 break;
             }
 
-            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement) &&
-                valueElement.ValueKind == JsonValueKind.Array)
+            if (document.RootElement.ValueKind != JsonValueKind.Object
+                || !document.RootElement.TryGetProperty("value", out JsonElement valueElement)
+                || valueElement.ValueKind != JsonValueKind.Array)
+            {
+                partialCollection = true;
+                break;
+            }
+
             {
                 foreach (JsonElement item in valueElement.EnumerateArray())
                 {
+                    if (item.ValueKind != JsonValueKind.Object)
+                    {
+                        partialCollection = true;
+                        continue;
+                    }
+
                     HostedAzureArmResourceRecord? mapped = MapResource(item);
 
                     if (mapped is not null)
@@ -154,15 +171,24 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
                         continue;
                     }
 
+                    partialCollection = true;
                     LogSkippedArmRow(item);
                 }
             }
 
             nextLink = null;
 
-            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement) &&
-                nextLinkElement.ValueKind == JsonValueKind.String)
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement))
             {
+                if (nextLinkElement.ValueKind == JsonValueKind.Null)
+                    break;
+
+                if (nextLinkElement.ValueKind != JsonValueKind.String)
+                {
+                    partialCollection = true;
+                    break;
+                }
+
                 string? candidateNextLink = nextLinkElement.GetString();
 
                 if (!string.IsNullOrWhiteSpace(candidateNextLink))
@@ -183,7 +209,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
                 trimmedSubscriptionId);
         }
 
-        return resources;
+        return new HostedAzureArmResourceCollection(resources, partialCollection);
     }
 
     public async Task<IReadOnlyList<HostedAzureArmRoleAssignmentRecord>> ListSubscriptionRoleAssignmentsAsync(
@@ -481,11 +507,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
             $"https://management.azure.com/{subscriptionsListingPath}?api-version=2020-05-01";
         HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
         int requestCount = 0;
+        bool partialCollection = false;
 
         while (!string.IsNullOrWhiteSpace(nextLink))
         {
             if (!visitedLinks.Add(nextLink))
             {
+                partialCollection = true;
                 break;
             }
 
@@ -493,6 +521,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             if (ShouldBreakForPageCap(requestCount))
             {
+                partialCollection = true;
                 break;
             }
 
@@ -512,28 +541,43 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
                         (int)response.StatusCode);
                 }
 
+                partialCollection = true;
                 break;
             }
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument? document =
-                await TryParseArmPaginationPageAsync(stream, subscriptionIds.Count, cancellationToken).ConfigureAwait(false);
-
-            if (document is null)
+            JsonDocument parsed;
+            try
             {
+                parsed = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
+            }
+            catch (JsonException)
+            {
+                partialCollection = true;
                 break;
             }
 
-            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
-                && valueElement.ValueKind == JsonValueKind.Array)
+            using JsonDocument document = parsed;
+
+            if (document.RootElement.ValueKind != JsonValueKind.Object
+                || !document.RootElement.TryGetProperty("value", out JsonElement valueElement)
+                || valueElement.ValueKind != JsonValueKind.Array)
+            {
+                partialCollection = true;
+                break;
+            }
+
             {
                 foreach (JsonElement item in valueElement.EnumerateArray())
                 {
-                    string? subscriptionId = TryGetManagementGroupSubscriptionId(item);
+                    string? subscriptionId = item.ValueKind == JsonValueKind.Object
+                        ? TryGetManagementGroupSubscriptionId(item)
+                        : null;
 
                     if (string.IsNullOrWhiteSpace(subscriptionId))
                     {
+                        partialCollection = true;
                         continue;
                     }
 
@@ -546,9 +590,17 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             nextLink = null;
 
-            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
-                && nextLinkElement.ValueKind == JsonValueKind.String)
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement))
             {
+                if (nextLinkElement.ValueKind == JsonValueKind.Null)
+                    break;
+
+                if (nextLinkElement.ValueKind != JsonValueKind.String)
+                {
+                    partialCollection = true;
+                    break;
+                }
+
                 string? candidateNextLink = nextLinkElement.GetString();
 
                 if (!string.IsNullOrWhiteSpace(candidateNextLink))
@@ -569,7 +621,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
                 managementGroupId);
         }
 
-        return subscriptionIds;
+        return new HostedAzureManagementGroupSubscriptionCollection(subscriptionIds, partialCollection);
     }
 
     public async Task<IReadOnlyList<HostedAzureArmRoleAssignmentRecord>> ListManagementGroupRoleAssignmentsAsync(
@@ -1109,96 +1161,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         bool validateSubscriptionNextLink,
         CancellationToken cancellationToken)
     {
-        List<HostedAzureArmPolicyAssignmentRecord> assignments = [];
-        string? nextLink = initialUrl;
-        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
-        int requestCount = 0;
-
-        while (!string.IsNullOrWhiteSpace(nextLink))
-        {
-            if (!visitedLinks.Add(nextLink))
-            {
-                break;
-            }
-
-            requestCount++;
-
-            if (ShouldBreakForPageCap(requestCount))
-            {
-                break;
-            }
-
-            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            using HttpResponseMessage response =
-                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                if (_logger.IsEnabled(LogLevel.Debug))
-                {
-                    _logger.LogDebug(
-                        "Hosted Azure extractor skipped policy assignment listing for scope {ScopeKey}; HTTP {StatusCode}.",
-                        scopeKey,
-                        (int)response.StatusCode);
-                }
-
-                break;
-            }
-
-            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-
-            using JsonDocument? document =
-                await TryParseArmPaginationPageAsync(stream, assignments.Count, cancellationToken).ConfigureAwait(false);
-
-            if (document is null)
-            {
-                break;
-            }
-
-            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
-                && valueElement.ValueKind == JsonValueKind.Array)
-            {
-                foreach (JsonElement item in valueElement.EnumerateArray())
-                {
-                    HostedAzureArmPolicyAssignmentRecord? mapped = MapPolicyAssignment(item);
-
-                    if (mapped is not null)
-                    {
-                        assignments.Add(mapped);
-                    }
-                }
-            }
-
-            nextLink = null;
-
-            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
-                && nextLinkElement.ValueKind == JsonValueKind.String)
-            {
-                string? candidateNextLink = nextLinkElement.GetString();
-
-                if (!string.IsNullOrWhiteSpace(candidateNextLink))
-                {
-                    if (validateSubscriptionNextLink)
-                    {
-                        HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
-                            candidateNextLink,
-                            listingRelativePath);
-                    }
-                    else
-                    {
-                        HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
-                            candidateNextLink,
-                            listingRelativePath);
-                    }
-
-                    nextLink = candidateNextLink;
-                }
-            }
-        }
-
-        return assignments;
+        return await ListPolicyPagesWithCompletenessAsync<HostedAzureArmPolicyAssignmentRecord>(
+            accessToken,
+            initialUrl,
+            MapPolicyAssignment,
+            candidate => HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                candidate, listingRelativePath),
+            cancellationToken).ConfigureAwait(false);
     }
 
     private async Task<(IReadOnlyList<HostedAzureArmDiagnosticSettingRecord> Settings, bool PartialCollection)>

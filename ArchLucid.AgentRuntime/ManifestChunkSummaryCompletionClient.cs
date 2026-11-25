@@ -40,6 +40,8 @@ public sealed class ManifestChunkSummaryCompletionClient(
     /// <inheritdoc />
     public async Task<string> SummarizeChunkAsync(string chunkText, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (string.IsNullOrWhiteSpace(chunkText))
             return string.Empty;
 
@@ -59,12 +61,15 @@ public sealed class ManifestChunkSummaryCompletionClient(
                     await _batchCompletionClient.RunChatCompletionsBatchAsync([item], cancellationToken)
                         .ConfigureAwait(false);
 
+                cancellationToken.ThrowIfCancellationRequested();
                 string summary = results[0].AssistantText;
 
                 return string.IsNullOrWhiteSpace(summary) ? chunkText : summary.Trim();
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 if (_logger.IsEnabled(LogLevel.Warning))
                 {
                     _logger.LogWarning(
@@ -83,10 +88,13 @@ public sealed class ManifestChunkSummaryCompletionClient(
                 .CompleteJsonAsync(SystemPrompt, chunkText, maxTokens: 400, temperature: 0.1f, cancellationToken)
                 .ConfigureAwait(false);
 
+            cancellationToken.ThrowIfCancellationRequested();
             return string.IsNullOrWhiteSpace(summary) ? chunkText : summary.Trim();
         }
         catch (Exception ex)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             _logger.LogWarning(
                 ex,
                 "Manifest chunk summarization failed; returning truncated source text.");

@@ -38,12 +38,16 @@ internal static class HostedAzureArmPaasResourceEnricher
                         cancellationToken)
                     .ConfigureAwait(false);
 
+                if (typedResources is HostedAzureArmTypeListCollection { PartialCollection: true })
+                    warnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+
                 merged = HostedAzureArmResourceRecordMerger
                     .MergeByResourceId(merged, typedResources)
                     .ToList();
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
+                warnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
                 warnings.Add($"hosted-paas-type-list-failed:{descriptor.ResourceType}");
 
                 if (logger.IsEnabled(LogLevel.Debug))

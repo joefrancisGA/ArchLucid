@@ -1,8 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Integrations.AzureExtractor;
 
 public sealed partial class GetOnlyHostedAzureArmReadClient
@@ -24,99 +22,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
                 nameof(resourceType));
         }
 
-        List<HostedAzureArmResourceRecord> resources = [];
         string trimmedSubscriptionId = subscriptionId.Trim();
         string listingRelativePath = BuildSubscriptionTypeListRelativePath(trimmedSubscriptionId, descriptor.RelativePath);
         string descriptorQuerySuffix = ExtractDescriptorQuerySuffix(descriptor.RelativePath);
-        string? nextLink =
+        string initialUrl =
             $"https://management.azure.com/{listingRelativePath}{descriptorQuerySuffix}";
-        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
-        int requestCount = 0;
-
-        while (!string.IsNullOrWhiteSpace(nextLink))
-        {
-            if (!visitedLinks.Add(nextLink))
-            {
-                break;
-            }
-
-            requestCount++;
-
-            if (ShouldBreakForPageCap(requestCount))
-            {
-                break;
-            }
-
-            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            using HttpResponseMessage response =
-                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                if (_logger.IsEnabled(LogLevel.Debug))
-                {
-                    _logger.LogDebug(
-                        "Hosted Azure extractor skipped type list for {ResourceType}; HTTP {StatusCode}.",
-                        resourceType,
-                        (int)response.StatusCode);
-                }
-
-                break;
-            }
-
-            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-
-            using JsonDocument? document =
-                await TryParseArmPaginationPageAsync(stream, resources.Count, cancellationToken).ConfigureAwait(false);
-
-            if (document is null)
-            {
-                break;
-            }
-
-            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
-                && valueElement.ValueKind == JsonValueKind.Array)
-            {
-                foreach (JsonElement item in valueElement.EnumerateArray())
-                {
-                    HostedAzureArmResourceRecord? mapped = MapResource(item);
-
-                    if (mapped is not null)
-                    {
-                        resources.Add(mapped);
-                    }
-                }
-            }
-
-            nextLink = null;
-
-            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
-                && nextLinkElement.ValueKind == JsonValueKind.String)
-            {
-                string? candidateNextLink = nextLinkElement.GetString();
-
-                if (!string.IsNullOrWhiteSpace(candidateNextLink))
-                {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
-                        candidateNextLink,
-                        listingRelativePath);
-                    nextLink = candidateNextLink;
-                }
-            }
-        }
-
-        if (_logger.IsEnabled(LogLevel.Debug))
-        {
-            _logger.LogDebug(
-                "Hosted Azure extractor listed {Count} resources for type {ResourceType} in subscription {SubscriptionId}.",
-                resources.Count,
-                resourceType,
-                trimmedSubscriptionId);
-        }
-
-        return resources;
+        return await ListTypedResourcesWithCompletenessAsync(
+            accessToken, initialUrl, listingRelativePath, MapResource, cancellationToken).ConfigureAwait(false);
     }
 
     private static string BuildSubscriptionTypeListRelativePath(string subscriptionId, string descriptorRelativePath)
@@ -148,81 +60,12 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         ArgumentException.ThrowIfNullOrWhiteSpace(privateDnsZoneResourceId);
         HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
 
-        List<HostedAzureArmResourceRecord> resources = [];
         string trimmedZoneId = privateDnsZoneResourceId.Trim().TrimStart('/');
         string listingRelativePath = $"{trimmedZoneId}/virtualNetworkLinks";
-        string? nextLink =
+        string initialUrl =
             $"https://management.azure.com/{listingRelativePath}?api-version={HostedAzureArmNetworkTypeListDescriptors.PrivateDnsApiVersion}";
-        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
-        int requestCount = 0;
-
-        while (!string.IsNullOrWhiteSpace(nextLink))
-        {
-            if (!visitedLinks.Add(nextLink))
-            {
-                break;
-            }
-
-            requestCount++;
-
-            if (requestCount > MaxPaginationRequests)
-            {
-                break;
-            }
-
-            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            using HttpResponseMessage response =
-                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                break;
-            }
-
-            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-
-            using JsonDocument? document =
-                await TryParseArmPaginationPageAsync(stream, resources.Count, cancellationToken).ConfigureAwait(false);
-
-            if (document is null)
-            {
-                break;
-            }
-
-            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
-                && valueElement.ValueKind == JsonValueKind.Array)
-            {
-                foreach (JsonElement item in valueElement.EnumerateArray())
-                {
-                    HostedAzureArmResourceRecord? mapped = MapPrivateDnsVirtualNetworkLink(item, trimmedZoneId);
-
-                    if (mapped is not null)
-                    {
-                        resources.Add(mapped);
-                    }
-                }
-            }
-
-            nextLink = null;
-
-            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
-                && nextLinkElement.ValueKind == JsonValueKind.String)
-            {
-                string? candidateNextLink = nextLinkElement.GetString();
-
-                if (!string.IsNullOrWhiteSpace(candidateNextLink))
-                {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
-                        candidateNextLink,
-                        listingRelativePath);
-                    nextLink = candidateNextLink;
-                }
-            }
-        }
-
-        return resources;
+        return await ListTypedResourcesWithCompletenessAsync(
+            accessToken, initialUrl, listingRelativePath, item => MapPrivateDnsVirtualNetworkLink(item, trimmedZoneId), cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<HostedAzureArmResourceRecord>> ListVirtualNetworkPeeringsAsync(
@@ -235,81 +78,12 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         ArgumentException.ThrowIfNullOrWhiteSpace(virtualNetworkResourceId);
         HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
 
-        List<HostedAzureArmResourceRecord> resources = [];
         string trimmedVnetId = virtualNetworkResourceId.Trim().TrimStart('/');
         string listingRelativePath = $"{trimmedVnetId}/virtualNetworkPeerings";
-        string? nextLink =
+        string initialUrl =
             $"https://management.azure.com/{listingRelativePath}?api-version={HostedAzureArmNetworkTypeListDescriptors.NetworkApiVersion}";
-        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
-        int requestCount = 0;
-
-        while (!string.IsNullOrWhiteSpace(nextLink))
-        {
-            if (!visitedLinks.Add(nextLink))
-            {
-                break;
-            }
-
-            requestCount++;
-
-            if (requestCount > MaxPaginationRequests)
-            {
-                break;
-            }
-
-            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            using HttpResponseMessage response =
-                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                break;
-            }
-
-            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-
-            using JsonDocument? document =
-                await TryParseArmPaginationPageAsync(stream, resources.Count, cancellationToken).ConfigureAwait(false);
-
-            if (document is null)
-            {
-                break;
-            }
-
-            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
-                && valueElement.ValueKind == JsonValueKind.Array)
-            {
-                foreach (JsonElement item in valueElement.EnumerateArray())
-                {
-                    HostedAzureArmResourceRecord? mapped = MapResource(item);
-
-                    if (mapped is not null)
-                    {
-                        resources.Add(mapped);
-                    }
-                }
-            }
-
-            nextLink = null;
-
-            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
-                && nextLinkElement.ValueKind == JsonValueKind.String)
-            {
-                string? candidateNextLink = nextLinkElement.GetString();
-
-                if (!string.IsNullOrWhiteSpace(candidateNextLink))
-                {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
-                        candidateNextLink,
-                        listingRelativePath);
-                    nextLink = candidateNextLink;
-                }
-            }
-        }
-
-        return resources;
+        return await ListTypedResourcesWithCompletenessAsync(
+            accessToken, initialUrl, listingRelativePath, MapResource, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<HostedAzureArmResourceRecord>> ListNetworkSecurityPerimeterResourceAssociationsAsync(
@@ -322,81 +96,12 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         ArgumentException.ThrowIfNullOrWhiteSpace(networkSecurityPerimeterResourceId);
         HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
 
-        List<HostedAzureArmResourceRecord> resources = [];
         string trimmedPerimeterId = networkSecurityPerimeterResourceId.Trim().TrimStart('/');
         string listingRelativePath = $"{trimmedPerimeterId}/resourceAssociations";
-        string? nextLink =
+        string initialUrl =
             $"https://management.azure.com/{listingRelativePath}?api-version={HostedAzureArmNetworkTypeListDescriptors.NetworkSecurityPerimeterApiVersion}";
-        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
-        int requestCount = 0;
-
-        while (!string.IsNullOrWhiteSpace(nextLink))
-        {
-            if (!visitedLinks.Add(nextLink))
-            {
-                break;
-            }
-
-            requestCount++;
-
-            if (requestCount > MaxPaginationRequests)
-            {
-                break;
-            }
-
-            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            using HttpResponseMessage response =
-                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                break;
-            }
-
-            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-
-            using JsonDocument? document =
-                await TryParseArmPaginationPageAsync(stream, resources.Count, cancellationToken).ConfigureAwait(false);
-
-            if (document is null)
-            {
-                break;
-            }
-
-            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
-                && valueElement.ValueKind == JsonValueKind.Array)
-            {
-                foreach (JsonElement item in valueElement.EnumerateArray())
-                {
-                    HostedAzureArmResourceRecord? mapped = MapResource(item);
-
-                    if (mapped is not null)
-                    {
-                        resources.Add(mapped);
-                    }
-                }
-            }
-
-            nextLink = null;
-
-            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
-                && nextLinkElement.ValueKind == JsonValueKind.String)
-            {
-                string? candidateNextLink = nextLinkElement.GetString();
-
-                if (!string.IsNullOrWhiteSpace(candidateNextLink))
-                {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
-                        candidateNextLink,
-                        listingRelativePath);
-                    nextLink = candidateNextLink;
-                }
-            }
-        }
-
-        return resources;
+        return await ListTypedResourcesWithCompletenessAsync(
+            accessToken, initialUrl, listingRelativePath, MapResource, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<HostedAzureArmResourceRecord>> ListMonitorPrivateLinkScopeScopedResourcesAsync(
@@ -409,81 +114,99 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         ArgumentException.ThrowIfNullOrWhiteSpace(monitorPrivateLinkScopeResourceId);
         HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
 
-        List<HostedAzureArmResourceRecord> resources = [];
         string trimmedScopeId = monitorPrivateLinkScopeResourceId.Trim().TrimStart('/');
         string listingRelativePath = $"{trimmedScopeId}/scopedResources";
-        string? nextLink =
+        string initialUrl =
             $"https://management.azure.com/{listingRelativePath}?api-version={HostedAzureArmNetworkTypeListDescriptors.MonitorPrivateLinkScopeApiVersion}";
-        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
-        int requestCount = 0;
+        return await ListTypedResourcesWithCompletenessAsync(
+            accessToken, initialUrl, listingRelativePath, MapResource, cancellationToken).ConfigureAwait(false);
+    }
 
+    private async Task<IReadOnlyList<HostedAzureArmResourceRecord>> ListTypedResourcesWithCompletenessAsync(
+        string accessToken,
+        string initialUrl,
+        string listingRelativePath,
+        Func<JsonElement, HostedAzureArmResourceRecord?> mapItem,
+        CancellationToken cancellationToken)
+    {
+        List<HostedAzureArmResourceRecord> resources = [];
+        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
+        string? nextLink = initialUrl;
+        int requestCount = 0;
+        bool partial = false;
         while (!string.IsNullOrWhiteSpace(nextLink))
         {
-            if (!visitedLinks.Add(nextLink))
+            if (!visitedLinks.Add(nextLink) || ShouldBreakForPageCap(++requestCount))
             {
-                break;
-            }
-
-            requestCount++;
-
-            if (requestCount > MaxPaginationRequests)
-            {
+                partial = true;
                 break;
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            using HttpResponseMessage response =
-                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                break;
-            }
-
-            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-
-            using JsonDocument? document =
-                await TryParseArmPaginationPageAsync(stream, resources.Count, cancellationToken).ConfigureAwait(false);
-
-            if (document is null)
-            {
-                break;
-            }
-
-            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
-                && valueElement.ValueKind == JsonValueKind.Array)
-            {
-                foreach (JsonElement item in valueElement.EnumerateArray())
+                using HttpResponseMessage response = await _httpClient.SendAsync(request, cancellationToken)
+                    .ConfigureAwait(false);
+                if (!response.IsSuccessStatusCode)
                 {
-                    HostedAzureArmResourceRecord? mapped = MapResource(item);
+                    partial = true;
+                    break;
+                }
 
-                    if (mapped is not null)
+                await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken)
+                    .ConfigureAwait(false);
+                using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
+                JsonElement root = document.RootElement;
+                if (root.ValueKind != JsonValueKind.Object
+                    || !root.TryGetProperty("value", out JsonElement values)
+                    || values.ValueKind != JsonValueKind.Array)
+                {
+                    partial = true;
+                    break;
+                }
+
+                foreach (JsonElement item in values.EnumerateArray())
+                {
+                    HostedAzureArmResourceRecord? mapped = item.ValueKind == JsonValueKind.Object
+                        ? mapItem(item)
+                        : null;
+                    if (mapped is null)
                     {
-                        resources.Add(mapped);
+                        partial = true;
+                        continue;
                     }
+
+                    resources.Add(mapped);
+                }
+
+                nextLink = null;
+                if (!root.TryGetProperty("nextLink", out JsonElement continuation)
+                    || continuation.ValueKind == JsonValueKind.Null)
+                    continue;
+
+                if (continuation.ValueKind != JsonValueKind.String)
+                {
+                    partial = true;
+                    break;
+                }
+
+                string? candidate = continuation.GetString();
+                if (!string.IsNullOrWhiteSpace(candidate))
+                {
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(candidate, listingRelativePath);
+                    nextLink = candidate;
                 }
             }
-
-            nextLink = null;
-
-            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
-                && nextLinkElement.ValueKind == JsonValueKind.String)
+            catch (Exception ex) when (ex is JsonException or HttpRequestException or IOException)
             {
-                string? candidateNextLink = nextLinkElement.GetString();
-
-                if (!string.IsNullOrWhiteSpace(candidateNextLink))
-                {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
-                        candidateNextLink,
-                        listingRelativePath);
-                    nextLink = candidateNextLink;
-                }
+                partial = true;
+                break;
             }
         }
 
-        return resources;
+        return new HostedAzureArmTypeListCollection(resources, partial);
     }
 
     private static HostedAzureArmResourceRecord? MapPrivateDnsVirtualNetworkLink(JsonElement item, string zoneResourceId)
