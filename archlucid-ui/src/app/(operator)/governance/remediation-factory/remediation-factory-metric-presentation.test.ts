@@ -479,6 +479,22 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "pattern-exact")?.value).toBe("0%");
   });
 
+  it("keeps automation value when percent is negative zero", () => {
+    const metrics = { automationPercent: -0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "automation")?.value).toBe("0%");
+  });
+
+  it("keeps pattern-exact-match drill-through hint when percent is measuredZero", () => {
+    const metrics = { patternCoverageExactMatchPercent: 0 } as RemediationFactoryMetrics;
+    const table = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics,
+      openFindingsHref: "/security/findings",
+    });
+
+    expect(table.find((tile) => tile.key === "pattern-exact-match")?.hint).toContain("Pattern keys");
+  });
   it("omits automation table hint when percent is measuredZero", () => {
     const metrics = { automationPercent: 0 } as RemediationFactoryMetrics;
     const table = buildRemediationFactoryExecutiveMetricPresentations({

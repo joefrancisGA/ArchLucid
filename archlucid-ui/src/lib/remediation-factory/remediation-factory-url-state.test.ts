@@ -185,6 +185,27 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+  it("treats NFKC fullwidth ON metrics disclosure token as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\uFF4F\uFF4E`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("drops radix-one metrics token from base search when writing closed state", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: false,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=0b1&foreign=keep`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBeNull();
+    expect(params.get("foreign")).toBe("keep");
+  });
   it("treats NFKC fullwidth one metrics disclosure token as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\uFF11`).metricsSummaryOpen,
