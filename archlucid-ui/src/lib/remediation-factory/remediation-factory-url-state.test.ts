@@ -185,6 +185,26 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+  it("treats radix-prefixed one metrics disclosure token as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=0b1`).metricsSummaryOpen,
+    ).toBe(true);
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=0o1`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats radix-prefixed non-one metrics disclosure token as closed on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=0b10`).metricsSummaryOpen,
+    ).toBe(false);
+  });
+
+  it("treats uppercase ON metrics disclosure token as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=ON`).metricsSummaryOpen,
+    ).toBe(true);
+  });
   it("treats trailing-dot one metrics disclosure token as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1.`).metricsSummaryOpen,

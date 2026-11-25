@@ -50,6 +50,12 @@ function remediationFactoryDisclosureNumericOneOpenToken(normalized: string): bo
     return Number.isFinite(numeric) && numeric === 1;
   }
 
+  if (/^0[bBoO]/.test(unsigned)) {
+    const numeric = Number(unsigned);
+
+    return Number.isFinite(numeric) && numeric === 1;
+  }
+
   return false;
 }
 function setUuidParam(params: URLSearchParams, key: string, value: string | null): void {

@@ -464,6 +464,19 @@ describe("remediation-factory-metric-presentation", () => {
   });
 
 
+  it("keeps open-findings-factory scopeLine when count is zero", () => {
+    const metrics = { openFindings: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "open-findings-factory")?.scopeLine).toBeDefined();
+  });
+
+  it("keeps critical-exposure valueFootnote when count is zero", () => {
+    const metrics = { criticalExposureCount: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "critical-exposure")?.valueFootnote).toContain("No critical-or-error findings");
+  });
   it("keeps pattern-exact windowLine when percent is zero", () => {
     const metrics = { patternCoverageExactMatchPercent: 0 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
