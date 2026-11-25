@@ -381,6 +381,19 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker exhausted (all default-eligible zones parked); continued open `ui-lib-remediation-factory` pass-12 queue (`shouldRotate: false`). Promoted critical-exposure footnote — **proven** zero-count helper text showed while `metricsLoaded` was false; gate on `metricsLoaded`. Regression `omits critical-exposure footnote when metrics are unloaded even if count is zero`. **valid-no-repro** duplicate `toSnapshot` first-wins, **valid-no-repro** padded `1` metrics token, **valid-no-repro** mixed short/long overflow honesty, **valid-no-repro** clearing snapshots drops both params. Scoped vitest **122/122**. Reseeded pass-13 below. Private beta: invited operators no longer see “no critical” helper copy under not-measured critical exposure while metrics load.
+
+- [x] (superseded) pass-12 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-13 reseed.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — critical-exposure footnote when unloaded — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `readUuidParam` — duplicate toSnapshot params first-wins — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `uses the first toSnapshot token when the query string repeats the param`.
+- [x] (valid-no-repro) `parseRemediationFactoryMetricsSummaryOpen` — literal 1 with surrounding whitespace — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `treats a padded numeric one metrics disclosure token as open on read`.
+- [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — mixed short and padded long ids — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `shows overflow honesty when any path id is long after trim among short ids`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — clears stale toSnapshot when from cleared — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `drops stale toSnapshot when clearing from snapshot from base search`.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — open-findings-factory static footnote when unloaded — locus: static scope footnote; monitor; pass-13 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics closed drops literal 0 token — locus: delete on false; monitor; pass-13 reseed.
+- [ ] (candidate) `formatAttackPathReportPathChipLabel` — whitespace-only path id after trim — locus: empty trim; monitor; pass-13 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves fromSnapshot param — locus: disclosure writer; monitor; pass-13 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate selectedPath and path params — locus: independent UUID reads; monitor; pass-13 reseed.
 2026-11-25 thorough hunt (seed→hit): no rotation (`shouldRotate: false`). Promoted pass-11 exceptions-active footnote — **proven** stale metrics object showed expiring-soon footnote while `metricsLoaded` was false; gate on `metricsLoaded` (sibling to pass-10 net-burn). Regression `omits exceptions-active footnote when metrics are unloaded even if a metrics object is present`. **valid-no-repro** legacy `true` open write (`writes metrics open as 1 when base search used a legacy true token`), **valid-no-repro** duplicate `fromSnapshot` first-wins, **valid-no-repro** padded chip ellipsis after trim, **valid-no-repro** href preserves metrics open param. Scoped vitest **117/117**. Reseeded pass-12 below. Private beta: invited operators no longer see expiring-soon footnote under not-measured exceptions tile while factory metrics load.
 
 - [x] (superseded) pass-11 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-12 reseed.
@@ -520,8 +533,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 36
-- **bugs-found:** 14
+- **hunts:** 37
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25

@@ -310,4 +310,38 @@ describe("remediation-factory-url-state", () => {
     expect(href).toContain(`${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1`);
     expect(href).toContain("foreign=keep");
   });
+  it("uses the first toSnapshot token when the query string repeats the param", () => {
+    const firstId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+    const secondId = "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee";
+    const parsed = parseRemediationFactoryUrlStateFromSearch(
+      `?${REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM}=${firstId}&${REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM}=${secondId}`,
+    );
+
+    expect(parsed.toSnapshotId).toBe(firstId);
+  });
+
+  it("treats a padded numeric one metrics disclosure token as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=%201%20`,
+      ).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("drops stale toSnapshot when clearing from snapshot from base search", () => {
+    const toId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: false,
+      },
+      `${REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM}=cccccccc-cccc-cccc-cccc-cccccccccccc&${REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM}=${toId}`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM)).toBeNull();
+    expect(params.get(REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM)).toBeNull();
+  });
 });

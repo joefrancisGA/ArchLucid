@@ -93,7 +93,11 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       scopeLine: WORKSPACE_SCOPE,
       windowLine: "Factory metric — linked queue uses critical-error filter and may differ.",
       valueFootnote:
-        metrics?.criticalExposureCount === 0 ? "No critical-or-error findings in this metric." : null,
+        !metricsLoaded || metrics == null
+          ? null
+          : metrics.criticalExposureCount === 0
+            ? "No critical-or-error findings in this metric."
+            : null,
       value: formatCount(metrics?.criticalExposureCount),
       href: buildGovernanceFindingsQueueHref({ filter: "critical-error" }),
     },
