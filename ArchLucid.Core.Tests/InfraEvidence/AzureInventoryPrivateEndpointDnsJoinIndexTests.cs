@@ -108,6 +108,44 @@ public sealed class AzureInventoryPrivateEndpointDnsJoinIndexTests
         index.IsMissingDnsJoin(app, target).Should().BeTrue();
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Multiple_nics_subnets_and_targets_preserve_all_configuration_joins(bool reverse)
+    {
+        string vm = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm";
+        string nic1 = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic1";
+        string nic2 = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic2";
+        string vnet1 = BuildVnet("a");
+        string vnet2 = BuildVnet("b");
+        string pe = BuildPrivateEndpoint("pe");
+        string target1 = BuildSqlServer("sql1");
+        string target2 = BuildSqlServer("sql2");
+        string zone = BuildPrivateDnsZone("privatelink.database.windows.net");
+        AzureInventoryRelationshipArmTriple[] rows =
+        [
+            Triple(vm, nic1, GraphEdgeInferenceSources.InventoryVmNic),
+            Triple(vm, nic2, GraphEdgeInferenceSources.InventoryVmNic),
+            Triple(nic1, BuildSubnet(vnet1, "s1"), GraphEdgeInferenceSources.InventoryNicSubnet),
+            Triple(nic1, BuildSubnet(vnet1, "s2"), GraphEdgeInferenceSources.InventoryNicSubnet),
+            Triple(nic2, BuildSubnet(vnet2, "s3"), GraphEdgeInferenceSources.InventoryNicSubnet),
+            Triple(pe, target1, GraphEdgeInferenceSources.InventoryPrivateEndpoint),
+            Triple(pe, target2, GraphEdgeInferenceSources.InventoryPrivateEndpoint),
+            Triple(pe, zone, GraphEdgeInferenceSources.InventoryPeDnsZoneGroup),
+            Triple(zone, vnet1, GraphEdgeInferenceSources.InventoryPrivateDnsVnet),
+        ];
+        if (reverse)
+            Array.Reverse(rows);
+
+        var index = AzureInventoryPrivateEndpointDnsJoinIndex.Build(rows);
+        index.ComputeToVnetArmIds[ArmResourceIdNormalizer.Normalize(vm)].Should().HaveCount(2);
+        index.PrivateEndpointToTargetArmIds[ArmResourceIdNormalizer.Normalize(pe)].Should().HaveCount(2);
+        index.HasConfigurationDnsJoin(vm, target1).Should().BeTrue();
+        index.HasConfigurationDnsJoin(vm, target2).Should().BeTrue();
+        index.ComputeToVnetArmId.Should().NotContainKey(ArmResourceIdNormalizer.Normalize(vm));
+        index.HasConfigurationDnsJoin(vm, BuildSqlServer("unrelated")).Should().BeFalse();
+    }
+
     private static AzureInventoryRelationshipArmTriple Triple(string from, string to, string inferenceSource) =>
         new(from, to, inferenceSource);
 
