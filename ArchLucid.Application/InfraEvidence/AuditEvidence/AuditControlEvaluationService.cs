@@ -199,7 +199,7 @@ public sealed class AuditControlEvaluationService(
             approvedExceptionIds,
             failingAzureResourceIds,
             createdUtc,
-            inventoryCaptureComplete: snapshot.Header.CaptureStatus == AzureInventoryCaptureStatus.Succeeded);
+            inventoryCaptureComplete: IsRequiredEvidenceComplete(snapshot, requirements));
 
         await evaluationRepository.InsertInScopeAsync(
             scope.ToProjectScopeKey(),
@@ -216,6 +216,42 @@ public sealed class AuditControlEvaluationService(
             Evaluation = build.Evaluation,
             EvidenceItems = build.EvidenceItems,
         };
+    }
+
+    private static bool IsRequiredEvidenceComplete(
+        AzureInventorySnapshotDetailReadModel snapshot,
+        IReadOnlyList<AuditEvidenceRequirementRecord> requirements)
+    {
+        AzureInventorySnapshotRecord header = snapshot.Header;
+        IReadOnlyList<string> warnings = AzureInventorySnapshotCompletenessWarningsJson.Deserialize(header.CompletenessWarningsJson);
+        // Missing, malformed or inconsistent warning metadata must not authorize a scoped pass.
+        if (header.WarningCount != warnings.Count
+            || (!string.IsNullOrWhiteSpace(header.CompletenessWarningsJson) && warnings.Count == 0)
+            || header.ErrorCount != 0)
+            return false;
+
+        bool onlyIndependentDomains = requirements.Count > 0 && requirements.All(requirement =>
+            string.Equals(requirement.EvidenceType, AuditEvidenceTypeNames.Network, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(requirement.EvidenceType, AuditEvidenceTypeNames.Data, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(requirement.EvidenceType, AuditEvidenceTypeNames.Logging, StringComparison.OrdinalIgnoreCase));
+
+        bool hasEntraGap = warnings.Any(SecurityEvidenceAddCredentialAdapterWarnings.IsEntraEvidenceWarning);
+        if (hasEntraGap && !onlyIndependentDomains)
+            return false;
+
+        if (header.CaptureStatus == AzureInventoryCaptureStatus.Succeeded)
+            return true;
+
+        // Never reinterpret a legacy or unexplained partial capture as complete.
+        return header.CaptureStatus == AzureInventoryCaptureStatus.Partial
+            && header.ResourceCount > 0
+            && snapshot.Resources.Count > 0
+            && onlyIndependentDomains
+            && hasEntraGap
+            && warnings.Contains(SecurityEvidenceAddCredentialAdapterWarnings.EntraOnlyCapturePartial, StringComparer.OrdinalIgnoreCase)
+            && warnings.All(warning =>
+                string.Equals(warning, SecurityEvidenceAddCredentialAdapterWarnings.EntraOnlyCapturePartial, StringComparison.OrdinalIgnoreCase)
+                || SecurityEvidenceAddCredentialAdapterWarnings.IsEntraEvidenceWarning(warning));
     }
 
     public async Task<AuditControlEvaluationResult> TryEvaluateControlAsync(
@@ -284,7 +320,7 @@ public sealed class AuditControlEvaluationService(
                 approvedExceptionIds,
                 failingAzureResourceIds,
                 createdUtc,
-                inventoryCaptureComplete: snapshot.Header.CaptureStatus == AzureInventoryCaptureStatus.Succeeded);
+                inventoryCaptureComplete: IsRequiredEvidenceComplete(snapshot, requirements));
 
             await evaluationRepository.InsertAsync(
                 new AuditControlEvaluationPersistRequest

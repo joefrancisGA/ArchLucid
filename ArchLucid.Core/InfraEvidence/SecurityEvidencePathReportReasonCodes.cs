@@ -24,4 +24,6 @@ public static class SecurityEvidencePathReportReasonCodes
     public const string SearchStoppedMaxDepth = "search-stopped-max-depth";
 
     public const string SearchStoppedMaxFanOut = "search-stopped-max-fan-out";
+
+    public const string IncompleteIdentityEvidence = "incomplete-identity-evidence";
 }

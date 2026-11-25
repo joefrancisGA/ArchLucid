@@ -553,9 +553,13 @@ public sealed class AzureInventorySnapshotMaterializerTests
     }
 
     [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public async Task TryMaterializePackageAsync_preserves_collection_completeness(bool partial)
+    [InlineData(true, AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration)]
+    [InlineData(false, AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration)]
+    [InlineData(true, SecurityEvidenceAddCredentialAdapterWarnings.GraphIncomplete)]
+    [InlineData(true, SecurityEvidenceAddCredentialAdapterWarnings.GraphForbidden)]
+    [InlineData(true, SecurityEvidenceEntraGroupAdapterWarnings.GraphIncomplete)]
+    [InlineData(true, SecurityEvidenceEntraGroupAdapterWarnings.GraphForbidden)]
+    public async Task TryMaterializePackageAsync_preserves_collection_completeness(bool partial, string warning)
     {
         ScopeContext scope = new() { TenantId = Guid.NewGuid() };
         Guid snapshotId = Guid.NewGuid();
@@ -566,7 +570,6 @@ public sealed class AzureInventorySnapshotMaterializerTests
             CreateNoOpPostMaterializeCoordinator(),
             NullLogger<AzureInventorySnapshotMaterializer>.Instance);
 
-        string warning = AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration;
         byte[] zip = BuildZip(
             """
             [

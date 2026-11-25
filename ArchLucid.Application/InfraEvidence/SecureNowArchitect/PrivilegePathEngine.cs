@@ -58,12 +58,22 @@ public sealed class PrivilegePathEngine(
             runScope,
             scope.TenantId,
             snapshotId);
+        bool identityCoverageIncomplete = HasIncompleteIdentityEvidence(snapshot.Header);
+        IReadOnlyList<SecurityEvidencePathSearchLimitHit> coverageHits = identityCoverageIncomplete
+            ? [.. enumeration.LimitHits, new SecurityEvidencePathSearchLimitHit
+            {
+                Kind = SecurityEvidencePathSearchLimitKind.IncompleteIdentityEvidence,
+                LimitValue = 0,
+                PathsEmitted = enumeration.Candidates.Count,
+            }]
+            : enumeration.LimitHits;
+
         await SecurityEvidencePathSearchCoverageRecorder.ReplaceAsync(
             searchCoverageRepository,
             scope,
             snapshotId,
             SecurityEvidencePathSearchEngineNames.Privilege,
-            enumeration.LimitHits,
+            coverageHits,
             cancellationToken);
         IReadOnlyList<PrivilegePathCandidate> candidates = enumeration.Candidates;
 
@@ -73,6 +83,7 @@ public sealed class PrivilegePathEngine(
             {
                 Succeeded = true,
                 PathsDiscovered = 0,
+                IdentityEvidenceIncomplete = identityCoverageIncomplete,
             };
         }
 
@@ -153,6 +164,7 @@ public sealed class PrivilegePathEngine(
                 {
                     ["pathKind"] = PathKind.Privilege.ToString(),
                     ["hopCount"] = candidate.Hops.Count.ToString(),
+                    ["identityEvidenceIncomplete"] = identityCoverageIncomplete ? "true" : "false",
                     ["eventGridPublisherReview"] = publisherReview,
                 },
             });
@@ -168,10 +180,21 @@ public sealed class PrivilegePathEngine(
         {
             Succeeded = true,
             PathsDiscovered = candidates.Count,
+            IdentityEvidenceIncomplete = identityCoverageIncomplete,
             PathsPersisted = pathsPersisted,
             FindingsIngested = ingestResult.IngestedCount,
             FindingsDeduplicated = ingestResult.DeduplicatedCount,
         };
+    }
+
+    private static bool HasIncompleteIdentityEvidence(AzureInventorySnapshotRecord header)
+    {
+        IReadOnlyList<string> warnings = AzureInventorySnapshotCompletenessWarningsJson.Deserialize(header.CompletenessWarningsJson);
+        return header.CaptureStatus != AzureInventoryCaptureStatus.Succeeded
+            || header.ErrorCount != 0
+            || header.WarningCount != warnings.Count
+            || (!string.IsNullOrWhiteSpace(header.CompletenessWarningsJson) && warnings.Count == 0)
+            || warnings.Any(SecurityEvidenceAddCredentialAdapterWarnings.IsEntraEvidenceWarning);
     }
 
     private static PrivilegePathEngineResult Failed(string message) =>

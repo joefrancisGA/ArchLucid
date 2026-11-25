@@ -189,6 +189,7 @@ internal static class SecurityEvidencePathReportAssembler
     private static string MapSearchLimitReasonCode(SecurityEvidencePathSearchLimitKind limitKind) =>
         limitKind switch
         {
+            SecurityEvidencePathSearchLimitKind.IncompleteIdentityEvidence => SecurityEvidencePathReportReasonCodes.IncompleteIdentityEvidence,
             SecurityEvidencePathSearchLimitKind.MaxPaths => SecurityEvidencePathReportReasonCodes.SearchStoppedMaxPaths,
             SecurityEvidencePathSearchLimitKind.MaxDepth => SecurityEvidencePathReportReasonCodes.SearchStoppedMaxDepth,
             SecurityEvidencePathSearchLimitKind.MaxFanOut => SecurityEvidencePathReportReasonCodes.SearchStoppedMaxFanOut,

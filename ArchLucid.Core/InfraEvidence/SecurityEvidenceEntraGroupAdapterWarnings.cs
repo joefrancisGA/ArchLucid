@@ -8,6 +8,8 @@ public static class SecurityEvidenceEntraGroupAdapterWarnings
     public const string GraphForbidden =
         "entra group membership Graph read forbidden (403): privilege paths cannot traverse group membership";
 
+    public const string GraphIncomplete = "entra-group-membership-graph-incomplete";
+
     public const string GraphDisabled =
         "entra group membership Graph adapter disabled: supply entra-group-memberships.json or enable EntraGroupMembershipGraph";
 }

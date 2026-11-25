@@ -98,6 +98,29 @@ public sealed class SecurityEvidencePathReportAssemblerTests
         searchStopped.WhyText.Should().Contain("20");
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Assemble_discloses_identity_gap_even_without_discovered_paths(bool toxic)
+    {
+        SecurityEvidencePathSearchCoverageRecord coverage = new()
+        {
+            SearchCoverageId = Guid.NewGuid(),
+            SnapshotId = SnapshotId,
+            EngineName = toxic ? SecurityEvidencePathSearchEngineNames.ToxicCombination : SecurityEvidencePathSearchEngineNames.Privilege,
+            LimitKind = SecurityEvidencePathSearchLimitKind.IncompleteIdentityEvidence,
+            LimitValue = 0,
+            PathsEmitted = 0,
+            CreatedUtc = DateTime.UtcNow,
+        };
+        SecurityEvidencePathReportResponse report = SecurityEvidencePathReportAssembler.Assemble(
+            SnapshotId, [], [], [], [coverage]);
+        report.VulnerableAttackPaths.Should().BeEmpty();
+        report.UnevaluatedGroups.Should().ContainSingle(group =>
+            group.ReasonCode == SecurityEvidencePathReportReasonCodes.IncompleteIdentityEvidence
+            && group.WhyText.Contains("incomplete", StringComparison.OrdinalIgnoreCase));
+    }
+
     private static SecurityEvidencePathReportResponse AssembleSample()
     {
         List<SecurityEvidencePathRecord> paths =
