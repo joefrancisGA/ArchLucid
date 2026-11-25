@@ -380,6 +380,9 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 seed hunt (dry): picker `seedHunt`; continued `ui-lib-remediation-factory` (`shouldRotate: false`; hint override). Attempted failing repro on five pass-51 `(candidate)` monitors — **valid-no-repro** fullwidth TRUE open, **valid-no-repro** recurrence and open-findings-queue valueFootnote absence at zero, **valid-no-repro** net-burn table hint at measuredZero (no hint field), **valid-no-repro** scientific-one writer canonicalization, **valid-no-repro** exceptions footnote with only expiring zero (needs measured active). Regressions only; pass-52 reseed consumed pass-50 queue. Scoped vitest **266/266**. Private beta: n/a.
+2026-11-25 seed hunt (seed→hit): picker `seedHunt`; continued `ui-lib-remediation-factory` (`shouldRotate: false`; hint override; low-yield streak 1/3). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — enclosed-digit one tokens `⑴`, `⓵`, and `❶` stayed closed while other one-shaped tokens open; normalize parenthesized NFKC `(1)` and map remaining enclosed-one code points before matching. **valid-no-repro** comma-thousands `1,000` rejection (existing regression), **valid-no-repro** avg-age and pattern-exact negative-zero tile chrome (existing regressions), **invalid** automation table hint at measuredZero (no hint field by design), **valid-no-repro** comma-decimal writer canonical `1` (existing regression). Pass-53 reseed below. Scoped vitest **267/267**. Private beta: Invited operators who deep-link with enclosed-digit `remediationFactoryMetricsOpen` values open the executive metrics summary instead of landing with the panel closed.
+
 2026-11-25 seed hunt (seed→hit): picker `seedHunt`; continued `ui-lib-remediation-factory` (`shouldRotate: false`; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — NFKC fullwidth one token `１` stayed closed; normalize with `NFKC` before open-token matching. **valid-no-repro** comma-thousands rejection and comma writer canonicalization (regressions); **valid-no-repro** negative-zero tile and table monitors (regressions); **invalid** automation table hint at measuredZero (no hint field by design). Pass-51 reseed below. Scoped vitest **262/262**. Private beta: Invited operators who deep-link with fullwidth `remediationFactoryMetricsOpen` digits open the executive metrics summary instead of landing with the panel closed.
 2026-11-25 seed hunt (seed→hit): picker `seedHunt`; continued `ui-lib-remediation-factory` (`shouldRotate: false`; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — locale comma-decimal one token `1,0` stayed closed; accept finite comma decimals equal to one while rejecting thousands-style `1,000`. **valid-no-repro** exceptions-active zero expiring footnote (existing); **valid-no-repro** net-burn and risk-weighted zero chrome (regressions); **invalid** attack-path overflow whitespace-only list (existing). Pass-50 reseed below. Scoped vitest **256/256**. Private beta: Invited operators who deep-link with European-style `remediationFactoryMetricsOpen=1,0` open the executive metrics summary instead of landing with the panel closed.
 2026-11-25 seed hunt (seed→hit): picker `seedHunt`; continued `ui-lib-remediation-factory` (`shouldRotate: false`; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — radix-prefixed one tokens `0b1` and `0o1` stayed closed; accept `Number` literals when finite and equal to one. **valid-no-repro** pass-48 factory scopeLine and critical zero footnote; **valid-no-repro** factory compare footnote at zero (existing); **valid-no-repro** uppercase ON token (regression); **invalid** attack-path chip trim (existing regressions). Pass-49 reseed below. Scoped vitest **252/252**. Private beta: Invited operators who deep-link with radix-style `remediationFactoryMetricsOpen` values open the executive metrics summary instead of landing with the panel closed.
@@ -482,11 +485,21 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps risk-weighted-open ruleLine when value is zero — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression added.
 - [x] (invalid) `attackPathReportPathChipOverflowLine` — ignores whitespace-only ids when deciding overflow — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** existing regression.
 
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects comma-thousands token that numeric-parses to one — locus: disclosure parse; input: 1,000; monitor; pass-50 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps avg-age scopeLine when value is negative zero — locus: tile chrome; input: averageAgeDays -0; monitor; pass-50 reseed.
+
+- [x] (superseded) pass-50 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-53 reseed.
+- [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — enclosed-digit one token — **proven 2026-11-25 seed hunt (seed→hit):** regressions in url-state tests.
+
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — treats fullwidth TRUE metrics disclosure token as open — locus: disclosure parse; input: `ＴＲＵＥ`; monitor; pass-53 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open over scientific-one base replaces with canonical 1 — locus: writer; input: `1e0` base; monitor; pass-53 reseed.
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects enclosed-digit two token — locus: disclosure parse; input: `⓶`; monitor; pass-53 reseed.
+- [ ] (candidate) `architectOutcomeMetricPresentation` — treats string denominator one point zero as measured scope — locus: architect outcome; input: `"1.0"`; monitor; pass-53 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — net-burn table hint when net burn is measuredZero — locus: table chrome; input: netBurn 0; monitor; pass-53 reseed.
+
+- [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects comma-thousands token that numeric-parses to one — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** existing regression.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps avg-age scopeLine when value is negative zero — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** existing regression.
 - [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps pattern-exact value when percent is negative zero — locus: tile value; input: patternCoverageExactMatchPercent -0; monitor; pass-50 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — automation table hint when percent is measuredZero — locus: table chrome; input: automationPercent 0; monitor; pass-50 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open over comma-one base replaces with canonical 1 — locus: writer; input: 1,0 base; monitor; pass-50 reseed.
+- [x] (invalid) `buildRemediationFactoryExecutiveMetricPresentations` — automation table hint when percent is measuredZero — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** no hint field by design.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open over comma-one base replaces with canonical 1 — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** existing regression.
 
 
 
@@ -920,8 +933,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 72
-- **bugs-found:** 62
+- **hunts:** 73
+- **bugs-found:** 63
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25

@@ -29,6 +29,34 @@ function readUuidParam(params: URLSearchParams, key: string): string | null {
 }
 
 
+const REMEDIATION_FACTORY_DISCLOSURE_ENCLOSED_ONE_CODEPOINTS = new Set<number>([
+  0x24f5, // ⓵ DOUBLE CIRCLED DIGIT ONE
+  0x2776, // ❶ DINGBAT NEGATIVE CIRCLED DIGIT ONE
+]);
+
+function normalizeRemediationFactoryDisclosureOpenToken(raw: string | null | undefined): string | undefined {
+  const trimmed = raw?.trim();
+
+  if (trimmed === undefined || trimmed.length === 0) {
+    return undefined;
+  }
+
+  const nfkc = trimmed.normalize("NFKC");
+
+  if (nfkc === "(1)" || nfkc === "[1]") {
+    return "1";
+  }
+
+  if (nfkc.length === 1) {
+    const codePoint = nfkc.codePointAt(0);
+
+    if (codePoint !== undefined && REMEDIATION_FACTORY_DISCLOSURE_ENCLOSED_ONE_CODEPOINTS.has(codePoint)) {
+      return "1";
+    }
+  }
+
+  return nfkc.toLowerCase();
+}
 function remediationFactoryDisclosureNumericOneOpenToken(normalized: string): boolean {
   const unsigned = normalized.startsWith("+") ? normalized.slice(1) : normalized;
 
@@ -79,7 +107,7 @@ function setUuidParam(params: URLSearchParams, key: string, value: string | null
 }
 
 export function parseRemediationFactoryDisclosureOpenFromSearch(raw: string | null | undefined): boolean {
-  const normalized = raw?.trim().normalize("NFKC").toLowerCase();
+  const normalized = normalizeRemediationFactoryDisclosureOpenToken(raw);
 
   if (normalized === undefined || normalized.length === 0) {
     return false;

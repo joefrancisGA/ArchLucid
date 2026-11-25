@@ -212,6 +212,17 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+  it("treats enclosed-digit one metrics disclosure tokens as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\u2474`).metricsSummaryOpen,
+    ).toBe(true);
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\u24F5`).metricsSummaryOpen,
+    ).toBe(true);
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\u2776`).metricsSummaryOpen,
+    ).toBe(true);
+  });
   it("canonicalizes comma-decimal open token to 1 when writing open state", () => {
     const params = remediationFactoryUrlStateToSearchParams(
       {
