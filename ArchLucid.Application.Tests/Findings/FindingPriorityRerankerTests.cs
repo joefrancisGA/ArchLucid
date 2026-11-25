@@ -28,17 +28,11 @@ public sealed class FindingPriorityRerankerTests
         Guid snapshotId = Guid.Parse("22222222-2222-2222-2222-222222222222");
         Guid tenantId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
-        Mock<IRunRepository> runRepository = new();
-        runRepository
-            .Setup(r => r.GetByRunIdAdminAsync(runGuid, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunRecord
-            {
-                RunId = runGuid,
-                TenantId = tenantId,
-                WorkspaceId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                ScopeProjectId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                FindingsSnapshotId = snapshotId
-            });
+        ScopeContext scope = new()
+        {
+            TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+        };
+        RunRecord run = CommittedRun(scope, runGuid, snapshotId);
 
         Mock<ITenantRepository> tenantRepository = new();
         tenantRepository
@@ -114,13 +108,12 @@ public sealed class FindingPriorityRerankerTests
             .ReturnsAsync(modelResponse);
 
         FindingPriorityReranker sut = new(
-            runRepository.Object,
             findingsRepository.Object,
             tenantRepository.Object,
             completionClient.Object,
             NullLogger<FindingPriorityReranker>.Instance);
 
-        await sut.RerankForRunAsync(runGuid.ToString(), CancellationToken.None);
+        await sut.RerankForCommittedRunAsync(scope, run, CancellationToken.None);
 
         capturedRanks.Should().Equal(
             ("finding-high-b", 0),
@@ -133,21 +126,21 @@ public sealed class FindingPriorityRerankerTests
     {
         Guid runGuid = Guid.Parse("44444444-4444-4444-4444-444444444444");
 
-        Mock<IRunRepository> runRepository = new();
-        runRepository
-            .Setup(r => r.GetByRunIdAdminAsync(runGuid, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunRecord { RunId = runGuid, FindingsSnapshotId = null });
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+        };
+        RunRecord run = CommittedRun(scope, runGuid, null);
 
         Mock<IFindingsSnapshotRepository> findingsRepository = new();
 
         FindingPriorityReranker sut = new(
-            runRepository.Object,
             findingsRepository.Object,
             Mock.Of<ITenantRepository>(),
             Mock.Of<IAgentCompletionClient>(),
             NullLogger<FindingPriorityReranker>.Instance);
 
-        await sut.RerankForRunAsync(runGuid.ToString(), CancellationToken.None);
+        await sut.RerankForCommittedRunAsync(scope, run, CancellationToken.None);
 
         findingsRepository.Verify(
             f => f.UpdatePriorityRanksAsync(
@@ -157,4 +150,31 @@ public sealed class FindingPriorityRerankerTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
+    [Fact]
+    public async Task RerankForCommittedRunAsync_does_not_read_another_workspaces_findings()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+        };
+        RunRecord wrongWorkspace = CommittedRun(scope, Guid.NewGuid(), Guid.NewGuid());
+        wrongWorkspace.WorkspaceId = Guid.NewGuid();
+        Mock<IFindingsSnapshotRepository> findingsRepository = new(MockBehavior.Strict);
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        Mock<IAgentCompletionClient> completion = new(MockBehavior.Strict);
+        FindingPriorityReranker sut = new(findingsRepository.Object, tenants.Object, completion.Object,
+            NullLogger<FindingPriorityReranker>.Instance);
+
+        await sut.RerankForCommittedRunAsync(scope, wrongWorkspace, CancellationToken.None);
+
+        findingsRepository.VerifyNoOtherCalls();
+        tenants.VerifyNoOtherCalls();
+        completion.VerifyNoOtherCalls();
+    }
+
+    private static RunRecord CommittedRun(ScopeContext scope, Guid runId, Guid? snapshotId) => new()
+    {
+        RunId = runId, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ScopeProjectId = scope.ProjectId,
+        LegacyRunStatus = "Committed", GoldenManifestId = Guid.NewGuid(), FindingsSnapshotId = snapshotId,
+    };
 }

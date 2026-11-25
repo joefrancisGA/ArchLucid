@@ -147,7 +147,7 @@ public sealed class RetrievalIndexingOutboxProcessor(
             manifestHashService);
 
         RunDetailDto? detail = await query
-            .GetRunDetailForRetrievalIndexingAsync(scopeContext, run, manifest, cancellationToken)
+            .GetRunDetailForCommittedProjectionAsync(scopeContext, run, manifest, cancellationToken)
             .ConfigureAwait(false);
         if (detail?.GraphSnapshot is not { } graphSnapshot || detail.FindingsSnapshot is not { } findings ||
             detail.AuthorityTrace is null || graphSnapshot.GraphSnapshotId != manifest.GraphSnapshotId ||

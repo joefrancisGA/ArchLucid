@@ -214,7 +214,7 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
     [InlineData(typeof(DapperAuthorityQueryService), true)]
     [InlineData(typeof(InMemoryAuthorityQueryService), false)]
     [InlineData(typeof(DapperAuthorityQueryService), false)]
-    public async Task GetRunDetailForRetrievalIndexingAsync_reads_only_bound_evidence_without_artifact_bodies(
+    public async Task GetRunDetailForCommittedProjectionAsync_reads_only_bound_evidence_without_artifact_bodies(
         Type implementationType, bool validBinding)
     {
         Guid tenantId = Guid.NewGuid();
@@ -267,7 +267,7 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
             bundles.Object,
             traceRows.Object);
 
-        RunDetailDto? detail = await sut.GetRunDetailForRetrievalIndexingAsync(scope, run, verifiedManifest, CancellationToken.None);
+        RunDetailDto? detail = await sut.GetRunDetailForCommittedProjectionAsync(scope, run, verifiedManifest, CancellationToken.None);
 
         if (!validBinding)
         {

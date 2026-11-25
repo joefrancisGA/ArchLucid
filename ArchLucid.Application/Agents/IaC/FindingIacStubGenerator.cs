@@ -11,9 +11,11 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using Microsoft.Extensions.Logging;
 
@@ -61,6 +63,28 @@ public sealed class FindingIacStubGenerator(
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        Guid? findingsSnapshotId = null;
+        if (Guid.TryParse(runId.Trim(), out Guid runGuid))
+        {
+            RunRecord? run = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken)
+                .ConfigureAwait(false);
+            if (run is null)
+                return;
+            findingsSnapshotId = run.FindingsSnapshotId;
+        }
+
+        await GenerateAndPersistStubsAsync(scope, runId, findingsSnapshotId, cancellationToken).ConfigureAwait(false);
+    }
+
+    public Task GenerateAndPersistStubsForCommittedRunAsync(
+        ScopeContext scope, RunRecord run, CancellationToken cancellationToken) =>
+        CommittedRunEvidenceBinding.MatchesRun(scope, run.RunId, run)
+            ? GenerateAndPersistStubsAsync(scope, run.RunId.ToString("N"), run.FindingsSnapshotId, cancellationToken)
+            : Task.CompletedTask;
+
+    private async Task GenerateAndPersistStubsAsync(
+        ScopeContext scope, string runId, Guid? findingsSnapshotId, CancellationToken cancellationToken)
+    {
         string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
         IReadOnlyList<AgentResult> existingResults =
             await AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
@@ -80,7 +104,8 @@ public sealed class FindingIacStubGenerator(
 
         if (results.Count == 0)
             return;
-        await ApplyRelationalMuteFlagsAsync(scope, runId, results, cancellationToken).ConfigureAwait(false);
+        if (findingsSnapshotId is Guid snapshotId && snapshotId != Guid.Empty)
+            await ApplyRelationalMuteFlagsAsync(scope, snapshotId, results, cancellationToken).ConfigureAwait(false);
 
         List<AgentResult> updatedResults = [];
 
@@ -175,20 +200,10 @@ public sealed class FindingIacStubGenerator(
 
     private async Task ApplyRelationalMuteFlagsAsync(
         ScopeContext scope,
-        string runId,
+        Guid snapshotId,
         List<AgentResult> results,
         CancellationToken cancellationToken)
     {
-        if (!Guid.TryParse(runId.Trim(), out Guid runGuid))
-            return;
-
-        Persistence.Models.RunRecord? run = await _runRepository
-            .GetByRunIdAdminAsync(runGuid, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (run?.FindingsSnapshotId is not Guid snapshotId)
-            return;
-
         IReadOnlyDictionary<string, FindingMuteFlag> muteFlags = await _findingRecordMuteRepository
             .GetMuteFlagsAsync(snapshotId, scope, cancellationToken)
             .ConfigureAwait(false);

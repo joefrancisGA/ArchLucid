@@ -2,18 +2,19 @@ using System.Text.Json;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Findings;
 
 public sealed class FindingPriorityReranker(
-    IRunRepository runRepository,
     IFindingsSnapshotRepository findingsSnapshotRepository,
     ITenantRepository tenantRepository,
     IAgentCompletionClient completionClient,
@@ -28,8 +29,6 @@ public sealed class FindingPriorityReranker(
         PropertyNameCaseInsensitive = true
     };
 
-    private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
-
     private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
         findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
 
@@ -41,24 +40,11 @@ public sealed class FindingPriorityReranker(
 
     private readonly ILogger<FindingPriorityReranker> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-    public async Task RerankForRunAsync(string runId, CancellationToken cancellationToken)
+    public async Task RerankForCommittedRunAsync(ScopeContext scope, RunRecord run, CancellationToken cancellationToken)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
-
-        if (!Guid.TryParse(runId.Trim(), out Guid runGuid))
+        if (!CommittedRunEvidenceBinding.MatchesRun(scope, run.RunId, run) ||
+            run.FindingsSnapshotId is not Guid snapshotId || snapshotId == Guid.Empty)
             return;
-
-        Persistence.Models.RunRecord? run = await _runRepository.GetByRunIdAdminAsync(runGuid, cancellationToken);
-
-        if (run?.FindingsSnapshotId is not Guid snapshotId)
-            return;
-
-        ScopeContext scope = new()
-        {
-            TenantId = run.TenantId,
-            WorkspaceId = run.WorkspaceId,
-            ProjectId = run.ScopeProjectId
-        };
 
         string industryVertical = await ResolveIndustryVerticalAsync(run.TenantId, cancellationToken);
         List<FindingRecordMetadataRow> allRows = await LoadAllFindingRowsAsync(scope, snapshotId, cancellationToken);

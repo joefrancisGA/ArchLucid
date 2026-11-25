@@ -157,7 +157,7 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
 
         Mock<IAuthorityQueryService> query = new();
         query
-            .Setup(q => q.GetRunDetailForRetrievalIndexingAsync(
+            .Setup(q => q.GetRunDetailForCommittedProjectionAsync(
                 It.IsAny<ScopeContext>(), It.IsAny<RunRecord>(), It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
         manifest.GraphSnapshotId = detail.GraphSnapshot!.GraphSnapshotId;
@@ -301,7 +301,7 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
 
         Mock<IAuthorityQueryService> query = new();
         query
-            .Setup(q => q.GetRunDetailForRetrievalIndexingAsync(
+            .Setup(q => q.GetRunDetailForCommittedProjectionAsync(
                 It.IsAny<ScopeContext>(), It.IsAny<RunRecord>(), It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunDetailDto?)null);
 

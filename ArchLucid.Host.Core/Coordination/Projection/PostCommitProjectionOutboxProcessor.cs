@@ -10,11 +10,14 @@ using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination;
 using ArchLucid.Persistence.Coordination.Projection;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Queries;
 
@@ -127,55 +130,80 @@ public sealed class PostCommitProjectionOutboxProcessor(
 
         using IDisposable _ = LogContext.PushProperty("CorrelationId", correlationId);
 
-        using IDisposable ambient = AmbientScopeContext.Push(jobScope);
-
-        ManifestDocument? validatedGoldenManifest = null;
-
-        if (entry.RunId is Guid runId)
+        ScopeContext? drainScope = AmbientScopeContext.CurrentOverride;
+        bool tenantPurge = entry.WorkType == PostCommitProjectionWorkTypes.SampleRunPurgeForTenant;
+        if (!CommittedRunEvidenceBinding.HasExplicitScope(jobScope) ||
+            !CommittedRunEvidenceBinding.MatchesDrainScope(jobScope, drainScope) ||
+            (tenantPurge && drainScope is not null &&
+             (drainScope.WorkspaceId != Guid.Empty || drainScope.ProjectId != Guid.Empty)))
         {
-            IAuthorityQueryService authorityQueryService =
-                scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
-            IManifestHashService manifestHashService =
-                scope.ServiceProvider.GetRequiredService<IManifestHashService>();
-
-            RunDetailDto? manifestCompareDetail = await authorityQueryService
-                .GetRunDetailForManifestCompareAsync(jobScope, runId, cancellationToken)
-                .ConfigureAwait(false);
-
-            if (manifestCompareDetail?.GoldenManifest is null)
-            {
-                await CompleteProcessedEntryAsync(
-                        outbox,
-                        entry,
-                        benignSkip: false,
-                        cancellationToken,
-                        postMarkObservability: () =>
-                        {
-                            if (Logger.IsEnabled(LogLevel.Warning))
-                            {
-                                Logger.LogWarning(
-                                    "Skipping post-commit projection outbox {OutboxId} for run {RunId}: run detail no longer found.",
-                                    entry.OutboxId,
-                                    runId);
-                            }
-                        })
-                    .ConfigureAwait(false);
-
-                return;
-            }
-
-            validatedGoldenManifest = manifestCompareDetail.GoldenManifest;
-
-            PostCommitProjectionOutboxSealedManifestHashGuard.EnsureGoldenManifestSealedHashOrThrow(
-                validatedGoldenManifest,
-                runId,
-                manifestHashService);
+            await SkipEntryAsync(outbox, entry, "invalid or insufficient drain scope", cancellationToken);
+            return;
         }
 
-        bool benignSkip = await DispatchWorkTypeAsync(scope, entry, jobScope, validatedGoldenManifest, cancellationToken);
+        // The commit pipeline enqueues these known work types. Reject unknown work without hydrating evidence.
+        if (!tenantPurge && !IsRunProjection(entry.WorkType))
+            throw new InvalidOperationException($"Unknown post-commit projection work type '{entry.WorkType}'.");
+
+        if (entry.RunId is not Guid runId || runId == Guid.Empty)
+        {
+            await SkipEntryAsync(outbox, entry, "missing triggering run", cancellationToken);
+            return;
+        }
+
+        using IDisposable ambient = AmbientScopeContext.Push(jobScope);
+        IRunRepository runs = scope.ServiceProvider.GetRequiredService<IRunRepository>();
+        RunRecord? run = await runs.GetByIdIncludingArchivedAsync(jobScope, runId, cancellationToken)
+            .ConfigureAwait(false);
+        if (run?.GoldenManifestId is not Guid manifestId ||
+            !CommittedRunEvidenceBinding.MatchesRun(jobScope, runId, run) ||
+            (tenantPurge && run.IsSample))
+        {
+            await SkipEntryAsync(outbox, entry, "no valid committed run for the requested work", cancellationToken);
+            return;
+        }
+
+        IAuthorityQueryService query = scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
+        ManifestDocument? manifest = await query
+            .GetManifestForSummaryVerificationAsync(jobScope, manifestId, cancellationToken)
+            .ConfigureAwait(false);
+        if (manifest is null || !CommittedRunEvidenceBinding.MatchesManifest(jobScope, run, manifest))
+        {
+            await SkipEntryAsync(outbox, entry, "manifest is missing or does not match the committed run", cancellationToken);
+            return;
+        }
+
+        PostCommitProjectionOutboxSealedManifestHashGuard.EnsureGoldenManifestSealedHashOrThrow(
+            manifest, runId, scope.ServiceProvider.GetRequiredService<IManifestHashService>());
+
+        bool benignSkip = false;
+        if (tenantPurge)
+        {
+            // This tenant-wide action needs the sealed non-sample trigger plus a tenant-capable system drain.
+            await scope.ServiceProvider.GetRequiredService<ISampleRunPurgeService>()
+                .PurgeForTenantAsync(jobScope.TenantId, cancellationToken).ConfigureAwait(false);
+        }
+        else
+        {
+            benignSkip = await DispatchRunProjectionAsync(scope, entry.WorkType, jobScope, run, manifest, query,
+                cancellationToken).ConfigureAwait(false);
+        }
 
         await CompleteProcessedEntryAsync(outbox, entry, benignSkip, cancellationToken).ConfigureAwait(false);
     }
+
+    private static bool IsRunProjection(string workType) =>
+        workType is PostCommitProjectionWorkTypes.ProvenanceSnapshotMaterialization or
+            PostCommitProjectionWorkTypes.ReviewCompletedEvent or PostCommitProjectionWorkTypes.FindingPriorityRerank or
+            PostCommitProjectionWorkTypes.IacStubGeneration or PostCommitProjectionWorkTypes.DecisionEngineV2NodeMaterialization;
+
+    private Task SkipEntryAsync(
+        IPostCommitProjectionOutboxRepository outbox, PostCommitProjectionOutboxEntry entry, string reason, CancellationToken ct) =>
+        CompleteProcessedEntryAsync(outbox, entry, benignSkip: false, ct, () =>
+        {
+            if (Logger.IsEnabled(LogLevel.Warning))
+                Logger.LogWarning("Skipping post-commit projection outbox {OutboxId}: {Reason}.", entry.OutboxId, reason);
+        });
 
     private async Task CompleteProcessedEntryAsync(
         IPostCommitProjectionOutboxRepository outbox,
@@ -234,154 +262,55 @@ public sealed class PostCommitProjectionOutboxProcessor(
         };
     }
 
-    private static async Task<bool> DispatchWorkTypeAsync(
-        IServiceScope scope,
-        PostCommitProjectionOutboxEntry entry,
-        ScopeContext jobScope,
-        ManifestDocument? validatedGoldenManifest,
-        CancellationToken ct)
+    private static async Task<bool> DispatchRunProjectionAsync(
+        IServiceScope scope, string workType, ScopeContext binding, RunRecord run, ManifestDocument manifest,
+        IAuthorityQueryService query, CancellationToken ct)
     {
-        if (entry.WorkType == PostCommitProjectionWorkTypes.ProvenanceSnapshotMaterialization)
-            return await ProcessProvenanceSnapshotMaterializationAsync(scope, entry, jobScope, validatedGoldenManifest, ct);
-
-        if (entry.WorkType == PostCommitProjectionWorkTypes.ReviewCompletedEvent)
+        switch (workType)
         {
-            await ProcessReviewCompletedEventAsync(scope, entry, ct);
+            case PostCommitProjectionWorkTypes.ProvenanceSnapshotMaterialization:
+                RunDetailDto? detail = await query.GetRunDetailForCommittedProjectionAsync(binding, run, manifest, ct)
+                    .ConfigureAwait(false);
+                if (detail?.GraphSnapshot is not { } graph || detail.FindingsSnapshot is not { } findings ||
+                    detail.AuthorityTrace is null || detail.Run is not { } detailRun ||
+                    !CommittedRunEvidenceBinding.MatchesRun(binding, run.RunId, detailRun) ||
+                    !CommittedRunEvidenceBinding.MatchesManifest(binding, detailRun, manifest) ||
+                    detail.GoldenManifest?.ManifestId != manifest.ManifestId ||
+                    graph.GraphSnapshotId != manifest.GraphSnapshotId || graph.RunId != run.RunId ||
+                    findings.FindingsSnapshotId != manifest.FindingsSnapshotId || findings.RunId != run.RunId)
+                    return true;
 
-            return false;
+                await scope.ServiceProvider.GetRequiredService<IProvenanceGraphAccessService>()
+                    .TryMaterializeSnapshotAsync(binding, detail, ct).ConfigureAwait(false);
+                break;
+
+            case PostCommitProjectionWorkTypes.ReviewCompletedEvent:
+                await scope.ServiceProvider.GetRequiredService<IReviewCompletedEventHandler>()
+                    .HandleAsync(new ReviewCompletedEvent
+                    {
+                        RunId = run.RunId.ToString("N"),
+                        ProjectId = binding.ProjectId.ToString("N")
+                    }, ct).ConfigureAwait(false);
+                break;
+
+            case PostCommitProjectionWorkTypes.FindingPriorityRerank:
+                await scope.ServiceProvider.GetRequiredService<IFindingPriorityReranker>()
+                    .RerankForCommittedRunAsync(binding, run, ct).ConfigureAwait(false);
+                break;
+
+            case PostCommitProjectionWorkTypes.IacStubGeneration:
+                await scope.ServiceProvider.GetRequiredService<IFindingIacStubGenerator>()
+                    .GenerateAndPersistStubsForCommittedRunAsync(binding, run, ct).ConfigureAwait(false);
+                break;
+
+            case PostCommitProjectionWorkTypes.DecisionEngineV2NodeMaterialization:
+                await scope.ServiceProvider.GetRequiredService<IDecisionEngineV2NodeMaterializer>()
+                    .MaterializeForCommittedRunAsync(binding, run, ct).ConfigureAwait(false);
+                break;
+
+            default: throw new InvalidOperationException($"Unknown post-commit projection work type '{workType}'.");
         }
-
-        if (entry.WorkType == PostCommitProjectionWorkTypes.SampleRunPurgeForTenant)
-        {
-            await ProcessSampleRunPurgeForTenantAsync(scope, entry.TenantId, ct);
-
-            return false;
-        }
-
-        if (entry.WorkType == PostCommitProjectionWorkTypes.FindingPriorityRerank)
-        {
-            await ProcessFindingPriorityRerankAsync(scope, entry, ct);
-
-            return false;
-        }
-
-        if (entry.WorkType == PostCommitProjectionWorkTypes.IacStubGeneration)
-        {
-            await ProcessIacStubGenerationAsync(scope, entry, ct);
-
-            return false;
-        }
-
-        if (entry.WorkType == PostCommitProjectionWorkTypes.DecisionEngineV2NodeMaterialization)
-        {
-            await ProcessDecisionEngineV2NodeMaterializationAsync(scope, entry, ct);
-
-            return false;
-        }
-
-        throw new InvalidOperationException($"Unknown post-commit projection work type '{entry.WorkType}'.");
-    }
-
-    private static async Task<bool> ProcessProvenanceSnapshotMaterializationAsync(
-        IServiceScope scope,
-        PostCommitProjectionOutboxEntry entry,
-        ScopeContext jobScope,
-        ManifestDocument? validatedGoldenManifest,
-        CancellationToken ct)
-    {
-        if (entry.RunId is not Guid runId)
-            throw new InvalidOperationException("ProvenanceSnapshotMaterialization requires RunId.");
-
-        IAuthorityQueryService authorityQuery =
-            scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
-        IProvenanceGraphAccessService provenanceGraphAccess =
-            scope.ServiceProvider.GetRequiredService<IProvenanceGraphAccessService>();
-
-        RunDetailDto? detail = await authorityQuery.GetRunDetailAsync(jobScope, runId, ct);
-
-        if (detail is null)
-            return true;
-
-        if (validatedGoldenManifest is not null
-            && detail.GoldenManifest is not null
-            && detail.GoldenManifest.ManifestId != validatedGoldenManifest.ManifestId)
-        {
-            return true;
-        }
-
-        await provenanceGraphAccess.TryMaterializeSnapshotAsync(jobScope, detail, ct);
-
         return false;
-    }
-
-    private static async Task ProcessReviewCompletedEventAsync(
-        IServiceScope scope,
-        PostCommitProjectionOutboxEntry entry,
-        CancellationToken ct)
-    {
-        if (entry.RunId is not Guid runGuid)
-            throw new InvalidOperationException("ReviewCompletedEvent requires RunId.");
-
-        PostCommitProjectionPayload? payload = PostCommitProjectionPayloadJson.Deserialize(entry.PayloadJson);
-        string projectId = payload?.ProjectId ?? entry.ProjectId.ToString("N");
-        string runId = runGuid.ToString("N");
-
-        IReviewCompletedEventHandler handler =
-            scope.ServiceProvider.GetRequiredService<IReviewCompletedEventHandler>();
-
-        await handler.HandleAsync(
-            new ReviewCompletedEvent { RunId = runId, ProjectId = projectId },
-            ct);
-    }
-
-    private static async Task ProcessSampleRunPurgeForTenantAsync(
-        IServiceScope scope,
-        Guid tenantId,
-        CancellationToken ct)
-    {
-        ISampleRunPurgeService purgeService = scope.ServiceProvider.GetRequiredService<ISampleRunPurgeService>();
-
-        await purgeService.PurgeForTenantAsync(tenantId, ct);
-    }
-
-    private static async Task ProcessFindingPriorityRerankAsync(
-        IServiceScope scope,
-        PostCommitProjectionOutboxEntry entry,
-        CancellationToken ct)
-    {
-        if (entry.RunId is not Guid runGuid)
-            throw new InvalidOperationException("FindingPriorityRerank requires RunId.");
-
-        IFindingPriorityReranker reranker = scope.ServiceProvider.GetRequiredService<IFindingPriorityReranker>();
-
-        await reranker.RerankForRunAsync(runGuid.ToString("N"), ct);
-    }
-
-    private static async Task ProcessIacStubGenerationAsync(
-        IServiceScope scope,
-        PostCommitProjectionOutboxEntry entry,
-        CancellationToken ct)
-    {
-        if (entry.RunId is not Guid runGuid)
-            throw new InvalidOperationException("IacStubGeneration requires RunId.");
-
-        IFindingIacStubGenerator generator = scope.ServiceProvider.GetRequiredService<IFindingIacStubGenerator>();
-
-        await generator.GenerateAndPersistStubsForRunAsync(runGuid.ToString("N"), ct);
-    }
-
-    private static async Task ProcessDecisionEngineV2NodeMaterializationAsync(
-        IServiceScope scope,
-        PostCommitProjectionOutboxEntry entry,
-        CancellationToken ct)
-    {
-        if (entry.RunId is not Guid runGuid)
-            throw new InvalidOperationException("DecisionEngineV2NodeMaterialization requires RunId.");
-
-        IDecisionEngineV2NodeMaterializer materializer =
-            scope.ServiceProvider.GetRequiredService<IDecisionEngineV2NodeMaterializer>();
-
-        await materializer.MaterializeIfMissingAsync(runGuid.ToString("N"), ct);
     }
 
     [InformationalAudit]
