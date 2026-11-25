@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 `ui-lib-remediation-factory` pass-15 windowLine. **133/133**. — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-infra-resource-hub` pass-496 cheap-disproof. ResourceHubClient **148/148**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 `ui-lib-remediation-factory` pass-18 snapshot identity yes/on. **137/137**. — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-infra-resource-hub` pass-496 cheap-disproof. ResourceHubClient **148/148**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -98,7 +98,9 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 - **test-filter:** lib/governance
 - **hunts:** 8
 - **bugs-found:** 4
-- **consecutive-dry-hunts:** 0`r`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-25
+- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -379,6 +381,20 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-18 (`shouldRotate: false`; hint override). **proven** snapshot-identity disclosure parse — `parseRemediationFactorySnapshotIdentityDisclosureOpenFromSearch` still accepted only `1`/`true` while shared metrics parse already honors `yes`/`on`, so deep-linked snapshot identity panels stayed closed on shared allowlist tokens; route through `parseRemediationFactoryDisclosureOpenFromSearch`. Regression `treats yes and on snapshot identity disclosure tokens as open on read`. **valid-no-repro** selection-identity href closed clears token (`operatorBooleanDisclosureHrefFromSearch` contract), **valid-no-repro** shared parse rejects `off` (`treats OFF metrics disclosure token as closed on read`), **valid-no-repro** metrics open writes canonical `1` (writer regressions), **valid-no-repro** mixed short/long overflow (`shows overflow honesty after trimming padded long path ids`). Pass-19 reseed below. Scoped vitest **137/137**. Private beta: invited operators opening remediation factory with `yes`/`on` snapshot-identity disclosure bookmarks see the snapshot identity panel open consistently with metrics and selection-identity URL tokens.
+
+- [x] (superseded) pass-18 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-19 reseed.
+- [x] (proven) `parseRemediationFactorySnapshotIdentityDisclosureOpenFromSearch` — yes/on tokens — **proven 2026-11-25 thorough hunt (seed→hit):** shared disclosure parse; regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactorySelectionIdentityDisclosureHrefFromSearch` — closed clears token — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** boolean href writer contract.
+- [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects `off` literal — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** OFF read regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open writes canonical `1` — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** writer normalization regressions.
+- [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — mixed short/long after trim — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** padded-long overflow regression.
+
+- [ ] (candidate) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — closed clears token — locus: boolean href writer; input: toggle closed; monitor; pass-19 reseed.
+- [ ] (candidate) `remediationFactorySnapshotIdentityDisclosureHrefFromSearch` — open writes canonical `1` — locus: writer normalization; input: open=true; monitor; pass-19 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — label line when unloaded — locus: tile label always visible; monitor; pass-19 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves finding param on pathname-only href — locus: disclosure writer; monitor; pass-19 reseed.
+- [ ] (candidate) `parseRemediationFactorySnapshotIdentityDisclosureOpenFromSearch` — duplicate param first-wins — locus: URLSearchParams.get; monitor; pass-19 reseed.
 2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-17 (`shouldRotate: false`; hint override). **proven** selection-identity disclosure parse — `parseRemediationFactorySelectionIdentityDisclosureOpenFromSearch` accepted only `1`/`true` while metrics disclosure already honors `yes`/`on`, so deep-linked selection identity panels stayed closed on shared allowlist tokens; route through exported `parseRemediationFactoryDisclosureOpenFromSearch`. Regression `treats yes and on selection identity disclosure tokens as open on read`. **valid-no-repro** metrics `NO` closed write (`drops NO metrics disclosure token from base search when writing closed state`), **valid-no-repro** metrics `yes` read, **valid-no-repro** trim-only chip label, **invalid** label-when-unloaded (labels must stay visible under loading). Pass-18 reseed below. Scoped vitest **136/136**. Private beta: invited operators opening remediation factory with `yes`/`on` selection-identity disclosure bookmarks see the identity panel open consistently with metrics disclosure URL tokens.
 
 - [x] (superseded) pass-17 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-18 reseed.
@@ -388,11 +404,6 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (valid-no-repro) `formatAttackPathReportPathChipLabel` — trim-only id — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** whitespace-only regression.
 - [x] (invalid) `buildRemediationFactoryExecutiveMetricTiles` — label when unloaded — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** metric labels required while loading.
 
-- [ ] (candidate) `remediationFactorySelectionIdentityDisclosureHrefFromSearch` — closed clears token — locus: boolean href writer; input: toggle closed; monitor; pass-18 reseed.
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects `off` literal — locus: shared parse; input: off token; monitor; pass-18 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open writes canonical `1` — locus: writer normalization; input: open=true; monitor; pass-18 reseed.
-- [ ] (candidate) `remediationFactorySnapshotIdentityDisclosureUrl` — mismatched allowlist — locus: snapshot disclosure parse; input: yes token; monitor; pass-18 reseed.
-- [ ] (candidate) `attackPathReportPathChipOverflowLine` — mixed short/long after trim — locus: honesty copy; input: padded long id; monitor; pass-18 reseed.
 2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-16 (`shouldRotate: false`; hint override). **proven** `scopeLine` on executive tiles — workspace scope chrome showed under `Loading metrics…` while `metricsLoaded` was false; gate via `scopeLineWhenLoaded` and omit in `MetricTileBody` when undefined. Regression `omits scopeLine on executive metric tiles when metrics are unloaded`. **valid-no-repro** metrics `no` token not in open allowlist, **valid-no-repro** duplicate metrics param (`URLSearchParams.get` first token), **valid-no-repro** overflow with single long path id, **invalid** path alias param (no alias in url-state). Pass-17 reseed below. Scoped vitest **134/134**. Private beta: invited operators no longer see workspace scope helper copy on remediation factory metric tiles while metrics are still loading.
 
 - [x] (superseded) pass-16 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-17 reseed.
@@ -601,9 +612,11 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 39
-- **bugs-found:** 17
-- **consecutive-dry-hunts:** 0`r`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
+- **hunts:** 40
+- **bugs-found:** 18
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-25
+- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ## Zone: ui-hooks-shared
@@ -3935,7 +3948,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** HelpDocsClient
 - **hunts:** 27
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 0`r`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-25
+- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -4746,7 +4761,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
 - **hunts:** 8
-- **bugs-found:** 6`r`n- **consecutive-dry-hunts:** 0`r`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
+- **bugs-found:** 6`r`n- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-25
+- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9666,7 +9683,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~Contracts
 - **hunts:** 17
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 0`r`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-25
+- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11562,7 +11581,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** marketing
 - **hunts:** 10
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 0`r`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-25
+- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
