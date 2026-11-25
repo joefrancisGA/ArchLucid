@@ -1,0 +1,22 @@
+name: SecureNow MSRC advisory import
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/securenow/msrc_advisory_*.py'
+      - 'scripts/tests/test_msrc_advisory_*.py'
+      - '.github/workflows/securenow-msrc-advisory-import.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  reviewed-batch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s scripts/tests -p 'test_msrc_advisory_*.py' -v
