@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.AgentRuntime.AgentModelAliases;
 using ArchLucid.AgentRuntime.Prompts;
+using ArchLucid.AgentRuntime.Quality;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
@@ -30,7 +31,8 @@ public sealed class AgentExecutionTraceRecorder(
     IPromptRedactor promptRedactor,
     IAgentToolInvocationRecordWriter toolInvocationRecordWriter,
     IAgentExecutionTraceForensicPersistence forensicPersistence,
-    ILogger<AgentExecutionTraceRecorder> logger)
+    ILogger<AgentExecutionTraceRecorder> logger,
+    IProviderQualityMonitor? providerQualityMonitor = null)
     : IAgentExecutionTraceRecorder
 {
     private string? _invocationLedgerRunKey;
@@ -206,6 +208,22 @@ public sealed class AgentExecutionTraceRecorder(
             {
                 // Ignore parse errors here
             }
+        }
+
+        if (providerQualityMonitor is not null && trace.ParseSucceeded && !isSimulatorExecution
+            && string.IsNullOrWhiteSpace(trace.ProviderConnectionId)
+            && ProviderQualityRecoveryResponse.TryTake(rawResponse, out ProviderQualityRecoveryResponse.Lease? lease)
+            && lease is not null)
+        {
+            // The live transport supplied this exact response and key even if ambient metadata was unavailable.
+            bool fallback = trace.ModelDeploymentName?.StartsWith(
+                AgentExecutionTraceModelMetadata.LlmCompletionFallbackDeploymentPrefix, StringComparison.OrdinalIgnoreCase) == true;
+            trace.ModelDeploymentName = fallback
+                ? AgentExecutionTraceModelMetadata.LlmCompletionFallbackDeploymentPrefix + lease.Key.ModelId
+                : lease.Key.ModelId;
+            trace.ModelVersion = lease.Key.ModelVersion;
+            await providerQualityMonitor.BindRecoveryTraceAsync(lease.Key, lease.Id, trace.TraceId, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         await _repository.CreateAsync(trace, cancellationToken);

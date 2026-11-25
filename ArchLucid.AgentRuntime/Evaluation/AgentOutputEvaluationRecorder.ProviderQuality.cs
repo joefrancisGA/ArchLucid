@@ -33,6 +33,7 @@ public sealed partial class AgentOutputEvaluationRecorder
         bool cacheServed = matchingResult?.CacheServed == true;
         AgentResultEvidenceFaithfulnessReport? independentReport = null;
         if (!cacheServed
+            && trace.ParseSucceeded
             && evidencePackage is not null
             && !string.IsNullOrWhiteSpace(trace.ParsedResultJson))
         {
@@ -66,7 +67,8 @@ public sealed partial class AgentOutputEvaluationRecorder
                 severityWeight,
                 independentlyChecked,
                 method,
-                new DateTimeOffset(DateTime.SpecifyKind(trace.CreatedUtc, DateTimeKind.Utc))),
+                new DateTimeOffset(DateTime.SpecifyKind(trace.CreatedUtc, DateTimeKind.Utc)),
+                trace.TraceId),
             cancellationToken).ConfigureAwait(false);
 
         if (!recorded.StateChanged)

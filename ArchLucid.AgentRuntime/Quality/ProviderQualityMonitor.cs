@@ -54,7 +54,8 @@ public sealed record ProviderQualityAdjudication(
     int SeverityWeight,
     bool Independent,
     string AdjudicatorKind,
-    DateTimeOffset ObservedUtc);
+    DateTimeOffset ObservedUtc,
+    string? TraceId = null);
 
 public sealed record ProviderQualitySnapshot(
     ProviderQualityKey Key,
@@ -79,13 +80,14 @@ public sealed record ProviderQualityAdmission(
     bool RecoveryProbe,
     ProviderQualityKey? Key,
     DateTimeOffset? RetryAfterUtc,
-    string? Reason);
+    string? Reason,
+    Guid? RecoveryLeaseId = null);
 
 public interface IProviderQualityMonitor
 {
     Task<ProviderQualityAdmission> AdmitAsync(string? providerId, string? modelId, CancellationToken cancellationToken);
     Task<ProviderQualityRecordResult> RecordAsync(ProviderQualityAdjudication sample, CancellationToken cancellationToken);
-    Task RecordRecoveryProbeFailureAsync(ProviderQualityKey key, CancellationToken cancellationToken);
+    Task BindRecoveryTraceAsync(ProviderQualityKey key, Guid leaseId, string traceId, CancellationToken cancellationToken);
 }
 
 /// <summary>
@@ -106,9 +108,6 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
         _clock = clock ?? TimeProvider.System;
     }
 
-    // Durable mode cannot trust a later, uncorrelated trace to resolve a shared lease.
-    internal bool AllowUncorrelatedRecovery { get; init; } = true;
-
     public Task<ProviderQualityAdmission> AdmitAsync(string? providerId, string? modelId, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -121,10 +120,10 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
         return Task.FromResult(Record(sample));
     }
 
-    public Task RecordRecoveryProbeFailureAsync(ProviderQualityKey key, CancellationToken cancellationToken)
+    public Task BindRecoveryTraceAsync(ProviderQualityKey key, Guid leaseId, string traceId, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        RecordRecoveryProbeFailure(key);
+        BindRecoveryTrace(key, leaseId, traceId);
         return Task.CompletedTask;
     }
 
@@ -137,7 +136,11 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
         lock (_sync)
         {
             Entry entry = Resolve(adjudication.Key);
-            if (!entry.SampleIds.Add(adjudication.SampleId))
+            bool matchesProbe = ProbeIsCurrent(entry)
+                && entry.RecoveryTraceId is { } traceId
+                && string.Equals(traceId, adjudication.TraceId, StringComparison.Ordinal);
+            bool newSample = entry.SampleIds.Add(adjudication.SampleId);
+            if (!newSample && !matchesProbe)
                 return new ProviderQualityRecordResult(Snapshot(adjudication.Key, entry), false, null);
 
             ProviderQualityLabel effective = adjudication.Independent
@@ -146,8 +149,9 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
 
             if (effective == ProviderQualityLabel.Unknown)
             {
-                entry.UnknownSamples++;
-                if (entry.RecoveryProbeInFlight && AllowUncorrelatedRecovery)
+                if (newSample)
+                    entry.UnknownSamples++;
+                if (matchesProbe)
                 {
                     ReopenAfterProbe(entry, "Recovery probe was not independently adjudicated.");
                     return new ProviderQualityRecordResult(Snapshot(adjudication.Key, entry), true, "reopened");
@@ -156,24 +160,26 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
                 return new ProviderQualityRecordResult(Snapshot(adjudication.Key, entry), false, null);
             }
 
-            int weight = Math.Clamp(adjudication.SeverityWeight, 1, 4);
-            entry.KnownSamples++;
-            entry.TotalWeight += weight;
-
-            if (effective is ProviderQualityLabel.Unsupported or ProviderQualityLabel.Contradicted)
+            if (newSample)
             {
-                entry.BadSamples++;
-                entry.BadWeight += weight * (effective == ProviderQualityLabel.Contradicted ? 1.5 : 1.0);
+                int weight = Math.Clamp(adjudication.SeverityWeight, 1, 4);
+                entry.KnownSamples++;
+                entry.TotalWeight += weight;
+
+                if (effective is ProviderQualityLabel.Unsupported or ProviderQualityLabel.Contradicted)
+                {
+                    entry.BadSamples++;
+                    entry.BadWeight += weight * (effective == ProviderQualityLabel.Contradicted ? 1.5 : 1.0);
+                }
             }
 
-            if (entry.RecoveryProbeInFlight && AllowUncorrelatedRecovery)
+            if (matchesProbe)
             {
                 if (effective == ProviderQualityLabel.Supported)
                 {
                     entry.Quarantined = false;
                     entry.QuarantinedUntilUtc = null;
-                    entry.RecoveryProbeInFlight = false;
-                    entry.RecoveryProbeStartedUtc = null;
+                    ClearRecoveryProbe(entry);
                     entry.LastReason = "Independent recovery probe was supported.";
                     return new ProviderQualityRecordResult(Snapshot(adjudication.Key, entry), true, "recovered");
                 }
@@ -237,15 +243,8 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
             if (selected is null || selectedKey is null)
                 return new ProviderQualityAdmission(true, false, null, null, null);
 
-            if (selected.RecoveryProbeInFlight
-                && selected.RecoveryProbeStartedUtc is { } started
-                && now - started >= TimeSpan.FromSeconds(_options.RecoveryProbeLeaseSeconds))
-            {
-                selected.RecoveryProbeInFlight = false;
-                selected.RecoveryProbeStartedUtc = null;
-                selected.QuarantinedUntilUtc = now.AddSeconds(_options.QuarantineSeconds);
-                selected.LastReason = "Recovery probe lease expired without independent adjudication.";
-            }
+            if (selected.RecoveryProbeInFlight && !ProbeIsCurrent(selected))
+                ReopenAfterProbe(selected, "Recovery probe lease expired without independent adjudication.");
 
             if (selected.QuarantinedUntilUtc is { } until && now < until)
                 return new ProviderQualityAdmission(false, false, selectedKey, until, selected.LastReason);
@@ -255,21 +254,32 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
 
             selected.RecoveryProbeInFlight = true;
             selected.RecoveryProbeStartedUtc = now;
+            Guid leaseId = Guid.NewGuid();
+            selected.RecoveryLeaseId = leaseId;
             selected.LastReason = "One bounded recovery probe admitted; independent adjudication is required.";
-            return new ProviderQualityAdmission(true, true, selectedKey, null, selected.LastReason);
+            return new ProviderQualityAdmission(true, true, selectedKey, null, selected.LastReason, leaseId);
         }
     }
 
-    public void RecordRecoveryProbeFailure(ProviderQualityKey key)
+    internal bool BindRecoveryTrace(ProviderQualityKey key, Guid leaseId, string traceId)
     {
         ArgumentNullException.ThrowIfNull(key);
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
         lock (_sync)
         {
-            Entry entry = Resolve(key);
-            if (entry.RecoveryProbeInFlight)
-                ReopenAfterProbe(entry, "Recovery probe failed before independent adjudication.");
+            if (!_entries.TryGetValue(key, out Entry? entry) || !ProbeIsCurrent(entry)
+                || entry.RecoveryLeaseId != leaseId || entry.RecoveryTraceId is not null)
+                return false;
+
+            entry.RecoveryTraceId = traceId;
+            return true;
         }
     }
+
+    private bool ProbeIsCurrent(Entry entry) =>
+        entry.RecoveryProbeInFlight && entry.RecoveryLeaseId is not null
+        && entry.RecoveryProbeStartedUtc is { } started
+        && _clock.GetUtcNow() - started < TimeSpan.FromSeconds(_options.RecoveryProbeLeaseSeconds);
 
     public ProviderQualityRecordResult SetHumanOverride(ProviderQualityKey key, bool allow)
     {
@@ -301,9 +311,16 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
     {
         entry.Quarantined = true;
         entry.QuarantinedUntilUtc = _clock.GetUtcNow().AddSeconds(_options.QuarantineSeconds);
+        ClearRecoveryProbe(entry);
+        entry.LastReason = reason;
+    }
+
+    private static void ClearRecoveryProbe(Entry entry)
+    {
         entry.RecoveryProbeInFlight = false;
         entry.RecoveryProbeStartedUtc = null;
-        entry.LastReason = reason;
+        entry.RecoveryLeaseId = null;
+        entry.RecoveryTraceId = null;
     }
 
     private static double WeightedBadRate(Entry entry) =>
@@ -370,6 +387,8 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
         public bool HumanOverride { get; set; }
         public bool RecoveryProbeInFlight { get; set; }
         public DateTimeOffset? RecoveryProbeStartedUtc { get; set; }
+        public Guid? RecoveryLeaseId { get; set; }
+        public string? RecoveryTraceId { get; set; }
         public string? LastReason { get; set; }
     }
 }

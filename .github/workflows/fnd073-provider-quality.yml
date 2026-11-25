@@ -26,6 +26,23 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
+      - name: Verify implicit and explicit enum analyzer references
+        shell: bash
+        run: |
+          for project in ArchLucid.Core ArchLucid.Contracts; do
+            dotnet msbuild "$project/$project.csproj" -getItem:ProjectReference > "$RUNNER_TEMP/$project.references.json"
+          done
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          for project in ("ArchLucid.Core", "ArchLucid.Contracts"):
+              path = Path(os.environ["RUNNER_TEMP"]) / f"{project}.references.json"
+              items = json.loads(path.read_text())["Items"]["ProjectReference"]
+              matches = [item for item in items if item.get("Filename") == "ArchLucid.Analyzers"]
+              if len(matches) != 1 or matches[0].get("OutputItemType") != "Analyzer":
+                  raise SystemExit(f"{project} must evaluate exactly one enum analyzer reference.")
+          PY
       - name: Restore focused test project
         run: dotnet restore ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj
       - name: Run FND-073 focused regressions
@@ -53,7 +70,11 @@ jobs:
           assert "ProviderQualityQuarantiningAgentCompletionClient" in chain
           durable = Path("ArchLucid.AgentRuntime/Quality/DurableProviderQualityMonitor.cs").read_text()
           registrar = Path("ArchLucid.Host.Composition/Configuration/SqlSystemRuntimeInfrastructureRegistrar.cs").read_text()
-          assert "AllowUncorrelatedRecovery = false" in durable
+          trace = Path("ArchLucid.AgentRuntime/AgentExecutionTraceRecorder.cs").read_text()
+          assert "BindRecoveryTraceAsync" in durable
+          assert "BindRecoveryTraceAsync" in trace
+          assert "trace.TraceId" in evaluator
+          assert "matchesProbe" in monitor
           assert "IProviderQualityStateStore, SqlProviderQualityStateStore" in registrar
           PY
 

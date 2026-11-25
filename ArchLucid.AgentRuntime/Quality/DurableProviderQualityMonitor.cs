@@ -31,9 +31,9 @@ public sealed class DurableProviderQualityMonitor(
         return ExecuteAsync(sample.Key, state => state.Record(sample), cancellationToken);
     }
 
-    // Without an exact lease token the failure could belong to an expired lease. Let it expire instead.
-    public Task RecordRecoveryProbeFailureAsync(ProviderQualityKey key, CancellationToken cancellationToken) =>
-        Task.CompletedTask;
+    public Task BindRecoveryTraceAsync(
+        ProviderQualityKey key, Guid leaseId, string traceId, CancellationToken cancellationToken) =>
+        ExecuteAsync(key, state => state.BindRecoveryTrace(key, leaseId, traceId), cancellationToken);
 
     private Task<TResult> ExecuteAsync<TResult>(
         ProviderQualityKey key, Func<ProviderQualityMonitor, TResult> action, CancellationToken cancellationToken)
@@ -42,7 +42,7 @@ public sealed class DurableProviderQualityMonitor(
             Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new[] { key.ProviderId, key.ModelId }))));
         return store.UpdateAsync(deploymentKey, payload =>
         {
-            ProviderQualityMonitor state = new(options, clock) { AllowUncorrelatedRecovery = false };
+            ProviderQualityMonitor state = new(options, clock);
             state.ImportState(payload);
             string before = state.ExportState();
             TResult result = action(state);
