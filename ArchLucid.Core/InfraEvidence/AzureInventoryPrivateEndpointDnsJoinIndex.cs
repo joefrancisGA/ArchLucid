@@ -50,6 +50,17 @@ public sealed class AzureInventoryPrivateEndpointDnsJoinIndex
         && _peToTargetArmIds.Any(pair => pair.Value.Contains(ArmResourceIdNormalizer.Normalize(targetArmId))
             && vnets.Any(vnet => TryHasDnsJoin(pair.Key, vnet)));
 
+    public IEnumerable<string> MatchingEndpointIds(string computeArmId, string targetArmId)
+    {
+        if (!_computeToVnetArmIds.TryGetValue(ArmResourceIdNormalizer.Normalize(computeArmId), out var vnets))
+            yield break;
+
+        foreach (var pair in _peToTargetArmIds)
+            if (pair.Value.Contains(ArmResourceIdNormalizer.Normalize(targetArmId))
+                && vnets.Any(vnet => TryHasDnsJoin(pair.Key, vnet)))
+                yield return pair.Key;
+    }
+
     public bool HasPeReachableTarget(string computeArmId, string targetArmId)
     {
         string pairKey = BuildPairKey(computeArmId, targetArmId);
