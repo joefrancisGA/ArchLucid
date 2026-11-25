@@ -1,5 +1,6 @@
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.InfraEvidence;
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.InfraEvidence;
@@ -268,32 +269,44 @@ public sealed class SecurityEvidencePathExplanationServiceTests
         var explanation = persisted.LastInserted!;
         explanation.ProvenanceKind.Should().Be(ProvenanceKind.DeterministicInference);
         explanation.ExecutiveSummary.Should().NotContain("the asset is unreachable");
+        explanation.InventoryFalsification.Should().NotBeNull();
+        var probe = explanation.InventoryFalsification!;
+        probe.Coverage.Should().Contain("explicit Azure property only");
+        probe.Outcome.Should().Be(rejection switch
+        {
+            null => InventoryFalsificationOutcome.SurvivedWithinTestedScope,
+            "Refuted" => InventoryFalsificationOutcome.Refuted,
+            "Untestable" => InventoryFalsificationOutcome.Untestable,
+            _ => InventoryFalsificationOutcome.HumanReviewRequired,
+        });
+        if (!stale && !wrongProject && typedClaim && citesHop)
+        {
+            probe.Verification.Should().NotBeNull();
+            var observation = probe.Verification!;
+            observation.CloudResourceId.Should().Be(resourceId);
+            observation.SnapshotId.Should().Be(path.SnapshotId);
+            observation.CapturedUtc.Should().Be(captured);
+            observation.Evidence.Should().Be(new PublicNetworkAccessVerificationEvidence(
+                InventoryPublicNetworkAccessVerifier.VerifierVersion, scope.TenantId, scope.WorkspaceId,
+                scope.ProjectId, rowId, "properties.publicNetworkAccess", 24));
+        }
+        else
+        {
+            probe.Verification.Should().BeNull();
+        }
+
         if (rejection is null)
         {
             explanation.ModelOutputRejection.Should().BeNull();
             explanation.ExecutiveSummary.Should().Contain("publicNetworkAccess=Disabled")
-                .And.Contain(captured.ToString("O")).And.Contain(path.SnapshotId.ToString("D"))
-                .And.Contain(resourceId.ToString("D")).And.Contain(rowId.ToString("D"))
                 .And.Contain(InventoryPublicNetworkAccessVerifier.VerifierVersion)
-                .And.Contain("Coverage: properties.publicNetworkAccess=Disabled.")
-                .And.Contain(scope.ProjectId.ToString("D")).And.Contain("does not establish network reachability or live state")
+                .And.Contain("does not establish network reachability or live state")
                 .And.Contain("survived within the tested scope");
         }
         else
         {
             explanation.ModelOutputRejection.Should().Contain(rejection);
-            if (rejection == "Refuted")
-                explanation.ModelOutputRejection.Should().Contain(path.SnapshotId.ToString("D"))
-                    .And.Contain(rowId.ToString("D")).And.Contain(scope.ProjectId.ToString("D"))
-                    .And.Contain(captured.ToString("O")).And.Contain(InventoryPublicNetworkAccessVerifier.VerifierVersion)
-                    .And.Contain("maximum capture age at verification: 24 hours").And.Contain("properties.publicNetworkAccess=Enabled")
-                    .And.Contain("does not establish network reachability or live state");
-            else if (!stale && !wrongProject && typedClaim && citesHop)
-                explanation.ModelOutputRejection.Should().Contain("did not establish this claim")
-                    .And.Contain(InventoryPublicNetworkAccessVerifier.VerifierVersion);
-            else
-                explanation.ModelOutputRejection.Should().NotContain(InventoryPublicNetworkAccessVerifier.VerifierVersion)
-                    .And.NotContain(rowId.ToString("D"));
+            explanation.ModelOutputRejection!.Length.Should().BeLessThanOrEqualTo(512);
             explanation.ExecutiveSummary.Should().NotContain("publicNetworkAccess=Disabled");
         }
 

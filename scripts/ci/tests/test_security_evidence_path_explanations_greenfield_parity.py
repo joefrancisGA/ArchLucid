@@ -1,4 +1,4 @@
-"""Keep SecureNow 386/420 DbUp migration and greenfield DDL in parity.
+"""Keep SecureNow 386/420/431 DbUp migration and greenfield DDL in parity.
 
 Static source guard, not a replacement for real SQL Server / DbUp integration.
 """
@@ -55,7 +55,7 @@ class SecureNowGreenfieldParityTests(unittest.TestCase):
         greenfield_columns = column_specs(table_body(greenfield))
         self.assertGreaterEqual(len(migration_columns), 9)
         self.assertEqual(migration_columns, {
-            k: v for k, v in greenfield_columns.items() if k != "ModelOutputRejection"
+            k: v for k, v in greenfield_columns.items() if k not in {"ModelOutputRejection", "InventoryFalsificationJson"}
         })
         for constraint in (
             "PK_SecurityEvidencePathExplanations",
@@ -77,11 +77,20 @@ class SecureNowGreenfieldParityTests(unittest.TestCase):
             self.assertIn("COL_LENGTH(N'dbo.SecurityEvidencePathExplanations', N'ModelOutputRejection') IS NULL", sql)
         self.assertEqual(1, len(re.findall(r"CREATE TABLE dbo\.SecurityEvidencePathExplanations", greenfield)))
 
+    def test_431_additive_nullable_provenance_matches_greenfield(self) -> None:
+        migration = (MIGRATIONS / "431_SecureNowInventoryFalsificationProvenance.sql").read_text(encoding="utf-8")
+        greenfield = DDL.read_text(encoding="utf-8")
+        self.assertEqual(("NVARCHAR(MAX)", "NULL"), column_specs(table_body(greenfield))["InventoryFalsificationJson"])
+        for sql in (migration, greenfield):
+            self.assertIn("ADD InventoryFalsificationJson NVARCHAR(MAX) NULL;", sql)
+            self.assertIn("COL_LENGTH(N'dbo.SecurityEvidencePathExplanations', N'InventoryFalsificationJson') IS NULL", sql)
+
     def test_unified_schema_matches_generator_and_contains_table(self) -> None:
         checked_in = UNIFIED.read_text(encoding="utf-8")
         self.assertEqual(generator.render_unified_schema(), checked_in)
         self.assertEqual(1, checked_in.count("CREATE TABLE dbo.SecurityEvidencePathExplanations"))
         self.assertIn("ADD ModelOutputRejection NVARCHAR(512) NULL;", checked_in)
+        self.assertIn("ADD InventoryFalsificationJson NVARCHAR(MAX) NULL;", checked_in)
 
 
 if __name__ == "__main__":

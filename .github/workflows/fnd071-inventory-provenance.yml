@@ -1,0 +1,73 @@
+name: FND-071 SecureNow structured verification provenance
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.Persistence/**/431_SecureNowInventoryFalsificationProvenance.sql'
+      - 'ArchLucid.Persistence/Scripts/ArchLucid*.sql'
+      - '**/SqlSecurityEvidencePathExplanationRepository.cs'
+      - '**/SecurityEvidencePathExplanationRecord.cs'
+      - '**/SqlSecurityEvidencePathRepositorySqlIntegrationTests.cs'
+      - 'scripts/ci/tests/test_security_evidence_path_explanations_greenfield_parity.py'
+      - '.github/workflows/fnd071-inventory-provenance.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  focused-sql:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Verify existing source guard
+        run: python -m unittest discover -s scripts/ci/tests -p 'test_security_evidence_path_explanations_greenfield_parity.py' -v
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Start disposable SQL Server
+        shell: bash
+        run: |
+          set -euo pipefail
+          password="InventoryProof!$(openssl rand -hex 20)"
+          echo "::add-mask::$password"
+          docker run -d --name inventory-provenance-sql -e ACCEPT_EULA=Y \
+            -e MSSQL_PID=Developer -e MSSQL_SA_PASSWORD="$password" \
+            -p 127.0.0.1:1433:1433 mcr.microsoft.com/mssql/server:2022-latest
+          connection="Server=127.0.0.1,1433;Initial Catalog=ArchLucidPersistenceTests;User ID=sa;Password=$password;Encrypt=True;TrustServerCertificate=True;Connect Timeout=5"
+          echo "::add-mask::$connection"
+          echo "ARCHLUCID_SQL_TEST=$connection" >> "$GITHUB_ENV"
+          for attempt in $(seq 1 60); do
+            if docker exec inventory-provenance-sql /opt/mssql-tools18/bin/sqlcmd \
+              -S localhost -U sa -P "$password" -C -l 2 -b -Q 'SELECT 1' >/dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::Disposable SQL Server did not become ready"
+          exit 1
+      - name: Run the provenance round-trip on disposable SQL
+        run: |
+          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj \
+            --configuration Release \
+            --filter 'FullyQualifiedName~Explanation_inventory_provenance_round_trips_only_in_the_authorized_path_scope' \
+            --logger 'trx;LogFileName=inventory-provenance.trx' \
+            --results-directory TestResults/inventory-provenance
+      - name: Require the SQL test to execute and pass
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          root = ET.parse(Path("TestResults/inventory-provenance/inventory-provenance.trx")).getroot()
+          rows = root.findall(".//{*}UnitTestResult")
+          if len(rows) != 1 or rows[0].get("outcome") != "Passed":
+              raise SystemExit("The disposable SQL round-trip did not execute and pass.")
+          PY
+      - name: Remove disposable SQL Server
+        if: always()
+        run: docker rm -f inventory-provenance-sql || true

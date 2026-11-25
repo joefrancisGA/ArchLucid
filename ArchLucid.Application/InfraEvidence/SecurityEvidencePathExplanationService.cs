@@ -212,6 +212,7 @@ public sealed class SecurityEvidencePathExplanationService(
             }
 
             string? configurationFact = null;
+            InventoryFalsificationProbe? inventoryFalsification = null;
             if (provenanceKind == ProvenanceKind.AiInference &&
                 (content.PublicNetworkAccessDisabledHopOrdinal.HasValue || MentionsPublicNetworkAccess(content)))
             {
@@ -225,6 +226,7 @@ public sealed class SecurityEvidencePathExplanationService(
                 string? provenance = InventoryPublicNetworkAccessProvenance.Format(scope, verification);
                 InventoryFalsificationProbe probe = PublicNetworkAccessCounterexample.Evaluate(
                     provenance is null ? null : verification, hasResourceBinding: verification is not null);
+                inventoryFalsification = probe;
                 switch (probe.Outcome)
                 {
                     case InventoryFalsificationOutcome.SurvivedWithinTestedScope:
@@ -234,15 +236,15 @@ public sealed class SecurityEvidencePathExplanationService(
                         break;
                     case InventoryFalsificationOutcome.Refuted:
                         claimOutcome = IndependentProviderClaimOutcome.Contradicted;
-                        modelOutputRejection = "Refuted by the scoped Azure inventory. "
-                            + "The public network access claim was contradicted. " + provenance;
+                        modelOutputRejection = "Refuted by the scoped Azure inventory. The public network access claim was contradicted. "
+                            + probe.Coverage;
                         break;
                     case InventoryFalsificationOutcome.HumanReviewRequired:
                         modelOutputRejection = "Human review required. The public network access claim remains unverified without a cited resource.";
                         break;
                     default:
-                        modelOutputRejection = "Untestable. The public network access claim remains unverified in the path inventory snapshot."
-                            + (provenance is null ? string.Empty : " " + provenance);
+                        modelOutputRejection = "Untestable. The public network access claim remains unverified in the path inventory snapshot. "
+                            + probe.Coverage;
                         break;
                 }
             }
@@ -275,6 +277,7 @@ public sealed class SecurityEvidencePathExplanationService(
                 ProvenanceKind = provenanceKind,
                 SimulatorLabel = simulatorLabel,
                 ModelOutputRejection = modelOutputRejection,
+                InventoryFalsification = inventoryFalsification,
                 CreatedUtc = createdUtc,
             };
 

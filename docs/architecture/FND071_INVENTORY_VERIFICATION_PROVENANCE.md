@@ -10,14 +10,13 @@ reachability nor establishes current configuration.
 - ArchLucid keeps the existing structured finding property. Markdown and DOCX show
   the observation only for a verified source finding, and do not elevate omitted,
   malformed, out-of-scope or non-deterministic records.
-- SecureNow keeps the bounded observation in the existing persisted explanation
-  fields for supported, contradicted and explicitly unverified outcomes. If no
-  valid observation exists, the explanation retains an unverified outcome without
-  naming an observation or verifier. Provider quality events retain the existing
-  labels and explanation ID link.
+- SecureNow stores the existing structured falsification record alongside an explanation.
+  Its JSON contains the outcome, coverage and any attributable inventory observation.
+  Scoped reads bind the record to the path's tenant, workspace, project and snapshot.
+  Legacy or malformed observations stay unknown. Provider quality events retain the
+  existing labels and explanation ID link. Rejection text remains bounded.
 - No historical rows are rewritten and no external probes are introduced.
 
-FND-071 remains partial. SecureNow explanations still persist the projection as text,
-not a structured verification envelope. A separate slice is needed for structured
-package/export/audit propagation and explicit self-check, independent model and
-human-adjudication provenance on other claim families.
+FND-071 remains partial. SecureNow's structured provenance is persisted but not yet
+carried into external packages, exports or durable audit payloads. Other verification
+modes and claim families remain outside this slice.

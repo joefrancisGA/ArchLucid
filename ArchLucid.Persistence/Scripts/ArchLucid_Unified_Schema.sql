@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 429_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 431_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -11505,6 +11505,7 @@ BEGIN
         ProvenanceKind              INT               NOT NULL,
         SimulatorLabel              NVARCHAR(128)     NULL,
         ModelOutputRejection        NVARCHAR(512)     NULL,
+        InventoryFalsificationJson  NVARCHAR(MAX)     NULL,
         CreatedUtc                  DATETIME2         NOT NULL,
         CONSTRAINT FK_SecurityEvidencePathExplanations_Paths
             FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId)
@@ -11521,6 +11522,15 @@ IF OBJECT_ID(N'dbo.SecurityEvidencePathExplanations', N'U') IS NOT NULL
 BEGIN
     ALTER TABLE dbo.SecurityEvidencePathExplanations
         ADD ModelOutputRejection NVARCHAR(512) NULL;
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.SecurityEvidencePathExplanations', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.SecurityEvidencePathExplanations', N'InventoryFalsificationJson') IS NULL
+BEGIN
+    ALTER TABLE dbo.SecurityEvidencePathExplanations
+        ADD InventoryFalsificationJson NVARCHAR(MAX) NULL;
 END;
 
 GO

@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.InfraEvidence;
 
 namespace ArchLucid.Persistence.InfraEvidence;
@@ -59,6 +60,13 @@ public sealed class SecurityEvidencePathExplanationRecord
     }
 
     public string? ModelOutputRejection
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Structured observation, or null when no inventory check was recorded (including historical rows).</summary>
+    public InventoryFalsificationProbe? InventoryFalsification
     {
         get;
         init;

@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
@@ -26,13 +27,15 @@ public sealed class SqlSecurityEvidencePathExplanationRepository(ISqlConnectionF
                            (
                                ExplanationId, PathId, TenantId, ExecutiveSummary,
                                BusinessImpactHypothesesJson, ProposedRemediationJson,
-                               CitedEvidenceRefsJson, ProvenanceKind, SimulatorLabel, ModelOutputRejection, CreatedUtc
+                               CitedEvidenceRefsJson, ProvenanceKind, SimulatorLabel, ModelOutputRejection,
+                               InventoryFalsificationJson, CreatedUtc
                            )
                            VALUES
                            (
                                @ExplanationId, @PathId, @TenantId, @ExecutiveSummary,
                                @BusinessImpactHypothesesJson, @ProposedRemediationJson,
-                               @CitedEvidenceRefsJson, @ProvenanceKind, @SimulatorLabel, @ModelOutputRejection, @CreatedUtc
+                               @CitedEvidenceRefsJson, @ProvenanceKind, @SimulatorLabel, @ModelOutputRejection,
+                               @InventoryFalsificationJson, @CreatedUtc
                            );
                            """;
 
@@ -53,6 +56,8 @@ public sealed class SqlSecurityEvidencePathExplanationRepository(ISqlConnectionF
                     ProvenanceKind = (int)record.ProvenanceKind,
                     record.SimulatorLabel,
                     record.ModelOutputRejection,
+                    InventoryFalsificationJson = record.InventoryFalsification is null
+                        ? null : JsonSerializer.Serialize(record.InventoryFalsification, JsonOptions),
                     record.CreatedUtc,
                 },
                 cancellationToken: cancellationToken));
@@ -66,12 +71,15 @@ public sealed class SqlSecurityEvidencePathExplanationRepository(ISqlConnectionF
         ArgumentNullException.ThrowIfNull(scope);
 
         const string sql = """
-                           SELECT ExplanationId, PathId, TenantId, ExecutiveSummary,
-                                  BusinessImpactHypothesesJson, ProposedRemediationJson,
-                                  CitedEvidenceRefsJson, ProvenanceKind, SimulatorLabel, ModelOutputRejection, CreatedUtc
-                           FROM dbo.SecurityEvidencePathExplanations
-                           WHERE TenantId = @TenantId AND PathId = @PathId
-                           ORDER BY CreatedUtc DESC;
+                           SELECT e.ExplanationId, e.PathId, e.TenantId, e.ExecutiveSummary,
+                                  e.BusinessImpactHypothesesJson, e.ProposedRemediationJson,
+                                  e.CitedEvidenceRefsJson, e.ProvenanceKind, e.SimulatorLabel, e.ModelOutputRejection,
+                                  e.InventoryFalsificationJson, e.CreatedUtc, p.SnapshotId AS PathSnapshotId
+                           FROM dbo.SecurityEvidencePathExplanations AS e
+                           INNER JOIN dbo.SecurityEvidencePaths AS p ON p.PathId = e.PathId AND p.TenantId = e.TenantId
+                           WHERE e.TenantId = @TenantId AND e.PathId = @PathId
+                             AND p.WorkspaceId = @WorkspaceId AND p.ProjectId = @ProjectId
+                           ORDER BY e.CreatedUtc DESC;
                            """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -79,13 +87,13 @@ public sealed class SqlSecurityEvidencePathExplanationRepository(ISqlConnectionF
         IEnumerable<ExplanationRow> rows = await conn.QueryAsync<ExplanationRow>(
             new CommandDefinition(
                 sql,
-                new { scope.TenantId, PathId = pathId },
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, PathId = pathId },
                 cancellationToken: cancellationToken));
 
-        return rows.Select(Map).ToList();
+        return rows.Select(row => Map(row, scope)).ToList();
     }
 
-    private static SecurityEvidencePathExplanationRecord Map(ExplanationRow row)
+    private static SecurityEvidencePathExplanationRecord Map(ExplanationRow row, ScopeContext scope)
     {
         IReadOnlyList<string> hypotheses = [];
 
@@ -122,7 +130,49 @@ public sealed class SqlSecurityEvidencePathExplanationRepository(ISqlConnectionF
             ProvenanceKind = (ProvenanceKind)row.ProvenanceKind,
             SimulatorLabel = row.SimulatorLabel,
             ModelOutputRejection = row.ModelOutputRejection,
+            InventoryFalsification = ReadInventoryFalsification(row, scope),
             CreatedUtc = row.CreatedUtc,
+        };
+    }
+
+    private static InventoryFalsificationProbe? ReadInventoryFalsification(ExplanationRow row, ScopeContext scope)
+    {
+        if (string.IsNullOrWhiteSpace(row.InventoryFalsificationJson))
+            return null;
+
+        InventoryFalsificationProbe? probe;
+        try
+        {
+            probe = JsonSerializer.Deserialize<InventoryFalsificationProbe>(row.InventoryFalsificationJson, JsonOptions);
+        }
+        catch (JsonException)
+        {
+            // A corrupt or incompatible observation must not be interpreted as evidence.
+            return null;
+        }
+
+        if (probe is null || string.IsNullOrWhiteSpace(probe.Coverage) || !Enum.IsDefined(probe.Outcome))
+            return null;
+
+        if (probe.Verification is null)
+            return probe.Outcome is InventoryFalsificationOutcome.Untestable or InventoryFalsificationOutcome.HumanReviewRequired
+                ? probe : null;
+
+        var observation = probe.Verification;
+        if (observation.Evidence is not { } evidence ||
+            evidence.TenantId != scope.TenantId || evidence.WorkspaceId != scope.WorkspaceId ||
+            evidence.ProjectId != scope.ProjectId || observation.SnapshotId != row.PathSnapshotId ||
+            observation.CapturedUtc is null || observation.CloudResourceId == Guid.Empty ||
+            evidence.ResourceRowId == Guid.Empty || string.IsNullOrWhiteSpace(evidence.VerifierVersion) ||
+            string.IsNullOrWhiteSpace(evidence.PropertyKey) || evidence.MaximumCaptureAgeHours <= 0)
+            return null;
+
+        return (probe.Outcome, observation.Outcome) switch
+        {
+            (InventoryFalsificationOutcome.SurvivedWithinTestedScope, PublicNetworkAccessVerificationOutcome.Verified) => probe,
+            (InventoryFalsificationOutcome.Refuted, PublicNetworkAccessVerificationOutcome.Contradicted) => probe,
+            (InventoryFalsificationOutcome.Untestable, PublicNetworkAccessVerificationOutcome.Unverified) => probe,
+            _ => null,
         };
     }
 
@@ -183,6 +233,18 @@ public sealed class SqlSecurityEvidencePathExplanationRepository(ISqlConnectionF
         }
 
         public string? ModelOutputRejection
+        {
+            get;
+            init;
+        }
+
+        public string? InventoryFalsificationJson
+        {
+            get;
+            init;
+        }
+
+        public Guid PathSnapshotId
         {
             get;
             init;
