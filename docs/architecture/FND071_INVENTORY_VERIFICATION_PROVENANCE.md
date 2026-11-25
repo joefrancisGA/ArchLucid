@@ -20,8 +20,12 @@ reachability nor establishes current configuration.
   legacy or unreadable latest records are unknown; the report does not search history
   for an older supported claim. Neither the observation nor its omission changes the
   path verdict. The SQL retrieval is bounded in batches of path IDs.
+- The same report can be downloaded as JSON with
+  `GET /v1/operational-security/paths/report?snapshotId=<snapshot-id>&download=true`.
+  The attachment uses the same authorized snapshot query and report JSON contract,
+  preserves recorded/unknown outcomes, and is not a sealed assessment evidence ZIP.
 - No historical rows are rewritten and no external probes are introduced.
 
-FND-071 remains partial. SecureNow's structured provenance is persisted but not yet
-carried into external packages or exports. The report is the first structured read consumer. Durable audit propagation is tracked separately. Other verification
-modes and claim families remain outside this slice.
+FND-071 remains partial. This covers the path report and its JSON export, not sealed
+compliance packages or other exports. Durable audit propagation is tracked separately.
+Other verification modes and claim families remain outside this slice.
