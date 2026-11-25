@@ -50,8 +50,13 @@ public sealed class InMemoryEntraBindingAtomicityTests
             .Id.Should().Be(tenantId);
     }
 
-    [Fact]
-    public async Task Concurrent_tenants_cannot_claim_the_same_Entra_directory()
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    [InlineData(4)]
+    public async Task Concurrent_tenants_cannot_claim_the_same_Entra_directory(int trial)
     {
         InMemoryTenantRepository repository = new();
         Guid first = Guid.NewGuid();
@@ -64,10 +69,20 @@ public sealed class InMemoryEntraBindingAtomicityTests
             second, "B", "bind-b-" + second.ToString("N")[..12],
             TenantTier.Standard, null, "westeurope", CancellationToken.None);
 
-        Task<bool> left = Task.Run(() => repository.UpdateEntraTenantIdAsync(
-            first, directory, CancellationToken.None));
-        Task<bool> right = Task.Run(() => repository.UpdateEntraTenantIdAsync(
-            second, directory, CancellationToken.None));
+        using Barrier start = new(2);
+        Task<bool> Claim(Guid tenantId) => Task.Factory.StartNew(
+            () =>
+            {
+                start.SignalAndWait(TimeSpan.FromSeconds(10)).Should().BeTrue(
+                    "both contenders must be ready before trial {0}", trial);
+                return repository.UpdateEntraTenantIdAsync(tenantId, directory, CancellationToken.None);
+            },
+            CancellationToken.None,
+            TaskCreationOptions.LongRunning,
+            TaskScheduler.Default).Unwrap();
+
+        Task<bool> left = Claim(first);
+        Task<bool> right = Claim(second);
         bool[] result = await Task.WhenAll(left, right);
 
         result.Count(static bound => bound).Should().Be(1);

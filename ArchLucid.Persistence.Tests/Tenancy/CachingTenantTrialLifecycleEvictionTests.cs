@@ -18,10 +18,10 @@ public sealed class CachingTenantTrialLifecycleEvictionTests
         Guid tenantId = Guid.NewGuid();
         using CancellationTokenSource request = new();
         Mock<ITenantRepository> inner = new(MockBehavior.Strict);
+        TaskCompletionSource<bool> committed = new(TaskCreationOptions.RunContinuationsAsynchronously);
         inner.Setup(repository => repository.TryRecordTrialLifecycleTransitionAsync(
                 tenantId, "trial", "expired", "automation", request.Token))
-            .Callback(request.Cancel)
-            .ReturnsAsync(recorded);
+            .Returns(committed.Task);
 
         string key = HotPathCacheKeys.TenantById(tenantId);
         Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
@@ -34,8 +34,20 @@ public sealed class CachingTenantTrialLifecycleEvictionTests
 
         CachingTenantRepository sut = new(inner.Object, cache.Object);
 
-        (await sut.TryRecordTrialLifecycleTransitionAsync(
-            tenantId, "trial", "expired", "automation", request.Token)).Should().Be(recorded);
+        Task<bool> pending = sut.TryRecordTrialLifecycleTransitionAsync(
+            tenantId, "trial", "expired", "automation", request.Token);
+        try
+        {
+            cache.Verify(store => store.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+            pending.IsCompleted.Should().BeFalse();
+        }
+        finally
+        {
+            request.Cancel();
+            committed.TrySetResult(recorded);
+        }
+
+        (await pending).Should().Be(recorded);
 
         request.IsCancellationRequested.Should().BeTrue();
         inner.VerifyAll();
@@ -49,10 +61,10 @@ public sealed class CachingTenantTrialLifecycleEvictionTests
         Guid tenantId = Guid.NewGuid();
         using CancellationTokenSource request = new();
         Mock<ITenantRepository> inner = new(MockBehavior.Strict);
+        TaskCompletionSource<bool> committed = new(TaskCreationOptions.RunContinuationsAsynchronously);
         inner.Setup(repository => repository.UpdateBaselineAsync(
                 tenantId, 4m, 2, It.IsAny<DateTimeOffset?>(), request.Token))
-            .Callback(request.Cancel)
-            .Returns(Task.CompletedTask);
+            .Returns(committed.Task);
 
         string key = HotPathCacheKeys.TenantById(tenantId);
         Mock<IHotPathReadCache> cache = new(MockBehavior.Strict);
@@ -61,7 +73,19 @@ public sealed class CachingTenantTrialLifecycleEvictionTests
             .Returns(Task.CompletedTask);
         CachingTenantRepository sut = new(inner.Object, cache.Object);
 
-        await sut.UpdateBaselineAsync(tenantId, 4m, 2, null, request.Token);
+        Task pending = sut.UpdateBaselineAsync(tenantId, 4m, 2, null, request.Token);
+        try
+        {
+            cache.Verify(store => store.RemoveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+            pending.IsCompleted.Should().BeFalse();
+        }
+        finally
+        {
+            request.Cancel();
+            committed.TrySetResult(true);
+        }
+
+        await pending;
 
         request.IsCancellationRequested.Should().BeTrue();
         inner.VerifyAll();
