@@ -606,6 +606,24 @@ describe("remediation-factory-metric-presentation", () => {
 
     expect(tiles.find((tile) => tile.id === "recurrence")?.value).toBeNull();
   });
+
+  it("omits exceptions-active table hint when active count is not returned even if expiring-soon is zero", () => {
+    const metrics = { exceptionsExpiringSoon: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics,
+      openFindingsHref: "/security/findings",
+    });
+
+    expect(tiles.find((tile) => tile.key === "exceptions-active")?.presentation.state).toBe("notMeasured");
+    expect(tiles.find((tile) => tile.key === "exceptions-active")?.hint).toBeUndefined();
+  });
+
+  it("keeps ruleLine on open-findings-factory when open findings count is zero", () => {
+    const metrics = { openFindings: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "open-findings-factory")?.ruleLine).toContain("IE15-priority-v1");
+  });
   it("omits exceptions-active table hint when expiring-soon count is not returned", () => {
     const metrics = { exceptionsActive: 3 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricPresentations({

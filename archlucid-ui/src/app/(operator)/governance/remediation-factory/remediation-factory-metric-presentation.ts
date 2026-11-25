@@ -162,6 +162,11 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
     href: buildGovernanceFindingsQueueHref({ filter: "critical-error" }),
   });
 
+  const exceptionsActivePresentation = remediationFactoryCountMetricPresentation({
+    value: metrics?.exceptionsActive,
+    scopeNote: REMEDIATION_FACTORY_EXCEPTIONS_HELPER,
+  });
+
   const openFindingsPresentation = remediationFactoryCountMetricPresentation({
     value: metrics?.openFindings,
     scopeNote: REMEDIATION_FACTORY_OPEN_FINDINGS_HELPER,
@@ -229,12 +234,9 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
     {
       key: "exceptions-active",
       label: "Exceptions active",
-      presentation: remediationFactoryCountMetricPresentation({
-        value: metrics?.exceptionsActive,
-        scopeNote: REMEDIATION_FACTORY_EXCEPTIONS_HELPER,
-      }),
+      presentation: exceptionsActivePresentation,
       hint: (() => {
-        if (metrics == null) {
+        if (metrics == null || exceptionsActivePresentation.state === "notMeasured") {
           return undefined;
         }
 

@@ -30,11 +30,13 @@ function readUuidParam(params: URLSearchParams, key: string): string | null {
 
 
 function remediationFactoryDisclosureNumericOneOpenToken(normalized: string): boolean {
-  if (!/^\d+$/.test(normalized)) {
+  const unsigned = normalized.startsWith("+") ? normalized.slice(1) : normalized;
+
+  if (!/^\d+$/.test(unsigned)) {
     return false;
   }
 
-  const numeric = Number(normalized);
+  const numeric = Number(unsigned);
 
   return Number.isInteger(numeric) && numeric === 1;
 }
