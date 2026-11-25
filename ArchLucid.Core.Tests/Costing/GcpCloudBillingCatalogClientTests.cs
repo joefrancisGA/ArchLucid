@@ -17,6 +17,76 @@ namespace ArchLucid.Core.Tests.Costing;
 public sealed class GcpCloudBillingCatalogClientTests
 {
     [Fact]
+    public async Task TryGetComputeEngineMonthlyUsdAsync_disposes_the_catalog_response_stream()
+    {
+        using TrackingCatalogStream body = new("""{"skus":[]}"""u8.ToArray());
+        GcpCloudBillingCatalogClient client = CreateClient(_ => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StreamContent(body),
+        });
+
+        decimal? monthly = await client.TryGetComputeEngineMonthlyUsdAsync("n1-standard-1", 1, CancellationToken.None);
+
+        monthly.Should().BeNull();
+        body.WasDisposed.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("null")]
+    [InlineData("""{"description":"Compute Engine n1-standard-1","pricingInfo":{}}""")]
+    [InlineData("""{"description":"Compute Engine n1-standard-1","pricingInfo":[null]}""")]
+    [InlineData("""{"description":"Compute Engine n1-standard-1","pricingInfo":[{"pricingExpression":{"usageUnit":"h","tieredRates":{}}}]}""")]
+    public async Task TryGetComputeEngineMonthlyUsdAsync_keeps_searching_after_an_invalid_sku(string invalidSku)
+    {
+        string catalogJson = $$"""
+            {
+              "skus": [
+                {{invalidSku}},
+                {
+                  "description": "Compute Engine n1-standard-1",
+                  "pricingInfo": [{ "pricingExpression": {
+                    "usageUnit": "h",
+                    "tieredRates": [{ "unitPrice": { "nanos": 10400000 } }]
+                  } }]
+                }
+              ]
+            }
+            """;
+
+        GcpCloudBillingCatalogClient client = CreateClient(catalogJson);
+        decimal? monthly = await client.TryGetComputeEngineMonthlyUsdAsync("n1-standard-1", 1, CancellationToken.None);
+
+        monthly.Should().Be(7.59m);
+    }
+
+    [Theory]
+    [InlineData("""{"units":true,"nanos":50000000}""")]
+    [InlineData("""{"units":1,"nanos":"invalid"}""")]
+    [InlineData("""{"units":42.000000000000000000000000000001,"nanos":50000000}""")]
+    public async Task TryGetComputeEngineMonthlyUsdAsync_skips_a_tier_with_an_invalid_present_money_field(string invalidPrice)
+    {
+        string catalogJson = $$"""
+            {
+              "skus": [{
+                "description": "Compute Engine n1-standard-1",
+                "pricingInfo": [{ "pricingExpression": {
+                  "usageUnit": "h",
+                  "tieredRates": [
+                    { "unitPrice": {{invalidPrice}} },
+                    { "unitPrice": { "nanos": 10400000 } }
+                  ]
+                } }]
+              }]
+            }
+            """;
+
+        GcpCloudBillingCatalogClient client = CreateClient(catalogJson);
+        decimal? monthly = await client.TryGetComputeEngineMonthlyUsdAsync("n1-standard-1", 1, CancellationToken.None);
+
+        monthly.Should().Be(7.59m);
+    }
+
+    [Fact]
     public async Task TryGetComputeEngineMonthlyUsdAsync_skips_non_string_sku_description()
     {
         const string catalogJson = """
@@ -1242,6 +1312,17 @@ public sealed class GcpCloudBillingCatalogClientTests
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
             Task.FromResult(_responder(request));
+    }
+
+    private sealed class TrackingCatalogStream(byte[] bytes) : MemoryStream(bytes)
+    {
+        public bool WasDisposed { get; private set; }
+
+        protected override void Dispose(bool disposing)
+        {
+            WasDisposed |= disposing;
+            base.Dispose(disposing);
+        }
     }
 
     private sealed class StubOptionsMonitor<T>(T value) : IOptionsMonitor<T>

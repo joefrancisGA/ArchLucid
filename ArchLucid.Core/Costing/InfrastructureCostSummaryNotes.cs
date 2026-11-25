@@ -13,10 +13,10 @@ internal static class InfrastructureCostSummaryNotes
         CloudProvider? soleFamily = ResolveSoleCloudFamily(totals.Lines);
 
         if (soleFamily == CloudProvider.Aws)
-            return "AWS Price List on-demand sizing where SKU/region matched; otherwise illustrative AWS USD/month.";
+            return "Illustrative AWS infrastructure USD/month (live pricing disabled).";
 
         if (soleFamily == CloudProvider.Gcp)
-            return "GCP Cloud Billing Catalog sizing where API key and SKU matched; otherwise illustrative GCP USD/month.";
+            return "Illustrative GCP infrastructure USD/month (live pricing disabled).";
 
         if (soleFamily == CloudProvider.Azure)
             return "Illustrative Azure infrastructure USD/month (Retail API probing disabled).";

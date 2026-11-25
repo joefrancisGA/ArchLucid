@@ -21,7 +21,7 @@ public sealed partial class AzureRetailPricesCatalogClient
 
     private sealed record RetailPage
     {
-        public RetailPriceDto[]? Items
+        public RetailPriceDto?[]? Items
         {
             get;
             init;
