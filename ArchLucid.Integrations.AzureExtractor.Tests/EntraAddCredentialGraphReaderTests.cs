@@ -39,6 +39,21 @@ public sealed class EntraAddCredentialGraphReaderTests
         Assert.Contains(SecurityEvidenceAddCredentialAdapterWarnings.GraphForbidden, result.Warnings);
     }
 
+    [Theory]
+    [InlineData(429)]
+    [InlineData(503)]
+    public async Task TryReadSnapshotAsync_failed_graph_pages_report_incomplete(int status)
+    {
+        using HttpClient httpClient = CreateHttpClient(_ => new HttpResponseMessage((HttpStatusCode)status));
+        EntraAddCredentialGraphReader sut = new(httpClient, NullLogger<EntraAddCredentialGraphReader>.Instance);
+
+        EntraAddCredentialGraphReadResult result = await sut.TryReadSnapshotAsync(
+            new StubTokenCredential(), 8, 8, CancellationToken.None);
+
+        Assert.False(result.Forbidden);
+        Assert.Contains(SecurityEvidenceAddCredentialAdapterWarnings.GraphIncomplete, result.Warnings);
+    }
+
     [Fact]
     public async Task TryReadSnapshotAsync_retains_all_privilege_path_graph_app_role_ids()
     {
