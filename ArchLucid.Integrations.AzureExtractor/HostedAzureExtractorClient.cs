@@ -1,3 +1,4 @@
+using ArchLucid.Core.InfraEvidence;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Abstractions.Integrations;
@@ -269,6 +270,7 @@ public sealed class HostedAzureExtractorClient(
         HostedAzureDefenderCompanionCollectResult defenderCompanions =
             await CollectDefenderCompanionsOrEmptyAsync(accessToken.Token, subscriptionId, cancellationToken)
                 .ConfigureAwait(false);
+        collectionWarnings.AddRange(addCredentialSnapshot.Warnings);
         collectionWarnings.AddRange(defenderCompanions.Warnings);
         collectionWarnings.AddRange(
             DefenderPlanCoverageWarnings.Create(defenderCompanions.Pricings, inventoryResources));
@@ -588,6 +590,7 @@ public sealed class HostedAzureExtractorClient(
             managementGroupId,
             cancellationToken).ConfigureAwait(false);
 
+        collectionWarnings.AddRange(addCredentialSnapshot.Warnings);
         collectionWarnings.AddRange(defenderCompanionWarnings);
         collectionWarnings.AddRange(
             DefenderPlanCoverageWarnings.Create(defenderPricings, inventoryResources));
@@ -851,7 +854,10 @@ public sealed class HostedAzureExtractorClient(
 
         if (!graphOptions.Enabled)
         {
-            return EntraAddCredentialGraphReadResult.Empty();
+            return new EntraAddCredentialGraphReadResult
+            {
+                Warnings = [SecurityEvidenceAddCredentialAdapterWarnings.GraphNotCollected],
+            };
         }
 
         EntraAddCredentialGraphReadResult graphResult = await _entraAddCredentialGraphReader
@@ -869,7 +875,6 @@ public sealed class HostedAzureExtractorClient(
                 scopeLabel,
                 graphResult.Warnings.FirstOrDefault());
 
-            return EntraAddCredentialGraphReadResult.Empty();
         }
 
         return graphResult;
