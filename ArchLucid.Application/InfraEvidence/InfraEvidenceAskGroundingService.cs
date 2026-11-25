@@ -19,7 +19,9 @@ public sealed class InfraEvidenceAskGroundingService(
     IArchitectureDiagramReconciliationRepository reconciliationRepository,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
-    ILogger<InfraEvidenceAskGroundingService> logger) : IInfraEvidenceAskGroundingService
+    ILogger<InfraEvidenceAskGroundingService> logger,
+    IAzureInventorySnapshotRepository snapshotRepository,
+    IInfraEvidenceRunReadAccess? runReadAccess = null) : IInfraEvidenceAskGroundingService
 {
     public async Task<InfraEvidenceAskGroundingResult> TryAnswerAsync(
         ScopeContext scope,
@@ -40,34 +42,25 @@ public sealed class InfraEvidenceAskGroundingService(
 
         try
         {
-            await InfraEvidenceAskSealedManifestHashGuard.EnsureAskSealedManifestHashOrThrowAsync(
+            string topicKind = InfraEvidenceAskIntentResolver.Resolve(request);
+            bool selectorsReadable = await InfraEvidenceAskSealedManifestHashGuard.TryEnsureAskSealedManifestHashAsync(
                 request,
                 scope,
+                snapshotRepository,
                 reconciliationRepository,
                 authorityQueryService,
                 manifestHashService,
+                (runId, ct) => runReadAccess?.CanReadRunAsync(scope, runId, ct) ?? Task.FromResult(false),
                 cancellationToken);
 
-            string topicKind = InfraEvidenceAskIntentResolver.Resolve(request);
+            if (!selectorsReadable)
+                return InsufficientEvidence(topicKind);
 
             InfraEvidenceAskEvidenceBundle bundle =
                 await evidenceCollector.CollectAsync(scope, request, topicKind, cancellationToken);
 
             if (!bundle.HasEvidence)
-            {
-                return new InfraEvidenceAskGroundingResult
-                {
-                    Succeeded = true,
-                    Response = new InfraEvidenceAskResponse
-                    {
-                        TopicKind = topicKind,
-                        InsufficientEvidence = true,
-                        Answer =
-                            "Insufficient structured evidence is available in the current scope to answer this question. "
-                            + "No Azure resource ids were inferred.",
-                    },
-                };
-            }
+                return InsufficientEvidence(topicKind);
 
             HashSet<string> allowedSeedNodeIds = DiagramViewPlanValidator.ExtractAllowedSeedNodeIds(bundle);
 
@@ -190,4 +183,17 @@ public sealed class InfraEvidenceAskGroundingService(
             };
         }
     }
+
+    private static InfraEvidenceAskGroundingResult InsufficientEvidence(string topicKind) => new()
+    {
+        Succeeded = true,
+        Response = new InfraEvidenceAskResponse
+        {
+            TopicKind = topicKind,
+            InsufficientEvidence = true,
+            Answer =
+                "Insufficient structured evidence is available in the current scope to answer this question. "
+                + "No Azure resource ids were inferred.",
+        },
+    };
 }
