@@ -910,6 +910,64 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListChildResourcesWithStatusAsync_preserves_prefix_when_transport_fails()
+    {
+        const string parent = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventGrid/topics/topic1";
+        const string next = "https://management.azure.com" + parent
+            + "/eventSubscriptions?api-version=2022-06-15&$skiptoken=page2";
+        int requests = 0;
+        using HttpMessageHandler handler = new RecordingHandler((_, _) =>
+        {
+            int count = Interlocked.Increment(ref requests);
+            if (count == 3)
+                return Task.FromException<HttpResponseMessage>(new HttpRequestException("Transport failed"));
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("{\"value\":[{\"name\":\"sub1\"}],\"nextLink\":\"" + next + "\"}"),
+            });
+        });
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        HostedAzureArmChildCollectionReadResult result = await client.ListChildResourcesWithStatusAsync(
+            "token", parent, "eventSubscriptions", "2022-06-15", CancellationToken.None);
+
+        Assert.Equal(3, requests);
+        Assert.Single(result.Values);
+        Assert.True(result.PartialCollection);
+    }
+
+    [Fact]
+    public async Task ListChildResourcesWithStatusAsync_does_not_convert_cancellation_to_partial_success()
+    {
+        const string parent = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventGrid/topics/topic1";
+        int requests = 0;
+        using CancellationTokenSource cancellation = new();
+        using HttpMessageHandler handler = new RecordingHandler((_, _) =>
+        {
+            if (Interlocked.Increment(ref requests) == 2)
+            {
+                cancellation.Cancel();
+                return Task.FromCanceled<HttpResponseMessage>(cancellation.Token);
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""{"value":[]}"""),
+            });
+        });
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            client.ListChildResourcesWithStatusAsync("token", parent, "eventSubscriptions",
+                "2022-06-15", cancellation.Token));
+    }
+
+    [Fact]
     public async Task ListChildResourcesWithStatusAsync_retains_children_and_marks_partial_when_later_page_fails()
     {
         const string staticSiteId =
