@@ -165,6 +165,7 @@ internal static class HostedAzureInventoryResourcePropertyExpander
             AddKindProperty(propertiesElement, properties);
             AddSiteWorkflowConnectionParameters(propertiesElement, properties);
             AddWebAppContainerImageProperty(propertiesElement, properties);
+            AddWebAppRuntimeConfigurationEvidence(propertiesElement, properties);
         }
 
         if (resourceType.Contains("virtualMachineScaleSets", StringComparison.OrdinalIgnoreCase))
@@ -888,6 +889,46 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
         if (!string.IsNullOrWhiteSpace(image))
         {
             properties["container.image[0]"] = image;
+        }
+    }
+
+    private static void AddWebAppRuntimeConfigurationEvidence(
+        JsonElement propertiesElement,
+        Dictionary<string, object?> properties)
+    {
+        // ARM siteConfig describes the desired stack, not installed or executing binaries.
+        // No patch verdict or runtime observation is inferred from this source.
+        if (!propertiesElement.TryGetProperty("siteConfig", out JsonElement siteConfig)
+            || siteConfig.ValueKind is not JsonValueKind.Object)
+        {
+            return;
+        }
+
+        foreach (string field in new[] { "linuxFxVersion", "windowsFxVersion", "javaVersion",
+                     "javaContainer", "javaContainerVersion", "netFrameworkVersion",
+                     "nodeVersion", "pythonVersion", "phpVersion", "powerShellVersion" })
+        {
+            if (!siteConfig.TryGetProperty(field, out JsonElement element)
+                || element.ValueKind is not JsonValueKind.String)
+            {
+                continue;
+            }
+
+            string? value = element.GetString()?.Trim();
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                continue;
+            }
+
+            // Docker image references are already captured separately; do not classify them
+            // as runtime versions or collect arbitrary configuration/environment values.
+            if ((field is "linuxFxVersion" or "windowsFxVersion")
+                && value.StartsWith("DOCKER|", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            properties[$"runtime.configured.{field}"] = value;
         }
     }
 
