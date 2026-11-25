@@ -517,6 +517,35 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
         }
 
         AddJsonArrayProperty(propertiesElement, properties, "privateDnsZoneGroups");
+        // Preserve only the target and approval state from each connection, not arbitrary descriptions.
+        foreach (string key in new[] { "privateLinkServiceConnections", "manualPrivateLinkServiceConnections" })
+        {
+            if (!propertiesElement.TryGetProperty(key, out JsonElement connections)
+                || connections.ValueKind != JsonValueKind.Array)
+                continue;
+
+            List<object> sanitized = [];
+            foreach (JsonElement connection in connections.EnumerateArray())
+            {
+                if (connection.ValueKind != JsonValueKind.Object
+                    || !connection.TryGetProperty("properties", out JsonElement body)
+                    || body.ValueKind != JsonValueKind.Object)
+                {
+                    sanitized.Add(new { });
+                    continue;
+                }
+
+                string? target = TryReadPrivateLinkServiceId(connection);
+                string? status = body.TryGetProperty("privateLinkServiceConnectionState", out JsonElement state)
+                    && state.ValueKind == JsonValueKind.Object
+                    && state.TryGetProperty("status", out JsonElement statusElement)
+                    && statusElement.ValueKind == JsonValueKind.String
+                    ? statusElement.GetString() : null;
+                sanitized.Add(new { properties = new { privateLinkServiceId = target,
+                    privateLinkServiceConnectionState = new { status } } });
+            }
+            properties[key] = JsonSerializer.Serialize(sanitized);
+        }
     }
 
     private static void AddPrivateLinkConnections(
