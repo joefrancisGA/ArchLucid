@@ -4702,7 +4702,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
 - **hunts:** 8
-- **bugs-found:** 6`r`n- **consecutive-dry-hunts:** 0`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
+- **bugs-found:** 6`r`n- **consecutive-dry-hunts:** 0`r`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
