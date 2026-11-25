@@ -56,6 +56,74 @@ public sealed class AzureInventoryPrivateDnsCanReachPrivilegePathTests
             && edge.InferenceSource == SecureNowArchitectConstants.InsufficientEvidenceDnsHopEdgeType);
     }
 
+    [Theory]
+    [InlineData("Approved", false)]
+    [InlineData("Pending", true)]
+    [InlineData("Rejected", true)]
+    [InlineData("Disconnected", true)]
+    [InlineData(null, false)]
+    public void Both_graphs_apply_endpoint_approval_without_promoting_topology(string? status, bool blocked)
+    {
+        string vnet = BuildVnet("vnet-a");
+        string app = BuildWebApp("app");
+        string sql = BuildSqlServer("sql");
+        string pe = BuildPrivateEndpoint("pe");
+        string zone = $"/subscriptions/{SubscriptionId}/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net";
+        AzureInventoryResourceRecord endpoint = Resource(pe, "Microsoft.Network/privateEndpoints");
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = Guid.NewGuid(), TenantId = Guid.NewGuid(),
+                SubscriptionId = SubscriptionId, CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+            },
+            Resources = [Resource(app, "Microsoft.Web/sites"), Resource(sql, "Microsoft.Sql/servers"), endpoint],
+            Properties = status is null ? [] :
+            [
+                new AzureInventoryResourcePropertyReadModel
+                {
+                    ResourceRowId = endpoint.ResourceRowId,
+                    PropertyKey = "privateLinkServiceConnections",
+                    PropertyValue = System.Text.Json.JsonSerializer.Serialize(new[]
+                    {
+                        new { properties = new { privateLinkServiceId = sql,
+                            privateLinkServiceConnectionState = new { status } } },
+                    }),
+                },
+            ],
+            Relationships =
+            [
+                Relationship(app, BuildSubnet(vnet, "app"), GraphEdgeInferenceSources.InventoryAppServiceSubnet),
+                Relationship(pe, sql, GraphEdgeInferenceSources.InventoryPrivateEndpoint),
+                Relationship(pe, zone, GraphEdgeInferenceSources.InventoryPeDnsZoneGroup),
+                Relationship(zone, vnet, GraphEdgeInferenceSources.InventoryPrivateDnsVnet),
+                Relationship(app, sql, GraphEdgeInferenceSources.InventoryPeReachableTarget),
+            ],
+        };
+
+        var privilege = InventoryPrivilegePathGraph.Build(snapshot);
+        var reachability = InventoryReachabilityPathGraph.Build(snapshot);
+        var privilegeEdges = privilege.OutgoingEdges.Values.SelectMany(edges => edges)
+            .Where(edge => edge.EdgeType == GraphEdgeTypes.CanReach
+                && string.Equals(edge.FromNodeId, app, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(edge.ToNodeId, sql, StringComparison.OrdinalIgnoreCase)).ToArray();
+        var reachabilityEdges = reachability.OutgoingEdges.Values.SelectMany(edges => edges)
+            .Where(edge => edge.InferenceSource == GraphEdgeInferenceSources.InventoryPeReachableTarget).ToArray();
+        if (blocked)
+        {
+            privilegeEdges.Should().BeEmpty();
+            reachabilityEdges.Should().BeEmpty();
+        }
+        else
+        {
+            privilegeEdges.Should().ContainSingle().Which.InferenceSource.Should()
+                .Be(SecureNowArchitectConstants.InsufficientEvidenceDnsHopEdgeType);
+            reachabilityEdges.Should().ContainSingle();
+            var candidates = IntendedReachabilityPathEnumerator.Enumerate(reachability, new PrivilegePathEngineOptions());
+            candidates.Should().Contain(candidate => candidate.TerminalAssetNodeId == sql && candidate.HasInsufficientEvidenceHop);
+        }
+    }
+
     private static AzureInventoryResourceRelationshipReadModel Relationship(
         string from,
         string to,
