@@ -56,6 +56,6 @@ public sealed class MaliciousDependencyMatcherTests
     [Fact]
     public void UnsupportedEcosystemRemainsUnknown() =>
         Assert.Equal(DependencyMatchState.Unknown,
-            MaliciousDependencyMatcher.Assess(Observation() with { Ecosystem = "npm" },
+            MaliciousDependencyMatcher.Assess(Observation() with { Ecosystem = "unsupported" },
                 [], Now, true).State);
 }
