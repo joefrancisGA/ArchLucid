@@ -58,6 +58,8 @@ import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { RESOURCES_EXPLORER_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-resources-explorer-page-shortcuts";
 import { buildInfrastructureAskHandoffHref } from "@/lib/infra-evidence/infrastructure-ask-drawer-url";
+import { RemediationFactoryRankedPathAskHandoff } from "@/components/remediation-factory/RemediationFactoryRankedPathAskHandoff";
+import { RESOURCES_EXPLORER_RANKED_PATH_ASK_SCOPE_LINE } from "@/lib/infra-evidence/resources-explorer-ranked-path-ask-handoff-copy";
 import {
   buildResourceHubExplorerHref,
   buildResourceHubOverviewHref,
@@ -72,6 +74,7 @@ import {
   RESOURCE_EXPLORER_RESOURCE_TYPE_PARAM,
   RESOURCE_EXPLORER_SNAPSHOT_ID_PARAM,
   RESOURCE_EXPLORER_WORK_QUEUE_PARAM,
+  RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM,
   parseResourceHubQueryValueFromSearch,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
@@ -190,6 +193,9 @@ export function ResourcesExplorerClient() {
   const urlSnapshotId = parseResourceHubQueryValueFromSearch(
     searchParams.get(RESOURCE_EXPLORER_SNAPSHOT_ID_PARAM),
   );
+  const urlSecurityEvidencePathId = parseResourceHubQueryValueFromSearch(
+    searchParams.get(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM),
+  );
   const urlPage = parseResourceExplorerPageFromSearch(searchParams.get(RESOURCE_EXPLORER_PAGE_PARAM));
   const urlSortKey = parseResourcesExplorerSortKeyFromSearch(searchParams.get(RESOURCE_EXPLORER_SORT_PARAM));
   const urlSortAsc = parseResourcesExplorerSortAscFromSearch(searchParams.get(RESOURCE_EXPLORER_SORT_DIR_PARAM));
@@ -246,8 +252,8 @@ export function ResourcesExplorerClient() {
       return;
     }
 
-    router.replace(buildResourceHubExplorerHref(urlCloudResourceId, urlWorkQueue, urlSnapshotId));
-  }, [router, urlCloudResourceId, urlSnapshotId, urlWorkQueue]);
+    router.replace(buildResourceHubExplorerHref(urlCloudResourceId, urlWorkQueue, urlSnapshotId, urlSecurityEvidencePathId));
+  }, [router, urlCloudResourceId, urlSecurityEvidencePathId, urlSnapshotId, urlWorkQueue]);
 
   useEffect(() => {
     setNamePrefix(urlNamePrefix);
@@ -509,6 +515,17 @@ export function ResourcesExplorerClient() {
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-resource-explorer-snapshot-scope-honesty">
         {RESOURCES_EXPLORER_SNAPSHOT_SCOPE_HONESTY_LINE}
       </p>
+
+      {urlSecurityEvidencePathId.length > 0 && urlSnapshotId.length > 0 ? (
+        <RemediationFactoryRankedPathAskHandoff
+          testId="infra-resource-explorer-ranked-path-ask-handoff"
+          snapshotId={urlSnapshotId}
+          securityEvidencePathId={urlSecurityEvidencePathId}
+          disabled={partialCapture}
+          hubTab={resolveExplorerAskHubTab(urlWorkQueue) ?? "overview"}
+          scopeLine={RESOURCES_EXPLORER_RANKED_PATH_ASK_SCOPE_LINE}
+        />
+      ) : null}
 
       <main
         id={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PRIMARY_CONTENT_ID}
@@ -847,7 +864,7 @@ export function ResourcesExplorerClient() {
                   <div className="flex flex-wrap items-center gap-2">
                     <Link
                       className="font-medium text-al-link hover:underline"
-                      href={buildResourceHubExplorerHref(row.cloudResourceId, urlWorkQueue, urlSnapshotId)}
+                      href={buildResourceHubExplorerHref(row.cloudResourceId, urlWorkQueue, urlSnapshotId, urlSecurityEvidencePathId)}
                       data-testid={`infra-resource-explorer-hub-${row.cloudResourceId}`}
                     >
                       {displayName}
@@ -933,6 +950,7 @@ export function ResourcesExplorerClient() {
                         workQueue: urlWorkQueue !== "all" ? urlWorkQueue : undefined,
                         snapshotId: urlSnapshotId.length > 0 ? urlSnapshotId : undefined,
                         hubTab: resolveExplorerAskHubTab(urlWorkQueue),
+                        securityEvidencePathId: urlSecurityEvidencePathId.length > 0 ? urlSecurityEvidencePathId : undefined,
                       })}
                       data-testid={`infra-resource-explorer-ask-${row.cloudResourceId}`}
                       aria-label={`Ask about ${displayName}`}
