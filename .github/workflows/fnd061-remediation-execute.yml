@@ -1,0 +1,32 @@
+name: FND-061 Remediation execution evidence authorization
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.Application/InfraEvidence/RemediationInstances/RemediationInstanceService.cs'
+      - 'ArchLucid.Application/InfraEvidence/RemediationInstances/RemediationInstanceSealedManifestHashGuard.cs'
+      - 'ArchLucid.Application/InfraEvidence/AdvisoryTerraformRepresentationService.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/RemediationInstanceServiceTests.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPrioritizationAndWaveServiceTests.cs'
+      - '.github/workflows/fnd061-remediation-execute.yml'
+      - 'ArchLucid.Application/InfraEvidence/IInfraEvidenceRunReadAccess.cs'
+      - 'ArchLucid.Application/Governance/GovernanceDispositionSealedManifestGuard.cs'
+      - 'ArchLucid.Api/Support/AskEvidenceAccess.cs'
+
+permissions:
+  contents: read
+
+jobs:
+  remediation-execute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - run: >-
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~RemediationInstanceServiceTests|FullyQualifiedName~RemediationPrioritizationAndWaveServiceTests'
+          --logger 'console;verbosity=normal'

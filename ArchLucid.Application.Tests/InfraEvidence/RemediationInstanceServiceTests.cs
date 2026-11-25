@@ -1,9 +1,11 @@
 using System.Text.Json;
 
+using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.InfraEvidence.RemediationInstances;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
@@ -96,6 +98,7 @@ public sealed class RemediationInstanceServiceTests
         patternRepository.Versions.Add(CreateVersion(RemediationPatternStatus.Approved, RemediationAutomationLevel.Guided));
 
         InMemorySnapshotRepository snapshotRepository = new();
+        snapshotRepository.Snapshots[SnapshotA] = CreateSnapshot(SnapshotA, CloudResourceId, present: true);
 
         RemediationInstanceService sut = CreateSut(
             instanceRepository,
@@ -117,6 +120,116 @@ public sealed class RemediationInstanceServiceTests
 
         instanceRepository.Instances.Single().Status.Should().Be(RemediationInstanceStatus.Executed);
         instanceRepository.Evidence.Should().Contain(evidence => evidence.Phase == RemediationEvidencePhase.ExecuteResult);
+    }
+
+    [Theory]
+    [InlineData("snapshot-out-of-scope")]
+    [InlineData("finding-run-denied")]
+    [InlineData("snapshot-run-denied")]
+    public async Task Execute_denies_unreadable_evidence_before_any_manifest_or_write(string failure)
+    {
+        Guid instanceId = Guid.NewGuid(), assessmentId = Guid.NewGuid();
+        Guid findingRun = Guid.NewGuid(), snapshotRun = Guid.NewGuid();
+        ScopeContext scope = CreateScope();
+        InMemoryRemediationInstanceRepository instances = new();
+        instances.Instances.Add(CreateInstance(instanceId, RemediationInstanceStatus.WaveAssigned));
+        InMemorySnapshotRepository snapshots = new();
+        if (failure != "snapshot-out-of-scope")
+            snapshots.Snapshots[SnapshotA] = CreateSnapshot(SnapshotA, CloudResourceId, present: true);
+
+        Mock<IProjectScopedOperationalSecurityFindingRepository> findings = new(MockBehavior.Strict);
+        findings.Setup(r => r.TryGetByIdInScopeAsync(scope.ToProjectScopeKey(), FindingId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OperationalSecurityFindingRecord { FindingId = FindingId, AssessmentId = assessmentId });
+        Mock<IAuditManualEvidenceRepository> links = new(MockBehavior.Strict);
+        links.Setup(r => r.ListArchitectureLinksByAssessmentAsync(TenantId, assessmentId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new AuditArchitectureEvidenceLinkRecord { RunId = findingRun }]);
+        Mock<IArchitectureDiagramReconciliationRepository> reconciliation = new(MockBehavior.Strict);
+        reconciliation.Setup(r => r.ListRunIdsBySnapshotAsync(TenantId, SnapshotA, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([snapshotRun]);
+        Mock<IInfraEvidenceRunReadAccess> access = new(MockBehavior.Strict);
+        access.Setup(r => r.CanReadRunAsync(It.Is<ScopeContext>(s =>
+                s.TenantId == TenantId && s.WorkspaceId == WorkspaceId && s.ProjectId == ProjectId),
+                findingRun, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(failure != "finding-run-denied");
+        access.Setup(r => r.CanReadRunAsync(It.Is<ScopeContext>(s =>
+                s.TenantId == TenantId && s.WorkspaceId == WorkspaceId && s.ProjectId == ProjectId),
+                snapshotRun, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        Mock<IAdvisoryTerraformRepresentationService> advisory = new(MockBehavior.Strict);
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+
+        RemediationInstanceService sut = CreateSut(instances, new(), new(),
+            snapshotRepository: snapshots, scopedFindingRepository: findings.Object, auditLinks: links.Object,
+            authority: authority.Object, reconciliation: reconciliation.Object, runReadAccess: access.Object,
+            advisory: advisory.Object, audit: audit.Object);
+
+        RemediationInstanceOperationResult result = await sut.ExecuteAsync(scope, instanceId, SnapshotA, "executor", "corr-1");
+
+        result.Succeeded.Should().BeFalse();
+        result.Blockers.Should().ContainSingle().Which.Should().Be("Execution evidence is not available in the current scope.");
+        instances.Evidence.Should().BeEmpty();
+        instances.Instances.Single().Status.Should().Be(RemediationInstanceStatus.WaveAssigned);
+        instances.Instances.Single().ExecutionSnapshotId.Should().BeNull();
+        authority.VerifyNoOtherCalls();
+        advisory.VerifyNoOtherCalls();
+        audit.VerifyNoOtherCalls();
+
+        if (failure == "snapshot-out-of-scope")
+        {
+            findings.VerifyNoOtherCalls();
+            links.VerifyNoOtherCalls();
+            reconciliation.VerifyNoOtherCalls();
+            access.VerifyNoOtherCalls();
+        }
+        else
+        {
+            access.Verify(r => r.CanReadRunAsync(It.IsAny<ScopeContext>(), findingRun, It.IsAny<CancellationToken>()), Times.Once);
+            access.Verify(r => r.CanReadRunAsync(It.IsAny<ScopeContext>(), snapshotRun, It.IsAny<CancellationToken>()),
+                failure == "snapshot-run-denied" ? Times.Once() : Times.Never());
+            access.VerifyNoOtherCalls();
+        }
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Execute_automated_mode_only_records_the_outcome_of_a_successful_advisory(bool advisorySucceeded)
+    {
+        Guid instanceId = Guid.NewGuid();
+        ScopeContext scope = CreateScope();
+        InMemoryRemediationInstanceRepository instances = new();
+        instances.Instances.Add(CreateInstance(instanceId, RemediationInstanceStatus.WaveAssigned,
+            automationLevel: RemediationAutomationLevel.Automated));
+        InMemorySnapshotRepository snapshots = new();
+        snapshots.Snapshots[SnapshotA] = CreateSnapshot(SnapshotA, CloudResourceId, present: true);
+        InMemoryRemediationPatternRepository patterns = new();
+        patterns.Versions.Add(CreateVersion(RemediationPatternStatus.Approved, RemediationAutomationLevel.Automated));
+
+        Mock<IAdvisoryTerraformRepresentationService> advisory = new(MockBehavior.Strict);
+        advisory.Setup(r => r.TryBuildFromSnapshotAsync(scope, SnapshotA, false, It.IsAny<CancellationToken>()))
+            .Callback(() => instances.Evidence.Should().BeEmpty())
+            .ReturnsAsync(new AdvisoryTerraformRepresentationResult { Succeeded = advisorySucceeded });
+
+        RemediationInstanceService sut = CreateSut(instances, new(), patterns, snapshotRepository: snapshots,
+            advisory: advisory.Object);
+        RemediationInstanceOperationResult result = await sut.ExecuteAsync(scope, instanceId, SnapshotA, "executor", "corr-1");
+
+        result.Succeeded.Should().Be(advisorySucceeded);
+        instances.Instances.Single().Status.Should().Be(
+            advisorySucceeded ? RemediationInstanceStatus.Executed : RemediationInstanceStatus.WaveAssigned);
+        if (advisorySucceeded)
+        {
+            RemediationEvidenceRecord outcome = instances.Evidence.Single(e => e.Phase == RemediationEvidencePhase.ExecuteResult);
+            using JsonDocument payload = JsonDocument.Parse(outcome.PayloadJson);
+            payload.RootElement.GetProperty("advisoryOnly").GetBoolean().Should().BeTrue();
+        }
+        else
+        {
+            instances.Evidence.Should().BeEmpty();
+        }
+        advisory.Verify(r => r.TryBuildFromSnapshotAsync(scope, SnapshotA, false, It.IsAny<CancellationToken>()), Times.Once);
+        advisory.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -1142,23 +1255,40 @@ public sealed class RemediationInstanceServiceTests
         IOperationalSecurityFindingRepository? findingRepository = null,
         IRemediationPathNarrativeBuilder? pathNarrativeBuilder = null,
         ISecurityEvidencePathRepository? pathRepository = null,
-        IVerifiedRemediationControlAssociationRepository? associationRepository = null) =>
+        IVerifiedRemediationControlAssociationRepository? associationRepository = null,
+        IProjectScopedOperationalSecurityFindingRepository? scopedFindingRepository = null,
+        IAuditManualEvidenceRepository? auditLinks = null,
+        IAuthorityQueryService? authority = null,
+        IArchitectureDiagramReconciliationRepository? reconciliation = null,
+        IInfraEvidenceRunReadAccess? runReadAccess = null,
+        IAdvisoryTerraformRepresentationService? advisory = null,
+        IAuditService? audit = null) =>
         new(
             new ProjectScopedRemediationInstanceRepositoryAdapter(instanceRepository),
             matchRepository,
             patternRepository,
             exceptionRepository ?? new InMemoryOperationalSecurityExceptionRepository(),
             snapshotRepository ?? new InMemorySnapshotRepository(),
-            Mock.Of<IAdvisoryTerraformRepresentationService>(),
-            Mock.Of<IAuditService>(),
-            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(
+            advisory ?? Mock.Of<IAdvisoryTerraformRepresentationService>(),
+            audit ?? Mock.Of<IAuditService>(),
+            scopedFindingRepository ?? new ProjectScopedOperationalSecurityFindingRepositoryAdapter(
                 findingRepository ?? Mock.Of<IOperationalSecurityFindingRepository>()),
             pathNarrativeBuilder ?? Mock.Of<IRemediationPathNarrativeBuilder>(),
             pathRepository ?? Mock.Of<ISecurityEvidencePathRepository>(),
-            Mock.Of<IAuditManualEvidenceRepository>(),
-            Mock.Of<IAuthorityQueryService>(),
+            auditLinks ?? Mock.Of<IAuditManualEvidenceRepository>(),
+            authority ?? Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
-            associationRepository ?? new InMemoryVerifiedRemediationControlAssociationRepository());
+            associationRepository ?? new InMemoryVerifiedRemediationControlAssociationRepository(),
+            reconciliation ?? CreateEmptyReconciliationRepository(),
+            runReadAccess);
+
+    private static IArchitectureDiagramReconciliationRepository CreateEmptyReconciliationRepository()
+    {
+        Mock<IArchitectureDiagramReconciliationRepository> reconciliation = new();
+        reconciliation.Setup(r => r.ListRunIdsBySnapshotAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<Guid>());
+        return reconciliation.Object;
+    }
 
     private static ScopeContext CreateScope() =>
         new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
@@ -1242,7 +1372,8 @@ public sealed class RemediationInstanceServiceTests
         Guid? assessmentId = null,
         Guid? preflightSnapshotId = null,
         string? preflightResultJson = null,
-        byte[]? rowVersion = null) =>
+        byte[]? rowVersion = null,
+        RemediationAutomationLevel automationLevel = RemediationAutomationLevel.Guided) =>
         new()
         {
             InstanceId = instanceId,
@@ -1257,7 +1388,7 @@ public sealed class RemediationInstanceServiceTests
             PatternVersionId = VersionId,
             PatternKey = "network.nsg-deny",
             FrozenPatternVersion = "1.0.0",
-            AutomationLevel = RemediationAutomationLevel.Guided,
+            AutomationLevel = automationLevel,
             Status = status,
             CloudResourceId = cloudResourceId,
             AssessmentId = assessmentId,

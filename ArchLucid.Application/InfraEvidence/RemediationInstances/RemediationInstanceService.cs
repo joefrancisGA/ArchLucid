@@ -2,9 +2,11 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.InfraEvidence.RemediationPatterns;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
@@ -27,7 +29,9 @@ public sealed class RemediationInstanceService(
     IAuditManualEvidenceRepository auditManualEvidenceRepository,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
-    IVerifiedRemediationControlAssociationRepository associationRepository) : IRemediationInstanceService
+    IVerifiedRemediationControlAssociationRepository associationRepository,
+    IArchitectureDiagramReconciliationRepository? reconciliationRepository = null,
+    IInfraEvidenceRunReadAccess? runReadAccess = null) : IRemediationInstanceService
 {
     private readonly IVerifiedRemediationControlAssociationRepository _associationRepository =
         associationRepository ?? throw new ArgumentNullException(nameof(associationRepository));
@@ -393,17 +397,16 @@ public sealed class RemediationInstanceService(
         if (instance is null)
             return Failed("Remediation instance was not found.");
 
-        RemediationInstanceOperationResult? sealedManifestFailure =
-            await TryEnsureSealedManifestForFindingAsync(scope, instance.FindingId, cancellationToken);
-
-        if (sealedManifestFailure is not null)
-            return sealedManifestFailure;
-
         if (instance.Status != RemediationInstanceStatus.WaveAssigned)
             return Failed("Only wave-assigned instances may be executed.");
 
         if (string.IsNullOrWhiteSpace(correlationId))
             return Failed("CorrelationId is required.");
+
+        RemediationInstanceOperationResult? evidenceFailure =
+            await ValidateExecutionEvidenceAsync(scope, instance.FindingId, inventorySnapshotId, cancellationToken);
+        if (evidenceFailure is not null)
+            return evidenceFailure;
 
         RemediationPatternVersionRecord? version = await LoadFrozenVersionAsync(scope.TenantId, instance, cancellationToken);
 
@@ -412,6 +415,50 @@ public sealed class RemediationInstanceService(
 
         if (!RemediationInstanceGuard.TryParsePatternContent(version, out RemediationPatternVersionContent? content, out string? parseError))
             return Failed(parseError ?? "Invalid remediation pattern content.");
+
+        if (!RemediationInstanceGuard.CanTransition(instance.Status, RemediationInstanceStatus.Executed, out string? transitionError))
+            return Failed(transitionError ?? "Invalid remediation instance transition.");
+
+        string executeResultPayload;
+
+        if (instance.AutomationLevel is RemediationAutomationLevel.SemiAutomated
+            or RemediationAutomationLevel.Automated)
+        {
+            AdvisoryTerraformRepresentationResult advisory;
+            try
+            {
+                advisory = await advisoryTerraformService.TryBuildFromSnapshotAsync(
+                    scope,
+                    inventorySnapshotId,
+                    aztfexportAvailable: false,
+                    cancellationToken);
+            }
+            catch (ConflictException ex)
+            {
+                return Failed(ex.Message);
+            }
+
+            if (!advisory.Succeeded)
+                return Failed(advisory.ErrorMessage ?? "The execution advisory could not be built.");
+
+            executeResultPayload = JsonSerializer.Serialize(new
+            {
+                result = "emitted",
+                advisoryOnly = true,
+                advisorySucceeded = advisory.Succeeded,
+                advisoryError = advisory.ErrorMessage,
+                contentHashSha256 = Convert.ToHexString(advisory.ContentHashSha256),
+            });
+        }
+        else
+        {
+            executeResultPayload = JsonSerializer.Serialize(new
+            {
+                result = "emitted",
+                mode = "manual-checklist",
+                runbookRef = content?.Execution?.RunbookRef,
+            });
+        }
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
@@ -443,37 +490,6 @@ public sealed class RemediationInstanceService(
             utcNow,
             cancellationToken);
 
-        string executeResultPayload;
-
-        if (instance.AutomationLevel is RemediationAutomationLevel.SemiAutomated
-            or RemediationAutomationLevel.Automated)
-        {
-            AdvisoryTerraformRepresentationResult advisory =
-                await advisoryTerraformService.TryBuildFromSnapshotAsync(
-                    scope,
-                    inventorySnapshotId,
-                    aztfexportAvailable: false,
-                    cancellationToken);
-
-            executeResultPayload = JsonSerializer.Serialize(new
-            {
-                result = "emitted",
-                advisoryOnly = true,
-                advisorySucceeded = advisory.Succeeded,
-                advisoryError = advisory.ErrorMessage,
-                contentHashSha256 = Convert.ToHexString(advisory.ContentHashSha256),
-            });
-        }
-        else
-        {
-            executeResultPayload = JsonSerializer.Serialize(new
-            {
-                result = "emitted",
-                mode = "manual-checklist",
-                runbookRef = content?.Execution?.RunbookRef,
-            });
-        }
-
         await AppendEvidenceAsync(
             scope,
             instanceId,
@@ -483,9 +499,6 @@ public sealed class RemediationInstanceService(
             correlationId,
             utcNow,
             cancellationToken);
-
-        if (!RemediationInstanceGuard.CanTransition(instance.Status, RemediationInstanceStatus.Executed, out string? transitionError))
-            return Failed(transitionError ?? "Invalid remediation instance transition.");
 
         RemediationInstanceRecord updated = CloneInstance(
             instance,
@@ -894,6 +907,45 @@ public sealed class RemediationInstanceService(
             scope.ToProjectScopeKey(),
             instanceId,
             cancellationToken);
+
+    private async Task<RemediationInstanceOperationResult?> ValidateExecutionEvidenceAsync(
+        ScopeContext scope,
+        Guid findingId,
+        Guid inventorySnapshotId,
+        CancellationToken cancellationToken)
+    {
+        const string unavailable = "Execution evidence is not available in the current scope.";
+        if (inventorySnapshotId == Guid.Empty || reconciliationRepository is null
+            || await snapshotRepository.TryGetBySnapshotIdAsync(scope, inventorySnapshotId, cancellationToken) is null)
+        {
+            return Failed(unavailable);
+        }
+
+        IReadOnlyList<Guid> findingRuns =
+            await RemediationInstanceSealedManifestHashGuard.ListFindingLinkedRunIdsAsync(
+                findingId, scope, operationalFindingRepository, auditManualEvidenceRepository, cancellationToken);
+        IReadOnlyList<Guid> snapshotRuns = await reconciliationRepository.ListRunIdsBySnapshotAsync(
+            scope.TenantId, inventorySnapshotId, cancellationToken);
+        List<Guid> runIds = findingRuns.Concat(snapshotRuns).Where(id => id != Guid.Empty).Distinct().ToList();
+
+        // Authorize the whole set before touching any of its manifests.
+        foreach (Guid runId in runIds)
+        {
+            if (runReadAccess is null || !await runReadAccess.CanReadRunAsync(scope, runId, cancellationToken))
+                return Failed(unavailable);
+        }
+
+        try
+        {
+            await GovernanceDispositionSealedManifestGuard.EnsureDistinctRunsSealedManifestHashOrThrowAsync(
+                runIds, scope, authorityQueryService, manifestHashService, cancellationToken);
+            return null;
+        }
+        catch (ConflictException ex)
+        {
+            return Failed(ex.Message);
+        }
+    }
 
     private async Task<RemediationInstanceOperationResult?> TryEnsureSealedManifestForFindingAsync(
         ScopeContext scope,
