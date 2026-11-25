@@ -4,11 +4,13 @@ namespace ArchLucid.Contracts.Persistence.Context;
 
 public class CanonicalObject
 {
+    private string objectId = string.Empty;
+
     public string ObjectId
     {
-        get;
-        set;
-    } = Guid.NewGuid().ToString("N");
+        get => objectId;
+        set => objectId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     private string objectType = string.Empty;
 

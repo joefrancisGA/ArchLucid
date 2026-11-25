@@ -1,19 +1,25 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Risk;
 
 public sealed class ExecutionContextItem
 {
+    private string itemKey = string.Empty;
+
     public string ItemKey
     {
-        get;
-        set;
-    } = null!;
+        get => itemKey;
+        set => itemKey = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>Key of the elicitation question that produced this item.</summary>
+    private string elicitationQuestionKey = string.Empty;
+
     public string ElicitationQuestionKey
     {
-        get;
-        set;
-    } = null!;
+        get => elicitationQuestionKey;
+        set => elicitationQuestionKey = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public DisclosureState Disclosure
     {

@@ -4,11 +4,13 @@ namespace ArchLucid.Contracts.Risk;
 
 public sealed class ArchitectureTradeoff
 {
+    private string tradeoffId = string.Empty;
+
     public string TradeoffId
     {
-        get;
-        set;
-    } = Guid.NewGuid().ToString("N");
+        get => tradeoffId;
+        set => tradeoffId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public WafPillar GainedPillar
     {
@@ -23,11 +25,13 @@ public sealed class ArchitectureTradeoff
     }
 
     /// <summary>Catalog mechanism key (for example <c>cost-reliability/single-region</c>).</summary>
+    private string mechanism = string.Empty;
+
     public string Mechanism
     {
-        get;
-        set;
-    } = null!;
+        get => mechanism;
+        set => mechanism = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     private List<string> evidenceNodeIds = [];
 
