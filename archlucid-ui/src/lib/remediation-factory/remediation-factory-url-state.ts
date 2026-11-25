@@ -106,8 +106,11 @@ const REMEDIATION_FACTORY_DISCLOSURE_ENCLOSED_ONE_CODEPOINTS = new Set<number>([
 ]);
 
 function remediationFactoryDisclosureTrimFormatChars(value: string): string {
-  // Strip control (Cc), format (Cf), and line/paragraph/space separators (Zl, Zp, Zs) that trim() can leave inside copied query tokens.
-  return value.replace(/[\p{Cc}\p{Cf}\p{Zl}\p{Zp}\p{Zs}]/gu, "").trim();
+  // Strip control/format/separator scalars and Hangul filler letters that trim() leaves inside copied query tokens.
+  return value
+    .replace(/[\p{Cc}\p{Cf}\p{Zl}\p{Zp}\p{Zs}]/gu, "")
+    .replace(/[\u115F\u3164\uFFA0]/gu, "")
+    .trim();
 }
 
 function remediationFactoryDisclosureNormalizeTokenSurface(value: string): string {

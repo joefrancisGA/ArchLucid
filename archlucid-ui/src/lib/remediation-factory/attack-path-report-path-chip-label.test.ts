@@ -34,6 +34,12 @@ describe("attack-path-report-path-chip-label", () => {
     expect(formatAttackPathReportPathChipLabel(overBoundary).length).toBeLessThan(overBoundary.length);
   });
 
+
+  it("shows overflow honesty when a long path id contains an interior horizontal tab", () => {
+    const longWithTab = `${"a".repeat(40)}\t${"b".repeat(8)}`;
+
+    expect(attackPathReportPathChipOverflowLine([longWithTab])).toContain("Long path ids");
+  });
   it("shows overflow honesty copy only when a path id exceeds 48 characters", () => {
     const atThreshold = "a".repeat(48);
     const overThreshold = "a".repeat(49);
