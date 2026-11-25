@@ -54,6 +54,39 @@ public sealed class EntraAddCredentialGraphReaderTests
         Assert.Contains(SecurityEvidenceAddCredentialAdapterWarnings.GraphIncomplete, result.Warnings);
     }
 
+    [Theory]
+    [InlineData("transport")]
+    [InlineData("malformed")]
+    [InlineData("missing-value")]
+    [InlineData("invalid-row")]
+    [InlineData("wrong-path")]
+    [InlineData("cycle")]
+    public async Task TryReadSnapshotAsync_reports_incomplete_for_invalid_collection(string scenario)
+    {
+        using HttpClient httpClient = CreateHttpClient(request =>
+        {
+            if (request.RequestUri!.AbsolutePath != "/v1.0/applications")
+                return JsonResponse("""{ "value": [] }""");
+
+            return scenario switch
+            {
+                "transport" => throw new HttpRequestException("test transport failure"),
+                "malformed" => JsonResponse("{"),
+                "missing-value" => JsonResponse("{}"),
+                "invalid-row" => JsonResponse("""{"value":[null]}"""),
+                "wrong-path" => JsonResponse("""{"value":[],"@odata.nextLink":"https://graph.microsoft.com/v1.0/groups"}"""),
+                "cycle" => JsonResponse("""{"value":[],"@odata.nextLink":"https://graph.microsoft.com/v1.0/applications?$select=id,appId&$top=999"}"""),
+                _ => throw new InvalidOperationException("Unknown fixture"),
+            };
+        });
+        EntraAddCredentialGraphReader sut = new(httpClient, NullLogger<EntraAddCredentialGraphReader>.Instance);
+        EntraAddCredentialGraphReadResult result = await sut.TryReadSnapshotAsync(
+            new StubTokenCredential(), 8, 8, CancellationToken.None);
+
+        Assert.False(result.Forbidden);
+        Assert.Contains(SecurityEvidenceAddCredentialAdapterWarnings.GraphIncomplete, result.Warnings);
+    }
+
     [Fact]
     public async Task TryReadSnapshotAsync_retains_all_privilege_path_graph_app_role_ids()
     {
