@@ -5,6 +5,7 @@ using DocumentFormat.OpenXml.Packaging;
 
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Findings.FindingVerification;
+using ArchLucid.Application.InfraEvidence;
 using ArchLucid.ArtifactSynthesis.FindingVerification;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Findings;
@@ -33,6 +34,11 @@ public sealed class FindingVerificationReportExportApplicationServiceTests
 
     [Theory]
     [InlineData("legacy", false)]
+    [InlineData("contradicted", false)]
+    [InlineData("unverified", false)]
+    [InlineData("model-agreement", false)]
+    [InlineData("wrong-property", false)]
+    [InlineData("missing-evidence", false)]
     [InlineData("verified", true)]
     [InlineData("foreign", false)]
     [InlineData("malformed", false)]
@@ -42,11 +48,19 @@ public sealed class FindingVerificationReportExportApplicationServiceTests
         Guid findingsSnapshotId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
 
         Guid resource = Guid.NewGuid(), snapshot = Guid.NewGuid(), row = Guid.NewGuid();
-        var verification = new PublicNetworkAccessVerification(resource, PublicNetworkAccessVerificationOutcome.Verified,
+        var outcome = scenario switch
+        {
+            "contradicted" => PublicNetworkAccessVerificationOutcome.Contradicted,
+            "unverified" => PublicNetworkAccessVerificationOutcome.Unverified,
+            _ => PublicNetworkAccessVerificationOutcome.Verified,
+        };
+        var verification = new PublicNetworkAccessVerification(resource, outcome,
             snapshot, new DateTime(2026, 11, 24, 10, 0, 0, DateTimeKind.Utc))
         {
-            Evidence = new("inventory-verifier/1", TestScope.TenantId, TestScope.WorkspaceId,
-                scenario == "foreign" ? Guid.NewGuid() : TestScope.ProjectId, row, "publicNetworkAccess", 24),
+            Evidence = scenario == "missing-evidence" ? null : new(scenario == "model-agreement" ? "independent-model/1" : InventoryPublicNetworkAccessVerifier.VerifierVersion,
+                TestScope.TenantId, TestScope.WorkspaceId,
+                scenario == "foreign" ? Guid.NewGuid() : TestScope.ProjectId, row,
+                scenario == "wrong-property" ? "unrelatedSetting" : "publicNetworkAccess", 24),
         };
         Finding finding = new()
         {
@@ -118,12 +132,14 @@ public sealed class FindingVerificationReportExportApplicationServiceTests
         foreach (string output in new[] { markdown, docxText })
         {
             if (includeEvidence)
-                output.Should().Contain("inventory-verifier/1").And.Contain(row.ToString("D"))
+                output.Should().Contain(InventoryPublicNetworkAccessVerifier.VerifierVersion).And.Contain(row.ToString("D"))
                     .And.Contain(snapshot.ToString("D")).And.Contain(TestScope.ProjectId.ToString("D"))
-                    .And.Contain("Coverage: publicNetworkAccess=Disabled.");
+                    .And.Contain("Coverage: publicNetworkAccess=Disabled.")
+                    .And.Contain("does not establish network reachability or live state");
             else
                 output.Should().NotContain("Independent evidence from the source findings")
-                    .And.NotContain("inventory-verifier/1");
+                    .And.NotContain(InventoryPublicNetworkAccessVerifier.VerifierVersion)
+                    .And.NotContain("independent-model/1");
         }
     }
 }

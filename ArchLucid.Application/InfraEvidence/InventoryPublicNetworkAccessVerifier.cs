@@ -12,6 +12,10 @@ internal static class InventoryPublicNetworkAccessVerifier
     private const int MaximumCaptureAgeHours = 24;
     private static readonly TimeSpan MaximumCaptureAge = TimeSpan.FromHours(MaximumCaptureAgeHours);
 
+    internal static bool IsPublicNetworkAccessProperty(string? key) =>
+        string.Equals(key, "publicNetworkAccess", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(key, "properties.publicNetworkAccess", StringComparison.OrdinalIgnoreCase);
+
     internal static async Task<PublicNetworkAccessVerification> VerifyAsync(
         IAzureInventorySnapshotRepository snapshots,
         ScopeContext scope,
@@ -44,8 +48,7 @@ internal static class InventoryPublicNetworkAccessVerifier
             return unverified;
 
         var setting = properties.Where(property => property.ResourceRowId == resource.ResourceRowId &&
-            (property.PropertyKey.Equals("publicNetworkAccess", StringComparison.OrdinalIgnoreCase) ||
-             property.PropertyKey.Equals("properties.publicNetworkAccess", StringComparison.OrdinalIgnoreCase)))
+            IsPublicNetworkAccessProperty(property.PropertyKey))
             .Take(2).ToArray();
         if (setting.Length != 1 || setting[0].IsRedacted)
             return unverified;

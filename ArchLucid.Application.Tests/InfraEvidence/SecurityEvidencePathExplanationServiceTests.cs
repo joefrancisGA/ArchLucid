@@ -275,7 +275,8 @@ public sealed class SecurityEvidencePathExplanationServiceTests
                 .And.Contain(captured.ToString("O")).And.Contain(path.SnapshotId.ToString("D"))
                 .And.Contain(resourceId.ToString("D")).And.Contain(rowId.ToString("D"))
                 .And.Contain(InventoryPublicNetworkAccessVerifier.VerifierVersion)
-                .And.Contain("Coverage: the explicit Azure property only.")
+                .And.Contain("Coverage: properties.publicNetworkAccess=Disabled.")
+                .And.Contain(scope.ProjectId.ToString("D")).And.Contain("does not establish network reachability or live state")
                 .And.Contain("survived within the tested scope");
         }
         else
@@ -283,7 +284,16 @@ public sealed class SecurityEvidencePathExplanationServiceTests
             explanation.ModelOutputRejection.Should().Contain(rejection);
             if (rejection == "Refuted")
                 explanation.ModelOutputRejection.Should().Contain(path.SnapshotId.ToString("D"))
-                    .And.Contain(rowId.ToString("D")).And.Contain("explicit Azure property only");
+                    .And.Contain(rowId.ToString("D")).And.Contain(scope.ProjectId.ToString("D"))
+                    .And.Contain(captured.ToString("O")).And.Contain(InventoryPublicNetworkAccessVerifier.VerifierVersion)
+                    .And.Contain("maximum capture age at verification: 24 hours").And.Contain("properties.publicNetworkAccess=Enabled")
+                    .And.Contain("does not establish network reachability or live state");
+            else if (!stale && !wrongProject && typedClaim && citesHop)
+                explanation.ModelOutputRejection.Should().Contain("did not establish this claim")
+                    .And.Contain(InventoryPublicNetworkAccessVerifier.VerifierVersion);
+            else
+                explanation.ModelOutputRejection.Should().NotContain(InventoryPublicNetworkAccessVerifier.VerifierVersion)
+                    .And.NotContain(rowId.ToString("D"));
             explanation.ExecutiveSummary.Should().NotContain("publicNetworkAccess=Disabled");
         }
 

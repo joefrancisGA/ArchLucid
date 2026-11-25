@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.ArtifactSynthesis.FindingVerification;
 using ArchLucid.ArtifactSynthesis.FindingVerification.Models;
@@ -123,21 +124,11 @@ public sealed class FindingVerificationReportExportApplicationService(
             return null;
         }
 
-        if (verification is not { Outcome: PublicNetworkAccessVerificationOutcome.Verified,
-                SnapshotId: Guid snapshotId, CapturedUtc: DateTime captured, Evidence: { } evidence } ||
-            evidence.TenantId != scope.TenantId || evidence.WorkspaceId != scope.WorkspaceId ||
-            evidence.ProjectId != scope.ProjectId || evidence.ResourceRowId == Guid.Empty ||
-            snapshotId == Guid.Empty || verification.CloudResourceId == Guid.Empty ||
-            !string.Equals(finding.Title, ScopedPublicNetworkAccessVerifier.Title(verification.CloudResourceId), StringComparison.Ordinal) ||
-            string.IsNullOrWhiteSpace(evidence.VerifierVersion) || string.IsNullOrWhiteSpace(evidence.PropertyKey) ||
-            evidence.MaximumCaptureAgeHours <= 0)
+        if (verification is not { Outcome: PublicNetworkAccessVerificationOutcome.Verified } ||
+            !string.Equals(finding.Title, ScopedPublicNetworkAccessVerifier.Title(verification.CloudResourceId), StringComparison.Ordinal))
             return null;
 
-        return $"Independent deterministic verification ({evidence.VerifierVersion}). "
-            + $"Azure inventory {snapshotId:D}, resource {verification.CloudResourceId:D}, row {evidence.ResourceRowId:D}. "
-            + $"Scope {evidence.TenantId:D} / {evidence.WorkspaceId:D} / {evidence.ProjectId:D}. "
-            + $"Captured {captured:O}, maximum age at verification {evidence.MaximumCaptureAgeHours} hours. "
-            + $"Coverage: {evidence.PropertyKey}=Disabled.";
+        return InventoryPublicNetworkAccessProvenance.Format(scope, verification);
     }
 
     private async Task<Dictionary<string, Finding>> LoadFindingMetadataAsync(
