@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-architecture-intelligence` pass-53 reseed. Scoped vitest **17/17**. Private beta: n/a.
+> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed→hit): `archlucid-contracts` pass-5 reseed. Scoped vitest/contracts deserialization **22/22**. Private beta: persisted adversarial challenge JSON with null narrative fields deserializes to empty strings so architecture intelligence replay paths do not null-reference when rehydrating stored challenges.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -8945,6 +8945,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone `ui-architecture-intelligence` 1/3 dry). Promoted pass-4 `(candidate)` `AdversarialChallenge` — **proven** explicit JSON `null` on `ChallengeId`/`Hypothesis`/`FalsificationEvidenceNeeded` left `null!` references despite initializers; `ContractCollectionDefaults.CoalesceRequired` on backing-field setters; regression `Deserialize_null_narrative_strings_yield_empty_strings_not_null`. **valid-no-repro** pass-4 `ComplianceRulePack.Version` (`CoalesceRequired` + regression), `CanonicalObject.Name` (regression), `GraphNode.Label` (regression). Pass-5 reseed below. Scoped deserialization **22/22**. Private beta: persisted adversarial challenge JSON with null narrative fields deserializes to empty strings so intelligence challenge storage and UI replay do not null-reference when hydrating legacy blobs.
+
+
 2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone `ui-runs-list` 1/3 dry). Recovered omitted pass-3 monitors from prior reseed note and promoted — **proven** `PolicyPack.PackType`/`DistributionScope`, **proven** `ArchitectureRecommendation` required narrative strings, **proven** `SpecialistReviewFinding.FindingId`, **proven** `RiskSnapshot.ReviewRunId`/`TenantId` explicit JSON `null` despite defaults/`null!`; `CoalesceRequired` / `CoalesceStringDefault`; regressions `Deserialize_null_pack_type_and_distribution_scope_yield_defaults_not_null`, `Deserialize_null_narrative_strings_yield_empty_strings_not_null`, `Deserialize_null_finding_id_yields_empty_string_not_null`, `Deserialize_null_review_run_id_and_tenant_id_yield_empty_strings_not_null`. Scoped deserialization **22/22**. Pass-4 reseed below. Private beta: policy-pack, architecture intelligence recommendation, risk snapshot, and specialist review contract JSON with null labels or ids deserializes to empty strings or legacy pack defaults so operator governance and intelligence surfaces do not null-reference on replay.
 
 
@@ -8956,11 +8959,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RiskSnapshot.ReviewRunId` / `TenantId` — explicit JSON `null` on risk snapshot scope strings — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regression above.
 - [x] (superseded) pass-3 `(candidate)` queue (never materialized in ledger body) — **superseded 2026-11-25 seed hunt (seed→hit):** pass-4 reseed.
 
-- [ ] (candidate) `ComplianceRulePack.RulePackId` / `Version` — explicit JSON `null` on compliance pack identity strings — locus: auto-property setters; input: rule pack import JSON; monitor; pass-4 reseed.
-- [ ] (candidate) `CanonicalObject.Name` / `ObjectType` — explicit JSON `null` on canonical object row — locus: backing-field setter; input: knowledge graph ingest JSON; monitor; pass-4 reseed.
-- [ ] (candidate) `SuggestedConcern` / `RequirementSmell` — required `null!` headline fields on nested risk lists — locus: auto-property setters; input: risk snapshot child rows; monitor; pass-4 reseed.
-- [ ] (candidate) `AdversarialChallenge` — triple `null!` narrative strings on intelligence challenge JSON — locus: auto-property setters; input: persisted challenge blob; monitor; pass-4 reseed.
-- [ ] (candidate) `GraphNode.Label` — explicit JSON `null` on graph node display label — locus: setter coalesce; input: topology export JSON; monitor; pass-4 reseed.
+- [x] (proven) `AdversarialChallenge` — triple `null!` narrative strings — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regression above.
+- [x] (valid-no-repro) pass-4 `ComplianceRulePack.Version` — **cheap-disproof 2026-11-25 seed hunt:** existing `CoalesceRequired` + regression.
+- [x] (valid-no-repro) pass-4 `CanonicalObject.Name` — **cheap-disproof 2026-11-25 seed hunt:** existing regression.
+- [x] (valid-no-repro) pass-4 `GraphNode.Label` — **cheap-disproof 2026-11-25 seed hunt:** `Deserialize_null_label_yields_empty_string_not_null`.
+- [x] (superseded) pass-4 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-5 reseed.
+
+- [ ] (candidate) `ComplianceRulePack.RulePackId` / `Name` / `RulePackHash` / `SourcePath` — explicit JSON `null` on compliance pack identity strings — locus: auto-property setters; input: rule pack import JSON; monitor; pass-5 reseed.
+- [ ] (candidate) `CanonicalObject.ObjectType` / `SourceType` / `SourceId` — explicit JSON `null` on canonical identity columns — locus: auto-property setters; input: context ingest JSON; monitor; pass-5 reseed.
+- [ ] (candidate) `SuggestedConcern.Statement` — explicit JSON `null` on risk concern headline — locus: auto-property setter; input: risk snapshot child row; monitor; pass-5 reseed.
+- [ ] (candidate) `RequirementSmell.RequirementId` / `Rationale` — explicit JSON `null` on smell headline fields — locus: auto-property setters; input: risk snapshot child row; monitor; pass-5 reseed.
+- [ ] (candidate) `ComplianceRule` rule headline strings — explicit JSON `null` on nested rule rows inside `ComplianceRulePack.Rules` — locus: `ComplianceRule` setters; input: pack import child array; monitor; pass-5 reseed.
+
 
 
 2026-11-25 thorough hunt #4 (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone `ui-hooks-shared` 2× seed-only). Attempted failing repro on five pass-1 `(candidate)` rows — **proven** `RecommendationRecord.Title`, `PolicyPack.Name`/`Description`, `AlertRecord.Title`/`TriggerValue`, and `ItsmIntegrationHealthStatusResponse.Status` explicit JSON `null` left reference null despite `null!`/empty initializers; `ContractCollectionDefaults.CoalesceRequired` on backing-field setters; regressions `Deserialize_null_title_yields_empty_string_not_null`, `Deserialize_null_name_yields_empty_string_not_null`, `Deserialize_null_description_yields_empty_string_not_null`, `Deserialize_null_title_yields_empty_string_not_null` (alert), `Deserialize_null_trigger_value_yields_empty_string_not_null`, `Deserialize_null_status_yields_empty_string_not_null` (ITSM health); **valid-no-repro** `GovernanceApprovalRequest.ApprovalRequestId` null mints id (`Deserialize_null_approval_request_id_mints_non_empty_id`). Scoped deserialization tests **14/14** on touched suites. Reseeded pass-2 monitors below. Private beta: persisted advisory, alert, policy-pack, and ITSM health JSON with null display or summary strings deserialize to empty strings so operator workflow, notifications, and integrations settings do not null-reference on replay.
@@ -9110,8 +9120,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 6
-- **bugs-found:** 5
+- **hunts:** 7
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
