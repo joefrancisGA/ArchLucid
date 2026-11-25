@@ -25,6 +25,7 @@ public static class HostedAzureInventoryAdfPipelineMetadataCollector
         ArgumentNullException.ThrowIfNull(logger);
 
         List<AzureInventoryAdfDatasetRow> datasets = [];
+        bool partial = false;
         List<AzureInventoryAdfPipelineFlowRow> pipelineFlows = [];
 
         foreach (HostedAzureArmResourceRecord resource in resources)
@@ -36,6 +37,7 @@ public static class HostedAzureInventoryAdfPipelineMetadataCollector
 
             if (string.IsNullOrWhiteSpace(resource.ResourceId))
             {
+                partial = true;
                 continue;
             }
 
@@ -46,6 +48,7 @@ public static class HostedAzureInventoryAdfPipelineMetadataCollector
                 IReadOnlyList<JsonElement> datasetResources = await armReadClient
                     .ListFactoryDatasetsAsync(accessToken, factoryResourceId, cancellationToken)
                     .ConfigureAwait(false);
+                partial |= datasetResources is HostedAzureAdfCollection<JsonElement> { PartialCollection: true };
 
                 foreach (JsonElement datasetResource in datasetResources)
                 {
@@ -57,11 +60,16 @@ public static class HostedAzureInventoryAdfPipelineMetadataCollector
                     {
                         datasets.Add(datasetRow);
                     }
+                    else
+                    {
+                        partial = true;
+                    }
                 }
 
                 IReadOnlyList<JsonElement> dataflowResources = await armReadClient
                     .ListFactoryDataflowsAsync(accessToken, factoryResourceId, cancellationToken)
                     .ConfigureAwait(false);
+                partial |= dataflowResources is HostedAzureAdfCollection<JsonElement> { PartialCollection: true };
 
                 List<AzureInventoryAdfDataflowRow> dataflowRows = [];
 
@@ -93,6 +101,7 @@ public static class HostedAzureInventoryAdfPipelineMetadataCollector
                 IReadOnlyList<JsonElement> pipelineResources = await armReadClient
                     .ListFactoryPipelinesAsync(accessToken, factoryResourceId, cancellationToken)
                     .ConfigureAwait(false);
+                partial |= pipelineResources is HostedAzureAdfCollection<JsonElement> { PartialCollection: true };
 
                 pipelineFlows.AddRange(
                     AzureInventoryAdfPipelineFlowExtractor.ExtractFlows(
@@ -102,6 +111,7 @@ public static class HostedAzureInventoryAdfPipelineMetadataCollector
             }
             catch (HttpRequestException ex)
             {
+                partial = true;
                 if (logger.IsEnabled(LogLevel.Debug))
                 {
                     logger.LogDebug(
@@ -112,6 +122,7 @@ public static class HostedAzureInventoryAdfPipelineMetadataCollector
             }
             catch (InvalidOperationException ex)
             {
+                partial = true;
                 if (logger.IsEnabled(LogLevel.Debug))
                 {
                     logger.LogDebug(
@@ -132,6 +143,7 @@ public static class HostedAzureInventoryAdfPipelineMetadataCollector
 
         return new HostedAzureInventoryAdfPipelineMetadataCollectResult
         {
+            PartialCollection = partial,
             Datasets = datasets,
             PipelineFlows = pipelineFlows,
         };
@@ -140,6 +152,8 @@ public static class HostedAzureInventoryAdfPipelineMetadataCollector
 
 public sealed class HostedAzureInventoryAdfPipelineMetadataCollectResult
 {
+    public bool PartialCollection { get; init; }
+
     public IReadOnlyList<AzureInventoryAdfDatasetRow> Datasets
     {
         get;
