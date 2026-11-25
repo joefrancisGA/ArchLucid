@@ -110,12 +110,37 @@ function remediationFactoryDisclosureTrimFormatChars(value: string): string {
   return value.replace(/\p{Cf}/gu, "").trim();
 }
 
+function remediationFactoryDisclosureNormalizeTokenSurface(value: string): string {
+  const withoutFormat = remediationFactoryDisclosureTrimFormatChars(value);
+
+  // Query copy can embed combining marks after an otherwise valid open digit or word (e.g. 1 + U+0301).
+  return withoutFormat.normalize("NFKD").replace(/\p{M}/gu, "").trim();
+}
+
 function normalizeRemediationFactoryDisclosureOpenToken(raw: string | null | undefined): string | undefined {
   if (raw === null || raw === undefined) {
     return undefined;
   }
 
-  const trimmed = remediationFactoryDisclosureTrimFormatChars(raw.trim());
+  const withoutFormat = remediationFactoryDisclosureTrimFormatChars(raw.trim());
+
+  if (withoutFormat.length === 0) {
+    return undefined;
+  }
+
+  if (remediationFactoryDisclosureUnicodeDecimalOne(withoutFormat)) {
+    return "1";
+  }
+
+  {
+    const codePoint = remediationFactoryDisclosureScalarCodePoint(withoutFormat);
+
+    if (codePoint !== undefined && REMEDIATION_FACTORY_DISCLOSURE_ENCLOSED_ONE_CODEPOINTS.has(codePoint)) {
+      return "1";
+    }
+  }
+
+  const trimmed = remediationFactoryDisclosureNormalizeTokenSurface(raw.trim());
 
   if (trimmed.length === 0) {
     return undefined;
@@ -129,19 +154,6 @@ function normalizeRemediationFactoryDisclosureOpenToken(raw: string | null | und
 
   if (nfkc === "一") {
     return "1";
-  }
-
-  if (remediationFactoryDisclosureUnicodeDecimalOne(trimmed)) {
-    return "1";
-  }
-
-
-  {
-    const codePoint = remediationFactoryDisclosureScalarCodePoint(trimmed);
-
-    if (codePoint !== undefined && REMEDIATION_FACTORY_DISCLOSURE_ENCLOSED_ONE_CODEPOINTS.has(codePoint)) {
-      return "1";
-    }
   }
 
   return nfkc.toLowerCase();

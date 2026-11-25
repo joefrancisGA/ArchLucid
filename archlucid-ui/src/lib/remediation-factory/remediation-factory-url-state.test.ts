@@ -798,6 +798,43 @@ describe("remediation-factory-url-state", () => {
     ).toBe(false);
   });
 
+  it("treats metrics disclosure token with combining acute after one as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1\u0301`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats disclosure true token with interstitial zero-width space as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=t\u200Brue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats zero-width-space-only metrics disclosure token as closed on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=\u200B`).metricsSummaryOpen,
+    ).toBe(false);
+  });
+
+  it("uses first toSnapshot param when duplicate values appear in search", () => {
+    const first = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const second = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    const state = parseRemediationFactoryUrlStateFromSearch(
+      `?${REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM}=${first}&${REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM}=${second}`,
+    );
+
+    expect(state.toSnapshotId).toBe(first);
+  });
+
+  it("remediationFactoryHrefFromSearch preserves selectedFinding on pathname-only href", () => {
+    const findingId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+    const href = remediationFactoryHrefFromSearch(
+      "/governance/remediation-factory",
+      `${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=${findingId}`,
+    );
+
+    expect(href).toBe(`/governance/remediation-factory?${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=${findingId}`);
+  });
   it("treats metrics disclosure token with zero-width space after one as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1\u200B`).metricsSummaryOpen,

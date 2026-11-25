@@ -105,6 +105,14 @@ describe("remediation-factory-metric-presentation", () => {
       }),
     );
   });
+  it("omits critical-exposure table hint when critical exposure count is absent", () => {
+    const tiles = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics: { openFindings: 1 } as RemediationFactoryMetrics,
+      openFindingsHref: "/security/findings",
+    });
+
+    expect(tiles.find((tile) => tile.key === "critical-exposure")?.hint).toBeUndefined();
+  });
   it("renders non-finite critical exposure counts as not measured", () => {
     const metrics = { criticalExposureCount: Number.NaN } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricPresentations({
