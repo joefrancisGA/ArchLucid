@@ -150,4 +150,43 @@ describe("architecture-intelligence-client-api", () => {
       ]),
     ).toBe(true);
   });
-});
+  it("drops whitespace-only non-canonical hydrated rows when operator overrides canonical description", () => {
+    const request = buildRequest(
+      "Operator brief.",
+      "",
+      {},
+      {
+        hydratedSourceTexts: [
+          {
+            fileName: "architecture-description.txt",
+            contentType: "text/plain",
+            content: "   ",
+          },
+          {
+            fileName: "stale-notes.txt",
+            contentType: "text/plain",
+            content: "\n\t",
+          },
+          {
+            fileName: "network-diagram.png",
+            contentType: "image/png",
+            content: "Attachment body",
+          },
+        ],
+      },
+    );
+
+    expect(request.sourceTexts).toEqual([
+      {
+        fileName: "architecture-description.txt",
+        contentType: "text/plain",
+        content: "Operator brief.",
+      },
+      {
+        fileName: "network-diagram.png",
+        contentType: "image/png",
+        content: "Attachment body",
+      },
+    ]);
+  });
+})

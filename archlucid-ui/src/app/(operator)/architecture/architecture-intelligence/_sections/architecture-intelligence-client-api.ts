@@ -106,7 +106,8 @@ export function buildRequest(
       );
 
       if (canonicalIndex >= 0) {
-        sourceTexts = hydrated.map((source, index) => {
+        sourceTexts = hydrated
+          .map((source, index) => {
           if (canonicalIndex === index) {
             return {
               ...source,
@@ -115,7 +116,8 @@ export function buildRequest(
           }
 
           return source;
-        });
+          })
+          .filter((source) => source.content.trim().length > 0);
       } else {
         sourceTexts = [
           {
@@ -123,7 +125,7 @@ export function buildRequest(
             contentType: DEFAULT_CONTENT_TYPE,
             content: trimmedDescription,
           },
-          ...hydrated,
+          ...hydrated.filter((source) => source.content.trim().length > 0),
         ];
       }
     } else {

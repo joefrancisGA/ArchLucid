@@ -67,7 +67,7 @@ export function useArchitectureIntelligenceActions(
 
   const runReasoningWithOptions = useCallback(
     async (options?: { publish?: boolean; action?: "reasoning" | "analyze" }) => {
-      if (architectureDescription.trim().length === 0) {
+            if (requiresArchitectureDescriptionForMutation(architectureDescription, hydratedSourceTexts)) {
         setError("Architecture description is required (or load the golden fixture).");
 
         return;

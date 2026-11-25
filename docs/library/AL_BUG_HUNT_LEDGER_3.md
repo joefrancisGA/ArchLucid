@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed→hit): `archlucid-contracts` pass-11 reseed. Risk/canonical nested string coalesce. Scoped deserialization **15/15**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed→hit): `ui-architecture-intelligence` pass-54 reseed. Scoped vitest **19/19**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -4159,6 +4159,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-architecture-intelligence
 
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; streak zone 1/3 dry). Promoted pass-53 `runReasoningWithOptions` attachment-only guard and `buildRequest` whitespace hygiene — **proven** textarea-only gate blocked attachment-only hydrated reasoning (`requiresArchitectureDescriptionForMutation` on `runReasoningWithOptions`); **proven** operator override left whitespace-only non-canonical hydrated rows in `sourceTexts` (filter after canonical map + prepended branch); regressions `runReasoning posts attachment-only hydrated intake when the textarea is empty`, `drops whitespace-only non-canonical hydrated rows when operator overrides canonical description`. **valid-no-repro** pass-53 `runGoldenTest` preflight (`shouldRequestGoldenFixtureForGoldenTest`), `publishToProduct` continue sync, `invalidateInFlightActions` generation guard. Pass-54 reseed below. Scoped vitest **19/19**. Private beta: invited architects with attachment-only deep-linked intake can run reasoning without a textarea brief, and outbound requests no longer ship whitespace-only stale hydrated rows beside an operator override.
+
+
 2026-11-25 seed hunt (seed-only, dry): no rotation (`shouldRotate: false`). Attempted failing repro on five pass-52 `(candidate)` monitors — **valid-no-repro** `runGoldenTest` without textarea guard (`buildRequest` filters whitespace-only hydrated rows; `shouldRequestGoldenFixtureForGoldenTest` enables fixture path when no canonical text), **valid-no-repro** `buildRequest` blank attachment metadata (whitespace filter on hydrated branch), **valid-no-repro** `analyzeThisReview` with whitespace textarea (`canAnalyzeHydratedReview` requires non-empty trim), **valid-no-repro** `primaryDescriptionFromSources` whitespace canonical (`trim` yields empty description; `hasUsableArchitectureSourceText` on fixture load), **valid-no-repro** analyze without `activeRunId` (`canAnalyzeHydratedReview` + analyze preflight error). No hunt-ready promotion; pass-53 reseed below. Scoped vitest **17/17**. Private beta: n/a.
 
 
@@ -4183,11 +4186,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (superseded) pass-52 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed-only):** pass-53 reseed.
 
-- [ ] (candidate) `runGoldenTest` — should block when filtered `sourceTexts` empty and `useGoldenFixture` false — locus: golden POST preflight; input: cleared textarea with whitespace-only hydrated; monitor; pass-53 reseed.
-- [ ] (candidate) `runReasoningWithOptions` — attachment-only hydrated intake blocked despite usable attachment body — locus: textarea-only guard; input: deep link with png body; monitor; pass-53 reseed.
-- [ ] (candidate) `buildRequest` — trimmed operator description may leave stale non-canonical hydrated whitespace rows alongside override — locus: map branch; input: mixed hydrated rows; monitor; pass-53 reseed.
-- [ ] (candidate) `publishToProduct` toggle — continue POST after unchecking publish may omit `publishToProduct` sync — locus: continue options; input: publish off mid-interview; monitor; pass-53 reseed.
-- [ ] (candidate) `invalidateInFlightActions` — fixture load during in-flight continue may apply stale generation — locus: actionGenerationRef; input: overlap fixture + continue; monitor; pass-53 reseed.
+- [x] (proven) `runReasoningWithOptions` — attachment-only hydrated intake blocked by textarea guard — **hit 2026-11-25 seed hunt:** `requiresArchitectureDescriptionForMutation`; regression above.
+- [x] (proven) `buildRequest` — stale whitespace non-canonical hydrated rows with operator override — **hit 2026-11-25 seed hunt:** post-map whitespace filter; regression above.
+- [x] (valid-no-repro) pass-53 `runGoldenTest` empty filtered sources — **cheap-disproof 2026-11-25 seed hunt:** golden fixture path.
+- [x] (valid-no-repro) pass-53 `publishToProduct` continue sync — **cheap-disproof 2026-11-25 seed hunt:** `publishToProduct` in continue body.
+- [x] (valid-no-repro) pass-53 `invalidateInFlightActions` stale generation — **cheap-disproof 2026-11-25 seed hunt:** `isStaleActionGeneration` on responses.
+- [x] (superseded) pass-53 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-54 reseed.
+
+- [ ] (candidate) `runGoldenTest` — should no-op when `buildRequest` yields empty `sourceTexts` and fixture not requested — locus: golden POST guard; input: whitespace-only hydrated without fixture; monitor; pass-54 reseed.
+- [ ] (candidate) `analyzeThisReview` — may still require textarea despite usable attachment context — locus: `canAnalyzeHydratedReview`; input: attachment-only hydrated; monitor; pass-54 reseed.
+- [ ] (candidate) `loadGoldenFixture` — race with `continueWithAnswers` in-flight — locus: `invalidateInFlightActions` + fixture fetch; input: overlap continue + fixture; monitor; pass-54 reseed.
+- [ ] (candidate) `buildRequest` — duplicate canonical row when hydrated lacks canonical filename — locus: prepend branch; input: description + attachment only; monitor; pass-54 reseed.
+- [ ] (candidate) `publishRun` — publish toggle off during publish POST — locus: `publishToProduct: true` hard-coded; input: operator unchecked publish; monitor; pass-54 reseed.
+
 
 
 
@@ -4265,9 +4276,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 6
-- **bugs-found:** 3
-- **consecutive-dry-hunts:** 1
+- **hunts:** 7
+- **bugs-found:** 4
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
 - **related-pd-tb:** none
