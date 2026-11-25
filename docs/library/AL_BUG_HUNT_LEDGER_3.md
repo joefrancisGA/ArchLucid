@@ -380,6 +380,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 seed hunt (seed→hit): picker `seedHunt`; continued `ui-lib-remediation-factory` (`shouldRotate: false`; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — scientific-notation one tokens (`1e0`, `1.0e+0` after URL plus decode) stayed closed while other numeric-one shapes open; accept finite scientific literals equal to one and normalize exponent spaces from `+` query decoding. **valid-no-repro** pass-46 executive tile `windowLine` chrome at measured zero (five regressions). Pass-47 reseed below. Scoped vitest **241/241**. Private beta: Invited operators following remediation-factory deep links that use scientific-notation `remediationFactoryMetricsOpen` tokens no longer land with the metrics summary panel stuck closed.
 2026-11-25 thorough hunt (dry): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-45 (`shouldRotate: false`; hint override). Attempted failing repro on five pass-45 `(candidate)` monitors — **valid-no-repro** recurrence, exceptions-active, and open-findings-queue `scopeLine` at measured zero; **valid-no-repro** critical-exposure `href` at zero; **valid-no-repro** avg-age `scopeLine` at zero. Regressions added. Pass-46 reseed below. Scoped vitest **234/234**.
 
 2026-11-25 thorough hunt (hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-41 (`shouldRotate: false`; hint override). **proven** `buildRemediationFactoryExecutiveMetricTiles` — exceptions-active tile still showed snapshot `windowLine` without a measured active count; **proven** open-findings factory tile still showed workspace `scopeLine` beside a not-returned count; **proven** critical-exposure tile still linked to the critical-error queue when the count was not returned. **valid-no-repro** metrics close drops padded `1` (existing regression), **valid-no-repro** net-burn weekly footnote without net burn (existing regression). Pass-42 reseed below. Scoped vitest **214/214**. Private beta: invited operators no longer see snapshot window copy, workspace scope chrome, or a queue deep link on factory metric tiles when the underlying count is not measured.
@@ -446,11 +447,19 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps critical-exposure href when count is zero — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression added.
 - [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps avg-age scopeLine when value is zero — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression added.
 
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps open-findings-queue windowLine when count is zero — locus: tile chrome; input: openFindings 0; monitor; pass-46 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps exceptions-active windowLine when count is zero — locus: tile chrome; input: exceptionsActive 0; monitor; pass-46 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps recurrence windowLine when count is zero — locus: tile chrome; input: recurrenceCount 0; monitor; pass-46 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps critical-exposure windowLine when count is zero — locus: tile chrome; input: criticalExposureCount 0; monitor; pass-46 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps net-burn windowLine when net burn is zero — locus: tile chrome; input: netBurn 0; monitor; pass-46 reseed.
+- [x] (superseded) pass-46 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-47 reseed.
+- [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — scientific-notation one token — **proven 2026-11-25 seed hunt (seed→hit):** regressions in url-state tests.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps open-findings-queue windowLine when count is zero — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression added.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps exceptions-active windowLine when count is zero — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression added.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps recurrence windowLine when count is zero — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression added.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps critical-exposure windowLine when count is zero — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression added.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps net-burn windowLine when net burn is zero — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression added.
+
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps pattern-exact windowLine when percent is zero — locus: tile chrome; input: patternCoverageExactMatchPercent 0; monitor; pass-47 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps automation windowLine when percent is zero — locus: tile chrome; input: automationPercent 0; monitor; pass-47 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps open-findings-factory ruleLine when count is zero — locus: tile chrome; input: openFindings 0; monitor; pass-47 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps risk-weighted-open scopeLine when value is zero — locus: tile chrome; input: riskWeightedOpen 0; monitor; pass-47 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — critical table hint when presentation is measuredZero — locus: table chrome; input: criticalExposureCount 0; monitor; pass-47 reseed.
 
 
 
@@ -884,9 +893,9 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 67
-- **bugs-found:** 57
-- **consecutive-dry-hunts:** 2
+- **hunts:** 68
+- **bugs-found:** 58
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
 - **related-pd-tb:** none

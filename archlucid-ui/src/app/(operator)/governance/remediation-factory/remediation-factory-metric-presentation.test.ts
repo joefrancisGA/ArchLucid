@@ -427,7 +427,41 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "avg-age")?.scopeLine).toBeDefined();
   });
 
-  it("omits open-findings-queue href when count is not returned", () => {
+
+  it("keeps open-findings-queue windowLine when count is zero", () => {
+    const metrics = { openFindings: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "open-findings-queue")?.windowLine).toBeDefined();
+  });
+
+  it("keeps exceptions-active windowLine when count is zero", () => {
+    const metrics = { exceptionsActive: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "exceptions-active")?.windowLine).toBeDefined();
+  });
+
+  it("keeps recurrence windowLine when count is zero", () => {
+    const metrics = { recurrenceCount: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "recurrence")?.windowLine).toBeDefined();
+  });
+
+  it("keeps critical-exposure windowLine when count is zero", () => {
+    const metrics = { criticalExposureCount: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "critical-exposure")?.windowLine).toBeDefined();
+  });
+
+  it("keeps net-burn windowLine when net burn is zero", () => {
+    const metrics = { netBurn: 0, createdThisWeek: 0, remediatedThisWeek: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "net-burn")?.windowLine).toBeDefined();
+  });  it("omits open-findings-queue href when count is not returned", () => {
     const metrics = { automationPercent: 5 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
 

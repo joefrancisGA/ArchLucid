@@ -173,6 +173,24 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+  it("treats scientific-notation one metrics disclosure token as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1e0`).metricsSummaryOpen,
+    ).toBe(true);
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1.0e+0`).metricsSummaryOpen,
+    ).toBe(true);
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1.0e%2B0`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats scientific-notation non-one metrics disclosure token as closed on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=2e0`).metricsSummaryOpen,
+    ).toBe(false);
+  });
+
   it("drops padded true metrics token from base search when writing closed state", () => {
     const params = remediationFactoryUrlStateToSearchParams(
       {

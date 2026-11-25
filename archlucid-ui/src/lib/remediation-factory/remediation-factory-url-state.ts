@@ -42,6 +42,14 @@ function remediationFactoryDisclosureNumericOneOpenToken(normalized: string): bo
     return Number.isFinite(numeric) && numeric === 1;
   }
 
+  if (/[eE]/.test(unsigned)) {
+    // URLSearchParams decodes bare "+" in query values as a space (application/x-www-form-urlencoded).
+    const scientificLiteral = unsigned.replace(/([eE])\s+([0-9+-])/, "$1+$2");
+    const numeric = Number(scientificLiteral);
+
+    return Number.isFinite(numeric) && numeric === 1;
+  }
+
   return false;
 }
 function setUuidParam(params: URLSearchParams, key: string, value: string | null): void {
