@@ -43,6 +43,8 @@ public sealed class EntraGroupMembershipGraphReader(
             .ConfigureAwait(false);
 
         List<AzureInventoryEntraGroupMembershipRow> rows = [];
+        HashSet<string> warnings = new(StringComparer.OrdinalIgnoreCase);
+        bool anySuccessfulGroup = false;
         HashSet<string> visitedGroups = new(StringComparer.OrdinalIgnoreCase);
         Queue<(string GroupId, int Depth)> pending = new();
 
@@ -65,24 +67,16 @@ public sealed class EntraGroupMembershipGraphReader(
                 groupId,
                 cancellationToken).ConfigureAwait(false);
 
-            if (pageResult.Forbidden)
-            {
-                if (rows.Count > 0 || pending.Count > 0)
-                {
-                    logger.LogWarning(
-                        "Entra group membership Graph read skipped group {GroupId} after 403; continuing with remaining groups.",
-                        groupId);
-
-                    continue;
-                }
-
-                return pageResult;
-            }
-
+            warnings.UnionWith(pageResult.Warnings);
             rows.AddRange(pageResult.Memberships);
+            if (!pageResult.Forbidden)
+                anySuccessfulGroup = true;
 
             if (depth >= maxNestedDepth)
             {
+                if (pageResult.NestedGroupIds.Any(id => !visitedGroups.Contains(id)))
+                    warnings.Add(SecurityEvidenceEntraGroupAdapterWarnings.GraphIncomplete);
+
                 continue;
             }
 
@@ -95,6 +89,8 @@ public sealed class EntraGroupMembershipGraphReader(
         return new EntraGroupMembershipGraphReadResult
         {
             Memberships = rows,
+            Forbidden = !anySuccessfulGroup && warnings.Contains(SecurityEvidenceEntraGroupAdapterWarnings.GraphForbidden),
+            Warnings = warnings.OrderBy(static warning => warning, StringComparer.Ordinal).ToArray(),
         };
     }
 
@@ -105,93 +101,60 @@ public sealed class EntraGroupMembershipGraphReader(
     {
         List<AzureInventoryEntraGroupMembershipRow> memberships = [];
         List<string> nestedGroupIds = [];
+        HashSet<string> warnings = new(StringComparer.OrdinalIgnoreCase);
         string? nextLink =
             $"https://graph.microsoft.com/v1.0/groups/{Uri.EscapeDataString(groupId)}/members?$select=id";
-        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
-        int requestCount = 0;
+        HashSet<string> visitedLinks = new(StringComparer.Ordinal);
+        bool forbidden = false;
+        bool receivedPage = false;
 
         while (!string.IsNullOrWhiteSpace(nextLink))
         {
-            if (!visitedLinks.Add(nextLink))
+            cancellationToken.ThrowIfCancellationRequested();
+            if (visitedLinks.Count >= MaxPaginationRequests || !visitedLinks.Add(nextLink))
             {
-                logger.LogWarning(
-                    "Entra group membership Graph read stopped for group {GroupId} due to repeating @odata.nextLink.",
-                    groupId);
-
+                warnings.Add(SecurityEvidenceEntraGroupAdapterWarnings.GraphIncomplete);
                 break;
             }
 
-            requestCount++;
-
-            if (requestCount > MaxPaginationRequests)
+            try
             {
-                logger.LogWarning(
-                    "Entra group membership Graph read stopped for group {GroupId} after {MaxPages} pages.",
-                    groupId,
-                    MaxPaginationRequests);
+                EnsureNextLinkTargetsGroup(nextLink, groupId);
+                using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                using HttpResponseMessage response =
+                    await httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
-                break;
-            }
-
-            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            using HttpResponseMessage response =
-                await httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-
-            if (response.StatusCode == HttpStatusCode.Forbidden)
-            {
-                if (memberships.Count > 0 || nestedGroupIds.Count > 0)
+                if (response.StatusCode == HttpStatusCode.Forbidden)
                 {
-                    logger.LogWarning(
-                        "Entra group membership Graph read stopped pagination for group {GroupId} after 403 on a follow-up page.",
-                        groupId);
-
-                    return new EntraGroupMembershipGraphReadResult
-                    {
-                        Memberships = memberships,
-                        NestedGroupIds = nestedGroupIds,
-                    };
+                    forbidden = !receivedPage;
+                    warnings.Add(SecurityEvidenceEntraGroupAdapterWarnings.GraphForbidden);
+                    break;
                 }
 
-                logger.LogWarning(
-                    "Entra group membership Graph read returned 403 for group {GroupId}. Required scope: {Scope}.",
-                    groupId,
-                    EntraGroupMembershipGraphScopes.PreferredScope);
-
-                return EntraGroupMembershipGraphReadResult.ForbiddenResult(
-                    SecurityEvidenceEntraGroupAdapterWarnings.GraphForbidden);
-            }
-
-            if (!response.IsSuccessStatusCode)
-            {
-                string body = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-
-                logger.LogWarning(
-                    "Entra group membership Graph read failed for group {GroupId} with status {StatusCode}: {Body}",
-                    groupId,
-                    (int)response.StatusCode,
-                    body);
-
-                return new EntraGroupMembershipGraphReadResult
+                if (!response.IsSuccessStatusCode)
                 {
-                    Memberships = memberships,
-                    NestedGroupIds = nestedGroupIds,
-                };
-            }
+                    logger.LogWarning("Entra group collection failed with HTTP {StatusCode}.", (int)response.StatusCode);
+                    warnings.Add(SecurityEvidenceEntraGroupAdapterWarnings.GraphIncomplete);
+                    break;
+                }
 
-            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-            GraphMembersResponse? parsed = await JsonSerializer.DeserializeAsync<GraphMembersResponse>(
-                stream,
-                SerializerOptions,
-                cancellationToken).ConfigureAwait(false);
+                await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+                GraphMembersResponse? parsed = await JsonSerializer.DeserializeAsync<GraphMembersResponse>(
+                    stream, SerializerOptions, cancellationToken).ConfigureAwait(false);
 
-            if (parsed?.Value is not null)
-            {
-                foreach (GraphDirectoryObject member in parsed.Value)
+                if (parsed?.Value is null)
                 {
-                    if (string.IsNullOrWhiteSpace(member.Id))
+                    warnings.Add(SecurityEvidenceEntraGroupAdapterWarnings.GraphIncomplete);
+                    break;
+                }
+
+                receivedPage = true;
+                foreach (GraphDirectoryObject? member in parsed.Value)
+                {
+                    if (member is null || string.IsNullOrWhiteSpace(member.Id))
                     {
+                        warnings.Add(SecurityEvidenceEntraGroupAdapterWarnings.GraphIncomplete);
                         continue;
                     }
 
@@ -201,63 +164,33 @@ public sealed class EntraGroupMembershipGraphReader(
                         GroupId = groupId,
                         ProvenanceKind = ProvenanceKind.ObservedFact,
                         EvidenceHashSha256 = AzureInventoryEntraGroupMembershipParser.ComputeDefaultEvidenceHash(
-                            member.Id,
-                            groupId),
+                            member.Id, groupId),
                     });
+
+                    if (member.IsGroup)
+                        nestedGroupIds.Add(member.Id.Trim());
                 }
 
-                nestedGroupIds.AddRange(
-                    parsed.Value
-                        .Where(static member => member.IsGroup && !string.IsNullOrWhiteSpace(member.Id))
-                        .Select(static member => member.Id!.Trim()));
+                nextLink = parsed.ODataNextLink;
+                if (nextLink is not null)
+                    EnsureNextLinkTargetsGroup(nextLink, groupId);
             }
-
-            string? candidateNextLink = parsed?.ODataNextLink;
-
-            if (!string.IsNullOrWhiteSpace(candidateNextLink))
+            catch (Exception exception) when (exception is HttpRequestException or IOException or JsonException or InvalidOperationException or ArgumentException
+                || (exception is OperationCanceledException && !cancellationToken.IsCancellationRequested))
             {
-                if (!TryAcceptNextLink(candidateNextLink, groupId, memberships.Count, nestedGroupIds.Count))
-                {
-                    break;
-                }
-
-                nextLink = candidateNextLink;
-            }
-            else
-            {
-                nextLink = null;
+                logger.LogWarning("Entra group collection was interrupted ({FailureType}).", exception.GetType().Name);
+                warnings.Add(SecurityEvidenceEntraGroupAdapterWarnings.GraphIncomplete);
+                break;
             }
         }
 
         return new EntraGroupMembershipGraphReadResult
         {
+            Forbidden = forbidden,
             Memberships = memberships,
             NestedGroupIds = nestedGroupIds,
+            Warnings = warnings.OrderBy(static warning => warning, StringComparer.Ordinal).ToArray(),
         };
-    }
-
-    private bool TryAcceptNextLink(
-        string candidateNextLink,
-        string groupId,
-        int membershipCount,
-        int nestedGroupCount)
-    {
-        try
-        {
-            EnsureNextLinkTargetsGroup(candidateNextLink, groupId);
-
-            return true;
-        }
-        catch (InvalidOperationException exception)
-            when (membershipCount > 0 || nestedGroupCount > 0)
-        {
-            logger.LogWarning(
-                exception,
-                "Entra group membership Graph read stopped pagination for group {GroupId} due to an invalid @odata.nextLink.",
-                groupId);
-
-            return false;
-        }
     }
 
     private static void EnsureNextLinkTargetsGroup(string nextLink, string groupId)
@@ -277,7 +210,9 @@ public sealed class EntraGroupMembershipGraphReader(
                 "Entra group membership Graph read stopped because @odata.nextLink must use HTTPS.");
         }
 
-        if (!EntraGroupMembershipGraphTrustedHosts.IsTrusted(uri.Host))
+        if (!EntraGroupMembershipGraphTrustedHosts.IsTrusted(uri.Host)
+            || !uri.Host.Equals("graph.microsoft.com", StringComparison.OrdinalIgnoreCase)
+            || !uri.IsDefaultPort || !string.IsNullOrEmpty(uri.UserInfo))
         {
             throw new InvalidOperationException(
                 "Entra group membership Graph read stopped because @odata.nextLink targets an untrusted host.");
