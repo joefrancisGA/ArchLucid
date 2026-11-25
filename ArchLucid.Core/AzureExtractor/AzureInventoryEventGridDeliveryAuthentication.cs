@@ -60,6 +60,28 @@ public static class AzureInventoryEventGridDeliveryAuthentication
             ? EntraWebhook : DirectUnverified;
     }
 
+    public static string? ReadUserAssignedIdentityResourceId(JsonElement properties)
+    {
+        if (Resolve(properties) != UserAssigned)
+            return null;
+        return ValidateIdentityResourceId(ReadString(properties.GetProperty("deliveryWithResourceIdentity").GetProperty("identity"), "userAssignedIdentity"));
+    }
+
+    public static string? ValidateIdentityResourceId(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value) || value.Length > 512 || value.Contains('?') || value.Contains('#'))
+            return null;
+        string[] parts = value.Trim().Split('/');
+        return parts.Length == 9 && parts[0].Length == 0
+            && parts[1].Equals("subscriptions", StringComparison.OrdinalIgnoreCase)
+            && parts[3].Equals("resourceGroups", StringComparison.OrdinalIgnoreCase)
+            && parts[5].Equals("providers", StringComparison.OrdinalIgnoreCase)
+            && parts[6].Equals("Microsoft.ManagedIdentity", StringComparison.OrdinalIgnoreCase)
+            && parts[7].Equals("userAssignedIdentities", StringComparison.OrdinalIgnoreCase)
+            && parts.Skip(1).All(part => !string.IsNullOrWhiteSpace(part))
+            ? value.Trim() : null;
+    }
+
     private static string? ReadString(JsonElement element, string name) =>
         element.TryGetProperty(name, out JsonElement value) && value.ValueKind == JsonValueKind.String
             ? value.GetString() : null;
