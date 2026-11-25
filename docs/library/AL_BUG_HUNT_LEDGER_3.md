@@ -381,6 +381,19 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 thorough hunt (seed→hit): no rotation (`shouldRotate: false`). Promoted pass-10 net-burn footnote — **proven** `buildRemediationFactoryExecutiveMetricTiles` showed created/remediated footnote while `metricsLoaded` was false; gate footnote on `metricsLoaded`. Regression `omits net-burn footnote when metrics are unloaded even if a metrics object is present`. **valid-no-repro** duplicate `selectedPath` first-wins, **valid-no-repro** open write normalizes legacy `on` to `1`, **valid-no-repro** padded path honesty after trim, **valid-no-repro** fractional points above unity. Scoped vitest **112/112**. Reseeded pass-11 below. Private beta: invited operators no longer see stale created/remediated footnote under not-measured net burn while metrics load.
+
+- [x] (superseded) pass-10 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-11 reseed.
+- [x] (valid-no-repro) `readUuidParam` — duplicate selectedPath params first-wins — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `uses the first selectedPath token when the query string repeats the param`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — open write replaces legacy on with 1 — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `writes metrics open as 1 when base search used a legacy on token`.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — net-burn footnote when unloaded — **proven 2026-11-25 thorough hunt (seed→hit):** `metricsLoaded` guard; regression cited above.
+- [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — padded path id honesty after trim — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `shows overflow honesty after trimming padded long path ids`.
+- [x] (valid-no-repro) `formatRemediationFactoryPercentDisplay` — fractional values above 1 on points scale — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `keeps fractional API points above unity on the points scale`.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — open write normalizes legacy true to 1 — locus: metrics open write; monitor; pass-11 reseed.
+- [ ] (candidate) `readUuidParam` — duplicate fromSnapshot params first-wins — locus: URLSearchParams get; monitor; pass-11 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — exceptions-active footnote when unloaded — locus: valueFootnote vs metricsLoaded; monitor; pass-11 reseed.
+- [ ] (candidate) `formatAttackPathReportPathChipLabel` — trims padding before ellipsis — locus: trim; monitor; pass-11 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves metrics open param — locus: disclosure writer; monitor; pass-11 reseed.
 2026-11-25 thorough hunt (dry): no rotation (`shouldRotate: false`). Attempted failing repro on five pass-9 `(candidate)` rows — all **valid-no-repro**: duplicate selection UUID first-wins (`uses the first selectedFinding token when the query string repeats the param`), open write normalizes legacy `yes` to `1` (`writes metrics open as 1 when base search used a legacy yes token`), unity fraction vs 100 points (`keeps one hundred on the API points scale distinct from a unity fraction`), 49-char path honesty (`shows overflow honesty copy only when a path id exceeds 48 characters`), unloaded positive net burn (`does not show positive net burn when metrics are unloaded even if netBurn is present`). Scoped vitest **107/107** (`remediation-factory`). Reseeded pass-10 below. Private beta: n/a.
 
 - [x] (superseded) pass-9 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (dry):** pass-10 reseed.
