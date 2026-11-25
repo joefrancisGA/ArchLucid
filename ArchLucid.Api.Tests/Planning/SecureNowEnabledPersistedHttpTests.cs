@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using ArchLucid.Api.Controllers.Planning;
+using ArchLucid.Api.Security;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -25,6 +26,11 @@ public sealed class SecureNowEnabledPersistedHttpTests(SecureNowExchangeEnabledA
         // The production entitlement service intentionally denies all reads.
         // This host-only server-side test ACL grants the exact seeded run.
         factory.GrantSeededTestRun(run);
+        using (IServiceScope entitlementScope = factory.Services.CreateScope())
+        {
+            factory.IsSeededEntitlementAuthority(entitlementScope.ServiceProvider
+                .GetRequiredService<IEvidenceEntitlementAuthority>()).Should().BeTrue();
+        }
 
         // Prove the real scoped SQL query sees the persisted graph on Runs,
         // not merely a separately stored GraphSnapshots row. This exact
@@ -68,6 +74,7 @@ public sealed class SecureNowEnabledPersistedHttpTests(SecureNowExchangeEnabledA
         // Separate the ordinary persisted graph/temporal resolver from the
         // opt-in exchange authorization. Both are read-only operations.
         string ordinaryUrl = url.Replace("&secureNowExchange=true", "", StringComparison.Ordinal);
+        int grantsBefore = factory.GrantedRequestCount;
         using HttpResponseMessage ordinary = await owner.GetAsync(ordinaryUrl);
         string ordinaryBody = await ordinary.Content.ReadAsStringAsync();
 
@@ -76,6 +83,9 @@ public sealed class SecureNowEnabledPersistedHttpTests(SecureNowExchangeEnabledA
         allowed.StatusCode.Should().Be(HttpStatusCode.OK,
             because: "a seeded, authorized run must support an owner snapshot read; ordinary GET status/body: {0}/{1}; exchange response: {2}; test-host ACL: {3}",
             ordinary.StatusCode, ordinaryBody, responseBody, factory.TestEntitlementDiagnosticCounts);
+        ordinary.StatusCode.Should().Be(HttpStatusCode.OK);
+        factory.GrantedRequestCount.Should().BeGreaterThanOrEqualTo(grantsBefore + 2,
+            because: "the exchange must authorize both the anchor and resolved resource");
         SecureNowSnapshotEnvelope? envelope =
             await allowed.Content.ReadFromJsonAsync<SecureNowSnapshotEnvelope>();
         envelope.Should().NotBeNull();
@@ -90,7 +100,9 @@ public sealed class SecureNowEnabledPersistedHttpTests(SecureNowExchangeEnabledA
         using HttpClient outsider = factory.CreateClient();
         GreenfieldIntegrationTenantScope.WireScope(outsider, foreignScope);
 
+        int grantsBeforeForeign = factory.GrantedRequestCount;
         using HttpResponseMessage denied = await outsider.GetAsync(url);
         denied.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        factory.GrantedRequestCount.Should().Be(grantsBeforeForeign);
     }
 }
