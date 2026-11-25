@@ -1,5 +1,6 @@
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Models.TechnologyLedger;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs.TechnologyLedger;
@@ -51,7 +52,8 @@ public sealed class TechnologyLedgerControllerTests
             _scopeProvider.Object,
             _actorContext.Object,
             _audit.Object,
-            Mock.Of<IManifestHashService>())
+            Mock.Of<IManifestHashService>(),
+            Mock.Of<IArchitectureShareAccessGate>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

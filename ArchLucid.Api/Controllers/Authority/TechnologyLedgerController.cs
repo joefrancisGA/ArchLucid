@@ -4,6 +4,7 @@ using ArchLucid.Api.Http;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models.TechnologyLedger;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs.Finalization;
@@ -43,13 +44,18 @@ public sealed partial class TechnologyLedgerController(
     IScopeContextProvider scopeContextProvider,
     IActorContext actorContext,
     IAuditService auditService,
-    IManifestHashService manifestHashService) : ControllerBase
+    IManifestHashService manifestHashService,
+    IArchitectureShareAccessGate architectureShareAccessGate) : ControllerBase
 {
+    private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
+        architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
+
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     /// <summary>Returns all Technology Ledger entries for <paramref name="runId" />.</summary>
     [HttpGet("{runId:guid}/technology-ledger")]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     [ProducesResponseType(typeof(TechnologyLedgerListResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
@@ -60,6 +66,12 @@ public sealed partial class TechnologyLedgerController(
         try
         {
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+            IActionResult? shareDenied =
+                await _architectureShareAccessGate.EnsureRunReadAllowedAsync(this, User, scope, runId, cancellationToken);
+
+            if (shareDenied is not null)
+                return shareDenied;
 
             IActionResult? sealedGuardResult =
                 await EnsureSealedManifestReadAllowedAsync(scope, runId, cancellationToken);
@@ -137,6 +149,12 @@ public sealed partial class TechnologyLedgerController(
         try
         {
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+            IActionResult? shareDenied =
+                await _architectureShareAccessGate.EnsureRunDecideAllowedAsync(this, User, scope, runId, cancellationToken);
+
+            if (shareDenied is not null)
+                return shareDenied;
 
             IActionResult? sealedGuardResult =
                 await EnsureSealedManifestReadAllowedAsync(scope, runId, cancellationToken);
