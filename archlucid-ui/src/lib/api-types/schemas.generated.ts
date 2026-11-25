@@ -6723,7 +6723,7 @@ export interface components {
             workspaceId?: string;
         };
         /** @enum {string} */
-        OperationalSecurityFindingStatus: "Open" | "Recurred" | "Closed" | "Exception" | "AwaitingVerification";
+        OperationalSecurityFindingStatus: "Open" | "Recurred" | "Closed" | "Exception" | "AwaitingVerification" | "Informational";
         OperatorDemoReviewFindingSummary: {
             policyRuleKey?: null | string;
             severity?: string;

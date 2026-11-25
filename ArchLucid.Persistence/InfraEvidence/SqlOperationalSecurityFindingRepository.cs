@@ -605,7 +605,11 @@ public sealed partial class SqlOperationalSecurityFindingRepository(ISqlConnecti
                                        AND WorkspaceId = @WorkspaceId
                                        AND ProjectId = @ProjectId
                                        AND FindingId = @FindingId
-                                       AND LastObservedUtc <= @LastObservedUtc;
+                                       AND LastObservedUtc <= @LastObservedUtc
+                                       AND (@ExpectedPayloadHashSha256 IS NULL OR
+                                           (PayloadHashSha256 = @ExpectedPayloadHashSha256
+                                            AND Status = @ExpectedStatus
+                                            AND LastObservedUtc < @LastObservedUtc));
                                      """;
 
             int affected = await conn.ExecuteAsync(
@@ -617,6 +621,8 @@ public sealed partial class SqlOperationalSecurityFindingRepository(ISqlConnecti
                         scope.WorkspaceId,
                         scope.ProjectId,
                         mutation.FindingId,
+                        mutation.ExpectedPayloadHashSha256,
+                        ExpectedStatus = (int?)mutation.ExpectedStatus,
                         mutation.CloudResourceId,
                         mutation.ExternalResourceId,
                         mutation.ResourceType,

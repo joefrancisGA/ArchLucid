@@ -611,6 +611,26 @@ public sealed class RemediationInstanceService(
             };
         }
 
+        ProjectScopeKey projectScope = scope.ToProjectScopeKey();
+        OperationalSecurityFindingRecord? advisoryFinding =
+            await operationalFindingRepository.TryGetByIdInScopeAsync(projectScope, instance.FindingId, cancellationToken);
+        AdvisoryRemediationEvidence? advisory = null;
+        if (advisoryFinding is not null)
+        {
+            IReadOnlyList<OperationalSecurityFindingMetadataRecord> metadata =
+                await operationalFindingRepository.ListMetadataByFindingInScopeAsync(
+                    projectScope, instance.FindingId, cancellationToken);
+            OperationalSecurityFindingMetadataRecord? advisoryRow = metadata?.FirstOrDefault(
+                row => AdvisoryRemediationEvidence.IsMetadataKey(row.MetadataKey));
+
+            if (advisoryRow is not null)
+            {
+                advisory = AdvisoryRemediationEvidence.Parse(advisoryRow.MetadataValue);
+                if (advisory is null || advisoryFinding.CloudResourceId != instance.CloudResourceId)
+                    return Failed("Advisory evidence is invalid or does not match the remediation deployment.");
+            }
+        }
+
         RemediationInstanceVerificationResult verification = RemediationInstanceVerificationEvaluator.Evaluate(
             instance,
             content!,
@@ -619,7 +639,12 @@ public sealed class RemediationInstanceService(
             executionHeader.CapturedUtc,
             pathNarrative,
             pathVerificationContext,
-            changeImplementedUtc: instance.ChangeImplementedUtc);
+            changeImplementedUtc: instance.ChangeImplementedUtc,
+            advisory: advisory,
+            advisoryObservedUtc: advisoryFinding?.LastObservedUtc,
+            advisoryFindingPayloadHash: advisory is not null && advisoryFinding is not null
+                ? Convert.ToHexString(advisoryFinding.PayloadHashSha256)
+                : null);
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
@@ -662,6 +687,15 @@ public sealed class RemediationInstanceService(
 
         if (associationFailure is not null)
             return associationFailure;
+
+        if (advisory is not null && advisoryFinding is not null)
+        {
+            // Exact-revision compare-and-set: verified instance evidence stays historical
+            // if a newer advisory or observation arrived during verification.
+            await operationalFindingRepository.TryCloseVerifiedAdvisoryInScopeAsync(
+                projectScope, advisoryFinding, instanceId, verificationSnapshotId,
+                verificationSnapshot.Header.CapturedUtc!.Value, utcNow, CancellationToken.None);
+        }
 
         return Succeeded(instanceId, nextStatus);
     }
@@ -808,11 +842,48 @@ public sealed class RemediationInstanceService(
             closedUtc: utcNow,
             updatedUtc: utcNow);
 
+        // Retry the advisory close if verification was saved but the secondary finding write failed.
+        // Only the already persisted, revision-bound proof can authorize this update.
+        if (instance.VerificationSnapshotId is Guid snapshotId
+            && instance.VerifiedUtc is DateTime verifiedUtc
+            && TryReadAdvisoryVerificationCapture(instance.VerificationResultJson, out DateTime capturedUtc))
+        {
+            ProjectScopeKey projectScope = scope.ToProjectScopeKey();
+            OperationalSecurityFindingRecord? finding = await operationalFindingRepository.TryGetByIdInScopeAsync(
+                projectScope, instance.FindingId, cancellationToken);
+            if (finding is not null)
+                await operationalFindingRepository.TryCloseVerifiedAdvisoryInScopeAsync(
+                    projectScope, finding, instanceId, snapshotId, capturedUtc, verifiedUtc, cancellationToken);
+        }
+
         await instanceRepository.UpdateInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
 
         await LogAuditAsync(scope, actorKey, AuditEventTypes.RemediationInstanceClosed, instanceId, cancellationToken);
 
         return Succeeded(instanceId, RemediationInstanceStatus.Closed);
+    }
+
+    private static bool TryReadAdvisoryVerificationCapture(string? json, out DateTime capturedUtc)
+    {
+        capturedUtc = default;
+        if (string.IsNullOrWhiteSpace(json))
+            return false;
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(json);
+            JsonElement result = document.RootElement;
+            return result.ValueKind == JsonValueKind.Object
+                && result.TryGetProperty("advisoryFindingPayloadHash", out JsonElement hash)
+                && hash.ValueKind == JsonValueKind.String
+                && result.TryGetProperty("verificationCapturedUtc", out JsonElement capture)
+                && capture.ValueKind == JsonValueKind.String
+                && capture.TryGetDateTime(out capturedUtc);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
     }
 
     private async Task<RemediationInstanceRecord?> RequireInstance(

@@ -155,6 +155,84 @@ public sealed class OperationalSecurityFindingIngestServiceTests
         detail.Finding.Should().BeNull();
     }
 
+    [Theory]
+    [InlineData("Provider", "Fixed", "NotRequired", OperationalSecurityFindingStatus.Informational)]
+    [InlineData("Provider", "Pending", "NotRequired", OperationalSecurityFindingStatus.Open)]
+    [InlineData("Customer", "NotApplicable", "Required", OperationalSecurityFindingStatus.Open)]
+    [InlineData("Shared", "Fixed", "Required", OperationalSecurityFindingStatus.Open)]
+    [InlineData("Undetermined", "Unknown", "Unknown", OperationalSecurityFindingStatus.Open)]
+    public async Task Reported_advisory_classifies_work_without_claiming_verification(
+        string owner, string fix, string customer, OperationalSecurityFindingStatus expected)
+    {
+        InMemoryOperationalSecurityFindingRepository repository = new();
+        OperationalSecurityFindingIngestService sut = new(
+            repository, Mock.Of<IAuditService>(), NullLogger<OperationalSecurityFindingIngestService>.Instance);
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+
+        OperationalSecurityFindingBatchIngestResult result = await sut.IngestBatchAsync(
+            scope, [CreateAdvisory(owner, fix, customer, OperationalSecurityFindingStatus.Open)], "actor@test");
+
+        result.IngestedCount.Should().Be(1);
+        OperationalSecurityFindingRecord row = repository.StoredFindings.Should().ContainSingle().Which;
+        row.Status.Should().Be(expected);
+        repository.StoredObservations.Should().ContainSingle().Which.Status.Should().Be(expected);
+        repository.StoredMetadata.Should().ContainSingle().Which.MetadataKey.Should().Be(AdvisoryRemediationEvidence.MetadataKey);
+        RemediationFactoryFindingMetricsAggregate metrics =
+            await ((IOperationalSecurityFindingRepository)repository).GetFactoryFindingMetricsAggregateInScopeAsync(
+                scope.ToProjectScopeKey(), row.CreatedUtc.AddMinutes(-1), row.CreatedUtc.AddMinutes(1));
+        int actionable = expected == OperationalSecurityFindingStatus.Informational ? 0 : 1;
+        metrics.OpenFindings.Should().Be(actionable);
+        metrics.CreatedThisWeek.Should().Be(actionable);
+    }
+
+    [Fact]
+    public async Task Customer_advisory_cannot_be_closed_by_ingest_or_compensating_control()
+    {
+        InMemoryOperationalSecurityFindingRepository repository = new();
+        OperationalSecurityFindingIngestService sut = new(
+            repository, Mock.Of<IAuditService>(), NullLogger<OperationalSecurityFindingIngestService>.Instance);
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+
+        OperationalSecurityFindingBatchIngestResult initial = await sut.IngestBatchAsync(scope,
+            [CreateAdvisory("Customer", "NotApplicable", "Required", OperationalSecurityFindingStatus.Open)], "actor@test");
+        OperationalSecurityFindingBatchIngestResult invalid = await sut.IngestBatchAsync(scope,
+            [CreateAdvisory("Customer", "NotApplicable", "Required", OperationalSecurityFindingStatus.Closed),
+             new OperationalSecurityFindingIngestItem
+             {
+                 Provider = CloudProvider.Azure, SourceSystem = "operator", SourceFindingId = "advisory-1",
+                 Title = "Unverified close", Status = OperationalSecurityFindingStatus.Closed,
+             }], "actor@test");
+
+        initial.IngestedCount.Should().Be(1);
+        invalid.FailedCount.Should().Be(2);
+        repository.StoredFindings.Should().ContainSingle().Which.Status.Should().Be(OperationalSecurityFindingStatus.Open);
+        repository.StoredObservations.Should().ContainSingle();
+    }
+
+    private static OperationalSecurityFindingIngestItem CreateAdvisory(
+        string owner, string fix, string customer, OperationalSecurityFindingStatus status) =>
+        new()
+        {
+            Provider = CloudProvider.Azure,
+            SourceSystem = "operator",
+            SourceFindingId = "advisory-1",
+            CloudResourceId = ProjectId,
+            Title = "Runtime advisory",
+            Status = status,
+            Metadata = new Dictionary<string, string?>
+            {
+                [AdvisoryRemediationEvidence.MetadataKey] = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    advisoryId = "ADVISORY-1",
+                    sourceUrl = "https://example.com/advisory-1",
+                    owner,
+                    providerFix = fix,
+                    customerAction = customer,
+                    compensatingControlEvidenceReference = "waf-evidence",
+                }),
+            },
+        };
+
     [Fact]
     public async Task IngestBatchAsync_stale_changed_payload_does_not_reopen_or_replace_evidence()
     {

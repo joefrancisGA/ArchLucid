@@ -81,6 +81,15 @@ public interface IProjectScopedOperationalSecurityFindingRepository
         Guid findingId,
         CancellationToken cancellationToken = default);
 
+    Task<bool> TryCloseVerifiedAdvisoryInScopeAsync(
+        ProjectScopeKey scope,
+        OperationalSecurityFindingRecord observedFinding,
+        Guid instanceId,
+        Guid verificationSnapshotId,
+        DateTime snapshotCapturedUtc,
+        DateTime verifiedUtc,
+        CancellationToken cancellationToken = default) => Task.FromResult(false);
+
     Task UpdateInScopeAsync(
         ProjectScopeKey scope,
         OperationalSecurityFindingMutation mutation,

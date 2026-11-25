@@ -138,6 +138,27 @@ public sealed class OperationalSecurityFindingIngestService(
             };
         }
 
+        KeyValuePair<string, string?>[] advisoryEntries = item.Metadata
+            .Where(entry => AdvisoryRemediationEvidence.IsMetadataKey(entry.Key))
+            .ToArray();
+        AdvisoryRemediationEvidence? advisory = advisoryEntries.Length == 1
+            ? AdvisoryRemediationEvidence.Parse(advisoryEntries[0].Value)
+            : null;
+        if ((advisoryEntries.Length != 0 && (advisory is null
+                || !string.Equals(advisoryEntries[0].Key, AdvisoryRemediationEvidence.MetadataKey, StringComparison.Ordinal)))
+            || !Enum.IsDefined(item.Status)
+            || item.Status == OperationalSecurityFindingStatus.Informational
+            || (advisory is not null && item.Status != OperationalSecurityFindingStatus.Open)
+            || (advisory?.Owner is AdvisoryRemediationOwner.Customer or AdvisoryRemediationOwner.Shared
+                && (item.CloudResourceId is null || item.CloudResourceId == Guid.Empty)))
+        {
+            return Rejected(index, "Invalid advisory evidence, deployment scope, or requested status.");
+        }
+
+        OperationalSecurityFindingStatus incomingStatus = advisory?.IsInformational == true
+            ? OperationalSecurityFindingStatus.Informational
+            : item.Status;
+
         try
         {
             DateTime observedUtc = item.ObservedUtc ?? TimeProvider.System.UtcNowDateTime();
@@ -159,7 +180,7 @@ public sealed class OperationalSecurityFindingIngestService(
                     item,
                     observedUtc,
                     observedUtc,
-                    item.Status,
+                    incomingStatus,
                     payloadHash,
                     observedUtc);
 
@@ -168,7 +189,7 @@ public sealed class OperationalSecurityFindingIngestService(
                     scope.TenantId,
                     item,
                     observedUtc,
-                    item.Status,
+                    incomingStatus,
                     payloadHash);
 
                 IReadOnlyList<OperationalSecurityFindingMetadataRecord> metadata =
@@ -192,12 +213,26 @@ public sealed class OperationalSecurityFindingIngestService(
                 };
             }
 
+            IReadOnlyList<OperationalSecurityFindingMetadataRecord> currentMetadata =
+                await repository.ListMetadataByFindingInScopeAsync(
+                    scope.ToProjectScopeKey(), existing.FindingId, cancellationToken);
+            OperationalSecurityFindingMetadataRecord? currentAdvisoryRow = currentMetadata
+                .FirstOrDefault(row => AdvisoryRemediationEvidence.IsMetadataKey(row.MetadataKey));
+
+            if (advisory is null && currentAdvisoryRow is not null)
+                return Rejected(index, "Advisory status is set by the remediation lifecycle.");
+
+            if (advisory is not null
+                && (AdvisoryRemediationEvidence.Parse(currentAdvisoryRow?.MetadataValue) is not { } previous
+                    || !string.Equals(previous.AdvisoryId, advisory.AdvisoryId, StringComparison.OrdinalIgnoreCase)
+                    || existing.CloudResourceId != item.CloudResourceId))
+                return Rejected(index, "Advisory revisions must retain the same advisory and deployment identity.");
+
             bool samePayload = OperationalSecurityFindingGuard.PayloadHashesEqual(
                 existing.PayloadHashSha256,
                 payloadHash);
 
-            // A replay or delayed revision must not roll back current evidence or reopen a finding.
-            if (observedUtc < existing.LastObservedUtc)
+            if (observedUtc < existing.LastObservedUtc || (advisory is not null && observedUtc == existing.LastObservedUtc))
             {
                 return new OperationalSecurityFindingIngestItemResult
                 {
@@ -205,7 +240,9 @@ public sealed class OperationalSecurityFindingIngestService(
                     Succeeded = samePayload,
                     WasDeduplicated = samePayload,
                     FindingId = existing.FindingId,
-                    ErrorMessage = samePayload ? null : "Observation is older than the current operational finding.",
+                    ErrorMessage = samePayload ? null : observedUtc < existing.LastObservedUtc
+                        ? "Observation is older than the current operational finding."
+                        : "A changed advisory revision must have a newer observation time.",
                 };
             }
 
@@ -218,7 +255,11 @@ public sealed class OperationalSecurityFindingIngestService(
 
                 await repository.UpdateInScopeAsync(
                     scope.ToProjectScopeKey(),
-                    ToMutation(touchRecord),
+                    ToMutation(touchRecord) with
+                    {
+                        ExpectedPayloadHashSha256 = advisory is null ? null : existing.PayloadHashSha256,
+                        ExpectedStatus = advisory is null ? null : existing.Status,
+                    },
                     [],
                     observation: null,
                     cancellationToken);
@@ -240,7 +281,7 @@ public sealed class OperationalSecurityFindingIngestService(
                 };
             }
 
-            OperationalSecurityFindingStatus nextStatus = ResolveUpdatedStatus(existing.Status, item.Status);
+            OperationalSecurityFindingStatus nextStatus = ResolveUpdatedStatus(existing.Status, incomingStatus);
 
             OperationalSecurityFindingRecord updatedFinding = CloneFinding(
                 existing,
@@ -281,7 +322,11 @@ public sealed class OperationalSecurityFindingIngestService(
 
             await repository.UpdateInScopeAsync(
                 scope.ToProjectScopeKey(),
-                ToMutation(updatedFinding),
+                ToMutation(updatedFinding) with
+                {
+                    ExpectedPayloadHashSha256 = advisory is null ? null : existing.PayloadHashSha256,
+                    ExpectedStatus = advisory is null ? null : existing.Status,
+                },
                 metadataRows.Select(ToMutation).ToList(),
                 ToMutation(observationRecord),
                 cancellationToken);
@@ -317,6 +362,9 @@ public sealed class OperationalSecurityFindingIngestService(
             };
         }
     }
+
+    private static OperationalSecurityFindingIngestItemResult Rejected(int index, string error) =>
+        new() { Index = index, Succeeded = false, ErrorMessage = error };
 
     private static OperationalSecurityFindingRecord CloneFinding(
         OperationalSecurityFindingRecord source,
