@@ -18,6 +18,53 @@ namespace ArchLucid.KnowledgeGraph.Tests;
 /// <summary><see cref="GraphSnapshotProjectionMemoryCache" /> exercises read-through + invalidation semantics.</summary>
 public sealed class GraphSnapshotProjectionMemoryCacheTests
 {
+    [Theory]
+    [InlineData("tenant")]
+    [InlineData("workspace")]
+    [InlineData("project")]
+    public async Task Warm_projection_is_not_reused_across_a_scope_boundary(string boundary)
+    {
+        using IMemoryCache backing = new MemoryCache(new MemoryCacheOptions());
+        Mock<IOptionsMonitor<KnowledgeGraphProjectionCacheOptions>> options = new();
+        options.Setup(o => o.CurrentValue)
+            .Returns(new KnowledgeGraphProjectionCacheOptions { Enabled = true });
+        GraphSnapshotProjectionMemoryCache cache = new(backing, options.Object);
+
+        ScopeContext owner = CreateScope();
+        ScopeContext other = new()
+        {
+            TenantId = boundary == "tenant" ? Guid.NewGuid() : owner.TenantId,
+            WorkspaceId = boundary == "workspace" ? Guid.NewGuid() : owner.WorkspaceId,
+            ProjectId = boundary == "project" ? Guid.NewGuid() : owner.ProjectId,
+        };
+        Guid runId = Guid.NewGuid();
+        Guid snapshotId = Guid.NewGuid();
+        GraphSnapshot projection = new()
+        {
+            RunId = runId,
+            GraphSnapshotId = snapshotId,
+            ContextSnapshotId = Guid.NewGuid(),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
+        };
+
+        await cache.GetOrLoadAsync(owner, runId, snapshotId, _ => Task.FromResult<GraphSnapshot?>(projection),
+            CancellationToken.None);
+
+        int missed = 0;
+        GraphSnapshot? foreign = await cache.GetOrLoadAsync(other, runId, snapshotId, _ =>
+        {
+            missed++;
+            return Task.FromResult<GraphSnapshot?>(null);
+        }, CancellationToken.None);
+
+        foreign.Should().BeNull();
+        missed.Should().Be(1);
+        GraphSnapshot? stillWarm = await cache.GetOrLoadAsync(owner, runId, snapshotId,
+            _ => throw new InvalidOperationException("The owning scope's cache entry should remain warm."),
+            CancellationToken.None);
+        stillWarm.Should().BeSameAs(projection);
+    }
+
     [Fact]
     public async Task GetOrLoadAsync_hits_store_once_for_cached_projection()
     {

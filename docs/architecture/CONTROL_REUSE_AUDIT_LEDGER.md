@@ -321,3 +321,13 @@ This is not whole-entry closure. Legacy question rows without the server-written
 ### FND-061 run status stream authorization before evidence
 
 On baseline `b9935052c10d23af80673a9ea9f3a8c93251ec44`, the authority run-events stream only had the coarse workspace read policy before calling the run detail query. Both detail query implementations can enter the graph snapshot projection cache. Reuse the scoped run share gate before calling the detail query, verifying the seal, or starting the stream. Missing scoped runs and restricted runs return the existing not-found response without touching the detail or status readers. The allowed path keeps the sealed-manifest check and status/completion events. No data migration or cache format change is involved.
+
+### FND-061 outbound evidence writes, worker handoff, and enforcement
+
+On baseline `bdf741d364a5d46b6dceb0493564b0d0d429f263`, the blob push and Terraform PR actions still entered the cache-backed run detail query without a run share check. Both now require the same scoped run-read decision used by their download counterparts, in addition to the existing execute policy. Denied requests stop before protected reads, package generation, enqueueing, or external calls. The blob push also stops before destination DNS resolution.
+
+The run, manifest, and graph projection cache keys include tenant, workspace, and project. The graph key also includes run and snapshot ID. These dimensions isolate cache entries, but are not a substitute for authorization. The added warm-cache regression changes each scope coordinate individually with identical resource IDs.
+
+The blob push worker receives a scope and run from the durable queue but does not receive a verifiable actor or grant. It hydrates the sealed manifest before packaging. The Cosmos, retrieval indexing, and post-commit projection workers use scoped rows from internal queues. Their data and seal checks do not by themselves establish a general worker authorization boundary. The existing worker authorization adapter has no production consumer and its default identity denies all requests. Remaining work is to bind and check authorization for user-delegated jobs, and validate the separate trust model for system-created jobs. In particular, authorization at blob enqueue does not test revocation before dequeue. Do not certify the worker inventory on the strength of this HTTP change.
+
+The focused `FND-061 authorization-before-evidence` job runs on pull requests and merge queue events. Making it a required status check is a separate repository setting. It protects only the tested cohort and does not promote FND017002 to a repository-wide analyzer. FND-061 remains open. No historical rows are changed.

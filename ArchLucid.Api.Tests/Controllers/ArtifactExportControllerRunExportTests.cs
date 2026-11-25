@@ -1,5 +1,6 @@
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Contracts;
+using ArchLucid.Api.Support;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Findings.FindingVerification;
 using ArchLucid.Application.InfraEvidence.Branding;
@@ -39,6 +40,51 @@ public sealed class ArtifactExportControllerRunExportTests
 {
     private const string ValidDestination =
         "https://acct.blob.core.windows.net/exports/archlucid.zip?sv=2022-11-02&ss=b&srt=sco&sp=w&se=2099-01-01T00:00:00Z&sig=placeholder";
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task OutboundExportShareDenial_returns_404_before_evidence_or_outbound_work(bool pushToBlob)
+    {
+        using CancellationTokenSource cancellation = new();
+        CancellationToken ct = cancellation.Token;
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+        Mock<IArchitectureShareAccessGate> gate = new(MockBehavior.Strict);
+        Mock<IArtifactPackagingService> packaging = new(MockBehavior.Strict);
+        Mock<ITerraformGitHubPrService> terraform = new(MockBehavior.Strict);
+        ArtifactExportController controller = CreateController(
+            out Mock<IAuthorityQueryService> authority,
+            out Mock<IAuditService> audit,
+            out Mock<IRunExportBlobPushOutboxRepository> outbox,
+            scope,
+            artifactPackagingService: packaging.Object,
+            terraformGitHubPrService: terraform.Object,
+            architectureShareAccessGate: gate.Object);
+        IActionResult denial = ArchitectureShareNotVisibleAsNotFoundResponsePolicy.RunNotFound(controller, runId);
+        gate.Setup(g => g.EnsureRunReadAllowedAsync(controller, controller.User, scope, runId, ct))
+            .ReturnsAsync(denial);
+
+        IActionResult response = pushToBlob
+            ? await controller.PushRunExportToBlob(
+                runId, new RunExportBlobPushRequest { DestinationSasUrl = ValidDestination }, ct)
+            : await controller.CreateTerraformPr(runId, ct);
+
+        response.Should().BeSameAs(denial);
+        response.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        gate.Verify(g => g.EnsureRunReadAllowedAsync(controller, controller.User, scope, runId, ct), Times.Once);
+        gate.VerifyNoOtherCalls();
+        authority.VerifyNoOtherCalls();
+        audit.VerifyNoOtherCalls();
+        outbox.VerifyNoOtherCalls();
+        packaging.VerifyNoOtherCalls();
+        terraform.VerifyNoOtherCalls();
+    }
 
     [Fact]
     public async Task PushRunExportToBlob_returns_400_when_destination_is_rejected()
@@ -995,7 +1041,8 @@ public sealed class ArtifactExportControllerRunExportTests
         Mock<IRunDetailQueryService>? runDetailQueryService = null,
         IConfiguration? configuration = null,
         IArtifactQueryService? artifactQueryService = null,
-        IDiagramImageRenderer? diagramImageRenderer = null)
+        IDiagramImageRenderer? diagramImageRenderer = null,
+        IArchitectureShareAccessGate? architectureShareAccessGate = null)
     {
         authority = new Mock<IAuthorityQueryService>();
         audit = new Mock<IAuditService>();
@@ -1081,7 +1128,7 @@ public sealed class ArtifactExportControllerRunExportTests
             manifestHashService ?? Mock.Of<IManifestHashService>(),
             Mock.Of<IBrandedDiagramExportService>(),
             Mock.Of<IFindingVerificationReportQueryService>(),
-            Mock.Of<ArchLucid.Api.Support.IArchitectureShareAccessGate>(),
+            architectureShareAccessGate ?? Mock.Of<IArchitectureShareAccessGate>(),
             runDetailQueryService?.Object ?? Mock.Of<IRunDetailQueryService>(),
             Mock.Of<IGraphSnapshotRepository>(),
             CreateEmptyAgentExecutionTraceRepository(),
