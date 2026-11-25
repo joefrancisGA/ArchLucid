@@ -27,21 +27,9 @@ public static class RemediationInstanceSealedManifestHashGuard
         ArgumentNullException.ThrowIfNull(authorityQueryService);
         ArgumentNullException.ThrowIfNull(manifestHashService);
 
-        OperationalSecurityFindingRecord? finding =
-            await operationalFindingRepository.TryGetByIdInScopeAsync(scope.ToProjectScopeKey(), findingId, cancellationToken);
-
-        if (finding?.AssessmentId is null || finding.AssessmentId == Guid.Empty)
-            return;
-
-        IReadOnlyList<AuditArchitectureEvidenceLinkRecord> links =
-            await auditManualEvidenceRepository.ListArchitectureLinksByAssessmentAsync(
-                scope.TenantId,
-                finding.AssessmentId.Value,
-                cancellationToken);
-
-        Guid runId = links
-            .Select(link => link.RunId)
-            .FirstOrDefault(candidate => candidate != Guid.Empty);
+        IReadOnlyList<Guid> runIds = await ListFindingLinkedRunIdsAsync(
+            findingId, scope, operationalFindingRepository, auditManualEvidenceRepository, cancellationToken);
+        Guid runId = runIds.FirstOrDefault();
 
         if (runId == Guid.Empty)
             return;
@@ -52,6 +40,31 @@ public static class RemediationInstanceSealedManifestHashGuard
             authorityQueryService,
             manifestHashService,
             cancellationToken);
+    }
+
+    internal static async Task<IReadOnlyList<Guid>> ListFindingLinkedRunIdsAsync(
+        Guid findingId,
+        ScopeContext scope,
+        IProjectScopedOperationalSecurityFindingRepository operationalFindingRepository,
+        IAuditManualEvidenceRepository auditManualEvidenceRepository,
+        CancellationToken cancellationToken)
+    {
+        if (findingId == Guid.Empty)
+            return [];
+
+        OperationalSecurityFindingRecord? finding =
+            await operationalFindingRepository.TryGetByIdInScopeAsync(scope.ToProjectScopeKey(), findingId, cancellationToken);
+
+        if (finding?.AssessmentId is null || finding.AssessmentId == Guid.Empty)
+            return [];
+
+        IReadOnlyList<AuditArchitectureEvidenceLinkRecord> links =
+            await auditManualEvidenceRepository.ListArchitectureLinksByAssessmentAsync(
+                scope.TenantId,
+                finding.AssessmentId.Value,
+                cancellationToken);
+
+        return links.Select(link => link.RunId).Where(id => id != Guid.Empty).Distinct().ToList();
     }
 
     public static async Task EnsureDistinctFindingLinkedRunsSealedManifestHashOrThrowAsync(
