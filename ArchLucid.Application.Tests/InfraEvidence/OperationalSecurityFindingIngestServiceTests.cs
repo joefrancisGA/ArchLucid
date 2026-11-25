@@ -155,6 +155,102 @@ public sealed class OperationalSecurityFindingIngestServiceTests
         detail.Finding.Should().BeNull();
     }
 
+    [Fact]
+    public async Task IngestBatchAsync_stale_changed_payload_does_not_reopen_or_replace_evidence()
+    {
+        InMemoryOperationalSecurityFindingRepository repository = new();
+        OperationalSecurityFindingIngestService sut = new(
+            repository,
+            Mock.Of<IAuditService>(),
+            NullLogger<OperationalSecurityFindingIngestService>.Instance);
+
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        DateTime latest = new(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc);
+        OperationalSecurityFindingIngestItem closed = CreateObservation(latest, OperationalSecurityFindingStatus.Closed, "fixed");
+        OperationalSecurityFindingIngestItem delayed = CreateObservation(latest.AddDays(-1), OperationalSecurityFindingStatus.Open, "old");
+
+        await sut.IngestBatchAsync(scope, [closed], "actor@test");
+        OperationalSecurityFindingBatchIngestResult result = await sut.IngestBatchAsync(scope, [delayed], "actor@test");
+
+        result.FailedCount.Should().Be(1);
+        result.Items[0].WasDeduplicated.Should().BeFalse();
+        result.Items[0].ErrorMessage.Should().Be("Observation is older than the current operational finding.");
+        OperationalSecurityFindingRecord stored = repository.StoredFindings.Should().ContainSingle().Which;
+        stored.Status.Should().Be(OperationalSecurityFindingStatus.Closed);
+        stored.LastObservedUtc.Should().Be(latest);
+        stored.UpdatedUtc.Should().Be(latest);
+        stored.RawEvidenceReference.Should().Be("fixed");
+        repository.StoredMetadata.Should().ContainSingle().Which.MetadataValue.Should().Be("fixed");
+        repository.StoredObservations.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task IngestBatchAsync_stale_identical_payload_deduplicates_without_moving_watermark()
+    {
+        InMemoryOperationalSecurityFindingRepository repository = new();
+        OperationalSecurityFindingIngestService sut = new(
+            repository,
+            Mock.Of<IAuditService>(),
+            NullLogger<OperationalSecurityFindingIngestService>.Instance);
+
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        DateTime latest = new(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc);
+
+        OperationalSecurityFindingBatchIngestResult initial = await sut.IngestBatchAsync(
+            scope, [CreateObservation(latest, OperationalSecurityFindingStatus.Open, "same")], "actor@test");
+        OperationalSecurityFindingBatchIngestResult replay = await sut.IngestBatchAsync(
+            scope, [CreateObservation(latest.AddDays(-1), OperationalSecurityFindingStatus.Open, "same")], "actor@test");
+
+        replay.DeduplicatedCount.Should().Be(1);
+        replay.Items[0].FindingId.Should().Be(initial.Items[0].FindingId);
+        OperationalSecurityFindingRecord stored = repository.StoredFindings.Should().ContainSingle().Which;
+        stored.LastObservedUtc.Should().Be(latest);
+        stored.UpdatedUtc.Should().Be(latest);
+        repository.StoredObservations.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task IngestBatchAsync_newer_open_observation_still_records_recurrence()
+    {
+        InMemoryOperationalSecurityFindingRepository repository = new();
+        OperationalSecurityFindingIngestService sut = new(
+            repository,
+            Mock.Of<IAuditService>(),
+            NullLogger<OperationalSecurityFindingIngestService>.Instance);
+
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        DateTime closed = new(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc);
+        DateTime recurred = closed.AddDays(1);
+
+        await sut.IngestBatchAsync(
+            scope, [CreateObservation(closed, OperationalSecurityFindingStatus.Closed, "fixed")], "actor@test");
+        OperationalSecurityFindingBatchIngestResult result = await sut.IngestBatchAsync(
+            scope, [CreateObservation(recurred, OperationalSecurityFindingStatus.Open, "regression")], "actor@test");
+
+        result.IngestedCount.Should().Be(1);
+        OperationalSecurityFindingRecord stored = repository.StoredFindings.Should().ContainSingle().Which;
+        stored.Status.Should().Be(OperationalSecurityFindingStatus.Recurred);
+        stored.LastObservedUtc.Should().Be(recurred);
+        stored.RawEvidenceReference.Should().Be("regression");
+        repository.StoredObservations.Should().HaveCount(2);
+    }
+
+    private static OperationalSecurityFindingIngestItem CreateObservation(
+        DateTime observedUtc,
+        OperationalSecurityFindingStatus status,
+        string evidence) =>
+        new()
+        {
+            Provider = CloudProvider.Azure,
+            SourceSystem = "scanner",
+            SourceFindingId = "finding-chronology",
+            Title = "Runtime vulnerability",
+            ObservedUtc = observedUtc,
+            Status = status,
+            RawEvidenceReference = evidence,
+            Metadata = new Dictionary<string, string?> { ["proof"] = evidence },
+        };
+
     private static OperationalSecurityFindingIngestItem CreateItem(string sourceSystem, string sourceFindingId) =>
         new()
         {

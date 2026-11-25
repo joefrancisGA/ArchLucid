@@ -192,7 +192,24 @@ public sealed class OperationalSecurityFindingIngestService(
                 };
             }
 
-            if (OperationalSecurityFindingGuard.PayloadHashesEqual(existing.PayloadHashSha256, payloadHash))
+            bool samePayload = OperationalSecurityFindingGuard.PayloadHashesEqual(
+                existing.PayloadHashSha256,
+                payloadHash);
+
+            // A replay or delayed revision must not roll back current evidence or reopen a finding.
+            if (observedUtc < existing.LastObservedUtc)
+            {
+                return new OperationalSecurityFindingIngestItemResult
+                {
+                    Index = index,
+                    Succeeded = samePayload,
+                    WasDeduplicated = samePayload,
+                    FindingId = existing.FindingId,
+                    ErrorMessage = samePayload ? null : "Observation is older than the current operational finding.",
+                };
+            }
+
+            if (samePayload)
             {
                 OperationalSecurityFindingRecord touchRecord = CloneFinding(
                     existing,

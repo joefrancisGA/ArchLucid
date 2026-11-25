@@ -116,6 +116,55 @@ public sealed class SqlOperationalSecurityFindingRepositorySqlIntegrationTests(S
         otherTenant.Should().BeNull();
     }
 
+    [SkippableFact]
+    public async Task Scoped_update_rejects_older_observation_without_writing_history()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        SqlOperationalSecurityFindingRepository repository = new(new SqlConnectionFactory(fixture.ConnectionString));
+        ProjectScopeKey scope = ProjectScopeKey.Create(TenantA, WorkspaceId, ProjectId);
+        Guid findingId = Guid.NewGuid();
+        DateTime latest = new(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc);
+        DateTime older = latest.AddDays(-1);
+        byte[] currentHash = [1, 2, 3, 4];
+        byte[] olderHash = [4, 3, 2, 1];
+        await repository.InsertAsync(
+            CreateFinding(findingId, TenantA, CloudProvider.Azure, "Defender", "chronology", latest, currentHash),
+            [],
+            CreateObservation(findingId, TenantA, latest, currentHash),
+            CancellationToken.None);
+
+        OperationalSecurityFindingMutation mutation = new()
+        {
+            FindingId = findingId,
+            Title = "Stale finding",
+            Status = OperationalSecurityFindingStatus.Closed,
+            LastObservedUtc = older,
+            UpdatedUtc = older,
+            PayloadHashSha256 = olderHash,
+        };
+        OperationalSecurityFindingObservationMutation observation = new()
+        {
+            ObservationId = Guid.NewGuid(),
+            FindingId = findingId,
+            ObservedUtc = older,
+            Status = OperationalSecurityFindingStatus.Closed,
+            Summary = "Stale observation",
+            PayloadHashSha256 = olderHash,
+            SourceSystem = "Defender",
+        };
+        Func<Task> update = () => repository.UpdateInScopeAsync(scope, mutation, [], observation, CancellationToken.None);
+
+        await update.Should().ThrowAsync<InvalidOperationException>();
+
+        OperationalSecurityFindingRecord? stored = await repository.TryGetByIdInScopeAsync(scope, findingId);
+        stored.Should().NotBeNull();
+        stored!.LastObservedUtc.Should().Be(latest);
+        stored.Status.Should().Be(OperationalSecurityFindingStatus.Open);
+        stored.PayloadHashSha256.Should().StartWith(currentHash);
+        (await repository.ListObservationsByFindingAsync(TenantA, findingId)).Should().ContainSingle();
+    }
+
     private static OperationalSecurityFindingRecord CreateFinding(
         Guid findingId,
         Guid tenantId,

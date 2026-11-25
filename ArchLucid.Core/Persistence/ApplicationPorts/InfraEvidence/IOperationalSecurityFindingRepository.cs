@@ -298,6 +298,9 @@ public interface IOperationalSecurityFindingRepository
         if (current is null)
             return;
 
+        if (mutation.LastObservedUtc < current.LastObservedUtc)
+            throw new InvalidOperationException("Scoped operational finding mutation has an older observation.");
+
         await UpdateAsync(
             mutation.ApplyTo(current),
             metadata.Select(item => item.ToRecord(scope.TenantId)).ToList(),
