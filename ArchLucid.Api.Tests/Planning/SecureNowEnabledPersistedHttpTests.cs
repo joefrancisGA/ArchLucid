@@ -74,6 +74,7 @@ public sealed class SecureNowEnabledPersistedHttpTests(SecureNowExchangeEnabledA
         // Separate the ordinary persisted graph/temporal resolver from the
         // opt-in exchange authorization. Both are read-only operations.
         string ordinaryUrl = url.Replace("&secureNowExchange=true", "", StringComparison.Ordinal);
+        using IDisposable exceptionObservation = factory.ObserveSnapshotExceptions();
         int grantsBefore = factory.GrantedRequestCount;
         using HttpResponseMessage ordinary = await owner.GetAsync(ordinaryUrl);
         string ordinaryBody = await ordinary.Content.ReadAsStringAsync();
@@ -81,8 +82,9 @@ public sealed class SecureNowEnabledPersistedHttpTests(SecureNowExchangeEnabledA
         using HttpResponseMessage allowed = await owner.GetAsync(url);
         string responseBody = await allowed.Content.ReadAsStringAsync();
         allowed.StatusCode.Should().Be(HttpStatusCode.OK,
-            because: "a seeded, authorized run must support an owner snapshot read; ordinary GET status/body: {0}/{1}; exchange response: {2}; test-host ACL: {3}",
-            ordinary.StatusCode, ordinaryBody, responseBody, factory.TestEntitlementDiagnosticCounts);
+            because: "a seeded, authorized run must support an owner snapshot read; ordinary GET status/body: {0}/{1}; exchange response: {2}; test-host ACL: {3}; handled exception: {4}",
+            ordinary.StatusCode, ordinaryBody, responseBody, factory.TestEntitlementDiagnosticCounts,
+            factory.SnapshotExceptionSummary);
         ordinary.StatusCode.Should().Be(HttpStatusCode.OK);
         factory.GrantedRequestCount.Should().BeGreaterThanOrEqualTo(grantsBefore + 2,
             because: "the exchange must authorize both the anchor and resolved resource");
