@@ -35,6 +35,8 @@ export const RESOURCE_HUB_FINDING_ID_PARAM = "findingId";
 export const RESOURCE_HUB_INSTANCE_ID_PARAM = "instanceId";
 export const RESOURCE_HUB_CORRESPONDENCE_ID_PARAM = "correspondenceId";
 export const RESOURCE_HUB_SEED_NODE_ID_PARAM = "seedNodeId";
+export const RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM = "securityEvidencePathId";
+
 
 const ALLOWED_TABS: ReadonlySet<ResourceHubTab> = new Set([
   "overview",
@@ -151,6 +153,7 @@ export function buildInfrastructureAskHref(context: {
   readonly auditEvidenceSnapshotId?: string;
   readonly controlId?: string;
   readonly workQueue?: CloudResourceExplorerWorkQueue;
+  readonly securityEvidencePathId?: string;
   readonly seedNodeId?: string;
   /** Hub tab the user opened Ask from (workbench-origin back link when audit scope is also present). */
   readonly hubTab?: ResourceHubTab;
@@ -199,6 +202,10 @@ export function buildInfrastructureAskHref(context: {
 
   if (context.workQueue != null && context.workQueue !== "all") {
     params.set(RESOURCE_EXPLORER_WORK_QUEUE_PARAM, context.workQueue);
+  }
+
+  if (context.securityEvidencePathId != null && context.securityEvidencePathId.trim().length > 0) {
+    params.set(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM, context.securityEvidencePathId.trim());
   }
 
   if (context.seedNodeId != null && context.seedNodeId.trim().length > 0) {

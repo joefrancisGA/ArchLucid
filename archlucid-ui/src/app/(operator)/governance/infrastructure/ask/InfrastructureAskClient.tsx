@@ -79,6 +79,7 @@ import {
   RESOURCE_HUB_FINDING_ID_PARAM,
   RESOURCE_HUB_INSTANCE_ID_PARAM,
   RESOURCE_HUB_RUN_ID_PARAM,
+  RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM,
   RESOURCE_HUB_SEED_NODE_ID_PARAM,
   RESOURCE_HUB_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_TAB_PARAM,
@@ -141,6 +142,10 @@ import { cn } from "@/lib/utils";
 
 import { InfrastructureAskBreadcrumb } from "./InfrastructureAskBreadcrumb";
 import { InfrastructureAskClaimOrientationStrip } from "./InfrastructureAskClaimOrientationStrip";
+import {
+  INFRASTRUCTURE_ASK_EVIDENCE_ROW_CAP_LINE,
+  INFRASTRUCTURE_ASK_RANKED_PATH_SCOPE_LINE,
+} from "@/lib/infra-evidence/infrastructure-ask-ranked-path-honesty-copy";
 
 type ScopeBackLink = {
   readonly href: string;
@@ -210,6 +215,9 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
   );
   const controlId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_CONTROL_ID_PARAM));
   const seedNodeId = parseResourceHubQueryValueFromSearch(searchParams.get(RESOURCE_HUB_SEED_NODE_ID_PARAM));
+  const securityEvidencePathId = parseResourceHubQueryValueFromSearch(
+    searchParams.get(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM),
+  );
   const hubTabOrigin = parseAskHubTabOriginFromSearch(searchParams.get(RESOURCE_HUB_TAB_PARAM));
   const workQueue = parseResourceExplorerWorkQueueFromSearch(searchParams.get(RESOURCE_EXPLORER_WORK_QUEUE_PARAM));
   const auditScope = useMemo(() => parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams), [searchParams]);
@@ -234,6 +242,7 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
         correspondenceId,
         runId,
         seedNodeId,
+        securityEvidencePathId,
         assessmentId,
         auditEvidenceSnapshotId,
         controlId,
@@ -252,6 +261,7 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
       instanceId,
       runId,
       seedNodeId,
+      securityEvidencePathId,
       snapshotId,
       workQueue,
     ],
@@ -378,6 +388,7 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
         assessmentId,
         auditEvidenceSnapshotId,
         controlId,
+        securityEvidencePathId,
         workQueue,
       }),
     [
@@ -393,6 +404,7 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
       snapshotId,
       snapshotSubscriptionId,
       snapshotSubscriptionName,
+      securityEvidencePathId,
       workQueue,
     ],
   );
@@ -753,6 +765,7 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
         assessmentId: assessmentId.length > 0 ? assessmentId : null,
         auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : null,
         controlId: controlId.length > 0 ? controlId : null,
+        securityEvidencePathId: securityEvidencePathId.length > 0 ? securityEvidencePathId : null,
       });
       setHistory((current) => [
         ...current,
@@ -779,6 +792,7 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
     controlId,
     diffId,
     runId,
+    securityEvidencePathId,
     snapshotId,
     submitting,
   ]);
@@ -797,6 +811,7 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
       assessmentId: match.assessmentId,
       auditEvidenceSnapshotId: match.auditEvidenceSnapshotId,
       controlId: match.controlId,
+      securityEvidencePathId: securityEvidencePathId.length > 0 ? securityEvidencePathId : undefined,
     });
     router.replace(nextHref);
   }, [
@@ -809,6 +824,7 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
     router,
     runId,
     snapshotId,
+    securityEvidencePathId,
     workQueue,
   ]);
 
@@ -1101,6 +1117,12 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
                   kind={snapshotFreshness.statusKind}
                   label={snapshotFreshness.statusLabel}
                 />
+              </div>
+            ) : null}
+            {securityEvidencePathId.length > 0 ? (
+              <div className="grid gap-1" data-testid="infra-ask-ranked-path-scope">
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{INFRASTRUCTURE_ASK_RANKED_PATH_SCOPE_LINE}</p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{INFRASTRUCTURE_ASK_EVIDENCE_ROW_CAP_LINE}</p>
               </div>
             ) : null}
           </div>

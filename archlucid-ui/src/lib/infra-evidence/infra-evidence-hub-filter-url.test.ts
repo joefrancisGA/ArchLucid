@@ -337,4 +337,14 @@ describe("infra-evidence-hub-filter-url", () => {
       "/governance/infrastructure/ask?cloudResourceId=11111111-1111-1111-1111-111111111111&workQueue=recent-drift&tab=drift",
     );
   });
+
+  it("builds Ask href with securityEvidencePathId for RankedPath handoff", () => {
+    expect(
+      buildInfrastructureAskHref({
+        snapshotId: "11111111-1111-1111-1111-111111111111",
+        securityEvidencePathId: "22222222-2222-2222-2222-222222222222",
+        hubTab: "remediation",
+      }),
+    ).toContain("securityEvidencePathId=22222222-2222-2222-2222-222222222222");
+  });
 });

@@ -10,6 +10,7 @@ import { ShortcutHint } from "@/components/ShortcutHint";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
+import { RemediationFactoryRankedPathAskHandoff } from "@/components/remediation-factory/RemediationFactoryRankedPathAskHandoff";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { PageShortcutsDisclosure } from "@/components/usability/PageShortcutsDisclosure";
@@ -1132,6 +1133,15 @@ export function RemediationFactoryClient() {
           </>
         )}
       </section>
+
+      {productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 ? (
+        <RemediationFactoryRankedPathAskHandoff
+          testId="remediation-factory-ranked-path-ask-handoff"
+          snapshotId={workbenchSnapshotId ?? reportSnapshotId}
+          securityEvidencePathId={selectedPathId}
+          disabled={latestCapturePartial}
+        />
+      ) : null}
 
       <SecurityEvidencePathInspectPanel
         id={REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID}
