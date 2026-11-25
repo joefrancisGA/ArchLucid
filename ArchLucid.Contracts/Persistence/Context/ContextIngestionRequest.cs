@@ -17,11 +17,13 @@ public class ContextIngestionRequest
         set;
     }
 
+    private string projectId = string.Empty;
+
     public string ProjectId
     {
-        get;
-        set;
-    } = null!;
+        get => projectId;
+        set => projectId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public string? Description
     {
@@ -127,3 +129,7 @@ public class ContextIngestionRequest
         set;
     }
 }
+
+
+
+

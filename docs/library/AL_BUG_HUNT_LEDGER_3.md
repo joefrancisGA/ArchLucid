@@ -8966,7 +8966,7 @@ $12026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason:
 
 ---
 
-## Zone: archlucid-contracts
+$12026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; hit-rate cooldown waived). Attempted failing repro on five pass-11 `(candidate)` monitors — **proven** `ContextIngestionRequest.ProjectId` explicit JSON `null` bypassed `null!` initializer; `CoalesceRequired` on backing-field setter; regression `Deserialize_null_project_id_yields_empty_string_not_null`. **invalid** pass-11 `ArchitectureTradeoff` optional explanation strings (`string?` narrative fields; JSON null is valid absence), **valid-no-repro** pass-11 `WafPillar` numeric zero (defined enum value; invalid values throw per tradeoff suite), **valid-no-repro** pass-11 `GraphEdge` relationship strings (endpoint coalesce shipped), **valid-no-repro** pass-11 `ComplianceRulePack.Name` after child coalesce (pack identity coalesce prior hits). Pass-12 reseed below. Scoped deserialization **15/15**. Private beta: context ingest API JSON with null `projectId` deserializes to empty string so intake orchestration does not null-reference when replaying legacy ingest payloads.
 
 2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; hit-rate cooldown waived). Promoted pass-10 `CanonicalObject.ObjectId`, `ArchitectureTradeoff.Mechanism`/`TradeoffId`, and `ExecutionContextItem` key columns — **proven** explicit JSON `null` bypassed guid/`null!` initializers; `CoalesceRequired`; regressions `Deserialize_null_object_id_yields_empty_string_not_null`, `Deserialize_null_mechanism_and_tradeoff_id_yield_empty_strings_not_null`, `Deserialize_null_item_key_and_elicitation_question_key_yield_empty_strings_not_null`. **valid-no-repro** pass-10 nested `RequirementSmell.RequirementId` (prior hit), **invalid** `ContextSnapshot` Guid null columns (value types default to empty guid). Pass-11 reseed below. Scoped deserialization **15/15**. Private beta: risk snapshot and canonical ingest JSON with null nested id/mechanism fields deserializes to empty strings so replay paths do not null-reference.
 
@@ -20434,6 +20434,8 @@ ABQ-09 churn hotspot.
 2026-10-11 thorough hunt (dry): `host-core-jobs` — repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 thorough hunt (dry): `host-core-jobs` — repeated unchanged candidate review after the 45-hunt threshold; no reachable failing repro or hunt-ready promotion. The scoped host-core job suite passed 76/76. No production change.
 2026-10-11 seed hunt (seed→hit): `ui-infra-resource-hub` — `ResourceHubClient` supplied `shortcutsTestId` to `InfraEvidenceWorkbenchHeaderActions`, but the shared header action wrapper dropped it, making the shortcut region unqueryable and breaking the focused ResourceHubClient test. The wrapper now applies the supplied test id; the focused ResourceHubClient, working-mode, and buyer-polished suites passed 52/52.
+
+
 
 
 
