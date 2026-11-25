@@ -8,8 +8,6 @@ on:
       - 'ArchLucid.Contracts/ArchitectureIntelligence/**'
       - 'ArchLucid.Application.Tests/ArchitectureIntelligence/**'
       - 'ArchLucid.Application/InfraEvidence/InventoryPublicNetworkAccessVerifier.cs'
-      - 'ArchLucid.Application/InfraEvidence/InventoryStorageMinimumTlsVerifier.cs'
-      - 'ArchLucid.Application/Analysis/DeclarationInventorySecurityPropertyValueComparer.cs'
       - 'ArchLucid.Application/InfraEvidence/InventoryPublicNetworkAccessProvenance.cs'
       - 'ArchLucid.Application/InfraEvidence/PublicNetworkAccessCounterexample.cs'
       - 'ArchLucid.Application/InfraEvidence/SecurityEvidencePathExplanation*.cs'
