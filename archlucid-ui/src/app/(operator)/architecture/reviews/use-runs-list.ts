@@ -602,14 +602,19 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     readWindowLocationSearch(),
     filterText,
   );
+  const paginationNavigationSearch = runsListCompareInspectorNavigationSearchFromSearch(
+    routerSearchString,
+    readWindowLocationSearch(),
+    filterText,
+  );
   const previousHref = runsListPreviousPageHrefFromSearch(
-    navigationSearch,
+    paginationNavigationSearch,
     pathname,
     projectId,
     pageSize,
   );
   const nextHref = runsListNextPageHrefFromSearch(
-    navigationSearch,
+    paginationNavigationSearch,
     pathname,
     projectId,
     pageSize,

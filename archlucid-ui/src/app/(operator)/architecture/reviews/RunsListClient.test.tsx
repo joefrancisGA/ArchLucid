@@ -1905,6 +1905,34 @@ describe("RunsListClient inspector", () => {
     expect(nextLink).toHaveAttribute("href", expect.stringContaining("page=2"));
   });
 
+    it("preserves committed sort= in the Next pagination link when useSearchParams lags after sort navigation", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient
+        runs={[sampleRun, secondRun]}
+        projectId="default"
+        page={1}
+        pageSize={20}
+        totalCount={40}
+        nextCursor="cursor-page-2"
+      />,
+    );
+
+    runsListSearchParamsHarness.state.committedQuery = "sort=created-asc";
+    fireEvent.popState(window);
+
+    const nextLink = screen.getByRole("link", { name: "Next" });
+
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("sort=created-asc"));
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("page=2"));
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("cursor=cursor-page-2"));
+  });
+
   it("preserves committed cursor when compareRuns is toggled while useSearchParams lags pagination", () => {
     const secondRun: RunSummary = {
       ...sampleRun,
