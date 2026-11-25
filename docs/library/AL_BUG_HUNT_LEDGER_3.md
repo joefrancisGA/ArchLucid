@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 thorough hunt #25 (dry): `ui-auth-callback` pass-2 reseed after closing pass-1 monitors. Scoped `AuthCallbackAccessPanel` **101/101**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 thorough hunt #26 (hit): `ui-help-docs` bare trailing `?` deep-link suffix. Scoped HelpDocsClient **65/65**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -3421,16 +3421,27 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-help-docs
 
+2026-11-25 thorough hunt #26 (hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-1 `(candidate)` monitors — **proven** bare trailing `?` external urls were not deep-link suffixes because `URL.search` is empty, so `mergeDocIndex` dropped the base row when the bare-`?` variant listed first; `docIndexFetchedUrlHasDeepLinkSuffix` now treats leftover `?` in the raw url as a suffix; regressions `renders the base external url when doc-index lists a bare trailing query suffix before the https row` and `renders the base external url when doc-index lists a bare trailing query on scheme-relative url before the base row`. **valid-no-repro** scheme-relative query-with-params before base (`renders the base external url when doc-index lists a query variant before the https row`), **valid-no-repro** unknown category ordering (`renders unknown categories after the fixed CATEGORY_ORDER sections`), **valid-no-repro** product-line static memo (`resolveHelpDocsStaticEntries` + `[productLine]` memo), **valid-no-repro** path-chooser intro (`docIndexMergeDedupeKey` strips internal queries; static chooser row always present). Pass-2 reseed below. Scoped HelpDocsClient **65/65**. Private beta: help hub keeps base vendor links when doc-index lists bare `?` tracking rows before the canonical url.
+
+- [x] (superseded) pass-1 `(candidate)` queue — **superseded 2026-11-25 thorough hunt #26 (hit):** pass-2 reseed.
+- [x] (proven) pass-1 bare trailing `?` suffix — **hit 2026-11-25 thorough hunt #26:** regressions bare `?` https + scheme-relative tests.
+- [x] (valid-no-repro) pass-1 scheme-relative query before base — **cheap-disproof 2026-11-25 thorough hunt #26:** `parsed.search` covers params; utm regression.
+- [x] (valid-no-repro) pass-1 duplicate unknown categories — **cheap-disproof 2026-11-25 thorough hunt #26:** `renders unknown categories after the fixed CATEGORY_ORDER sections`.
+- [x] (valid-no-repro) pass-1 product-line static swap — **cheap-disproof 2026-11-25 thorough hunt #26:** `useMemo(() => resolveHelpDocsStaticEntries(productLine), [productLine])`.
+- [x] (valid-no-repro) pass-1 path chooser CTA query variant — **cheap-disproof 2026-11-25 thorough hunt #26:** internal query stripped from dedupe key.
+
+- [ ] (candidate) `docIndexMergeDedupeKey` — percent-encoded path segments may collide after decode — locus: `decodeDocIndexPathForDedupe`; input: mixed-case `%2F` in vendor path; monitor; pass-2 reseed.
+- [ ] (candidate) `mergeDocIndex` — `claimedDestinations` may suppress hash-only vendor row when static posts trimmed https base — locus: deep-link destination guard; input: static https + fetched `#` variant; monitor; pass-2 reseed.
+- [ ] (candidate) `HelpDocsClient` — pending fetch may show static quick links missing fetched-only categories until settled — locus: `entries ?? static`; input: slow index + Compliance category only on fetch; monitor; pass-2 reseed.
+- [ ] (candidate) `normalizeHelpHubFilterQuery` — trailing slash strip may hide rows when search matches path ending in `/` — locus: filter normalize; input: query `runbooks/` matching `/operations/runbooks`; monitor; pass-2 reseed.
+- [ ] (candidate) `helpHubSearchHrefFromSearch` — debounced replace may drop unrelated params when `q` clears — locus: clear-search href builder; input: `tab` + `q` then Escape; monitor; pass-2 reseed.
+
+
 2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`). Promoted `mergeDocIndex` / `docIndexFetchedUrlHasDeepLinkSuffix` — fetched external https rows with only a `?` query suffix were not treated as deep links (hash-only branch), so a query row listed before the base vendor url dropped the base row via normalized-path dedupe; external query strings now count as deep-link suffixes (parity with hash fragments); regressions `renders the base external url when doc-index lists a query variant before the https row`, updated `renders fetched external doc links when only a query string differs on the same https url`. Scoped HelpDocsClient vitest **63/63**. Pass-1 reseed below. Private beta: help hub vendor links stay complete when doc-index lists tracked query urls before the base outbound row.
 
 - [x] (proven) `mergeDocIndex` — external query variant before https base dropped base row — **hit 2026-11-25 seed hunt:** `docIndexFetchedUrlHasDeepLinkSuffix` includes `parsed.search`; regressions above.
 - [x] (superseded) prior seed-only streak notes — **superseded 2026-11-25 seed hunt (seed→hit):** pass-1 reseed.
 
-- [ ] (candidate) `docIndexFetchedUrlHasDeepLinkSuffix` — malformed external url with only `?` and no params — locus: URL parse catch branch; input: `https://vendor/x?`; monitor; pass-1 reseed.
-- [ ] (candidate) `mergeDocIndex` — scheme-relative query variant before `//` base — locus: merge order; input: `//host/path?x` before `//host/path`; monitor; pass-1 reseed.
-- [ ] (candidate) `helpDocCategoriesForDisplay` — duplicate unknown categories after product-line static refresh — locus: category sort; input: SecureNow static swap; monitor; pass-1 reseed.
-- [ ] (candidate) `resolveHelpDocsStaticEntries` — product line swap mid-session leaves stale merged index until refetch — locus: static entries memo; input: product line context change; monitor; pass-1 reseed.
-- [ ] (candidate) `showPathChooserIntroduction` — CTA shows when only query-variant path chooser rows exist — locus: dedupe key compare; input: `/help/choose?ref=x`; monitor; pass-1 reseed.
 
 
 2026-11-01 seed hunt (seed-only): **rotation still requested** (`shouldRotate: true`; **6** consecutive low-yield hunts on `ui-help-docs`; `-AvoidZoneId ui-help-docs` applied but **`eligibleCount` 1**). Reread `useHelpDocsIndexQuery` fetch contract, `HELP_DOCS_STATIC_ENTRIES` fallback when fetch pending/fails, and `helpDocCategoriesForDisplay` known-vs-extra category ordering. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped HelpDocsClient vitest passed **61/61**. No production code changed.

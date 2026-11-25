@@ -108,7 +108,12 @@ function docIndexFetchedUrlHasDeepLinkSuffix(url: string): boolean {
       const schemeRelative = trimmed.startsWith("//");
       const parsed = new URL(schemeRelative ? `https:${trimmed}` : trimmed);
 
-      return parsed.hash.length > 0 || parsed.search.length > 0;
+      if (parsed.hash.length > 0 || parsed.search.length > 0) {
+        return true;
+      }
+
+      // A trailing `?` with no parameters is still a distinct doc-index tracking row.
+      return trimmed.includes("?");
     } catch {
       return trimmed.includes("#") || trimmed.includes("?");
     }
