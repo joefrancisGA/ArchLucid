@@ -118,6 +118,22 @@ public sealed class InMemoryCloudResourceIdentityDirectory : ICloudResourceIdent
         return Task.FromResult<CloudResourceIdentityRecord?>(record);
     }
 
+    public Task<CloudResourceIdentityRecord?> TryGetByCloudResourceIdInScopeAsync(
+        ScopeContext scope,
+        Guid cloudResourceId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        cancellationToken.ThrowIfCancellationRequested();
+        if (cloudResourceId == Guid.Empty || scope.TenantId == Guid.Empty ||
+            scope.WorkspaceId == Guid.Empty || scope.ProjectId == Guid.Empty ||
+            !_byCloudResourceId.TryGetValue(new CloudResourceKey(scope.TenantId, cloudResourceId), out var record) ||
+            record.WorkspaceId != scope.WorkspaceId || record.ProjectId != scope.ProjectId)
+            return Task.FromResult<CloudResourceIdentityRecord?>(null);
+
+        return Task.FromResult<CloudResourceIdentityRecord?>(record);
+    }
+
     public Task UpdateResourceCloudResourceIdAsync(
         ScopeContext scope,
         Guid resourceRowId,

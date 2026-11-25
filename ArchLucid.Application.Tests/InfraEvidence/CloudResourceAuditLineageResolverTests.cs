@@ -13,110 +13,48 @@ namespace ArchLucid.Application.Tests.InfraEvidence;
 [Trait("Suite", "Application")]
 public sealed class CloudResourceAuditLineageResolverTests
 {
-    [Fact]
-    public async Task ResolveAsync_uses_query_params_when_all_three_ids_present()
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public async Task Lineage_is_never_asserted_without_a_scoped_resource_match(bool suppliedIds, bool matching)
     {
-        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
-        Guid assessmentId = Guid.NewGuid();
-        Guid auditEvidenceSnapshotId = Guid.NewGuid();
-        Guid controlId = Guid.NewGuid();
-
-        Mock<IAuditEvidenceSnapshotRepository> snapshotRepository = new();
-
-        CloudResourceAuditLineageResolver resolver = new(snapshotRepository.Object);
-
-        CloudResourceAuditLineageLink link = await resolver.ResolveAsync(
-            scope,
-            Guid.NewGuid(),
-            new CloudResourceEvidenceHubQuery
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        Guid resource = Guid.NewGuid(), assessment = Guid.NewGuid(), snapshot = Guid.NewGuid(), control = Guid.NewGuid();
+        Mock<IAuditEvidenceSnapshotRepository> repository = new(MockBehavior.Strict);
+        repository.Setup(r => r.ListLineageContextsByCloudResourceIdInScopeAsync(scope.ToProjectScopeKey(), resource,
+                25, suppliedIds ? assessment : null, suppliedIds ? snapshot : null, suppliedIds ? control : null, CancellationToken.None))
+            .ReturnsAsync(matching
+                ? [new AuditEvidenceSnapshotLineageContextRecord
+                    {
+                        AssessmentId = assessment, AuditEvidenceSnapshotId = snapshot, ControlId = control,
+                        ControlNumber = "AC-2", ControlTitle = "Account management", SnapshotCreatedUtc = DateTime.UtcNow,
+                    }]
+                : []);
+        CloudResourceAuditLineageLink link = await new CloudResourceAuditLineageResolver(repository.Object).ResolveAsync(
+            scope, resource, new CloudResourceEvidenceHubQuery
             {
-                AssessmentId = assessmentId,
-                AuditEvidenceSnapshotId = auditEvidenceSnapshotId,
-                ControlId = controlId,
-            },
-            CancellationToken.None);
+                AssessmentId = suppliedIds ? assessment : null,
+                AuditEvidenceSnapshotId = suppliedIds ? snapshot : null,
+                ControlId = suppliedIds ? control : null,
+            });
 
-        link.Available.Should().BeTrue();
-        link.AssessmentId.Should().Be(assessmentId);
-        link.AuditEvidenceSnapshotId.Should().Be(auditEvidenceSnapshotId);
-        link.ControlId.Should().Be(controlId);
-        link.RelativePath.Should().Contain(controlId.ToString("D"));
-        snapshotRepository.Verify(
-            repo => repo.ListLineageContextsByCloudResourceIdAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<int>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
-
-    [Fact]
-    public async Task ResolveAsync_looks_up_latest_control_match_when_query_params_absent()
-    {
-        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
-        Guid cloudResourceId = Guid.NewGuid();
-        Guid assessmentId = Guid.NewGuid();
-        Guid auditEvidenceSnapshotId = Guid.NewGuid();
-        Guid controlId = Guid.NewGuid();
-        DateTime createdUtc = DateTime.UtcNow;
-
-        Mock<IAuditEvidenceSnapshotRepository> snapshotRepository = new();
-        snapshotRepository
-            .Setup(repo => repo.ListLineageContextsByCloudResourceIdAsync(
-                scope.TenantId,
-                cloudResourceId,
-                25,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync([
-                new AuditEvidenceSnapshotLineageContextRecord
-                {
-                    AssessmentId = assessmentId,
-                    AuditEvidenceSnapshotId = auditEvidenceSnapshotId,
-                    ControlId = controlId,
-                    ControlNumber = "AC-2",
-                    ControlTitle = "Account management",
-                    SnapshotCreatedUtc = createdUtc,
-                },
-            ]);
-
-        CloudResourceAuditLineageResolver resolver = new(snapshotRepository.Object);
-
-        CloudResourceAuditLineageLink link = await resolver.ResolveAsync(
-            scope,
-            cloudResourceId,
-            new CloudResourceEvidenceHubQuery(),
-            CancellationToken.None);
-
-        link.Available.Should().BeTrue();
-        link.ControlNumber.Should().Be("AC-2");
-        link.ControlTitle.Should().Be("Account management");
-        link.Matches.Should().ContainSingle();
-        link.Matches[0].AuditEvidenceSnapshotId.Should().Be(auditEvidenceSnapshotId);
-    }
-
-    [Fact]
-    public async Task ResolveAsync_returns_degraded_copy_when_no_snapshot_rows_reference_resource()
-    {
-        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
-
-        Mock<IAuditEvidenceSnapshotRepository> snapshotRepository = new();
-        snapshotRepository
-            .Setup(repo => repo.ListLineageContextsByCloudResourceIdAsync(
-                scope.TenantId,
-                It.IsAny<Guid>(),
-                25,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-
-        CloudResourceAuditLineageResolver resolver = new(snapshotRepository.Object);
-
-        CloudResourceAuditLineageLink link = await resolver.ResolveAsync(
-            scope,
-            Guid.NewGuid(),
-            new CloudResourceEvidenceHubQuery(),
-            CancellationToken.None);
-
-        link.Available.Should().BeFalse();
-        link.DegradedReason.Should().Contain("No audit evidence snapshot rows");
+        link.Available.Should().Be(matching);
+        if (matching)
+        {
+            link.AssessmentId.Should().Be(assessment);
+            link.AuditEvidenceSnapshotId.Should().Be(snapshot);
+            link.ControlId.Should().Be(control);
+            link.ControlTitle.Should().Be("Account management");
+            link.Matches.Should().ContainSingle();
+        }
+        else
+        {
+            link.AssessmentId.Should().BeNull();
+            link.RelativePath.Should().BeNull();
+            link.Matches.Should().BeEmpty();
+            link.DegradedReason.Should().Contain("No audit evidence snapshot rows");
+        }
     }
 }

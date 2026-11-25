@@ -49,6 +49,13 @@ public interface ICloudResourceIdentityDirectory
         Guid cloudResourceId,
         CancellationToken cancellationToken = default);
 
+    /// <summary>Read an identity through the same exact scope used by the resource explorer.</summary>
+    Task<CloudResourceIdentityRecord?> TryGetByCloudResourceIdInScopeAsync(
+        ScopeContext scope,
+        Guid cloudResourceId,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<CloudResourceIdentityRecord?>(null);
+
     Task UpdateResourceCloudResourceIdAsync(
         ScopeContext scope,
         Guid resourceRowId,

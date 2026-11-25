@@ -27,14 +27,15 @@ public sealed class CloudResourceAuditLineageResolver(IAuditEvidenceSnapshotRepo
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(query);
 
-        if (TryBuildFromQuery(query, out CloudResourceAuditLineageLink? queryLink))
-            return queryLink!;
-
+        // Locator IDs can narrow a project-scoped match, but cannot establish lineage by themselves.
         IReadOnlyList<AuditEvidenceSnapshotLineageContextRecord> contexts =
-            await snapshotRepository.ListLineageContextsByCloudResourceIdAsync(
-                scope.TenantId,
+            await snapshotRepository.ListLineageContextsByCloudResourceIdInScopeAsync(
+                scope.ToProjectScopeKey(),
                 cloudResourceId,
                 MaxMatches,
+                NonEmpty(query.AssessmentId),
+                NonEmpty(query.AuditEvidenceSnapshotId),
+                NonEmpty(query.ControlId),
                 cancellationToken);
 
         if (contexts.Count == 0)
@@ -74,38 +75,8 @@ public sealed class CloudResourceAuditLineageResolver(IAuditEvidenceSnapshotRepo
         };
     }
 
-    private static bool TryBuildFromQuery(CloudResourceEvidenceHubQuery query, out CloudResourceAuditLineageLink? link)
-    {
-        if (query.AssessmentId.HasValue
-            && query.AuditEvidenceSnapshotId.HasValue
-            && query.ControlId.HasValue
-            && query.AssessmentId.Value != Guid.Empty
-            && query.AuditEvidenceSnapshotId.Value != Guid.Empty
-            && query.ControlId.Value != Guid.Empty)
-        {
-            CloudResourceAuditLineageMatch match = new()
-            {
-                AssessmentId = query.AssessmentId.Value,
-                AuditEvidenceSnapshotId = query.AuditEvidenceSnapshotId.Value,
-                ControlId = query.ControlId.Value,
-            };
-
-            link = new CloudResourceAuditLineageLink
-            {
-                Available = true,
-                AssessmentId = match.AssessmentId,
-                AuditEvidenceSnapshotId = match.AuditEvidenceSnapshotId,
-                ControlId = match.ControlId,
-                RelativePath = BuildRelativePath(match),
-                Matches = [match],
-            };
-
-            return true;
-        }
-
-        link = null;
-        return false;
-    }
+    private static Guid? NonEmpty(Guid? value) =>
+        value is Guid id && id != Guid.Empty ? id : null;
 
     private static List<CloudResourceAuditLineageMatch> DeduplicateMatches(
         IReadOnlyList<AuditEvidenceSnapshotLineageContextRecord> contexts)
