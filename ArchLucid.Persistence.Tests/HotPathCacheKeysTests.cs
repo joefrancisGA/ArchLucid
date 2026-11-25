@@ -42,6 +42,45 @@ public sealed class HotPathCacheKeysTests
         key.Should().Contain("cccccccccccccccccccccccccccccccc");
     }
 
+    [Fact]
+    public void Scoped_cache_keys_vary_independently_with_every_scope_dimension()
+    {
+        Guid tenant = Guid.NewGuid();
+        Guid workspace = Guid.NewGuid();
+        Guid project = Guid.NewGuid();
+        Guid entity = Guid.NewGuid();
+        ScopeContext original = new() { TenantId = tenant, WorkspaceId = workspace, ProjectId = project };
+        ScopeContext[] alternatives =
+        [
+            new() { TenantId = Guid.NewGuid(), WorkspaceId = workspace, ProjectId = project },
+            new() { TenantId = tenant, WorkspaceId = Guid.NewGuid(), ProjectId = project },
+            new() { TenantId = tenant, WorkspaceId = workspace, ProjectId = Guid.NewGuid() },
+        ];
+
+        Func<ScopeContext, string>[] keys =
+        [
+            s => HotPathCacheKeys.Manifest(s, entity),
+            s => HotPathCacheKeys.Run(s, entity),
+            s => HotPathCacheKeys.FindingsSnapshot(s, entity),
+            s => HotPathCacheKeys.DraftRequest(s, entity),
+            s => HotPathCacheKeys.RunListScopeRevision(s),
+            s => HotPathCacheKeys.RunListByProjectFirstPage(s, "same-slug", 20, 7),
+            s => HotPathCacheKeys.RunListRecentInScopeFirstPage(s, 20, 7),
+            s => HotPathCacheKeys.CommittedArchitectureReviewFlag(s, 7),
+            s => HotPathCacheKeys.AuditListScopeRevision(s),
+            s => HotPathCacheKeys.AuditListByScopeFirstPage(s, 20, 7),
+            s => HotPathCacheKeys.AuditListFilteredFirstPage(s, "same-filter", 20, 7),
+        ];
+
+        foreach (Func<ScopeContext, string> key in keys)
+        {
+            string baseline = key(original);
+            key(original).Should().Be(baseline);
+            foreach (ScopeContext alternative in alternatives)
+                key(alternative).Should().NotBe(baseline);
+        }
+    }
+
     [SkippableFact]
     public void PolicyPack_key_is_stable()
     {
