@@ -209,7 +209,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
 
   return (
     <section id="agent-forensics" className="scroll-mt-24 mb-6" aria-label="Diagnostics — agent traces">
-      <RunAgentForensicsCollapsibleShell>
+      <RunAgentForensicsCollapsibleShell serverRenderId={crypto.randomUUID()}>
       <p className={cn("mt-0 max-w-3xl text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         Prompt/response audit rows plus on-demand structural and semantic scoring of persisted agent JSON. Semantic columns and
         backend histogram <code className={OPERATOR_TYPOGRAPHY.helper}>archlucid_agent_output_semantic_score</code> are{" "}

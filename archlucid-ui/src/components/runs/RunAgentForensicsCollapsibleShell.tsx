@@ -2,65 +2,64 @@
 
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseRunAgentForensicsOpenFromSearch,
+  RUN_AGENT_FORENSICS_OPEN_PARAM,
   runAgentForensicsDisclosureHrefFromSearch,
 } from "@/lib/runs/run-agent-forensics-disclosure-url";
 
 type RunAgentForensicsCollapsibleShellProps = {
   readonly children: ReactNode;
+  readonly serverRenderId: string;
 };
 
 /** Client collapsible wrapper for server-rendered agent forensics content. */
 export function RunAgentForensicsCollapsibleShell(
-  props: RunAgentForensicsCollapsibleShellProps,
+  { children, serverRenderId }: RunAgentForensicsCollapsibleShellProps,
 ): React.JSX.Element {
   const pathname = usePathname() ?? "/";
-  const [open, setOpenState] = useState(() =>
-    parseRunAgentForensicsOpenFromSearch(null),
-  );
-  const openRef = useRef(open);
-  openRef.current = open;
+  const router = useRouter();
+  const [open, setOpenState] = useState(false);
+  const [previousRenderId, setPreviousRenderId] = useState<string | null>(null);
+  const openRef = useRef(false);
 
-  const syncOpenToUrl = useCallback(
-    (detailsOpen: boolean) => {
-      commitHrefIfChanged(
-        runAgentForensicsDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
-        { notify: false },
-      );
-    },
-    [pathname],
-  );
-
-  const setOpen = useCallback(
-    (detailsOpen: boolean) => {
+  const changeOpen = useCallback(
+    (detailsOpen: boolean, updateUrl: boolean) => {
       if (openRef.current === detailsOpen) {
         return;
       }
 
       openRef.current = detailsOpen;
+      if (detailsOpen) {
+        // Opening must not display a previously authorized RSC payload.
+        setPreviousRenderId(serverRenderId);
+      }
       setOpenState(detailsOpen);
-      syncOpenToUrl(detailsOpen);
+      if (updateUrl) {
+        commitHrefIfChanged(
+          runAgentForensicsDisclosureHrefFromSearch(readWindowLocationSearch(), detailsOpen, pathname),
+          { notify: false },
+        );
+      }
+      if (detailsOpen) {
+        router.refresh();
+      }
     },
-    [syncOpenToUrl],
+    [pathname, router, serverRenderId],
   );
 
   useEffect(() => {
     const syncOpenFromUrl = (): void => {
-      const next = parseRunAgentForensicsOpenFromSearch(
-        new URLSearchParams(window.location.search).get("runAgentForensicsOpen"),
+      changeOpen(
+        parseRunAgentForensicsOpenFromSearch(
+          new URLSearchParams(window.location.search).get(RUN_AGENT_FORENSICS_OPEN_PARAM),
+        ),
+        false,
       );
-
-      if (openRef.current === next) {
-        return;
-      }
-
-      openRef.current = next;
-      setOpenState(next);
     };
 
     syncOpenFromUrl();
@@ -69,15 +68,19 @@ export function RunAgentForensicsCollapsibleShell(
     return () => {
       window.removeEventListener("popstate", syncOpenFromUrl);
     };
-  }, []);
+  }, [changeOpen]);
 
   return (
     <CollapsibleSection
       title="Advanced — agent traces and structural evaluation (diagnostics)"
       open={open}
-      onToggle={setOpen}
+      onToggle={(detailsOpen) => changeOpen(detailsOpen, true)}
     >
-      {props.children}
+      {open && (
+        previousRenderId === serverRenderId
+          ? <p role="status">Checking current access…</p>
+          : children
+      )}
     </CollapsibleSection>
   );
 }

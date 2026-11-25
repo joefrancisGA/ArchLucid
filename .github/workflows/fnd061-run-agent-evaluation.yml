@@ -7,6 +7,7 @@ on:
       - 'ArchLucid.Api/Controllers/Authority/RunAgentEvaluationController*.cs'
       - 'ArchLucid.Api/Support/ArchitectureShareAccessGate.cs'
       - 'ArchLucid.Api.Tests/RunAgentEvaluationAuthorizationHttpTests.cs'
+      - 'archlucid-ui/src/components/runs/RunAgentForensics*.tsx'
       - '.github/workflows/fnd061-run-agent-evaluation.yml'
 
 permissions:
@@ -25,3 +26,21 @@ jobs:
           dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release
           --filter 'FullyQualifiedName~RunAgentEvaluationAuthorizationHttpTests'
           --logger 'console;verbosity=normal'
+
+  disclosure-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: archlucid-ui
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+      - run: npm ci
+      - run: >-
+          npm run test:vitest-single-worker --
+          src/components/runs/RunAgentForensicsCollapsibleShell.test.tsx
