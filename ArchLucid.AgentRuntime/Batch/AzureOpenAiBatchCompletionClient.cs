@@ -19,6 +19,7 @@ public sealed class AzureOpenAiBatchCompletionClient : IBatchAgentCompletionClie
         "completed",
         "failed",
         "canceled",
+        "cancelled",
         "expired",
     };
 
@@ -54,6 +55,13 @@ public sealed class AzureOpenAiBatchCompletionClient : IBatchAgentCompletionClie
     {
         if (requests is null || requests.Count < 1)
             throw new ArgumentException("At least one batch request is required.", nameof(requests));
+
+        Dictionary<string, int> requestPositions = new(requests.Count, StringComparer.Ordinal);
+        for (int index = 0; index < requests.Count; index++)
+        {
+            if (!requestPositions.TryAdd(requests[index].CustomId, index))
+                throw new ArgumentException("Batch request custom IDs must be unique.", nameof(requests));
+        }
 
         LlmBatchOptions options = _batchOptions.CurrentValue;
         string jsonl = BuildRequestJsonl(_deploymentName, requests);
@@ -97,7 +105,7 @@ public sealed class AzureOpenAiBatchCompletionClient : IBatchAgentCompletionClie
 
         string outputJsonl = await _transport.DownloadFileContentAsync(outputFileId, cancellationToken)
             .ConfigureAwait(false);
-        IReadOnlyList<BatchChatCompletionResult> results = ParseOutputJsonl(outputJsonl);
+        IReadOnlyList<BatchChatCompletionResult> results = AlignResults(ParseOutputJsonl(outputJsonl), requestPositions);
         int promptTokens = results.Sum(static r => r.PromptTokens);
         int completionTokens = results.Sum(static r => r.CompletionTokens);
         decimal? syncCost = _costEstimator.EstimateUsd(promptTokens, completionTokens, deploymentLabel: _deploymentName);
@@ -106,7 +114,7 @@ public sealed class AzureOpenAiBatchCompletionClient : IBatchAgentCompletionClie
             : 0.0;
 
         ArchLucidInstrumentation.RecordLlmBatchCompletionRun(
-            requests.Count,
+            results.Count,
             promptTokens,
             completionTokens,
             estimatedSavingsUsd);
@@ -116,7 +124,7 @@ public sealed class AzureOpenAiBatchCompletionClient : IBatchAgentCompletionClie
             _logger.LogInformation(
                 "Azure OpenAI batch job {BatchJobId} completed with {RequestCount} requests, promptUnits={PromptUnits}, completionUnits={CompletionUnits}, estimatedSavingsUsd={EstimatedSavingsUsd}",
                 batchJobId,
-                requests.Count,
+                results.Count,
                 promptTokens,
                 completionTokens,
                 estimatedSavingsUsd);
@@ -125,7 +133,7 @@ public sealed class AzureOpenAiBatchCompletionClient : IBatchAgentCompletionClie
         BatchAgentCompletionRunSummary summary = new()
         {
             BatchJobId = batchJobId,
-            RequestCount = requests.Count,
+            RequestCount = results.Count,
             TotalPromptTokens = promptTokens,
             TotalCompletionTokens = completionTokens,
             EstimatedSavingsUsd = estimatedSavingsUsd,
@@ -133,6 +141,29 @@ public sealed class AzureOpenAiBatchCompletionClient : IBatchAgentCompletionClie
         };
 
         return (results, summary);
+    }
+
+    private static BatchChatCompletionResult[] AlignResults(
+        IReadOnlyList<BatchChatCompletionResult> results,
+        Dictionary<string, int> requestPositions)
+    {
+        // Azure returns results in arbitrary order. Only custom IDs identify the submitted request.
+        BatchChatCompletionResult[] aligned = new BatchChatCompletionResult[requestPositions.Count];
+        foreach (BatchChatCompletionResult result in results)
+        {
+            if (!requestPositions.TryGetValue(result.CustomId, out int index))
+                throw new InvalidOperationException("Azure OpenAI batch output contained an unexpected custom ID.");
+
+            if (aligned[index] is not null)
+                throw new InvalidOperationException("Azure OpenAI batch output contained a duplicate custom ID.");
+
+            aligned[index] = result;
+        }
+
+        if (results.Count != aligned.Length)
+            throw new InvalidOperationException("Azure OpenAI batch output is missing one or more submitted results.");
+
+        return aligned;
     }
 
     internal static string BuildRequestJsonl(string deploymentName, IReadOnlyList<BatchChatCompletionItem> requests)
