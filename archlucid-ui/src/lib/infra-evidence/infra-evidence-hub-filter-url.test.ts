@@ -347,4 +347,11 @@ describe("infra-evidence-hub-filter-url", () => {
       }),
     ).toContain("securityEvidencePathId=22222222-2222-2222-2222-222222222222");
   });
+  it("preserves securityEvidencePathId on explorer list hrefs", () => {
+    expect(resourceExplorerFilterHrefFromSearch("", { securityEvidencePathId: "22222222-2222-2222-2222-222222222222" })).toContain("securityEvidencePathId=22222222-2222-2222-2222-222222222222");
+  });
+  it("forwards securityEvidencePathId on resource hub explorer hrefs", () => {
+    expect(buildResourceHubExplorerHref("11111111-1111-1111-1111-111111111111", "all", "33333333-3333-3333-3333-333333333333", "22222222-2222-2222-2222-222222222222")).toContain("securityEvidencePathId=22222222-2222-2222-2222-222222222222");
+  });
+
 });

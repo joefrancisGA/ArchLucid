@@ -31,4 +31,8 @@ describe("infra-evidence-terraform-filter-url", () => {
       snapshotId: "22222222-2222-2222-2222-222222222222",
     });
   });
+  it("preserves securityEvidencePathId on terraform workbench hrefs", () => {
+    expect(buildTerraformWorkbenchHref({ cloudResourceId: "11111111-1111-1111-1111-111111111111", securityEvidencePathId: "22222222-2222-2222-2222-222222222222" })).toContain("securityEvidencePathId=22222222-2222-2222-2222-222222222222");
+  });
+
 });
