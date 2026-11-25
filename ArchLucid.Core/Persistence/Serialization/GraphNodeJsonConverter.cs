@@ -27,7 +27,7 @@ public sealed class GraphNodeJsonConverter : JsonConverter<GraphNode>
             SourceType = GraphJsonElementReaders.ReadFirstString(root, "sourceType"),
             SourceId = GraphJsonElementReaders.ReadFirstString(root, "sourceId"),
             ReasoningTrace = GraphJsonElementReaders.ReadFirstString(root, "reasoningTrace"),
-            Properties = GraphJsonElementReaders.ReadProperties(root, options)
+            Properties = GraphJsonElementReaders.ReadProperties(root)
         };
     }
 

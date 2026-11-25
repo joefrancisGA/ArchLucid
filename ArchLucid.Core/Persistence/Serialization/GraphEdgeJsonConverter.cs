@@ -29,7 +29,7 @@ public sealed class GraphEdgeJsonConverter : JsonConverter<GraphEdge>
             ProvenanceKind = GraphJsonElementReaders.ReadFirstString(root, "provenanceKind"),
             DeclaredConnectionId = GraphJsonElementReaders.ReadFirstString(root, "declaredConnectionId"),
             ReasoningTrace = GraphJsonElementReaders.ReadFirstString(root, "reasoningTrace"),
-            Properties = GraphJsonElementReaders.ReadProperties(root, options)
+            Properties = GraphJsonElementReaders.ReadProperties(root)
         };
     }
 
