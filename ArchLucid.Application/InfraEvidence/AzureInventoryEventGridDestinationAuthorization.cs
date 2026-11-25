@@ -19,7 +19,7 @@ internal static class AzureInventoryEventGridDestinationAuthorization
         {
             "EVENTHUB" => "/providers/Microsoft.EventHub/namespaces/",
             "SERVICEBUSQUEUE" or "SERVICEBUSTOPIC" => "/providers/Microsoft.ServiceBus/namespaces/",
-            "STORAGEQUEUE" => "/providers/Microsoft.Storage/storageAccounts/",
+            "STORAGEQUEUE" or "STORAGEBLOB" => "/providers/Microsoft.Storage/storageAccounts/",
             _ => null,
         };
         if (provider is null || !target.StartsWith("/subscriptions/", StringComparison.OrdinalIgnoreCase)
@@ -88,6 +88,7 @@ internal static class AzureInventoryEventGridDestinationAuthorization
                 "EVENTHUB" => role is "Azure Event Hubs Data Sender" or "Azure Event Hubs Data Owner",
                 "SERVICEBUSQUEUE" or "SERVICEBUSTOPIC" => role is "Azure Service Bus Data Sender" or "Azure Service Bus Data Owner",
                 "STORAGEQUEUE" => role is "Storage Queue Data Message Sender" or "Storage Queue Data Contributor",
+                "STORAGEBLOB" => role is "Storage Blob Data Contributor" || string.Equals(roleId.Trim().Split('/')[^1], "b7e6dc6d-f1e8-4753-8033-0f276bb0955b", StringComparison.OrdinalIgnoreCase),
                 _ => false,
             };
             if (sender)
@@ -95,6 +96,25 @@ internal static class AzureInventoryEventGridDestinationAuthorization
         }
 
         return false;
+    }
+
+    public static bool HasMatchingDeadLetterAssignment(
+        AzureInventoryEventGridSubscriptionRow subscription,
+        IReadOnlyList<AzureExtractorExtendedResourceRow> resources,
+        IReadOnlyList<JsonElement> assignments)
+    {
+        string? container = AzureInventoryEventGridDeadLetterEvidence.ValidateContainerResourceId(subscription.DeadLetterResourceId);
+        if (subscription.DeadLetterStatus != "configured" || container is null)
+            return false;
+
+        return HasMatchingAssignment(new AzureInventoryEventGridSubscriptionRow
+        {
+            SourceResourceId = subscription.SourceResourceId,
+            DestinationResourceId = container,
+            DestinationKind = "StorageBlob",
+            DeliveryAuthentication = subscription.DeadLetterAuthentication,
+            DeliveryUserAssignedIdentityResourceId = subscription.DeadLetterIdentityResourceId,
+        }, resources, assignments);
     }
 
     private static string? Read(JsonElement row, string name) =>
