@@ -2924,6 +2924,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-runs-list
 
 
+2026-11-25 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; **Cooled: true** with hit-rate cooldown waived). Cheap-disproof on five pass-8 `(candidate)` monitors — **valid-no-repro** disclosure toggle sort overlay (`preserves committed sort= when filter disclosure opens while useSearchParams lags` / `readWindowLocationSearch` on write), **valid-no-repro** Escape + `runsListFilterOpen=` (`Escape in the filter field clears the query without closing an open inspector`), **valid-no-repro** compare notice after card layout (`buyer-polished: clears stale compareRuns…`), **valid-no-repro** continue-last + pending `q=` (`RunsListContinueLastViewedRow` tests), **valid-no-repro** buyer card compare URL (`clears stale compareRuns` regression). No production change. Reseeded pass-9 `(candidate)` rows. Private beta: n/a.
+
+- [x] (superseded) pass-8 queue — **superseded 2026-11-25 seed hunt (seed-only):** pass-9 reseed.
+
+
+
+
+
 2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; **Cooled: true** with hit-rate cooldown waived). Promoted pass-7 filter disclosure — **proven** `syncRunsListFilterOpenFromUrl` read `window.location.search` on popstate while buyer-polished deep links commit via `readWindowLocationSearch` mock/lag path; now uses `readWindowLocationSearch()` for `runsListFilterOpen=`. Regression `opens filter disclosure when runsListFilterOpen= is committed before useSearchParams catches up`. **valid-no-repro** compare notice keyboard race (existing third-compare test), **valid-no-repro** resume strip + `q=` overlay, **valid-no-repro** invalid inspector page 2 (empty shell contract), **valid-no-repro** client re-sort vs URL lag (`re-sorts rows when sort= changes via popstate`). Focused `RunsListClient` vitest **87/87**. Reseeded pass-8 below. Private beta: buyer-polished reviews hub deep links that open the collapsed filter panel respect `runsListFilterOpen=` when the App Router lags behind committed window.location.
 
 - [x] (superseded) pass-7 queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-8 reseed.
@@ -3137,11 +3145,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) pass-7 invalid inspector page 2 — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** empty inspector shell regressions.
 - [x] (valid-no-repro) pass-7 re-sort URL lag — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** popstate sort regression.
 
-- [ ] (candidate) `syncRunsListFilterOpenToUrl` — may drop `sort=` when toggling disclosure with router lag — locus: disclosure href base; input: open details after sort popstate; pass-8 reseed.
-- [ ] (candidate) `RunsListClient` Escape on filter — may keep `runsListFilterOpen=1` — locus: clear vs disclosure param; pass-8 reseed.
-- [ ] (candidate) `useRunsList` `showCompareSelection` — card layout may leave notice after compare clear — locus: effect deps; pass-8 reseed.
-- [ ] (candidate) `RunsListContinueLastViewedRow` — href may omit pending `q=` — locus: resume href; pass-8 reseed.
-- [ ] (candidate) `RunsListClient` buyer card compare — hidden UI may leave `compareRuns` in URL — locus: layout effect; pass-8 reseed.
+- [x] (valid-no-repro) pass-8 disclosure sort lag — **cheap-disproof 2026-11-25 seed hunt (seed-only):** disclosure write uses `readWindowLocationSearch`; sort monitor test.
+- [x] (valid-no-repro) pass-8 Escape + disclosure param — **cheap-disproof 2026-11-25 seed hunt (seed-only):** filter Escape regressions.
+- [x] (valid-no-repro) pass-8 compare notice card layout — **cheap-disproof 2026-11-25 seed hunt (seed-only):** stale compareRuns clear regression.
+- [x] (valid-no-repro) pass-8 continue-last pending q — **cheap-disproof 2026-11-25 seed hunt (seed-only):** continue-last row tests.
+- [x] (valid-no-repro) pass-8 buyer card compare URL — **cheap-disproof 2026-11-25 seed hunt (seed-only):** clears stale compareRuns regression.
+
+- [ ] (candidate) `RunsListClient` filter disclosure write — use `navigationSearch` overlay vs `readWindowLocationSearch` only — locus: syncRunsListFilterOpenToUrl; input: toggle with split router/committed sort; pass-9 reseed.
+- [ ] (candidate) `useRunsList` `projectId` pagination href — default project strip vs committed — locus: nextHref builder; pass-9 reseed.
+- [ ] (candidate) `RunsListClient` mobile inspector — narrow viewport popstate compare — locus: shell ref; pass-9 reseed.
+- [ ] (candidate) `useRunsList` `listContextFilter` — deep link `filter=` trim — locus: parse; pass-9 reseed.
+- [ ] (candidate) `RunsListWorkQueueTable` — section headers with compare + scope — locus: partition; pass-9 reseed.
 
 - **id:** ui-runs-list
 - **status:** open
@@ -3149,7 +3163,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 7
+- **hunts:** 8
 - **last-hunt:** 2026-11-25
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
