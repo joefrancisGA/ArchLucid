@@ -1071,6 +1071,11 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "automation")?.valueFootnote).toBeUndefined();
   });
 
+  it("pattern-exact tile never carries a valueFootnote when percent is measuredZero", () => {
+    const tiles = buildRemediationFactoryExecutiveMetricTiles({ patternCoverageExactMatchPercent: 0 } as RemediationFactoryMetrics, true);
+
+    expect(tiles.find((tile) => tile.id === "pattern-exact")?.valueFootnote).toBeUndefined();
+  });
   it("includes comparison population in outcome scope notes", () => {
     expect(
       architectOutcomeMetricPresentation({

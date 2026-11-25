@@ -14,7 +14,10 @@ describe("attack-path-report-path-chip-label", () => {
   it("preserves interior whitespace in short path chip labels", () => {
     expect(formatAttackPathReportPathChipLabel("a b")).toBe("a b");
   });
-  it("returns null overflow line when every path id is short", () => {
+
+  it("returns null overflow line for interior-newline-only path ids", () => {
+    expect(attackPathReportPathChipOverflowLine(["\n"])).toBeNull();
+  });  it("returns null overflow line when every path id is short", () => {
     expect(attackPathReportPathChipOverflowLine(["path-a", "path-b"])).toBeNull();
   });
 

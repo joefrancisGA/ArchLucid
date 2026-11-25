@@ -34,6 +34,7 @@ const REMEDIATION_FACTORY_DISCLOSURE_ENCLOSED_ONE_CODEPOINTS = new Set<number>([
   0x2776, // ❶ DINGBAT NEGATIVE CIRCLED DIGIT ONE
   0x2160, // Ⅰ ROMAN NUMERAL ONE
   0x2170, // ⅰ SMALL ROMAN NUMERAL ONE
+  0x3021, // 〡 HANGZHOU NUMERAL ONE
 ]);
 
 function normalizeRemediationFactoryDisclosureOpenToken(raw: string | null | undefined): string | undefined {
@@ -46,6 +47,10 @@ function normalizeRemediationFactoryDisclosureOpenToken(raw: string | null | und
   const nfkc = trimmed.normalize("NFKC");
 
   if (nfkc === "(1)" || nfkc === "[1]" || nfkc === "〔1〕") {
+    return "1";
+  }
+
+  if (nfkc === "一") {
     return "1";
   }
 
