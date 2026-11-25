@@ -47,8 +47,17 @@ public sealed class CentralAuthorizationDecisionsTests
     [Fact]
     public async Task Authorized_resource_is_allowed()
     {
-        var (service, _, _) = Build();
-        (await service.DecideAsync(Principal(), Request())).Allowed.Should().BeTrue();
+        var (service, entitlements, policy) = Build();
+        ClaimsPrincipal principal = Principal();
+        using CancellationTokenSource cancellation = new();
+        EvidenceReadResource expected = new(Tenant, Workspace, Project, Run);
+        (await service.DecideAsync(principal, Request(), cancellation.Token)).Allowed.Should().BeTrue();
+        entitlements.Verify(e => e.HasCurrentReadEntitlementAsync(
+            principal, expected, cancellation.Token), Times.Once);
+        policy.Verify(p => p.AuthorizeAsync(principal, expected,
+            ArchLucid.Core.Authorization.ArchLucidPolicies.ReadAuthority), Times.Once);
+        entitlements.VerifyNoOtherCalls();
+        policy.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -75,6 +84,28 @@ public sealed class CentralAuthorizationDecisionsTests
         var (service, _, policy) = Build(false);
         (await service.DecideAsync(Principal(), Request())).Allowed.Should().BeFalse();
         policy.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Previously_allowed_resource_is_denied_after_entitlement_revocation()
+    {
+        var (service, entitlements, policy) = Build();
+        ClaimsPrincipal principal = Principal();
+        CentralAuthorizationRequest request = Request();
+        (await service.DecideAsync(principal, request)).Allowed.Should().BeTrue();
+
+        entitlements.Setup(e => e.HasCurrentReadEntitlementAsync(
+            principal, new EvidenceReadResource(Tenant, Workspace, Project, Run),
+            It.IsAny<CancellationToken>())).ReturnsAsync(false);
+        CentralAuthorizationDecision denied = await service.DecideAsync(principal, request);
+
+        denied.Allowed.Should().BeFalse();
+        denied.Reason.Should().Be("resource_entitlement_missing");
+        entitlements.Verify(e => e.HasCurrentReadEntitlementAsync(principal,
+            new EvidenceReadResource(Tenant, Workspace, Project, Run),
+            It.IsAny<CancellationToken>()), Times.Exactly(2));
+        policy.Verify(p => p.AuthorizeAsync(principal, It.IsAny<object>(),
+            It.IsAny<string>()), Times.Once);
     }
 
     [Fact]

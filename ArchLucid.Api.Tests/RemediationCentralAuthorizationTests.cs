@@ -47,15 +47,35 @@ public sealed class RemediationCentralAuthorizationTests
         Mock<ICentralAuthorizationAudit> audit = new();
         audit.Setup(x => x.WriteAsync(It.IsAny<CentralAuthorizationAuditRecord>(),
             It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        Guid tenant = Guid.NewGuid(), workspace = Guid.NewGuid(),
+            project = Guid.NewGuid(), proposal = Guid.NewGuid();
+        Mock<IScopeContextProvider> scopes = new();
+        scopes.Setup(x => x.GetCurrentScope()).Returns(new ScopeContext
+            { TenantId = tenant, WorkspaceId = workspace, ProjectId = project });
+        Mock<IEvidenceEntitlementAuthority> entitlements = new();
+        entitlements.Setup(x => x.HasCurrentReadEntitlementAsync(
+            It.IsAny<ClaimsPrincipal>(), It.IsAny<EvidenceReadResource>(),
+            It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        Mock<IAuthorizationService> policy = new();
+        policy.Setup(x => x.AuthorizeAsync(It.IsAny<ClaimsPrincipal>(),
+            It.IsAny<object>(), It.IsAny<string>()))
+            .ReturnsAsync(AuthorizationResult.Success());
+        Mock<IRemediationApprovalAuthority> approvals = new();
+        approvals.Setup(x => x.IsApprovedAsync(It.IsAny<ClaimsPrincipal>(),
+            It.IsAny<CentralAuthorizationRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         CentralAuthorizationDecisions decisions = new(
-            Mock.Of<IScopeContextProvider>(), Mock.Of<IEvidenceEntitlementAuthority>(),
-            Mock.Of<IAuthorizationService>(), audit.Object, TimeProvider.System,
-            new DenyUnconfiguredRemediationApproval());
+            scopes.Object, entitlements.Object, policy.Object, audit.Object,
+            TimeProvider.System, approvals.Object);
         ClaimsPrincipal principal = new(new ClaimsIdentity(
             [new Claim(ClaimTypes.NameIdentifier, "operator")], "test"));
         CentralAuthorizationDecision result = await decisions.DecideAsync(
             principal, new CentralAuthorizationRequest(
-                "remediation.execute", Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()));
+                "remediation.execute", tenant, workspace, project, proposal));
         result.Allowed.Should().BeFalse();
+        result.Reason.Should().Be("invalid_identity_action_or_resource");
+        entitlements.VerifyNoOtherCalls();
+        approvals.VerifyNoOtherCalls();
+        policy.VerifyNoOtherCalls();
     }
 }
