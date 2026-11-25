@@ -10,7 +10,7 @@ function runsListPaginationProjectIdFromParams(params: URLSearchParams, fallback
   return fallbackProjectId;
 }
 
-function runsListPaginationPageFromParams(params: URLSearchParams, fallbackPage: number): number {
+export function runsListPaginationPageFromParams(params: URLSearchParams, fallbackPage: number): number {
   const fromSearch = params.get("page");
 
   if (fromSearch === null) {

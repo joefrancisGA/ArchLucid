@@ -334,7 +334,7 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 - **paths:** archlucid-ui/src/lib/api/
 - **test-filter:** lib/api
 - **hunts:** 10
-- **bugs-found:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -372,7 +372,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **paths:** archlucid-ui/src/lib/infra-evidence/
 - **test-filter:** lib/infra-evidence
 - **hunts:** 24
-- **bugs-found:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -454,7 +454,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
 - **hunts:** 29
-- **bugs-found:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
@@ -528,7 +528,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **paths:** archlucid-ui/src/hooks/
 - **test-filter:** src/hooks
 - **hunts:** 28
-- **bugs-found:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-24
@@ -1293,7 +1293,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
 - **hunts:** 24
-- **bugs-found:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -1672,7 +1672,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
 - **hunts:** 11
-- **bugs-found:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -2423,7 +2423,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
 - **hunts:** 24
-- **bugs-found:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -2783,7 +2783,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
 - **hunts:** 26
-- **bugs-found:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-24
@@ -2922,6 +2922,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: ui-runs-list
+2026-11-25 thorough hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Promoted pass-17 pagination chrome `displayPage` — **proven** pagination label, Previous/Next visibility, live region, and Next href used server `page` prop while `window.location` already committed a higher `page=` when `useSearchParams` lagged; `useRunsList` now derives `displayPage` from `runsListPaginationPageFromParams(committedSearch, page)` and wires pagination chrome plus `displayPage + 1` into `runsListNextPageHrefFromSearch`. Regressions `shows Page 2 in pagination chrome when committed page= lags behind server props` and updated committed-page Next monitor (server `nextCursor` for page 3). Focused `RunsListClient` vitest **98/98**. Reseeded five pass-18 `(candidate)` monitors below. Private beta: invited operators paginating the reviews list see the committed page number in pagination chrome and controls when the App Router snapshot lags behind `window.location`.
+
+- [x] (superseded) pass-17 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-18 reseed.
+- [ ] (candidate) `useRunsList` `buyerPackageScope` — committed `scope=` on window lags while scope chips read router-only props — locus: buyer scope state sync; input: scope navigation then popstate before router refresh; monitor.
+- [ ] (candidate) `useRunsList` `sortOrder` — client re-sort keeps server prop while committed `sort=` changed — locus: sort chip aria-current vs `sortOrder` state; input: sort link commit with lagging `useSearchParams`; monitor.
+- [ ] (candidate) `RunsListClient` pagination Previous — `previousHref` uses server `page` prop for aria labels when `displayPage` is ahead — locus: Previous link visibility; input: committed page=2 with server page=1; monitor.
+- [ ] (candidate) `RunsListClient` buyer polished scope chip — `aria-current` drops when router clears `scope=` but committed search retains it — locus: `BuyerPackageScopeFilterChips`; input: scope deep link + soft nav; monitor (PROBE scope chip test).
+- [ ] (candidate) `useRunsList` listContextFilter — orphan banner hides when committed `filter=` trims to whitespace only — locus: popstate filter parse; input: `filter=%20orphan-candidates%20` then router drops param; monitor.
 2026-11-25 seed hunt (seed-only): no rotation (shouldRotate: false). Cheap-disproof on five pass-16 candidates — valid-no-repro mobile inspector trap (focus trap hook + resume tests), valid-no-repro needs-attention compare (new monitor does not open inspector when Space activates compare in the needs-attention section), valid-no-repro clearFilterText filter= overlay (Escape clears q= regression + pass-15 listContextFilter sync), valid-no-repro buyer scope chips + orphan (scope chip href regression), valid-no-repro disclosure + orphan banner (buyer polished totalCount>1 uses flat filter chrome without disclosure summary; orphan banner regressions). Added one monitor test. Focused RunsListClient vitest 96/96. Reseeded pass-17 below. Private beta: n/a.
 
 - [x] (superseded) pass-16 candidate queue — superseded 2026-11-25 seed hunt (seed-only): pass-17 reseed.
@@ -3162,6 +3170,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid) pass-11 listContextFilter trim — **proven 2026-11-25 seed hunt (seed→hit):** parseRunsListContextFilterFromSearch; regression cited in hunt note.
 - [x] (valid-no-repro) pass-12 work-queue compare + scope
 - [x] (valid) pass-15 orphan banner after clear q= — **proven 2026-11-25 seed hunt (seed→hit):** committed listContextFilter sync; regression cited in hunt note.
+- [x] (proven) pass-17 pagination chrome displayPage — **hit 2026-11-25 thorough hunt (seed→hit):** `displayPage` from committed search; regressions cited in hunt note.
 - [x] (valid) pass-14 committed page Next lag — **proven 2026-11-25 seed hunt (seed→hit):** runsListPaginationPageFromParams; regression cited in hunt note.
 - [x] (valid) pass-13 pageSize pagination lag — **proven 2026-11-25 seed hunt (seed→hit):** compare-inspector overlay + runsListPaginationPageSizeFromParams; regression cited in hunt note.
 - [x] (valid-no-repro) pass-16 mobile inspector compare trap — **cheap-disproof 2026-11-25 seed hunt (seed-only):** existing compare keyboard + focus-trap wiring regressions.
@@ -3177,9 +3186,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 16
+- **hunts:** 17
 - **last-hunt:** 2026-11-25
-- **bugs-found:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-bug:** never
 - **code-changed-since:** yes
@@ -3583,7 +3592,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
 - **hunts:** 25
-- **bugs-found:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-24
@@ -3771,7 +3780,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
 - **hunts:** 26
-- **bugs-found:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
@@ -4132,7 +4141,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
 - **hunts:** 24
-- **bugs-found:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -4410,7 +4419,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/host-gate.ts
 - **test-filter:** host-gate
 - **hunts:** 25
-- **bugs-found:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -5212,8 +5221,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 16
-- **bugs-found:** 11
+- **hunts:** 17
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -8768,7 +8777,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
 - **hunts:** 11
-- **bugs-found:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
@@ -9474,8 +9483,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 16
-- **bugs-found:** 11
+- **hunts:** 17
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
@@ -10964,7 +10973,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** operator
 - **hunts:** 11
 - **last-hunt:** 2026-11-23
-- **bugs-found:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-11-23
 - **related-pd-tb:** none
@@ -13434,7 +13443,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 163
+- **hunts:** 173
 - **bugs-found:** 122
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
@@ -14008,7 +14017,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
 - **hunts:** 9
-- **bugs-found:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
@@ -20668,8 +20677,8 @@ ABQ-09 churn hotspot.
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 16
-- **bugs-found:** 11
+- **hunts:** 17
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24

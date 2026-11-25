@@ -196,6 +196,30 @@ describe("RunsListClient inspector", () => {
 
 
 
+  it("shows Page 2 in pagination chrome when committed page= lags behind server props", () => {
+    const secondRun = { ...sampleRun, runId: "00000000-0000-0000-0000-0000000000bb", description: "Second" };
+    renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={40} />,
+      "page=1",
+    );
+    runsListSearchParamsHarness.state.committedQuery = "page=2";
+    runsListSearchParamsHarness.applyRouterHref("/architecture/reviews?page=1");
+    fireEvent.popState(window);
+    const paginationNav = screen.getByRole("navigation", { name: "Reviews pagination" });
+    expect(within(paginationNav).getByText(/Page 2 of 2/i)).toBeInTheDocument();
+  });
+  it("PROBE keeps finalized scope chip current when router drops scope= after commit", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+    renderRunsList(
+      <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      "scope=finalized",
+    );
+    runsListSearchParamsHarness.applyRouterHref("/architecture/reviews");
+    runsListSearchParamsHarness.state.committedQuery = "scope=finalized";
+    const finalized = screen.getByRole("link", { name: /show:\s*finalized packages/i });
+    expect(finalized).toHaveAttribute("aria-current", "page");
+  });
   it("does not open inspector when Space activates compare in the needs-attention section", () => {
     const needsAttention: RunSummary = {
       ...sampleRun,
@@ -232,7 +256,7 @@ describe("RunsListClient inspector", () => {
   it("preserves committed page in the Next pagination link when useSearchParams lags behind committed page", () => {
     const secondRun = { ...sampleRun, runId: "00000000-0000-0000-0000-0000000000bb", description: "Second" };
     renderRunsList(
-      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={40} nextCursor="cursor-page-2" />,
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={60} nextCursor="cursor-page-3" />,
       "page=1",
     );
     runsListSearchParamsHarness.state.committedQuery = "page=2&cursor=cursor-page-2";
@@ -240,7 +264,7 @@ describe("RunsListClient inspector", () => {
     fireEvent.popState(window);
     const nextLink = screen.getByRole("link", { name: "Next" });
     expect(nextLink).toHaveAttribute("href", expect.stringContaining("page=3"));
-    expect(nextLink).toHaveAttribute("href", expect.stringContaining("cursor=cursor-page-2"));
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("cursor=cursor-page-3"));
   });
   it("preserves committed pageSize in the Previous pagination link when useSearchParams lags on page 2", () => {
     const secondRun = { ...sampleRun, runId: "00000000-0000-0000-0000-0000000000bb", description: "Second" };
