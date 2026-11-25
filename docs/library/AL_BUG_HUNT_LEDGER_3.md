@@ -381,6 +381,19 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker exhausted; continued `ui-lib-remediation-factory` pass-13 (`shouldRotate: false`). Promoted open-findings-factory static footnote — **proven** scope helper showed while `metricsLoaded` was false; gate on `metricsLoaded`. Regression `omits open-findings-factory footnote when metrics are unloaded`. **valid-no-repro** metrics closed drops `0` token, **valid-no-repro** whitespace-only chip label, **valid-no-repro** href preserves `fromSnapshot`, **valid-no-repro** independent first-wins finding/path reads. Scoped vitest **127/127**. Reseeded pass-14 below. Private beta: invited operators no longer see factory-vs-queue comparison footnote under not-measured open findings while metrics load.
+
+- [x] (superseded) pass-13 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-14 reseed.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — open-findings-factory static footnote when unloaded — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics closed drops literal 0 token — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `drops zero metrics disclosure token from base search when writing closed state`.
+- [x] (valid-no-repro) `formatAttackPathReportPathChipLabel` — whitespace-only path id after trim — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `returns empty string for a whitespace-only path id after trim`.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves fromSnapshot param — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate selectedPath and path params — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `reads first-wins selection params independently for finding and path`.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — ruleLine when unloaded — locus: static ruleLine text; monitor; pass-14 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics closed drops false token — locus: delete on false; monitor; pass-14 reseed.
+- [ ] (candidate) `parseRemediationFactoryMetricsSummaryOpen` — literal true with surrounding whitespace — locus: trim parse; monitor; pass-14 reseed.
+- [ ] (candidate) `attackPathReportPathChipOverflowLine` — whitespace-only ids in list — locus: trim before honesty; monitor; pass-14 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves toSnapshot param — locus: disclosure writer; monitor; pass-14 reseed.
 2026-11-25 thorough hunt (seed→hit): automatic set-3 picker exhausted (all default-eligible zones parked); continued open `ui-lib-remediation-factory` pass-12 queue (`shouldRotate: false`). Promoted critical-exposure footnote — **proven** zero-count helper text showed while `metricsLoaded` was false; gate on `metricsLoaded`. Regression `omits critical-exposure footnote when metrics are unloaded even if count is zero`. **valid-no-repro** duplicate `toSnapshot` first-wins, **valid-no-repro** padded `1` metrics token, **valid-no-repro** mixed short/long overflow honesty, **valid-no-repro** clearing snapshots drops both params. Scoped vitest **122/122**. Reseeded pass-13 below. Private beta: invited operators no longer see “no critical” helper copy under not-measured critical exposure while metrics load.
 
 - [x] (superseded) pass-12 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-13 reseed.
@@ -533,8 +546,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 37
-- **bugs-found:** 15
+- **hunts:** 38
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25

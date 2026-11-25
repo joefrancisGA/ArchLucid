@@ -45,6 +45,13 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "pattern-exact")?.value).toBe("150%");
   });
 
+  it("omits open-findings-factory footnote when metrics are unloaded", () => {
+    const metrics = { openFindings: 3 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, false);
+
+    expect(tiles.find((tile) => tile.id === "open-findings-factory")?.valueFootnote).toBeNull();
+  });
+
   it("omits critical-exposure footnote when metrics are unloaded even if count is zero", () => {
     const metrics = { criticalExposureCount: 0 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, false);

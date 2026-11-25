@@ -77,7 +77,9 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       label: "Open findings (factory metrics)",
       scopeLine: WORKSPACE_SCOPE,
       ruleLine: PRIORITIZATION_RULE,
-      valueFootnote: "Factory metrics API count — compare to queue only when both are loaded.",
+      valueFootnote: metricsLoaded
+        ? "Factory metrics API count — compare to queue only when both are loaded."
+        : null,
       value: formatCount(metrics?.openFindings),
     },
     {

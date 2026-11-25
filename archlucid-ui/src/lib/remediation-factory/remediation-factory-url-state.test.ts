@@ -344,4 +344,42 @@ describe("remediation-factory-url-state", () => {
     expect(params.get(REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM)).toBeNull();
     expect(params.get(REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM)).toBeNull();
   });
+  it("drops zero metrics disclosure token from base search when writing closed state", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: false,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=0&foreign=keep`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBeNull();
+    expect(params.get("foreign")).toBe("keep");
+  });
+
+  it("remediationFactoryHrefFromSearch preserves a fromSnapshot query param", () => {
+    const fromId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+    const href = remediationFactoryHrefFromSearch(
+      "/governance/remediation-factory",
+      `${REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM}=${fromId}`,
+    );
+
+    expect(href).toContain(`${REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM}=${fromId}`);
+  });
+
+  it("reads first-wins selection params independently for finding and path", () => {
+    const findingFirst = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const findingSecond = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    const pathFirst = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+    const pathSecond = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+    const parsed = parseRemediationFactoryUrlStateFromSearch(
+      `?${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=${findingFirst}&${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=${findingSecond}&${REMEDIATION_FACTORY_SELECTED_PATH_PARAM}=${pathFirst}&${REMEDIATION_FACTORY_SELECTED_PATH_PARAM}=${pathSecond}`,
+    );
+
+    expect(parsed.selectedFindingId).toBe(findingFirst);
+    expect(parsed.selectedPathId).toBe(pathFirst);
+  });
 });
