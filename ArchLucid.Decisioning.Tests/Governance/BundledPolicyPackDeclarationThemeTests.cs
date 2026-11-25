@@ -56,6 +56,16 @@ public sealed class BundledPolicyPackDeclarationThemeTests
     }
 
     [Fact]
+    public async Task Event_grid_authentication_rule_resolves_at_shipped_security_baseline_floor()
+    {
+        IReadOnlySet<string> active = await ResolveShippedAsync("security-architecture-baseline.json");
+        active.Should().Contain("sec-base-036");
+        DeclarationSignalPolicyGate.ShouldEmitTheme("event-grid-local-authentication", active).Should().BeTrue();
+        DeclarationSignalPolicyGate.TryGetPolicyRuleId("event-grid-local-authentication", active)
+            .Should().Be("sec-base-036");
+    }
+
+    [Fact]
     public async Task Every_bundled_pack_resolves_at_least_one_declared_rule()
     {
         IReadOnlyList<BundledPolicyPackFixture> fixtures =
