@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed→hit): `archlucid-contracts` pass-10 reseed. Snapshot/id string coalesce. Scoped deserialization **12/12**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed→hit): `ui-help-docs` external query merge. HelpDocsClient vitest **63/63**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -3392,6 +3392,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-help-docs
 
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`). Promoted `mergeDocIndex` / `docIndexFetchedUrlHasDeepLinkSuffix` — fetched external https rows with only a `?` query suffix were not treated as deep links (hash-only branch), so a query row listed before the base vendor url dropped the base row via normalized-path dedupe; external query strings now count as deep-link suffixes (parity with hash fragments); regressions `renders the base external url when doc-index lists a query variant before the https row`, updated `renders fetched external doc links when only a query string differs on the same https url`. Scoped HelpDocsClient vitest **63/63**. Pass-1 reseed below. Private beta: help hub vendor links stay complete when doc-index lists tracked query urls before the base outbound row.
+
+- [x] (proven) `mergeDocIndex` — external query variant before https base dropped base row — **hit 2026-11-25 seed hunt:** `docIndexFetchedUrlHasDeepLinkSuffix` includes `parsed.search`; regressions above.
+- [x] (superseded) prior seed-only streak notes — **superseded 2026-11-25 seed hunt (seed→hit):** pass-1 reseed.
+
+- [ ] (candidate) `docIndexFetchedUrlHasDeepLinkSuffix` — malformed external url with only `?` and no params — locus: URL parse catch branch; input: `https://vendor/x?`; monitor; pass-1 reseed.
+- [ ] (candidate) `mergeDocIndex` — scheme-relative query variant before `//` base — locus: merge order; input: `//host/path?x` before `//host/path`; monitor; pass-1 reseed.
+- [ ] (candidate) `helpDocCategoriesForDisplay` — duplicate unknown categories after product-line static refresh — locus: category sort; input: SecureNow static swap; monitor; pass-1 reseed.
+- [ ] (candidate) `resolveHelpDocsStaticEntries` — product line swap mid-session leaves stale merged index until refetch — locus: static entries memo; input: product line context change; monitor; pass-1 reseed.
+- [ ] (candidate) `showPathChooserIntroduction` — CTA shows when only query-variant path chooser rows exist — locus: dedupe key compare; input: `/help/choose?ref=x`; monitor; pass-1 reseed.
+
+
 2026-11-01 seed hunt (seed-only): **rotation still requested** (`shouldRotate: true`; **6** consecutive low-yield hunts on `ui-help-docs`; `-AvoidZoneId ui-help-docs` applied but **`eligibleCount` 1**). Reread `useHelpDocsIndexQuery` fetch contract, `HELP_DOCS_STATIC_ENTRIES` fallback when fetch pending/fails, and `helpDocCategoriesForDisplay` known-vs-extra category ordering. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped HelpDocsClient vitest passed **61/61**. No production code changed.
 
 2026-11-01 seed hunt (seed-only): **rotation still requested** (`shouldRotate: true`; **5** consecutive low-yield hunts on `ui-help-docs`; `-AvoidZoneId ui-help-docs` applied but **`eligibleCount` 1**). Reread `parseHelpHubSearchQuery`, `helpHubSearchHrefFromSearch` / clear-search href builders, and URL `q` param sync vs debounced `router.replace`. No new reachable mechanism-backed candidate met the hunt-ready bar; scoped HelpDocsClient vitest passed **61/61**. No production code changed.
@@ -3482,11 +3494,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 24
-- **bugs-found:** 8
+- **hunts:** 25
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-24
-- **last-bug:** 2026-11-24
+- **last-hunt:** 2026-11-25
+- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
