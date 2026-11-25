@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Quality;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Security;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
@@ -17,6 +18,7 @@ public sealed partial class AdminAgentModelCatalogController
     /// <summary>Records platform approval for a temporary, version-specific quarantine override or its removal.</summary>
     [HttpPut("provider-quality/override")]
     [Authorize(Roles = ArchLucidRoles.PlatformOperator)]
+    [AllowUnscopedRoute]
     [ApiExplorerSettings(IgnoreApi = true)]
     [MutatingAuditExcluded("Audit: durable platform override intent is appended before the provider state can change.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
