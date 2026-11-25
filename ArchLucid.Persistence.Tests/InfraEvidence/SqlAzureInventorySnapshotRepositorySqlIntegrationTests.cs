@@ -484,26 +484,42 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
     DateTime first = new(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc);
     DateTime lastLocal = first.AddHours(1);
     const string resourceType = "Microsoft.Storage/storageAccounts";
-    string armId = $"/subscriptions/sub/resourceGroups/rg/providers/{resourceType}/{Guid.NewGuid():N}";
+    const string foreignType = "Microsoft.Compute/virtualMachines";
+    const string foreignGroup = "foreign-resource-group";
+    const string foreignName = "foreign-only-label";
+    string armName = $"scoped-storage-{Guid.NewGuid():N}";
+    string armId = $"/subscriptions/sub/resourceGroups/rg/providers/{resourceType}/{armName}";
 
-    var initial = await AddObservationAsync(scope, first);
-    var local = await AddObservationAsync(scope, lastLocal);
-    var foreignWorkspace = await AddObservationAsync(otherWorkspace, first.AddHours(2));
-    var foreignProject = await AddObservationAsync(otherProject, first.AddHours(3));
+    var initial = await AddObservationAsync(scope, first, resourceType, "old-local-group", "westus", "local-import");
+    var local = await AddObservationAsync(scope, lastLocal, resourceType, "local-group", "eastus", "local-import");
+    var foreignWorkspace = await AddObservationAsync(
+      otherWorkspace, first.AddHours(2), foreignType, foreignGroup, "centralus", foreignName);
+    var foreignProject = await AddObservationAsync(
+      otherProject, first.AddHours(3), foreignType, foreignGroup, "southcentralus", foreignName);
 
     local.Resource.Should().Be(initial.Resource);
     foreignWorkspace.Resource.Should().Be(initial.Resource);
     foreignProject.Resource.Should().Be(initial.Resource);
     var global = await directory.TryGetByCloudResourceIdAsync(scope, initial.Resource);
     global!.LastSeenSnapshotId.Should().Be(foreignProject.Snapshot);
+    global.ResourceType.Should().Be(foreignType);
+    global.DisplayName.Should().Be(foreignName);
     var scoped = await directory.TryGetByCloudResourceIdInScopeAsync(scope, initial.Resource);
     scoped!.LastSeenSnapshotId.Should().Be(local.Snapshot);
     scoped.LastSeenUtc.Should().Be(lastLocal);
-    var (visible, total) = await directory.ListForExplorerAsync(scope, null, null, null, CloudResourceExplorerWorkQueue.All, 1, 10);
+    AssertScopedMetadata(scoped);
+
+    var (visible, total) = await directory.ListForExplorerAsync(
+      scope, armName, resourceType, "local-group", CloudResourceExplorerWorkQueue.All, 1, 10);
     total.Should().Be(1);
     CloudResourceIdentityRecord explorer = visible.Should().ContainSingle().Which.Identity;
     explorer.LastSeenSnapshotId.Should().Be(local.Snapshot);
     explorer.LastSeenUtc.Should().Be(lastLocal);
+    AssertScopedMetadata(explorer);
+
+    await AssertNoMatchAsync(namePrefix: foreignName);
+    await AssertNoMatchAsync(type: foreignType);
+    await AssertNoMatchAsync(group: foreignGroup);
 
     (await mappings.TryGetMappingByCloudResourceIdAsync(scope, local.Snapshot, initial.Resource))
       .Should().NotBeNull();
@@ -512,7 +528,26 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
     (await mappings.TryGetMappingByCloudResourceIdAsync(scope, foreignProject.Snapshot, initial.Resource))
       .Should().BeNull();
 
-    async Task<(Guid Snapshot, Guid Resource)> AddObservationAsync(ScopeContext owner, DateTime observedUtc)
+    void AssertScopedMetadata(CloudResourceIdentityRecord row)
+    {
+      row.CloudResourceId.Should().Be(initial.Resource);
+      row.DisplayName.Should().Be(armName);
+      row.ResourceType.Should().Be(resourceType);
+      row.ResourceGroupOrProject.Should().Be("local-group");
+      row.Region.Should().Be("eastus");
+      row.SubscriptionOrAccountId.Should().Be("sub");
+    }
+
+    async Task AssertNoMatchAsync(string? namePrefix = null, string? type = null, string? group = null)
+    {
+      var (rows, count) = await directory.ListForExplorerAsync(
+        scope, namePrefix, type, group, CloudResourceExplorerWorkQueue.All, 1, 10);
+      rows.Should().BeEmpty();
+      count.Should().Be(0);
+    }
+
+    async Task<(Guid Snapshot, Guid Resource)> AddObservationAsync(
+      ScopeContext owner, DateTime observedUtc, string type, string group, string region, string importedName)
     {
       Guid packageId = Guid.NewGuid(), snapshotId = Guid.NewGuid();
       await packages.InsertAsync(new AzureExtractorPackageRecord
@@ -528,7 +563,7 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
         CapturedUtc = observedUtc, CreatedUtc = observedUtc, UpdatedUtc = observedUtc,
       });
       var identity = await directory.UpsertOnSnapshotAsync(owner, CloudProvider.Azure, armId, snapshotId,
-        resourceType, "sub", "rg", "eastus", "shared");
+        type, "sub", group, region, importedName);
       await snapshots.MaterializeSnapshotAsync(owner, snapshotId, new AzureInventorySnapshotMaterializeWriteRequest
       {
         CaptureStatus = AzureInventoryCaptureStatus.Succeeded, ResourceCount = 1,
@@ -537,7 +572,8 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
           new AzureInventoryResourceRecord
           {
             ResourceRowId = Guid.NewGuid(), SnapshotId = snapshotId, TenantId = owner.TenantId,
-            CloudResourceId = identity.CloudResourceId, AzureResourceId = armId, ResourceType = resourceType,
+            CloudResourceId = identity.CloudResourceId, AzureResourceId = armId, ResourceType = type,
+            ResourceGroup = group, Region = region, SubscriptionId = "sub",
           },
         ],
       });
@@ -545,6 +581,7 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
       [
         new AdvisoryTerraformResourceMappingRecord
         {
+          MappingId = Guid.NewGuid(),
           SnapshotId = snapshotId, CloudResourceId = identity.CloudResourceId, AzureResourceId = armId,
           TerraformAddress = "azurerm_storage_account.shared", CategoryFolder = "storage",
           GenerationMethod = AdvisoryTerraformGenerationMethod.SnapshotReconstruction,

@@ -17,7 +17,7 @@ public sealed partial class SqlCloudResourceIdentityDirectory(ISqlConnectionFact
     : ICloudResourceIdentityDirectory
 {
     private static readonly string VisibleExplorerResourceTypePredicate =
-        AzureInventoryVisibleSnapshotProjection.BuildSqlResourceTypeVisiblePredicate("ResourceType");
+        AzureInventoryVisibleSnapshotProjection.BuildSqlResourceTypeVisiblePredicate("latestObservation.ObservedResourceType");
 
     private static readonly string VisibleExplorerAzureResourceIdPredicate =
         AzureInventoryVisibleSnapshotProjection.BuildSqlAzureResourceIdVisiblePredicate("ExternalResourceIdNormalized");
@@ -243,12 +243,14 @@ public sealed partial class SqlCloudResourceIdentityDirectory(ISqlConnectionFact
             ? "latestObservation.SnapshotId AS LastSeenSnapshotId, FirstSeenUtc, "
                 + "COALESCE(latestObservation.ObservedUtc, FirstSeenUtc) AS LastSeenUtc"
             : "LastSeenSnapshotId, FirstSeenUtc, LastSeenUtc";
+        string metadataColumns = requireProject
+            ? ScopedMetadataColumns
+            : "ResourceType, SubscriptionOrAccountId, ResourceGroupOrProject, Region, DisplayName";
         string observations = requireProject ? ScopedLatestObservationSql : string.Empty;
         string sql = $"""
                            SELECT TOP (1)
                                CloudResourceId, TenantId, WorkspaceId, ProjectId, Provider,
-                               ExternalResourceIdNormalized, ResourceType, SubscriptionOrAccountId,
-                               ResourceGroupOrProject, Region, DisplayName,
+                               ExternalResourceIdNormalized, {metadataColumns},
                                FirstSeenSnapshotId, {seenColumns}
                            FROM dbo.CloudResourceIdentities
                            {observations}
@@ -349,43 +351,35 @@ public sealed partial class SqlCloudResourceIdentityDirectory(ISqlConnectionFact
         string? trimmedGroup = string.IsNullOrWhiteSpace(resourceGroup) ? null : resourceGroup.Trim();
         string workQueueFilter = BuildWorkQueueFilter(workQueue);
 
-        string countSql = $"""
-                                SELECT COUNT(1)
-                                FROM dbo.CloudResourceIdentities
-                                WHERE TenantId = @TenantId
-                                  AND WorkspaceId = @WorkspaceId
-                                  AND ProjectId = @ProjectId
-                                  AND (@NamePrefix IS NULL OR DisplayName LIKE @NamePrefix + '%' OR ExternalResourceIdNormalized LIKE '%' + @NamePrefix + '%')
-                                  AND (@ResourceType IS NULL OR ResourceType = @ResourceType)
-                                  AND (@ResourceGroup IS NULL OR ResourceGroupOrProject = @ResourceGroup)
-                                  AND {VisibleExplorerResourceTypePredicate}
-                                  AND {VisibleExplorerAzureResourceIdPredicate}
-                                  {workQueueFilter}
-                                  {PersistenceTenantScope.AndTripleWhere(scope)};
-                                """;
-
-        string listSql = $"""
-                               SELECT
-                                   CloudResourceId, TenantId, WorkspaceId, ProjectId, Provider,
-                                   ExternalResourceIdNormalized, ResourceType, SubscriptionOrAccountId,
-                                   ResourceGroupOrProject, Region, DisplayName,
-                                   FirstSeenSnapshotId, latestObservation.SnapshotId AS LastSeenSnapshotId, FirstSeenUtc,
-                                   COALESCE(latestObservation.ObservedUtc, FirstSeenUtc) AS LastSeenUtc,
-                                   {OpenOperationalFindingsCountSql} AS OpenOperationalFindingsCount,
-                                   {OpenRemediationInstancesCountSql} AS OpenRemediationInstancesCount,
-                                   {InventoryDriftChangeCountSql} AS InventoryDriftChangeCount
+        // Use the same project observation and predicates for the total and the page.
+        // The displayed SQL name is a segment of the canonical ID, so ID search also matches that name.
+        string scopedRowsSql = $"""
                                FROM dbo.CloudResourceIdentities
                                {ScopedLatestObservationSql}
                                WHERE TenantId = @TenantId
                                  AND WorkspaceId = @WorkspaceId
                                  AND ProjectId = @ProjectId
-                                 AND (@NamePrefix IS NULL OR DisplayName LIKE @NamePrefix + '%' OR ExternalResourceIdNormalized LIKE '%' + @NamePrefix + '%')
-                                 AND (@ResourceType IS NULL OR ResourceType = @ResourceType)
-                                 AND (@ResourceGroup IS NULL OR ResourceGroupOrProject = @ResourceGroup)
+                                 AND (@NamePrefix IS NULL OR ExternalResourceIdNormalized LIKE '%' + @NamePrefix + '%')
+                                 AND (@ResourceType IS NULL OR latestObservation.ObservedResourceType = @ResourceType)
+                                 AND (@ResourceGroup IS NULL OR latestObservation.ObservedResourceGroup = @ResourceGroup)
                                  AND {VisibleExplorerResourceTypePredicate}
                                  AND {VisibleExplorerAzureResourceIdPredicate}
                                  {workQueueFilter}
                                  {PersistenceTenantScope.AndTripleWhere(scope)}
+                               """;
+
+        string countSql = $"SELECT COUNT(1) {scopedRowsSql};";
+
+        string listSql = $"""
+                               SELECT
+                                   CloudResourceId, TenantId, WorkspaceId, ProjectId, Provider,
+                                   ExternalResourceIdNormalized, {ScopedMetadataColumns},
+                                   FirstSeenSnapshotId, latestObservation.SnapshotId AS LastSeenSnapshotId, FirstSeenUtc,
+                                   COALESCE(latestObservation.ObservedUtc, FirstSeenUtc) AS LastSeenUtc,
+                                   {OpenOperationalFindingsCountSql} AS OpenOperationalFindingsCount,
+                                   {OpenRemediationInstancesCountSql} AS OpenRemediationInstancesCount,
+                                   {InventoryDriftChangeCountSql} AS InventoryDriftChangeCount
+                               {scopedRowsSql}
                                ORDER BY COALESCE(latestObservation.ObservedUtc, FirstSeenUtc) DESC, CloudResourceId ASC
                                OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
                                """;
@@ -429,15 +423,29 @@ public sealed partial class SqlCloudResourceIdentityDirectory(ISqlConnectionFact
         return (items, totalCount);
     }
 
-    // Ingestion retains a tenant-wide identity. Derive the read-side sighting
-    // from materialized evidence in the owning project, never the global last write.
+    // Snapshot resource rows do not persist the imported display label. The
+    // immutable, normalized ARM ID supplies a stable label without reading a foreign observation.
+    private const string ScopedMetadataColumns = """
+        latestObservation.ObservedResourceType AS ResourceType,
+        latestObservation.ObservedSubscriptionId AS SubscriptionOrAccountId,
+        latestObservation.ObservedResourceGroup AS ResourceGroupOrProject,
+        latestObservation.ObservedRegion AS Region,
+        NULLIF(RIGHT(ExternalResourceIdNormalized,
+            CHARINDEX(N'/', REVERSE(ExternalResourceIdNormalized) + N'/') - 1), N'') AS DisplayName
+        """;
+
+    // Tenant-wide identity is independent of the project-owned observation used for display.
     private const string ScopedLatestObservationSql = """
         LEFT JOIN (
             SELECT r.CloudResourceId AS ObservedResourceId, s.SnapshotId,
                    COALESCE(s.CapturedUtc, s.CreatedUtc) AS ObservedUtc,
+                   r.ResourceType AS ObservedResourceType, r.Region AS ObservedRegion,
+                   r.ResourceGroup AS ObservedResourceGroup,
+                   COALESCE(r.SubscriptionId, s.SubscriptionId) AS ObservedSubscriptionId,
                    ROW_NUMBER() OVER (
                        PARTITION BY r.CloudResourceId
-                       ORDER BY COALESCE(s.CapturedUtc, s.CreatedUtc) DESC, s.CreatedUtc DESC, s.SnapshotId DESC
+                       ORDER BY COALESCE(s.CapturedUtc, s.CreatedUtc) DESC, s.CreatedUtc DESC, s.SnapshotId DESC,
+                                r.AzureResourceId, r.ResourceRowId
                    ) AS ObservationRank
             FROM dbo.AzureInventorySnapshots s
             INNER JOIN dbo.AzureInventoryResources r ON r.TenantId = s.TenantId AND r.SnapshotId = s.SnapshotId

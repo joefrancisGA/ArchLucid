@@ -117,6 +117,7 @@ public sealed class CloudResourceEvidenceHubService(
             : null;
 
         CloudResourceCurrentConfigurationSection? currentConfiguration = resourceSlice?.CurrentConfiguration;
+        AzureInventoryResourceRecord? selectedResource = resourceSlice?.ResourceRow;
 
         (string? terraformAddress, string? terraformGenerationMethod) =
             await ResolveTerraformMappingAsync(scope, snapshotId, cloudResourceId, cancellationToken);
@@ -160,7 +161,7 @@ public sealed class CloudResourceEvidenceHubService(
         List<CloudResourceInventoryChangeSummary> recentChanges =
             await ResolveRecentChangesAsync(
                 scope,
-                identity,
+                selectedResource?.SubscriptionId ?? identity.SubscriptionOrAccountId,
                 snapshotId,
                 cloudResourceId,
                 cancellationToken);
@@ -179,7 +180,9 @@ public sealed class CloudResourceEvidenceHubService(
         {
             CloudResourceId = cloudResourceId,
             ExternalResourceId = identity.ExternalResourceIdNormalized,
-            ResourceType = identity.ResourceType ?? resourceSlice?.ResourceRow?.ResourceType,
+            ResourceType = string.IsNullOrWhiteSpace(selectedResource?.ResourceType)
+                ? identity.ResourceType
+                : selectedResource.ResourceType,
             CurrentConfiguration = currentConfiguration,
             TerraformAddress = terraformAddress,
             TerraformGenerationMethod = terraformGenerationMethod,
@@ -515,17 +518,17 @@ public sealed class CloudResourceEvidenceHubService(
 
     private async Task<List<CloudResourceInventoryChangeSummary>> ResolveRecentChangesAsync(
         ScopeContext scope,
-        CloudResourceIdentityRecord identity,
+        string? subscriptionId,
         Guid snapshotId,
         Guid cloudResourceId,
         CancellationToken cancellationToken)
     {
-        if (snapshotId == Guid.Empty || string.IsNullOrWhiteSpace(identity.SubscriptionOrAccountId))
+        if (snapshotId == Guid.Empty || string.IsNullOrWhiteSpace(subscriptionId))
             return [];
 
         Guid? priorSnapshotId = await snapshotRepository.TryGetPriorMaterializedSnapshotIdAsync(
             scope,
-            identity.SubscriptionOrAccountId,
+            subscriptionId,
             snapshotId,
             cancellationToken);
 
