@@ -1,1 +1,2 @@
 {"outcome":"reset","set":2,"zoneId":"_picker_reset","at":"2026-11-22T21:31:31.7580226Z","note":"option A picker metadata reset; archive stamp 2026-11-22"}
+{"at":"2026-11-22T21:50:07.2773382Z","set":2,"outcome":"dry","note":"thorough hunt: five template hunt-ready rows invalid","zoneId":"persistence-migrations"}
