@@ -152,7 +152,7 @@ Treat every proposed remediation as a graph transformation in an isolated, pinne
 
 **Invariant:** Every proposed security remediation should itself undergo security and resilience assessment.
 
-**Backlog:** Existing foundations FND-088–093 and FND-117–123. Dedicated second-order concentration/failure-domain assessment coverage has not yet been separately verified or added as backlog items in this conversation. Follow-up: evaluate gaps against existing simulation, graph and operational safety work before proposing additional entries.
+**Backlog:** FND-146–150, [PR #8182](https://github.com/joefrancisGA/ArchLucid/pull/8182), added as Critical QA/stabilization following this question. FND-146 extends evidence-bound shared trust and failure-domain graph modeling; FND-147 covers counterfactual security/resilience deltas; FND-148 covers deterministic concentration and N-1/selective N-2 contingency evaluation; FND-149 integrates introduced risks into existing portfolio selection and safety gates; FND-150 covers independent regression and post-remediation assurance. Reuse foundations FND-045/088–093/117–123, TB-2412–2415 and SN-QA-04 rather than create parallel infrastructure. Backlog requirements only; no implementation or test execution is claimed.
 
 ## Earlier architecture exam topics — reconstructed appendix
 
