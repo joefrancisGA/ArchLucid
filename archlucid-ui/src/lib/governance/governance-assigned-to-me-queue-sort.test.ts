@@ -43,4 +43,12 @@ describe("governance-assigned-to-me-queue-sort", () => {
 
     expect(rows.map((row) => row.findingId)).toEqual(["high-soon", "high-later", "low-later"]);
   });
+  it("ranks lowercase API severities ahead of higher title-case lows", () => {
+    const rows = sortGovernanceAssignedToMeQueueRows([
+      baseRow({ findingId: "title-low", severity: "Low" }),
+      baseRow({ findingId: "lower-critical", severity: "critical" }),
+    ]);
+
+    expect(rows.map((row) => row.findingId)).toEqual(["lower-critical", "title-low"]);
+  });
 });

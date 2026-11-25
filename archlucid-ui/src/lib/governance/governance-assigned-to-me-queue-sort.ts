@@ -4,17 +4,18 @@ import { resolveGovernanceQueueDueDateMs } from "@/lib/governance/governance-que
 export type GovernanceAssignedToMeQueueSortKey = "severity" | "due" | "title" | "sourceReview";
 
 const SEVERITY_ORDER: Readonly<Record<string, number>> = {
-  Critical: 0,
-  High: 1,
-  Medium: 2,
-  Low: 3,
+  critical: 0,
+  high: 1,
+  medium: 2,
+  low: 3,
 };
 
-function compareSeverity(left: GovernanceFindingQueueRow, right: GovernanceFindingQueueRow): number {
-  const leftRank = SEVERITY_ORDER[left.severity] ?? 99;
-  const rightRank = SEVERITY_ORDER[right.severity] ?? 99;
+function severityRank(severity: string): number {
+  return SEVERITY_ORDER[severity.trim().toLowerCase()] ?? 99;
+}
 
-  return leftRank - rightRank;
+function compareSeverity(left: GovernanceFindingQueueRow, right: GovernanceFindingQueueRow): number {
+  return severityRank(left.severity) - severityRank(right.severity);
 }
 
 function compareDue(left: GovernanceFindingQueueRow, right: GovernanceFindingQueueRow): number {

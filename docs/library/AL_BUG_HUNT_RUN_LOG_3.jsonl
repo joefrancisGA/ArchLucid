@@ -274,3 +274,4 @@
 {"set":3,"zoneId":"cli-draft-new","outcome":"seed-only","note":"seed hunt #193 pass-1 reseed; hunt #192 monitors valid-no-repro","productLine":"archlucid-shared","at":"2026-11-25T13:27:00.0000000Z","paths":["ArchLucid.Cli/Commands/DraftNewCommand.cs"]}
 {"set":3,"zoneId":"cli-draft-new","outcome":"dry","note":"thorough hunt #194 pass-1 monitors valid-no-repro","productLine":"archlucid-shared","at":"2026-11-25T13:30:00.0000000Z","paths":["ArchLucid.Cli/Commands/DraftNewCommand.cs"]}
 {"set":3,"zoneId":"ui-help-docs","outcome":"dry","note":"thorough hunt #27 pass-2 monitors valid-no-repro","productLine":"archlucid-shared","at":"2026-11-25T13:32:00.0000000Z","paths":["archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx"]}
+{"at":"2026-11-25T13:35:40.6080462Z","zoneId":"ui-lib-governance","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/governance/governance-assigned-to-me-queue-sort.ts"]}

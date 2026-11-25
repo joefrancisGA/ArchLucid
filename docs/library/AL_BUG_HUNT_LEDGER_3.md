@@ -1,7 +1,10 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 thorough hunt #27 (dry): `ui-help-docs` pass-3 reseed. Scoped HelpDocsClient **65/65**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 thorough hunt #28 (hit): `ui-lib-governance` pass-4 reseed. Assigned-to-me queue sort **3/3**; pass-3 monitors closed.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
+
+2026-11-25 thorough hunt #4 (hit): no rotation (`shouldRotate: false`; picker continued `ui-lib-governance` from prior message). Closed five pass-3 `(candidate)` rows — **proven** `compareGovernanceAssignedToMeQueueRows` ranked lowercase `critical` after title-case `Low` because `SEVERITY_ORDER` keys were title-case only while findings facets and density sort use lowercase enums; **valid-no-repro** hide-generic href retaining padded `q` (`buildOperatorHrefFromSearch` preserves encoded query until search writer trims), **valid-no-repro** `filterGovernanceApprovalsByStatusFilter` `InReview` pending bucket (`isPendingStatus` lowercases), **valid-no-repro** whitespace-only `revisitDueUtc` due ordering (`governance-queue-due-date.test.ts` + assigned sort waiver regression), **valid-no-repro** NaN `insightDensityScore` hide-generic path (`isLowInsightDensityScore` returns false for non-finite scores). Regression `ranks lowercase API severities ahead of higher title-case lows`; assigned-to-me sort **3/3**. Reseeded five pass-4 `(candidate)` monitors below. Private beta: invited operators on the assigned-to-me governance queue now see Critical-class findings sort ahead of Low rows when the API emits lowercase severity enums (matching findings queue facets), instead of those rows sinking to the bottom of the default severity sort.
+
 2026-11-24 thorough hunt #3 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-1 `(candidate)` rows — **proven** `resolveGovernanceAssignedToMeOldestFinding` treated missing `agingDays` as `-1`, so a zero-day row beat a sooner-due row without stored aging; **valid-no-repro** `compareSeverity` title-case ranks (register mapper keeps trimmed API casing; monitor for lowercase drift vs density sort), **valid-no-repro** `parseGovernanceFindingsSearchQuery` padding (`matchesGovernanceFindingsSearchQuery` trims before matching; writer trims on replace), **valid-no-repro** `isApprovedStatus` excluding `Promoted`/`Activated` (Approved filter matches workflow `Approved` status; help guide models post-approval states separately), **valid-no-repro** `parseDecisionRegisterCategoryFromSearch` padding (decision-register page trims on filter apply). Regression `uses soonest due date when aging days are not stored on a row`; oldest-finding suite **4/4** with assigned-to-me sort, approval filter, findings search, and density sort **12/12** scoped. Reseeded five pass-2 `(candidate)` monitors below. Private beta: invited operators on the assigned-to-me governance queue now see the oldest-action callout prefer the finding with the sooner due date when aging days are not stored, instead of a zero-day row with a later due date.
 
 2026-11-23 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reread findings search, approval status filter, assigned-to-me sort, density sort, and due-date helpers after the 2026-11-23 dry pass. No row met hunt-ready: approval status still matches only `approved` (Promoted/Activated remain uncited), and assigned-to-me severity ranks use title case while the findings signal sort lowercases. Seeded five `(candidate)` monitors. Private beta: n/a.
@@ -22,11 +25,21 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 
 - [x] (superseded) pass-2 `(candidate)` queue — **superseded 2026-11-24 seed hunt (seed-only):** closed at zone header; see pass-3 reseed.
 
-- [ ] (candidate) `compareGovernanceAssignedToMeQueueRows` — normalize severity rank when API emits lowercase enums — locus: `SEVERITY_ORDER` map; input: `critical` before `Medium`; monitor; pass-3 reseed.
-- [ ] (candidate) `governanceFindingsHideGenericHrefFromSearch` — toggling hide-generic may retain padded `q` from prior URL — locus: hide-generic href merge; input: `q=%20vault%20&hideGeneric=1`; monitor; pass-3 reseed.
-- [ ] (candidate) `filterGovernanceApprovalsByStatusFilter` — `inreview` vs `InReview` pending bucket — locus: `isPendingStatus`; input: mixed-case pending status; monitor; pass-3 reseed.
-- [ ] (candidate) `resolveGovernanceQueueDueDateMs` — whitespace-only `revisitDueUtc` may beat waiver date — locus: due-date resolver; input: revisit ` ` + waiver ISO; monitor; pass-3 reseed.
-- [ ] (candidate) `isLowInsightDensityScore` — NaN density may hide rows when hide-generic is on — locus: density filter; input: `insightDensityScore: NaN`; monitor; pass-3 reseed.
+- [x] (proven) `compareGovernanceAssignedToMeQueueRows` — normalize severity rank when API emits lowercase enums — **hit 2026-11-25 thorough hunt #4:** lowercase `severityRank`; regression `ranks lowercase API severities ahead of higher title-case lows`.
+- [x] (valid-no-repro) `governanceFindingsHideGenericHrefFromSearch` — toggling hide-generic may retain padded `q` from prior URL — **cheap-disproof 2026-11-25 thorough hunt #4:** row matcher trims; URL padding is display-only until debounced replace.
+- [x] (valid-no-repro) `filterGovernanceApprovalsByStatusFilter` — `inreview` vs `InReview` pending bucket — **cheap-disproof 2026-11-25 thorough hunt #4:** `isPendingStatus` lowercases before compare.
+- [x] (valid-no-repro) `resolveGovernanceQueueDueDateMs` — whitespace-only `revisitDueUtc` may beat waiver date — **cheap-disproof 2026-11-25 thorough hunt #4:** existing regressions in `governance-queue-due-date.test.ts` and assigned sort waiver case.
+- [x] (valid-no-repro) `isLowInsightDensityScore` — NaN density may hide rows when hide-generic is on — **cheap-disproof 2026-11-25 thorough hunt #4:** non-finite scores are not treated as low density.
+
+- [x] (superseded) pass-3 `(candidate)` queue — **superseded 2026-11-25 thorough hunt #4 (hit):** closed at zone header; see pass-4 reseed.
+
+- [ ] (candidate) `severityRank` — contract `Error` severity sorts unknown in assigned-to-me queue — locus: `governance-assigned-to-me-queue-sort.ts`; input: `Error` before `Medium`; quick-approve maps Error to High; pass-4 reseed.
+- [ ] (candidate) `compareGovernanceAssignedToMeQueueRows` — `informational` severity rank missing vs density sort — locus: severityRank map; input: informational before Low; pass-4 reseed.
+- [ ] (candidate) `parseGovernanceApprovalStatusFilter` — leading/trailing spaces on filter param — locus: parser; input: ` pending `; pass-4 reseed.
+- [ ] (candidate) `governanceFindingsClearAllFiltersHref` — decision register params may linger — locus: clear-all mutate; input: mixed register facets; pass-4 reseed.
+- [ ] (candidate) `resolveGovernanceScopedReviewOpenHref` — desk cache architecture parent when locator omits parent — locus: scoped review open; input: cached architecture + peer run; monitor; pass-4 reseed.
+
+
 2026-11-23 thorough hunt (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). The only hunt-ready row was a reseed stub with no locus, input, or wrong outcome, so it is `(invalid)`. Re-read `governanceFindingsClearAllFiltersHref`, `governanceFindingsClearReviewScopeHref`, `governanceFindingsNlTitleHrefFromSearch`, and `resolveGovernanceScopedReviewOpenHref`. Cheap-disproof closed the four pass-1 monitors: clear-all deletes `bulkDispConfirm`, clear-scope deletes keyboard triage params, row review href trims `runId` before encoding, and title facets go through `URLSearchParams.set`. Inverse checks on architecture-id case, approval status `Promoted`/`Activated`, and the untrimmed findings search reader did not meet the hunt-ready bar. Private beta: n/a.
 
 2026-11-20 thorough hunt #2 (hit): cheap-disproof closed four header `(hunt-ready)` URL helpers — **valid-no-repro** `governanceFindingsClearAllFiltersHref` drops bulk confirm without selection (`governance-findings-clear-all-filters-url.test.ts`), **valid-no-repro** `governanceFindingsClearReviewScopeHref` clears keyboard triage with `runId` removal (suite), **valid-no-repro** `governanceFindingQueueRowReviewHref` trims padded ids via `resolveGovernanceScopedReviewOpenHref`, **valid-no-repro** NL title/`URLSearchParams` encoding for embedded `=` (title facet join path). Promoted architecture scope chip: `governanceFindingsArchitectureScopeHrefFromSearch` wrote whitespace-only `architectureId` into the URL instead of canonical `all`; normalize trim and map empty to `architectureId=all`; regression `treats whitespace-only architecture id as all-architectures scope without dropping filters`; architecture-scope suite **6/6**. Scoped governance URL cluster **26/26** (pick-review, clear filters, clear scope, architecture-scope). Private beta: bad architecture scope input no longer leaves padded `architectureId` query junk on the findings queue.
@@ -58,11 +71,11 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 - **aliases:** governance lib; findings URL helpers
 - **paths:** archlucid-ui/src/lib/governance/
 - **test-filter:** lib/governance
-- **hunts:** 5
-- **bugs-found:** 1
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-24
-- **last-bug:** 2026-11-24
+- **hunts:** 6
+- **bugs-found:** 2
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-25
+- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
