@@ -298,6 +298,41 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "exceptions-active")?.windowLine).toBeUndefined();
   });
 
+
+  it("omits open-findings-queue scopeLine when open findings count is not returned", () => {
+    const metrics = { automationPercent: 5 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "open-findings-queue")?.scopeLine).toBeUndefined();
+  });
+
+  it("omits exceptions-active scopeLine when count is not returned", () => {
+    const metrics = { automationPercent: 5 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "exceptions-active")?.scopeLine).toBeUndefined();
+  });
+
+  it("omits pattern-exact scopeLine when percent is not returned", () => {
+    const metrics = { automationPercent: 5 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "pattern-exact")?.scopeLine).toBeUndefined();
+  });
+
+  it("omits automation scopeLine when percent is not returned", () => {
+    const metrics = { openFindings: 1 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "automation")?.scopeLine).toBeUndefined();
+  });
+
+  it("omits risk-weighted-open scopeLine when value is not returned", () => {
+    const metrics = { openFindings: 1 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "risk-weighted-open")?.scopeLine).toBeUndefined();
+  });
   it("omits open-findings-factory scopeLine when open findings count is not returned", () => {
     const metrics = { automationPercent: 5 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);

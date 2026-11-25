@@ -154,7 +154,8 @@ export function buildRemediationFactoryExecutiveMetricTiles(
     {
       id: "open-findings-queue",
       label: "Open findings (queue)",
-      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
+      scopeLine:
+        openFindingsFactoryValue !== null ? scopeLineWhenLoaded(WORKSPACE_SCOPE) : undefined,
       windowLine:
         openFindingsFactoryValue !== null
           ? windowLineWhenLoaded("Governance queue open filter — may differ from factory metrics API.")
@@ -178,7 +179,8 @@ export function buildRemediationFactoryExecutiveMetricTiles(
     {
       id: "risk-weighted-open",
       label: "Risk-weighted open",
-      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
+      scopeLine:
+        riskWeightedOpenValue !== null ? scopeLineWhenLoaded(WORKSPACE_SCOPE) : undefined,
       ruleLine:
         metricsLoaded && riskWeightedOpenValue !== null
           ? `${PRIORITIZATION_RULE} · weighted sum, not a finding count`
@@ -236,7 +238,8 @@ export function buildRemediationFactoryExecutiveMetricTiles(
     {
       id: "pattern-exact",
       label: "Pattern exact match %",
-      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
+      scopeLine:
+        patternExactPercentValue !== null ? scopeLineWhenLoaded(WORKSPACE_SCOPE) : undefined,
       windowLine:
         patternExactPercentValue !== null
           ? windowLineWhenLoaded(REMEDIATION_FACTORY_PERCENT_POPULATION_LINE)
@@ -246,7 +249,8 @@ export function buildRemediationFactoryExecutiveMetricTiles(
     {
       id: "automation",
       label: "Automation %",
-      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
+      scopeLine:
+        automationPercentValue !== null ? scopeLineWhenLoaded(WORKSPACE_SCOPE) : undefined,
       windowLine:
         automationPercentValue !== null
           ? windowLineWhenLoaded(REMEDIATION_FACTORY_PERCENT_POPULATION_LINE)
@@ -256,7 +260,8 @@ export function buildRemediationFactoryExecutiveMetricTiles(
     {
       id: "exceptions-active",
       label: "Exceptions active",
-      scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
+      scopeLine:
+        exceptionsActiveValue !== null ? scopeLineWhenLoaded(WORKSPACE_SCOPE) : undefined,
       windowLine:
         exceptionsActiveValue !== null
           ? windowLineWhenLoaded("Current snapshot — not the 7-day window")
