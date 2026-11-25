@@ -4550,9 +4550,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ---
 
+2026-11-25 thorough hunt (hit): no rotation (`shouldRotate: false`). **proven** `runGoldenTest` — prior reasoning `runState` stayed mounted while golden-test POST was in flight (no `setRunState(null)` at start unlike `runReasoningWithOptions`); stale findings/publish chrome could remain visible until the golden response landed. Regression `clears prior reasoning output before a golden test POST`. **valid-no-repro** golden mutation preflight pair (`shouldRequestGoldenFixtureForGoldenTest` + fixture flag), **valid-no-repro** continue honors `publishToProduct`, **valid-no-repro** invalid tier URL strip + `reviewTier` effect, **invalid** pass-56 duplicate golden-preflight row (wrong locus). Pass-57 reseed below. Scoped vitest **18/18**. Private beta: invited architects running a golden test no longer see stale reasoning output or publish affordances while the golden harness request is in flight.
+
+- [x] (superseded) pass-56 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (hit):** pass-57 reseed.
+- [x] (proven) `runGoldenTest` — stale reasoning `runState` during golden POST — **proven 2026-11-25 thorough hunt (hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `runGoldenTest` — posts without mutation preflight — **cheap-disproof 2026-11-25 thorough hunt (hit):** fixture path when intake blank.
+- [x] (valid-no-repro) `runReasoningWithOptions` — clears `runState` before analyze — **cheap-disproof 2026-11-25 thorough hunt (hit):** intentional stale-output guard on reasoning/analyze.
+- [x] (valid-no-repro) `continueWithAnswers` — publish toggle — **cheap-disproof 2026-11-25 thorough hunt (hit):** `publishToProduct` in continue body.
+- [x] (valid-no-repro) `parseArchitectureIntelligenceTierFromSearch` — invalid tier stale depth — **cheap-disproof 2026-11-25 thorough hunt (hit):** URL strip effect + tier helper tests.
+
+- [ ] (candidate) `loadGoldenFixture` — leaves prior golden results visible until fetch returns — locus: `setRunState(null)` timing; input: swap fixture after golden; monitor; pass-57 reseed.
+- [ ] (candidate) `publishRun` — missing `hasActionableArchitectureIntelligenceResult` guard on golden kind — locus: publish gate; input: golden-only runState; monitor; pass-57 reseed.
+- [ ] (candidate) `runGoldenTest` — missing `requiresArchitectureDescriptionForMutation` when `useGoldenFixture` is false — locus: golden POST; input: unreachable empty `sourceTexts`; monitor; pass-57 reseed.
+- [ ] (candidate) `architectureIntelligenceDescriptionStepComplete` — checklist emphasis with attachment-only intake — locus: emphasized step; input: review picked + attachment; monitor; pass-57 reseed.
+- [ ] (candidate) `invalidateInFlightActions` — fixture load without bump on analyze — locus: generation ref; input: overlap analyze + fixture; monitor; pass-57 reseed.
+
+
 2026-11-25 thorough hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Closed pass-54 monitors from the queued ledger rows (analyze CTA already aligned with `canAnalyzeHydratedReviewFromIntake`). **proven** analysis checklist — **proven** `descriptionWritten` used textarea trim only so attachment-only hydrated intake kept "Write a description" incomplete while Analyze was enabled; align with `architectureIntelligenceDescriptionStepComplete` / `requiresArchitectureDescriptionForMutation`. Regression `marks description complete for attachment-only hydrated intake without textarea text`. **valid-no-repro** pass-55 `runGoldenTest` empty sources without fixture, **valid-no-repro** fixture vs continue race, **valid-no-repro** duplicate canonical prepend, **invalid** publish toggle on dedicated publish endpoint. Pass-56 reseed below. Scoped vitest **17/17**. Private beta: invited architects on attachment-only review intake no longer see the analysis checklist stuck on an empty description when product source context is already loaded.
 
-- [x] (proven) ArchitectureIntelligencePageClient / analysis checklist — description step textarea-only — **proven 2026-11-25 thorough hunt (seed→hit):** rchitectureIntelligenceDescriptionStepComplete; regression cited in hunt note.
+- [x] (proven) ArchitectureIntelligencePageClient / analysis checklist — description step textarea-only — **proven 2026-11-25 thorough hunt (seed→hit):** `architectureIntelligenceDescriptionStepComplete`; regression cited in hunt note.
 - [x] (superseded) pass-54 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-55 reseed.
 - [x] (proven) `analyzeThisReview` — attachment-only analyze gate — **proven 2026-11-25 seed hunt (seed→hit):** `canAnalyzeHydratedReviewFromIntake`; regressions cited in hunt note.
 - [x] (valid-no-repro) `runGoldenTest` — empty `sourceTexts` without fixture — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `shouldRequestGoldenFixtureForGoldenTest`.
@@ -4686,8 +4702,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
 - **hunts:** 8
-- **bugs-found:** 5
-- **consecutive-dry-hunts:** 0`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
+- **bugs-found:** 6`r`n- **consecutive-dry-hunts:** 0`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12417,8 +12432,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
 - **hunts:** 5
-- **bugs-found:** 5
-- **consecutive-dry-hunts:** 0
+- **bugs-found:** 6`r`n- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
 - **related-pd-tb:** none
