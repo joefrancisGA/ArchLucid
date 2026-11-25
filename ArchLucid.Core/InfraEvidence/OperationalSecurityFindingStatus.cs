@@ -8,4 +8,7 @@ public enum OperationalSecurityFindingStatus
     Closed = 2,
     Exception = 3,
     AwaitingVerification = 4,
+
+    /// <summary>Provider reports a fix and no customer action; not a verification or closure.</summary>
+    Informational = 5,
 }

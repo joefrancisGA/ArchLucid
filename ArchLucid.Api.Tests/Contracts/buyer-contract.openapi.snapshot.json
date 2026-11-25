@@ -23214,7 +23214,8 @@
           "Recurred",
           "Closed",
           "Exception",
-          "AwaitingVerification"
+          "AwaitingVerification",
+          "Informational"
         ],
         "type": "string"
       },

@@ -176,7 +176,8 @@ public interface IOperationalSecurityFindingRepository
             || string.Equals(item.Exposure, "high", StringComparison.OrdinalIgnoreCase)
             || string.Equals(item.Exposure, "critical", StringComparison.OrdinalIgnoreCase));
 
-        int createdThisWeek = allFindings.Count(item => item.CreatedUtc >= weekStartUtc);
+        int createdThisWeek = allFindings.Count(item => item.CreatedUtc >= weekStartUtc
+            && item.Status != OperationalSecurityFindingStatus.Informational);
         int recurrenceCount = allFindings.Count(item => item.Status == OperationalSecurityFindingStatus.Recurred);
 
         double averageAgeDays = openFindings.Count == 0
@@ -279,6 +280,16 @@ public interface IOperationalSecurityFindingRepository
         OperationalSecurityFindingObservationRecord observation,
         CancellationToken cancellationToken = default);
 
+    Task<bool> TryCloseVerifiedAdvisoryInScopeAsync(
+        ProjectScopeKey scope,
+        OperationalSecurityFindingRecord observedFinding,
+        Guid instanceId,
+        Guid verificationSnapshotId,
+        DateTime snapshotCapturedUtc,
+        DateTime verifiedUtc,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult(false);
+
     Task UpdateAsync(
         OperationalSecurityFindingRecord finding,
         IReadOnlyList<OperationalSecurityFindingMetadataRecord> metadata,
@@ -301,6 +312,12 @@ public interface IOperationalSecurityFindingRepository
         if (mutation.LastObservedUtc < current.LastObservedUtc)
             throw new InvalidOperationException("Scoped operational finding mutation has an older observation.");
 
+        if (mutation.ExpectedPayloadHashSha256 is { } expected
+            && (!current.PayloadHashSha256.AsSpan().SequenceEqual(expected)
+                || current.Status != mutation.ExpectedStatus
+                || current.LastObservedUtc >= mutation.LastObservedUtc))
+            throw new InvalidOperationException("Advisory revision changed before the scoped update.");
+
         await UpdateAsync(
             mutation.ApplyTo(current),
             metadata.Select(item => item.ToRecord(scope.TenantId)).ToList(),
@@ -312,6 +329,8 @@ public interface IOperationalSecurityFindingRepository
 public sealed record OperationalSecurityFindingMutation
 {
     public required Guid FindingId { get; init; }
+    public byte[]? ExpectedPayloadHashSha256 { get; init; }
+    public OperationalSecurityFindingStatus? ExpectedStatus { get; init; }
     public Guid? CloudResourceId { get; init; }
     public string? ExternalResourceId { get; init; }
     public string? ResourceType { get; init; }

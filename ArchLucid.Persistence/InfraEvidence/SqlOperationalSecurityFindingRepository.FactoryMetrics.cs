@@ -73,7 +73,7 @@ public sealed partial class SqlOperationalSecurityFindingRepository
                                               LOWER(Severity) = 'critical'
                                               OR LOWER(Exposure) IN ('high', 'critical')
                                           ) THEN 1 ELSE 0 END) AS CriticalExposureCount,
-                                      SUM(CASE WHEN CreatedUtc >= @WeekStartUtc THEN 1 ELSE 0 END) AS CreatedThisWeek,
+                                      SUM(CASE WHEN CreatedUtc >= @WeekStartUtc AND Status <> @InformationalStatus THEN 1 ELSE 0 END) AS CreatedThisWeek,
                                       SUM(CASE WHEN Status = @RecurredStatus THEN 1 ELSE 0 END) AS RecurrenceCount,
                                       AVG(CASE WHEN Status IN (@OpenStatus, @RecurredStatus)
                                           THEN DATEDIFF(second, FirstObservedUtc, @UtcNow) / 86400.0
@@ -106,6 +106,7 @@ public sealed partial class SqlOperationalSecurityFindingRepository
             UtcNow = utcNow,
             OpenStatus = (int)OperationalSecurityFindingStatus.Open,
             RecurredStatus = (int)OperationalSecurityFindingStatus.Recurred,
+            InformationalStatus = (int)OperationalSecurityFindingStatus.Informational,
         };
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);

@@ -67,6 +67,17 @@ public sealed class ProjectScopedOperationalSecurityFindingRepositoryAdapter(
     public Task<IReadOnlyList<OperationalSecurityFindingObservationRecord>> ListObservationsByFindingInScopeAsync(ProjectScopeKey scope, Guid findingId, CancellationToken cancellationToken = default) =>
         inner.ListObservationsByFindingInScopeAsync(scope, findingId, cancellationToken);
 
+    public Task<bool> TryCloseVerifiedAdvisoryInScopeAsync(
+        ProjectScopeKey scope,
+        OperationalSecurityFindingRecord observedFinding,
+        Guid instanceId,
+        Guid verificationSnapshotId,
+        DateTime snapshotCapturedUtc,
+        DateTime verifiedUtc,
+        CancellationToken cancellationToken = default) =>
+        inner.TryCloseVerifiedAdvisoryInScopeAsync(scope, observedFinding, instanceId, verificationSnapshotId,
+            snapshotCapturedUtc, verifiedUtc, cancellationToken);
+
     public Task UpdateInScopeAsync(ProjectScopeKey scope, OperationalSecurityFindingMutation mutation, IReadOnlyList<OperationalSecurityFindingMetadataMutation> metadata, OperationalSecurityFindingObservationMutation? observation, CancellationToken cancellationToken = default) =>
         inner.UpdateInScopeAsync(scope, mutation, metadata, observation, cancellationToken);
 }

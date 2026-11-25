@@ -47,6 +47,69 @@ public sealed class RemediationInstanceVerificationEvaluatorPropertyTests
         Evaluate("FALSE", "false").Passed.Should().BeTrue();
     }
 
+    [Theory]
+    [InlineData(true, true, 1, false, true)]
+    [InlineData(false, true, 1, false, false)]
+    [InlineData(true, false, 1, false, false)]
+    [InlineData(true, true, 0, false, false)]
+    [InlineData(true, true, 2, false, false)]
+    [InlineData(true, true, 1, true, false)]
+    public void Advisory_needs_later_unambiguous_observed_artifact_and_approved_postcondition(
+        bool approvedQuery, bool matchesFixedArtifact, int observedRows, bool stale, bool expected)
+    {
+        string digest = new('a', 64);
+        AdvisoryRemediationEvidence advisory = new()
+        {
+            AdvisoryId = "ADVISORY-1",
+            Owner = AdvisoryRemediationOwner.Shared,
+            ProviderFix = AdvisoryProviderFix.Fixed,
+            CustomerAction = AdvisoryCustomerAction.Required,
+            FixedDeploymentArtifactSha256 = digest,
+            CompensatingControlEvidenceReference = "waf-evidence",
+        };
+        Guid resourceId = Guid.NewGuid();
+        Guid rowId = Guid.NewGuid();
+        DateTime capture = new(2026, 9, 27, 12, 1, 0, DateTimeKind.Utc);
+        List<AzureInventoryResourcePropertyReadModel> properties =
+        [
+            new() { ResourceRowId = rowId, PropertyKey = "wafEnabled", PropertyValue = "true" },
+        ];
+        properties.AddRange(Enumerable.Range(0, observedRows).Select(_ => new AzureInventoryResourcePropertyReadModel
+        {
+            ResourceRowId = rowId,
+            PropertyKey = AdvisoryRemediationEvidence.ObservedDeployedArtifactProperty,
+            PropertyValue = matchesFixedArtifact ? digest : new string('b', 64),
+        }));
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = Guid.NewGuid(), CapturedUtc = capture, CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+            },
+            Resources = [new AzureInventoryResourceRecord { ResourceRowId = rowId, CloudResourceId = resourceId }],
+            Properties = properties,
+        };
+
+        RemediationInstanceVerificationResult result = RemediationInstanceVerificationEvaluator.Evaluate(
+            new RemediationInstanceRecord { CloudResourceId = resourceId },
+            new RemediationPatternVersionContent
+            {
+                Execution = new RemediationPatternExecutionDefinition
+                {
+                    VerificationQueries = approvedQuery
+                        ? ["property:wafEnabled=true", advisory.RequiredVerificationQuery!]
+                        : ["property:wafEnabled=true"],
+                },
+            },
+            snapshot, Guid.NewGuid(), capture.AddMinutes(-2),
+            changeImplementedUtc: capture.AddMinutes(-1), advisory: advisory,
+            advisoryObservedUtc: stale ? capture : capture.AddMinutes(-1));
+
+        result.Passed.Should().Be(expected);
+        if (expected)
+            result.ResultJson.Should().Contain(digest).And.Contain("ADVISORY-1");
+    }
+
     private static RemediationInstanceVerificationResult Evaluate(
         string? value, string expected, bool isRedacted = false, bool omitProperty = false)
     {

@@ -20,6 +20,84 @@ namespace ArchLucid.Persistence.Tests.InfraEvidence;
 public sealed class SqlRemediationInstanceApprovalProvenanceTests(SqlServerPersistenceFixture fixture)
 {
     [SkippableFact]
+    public async Task Advisory_close_requires_revision_bound_verified_proof_and_current_project()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        ProjectScopeKey scope = ProjectScopeKey.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
+        ProjectScopeKey foreign = ProjectScopeKey.Create(scope.TenantId, scope.WorkspaceId, Guid.NewGuid());
+        Guid findingId = Guid.NewGuid();
+        Guid resourceId = Guid.NewGuid();
+        Guid patternId = Guid.NewGuid();
+        Guid versionId = Guid.NewGuid();
+        Guid instanceId = Guid.NewGuid();
+        Guid snapshotId = Guid.NewGuid();
+        byte[] payloadHash = Enumerable.Repeat((byte)7, 32).ToArray();
+        DateTime now = new(2026, 9, 27, 12, 0, 0, DateTimeKind.Utc);
+
+        await using SqlConnection connection = new(fixture.ConnectionString);
+        await connection.OpenAsync();
+        await connection.ExecuteAsync(
+            """
+            INSERT INTO dbo.OperationalSecurityFindings
+                (FindingId, TenantId, WorkspaceId, ProjectId, Provider, SourceSystem, SourceFindingId,
+                 CloudResourceId, Title, FirstObservedUtc, LastObservedUtc, Status, PayloadHashSha256, CreatedUtc, UpdatedUtc)
+            VALUES (@FindingId, @TenantId, @WorkspaceId, @ProjectId, @Provider,
+                    N'advisory', N'advisory-1', @ResourceId, N'Advisory', @Now, @Now, @OpenStatus, @PayloadHash, @Now, @Now);
+            INSERT INTO dbo.RemediationPatterns
+                (PatternId, TenantId, PatternKey, DisplayName, CreatedByActorKey, CreatedUtc, UpdatedUtc)
+            VALUES (@PatternId, @TenantId, @PatternKey, N'Fixture', N'author', @Now, @Now);
+            INSERT INTO dbo.RemediationPatternVersions
+                (VersionId, PatternId, TenantId, Version, Status, ControlObjective, ContentJson,
+                 AutomationLevel, AuthorActorKey, ApprovedByActorKey, ApprovedUtc, CreatedUtc, UpdatedUtc)
+            VALUES (@VersionId, @PatternId, @TenantId, N'1.0.0', @ApprovedStatus,
+                    N'Fixture', N'{}', 0, N'author', N'pattern-approver', @Now, @Now, @Now);
+            INSERT INTO dbo.RemediationInstances
+                (InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId,
+                 PatternVersionId, PatternKey, FrozenPatternVersion, AutomationLevel,
+                 Status, CloudResourceId, VerificationSnapshotId, VerificationResultJson,
+                 CreatedByActorKey, CreatedUtc, UpdatedUtc)
+            VALUES (@InstanceId, @TenantId, @WorkspaceId, @ProjectId, @FindingId, @PatternId,
+                    @VersionId, @PatternKey, N'1.0.0', 0, @VerifiedStatus, @ResourceId, @SnapshotId,
+                    N'{"passed":true}', N'author', @Now, @Now);
+            """,
+            new
+            {
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId, findingId, resourceId, patternId,
+                versionId, instanceId, snapshotId, payloadHash, now,
+                PatternKey = "test.advisory." + patternId.ToString("N"),
+                Provider = (int)CloudProvider.Azure,
+                OpenStatus = (int)OperationalSecurityFindingStatus.Open,
+                ApprovedStatus = (int)RemediationPatternStatus.Approved,
+                VerifiedStatus = (int)RemediationInstanceStatus.Verified,
+            });
+
+        SqlOperationalSecurityFindingRepository repository = new(new SqlConnectionFactory(fixture.ConnectionString));
+        OperationalSecurityFindingRecord finding = (await repository.TryGetByIdInScopeAsync(scope, findingId))!;
+        DateTime captured = now.AddMinutes(1);
+        DateTime verified = now.AddMinutes(2);
+
+        (await repository.TryCloseVerifiedAdvisoryInScopeAsync(scope, finding, instanceId, snapshotId, captured, verified))
+            .Should().BeFalse("generic verified controls are not advisory proof");
+        await connection.ExecuteAsync(
+            "UPDATE dbo.RemediationInstances SET VerificationResultJson = @Json WHERE InstanceId = @InstanceId",
+            new { instanceId, Json = System.Text.Json.JsonSerializer.Serialize(new
+            {
+                advisoryFindingPayloadHash = Convert.ToHexString(payloadHash),
+            }) });
+        (await repository.TryCloseVerifiedAdvisoryInScopeAsync(foreign, finding, instanceId, snapshotId, captured, verified))
+            .Should().BeFalse();
+        (await repository.TryCloseVerifiedAdvisoryInScopeAsync(scope, finding, instanceId, snapshotId, now, verified))
+            .Should().BeFalse("an equal capture is not newer evidence");
+
+        (await repository.TryCloseVerifiedAdvisoryInScopeAsync(scope, finding, instanceId, snapshotId, captured, verified))
+            .Should().BeTrue();
+        (await repository.TryGetByIdInScopeAsync(scope, findingId))!.Status.Should().Be(OperationalSecurityFindingStatus.Closed);
+        (await repository.TryCloseVerifiedAdvisoryInScopeAsync(scope, finding, instanceId, snapshotId, captured, verified))
+            .Should().BeFalse("replay does not update an already closed record");
+    }
+
+    [SkippableFact]
     public async Task Approval_writes_evidence_atomically_and_rejects_stale_foreign_and_failed_evidence_inserts()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable,

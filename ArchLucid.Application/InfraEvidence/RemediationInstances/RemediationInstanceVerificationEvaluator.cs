@@ -15,7 +15,10 @@ public static class RemediationInstanceVerificationEvaluator
         DateTime? executionCapturedUtc,
         RemediationPathNarrative? pathNarrative = null,
         RemediationPathVerificationContext? pathVerificationContext = null,
-        DateTime? changeImplementedUtc = null)
+        DateTime? changeImplementedUtc = null,
+        AdvisoryRemediationEvidence? advisory = null,
+        DateTime? advisoryObservedUtc = null,
+        string? advisoryFindingPayloadHash = null)
     {
         ArgumentNullException.ThrowIfNull(instance);
         ArgumentNullException.ThrowIfNull(content);
@@ -54,6 +57,33 @@ public static class RemediationInstanceVerificationEvaluator
         {
             failures.Add(
                 $"Verification capture status failed: verification snapshot capture status is {verificationSnapshot.Header.CaptureStatus}, not Succeeded.");
+        }
+
+        if (advisory is not null)
+        {
+            string? requiredQuery = advisory.RequiredVerificationQuery;
+            if (requiredQuery is null || content.Execution?.VerificationQueries
+                    .Any(query => string.Equals(query?.Trim(), requiredQuery, StringComparison.OrdinalIgnoreCase)) != true)
+            {
+                failures.Add("Advisory verification requires the approved deployed-artifact postcondition.");
+            }
+
+            if (advisoryObservedUtc is not DateTime observed
+                || verificationSnapshot.Header.CapturedUtc is not DateTime captured || captured <= observed)
+            {
+                failures.Add("Advisory verification requires a snapshot captured after the current observation.");
+            }
+
+            AzureInventoryResourceRecord[] targets = verificationSnapshot.Resources
+                .Where(resource => resource.CloudResourceId == instance.CloudResourceId).ToArray();
+            if (instance.CloudResourceId is null || instance.CloudResourceId == Guid.Empty
+                || targets.Length != 1 || verificationSnapshot.Properties.Count(property =>
+                    property.ResourceRowId == targets[0].ResourceRowId
+                    && string.Equals(property.PropertyKey, AdvisoryRemediationEvidence.ObservedDeployedArtifactProperty,
+                        StringComparison.OrdinalIgnoreCase)) != 1)
+            {
+                failures.Add("Advisory verification requires one unambiguous observed artifact for the target deployment.");
+            }
         }
 
         if (failures.Count > 0)
@@ -143,6 +173,9 @@ public static class RemediationInstanceVerificationEvaluator
                 changeImplementedUtc,
                 verificationCapturedUtc = verificationSnapshot.Header.CapturedUtc,
                 verificationCaptureStatus = verificationSnapshot.Header.CaptureStatus,
+                advisoryId = advisory?.AdvisoryId,
+                advisoryFindingPayloadHash = passed && advisory is not null ? advisoryFindingPayloadHash : null,
+                verifiedDeploymentArtifactSha256 = passed ? advisory?.FixedDeploymentArtifactSha256 : null,
             }),
         };
     }
