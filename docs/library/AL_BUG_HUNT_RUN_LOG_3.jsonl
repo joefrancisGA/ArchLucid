@@ -277,3 +277,4 @@
 {"at":"2026-11-25T13:35:40.6080462Z","zoneId":"ui-lib-governance","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/governance/governance-assigned-to-me-queue-sort.ts"]}
 {"at":"2026-11-25T13:40:13.8996476Z","zoneId":"ui-lib-governance","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/governance/governance-assigned-to-me-queue-sort.ts"]}
 {"at":"2026-11-25T13:42:10.7871243Z","zoneId":"ui-lib-governance","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/governance/governance-assigned-to-me-queue-sort.ts"]}
+{"at":"2026-11-25T13:45:25.7364673Z","zoneId":"cli-terraform-evidence","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs"]}

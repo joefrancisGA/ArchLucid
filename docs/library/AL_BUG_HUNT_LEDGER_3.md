@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt #30 (hit): `ui-lib-governance` pass-6 reseed. Assigned-to-me queue sort **6/6**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt #31 (seed-only): `cli-terraform-evidence` pass-5 reseed. `DeploymentEvidenceTerraformReferenceTests` **48/48**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -2539,11 +2539,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (superseded) pass-169 `(candidate)` queue — **superseded 2026-11-24 thorough hunt #171 (dry):** closed at zone header; see pass-4 reseed.
 
-- [ ] (candidate) `DefaultApplyOrderRoots` — first hosted leaf may align to composition wave list index — locus: wave boundary; input: slice edit; wrong outcome: off-by-one hosted start; reachability: monitor `DefaultApplyOrderRoots_first_hosted_leaf_is_not_at_composition_wave_list_index` (pass-4 reseed).
-- [ ] (candidate) `DefaultApplyOrderRoots` — path prefix `StartsWith` may admit parent directory false positives — locus: path equality; input: sibling path prefix; wrong outcome: duplicate apply target; reachability: monitor `DefaultApplyOrderRoots_exact_path_equality_rejects_prefix_starts_with_matching` (pass-4 reseed).
-- [ ] (candidate) `infra/apply-saas.ps1` — legacy leaf branch may assign hosted-wave leaves to multi-root — locus: legacy branch; input: ps1 branch edit; wrong outcome: wrong sequence variable; reachability: monitor `Apply_saas_ps1_legacy_leaf_roots_branch_assigns_multi_root_sequence_not_hosted_wave_leaves` (pass-4 reseed).
+- [x] (valid-no-repro) `DefaultApplyOrderRoots` — first hosted leaf may align to composition wave list index — **cheap-disproof 2026-11-25 seed hunt #31:** regression `DefaultApplyOrderRoots_first_hosted_leaf_is_not_at_composition_wave_list_index`.
+- [x] (valid-no-repro) `DefaultApplyOrderRoots` — path prefix `StartsWith` may admit parent directory false positives — **cheap-disproof 2026-11-25 seed hunt #31:** regression `DefaultApplyOrderRoots_exact_path_equality_rejects_prefix_starts_with_matching`.
+- [x] (valid-no-repro) `infra/apply-saas.ps1` — legacy leaf branch may assign hosted-wave leaves to multi-root — **cheap-disproof 2026-11-25 seed hunt #31:** regression `Apply_saas_ps1_legacy_leaf_roots_branch_assigns_multi_root_sequence_not_hosted_wave_leaves`.
 - [ ] (candidate) `REFERENCE_SAAS_STACK_ORDER.md` — advanced table row numbers may skip or duplicate — locus: reference table; input: row renumber; wrong outcome: operator doc drift; reachability: monitor `Reference_doc_advanced_table_row_numbers_are_contiguous_one_through_sixteen` (pass-4 reseed).
-- [ ] (candidate) `DefaultApplyOrderRoots` — pilot profile metadata row may be mistaken for leaf apply target — locus: metadata-only pilot entry; input: annotation edit; wrong outcome: pilot in leaf extract; reachability: monitor `DefaultApplyOrderRoots_pilot_profile_entry_documents_metadata_only_default_profile` (pass-4 reseed).
+- [x] (valid-no-repro) `DefaultApplyOrderRoots` — pilot profile metadata row may be mistaken for leaf apply target — **cheap-disproof 2026-11-25 seed hunt #31:** regression `DefaultApplyOrderRoots_pilot_profile_entry_documents_metadata_only_default_profile`.
+
+- [x] (superseded) pass-4 `(candidate)` queue — **superseded 2026-11-25 seed hunt #31 (seed-only):** closed at zone header; see pass-5 reseed.
+
+- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — git dirty tri-state may mislabel clean trees — locus: gitDirty switch; input: null vs false; wrong outcome: ambiguous working-tree line; reachability: compose output contract; pass-5 reseed.
+- [ ] (candidate) `DeploymentEvidenceTerraformReference.DocumentationRelativePath` — path may drift from on-disk REFERENCE doc location — locus: const vs repo layout; input: doc rename; wrong outcome: broken citation; reachability: CLI evidence command; pass-5 reseed.
+- [ ] (candidate) `DefaultApplyOrderRoots` — consumption APIM index may drift if edge/monitoring leaves reorder — locus: leaf ordering; input: swap edge and monitoring; wrong outcome: wave guard failure; reachability: monitor `DefaultApplyOrderRoots_consumption_apim_root_follows_edge_and_precedes_monitoring`; pass-5 reseed.
+- [ ] (candidate) `DeploymentEvidenceReportMarkdown.Compose` — allowMissingOpenApi flag may omit break-glass wording — locus: openAPI break-glass row; input: true flag; wrong outcome: missing audit trail; reachability: deployment evidence export; pass-5 reseed.
+- [ ] (candidate) `DefaultApplyOrderRoots` — orchestrator legacy annotation suffix may drop `-LegacyLeafRoots` — locus: orchestrator line; input: annotation edit; wrong outcome: apply-saas mode drift; reachability: monitor `DefaultApplyOrderRoots_orchestrator_line_cites_legacy_leaf_roots_annotation`; pass-5 reseed.
+
+
 
 
 
@@ -2742,10 +2752,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-11-24
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
