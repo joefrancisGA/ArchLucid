@@ -8,21 +8,82 @@ on:
 permissions:
   contents: read
 jobs:
-  focused-metering:
+  core-identity:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: 9e59a90fb5ccc41eed69d9f97d1c3b0686895f74
           persist-credentials: false
       - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
       - name: Core identity regressions
         run: dotnet test ArchLucid.Core.Tests/ArchLucid.Core.Tests.csproj -c Release --filter 'FullyQualifiedName~UsageEventIdempotencyKeysTests' --logger 'trx;LogFileName=core.trx' --results-directory TestResults/metering
+      - name: Require core regressions to execute and pass
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          expected = {"ForApiRequest_uses_stable_event_identity_in_new_namespace", "ForApiRequest_rejects_empty_event_id"}
+          root = ET.parse(Path("TestResults/metering/core.trx"))
+          results = root.findall(".//{http://microsoft.com/schemas/VisualStudio/TeamTest/2010}UnitTestResult")
+          actual = {r.attrib["testName"].rsplit(".", 1)[-1]: r.attrib.get("outcome") for r in results}
+          if any(actual.get(name) != "Passed" for name in expected) or any(r.attrib.get("outcome") != "Passed" for r in results):
+              raise SystemExit(f"Missing, skipped or failed regression: {actual}")
+          print(f"{len(results)} tests passed, including required regressions.")
+          PY
+      - name: Preserve core evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: api-usage-metering-core-trx
+          path: TestResults/metering/*.trx
+          if-no-files-found: ignore
+          retention-days: 14
+  api-accounting:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
       - name: API middleware and in-memory accounting regressions
         run: dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release --filter 'FullyQualifiedName~ApiRequestMeteringIdentityTests|FullyQualifiedName~ApiRequestMeteringMiddlewareTests' --logger 'trx;LogFileName=api.trx' --results-directory TestResults/metering
+      - name: Require api regressions to execute and pass
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          expected = {"Shared_incoming_correlation_counts_two_requests_but_replaying_events_does_not"}
+          root = ET.parse(Path("TestResults/metering/api.trx"))
+          results = root.findall(".//{http://microsoft.com/schemas/VisualStudio/TeamTest/2010}UnitTestResult")
+          actual = {r.attrib["testName"].rsplit(".", 1)[-1]: r.attrib.get("outcome") for r in results}
+          if any(actual.get(name) != "Passed" for name in expected) or any(r.attrib.get("outcome") != "Passed" for r in results):
+              raise SystemExit(f"Missing, skipped or failed regression: {actual}")
+          print(f"{len(results)} tests passed, including required regressions.")
+          PY
+      - name: Preserve api evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: api-usage-metering-api-trx
+          path: TestResults/metering/*.trx
+          if-no-files-found: ignore
+          retention-days: 14
+  sql-accounting:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
       - name: Start disposable SQL Server
         shell: bash
         run: |
@@ -41,30 +102,24 @@ jobs:
           exit 1
       - name: SQL persistence regressions
         run: dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release --filter 'FullyQualifiedName~DapperUsageEventRepositorySqlIntegrationTests' --logger 'trx;LogFileName=sql.trx' --results-directory TestResults/metering
-      - name: Require named regressions to execute and pass
+      - name: Require sql regressions to execute and pass
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import xml.etree.ElementTree as ET
-          expected = {
-              "core": {"ForApiRequest_uses_stable_event_identity_in_new_namespace", "ForApiRequest_rejects_empty_event_id"},
-              "api": {"Shared_incoming_correlation_counts_two_requests_but_replaying_events_does_not"},
-              "sql": {"Api_request_events_with_shared_correlation_are_distinct_and_replays_are_deduplicated"},
-          }
-          ns = {"t": "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}
-          for suite, names in expected.items():
-              root = ET.parse(Path("TestResults/metering") / (suite + ".trx"))
-              results = root.findall(".//t:UnitTestResult", ns)
-              actual = {r.attrib["testName"].rsplit(".", 1)[-1]: r.attrib.get("outcome") for r in results}
-              if any(actual.get(name) != "Passed" for name in names) or any(r.attrib.get("outcome") != "Passed" for r in results):
-                  raise SystemExit(f"{suite}: missing, skipped, or failed regression: {actual}")
-              print(f"{suite}: {len(results)} tests passed, including all required regressions.")
+          expected = {"Api_request_events_with_shared_correlation_are_distinct_and_replays_are_deduplicated"}
+          root = ET.parse(Path("TestResults/metering/sql.trx"))
+          results = root.findall(".//{http://microsoft.com/schemas/VisualStudio/TeamTest/2010}UnitTestResult")
+          actual = {r.attrib["testName"].rsplit(".", 1)[-1]: r.attrib.get("outcome") for r in results}
+          if any(actual.get(name) != "Passed" for name in expected) or any(r.attrib.get("outcome") != "Passed" for r in results):
+              raise SystemExit(f"Missing, skipped or failed regression: {actual}")
+          print(f"{len(results)} tests passed, including required regressions.")
           PY
-      - name: Preserve test evidence
+      - name: Preserve sql evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: api-usage-metering-trx
+          name: api-usage-metering-sql-trx
           path: TestResults/metering/*.trx
           if-no-files-found: ignore
           retention-days: 14
