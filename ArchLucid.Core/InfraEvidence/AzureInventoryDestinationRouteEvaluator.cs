@@ -21,7 +21,10 @@ public static class AzureInventoryDestinationRouteEvaluator
         foreach (AzureInventoryRouteTableRoute route in effectiveRoutes)
         {
             if (!TryReadPrefix(route.AddressPrefix, out IPAddress? network, out int length))
+            {
+                selected = null;
                 return AzurePrivateConnectivityCheck.Unknown;
+            }
             if (network!.AddressFamily != destination.AddressFamily || !Matches(network, destination, length))
                 continue;
             if (length > bestPrefix)
@@ -59,9 +62,10 @@ public static class AzureInventoryDestinationRouteEvaluator
         if (string.IsNullOrWhiteSpace(value))
             return false;
         string[] parts = value.Split('/');
-        return parts.Length == 2 && IPAddress.TryParse(parts[0], out address)
-            && int.TryParse(parts[1], out length) && length >= 0
-            && length <= address.GetAddressBytes().Length * 8;
+        if (parts.Length != 2 || !IPAddress.TryParse(parts[0], out address) || address is null
+            || !int.TryParse(parts[1], out length) || length < 0)
+            return false;
+        return length <= address.GetAddressBytes().Length * 8;
     }
 
     private static bool Matches(IPAddress network, IPAddress destination, int length)
