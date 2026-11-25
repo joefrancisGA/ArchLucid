@@ -157,7 +157,7 @@ export function RunsListClient(props: RunsListClientProps) {
   useEffect(() => {
     const syncRunsListFilterOpenFromUrl = (): void => {
       const next = parseRunsListFilterOpenFromSearch(
-        new URLSearchParams(window.location.search).get("runsListFilterOpen"),
+        new URLSearchParams(readWindowLocationSearch()).get("runsListFilterOpen"),
       );
 
       if (runsListFilterOpenRef.current === next) {

@@ -170,6 +170,23 @@ function renderRunsList(ui: ReactElement, searchQuery = "") {
 }
 
 describe("RunsListClient inspector", () => {
+  it("opens filter disclosure when runsListFilterOpen= is committed before useSearchParams catches up", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
+      "scope=finalized",
+    );
+
+    runsListSearchParamsHarness.state.committedQuery = "runsListFilterOpen=1&scope=finalized";
+    fireEvent.popState(window);
+
+    const filterDisclosure = screen.getByText("Filter reviews", { selector: "summary" }).closest("details");
+    expect(filterDisclosure).toHaveAttribute("open");
+  });
+
+
   it("collapses showcase alias + canonical rows into one table row (unique data-testid)", () => {
     const aliasRun: RunSummary = {
       runId: "customer-intake-modernization-run",

@@ -2924,6 +2924,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-runs-list
 
 
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; **Cooled: true** with hit-rate cooldown waived). Promoted pass-7 filter disclosure — **proven** `syncRunsListFilterOpenFromUrl` read `window.location.search` on popstate while buyer-polished deep links commit via `readWindowLocationSearch` mock/lag path; now uses `readWindowLocationSearch()` for `runsListFilterOpen=`. Regression `opens filter disclosure when runsListFilterOpen= is committed before useSearchParams catches up`. **valid-no-repro** compare notice keyboard race (existing third-compare test), **valid-no-repro** resume strip + `q=` overlay, **valid-no-repro** invalid inspector page 2 (empty shell contract), **valid-no-repro** client re-sort vs URL lag (`re-sorts rows when sort= changes via popstate`). Focused `RunsListClient` vitest **87/87**. Reseeded pass-8 below. Private beta: buyer-polished reviews hub deep links that open the collapsed filter panel respect `runsListFilterOpen=` when the App Router lags behind committed window.location.
+
+- [x] (superseded) pass-7 queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-8 reseed.
+
+
+
+
+
 2026-11-25 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; **Cooled: true** with hit-rate cooldown waived — empty hypothesis list). Cheap-disproof on five pass-6 `(candidate)` monitors — **valid-no-repro** all five (regressions cited in hunt note). Added three monitor regressions; no production change. Reseeded pass-7 below. Private beta: n/a.
 
 
@@ -3123,11 +3131,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) pass-6 pending q on chips — **cheap-disproof 2026-11-25 seed hunt (seed-only):** `preserves pending text filter in sort href before q= debounce completes`.
 - [x] (valid-no-repro) pass-6 Escape + orphan filter — **cheap-disproof 2026-11-25 seed hunt (seed-only):** `preserves filter=orphan-candidates when Escape clears q= before useSearchParams catches up`.
 
-- [ ] (candidate) `RunsListClient` buyer filter disclosure — `runsListFilterOpen` deep link — pass-7 reseed.
-- [ ] (candidate) `useRunsList` compare notice keyboard race — pass-7 reseed.
-- [ ] (candidate) `RunsListClient` resume strip + `q=` overlay — pass-7 reseed.
-- [ ] (candidate) `useRunsList` invalid inspector page 2 — pass-7 reseed.
-- [ ] (candidate) `RunsListWorkQueueTable` client re-sort vs URL lag — pass-7 reseed.
+- [x] (proven) `RunsListClient` filter disclosure popstate — **hit 2026-11-25 seed hunt (seed→hit):** `readWindowLocationSearch` on popstate; regression above.
+- [x] (valid-no-repro) pass-7 compare notice keyboard — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** `shows a replacement notice when a third compare checkbox is selected`.
+- [x] (valid-no-repro) pass-7 resume strip — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** continue-last tests.
+- [x] (valid-no-repro) pass-7 invalid inspector page 2 — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** empty inspector shell regressions.
+- [x] (valid-no-repro) pass-7 re-sort URL lag — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** popstate sort regression.
+
+- [ ] (candidate) `syncRunsListFilterOpenToUrl` — may drop `sort=` when toggling disclosure with router lag — locus: disclosure href base; input: open details after sort popstate; pass-8 reseed.
+- [ ] (candidate) `RunsListClient` Escape on filter — may keep `runsListFilterOpen=1` — locus: clear vs disclosure param; pass-8 reseed.
+- [ ] (candidate) `useRunsList` `showCompareSelection` — card layout may leave notice after compare clear — locus: effect deps; pass-8 reseed.
+- [ ] (candidate) `RunsListContinueLastViewedRow` — href may omit pending `q=` — locus: resume href; pass-8 reseed.
+- [ ] (candidate) `RunsListClient` buyer card compare — hidden UI may leave `compareRuns` in URL — locus: layout effect; pass-8 reseed.
 
 - **id:** ui-runs-list
 - **status:** open
@@ -3135,9 +3149,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 6
+- **hunts:** 7
 - **last-hunt:** 2026-11-25
-- **bugs-found:** 4
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-bug:** never
 - **code-changed-since:** yes
