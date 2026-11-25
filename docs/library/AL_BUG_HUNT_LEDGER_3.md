@@ -379,6 +379,20 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-17 (`shouldRotate: false`; hint override). **proven** selection-identity disclosure parse — `parseRemediationFactorySelectionIdentityDisclosureOpenFromSearch` accepted only `1`/`true` while metrics disclosure already honors `yes`/`on`, so deep-linked selection identity panels stayed closed on shared allowlist tokens; route through exported `parseRemediationFactoryDisclosureOpenFromSearch`. Regression `treats yes and on selection identity disclosure tokens as open on read`. **valid-no-repro** metrics `NO` closed write (`drops NO metrics disclosure token from base search when writing closed state`), **valid-no-repro** metrics `yes` read, **valid-no-repro** trim-only chip label, **invalid** label-when-unloaded (labels must stay visible under loading). Pass-18 reseed below. Scoped vitest **136/136**. Private beta: invited operators opening remediation factory with `yes`/`on` selection-identity disclosure bookmarks see the identity panel open consistently with metrics disclosure URL tokens.
+
+- [x] (superseded) pass-17 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-18 reseed.
+- [x] (proven) `parseRemediationFactorySelectionIdentityDisclosureOpenFromSearch` — yes/on tokens — **proven 2026-11-25 thorough hunt (seed→hit):** shared disclosure parse; regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — drops `NO` token — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — yes metrics token — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `treats yes and on metrics disclosure tokens as open on read`.
+- [x] (valid-no-repro) `formatAttackPathReportPathChipLabel` — trim-only id — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** whitespace-only regression.
+- [x] (invalid) `buildRemediationFactoryExecutiveMetricTiles` — label when unloaded — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** metric labels required while loading.
+
+- [ ] (candidate) `remediationFactorySelectionIdentityDisclosureHrefFromSearch` — closed clears token — locus: boolean href writer; input: toggle closed; monitor; pass-18 reseed.
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — rejects `off` literal — locus: shared parse; input: off token; monitor; pass-18 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open writes canonical `1` — locus: writer normalization; input: open=true; monitor; pass-18 reseed.
+- [ ] (candidate) `remediationFactorySnapshotIdentityDisclosureUrl` — mismatched allowlist — locus: snapshot disclosure parse; input: yes token; monitor; pass-18 reseed.
+- [ ] (candidate) `attackPathReportPathChipOverflowLine` — mixed short/long after trim — locus: honesty copy; input: padded long id; monitor; pass-18 reseed.
 2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-16 (`shouldRotate: false`; hint override). **proven** `scopeLine` on executive tiles — workspace scope chrome showed under `Loading metrics…` while `metricsLoaded` was false; gate via `scopeLineWhenLoaded` and omit in `MetricTileBody` when undefined. Regression `omits scopeLine on executive metric tiles when metrics are unloaded`. **valid-no-repro** metrics `no` token not in open allowlist, **valid-no-repro** duplicate metrics param (`URLSearchParams.get` first token), **valid-no-repro** overflow with single long path id, **invalid** path alias param (no alias in url-state). Pass-17 reseed below. Scoped vitest **134/134**. Private beta: invited operators no longer see workspace scope helper copy on remediation factory metric tiles while metrics are still loading.
 
 - [x] (superseded) pass-16 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-17 reseed.
