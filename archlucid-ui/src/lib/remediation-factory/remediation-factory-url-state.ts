@@ -36,7 +36,7 @@ function remediationFactoryDisclosureNumericOneOpenToken(normalized: string): bo
     return Number(unsigned) === 1;
   }
 
-  if (/^\d+\.\d+$/.test(unsigned)) {
+  if (/^\d+\.(\d+)?$/.test(unsigned)) {
     const numeric = Number(unsigned);
 
     return Number.isFinite(numeric) && numeric === 1;

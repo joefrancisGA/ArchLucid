@@ -461,6 +461,35 @@ describe("remediation-factory-metric-presentation", () => {
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
 
     expect(tiles.find((tile) => tile.id === "net-burn")?.windowLine).toBeDefined();
+  });
+
+
+  it("keeps pattern-exact windowLine when percent is zero", () => {
+    const metrics = { patternCoverageExactMatchPercent: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "pattern-exact")?.windowLine).toBeDefined();
+  });
+
+  it("keeps automation windowLine when percent is zero", () => {
+    const metrics = { automationPercent: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "automation")?.windowLine).toBeDefined();
+  });
+
+  it("keeps risk-weighted-open scopeLine when value is zero", () => {
+    const metrics = { riskWeightedOpen: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "risk-weighted-open")?.scopeLine).toBeDefined();
+  });
+
+  it("shows critical-exposure table hint when count is measuredZero", () => {
+    const metrics = { criticalExposureCount: 0 } as RemediationFactoryMetrics;
+    const table = buildRemediationFactoryExecutiveMetricPresentations({ metrics, openFindingsHref: "/security/findings" });
+
+    expect(table.find((tile) => tile.key === "critical-exposure")?.hint).toContain("No critical-or-error");
   });  it("omits open-findings-queue href when count is not returned", () => {
     const metrics = { automationPercent: 5 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
