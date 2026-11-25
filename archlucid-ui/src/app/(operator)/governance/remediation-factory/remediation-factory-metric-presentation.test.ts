@@ -33,6 +33,18 @@ describe("remediation-factory-metric-presentation", () => {
     );
   });
 
+
+  it("omits non-finite percent tiles instead of rendering NaN%", () => {
+    const metrics = {
+      patternCoverageExactMatchPercent: Number.NaN,
+      automationPercent: 25,
+    } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "pattern-exact")?.value).toBeNull();
+    expect(tiles.find((tile) => tile.id === "automation")?.value).toBe("25%");
+  });
+
   it("shows negative net burn when more findings were remediated than opened", () => {
     const metrics = { createdThisWeek: 2, remediatedThisWeek: 5, netBurn: -3 } as RemediationFactoryMetrics;
 

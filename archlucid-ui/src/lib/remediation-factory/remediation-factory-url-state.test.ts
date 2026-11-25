@@ -93,4 +93,12 @@ describe("remediation-factory-url-state", () => {
     expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBeNull();
     expect(params.get("foreign")).toBe("keep");
   });
+
+  it("treats padded TRUE metrics disclosure token as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=  TRUE  `,
+      ).metricsSummaryOpen,
+    ).toBe(true);
+  });
 });

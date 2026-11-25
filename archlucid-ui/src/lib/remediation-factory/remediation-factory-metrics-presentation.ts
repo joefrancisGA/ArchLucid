@@ -52,6 +52,17 @@ export function buildRemediationFactoryExecutiveMetricTiles(
     return normalized === null ? null : normalized.toFixed(digits);
   }
 
+
+  function formatPercentPoints(value: number | undefined): string | null {
+    if (!metricsLoaded || metrics === undefined || value === undefined) {
+      return null;
+    }
+
+    const normalized = parseNonNegativeFiniteNumber(value);
+
+    return normalized === null ? null : formatRemediationFactoryPercentPoints(normalized);
+  }
+
   return [
     {
       id: "open-findings-queue",
@@ -109,20 +120,14 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       label: "Pattern exact match %",
       scopeLine: WORKSPACE_SCOPE,
       windowLine: REMEDIATION_FACTORY_PERCENT_POPULATION_LINE,
-      value:
-        metricsLoaded && metrics !== undefined
-          ? formatRemediationFactoryPercentPoints(metrics.patternCoverageExactMatchPercent)
-          : null,
+      value: formatPercentPoints(metrics?.patternCoverageExactMatchPercent),
     },
     {
       id: "automation",
       label: "Automation %",
       scopeLine: WORKSPACE_SCOPE,
       windowLine: REMEDIATION_FACTORY_PERCENT_POPULATION_LINE,
-      value:
-        metricsLoaded && metrics !== undefined
-          ? formatRemediationFactoryPercentPoints(metrics.automationPercent)
-          : null,
+      value: formatPercentPoints(metrics?.automationPercent),
     },
     {
       id: "exceptions-active",

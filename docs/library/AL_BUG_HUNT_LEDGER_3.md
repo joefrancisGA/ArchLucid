@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 thorough hunt #28 (hit): `ui-help-docs` unique category section ids. `HelpDocsClient` **66/66**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt #2 (seed→hit): `ui-lib-remediation-factory` NaN percent tiles. `remediation-factory` **88/88**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -408,7 +408,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 - [x] (fixed) `parseRemediationFactoryUrlStateFromSearch` — `yes`/`on` metrics open tokens — **proven 2026-11-25 seed hunt (seed→hit):** `parseRemediationFactoryMetricsSummaryOpen`; regression `treats yes and on metrics disclosure tokens as open on read`.
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — stale metrics param when toggling open off — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression `drops stale metrics disclosure param when toggling closed`.
-- [x] (valid-no-repro) `formatRemediationFactoryPercentPoints` — non-finite percent `NaN%` — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** monitor.
+- [x] (proven) `formatRemediationFactoryPercentPoints` — non-finite percent `NaN%` — **hit 2026-11-25 seed hunt #2:** `formatPercentPoints`; regression `omits non-finite percent tiles instead of rendering NaN%`.
 - [x] (valid-no-repro) `formatAttackPathReportPathChipLabel` — whitespace-only path id — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** monitor.
 - [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — undefined metrics with loaded flag — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** null cells; thorough #1.
 
@@ -416,11 +416,11 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 - [x] (superseded) pass-2 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** closed at zone header; see pass-3 reseed.
 
-- [ ] (candidate) `parseRemediationFactoryMetricsSummaryOpen` — padded `TRUE` token — locus: trim+lower; monitor; pass-3 reseed.
-- [ ] (candidate) `normalizeUuidQueryValue` — NBSP-only selection id — locus: ECMA trim; monitor; pass-3 reseed.
-- [ ] (candidate) `formatRemediationFactoryPercentDisplay` — value exactly 1.0 fraction branch — locus: `value <= 1`; monitor; pass-3 reseed.
-- [ ] (candidate) `attackPathReportPathChipOverflowLine` — single long id among short ids — locus: honesty `.some`; monitor; pass-3 reseed.
-- [ ] (candidate) `remediationFactoryHrefFromSearch` — unrelated query param preservation — locus: operator href builder; monitor; pass-3 reseed.
+- [x] (valid-no-repro) `parseRemediationFactoryMetricsSummaryOpen` — padded `TRUE` token — **cheap-disproof 2026-11-25 seed hunt #2:** regression `treats padded TRUE metrics disclosure token as open on read`.
+- [x] (valid-no-repro) `normalizeUuidQueryValue` — NBSP-only selection id — **cheap-disproof 2026-11-25 seed hunt #2:** ECMAScript `trim()`; monitor.
+- [x] (valid-no-repro) `formatRemediationFactoryPercentDisplay` — value exactly 1.0 — **cheap-disproof 2026-11-25 seed hunt #2:** lineage completeness uses 1.0 as 100%; monitor.
+- [x] (valid-no-repro) `attackPathReportPathChipOverflowLine` — single long id — **cheap-disproof 2026-11-25 seed hunt #2:** round-63 honesty regression; monitor.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — foreign query params — **cheap-disproof 2026-11-25 seed hunt #2:** `buildOperatorHrefFromSearch` threads base search.
 
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/remediation-factory`. Seeded five `(hunt-ready)` rows; no production change.
 
@@ -437,8 +437,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 26
-- **bugs-found:** 9
+- **hunts:** 27
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
