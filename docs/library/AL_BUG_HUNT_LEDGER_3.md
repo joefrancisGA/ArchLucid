@@ -84,14 +84,6 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 - [x] (valid-no-repro) `governanceFindingsNlTitleHrefFromSearch` — embedded `=` in a title facet — **cheap-disproof 2026-11-23 thorough hunt:** the title is one `URLSearchParams.set` value, so `=` stays inside the parameter.
 
 
-- [x] (superseded) pass-2 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** closed at zone header; see pass-3 reseed.
-
-- [ ] (candidate) `parseRemediationFactoryMetricsSummaryOpen` — padded `true ` token — locus: trim+lower; monitor; pass-3 reseed.
-- [ ] (candidate) `normalizeUuidQueryValue` — NBSP-only snapshot id — locus: ECMA trim; monitor; pass-3 reseed.
-- [ ] (candidate) `formatRemediationFactoryPercentDisplay` — value exactly 1.0 fraction branch — locus: `value <= 1`; monitor; pass-3 reseed.
-- [ ] (candidate) `attackPathReportPathChipOverflowLine` — single long id among short ids — locus: honesty `.some`; monitor; pass-3 reseed.
-- [ ] (candidate) `remediationFactoryHrefFromSearch` — unrelated query param preservation — locus: operator href builder; monitor; pass-3 reseed.
-
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/governance` (nominate gap — app route zone did not cover lib URL helpers). Seeded five `(hunt-ready)` rows on findings queue URL builders; no production change.
 
 ### Hypotheses
@@ -389,6 +381,9 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). **Proven** `parseRemediationFactoryUrlStateFromSearch` treated `remediationFactoryMetricsOpen=yes` and `on` as closed while other operator boolean URL parsers accept those tokens — `parseRemediationFactoryMetricsSummaryOpen` now aligns with `1`/`true`/`yes`/`on`; regressions `treats yes and on metrics disclosure tokens as open on read`. Cheap-disproof on pass-2 `(candidate)` monitors — **valid-no-repro** stale metrics delete on close (`drops stale metrics disclosure param when toggling closed`), **valid-no-repro** `NaN%` percent chips (monitor), **valid-no-repro** whitespace-only path chip, **valid-no-repro** loaded without metrics payload. Scoped vitest **86/86** (`remediation-factory`). Pass-3 reseed below. Private beta: shared remediation-factory URLs with `yes`/`on` metrics disclosure restore open state.
+
+
 2026-11-24 thorough hunt #2 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on eight open `(candidate)` rows — **valid-no-repro** metrics flag parse (`trim().toLowerCase()` accepts padded `true`/`1`; no failing repro for `TRUE` with spaces), **valid-no-repro** `remediationFactoryHrefFromSearch` misuse (disclosure-only empty `mutate`; monitor), **valid-no-repro** negative percent display (`formatRemediationFactoryPercentPoints` on executive tiles; lineage caller guards non-finite before `formatRemediationFactoryPercentDisplay`), **valid-no-repro** short path chip labels (`formatAttackPathReportPathChipLabel` returns trimmed ids <=28 chars; honesty regressions in round-63/74), **valid-no-repro** duplicate stub monitors (same four themes as detailed rows). Scoped vitest **12/12** (`remediation-factory` **8/8**, `governance-lineage-metric-format` **4/4**). Reseeded five pass-2 `(candidate)` monitors below. Private beta: n/a.
 
 
@@ -411,11 +406,21 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 - [x] (superseded) post-#1 `(candidate)` queue (eight rows) — **superseded 2026-11-24 thorough hunt #2 (dry):** closed at zone header; see pass-2 reseed.
 
-- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — `yes`/`on` metrics open tokens may disagree with writer `1` — locus: boolean parse; input: `remediationFactoryMetricsOpen=yes`; monitor; pass-2 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — stale metrics param when toggling open off with foreign query — locus: delete on false; input: base search retains param; monitor; pass-2 reseed.
-- [ ] (candidate) `formatRemediationFactoryPercentPoints` — non-finite percent may render `NaN%` — locus: Math.round; input: NaN; wrong outcome: literal NaN chip; reachability: misuse without lineage guard (monitor).
-- [ ] (candidate) `formatAttackPathReportPathChipLabel` — whitespace-only path id may render empty chip — locus: trim; input: `   `; monitor; pass-2 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — undefined metrics with loaded flag true — locus: tile builder; input: loaded without payload; monitor; pass-2 reseed.
+- [x] (fixed) `parseRemediationFactoryUrlStateFromSearch` — `yes`/`on` metrics open tokens — **proven 2026-11-25 seed hunt (seed→hit):** `parseRemediationFactoryMetricsSummaryOpen`; regression `treats yes and on metrics disclosure tokens as open on read`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — stale metrics param when toggling open off — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** regression `drops stale metrics disclosure param when toggling closed`.
+- [x] (valid-no-repro) `formatRemediationFactoryPercentPoints` — non-finite percent `NaN%` — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** monitor.
+- [x] (valid-no-repro) `formatAttackPathReportPathChipLabel` — whitespace-only path id — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** monitor.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — undefined metrics with loaded flag — **cheap-disproof 2026-11-25 seed hunt (seed→hit):** null cells; thorough #1.
+
+
+
+- [x] (superseded) pass-2 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** closed at zone header; see pass-3 reseed.
+
+- [ ] (candidate) `parseRemediationFactoryMetricsSummaryOpen` — padded `TRUE` token — locus: trim+lower; monitor; pass-3 reseed.
+- [ ] (candidate) `normalizeUuidQueryValue` — NBSP-only selection id — locus: ECMA trim; monitor; pass-3 reseed.
+- [ ] (candidate) `formatRemediationFactoryPercentDisplay` — value exactly 1.0 fraction branch — locus: `value <= 1`; monitor; pass-3 reseed.
+- [ ] (candidate) `attackPathReportPathChipOverflowLine` — single long id among short ids — locus: honesty `.some`; monitor; pass-3 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — unrelated query param preservation — locus: operator href builder; monitor; pass-3 reseed.
 
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/lib/remediation-factory`. Seeded five `(hunt-ready)` rows; no production change.
 
