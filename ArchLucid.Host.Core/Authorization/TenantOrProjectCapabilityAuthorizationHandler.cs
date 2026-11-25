@@ -147,6 +147,9 @@ public sealed class TenantOrProjectCapabilityAuthorizationHandler(
         ArchLucidRoles.Sponsor
     ];
 
+    internal static bool HasTenantExecuteRole(string role) =>
+        Array.IndexOf(JwtExecuteRoles, role) >= 0;
+
     private static readonly string[] JwtAdminRoles =
     [
         ArchLucidRoles.Admin,

@@ -27,15 +27,22 @@ public sealed class DapperRunExportBlobPushOutboxRepository(ISqlConnectionFactor
         Guid workspaceId,
         Guid projectId,
         string destinationSasUrl,
+        string requestedByActorKey,
+        Guid requestedByDirectoryUserId,
         CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(destinationSasUrl);
+        ArgumentException.ThrowIfNullOrWhiteSpace(requestedByActorKey);
+        if (requestedByDirectoryUserId == Guid.Empty)
+            throw new ArgumentException("Directory user ID is required.", nameof(requestedByDirectoryUserId));
 
         Guid outboxId = Guid.NewGuid();
         const string sql = """
                            INSERT INTO dbo.RunExportBlobPushOutbox
-                           (OutboxId, RunId, TenantId, WorkspaceId, ProjectId, DestinationSasUrl, CreatedUtc)
-                           VALUES (@OutboxId, @RunId, @TenantId, @WorkspaceId, @ProjectId, @DestinationSasUrl, SYSUTCDATETIME());
+                           (OutboxId, RunId, TenantId, WorkspaceId, ProjectId, DestinationSasUrl,
+                            RequestedByActorKey, RequestedByDirectoryUserId, CreatedUtc)
+                           VALUES (@OutboxId, @RunId, @TenantId, @WorkspaceId, @ProjectId, @DestinationSasUrl,
+                                   @RequestedByActorKey, @RequestedByDirectoryUserId, SYSUTCDATETIME());
                            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -49,7 +56,9 @@ public sealed class DapperRunExportBlobPushOutboxRepository(ISqlConnectionFactor
                     TenantId = tenantId,
                     WorkspaceId = workspaceId,
                     ProjectId = projectId,
-                    DestinationSasUrl = destinationSasUrl
+                    DestinationSasUrl = destinationSasUrl,
+                    RequestedByActorKey = requestedByActorKey,
+                    RequestedByDirectoryUserId = requestedByDirectoryUserId
                 },
                 cancellationToken: ct));
     }
@@ -70,6 +79,8 @@ public sealed class DapperRunExportBlobPushOutboxRepository(ISqlConnectionFactor
                                FROM dbo.RunExportBlobPushOutbox WITH (READPAST, UPDLOCK, READCOMMITTEDLOCK)
                                WHERE ProcessedUtc IS NULL
                                  AND DeadLetteredUtc IS NULL
+                                 AND RequestedByActorKey IS NOT NULL
+                                 AND RequestedByDirectoryUserId IS NOT NULL
                                  AND (NextAttemptUtc IS NULL OR NextAttemptUtc <= SYSUTCDATETIME())
                                  AND (LockedUntilUtc IS NULL OR LockedUntilUtc <= SYSUTCDATETIME())
                                ORDER BY CreatedUtc ASC, OutboxId ASC)
@@ -81,6 +92,8 @@ public sealed class DapperRunExportBlobPushOutboxRepository(ISqlConnectionFactor
                                   inserted.WorkspaceId,
                                   inserted.ProjectId,
                                   inserted.DestinationSasUrl,
+                                  inserted.RequestedByActorKey,
+                                  inserted.RequestedByDirectoryUserId,
                                   inserted.CreatedUtc,
                                   inserted.AttemptCount,
                                   inserted.LockedUntilUtc,

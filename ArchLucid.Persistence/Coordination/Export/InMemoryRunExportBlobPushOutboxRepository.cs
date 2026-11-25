@@ -55,6 +55,10 @@ public sealed class InMemoryRunExportBlobPushOutboxRepository : IRunExportBlobPu
             init;
         }
 
+        public required string RequestedByActorKey { get; init; }
+
+        public required Guid RequestedByDirectoryUserId { get; init; }
+
         public DateTime CreatedUtc
         {
             get;
@@ -109,9 +113,14 @@ public sealed class InMemoryRunExportBlobPushOutboxRepository : IRunExportBlobPu
         Guid workspaceId,
         Guid projectId,
         string destinationSasUrl,
+        string requestedByActorKey,
+        Guid requestedByDirectoryUserId,
         CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(destinationSasUrl);
+        ArgumentException.ThrowIfNullOrWhiteSpace(requestedByActorKey);
+        if (requestedByDirectoryUserId == Guid.Empty)
+            throw new ArgumentException("Directory user ID is required.", nameof(requestedByDirectoryUserId));
         ct.ThrowIfCancellationRequested();
 
         Stored entry = new()
@@ -122,6 +131,8 @@ public sealed class InMemoryRunExportBlobPushOutboxRepository : IRunExportBlobPu
             WorkspaceId = workspaceId,
             ProjectId = projectId,
             DestinationSasUrl = destinationSasUrl,
+            RequestedByActorKey = requestedByActorKey,
+            RequestedByDirectoryUserId = requestedByDirectoryUserId,
             CreatedUtc = _utcNow()
         };
 
@@ -271,6 +282,8 @@ public sealed class InMemoryRunExportBlobPushOutboxRepository : IRunExportBlobPu
             WorkspaceId = row.WorkspaceId,
             ProjectId = row.ProjectId,
             DestinationSasUrl = row.DestinationSasUrl,
+            RequestedByActorKey = row.RequestedByActorKey,
+            RequestedByDirectoryUserId = row.RequestedByDirectoryUserId,
             CreatedUtc = row.CreatedUtc,
             AttemptCount = row.AttemptCount,
             LockedUntilUtc = row.LockedUntilUtc,
