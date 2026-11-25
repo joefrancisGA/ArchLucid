@@ -8,4 +8,7 @@ public sealed record HostedAzureArmDiagnosticSettingRecord(
     string Name,
     string? WorkspaceId,
     string? StorageAccountId,
-    string? EventHubAuthorizationRuleId);
+    string? EventHubAuthorizationRuleId)
+{
+    public IReadOnlyList<ArchLucid.Core.AzureExtractor.AzureInventoryDiagnosticLogCategory>? Logs { get; init; }
+}

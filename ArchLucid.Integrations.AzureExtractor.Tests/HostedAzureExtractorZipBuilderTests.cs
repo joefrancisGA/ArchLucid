@@ -229,6 +229,34 @@ public sealed class HostedAzureExtractorZipBuilderTests
     }
 
     [Fact]
+    public void BuildZip_preserves_diagnostic_log_categories_and_enabled_states()
+    {
+        byte[] bytes = HostedAzureExtractorZipBuilder.BuildZip(
+            "11111111-1111-1111-1111-111111111111",
+            [], false, DateTimeOffset.UtcNow,
+            diagnosticSettings:
+            [
+                new HostedAzureArmDiagnosticSettingRecord(
+                    "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventGrid/topics/topic",
+                    "diag", "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/ws", null, null)
+                {
+                    Logs = [new("DeliveryFailures", null, true), new("PublishFailures", null, false)],
+                },
+            ]);
+        using MemoryStream stream = new(bytes);
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+        using Stream entry = archive.GetEntry(AzureExtractorPackageZipEntryNames.DiagnosticSettings)!.Open();
+        using JsonDocument document = JsonDocument.Parse(entry);
+        var logs = AzureInventoryDiagnosticLogCategory.Read(document.RootElement[0]);
+        Assert.NotNull(logs);
+        Assert.Equal(2, logs!.Count);
+        Assert.Equal("DeliveryFailures", logs[0].Category);
+        Assert.True(logs[0].Enabled);
+        Assert.Equal("PublishFailures", logs[1].Category);
+        Assert.False(logs[1].Enabled);
+    }
+
+    [Fact]
     public void BuildZip_writes_policy_and_diagnostic_companion_entries()
     {
         byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(

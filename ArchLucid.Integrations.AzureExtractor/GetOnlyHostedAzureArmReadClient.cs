@@ -1364,19 +1364,15 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         string? storageAccountId = TryGetStringValue(propertiesElement, "storageAccountId");
         string? eventHubAuthorizationRuleId = TryGetStringValue(propertiesElement, "eventHubAuthorizationRuleId");
 
-        if (string.IsNullOrWhiteSpace(workspaceId)
-            && string.IsNullOrWhiteSpace(storageAccountId)
-            && string.IsNullOrWhiteSpace(eventHubAuthorizationRuleId))
-        {
-            return null;
-        }
-
         return new HostedAzureArmDiagnosticSettingRecord(
             targetResourceId.Trim(),
             name.Trim(),
             string.IsNullOrWhiteSpace(workspaceId) ? null : workspaceId.Trim(),
             string.IsNullOrWhiteSpace(storageAccountId) ? null : storageAccountId.Trim(),
-            string.IsNullOrWhiteSpace(eventHubAuthorizationRuleId) ? null : eventHubAuthorizationRuleId.Trim());
+            string.IsNullOrWhiteSpace(eventHubAuthorizationRuleId) ? null : eventHubAuthorizationRuleId.Trim())
+        {
+            Logs = AzureInventoryDiagnosticLogCategory.Read(propertiesElement),
+        };
     }
 
     public async Task<IReadOnlyList<HostedAzureArmFederatedCredentialRecord>> ListFederatedCredentialsAsync(
