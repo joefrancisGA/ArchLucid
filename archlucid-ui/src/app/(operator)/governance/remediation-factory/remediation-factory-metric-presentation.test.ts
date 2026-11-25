@@ -229,6 +229,45 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "open-findings-factory")?.ruleLine).toBeUndefined();
   });
 
+
+  it("omits open-findings-factory compare footnote when open findings count is not returned", () => {
+    const metrics = { automationPercent: 10 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "open-findings-factory")?.value).toBeNull();
+    expect(tiles.find((tile) => tile.id === "open-findings-factory")?.valueFootnote).toBeNull();
+  });
+
+  it("keeps open-findings-factory compare footnote when open findings count is zero", () => {
+    const metrics = { openFindings: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "open-findings-factory")?.value).toBe("0");
+    expect(tiles.find((tile) => tile.id === "open-findings-factory")?.valueFootnote).toContain(
+      "compare to queue",
+    );
+  });
+
+  it("shows critical-exposure table hint when API sends count as a numeric string zero", () => {
+    const metrics = { criticalExposureCount: "0" as unknown as number } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics,
+      openFindingsHref: "/security/findings",
+    });
+
+    expect(tiles.find((tile) => tile.key === "critical-exposure")?.presentation.displayValue).toBe("0");
+    expect(tiles.find((tile) => tile.key === "critical-exposure")?.hint).toContain(
+      "No critical-or-error findings",
+    );
+  });
+
+  it("omits net-burn weekly footnote when weekly counts are present but net burn is not returned", () => {
+    const metrics = { createdThisWeek: 2, remediatedThisWeek: 1 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "net-burn")?.value).toBeNull();
+    expect(tiles.find((tile) => tile.id === "net-burn")?.valueFootnote).toBeNull();
+  });
   it("omits open-findings-factory footnote when metrics are unloaded", () => {
     const metrics = { openFindings: 3 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, false);

@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 `ui-lib-remediation-factory` pass-33 critical-exposure zero footnote vs numeric string. **176/176**. — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-infra-resource-hub` pass-496 cheap-disproof. ResourceHubClient **148/148**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 `ui-lib-remediation-factory` pass-34 open-findings factory compare footnote. **182/182**. — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-infra-resource-hub` pass-496 cheap-disproof. ResourceHubClient **148/148**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -381,6 +381,23 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 thorough hunt (hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-34 (`shouldRotate: false`; hint override). **proven** `buildRemediationFactoryExecutiveMetricTiles` — open-findings factory tile kept the queue-compare footnote whenever metrics were loaded even when `openFindings` was not returned, so operators saw compare guidance beside a `Not returned` value; gate the footnote on a measured factory count. Regressions `omits open-findings-factory compare footnote when open findings count is not returned`, `keeps open-findings-factory compare footnote when open findings count is zero`. **valid-no-repro** critical table hint for numeric-string zero (regression added), **valid-no-repro** net-burn footnote when weekly present but netBurn absent (regression added), **valid-no-repro** mixed-case Yes metrics parse (regression added), **valid-no-repro** metrics open canonicalizes padded yes (regression added). Pass-35 reseed below. Scoped vitest **182/182**. Private beta: invited operators no longer see factory-vs-queue compare footnotes on the open findings factory tile when the API omitted that count.
+
+- [x] (superseded) pass-34 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (hit):** pass-35 reseed.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — open-findings factory compare footnote without count — **proven 2026-11-25 thorough hunt (hit):** regressions cited in hunt note.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricPresentations` — critical table hint when count is numeric string zero — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression added.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — net-burn footnote when weekly integers present but netBurn absent — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression added.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — open-findings factory footnote when count is zero — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression added.
+- [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — mixed-case Yes token on read — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression added.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open canonicalizes padded base yes to 1 — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression added.
+
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — critical table hint when presentation not measured but raw count is zero — locus: table hints; input: falsy zero; monitor; pass-35 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — open-findings queue tile footnote when count absent — locus: queue vs factory; input: missing openFindings; monitor; pass-35 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — exceptions footnote when active count zero — locus: tile footnote; input: exceptionsActive 0; monitor; pass-35 reseed.
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — leading-zero one metrics token on read — locus: metrics parse; input: `01`; monitor; pass-35 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded true from base — locus: writer; input: padded true; monitor; pass-35 reseed.
+
+
 2026-11-25 thorough hunt (hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-33 (`shouldRotate: false`; hint override). **proven** `buildRemediationFactoryExecutiveMetricTiles` — critical-exposure zero footnote used raw `criticalExposureCount === 0` while the tile value used `formatCount`, so numeric-string `"0"` rendered `0` without the zero-findings footnote; gate footnote on displayed value `=== "0"`. Regression `shows critical-exposure zero footnote when API sends count as a numeric string`. **valid-no-repro** critical footnote vs fractional 0.4 (existing regression), **valid-no-repro** exceptions table hint when expiringSoon is -0, **valid-no-repro** net-burn tile value when only netBurn returned (regression added), **valid-no-repro** automation table percent above 100 (regression added), **valid-no-repro** metrics closed drops padded `on` from base (regression added). Pass-34 reseed below. Scoped vitest **176/176**. Private beta: invited operators see the critical-exposure zero-findings footnote whenever the tile shows a measured zero count, including when the API returns zero as a numeric string.
 
 - [x] (superseded) pass-33 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (hit):** pass-34 reseed.
@@ -391,11 +408,6 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (valid-no-repro) `remediationFactoryPercentMetricPresentation` — automation percent above 100 — **cheap-disproof 2026-11-25 thorough hunt (hit):** points-scale contract; regression added.
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics closed drops padded on from base — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression added.
 
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — critical table hint when count is numeric string zero — locus: table hints; input: `"0"` count; monitor; pass-34 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — net-burn footnote when weekly integers present but netBurn absent — locus: tile footnote; input: weekly only; monitor; pass-34 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — open-findings factory footnote when count is zero — locus: compare footnote; input: openFindings 0; monitor; pass-34 reseed.
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — mixed-case Yes token on read — locus: metrics parse; input: `YeS`; monitor; pass-34 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open canonicalizes padded base yes to 1 — locus: writer; input: padded yes; monitor; pass-34 reseed.
 
 
 2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-32 (`shouldRotate: false`; hint override). **proven** `netBurnWeeklyFootnoteWhenLoaded` — weekly Created/Remediated footnote still appeared when it disagreed with the displayed net-burn tile (e.g. Created 5 / Remediated 3 beside net burn 0); require `created - remediated === netBurn` before composing the footnote. Regression `omits net-burn footnote when weekly counts disagree with net burn`. **valid-no-repro** critical -0 zero footnote, **valid-no-repro** Infinity expiring table hint, **valid-no-repro** fractional created with zero net burn footnote, **valid-no-repro** negative average age table, **valid-no-repro** padded ON metrics parse. Pass-33 reseed below. Scoped vitest **172/172**. Private beta: invited operators no longer see weekly opened/closed counts that contradict the net-burn tile value.
@@ -767,8 +779,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 55
-- **bugs-found:** 32
+- **hunts:** 56
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25

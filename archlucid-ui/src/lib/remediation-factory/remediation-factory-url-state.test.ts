@@ -84,6 +84,29 @@ describe("remediation-factory-url-state", () => {
 
     expect(params.get(REMEDIATION_FACTORY_SELECTED_FINDING_PARAM)).toBeNull();
   });
+  it("treats mixed-case YES metrics disclosure token as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=YeS`,
+      ).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("canonicalizes padded yes metrics token to 1 when writing open state", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: true,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=  yes  &foreign=keep`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
+    expect(params.get("foreign")).toBe("keep");
+  });
   it("treats yes and on metrics disclosure tokens as open on read", () => {
     expect(parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=yes`).metricsSummaryOpen).toBe(true);
     expect(parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=on`).metricsSummaryOpen).toBe(true);

@@ -137,6 +137,7 @@ export function buildRemediationFactoryExecutiveMetricTiles(
   }
 
   const criticalExposureValue = formatCount(metrics?.criticalExposureCount);
+  const openFindingsFactoryValue = formatCount(metrics?.openFindings);
 
   return [
     {
@@ -154,10 +155,11 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       label: "Open findings (factory metrics)",
       scopeLine: scopeLineWhenLoaded(WORKSPACE_SCOPE),
       ruleLine: metricsLoaded ? PRIORITIZATION_RULE : undefined,
-      valueFootnote: metricsLoaded
-        ? "Factory metrics API count — compare to queue only when both are loaded."
-        : null,
-      value: formatCount(metrics?.openFindings),
+      valueFootnote:
+        metricsLoaded && openFindingsFactoryValue !== null
+          ? "Factory metrics API count — compare to queue only when both are loaded."
+          : null,
+      value: openFindingsFactoryValue,
     },
     {
       id: "risk-weighted-open",
