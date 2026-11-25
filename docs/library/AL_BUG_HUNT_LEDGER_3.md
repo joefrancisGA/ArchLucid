@@ -380,6 +380,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 thorough hunt (dry): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-45 (`shouldRotate: false`; hint override). Attempted failing repro on five pass-45 `(candidate)` monitors — **valid-no-repro** recurrence, exceptions-active, and open-findings-queue `scopeLine` at measured zero; **valid-no-repro** critical-exposure `href` at zero; **valid-no-repro** avg-age `scopeLine` at zero. Regressions added. Pass-46 reseed below. Scoped vitest **234/234**.
+
 2026-11-25 thorough hunt (hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-41 (`shouldRotate: false`; hint override). **proven** `buildRemediationFactoryExecutiveMetricTiles` — exceptions-active tile still showed snapshot `windowLine` without a measured active count; **proven** open-findings factory tile still showed workspace `scopeLine` beside a not-returned count; **proven** critical-exposure tile still linked to the critical-error queue when the count was not returned. **valid-no-repro** metrics close drops padded `1` (existing regression), **valid-no-repro** net-burn weekly footnote without net burn (existing regression). Pass-42 reseed below. Scoped vitest **214/214**. Private beta: invited operators no longer see snapshot window copy, workspace scope chrome, or a queue deep link on factory metric tiles when the underlying count is not measured.
 
 2026-11-25 thorough hunt (hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-40 (`shouldRotate: false`; hint override). **proven** `buildRemediationFactoryExecutiveMetricTiles` — automation, critical-exposure, recurrence, and net-burn tiles still showed population or window `windowLine` chrome when the underlying metric was not returned; gate each `windowLine` on its measured formatter output (same class as pass-39 queue/pattern fixes). **valid-no-repro** metrics open replaces stale `0` token (regression `replaces zero metrics token with canonical one when writing open state`). Regressions added for all four tiles. Pass-41 reseed below. Scoped vitest **211/211**. Private beta: invited operators no longer see 7-day window or population helper copy on executive metric tiles when the API omitted that metric value.
@@ -437,11 +439,18 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps pattern-exact scopeLine when percent is zero — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression added.
 - [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps automation scopeLine when percent is zero — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression added.
 
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps recurrence scopeLine when count is zero — locus: tile chrome; input: recurrenceCount 0; monitor; pass-45 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps exceptions-active scopeLine when count is zero — locus: tile chrome; input: exceptionsActive 0; monitor; pass-45 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps open-findings-queue scopeLine when count is zero — locus: tile chrome; input: openFindings 0; monitor; pass-45 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps critical-exposure href when count is zero — locus: tile link; input: criticalExposureCount 0; monitor; pass-45 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps avg-age scopeLine when value is zero — locus: tile chrome; input: averageAgeDays 0; monitor; pass-45 reseed.
+- [x] (superseded) pass-45 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (dry):** pass-46 reseed.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps recurrence scopeLine when count is zero — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression added.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps exceptions-active scopeLine when count is zero — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression added.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps open-findings-queue scopeLine when count is zero — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression added.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps critical-exposure href when count is zero — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression added.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — keeps avg-age scopeLine when value is zero — **cheap-disproof 2026-11-25 thorough hunt (dry):** regression added.
+
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps open-findings-queue windowLine when count is zero — locus: tile chrome; input: openFindings 0; monitor; pass-46 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps exceptions-active windowLine when count is zero — locus: tile chrome; input: exceptionsActive 0; monitor; pass-46 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps recurrence windowLine when count is zero — locus: tile chrome; input: recurrenceCount 0; monitor; pass-46 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps critical-exposure windowLine when count is zero — locus: tile chrome; input: criticalExposureCount 0; monitor; pass-46 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — keeps net-burn windowLine when net burn is zero — locus: tile chrome; input: netBurn 0; monitor; pass-46 reseed.
 
 
 
@@ -875,9 +884,9 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 66
+- **hunts:** 67
 - **bugs-found:** 57
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
 - **related-pd-tb:** none

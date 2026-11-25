@@ -391,6 +391,42 @@ describe("remediation-factory-metric-presentation", () => {
 
     expect(tiles.find((tile) => tile.id === "automation")?.scopeLine).toBeDefined();
   });
+
+  it("keeps recurrence scopeLine when count is zero", () => {
+    const metrics = { recurrenceCount: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "recurrence")?.scopeLine).toBeDefined();
+  });
+
+  it("keeps exceptions-active scopeLine when count is zero", () => {
+    const metrics = { exceptionsActive: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "exceptions-active")?.scopeLine).toBeDefined();
+  });
+
+  it("keeps open-findings-queue scopeLine when count is zero", () => {
+    const metrics = { openFindings: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "open-findings-queue")?.scopeLine).toBeDefined();
+  });
+
+  it("keeps critical-exposure href when count is zero", () => {
+    const metrics = { criticalExposureCount: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "critical-exposure")?.href).toBeDefined();
+  });
+
+  it("keeps avg-age scopeLine when value is zero", () => {
+    const metrics = { averageAgeDays: 0 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "avg-age")?.scopeLine).toBeDefined();
+  });
+
   it("omits open-findings-queue href when count is not returned", () => {
     const metrics = { automationPercent: 5 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
