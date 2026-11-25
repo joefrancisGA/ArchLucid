@@ -20,6 +20,9 @@ describe("SpecialtyTemplatePreviewDialog", () => {
     render(<SpecialtyTemplatePreviewDialog preview={{ template }} onClose={vi.fn()} />);
 
     const dialog = screen.getByTestId("specialty-template-preview-dialog");
+    expect(within(dialog).getByTestId("specialty-template-preview-fixture-line")).toHaveTextContent(
+      /illustrative template fields only/i,
+    );
     expect(within(dialog).getByTestId("specialty-template-preview-summary")).toHaveTextContent(/Best for:/i);
     expect(within(dialog).getByTestId("specialty-template-preview-summary")).toHaveTextContent(/Focus areas:/i);
     expect(within(dialog).getByTestId("specialty-template-preview-close")).toHaveTextContent(

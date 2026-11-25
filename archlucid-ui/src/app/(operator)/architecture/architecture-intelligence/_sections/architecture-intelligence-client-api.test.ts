@@ -152,6 +152,11 @@ describe("architecture-intelligence-client-api", () => {
       ]),
     ).toBe(true);
   });
+
+  it("blocks hydrated analysis after source loading fails even if intake data is still present", () => {
+    expect(canAnalyzeHydratedReviewFromIntake("failed", "run-1", "Earlier architecture brief.", [])).toBe(false);
+  });
+
   it("requiresArchitectureDescriptionForMutation is true when textarea and hydrated rows are blank", () => {
     expect(
       requiresArchitectureDescriptionForMutation("  ", [

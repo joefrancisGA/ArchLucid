@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SPECIALTY_REVIEW_TEMPLATES_PREVIEW_FIXTURE_LINE } from "@/lib/help/specialty-template-preview-fixture-copy";
 import {
   SPECIALTY_REVIEW_TEMPLATES_PREVIEW_CLOSE_LABEL,
   SPECIALTY_REVIEW_TEMPLATES_PREVIEW_DISCLAIMER,

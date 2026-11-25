@@ -9,6 +9,7 @@ import {
   GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_STEPS,
   GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_TITLE,
   buildGoldenSponsorPackageWalkthroughHref,
+  buildGoldenSponsorPackageWalkthroughStepHref,
 } from "@/lib/golden-sponsor-package-walkthrough";
 import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { GoldenSponsorPackageWalkthroughPartialCaptureStrip } from "@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughPartialCaptureStrip";

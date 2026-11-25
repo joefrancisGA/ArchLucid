@@ -112,9 +112,10 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { isAuthorityLoading, currentPrincipal, retryAuthorityLoad } = useOperatorNavAuthority();
   const authorityLoadFailure = isOperatorAuthorityMeLoadFailure(currentPrincipal);
-  const productLine = useProductLine();
-  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNowProductLine(productLine));
-  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
+  const { productLine } = useProductLine();
+  const isSecureNow = isSecureNowProductLine(productLine);
+  const partialCapture = useLatestSnapshotCaptureIsPartial(isSecureNow);
+  const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(isSecureNow && partialCapture);
   const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
   const capabilityCanExecute = useOperateCapability();
   const canExecute = buyerPolishedShell ? true : capabilityCanExecute;
@@ -319,7 +320,7 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
       ) : null}
       <HelpTopicHashScroll />
 
-      {isSecureNowProductLine(productLine) && partialCapture ? (
+      {isSecureNow && partialCapture ? (
         <SecureNowPartialCaptureRecoveryParagraph
           testId="help-specialty-walkthroughs-partial-capture"
           partialCaptureSnapshotId={partialCaptureSnapshotId}

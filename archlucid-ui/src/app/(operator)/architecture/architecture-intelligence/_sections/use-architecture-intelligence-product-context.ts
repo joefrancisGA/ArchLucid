@@ -28,6 +28,7 @@ import {
   canAnalyzeHydratedReviewFromIntake,
   hasUsableArchitectureSourceText,
   primaryDescriptionFromSources,
+  type ArchitectureIntelligenceProductContextStatus,
 } from "./architecture-intelligence-client-api";
 import { architectureIntelligenceErrorToLoadFailure, shouldClearIntakeWhenInboundRunIdDropped } from "./architecture-intelligence-page-helpers";
 import { architectureIntelligenceSourceContextBlockedReason } from "@/lib/architecture/architecture-intelligence-source-context-blocked-reason";
@@ -47,8 +48,6 @@ export type ArchitectureIntelligenceLoadingAction =
   | "publish"
   | "product-context"
   | null;
-
-type ProductContextStatus = "idle" | "loading" | "loaded" | "empty" | "error";
 
 export { hasUsableArchitectureSourceText } from "./architecture-intelligence-client-api";
 
@@ -138,7 +137,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
   const [interviewAnswers, setInterviewAnswers] = useState<Record<string, string>>({});
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
   const [hydratedSourceTexts, setHydratedSourceTexts] = useState<ClosedLoopReasoningSourceText[]>([]);
-  const [productContextStatus, setProductContextStatus] = useState<ProductContextStatus>("idle");
+  const [productContextStatus, setProductContextStatus] = useState<ArchitectureIntelligenceProductContextStatus>("idle");
   const [publishToProduct, setPublishToProduct] = useState(false);
   const urlReviewTier = parseArchitectureIntelligenceTierFromSearch(searchParams.get("tier"));
   const [reviewTier, setReviewTier] = useState<ArchitectureIntelligenceReviewTier>(urlReviewTier ?? "Standard");
@@ -428,7 +427,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
     }
 
     if (sourceContextQuery.isError) {
-      setProductContextStatus("error");
+      setProductContextStatus("failed");
       setLoadingAction(null);
       setError(
         sourceContextQuery.blockedReason ??
@@ -446,7 +445,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
   ]);
 
   const loadingInboundContext = inboundRunId.length > 0 && productContextStatus === "loading";
-  const productContextLoadFailed = inboundRunId.length > 0 && productContextStatus === "error";
+  const productContextLoadFailed = inboundRunId.length > 0 && productContextStatus === "failed";
   const showIntakeForm = !loadingInboundContext;
 
   const productContextLoadFailure =
@@ -460,7 +459,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
   const showProductContextSkeleton = loadingInboundContext;
 
   const showReasoningWorkspace =
-    inboundRunId.length === 0 || (productContextStatus !== "loading" && productContextStatus !== "error");
+    inboundRunId.length === 0 || (productContextStatus !== "loading" && productContextStatus !== "failed");
 
   const inboundContextLine = useMemo(() => {
     if (inboundRunId.length === 0) {
@@ -513,7 +512,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
         : `Opened for run ${inboundRunId} with no architecture intake — paste a description or use the golden fixture.`;
     }
 
-    if (productContextStatus === "error") {
+    if (productContextStatus === "failed") {
       if (inboundFrom === "findings") {
         return buyerPolishedShell
           ? "Opened from the findings queue for this review. Load failed or empty — paste a description or use the golden fixture."

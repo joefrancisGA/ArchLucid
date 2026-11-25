@@ -174,6 +174,7 @@ describe("DriftWorkbenchClient buyer-polished chrome", () => {
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
     expect(await screen.findByRole("table", { name: "Inventory snapshots" })).toBeInTheDocument();
     expect(await screen.findByTestId("infra-drift-export-terraform")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-drift-second-capture-path-delta")).toBeInTheDocument();
     expect(await screen.findByTestId("securenow-drift-post-capture-next-step")).toBeInTheDocument();
   });
 

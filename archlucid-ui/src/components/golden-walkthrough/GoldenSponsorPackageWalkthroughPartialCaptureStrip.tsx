@@ -9,12 +9,12 @@ import { GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PARTIAL_CAPTURE_LINE } from "@/lib/g
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 export function GoldenSponsorPackageWalkthroughPartialCaptureStrip(): React.JSX.Element | null {
-  const productLine = useProductLine();
+  const { productLine } = useProductLine();
 
-  if (!isSecureNowProductLine(productLine)) {
-    return null;
-  }
+  return isSecureNowProductLine(productLine) ? <SecureNowGoldenPartialCaptureStrip /> : null;
+}
 
+function SecureNowGoldenPartialCaptureStrip(): React.JSX.Element | null {
   const partialCapture = useLatestSnapshotCaptureIsPartial(true);
   const partialCaptureSnapshotId = useLatestPartialCaptureSnapshotId(partialCapture);
   const partialCaptureReturnPath = useSecureNowPartialCaptureReturnPath();
