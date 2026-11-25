@@ -60,7 +60,8 @@ public sealed class InfraEvidenceAskGroundingServiceTests
             Mock.Of<IArchitectureDiagramReconciliationRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
-            NullLogger<InfraEvidenceAskGroundingService>.Instance);
+            NullLogger<InfraEvidenceAskGroundingService>.Instance,
+            Mock.Of<IAzureInventorySnapshotRepository>());
 
         InfraEvidenceAskGroundingResult result = await service.TryAnswerAsync(
             new ScopeContext(),
@@ -110,7 +111,8 @@ public sealed class InfraEvidenceAskGroundingServiceTests
             Mock.Of<IArchitectureDiagramReconciliationRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
-            NullLogger<InfraEvidenceAskGroundingService>.Instance);
+            NullLogger<InfraEvidenceAskGroundingService>.Instance,
+            Mock.Of<IAzureInventorySnapshotRepository>());
 
         InfraEvidenceAskGroundingResult result = await service.TryAnswerAsync(
             new ScopeContext(),
@@ -171,7 +173,8 @@ public sealed class InfraEvidenceAskGroundingServiceTests
             Mock.Of<IArchitectureDiagramReconciliationRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
-            NullLogger<InfraEvidenceAskGroundingService>.Instance);
+            NullLogger<InfraEvidenceAskGroundingService>.Instance,
+            Mock.Of<IAzureInventorySnapshotRepository>());
 
         InfraEvidenceAskGroundingResult result = await service.TryAnswerAsync(
             new ScopeContext(),
@@ -368,7 +371,8 @@ public sealed class InfraEvidenceAskGroundingServiceTests
             Mock.Of<IArchitectureDiagramReconciliationRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
-            NullLogger<InfraEvidenceAskGroundingService>.Instance);
+            NullLogger<InfraEvidenceAskGroundingService>.Instance,
+            Mock.Of<IAzureInventorySnapshotRepository>());
 
         InfraEvidenceAskGroundingResult result = await service.TryAnswerAsync(
             new ScopeContext(),
@@ -432,7 +436,8 @@ public sealed class InfraEvidenceAskGroundingServiceTests
             Mock.Of<IArchitectureDiagramReconciliationRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
-            NullLogger<InfraEvidenceAskGroundingService>.Instance);
+            NullLogger<InfraEvidenceAskGroundingService>.Instance,
+            Mock.Of<IAzureInventorySnapshotRepository>());
 
         InfraEvidenceAskGroundingResult result = await service.TryAnswerAsync(
             new ScopeContext(),
@@ -487,7 +492,8 @@ public sealed class InfraEvidenceAskGroundingServiceTests
             Mock.Of<IArchitectureDiagramReconciliationRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
-            NullLogger<InfraEvidenceAskGroundingService>.Instance);
+            NullLogger<InfraEvidenceAskGroundingService>.Instance,
+            Mock.Of<IAzureInventorySnapshotRepository>());
 
         InfraEvidenceAskGroundingResult result = await service.TryAnswerAsync(
             new ScopeContext(),
@@ -513,6 +519,7 @@ public sealed class InfraEvidenceAskGroundingServiceTests
             Mock.Of<IArchitectureDiagramReconciliationRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
-            NullLogger<InfraEvidenceAskGroundingService>.Instance);
+            NullLogger<InfraEvidenceAskGroundingService>.Instance,
+            Mock.Of<IAzureInventorySnapshotRepository>());
     }
 }

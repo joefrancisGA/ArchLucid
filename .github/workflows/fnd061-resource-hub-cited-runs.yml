@@ -6,6 +6,11 @@ on:
     paths:
       - 'ArchLucid.Application/InfraEvidence/CloudResourceEvidenceHubService.cs'
       - 'ArchLucid.Application/InfraEvidence/InfraEvidenceDriftWorkbenchQueryService.cs'
+      - 'ArchLucid.Application/InfraEvidence/InfraEvidenceAskGroundingService.cs'
+      - 'ArchLucid.Application/InfraEvidence/InfraEvidenceAskSealedManifestHashGuard.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/InfraEvidenceAskGroundingServiceTests.cs'
+      - 'ArchLucid.Api.Tests/InfraEvidence/InfraEvidenceAskCitedRunHttpTests.cs'
+      - 'ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceAskController*.cs'
       - 'ArchLucid.Application.Tests/InfraEvidence/InfraEvidenceDriftWorkbenchQueryServiceTests.cs'
       - 'ArchLucid.Application/InfraEvidence/IInfraEvidenceRunReadAccess.cs'
       - 'ArchLucid.Application/InfraEvidence/Mermaid/InfraEvidenceSnapshotMermaidService.cs'
@@ -33,9 +38,9 @@ jobs:
           global-json-file: global.json
       - run: >-
           dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~RunScopedEvidenceHubHttpTests|FullyQualifiedName~DriftWorkbenchCitedRunHttpTests'
+          --filter 'FullyQualifiedName~RunScopedEvidenceHubHttpTests|FullyQualifiedName~DriftWorkbenchCitedRunHttpTests|FullyQualifiedName~InfraEvidenceAskCitedRunHttpTests'
           --logger 'console;verbosity=normal'
       - run: >-
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~InfraEvidenceDriftWorkbenchQueryServiceTests'
+          --filter 'FullyQualifiedName~InfraEvidenceDriftWorkbenchQueryServiceTests|FullyQualifiedName~InfraEvidenceAskGroundingServiceTests'
           --logger 'console;verbosity=normal'
