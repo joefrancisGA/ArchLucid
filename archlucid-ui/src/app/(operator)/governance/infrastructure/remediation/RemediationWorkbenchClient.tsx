@@ -34,6 +34,9 @@ import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlSc
 import type { CloudResourceAuditLineageMatch } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import { invalidateInfraEvidenceResourceHubCacheForResource } from "@/lib/infra-evidence/infra-evidence-resource-hub-cache";
 import { buildInfrastructureAskHandoffHref } from "@/lib/infra-evidence/infrastructure-ask-drawer-url";
+import { RemediationFactoryRankedPathAskHandoff } from "@/components/remediation-factory/RemediationFactoryRankedPathAskHandoff";
+import { REMEDIATION_WORKBENCH_RANKED_PATH_ASK_SCOPE_LINE } from "@/lib/infra-evidence/remediation-workbench-ranked-path-ask-handoff-copy";
+import { RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
   INFRA_REMEDIATION_FINDING_ID_DISCLOSURE_OPEN_PARAM,
@@ -353,6 +356,9 @@ export function RemediationWorkbenchClient() {
   );
   const urlStatus = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(REMEDIATION_WORKBENCH_STATUS_PARAM));
   const urlWaveId = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(REMEDIATION_WORKBENCH_WAVE_PARAM));
+  const urlSecurityEvidencePathId = parseInfraEvidenceWorkbenchQueryValue(
+    searchParams.get(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM),
+  );
 
   const [instances, setInstances] = useState<RemediationInstanceSummary[]>([]);
   const [selectedInstanceId, setSelectedInstanceId] = useState(urlInstanceId);
@@ -957,6 +963,17 @@ export function RemediationWorkbenchClient() {
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-workflow-honesty">
         {REMEDIATION_WORKBENCH_WORKFLOW_HONESTY_LINE}
       </p>
+
+      {urlSecurityEvidencePathId.length > 0 && (selectedSnapshotId.length > 0 || urlReconcileSnapshotId.length > 0) ? (
+        <RemediationFactoryRankedPathAskHandoff
+          testId="infra-remediation-ranked-path-ask-handoff"
+          snapshotId={selectedSnapshotId.length > 0 ? selectedSnapshotId : urlReconcileSnapshotId}
+          securityEvidencePathId={urlSecurityEvidencePathId}
+          disabled={partialCapture}
+          hubTab="remediation"
+          scopeLine={REMEDIATION_WORKBENCH_RANKED_PATH_ASK_SCOPE_LINE}
+        />
+      ) : null}
       {isSecureNowProductLine(productLine) ? <SecureNowRemediationWorkbenchPartialCaptureStrip /> : null}
 
       <RemediationWorkbenchContextStrip

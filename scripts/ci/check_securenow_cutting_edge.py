@@ -78,6 +78,10 @@ def validate(root: Path = ROOT) -> list[str]:
     if not drift_handoff.is_file():
         errors.append("drift RankedPath Ask handoff copy is missing")
 
+
+    resource_hub_handoff = root / "archlucid-ui/src/lib/infra-evidence/resource-hub-ranked-path-ask-handoff-copy.ts"
+    if not resource_hub_handoff.is_file():
+        errors.append("resource hub RankedPath Ask handoff copy is missing")
     return errors
 
 
