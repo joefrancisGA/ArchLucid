@@ -269,7 +269,7 @@ export function architectOutcomeDeltaScopeNote(input: {
 }): string {
   const normalizedDenominator = parseNonNegativeFiniteNumber(input.denominator);
 
-  if (normalizedDenominator === null) {
+  if (normalizedDenominator === null || !Number.isInteger(normalizedDenominator)) {
     return REVIEW_SCORECARD_NOT_MEASURED_LABEL;
   }
 
