@@ -25,7 +25,13 @@ public sealed partial class RunsController
                 _runDetailQueryService,
                 authorityQuery,
                 _manifestHashService,
-                cancellationToken);
+                cancellationToken,
+                canReadRun: async (runId, ct) =>
+                {
+                    (bool found, bool canRead) = await _architectureShareAccessGate
+                        .EvaluateRunReadAsync(User, scope, runId, ct);
+                    return found && canRead;
+                });
         }
         catch (ConflictException ex)
         {

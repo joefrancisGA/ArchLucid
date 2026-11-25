@@ -1,4 +1,7 @@
+using System.Security.Claims;
+
 using ArchLucid.Api.Controllers.Authority;
+using ArchLucid.Api.Support;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Validators;
 using ArchLucid.Api.ProblemDetails;
@@ -15,6 +18,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Runs.Query;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.TestSupport.SealedManifest;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Operations;
 using ArchLucid.Contracts.Agents;
@@ -28,6 +32,7 @@ using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
@@ -57,6 +62,140 @@ public sealed class RunsControllerTests
         TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
         WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
+    };
+
+    [Theory]
+    [InlineData("sync", null)]
+    [InlineData("batch", null)]
+    [InlineData("async", null)]
+    [InlineData("sync", true)]
+    [InlineData("batch", true)]
+    [InlineData("async", true)]
+    [InlineData("sync", false)]
+    [InlineData("batch", false)]
+    [InlineData("async", false)]
+    public async Task Create_routes_verify_only_a_readable_committed_seal(string route, bool? readableSealValid)
+    {
+        Guid deniedRun = Guid.NewGuid();
+        Guid missingRun = Guid.NewGuid();
+        Guid readableRun = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        using CancellationTokenSource cancellation = new();
+        CancellationToken ct = cancellation.Token;
+        List<RunSummary> summaries = [CommittedSummary(deniedRun), CommittedSummary(missingRun)];
+        if (readableSealValid is not null)
+            summaries.Add(CommittedSummary(readableRun));
+
+        Mock<IRunDetailQueryService> runDetails = new(MockBehavior.Strict);
+        runDetails.Setup(query => query.ListRunSummariesKeysetAsync(null, 50, ct))
+            .ReturnsAsync(((IReadOnlyList<RunSummary>)summaries, false, (string?)null));
+        Mock<IArchitectureShareAccessGate> shareGate = new(MockBehavior.Strict);
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        Mock<IRunLifecycleCommandService> lifecycle = new(MockBehavior.Strict);
+        Mock<IArchitectureRunAsyncOperationAcceptor> asyncAcceptor = new(MockBehavior.Strict);
+        RunsController controller = CreateController(
+            runLifecycleCommandService: lifecycle.Object,
+            shareGate: shareGate.Object,
+            runDetails: runDetails.Object,
+            authority: authority.Object);
+        ClaimsPrincipal principal = new(new ClaimsIdentity("test"));
+        controller.HttpContext.User = principal;
+
+        MockSequence sequence = new();
+        shareGate.InSequence(sequence).Setup(gate => gate.EvaluateRunReadAsync(principal, Scope, deniedRun, ct))
+            .ReturnsAsync((true, false));
+        shareGate.InSequence(sequence).Setup(gate => gate.EvaluateRunReadAsync(principal, Scope, missingRun, ct))
+            .ReturnsAsync((false, false));
+
+        if (readableSealValid is bool valid)
+        {
+            shareGate.InSequence(sequence).Setup(gate => gate.EvaluateRunReadAsync(principal, Scope, readableRun, ct))
+                .ReturnsAsync((true, true));
+            authority.InSequence(sequence).Setup(query => query.GetRunDetailForManifestCompareAsync(
+                    It.Is<ScopeContext>(s => s.TenantId == Scope.TenantId && s.WorkspaceId == Scope.WorkspaceId &&
+                        s.ProjectId == Scope.ProjectId),
+                    readableRun, ct))
+                .ReturnsAsync(new RunDetailDto
+                {
+                    Run = new RunRecord { RunId = readableRun, GoldenManifestId = manifestId },
+                    GoldenManifest = new ManifestDocument
+                    {
+                        RunId = readableRun,
+                        ManifestId = manifestId,
+                        ManifestHash = valid ? SealedManifestHashTestSupport.DefaultHash : "invalid",
+                    },
+                });
+        }
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = "seal-preflight-test",
+            SystemName = "CreatedArch",
+            Description = new string('x', 20),
+            WorkflowIntent = ArchitectureWorkflowIntent.CreateArchitecture,
+        };
+        ArchitectureRequest[] batch = [request];
+        string correlation = controller.HttpContext.TraceIdentifier;
+        if (readableSealValid is not false)
+        {
+            switch (route)
+            {
+                case "sync":
+                    lifecycle.InSequence(sequence).Setup(s => s.CreateRunAsync(Scope, request, null, ct))
+                        .ReturnsAsync(new CreateRunCommandResult
+                        {
+                            SynthesisResult = new ArchitectureSynthesisGenerateResult
+                            {
+                                RunId = Guid.NewGuid().ToString("N"),
+                                PackageOrigin = ArchitecturePackageOrigin.Created,
+                            },
+                        });
+                    break;
+                case "batch":
+                    lifecycle.InSequence(sequence).Setup(s => s.CreateRunBatchAsync(Scope, batch, null, correlation, ct))
+                        .ReturnsAsync(new BatchCreateRunOrchestrationResult
+                        {
+                            Outcome = BatchCreateRunOutcome.Accepted,
+                            Items = [],
+                        });
+                    break;
+                case "async":
+                    asyncAcceptor.InSequence(sequence).Setup(a =>
+                            a.AcceptCreateAsync(request, null, Scope, "operator@test", correlation, ct))
+                        .ReturnsAsync("run:seal-preflight-test");
+                    break;
+            }
+        }
+
+        IActionResult result = route switch
+        {
+            "sync" => await controller.CreateRun(request, ct),
+            "batch" => await controller.CreateRunBatch(batch, ct),
+            "async" => await controller.AcceptCreateRunAsync(request, asyncAcceptor.Object, ct),
+            _ => throw new ArgumentOutOfRangeException(nameof(route), route, null),
+        };
+
+        if (readableSealValid is false)
+        {
+            result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+            lifecycle.VerifyNoOtherCalls();
+            asyncAcceptor.VerifyNoOtherCalls();
+        }
+        else
+        {
+            int expected = route == "sync" ? StatusCodes.Status201Created : StatusCodes.Status202Accepted;
+            result.Should().BeAssignableTo<Microsoft.AspNetCore.Mvc.Infrastructure.IStatusCodeActionResult>()
+                .Which.StatusCode.Should().Be(expected);
+        }
+
+        shareGate.Invocations.Should().HaveCount(summaries.Count);
+        authority.Invocations.Should().HaveCount(readableSealValid is null ? 0 : 1);
+    }
+
+    private static RunSummary CommittedSummary(Guid runId) => new()
+    {
+        RunId = runId.ToString("N"),
+        Status = nameof(ArchitectureRunStatus.Committed),
     };
 
     [Fact]
@@ -2047,7 +2186,10 @@ public sealed class RunsControllerTests
         IRunLifecycleCommandService? runLifecycleCommandService = null,
         IRunRepository? runRepository = null,
         IAuditService? auditService = null,
-        IValidator<ArchitectureRequest>? architectureRequestValidator = null)
+        IValidator<ArchitectureRequest>? architectureRequestValidator = null,
+        IArchitectureShareAccessGate? shareGate = null,
+        IRunDetailQueryService? runDetails = null,
+        IAuthorityQueryService? authority = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -2064,15 +2206,16 @@ public sealed class RunsControllerTests
             scopeProvider.Object,
             actor.Object,
             auditService ?? Mock.Of<IAuditService>(),
-            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            authority ?? SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
             Mock.Of<IFindingFeedbackRepository>(),
             new FindingInstrumentationAuditSupport(
                 auditService ?? Mock.Of<IAuditService>(),
                 NullLogger<FindingInstrumentationAuditSupport>.Instance),
             runRepository ?? Mock.Of<IRunRepository>(),
-            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
+            runDetails ?? SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
             SealedManifestHashTestSupport.CreateManifestHashService(),
-            NullLogger<RunsController>.Instance)
+            NullLogger<RunsController>.Instance,
+            shareGate ?? Mock.Of<IArchitectureShareAccessGate>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };

@@ -1,4 +1,5 @@
 using ArchLucid.Api.Controllers.Authority;
+using ArchLucid.Api.Support;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
@@ -108,7 +109,8 @@ public sealed class FinalizeQualityGateRuntimeConflictTests
             Mock.Of<IRunRepository>(),
             SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
             SealedManifestHashTestSupport.CreateManifestHashService(),
-            NullLogger<RunsController>.Instance)
+            NullLogger<RunsController>.Instance,
+            Mock.Of<IArchitectureShareAccessGate>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
