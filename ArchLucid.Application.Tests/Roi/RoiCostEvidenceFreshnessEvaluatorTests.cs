@@ -25,6 +25,36 @@ public sealed class RoiCostEvidenceFreshnessEvaluatorTests
     };
 
     [Fact]
+    public async Task EvaluateAsync_ignores_future_upload_and_uses_valid_older_provider_timestamp()
+    {
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 5, 26, 0, 0, 0, TimeSpan.Zero));
+        DateTime utcNow = clock.GetUtcNow().UtcDateTime;
+        DateTime awsCollectionUtc = utcNow.AddDays(-91);
+        RoiCostEvidenceFreshnessEvaluator sut = CreateSut(
+            clock,
+            azureCollectionUtc: utcNow.AddTicks(1),
+            awsCollectionUtc: awsCollectionUtc);
+
+        RoiCostEvidenceFreshnessSnapshot snapshot = await sut.EvaluateAsync(CancellationToken.None);
+
+        snapshot.Status.Should().Be(RoiCostEvidenceFreshness.Stale);
+        snapshot.LatestCollectionTimestampUtc.Should().Be(awsCollectionUtc);
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_when_only_future_upload_exists_returns_missing()
+    {
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 5, 26, 0, 0, 0, TimeSpan.Zero));
+        DateTime future = DateTime.SpecifyKind(clock.GetUtcNow().UtcDateTime.AddDays(1), DateTimeKind.Unspecified);
+        RoiCostEvidenceFreshnessEvaluator sut = CreateSut(clock, gcpCollectionUtc: future);
+
+        RoiCostEvidenceFreshnessSnapshot snapshot = await sut.EvaluateAsync(CancellationToken.None);
+
+        snapshot.Status.Should().Be(RoiCostEvidenceFreshness.Missing);
+        snapshot.LatestCollectionTimestampUtc.Should().BeNull();
+    }
+
+    [Fact]
     public async Task EvaluateAsync_when_no_collection_timestamp_returns_missing()
     {
         RoiCostEvidenceFreshnessEvaluator sut = CreateSut(TimeProvider.System);

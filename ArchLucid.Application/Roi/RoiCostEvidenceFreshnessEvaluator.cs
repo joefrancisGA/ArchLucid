@@ -34,38 +34,6 @@ public sealed class RoiCostEvidenceFreshnessEvaluator(
     public async Task<RoiCostEvidenceFreshnessSnapshot> EvaluateAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        DateTime? collectionUtc = await ResolveLatestCollectionTimestampUtcAsync(scope, cancellationToken)
-            .ConfigureAwait(false);
-
-        int staleAfterDays = _options.StaleAfterDays <= 0 ? 90 : _options.StaleAfterDays;
-
-        if (collectionUtc is null)
-        {
-            return new RoiCostEvidenceFreshnessSnapshot
-            {
-                Status = RoiCostEvidenceFreshness.Missing,
-                LatestCollectionTimestampUtc = null,
-                StaleAfterDays = staleAfterDays,
-            };
-        }
-
-        DateTime normalizedUtc = RoiCostEvidenceUtcNormalizer.Normalize(collectionUtc.Value);
-
-        double ageDays = (_clock.GetUtcNow().UtcDateTime - normalizedUtc).TotalDays;
-        string status = ageDays > staleAfterDays ? RoiCostEvidenceFreshness.Stale : RoiCostEvidenceFreshness.Fresh;
-
-        return new RoiCostEvidenceFreshnessSnapshot
-        {
-            Status = status,
-            LatestCollectionTimestampUtc = normalizedUtc,
-            StaleAfterDays = staleAfterDays,
-        };
-    }
-
-    private async Task<DateTime?> ResolveLatestCollectionTimestampUtcAsync(
-        ScopeContext scope,
-        CancellationToken cancellationToken)
-    {
         DateTime? azureCollectionUtc = await _azureExtractorPackageRepository
             .TryGetLatestCollectionTimestampUtcInScopeAsync(scope, cancellationToken)
             .ConfigureAwait(false);
@@ -78,10 +46,25 @@ public sealed class RoiCostEvidenceFreshnessEvaluator(
             .TryGetLatestCollectionTimestampUtcInScopeAsync(scope, CloudProvider.Gcp, cancellationToken)
             .ConfigureAwait(false);
 
-        return MaxUtc(azureCollectionUtc, awsCollectionUtc, gcpCollectionUtc);
+        DateTime utcNow = _clock.GetUtcNow().UtcDateTime;
+        DateTime? collectionUtc = LatestAtOrBeforeUtc(utcNow, azureCollectionUtc, awsCollectionUtc, gcpCollectionUtc);
+        int staleAfterDays = _options.StaleAfterDays <= 0 ? 90 : _options.StaleAfterDays;
+
+        string status = collectionUtc is null
+            ? RoiCostEvidenceFreshness.Missing
+            : (utcNow - collectionUtc.Value).TotalDays > staleAfterDays
+                ? RoiCostEvidenceFreshness.Stale
+                : RoiCostEvidenceFreshness.Fresh;
+
+        return new RoiCostEvidenceFreshnessSnapshot
+        {
+            Status = status,
+            LatestCollectionTimestampUtc = collectionUtc,
+            StaleAfterDays = staleAfterDays,
+        };
     }
 
-    private static DateTime? MaxUtc(params DateTime?[] timestamps)
+    private static DateTime? LatestAtOrBeforeUtc(DateTime utcNow, params DateTime?[] timestamps)
     {
         DateTime? latest = null;
 
@@ -92,7 +75,7 @@ public sealed class RoiCostEvidenceFreshnessEvaluator(
 
             DateTime normalizedUtc = RoiCostEvidenceUtcNormalizer.Normalize(timestamp.Value);
 
-            if (latest is null || normalizedUtc > latest.Value)
+            if (normalizedUtc <= utcNow && (latest is null || normalizedUtc > latest.Value))
                 latest = normalizedUtc;
         }
 

@@ -30,13 +30,13 @@ public static class RoiSponsorFacingScopeDescriptions
     {
         return string.Create(
             CultureInfo.InvariantCulture,
-            $"{ValueReportActivityWindowGeneric} Window: {periodFromUtc:O} → {periodToUtc:O}.");
+            $"{ValueReportActivityWindowGeneric} Window: {periodFromUtc.ToUniversalTime():O} → {periodToUtc.ToUniversalTime():O}.");
     }
 
     public static string ForPilotScorecardWindow(DateTimeOffset periodStart, DateTimeOffset periodEnd)
     {
         return string.Create(
             CultureInfo.InvariantCulture,
-            $"{PilotScorecardUtcWindowGeneric} Window: {periodStart:O} → {periodEnd:O}.");
+            $"{PilotScorecardUtcWindowGeneric} Window: {periodStart.ToUniversalTime():O} → {periodEnd.ToUniversalTime():O}.");
     }
 }
