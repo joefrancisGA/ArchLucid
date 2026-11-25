@@ -8,5 +8,14 @@ seal still returns HTTP 409.
 
 The authenticated HTTP fixture separates the graph lookup from the cited manifest.
 It covers all three routes, a readable invalid seal, and access revocation without
-a manifest read. Other snapshot, drift and export callers of the legacy helper
-are outside this slice. FND-061 remains partial.
+a manifest read.
+
+The Drift Workbench also authorizes each distinct citation before the batched
+snapshot-page manifest query, and before cited manifests are read for a snapshot's
+diffs, either side of a diff's changes, or a snapshot's inventory rows. Inventory
+rows first confirm that the snapshot itself is in scope. The HTTP tests cover
+revoked shares, runs outside the active scope and corrupt seals on readable runs.
+Service-level tests keep the batched lookup and verify that only readable run IDs
+enter the bulk manifest query.
+
+Other callers of the legacy helper are outside this slice. FND-061 remains partial.
