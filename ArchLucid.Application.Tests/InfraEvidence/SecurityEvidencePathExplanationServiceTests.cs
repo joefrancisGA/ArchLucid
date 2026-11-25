@@ -254,7 +254,8 @@ public sealed class SecurityEvidencePathExplanationServiceTests
             "Refuted" => IndependentProviderClaimOutcome.Contradicted,
             _ => IndependentProviderClaimOutcome.Unknown,
         };
-        sample.Setup(x => x.RecordAsync(scope, It.IsAny<Guid>(), expected, false, It.IsAny<CancellationToken>()))
+        sample.Setup(x => x.RecordAsync(scope, It.IsAny<Guid>(), expected, false,
+                It.IsAny<InventoryFalsificationProbe?>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
         Mock<IIndependentProviderQualityObserver> observer = new(MockBehavior.Strict);
         observer.Setup(x => x.ObserveAsync(
@@ -310,7 +311,9 @@ public sealed class SecurityEvidencePathExplanationServiceTests
             explanation.ExecutiveSummary.Should().NotContain("publicNetworkAccess=Disabled");
         }
 
-        sample.Verify(x => x.RecordAsync(scope, explanation.ExplanationId, expected, false, It.IsAny<CancellationToken>()), Times.Once);
+        sample.Verify(x => x.RecordAsync(scope, explanation.ExplanationId, expected, false,
+            It.Is<InventoryFalsificationProbe?>(record => ReferenceEquals(record, explanation.InventoryFalsification)),
+            It.IsAny<CancellationToken>()), Times.Once);
         sample.VerifyNoOtherCalls();
 
         if (stale || wrongProject || !typedClaim || !citesHop)
