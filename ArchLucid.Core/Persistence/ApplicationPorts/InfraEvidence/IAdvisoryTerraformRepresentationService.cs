@@ -4,6 +4,11 @@ namespace ArchLucid.Persistence.InfraEvidence;
 
 public interface IAdvisoryTerraformRepresentationService
 {
+    Task<AdvisoryTerraformRepresentationResult> TryBuildForSnapshotExportAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default);
+
     Task<AdvisoryTerraformRepresentationResult> TryBuildFromSnapshotAsync(
         ScopeContext scope,
         Guid snapshotId,

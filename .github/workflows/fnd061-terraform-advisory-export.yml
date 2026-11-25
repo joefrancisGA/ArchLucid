@@ -1,0 +1,33 @@
+name: FND-061 Terraform advisory export authorization
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController*.cs'
+      - 'ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs'
+      - 'ArchLucid.Api/Support/*ShareAccessGate.cs'
+      - 'ArchLucid.Api/Support/AskEvidenceAccess.cs'
+      - 'ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/IAdvisoryTerraformRepresentationService.cs'
+      - 'ArchLucid.Application/InfraEvidence/AdvisoryTerraformRepresentationService.cs'
+      - 'ArchLucid.Application/InfraEvidence/IInfraEvidenceRunReadAccess.cs'
+      - 'ArchLucid.Application/InfraEvidence/Mermaid/InfraEvidenceSnapshotSealedManifestHashGuard.cs'
+      - 'ArchLucid.Api.Tests/InfraEvidence/TerraformAdvisoryCitedRunHttpTests.cs'
+      - '.github/workflows/fnd061-terraform-advisory-export.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  terraform-advisory-http:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - run: >-
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~TerraformAdvisoryCitedRunHttpTests'
+          --logger 'console;verbosity=normal'
