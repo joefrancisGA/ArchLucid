@@ -753,6 +753,12 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
 
     private sealed class InMemoryAdvisoryTerraformService : IAdvisoryTerraformRepresentationService
     {
+        public Task<AdvisoryTerraformRepresentationResult> TryBuildForSnapshotExportAsync(
+            ScopeContext scope,
+            Guid snapshotId,
+            CancellationToken cancellationToken = default) =>
+            TryBuildFromSnapshotAsync(scope, snapshotId, aztfexportAvailable: false, cancellationToken);
+
         public Task<AdvisoryTerraformRepresentationResult> TryBuildFromSnapshotAsync(
             ScopeContext scope,
             Guid snapshotId,
