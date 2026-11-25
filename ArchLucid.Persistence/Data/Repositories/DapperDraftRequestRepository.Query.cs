@@ -14,12 +14,49 @@ namespace ArchLucid.Persistence.Data.Repositories;
 public sealed partial class DapperDraftRequestRepository
 {
     /// <inheritdoc />
-    public async Task<DraftRequestResponse?> GetAsync(
+    public Task<DraftRequestResponse?> GetAsync(
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
         Guid draftId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken) =>
+        GetCoreAsync(tenantId, workspaceId, projectId, draftId, expectedUpdatedUtc: null, cancellationToken);
+
+    public Task<DraftRequestResponse?> GetAtAccessRevisionAsync(
+        Guid tenantId, Guid workspaceId, Guid projectId, Guid draftId,
+        DateTime expectedUpdatedUtc, CancellationToken cancellationToken) =>
+        GetCoreAsync(tenantId, workspaceId, projectId, draftId, expectedUpdatedUtc, cancellationToken);
+
+    public async Task<DraftRequestAccessMetadata?> GetAccessMetadataAsync(
+        Guid tenantId, Guid workspaceId, Guid projectId, Guid draftId, CancellationToken cancellationToken)
+    {
+        PersistenceTenantScope.RequireEntityTenant(tenantId);
+
+        const string sql = """
+            SELECT draft.DraftId, draft.TenantId, draft.WorkspaceId, draft.ProjectId,
+                draft.ArchitectureId, draft.CreatedByUserId, anchor.PriorRunId, draft.SpawnedRunId, draft.UpdatedUtc
+            FROM dbo.DraftRequests AS draft
+            OUTER APPLY (
+                SELECT CASE
+                    WHEN COUNT(*) > 1 OR MAX([type]) NOT IN (0, 1) THEN N'!invalid-run-link'
+                    ELSE MAX([value])
+                END AS PriorRunId
+                FROM OPENJSON(draft.DocumentJson)
+                WHERE LOWER([key]) = N'priorrunid'
+            ) AS anchor
+            WHERE draft.DraftId = @DraftId AND draft.TenantId = @TenantId
+                AND draft.WorkspaceId = @WorkspaceId AND draft.ProjectId = @ProjectId;
+            """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await connection.QuerySingleOrDefaultAsync<DraftRequestAccessMetadata>(new CommandDefinition(
+            sql, new { DraftId = draftId, TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
+            cancellationToken: cancellationToken, commandTimeout: InteractiveDraftCommandTimeoutSeconds));
+    }
+
+    private async Task<DraftRequestResponse?> GetCoreAsync(
+        Guid tenantId, Guid workspaceId, Guid projectId, Guid draftId,
+        DateTime? expectedUpdatedUtc, CancellationToken cancellationToken)
     {
         PersistenceTenantScope.RequireEntityTenant(tenantId);
 
@@ -52,7 +89,8 @@ public sealed partial class DapperDraftRequestRepository
                            WHERE DraftId = @DraftId
                              AND TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
-                             AND ProjectId = @ProjectId;
+                             AND ProjectId = @ProjectId
+                             AND (@ExpectedUpdatedUtc IS NULL OR UpdatedUtc = @ExpectedUpdatedUtc);
                            """;
 
         Stopwatch connectionStopwatch = Stopwatch.StartNew();
@@ -64,10 +102,12 @@ public sealed partial class DapperDraftRequestRepository
             ("connectionMs", connectionStopwatch.ElapsedMilliseconds));
 
         Stopwatch queryStopwatch = Stopwatch.StartNew();
+        DynamicParameters parameters = new(new { DraftId = draftId, TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId });
+        parameters.Add("ExpectedUpdatedUtc", expectedUpdatedUtc, System.Data.DbType.DateTime2);
         DraftRequestRow? row = await connection.QuerySingleOrDefaultAsync<DraftRequestRow>(
             new CommandDefinition(
                 sql,
-                new { DraftId = draftId, TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
+                parameters,
                 cancellationToken: cancellationToken,
                 commandTimeout: InteractiveDraftCommandTimeoutSeconds));
 
@@ -80,6 +120,9 @@ public sealed partial class DapperDraftRequestRepository
 
         if (row is null)
             return null;
+
+        if (expectedUpdatedUtc.HasValue)
+            return MapRow(row);
 
         if (TryDeserializeReadModel(row, out DraftRequestResponse? snapshot))
         {

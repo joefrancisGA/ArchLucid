@@ -122,4 +122,16 @@ public sealed class DraftRequestService(
         int pageSize,
         CancellationToken cancellationToken)
         => _crudService.ListAsync(scope, actorUserId, statuses, page, pageSize, cancellationToken);
+    public Task<DraftQuestionsResponse?> GetQuestionsAsync(ScopeContext scope, Guid draftId,
+        DateTime? authorizedUpdatedUtc, CancellationToken cancellationToken) =>
+        _admissionService.GetQuestionsAsync(scope, draftId, authorizedUpdatedUtc, cancellationToken);
+
+    public Task<DraftRequestResponse?> AnswerQuestionAsync(ScopeContext scope, Guid draftId,
+        AnswerDraftQuestionRequest request, DateTime? authorizedUpdatedUtc, CancellationToken cancellationToken) =>
+        _crudService.AnswerQuestionAsync(scope, draftId, request, authorizedUpdatedUtc, cancellationToken);
+
+    public Task<DraftRequestResponse?> SkipQuestionAsync(ScopeContext scope, Guid draftId,
+        SkipDraftQuestionRequest request, DateTime? authorizedUpdatedUtc, CancellationToken cancellationToken) =>
+        _crudService.SkipQuestionAsync(scope, draftId, request, authorizedUpdatedUtc, cancellationToken);
+
 }

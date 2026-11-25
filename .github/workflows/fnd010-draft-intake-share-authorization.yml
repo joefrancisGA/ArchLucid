@@ -4,10 +4,12 @@ on:
     branches: [master, main]
     paths:
       - 'ArchLucid.Host.Core/Services/Ask/**'
+      - 'ArchLucid.Application/Drafts/**'
+      - 'ArchLucid.Api/Controllers/Architecture/DraftRequestsController*.cs'
       - 'ArchLucid.Host.Core.Tests/Ask/**'
       - 'ArchLucid.Api/Support/AskEvidenceAccess.cs'
       - 'ArchLucid.Api.Tests/ArchitectureShareAccessGateNotFoundPolicyTests.cs'
-      - 'ArchLucid.Core/Persistence/ApplicationPorts/Interfaces/IDraftRequestRepository.cs'
+      - 'ArchLucid.Core/Persistence/ApplicationPorts/Interfaces/*DraftRequest*.cs'
       - 'ArchLucid.Persistence/Data/Repositories/*DraftRequestRepository*.cs'
       - 'ArchLucid.Persistence/Repositories/CachingDraftRequestRepository.cs'
       - 'ArchLucid.Persistence.Tests/Repositories/DraftRequestRepositoryCoreTests.cs'
@@ -42,7 +44,7 @@ jobs:
       - name: Verify canonical share and conversation boundaries
         run: >-
           dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj
-          --filter "FullyQualifiedName~ArchitectureShareAccessGateNotFoundPolicyTests|FullyQualifiedName~DraftIntakeSealedManifestRuntimeConflictTests|FullyQualifiedName~ConversationControllerShareAccessTests"
+          --filter "FullyQualifiedName~ArchitectureShareAccessGateNotFoundPolicyTests|FullyQualifiedName~DraftIntakeSealedManifestRuntimeConflictTests|FullyQualifiedName~DraftRequestsControllerTests|FullyQualifiedName~ConversationControllerShareAccessTests"
   draft-persistence:
     runs-on: ubuntu-latest
     timeout-minutes: 15

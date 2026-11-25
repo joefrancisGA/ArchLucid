@@ -1,3 +1,5 @@
+using System.Security.Claims;
+
 using ArchLucid.Api.Controllers.Architecture;
 using ArchLucid.Api.Support;
 using ArchLucid.Api.ProblemDetails;
@@ -107,6 +109,11 @@ public sealed class DraftIntakeSealedManifestRuntimeConflictTests
         Mock<IDraftRequestService> service = new();
         Mock<IDraftIntakeReasoningService> reasoning = new();
         Mock<IAuditService> audit = new();
+        Mock<IDraftRequestRepository> repository = new();
+        repository.Setup(r => r.GetAccessMetadataAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId,
+                DraftId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new DraftRequestAccessMetadata(
+                DraftId, Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, null, "op-id", null, null, DateTime.UnixEpoch));
 
         DraftRequestsController controller = new(
             scopeProvider.Object,
@@ -120,9 +127,13 @@ public sealed class DraftIntakeSealedManifestRuntimeConflictTests
             SealedManifestHashTestSupport.CreateManifestHashService(),
             SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
             Mock.Of<IPriorPackageSemanticMergeService>(),
-            Mock.Of<IArchitectureShareAccessGate>())
+            Mock.Of<IArchitectureShareAccessGate>(),
+            repository.Object)
         {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity("Test")) },
+            },
         };
 
         return (controller, service, reasoning, audit);
@@ -243,7 +254,7 @@ public sealed class DraftIntakeSealedManifestRuntimeConflictTests
         };
         (DraftRequestsController sut, Mock<IDraftRequestService> service, _, Mock<IAuditService> audit) = BuildDraftSut();
         service
-            .Setup(s => s.AnswerQuestionAsync(Scope, DraftId, body, It.IsAny<CancellationToken>()))
+            .Setup(s => s.AnswerQuestionAsync(Scope, DraftId, body, DateTime.UnixEpoch, It.IsAny<CancellationToken>()))
             .ThrowsAsync(SealedConflict);
 
         IActionResult action = await sut.AnswerQuestion(DraftId, body, CancellationToken.None);
@@ -260,7 +271,7 @@ public sealed class DraftIntakeSealedManifestRuntimeConflictTests
         SkipDraftQuestionRequest body = new() { QuestionKey = "l0.pillar.cost" };
         (DraftRequestsController sut, Mock<IDraftRequestService> service, _, Mock<IAuditService> audit) = BuildDraftSut();
         service
-            .Setup(s => s.SkipQuestionAsync(Scope, DraftId, body, It.IsAny<CancellationToken>()))
+            .Setup(s => s.SkipQuestionAsync(Scope, DraftId, body, DateTime.UnixEpoch, It.IsAny<CancellationToken>()))
             .ThrowsAsync(SealedConflict);
 
         IActionResult action = await sut.SkipQuestion(DraftId, body, CancellationToken.None);

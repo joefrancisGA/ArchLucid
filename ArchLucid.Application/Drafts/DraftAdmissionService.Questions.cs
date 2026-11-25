@@ -7,14 +7,21 @@ namespace ArchLucid.Application.Drafts;
 public sealed partial class DraftAdmissionService
 {
     /// <inheritdoc />
-    public async Task<DraftQuestionsResponse?> GetQuestionsAsync(
+    public Task<DraftQuestionsResponse?> GetQuestionsAsync(
         ScopeContext scope,
         Guid draftId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken) =>
+        GetQuestionsAsync(scope, draftId, authorizedUpdatedUtc: null, cancellationToken);
+
+    public async Task<DraftQuestionsResponse?> GetQuestionsAsync(ScopeContext scope, Guid draftId,
+        DateTime? authorizedUpdatedUtc, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        DraftRequestResponse? existing = await _crudService.GetAsync(scope, draftId, cancellationToken);
+        DraftRequestResponse? existing = authorizedUpdatedUtc is DateTime revision
+            ? await _draftRepository.GetAtAccessRevisionAsync(
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId, draftId, revision, cancellationToken)
+            : await _crudService.GetAsync(scope, draftId, cancellationToken);
 
         if (existing is null)
             return null;

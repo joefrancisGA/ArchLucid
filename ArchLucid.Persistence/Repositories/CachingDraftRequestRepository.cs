@@ -21,6 +21,23 @@ public sealed class CachingDraftRequestRepository(
     private readonly IHotPathReadCache _hotPathReadCache =
         hotPathReadCache ?? throw new ArgumentNullException(nameof(hotPathReadCache));
 
+    public Task<DraftRequestAccessMetadata?> GetAccessMetadataAsync(
+        Guid tenantId, Guid workspaceId, Guid projectId, Guid draftId, CancellationToken cancellationToken) =>
+        _inner.GetAccessMetadataAsync(tenantId, workspaceId, projectId, draftId, cancellationToken);
+
+    public Task<DraftRequestResponse?> GetAtAccessRevisionAsync(
+        Guid tenantId, Guid workspaceId, Guid projectId, Guid draftId,
+        DateTime expectedUpdatedUtc, CancellationToken cancellationToken) =>
+        _inner.GetAtAccessRevisionAsync(tenantId, workspaceId, projectId, draftId, expectedUpdatedUtc, cancellationToken);
+
+    public async Task<DraftRequestResponse?> UpdateAtAccessRevisionAsync(
+        DraftRequestResponse draft, CancellationToken cancellationToken)
+    {
+        DraftRequestResponse? updated = await _inner.UpdateAtAccessRevisionAsync(draft, cancellationToken);
+        await InvalidateDraftAsync(draft.TenantId, draft.WorkspaceId, draft.ProjectId, draft.DraftId);
+        return updated;
+    }
+
     /// <inheritdoc />
     public async Task<DraftRequestResponse?> GetAsync(
         Guid tenantId,

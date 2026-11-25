@@ -2,6 +2,7 @@ using System.Security.Claims;
 
 using ArchLucid.Api.Controllers.Architecture;
 using ArchLucid.Api.Support;
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Exports;
@@ -15,6 +16,7 @@ using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.TestSupport.SealedManifest;
@@ -59,7 +61,8 @@ public sealed class DraftRequestsControllerTests
     private DraftRequestsController BuildSut(
         IArchitectureShareAccessGate? shareGate = null,
         IRunDetailQueryService? runDetails = null,
-        IAuthorityQueryService? authorityQuery = null) =>
+        IAuthorityQueryService? authorityQuery = null,
+        IDraftRequestRepository? draftRepository = null) =>
         new(
             _scopeProvider.Object,
             _actorContext.Object,
@@ -72,9 +75,132 @@ public sealed class DraftRequestsControllerTests
             SealedManifestHashTestSupport.CreateManifestHashService(),
             runDetails ?? SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
             Mock.Of<IPriorPackageSemanticMergeService>(),
-            shareGate ?? Mock.Of<IArchitectureShareAccessGate>())
+            shareGate ?? Mock.Of<IArchitectureShareAccessGate>(),
+            draftRepository ?? BuildOwnedDraftRepository())
         {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity("Test")) },
+            },
+        };
+
+    private static readonly DateTime AuthorizedRevision = new(2026, 11, 25, 11, 0, 0, DateTimeKind.Utc);
+
+    private static DraftRequestAccessMetadata OwnedDraftFacts() => new(
+        DraftId, Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, null, "op-id", null, null, AuthorizedRevision);
+
+    private static IDraftRequestRepository BuildOwnedDraftRepository()
+    {
+        Mock<IDraftRequestRepository> repository = new(MockBehavior.Strict);
+        repository.Setup(r => r.GetAccessMetadataAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, DraftId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OwnedDraftFacts());
+
+        return repository.Object;
+    }
+
+    [Theory]
+    [InlineData("list")]
+    [InlineData("answer")]
+    [InlineData("skip")]
+    public async Task Questions_hide_unlinked_draft_from_non_owner_before_manifest_preflight(string action)
+    {
+        Mock<IDraftRequestRepository> repository = new(MockBehavior.Strict);
+        repository.Setup(r => r.GetAccessMetadataAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId,
+                DraftId, CancellationToken.None))
+            .ReturnsAsync(OwnedDraftFacts() with { CreatedByUserId = "different-owner" });
+        Mock<IRunDetailQueryService> preflight = new(MockBehavior.Strict);
+        DraftRequestsController sut = BuildSut(runDetails: preflight.Object, draftRepository: repository.Object);
+
+        IActionResult result = await InvokeQuestionActionAsync(sut, action);
+
+        result.Should().BeAssignableTo<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        _service.VerifyNoOtherCalls();
+        _audit.VerifyNoOtherCalls();
+        preflight.VerifyNoOtherCalls();
+    }
+
+    [Theory]
+    [InlineData("list", false, false, false)]
+    [InlineData("list", true, false, true)]
+    [InlineData("answer", true, false, false)]
+    [InlineData("skip", true, true, true)]
+    [InlineData("answer", true, true, true)]
+    public async Task Questions_reuse_linked_architecture_read_or_decide_permission(
+        string action, bool canRead, bool canDecide, bool allowed)
+    {
+        Guid architectureId = Guid.NewGuid();
+        Mock<IDraftRequestRepository> repository = new(MockBehavior.Strict);
+        repository.Setup(r => r.GetAccessMetadataAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId,
+                DraftId, CancellationToken.None))
+            .ReturnsAsync(OwnedDraftFacts() with { ArchitectureId = architectureId, CreatedByUserId = "different-owner" });
+        Mock<IArchitectureShareAccessGate> shares = new(MockBehavior.Strict);
+        DraftRequestsController sut = BuildSut(shares.Object, draftRepository: repository.Object);
+        shares.Setup(g => g.EvaluateArchitectureAsync(sut.User, Scope, architectureId, CancellationToken.None))
+            .ReturnsAsync(new ArchitectureShareAccessEvaluation
+            {
+                ArchitectureFound = true, CanRead = canRead, CanDecide = canDecide,
+            });
+        _service.Setup(q => q.GetQuestionsAsync(Scope, DraftId, AuthorizedRevision, CancellationToken.None))
+            .ReturnsAsync(new DraftQuestionsResponse { DraftId = DraftId });
+        _service.Setup(q => q.AnswerQuestionAsync(Scope, DraftId, It.IsAny<AnswerDraftQuestionRequest>(),
+                AuthorizedRevision, CancellationToken.None))
+            .ReturnsAsync(new DraftRequestResponse { DraftId = DraftId });
+        _service.Setup(q => q.SkipQuestionAsync(Scope, DraftId, It.IsAny<SkipDraftQuestionRequest>(),
+                AuthorizedRevision, CancellationToken.None))
+            .ReturnsAsync(new DraftRequestResponse { DraftId = DraftId });
+
+        IActionResult result = await InvokeQuestionActionAsync(sut, action);
+
+        if (allowed)
+        {
+            result.Should().BeOfType<OkObjectResult>();
+            _service.Invocations.Should().ContainSingle();
+        }
+        else
+        {
+            result.Should().BeAssignableTo<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+            _service.VerifyNoOtherCalls();
+            _audit.VerifyNoOtherCalls();
+        }
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Questions_deny_a_draft_with_an_unreadable_run_anchor(bool useSpawnedRun)
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<IDraftRequestRepository> repository = new(MockBehavior.Strict);
+        repository.Setup(r => r.GetAccessMetadataAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId,
+                DraftId, CancellationToken.None))
+            .ReturnsAsync(OwnedDraftFacts() with
+            {
+                PriorRunId = useSpawnedRun ? null : runId.ToString("N"),
+                SpawnedRunId = useSpawnedRun ? runId.ToString("D") : null,
+            });
+        Mock<IRunDetailQueryService> preflight = new(MockBehavior.Strict);
+        Mock<IArchitectureShareAccessGate> shares = new(MockBehavior.Strict);
+        DraftRequestsController sut = BuildSut(shares.Object, preflight.Object, draftRepository: repository.Object);
+        shares.Setup(g => g.EvaluateRunReadAsync(sut.User, Scope, runId, CancellationToken.None))
+            .ReturnsAsync((true, false));
+
+        IActionResult result = await sut.GetDraftQuestions(DraftId, CancellationToken.None);
+
+        result.Should().BeAssignableTo<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        _service.VerifyNoOtherCalls();
+        preflight.VerifyNoOtherCalls();
+    }
+
+    private static Task<IActionResult> InvokeQuestionActionAsync(DraftRequestsController sut, string action) =>
+        action switch
+        {
+            "list" => sut.GetDraftQuestions(DraftId, CancellationToken.None),
+            "answer" => sut.AnswerQuestion(DraftId,
+                new AnswerDraftQuestionRequest { QuestionKey = "question", Answer = "yes" }, CancellationToken.None),
+            "skip" => sut.SkipQuestion(DraftId,
+                new SkipDraftQuestionRequest { QuestionKey = "question" }, CancellationToken.None),
+            _ => throw new ArgumentOutOfRangeException(nameof(action)),
         };
 
     [Theory]
@@ -153,7 +279,7 @@ public sealed class DraftRequestsControllerTests
                     ManifestHash = validSeal ? SealedManifestHashTestSupport.DefaultHash : "invalid",
                 },
             });
-        _service.Setup(service => service.GetQuestionsAsync(Scope, DraftId, CancellationToken.None))
+        _service.Setup(service => service.GetQuestionsAsync(Scope, DraftId, AuthorizedRevision, CancellationToken.None))
             .ReturnsAsync(new DraftQuestionsResponse { DraftId = DraftId });
 
         IActionResult result = await sut.GetDraftQuestions(DraftId, CancellationToken.None);
@@ -383,6 +509,7 @@ public sealed class DraftRequestsControllerTests
             .Setup(static s => s.GetQuestionsAsync(
                 It.IsAny<ScopeContext>(),
                 It.IsAny<Guid>(),
+                AuthorizedRevision,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
@@ -432,6 +559,7 @@ public sealed class DraftRequestsControllerTests
                 It.IsAny<ScopeContext>(),
                 It.IsAny<Guid>(),
                 It.IsAny<SkipDraftQuestionRequest>(),
+                AuthorizedRevision,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(updated);
 

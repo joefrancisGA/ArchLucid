@@ -16,6 +16,7 @@ using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
@@ -45,10 +46,14 @@ public sealed partial class DraftRequestsController(
     IManifestHashService manifestHashService,
     IRunDetailQueryService runDetailQueryService,
     IPriorPackageSemanticMergeService priorPackageSemanticMergeService,
-    IArchitectureShareAccessGate architectureShareAccessGate) : ControllerBase
+    IArchitectureShareAccessGate architectureShareAccessGate,
+    IDraftRequestRepository draftRequestRepository) : ControllerBase
 {
     private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
         architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
+
+    private readonly IDraftRequestRepository _draftRequestRepository =
+        draftRequestRepository ?? throw new ArgumentNullException(nameof(draftRequestRepository));
 
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));

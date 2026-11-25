@@ -21,4 +21,8 @@ public interface IDraftAdmissionService
         Guid draftId,
         DateTime? expectedUpdatedUtc,
         CancellationToken cancellationToken);
+
+    Task<DraftQuestionsResponse?> GetQuestionsAsync(ScopeContext scope, Guid draftId,
+        DateTime? authorizedUpdatedUtc, CancellationToken cancellationToken);
+
 }

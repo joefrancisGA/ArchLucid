@@ -109,4 +109,12 @@ public sealed class DraftRequestCrudService(
             PageSize = draftPage.PageSize,
         };
     }
+    public Task<DraftRequestResponse?> AnswerQuestionAsync(ScopeContext scope, Guid draftId,
+        AnswerDraftQuestionRequest request, DateTime? authorizedUpdatedUtc, CancellationToken cancellationToken) =>
+        _mutateStage.AnswerQuestionAsync(scope, draftId, request, authorizedUpdatedUtc, cancellationToken);
+
+    public Task<DraftRequestResponse?> SkipQuestionAsync(ScopeContext scope, Guid draftId,
+        SkipDraftQuestionRequest request, DateTime? authorizedUpdatedUtc, CancellationToken cancellationToken) =>
+        _mutateStage.SkipQuestionAsync(scope, draftId, request, authorizedUpdatedUtc, cancellationToken);
+
 }

@@ -112,11 +112,12 @@ public sealed class DraftRequestMutateStage(
         return updated;
     }
 
-    public async Task<DraftRequestResponse?> AnswerQuestionAsync(
-        ScopeContext scope,
-        Guid draftId,
-        AnswerDraftQuestionRequest request,
-        CancellationToken cancellationToken)
+    public Task<DraftRequestResponse?> AnswerQuestionAsync(
+        ScopeContext scope, Guid draftId, AnswerDraftQuestionRequest request, CancellationToken cancellationToken) =>
+        AnswerQuestionAsync(scope, draftId, request, authorizedUpdatedUtc: null, cancellationToken);
+
+    public async Task<DraftRequestResponse?> AnswerQuestionAsync(ScopeContext scope, Guid draftId, AnswerDraftQuestionRequest request,
+        DateTime? authorizedUpdatedUtc, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(request);
@@ -127,7 +128,10 @@ public sealed class DraftRequestMutateStage(
         if (string.IsNullOrWhiteSpace(request.Answer))
             throw new InvalidOperationException("Answer is required.");
 
-        DraftRequestResponse? existing = await GetAsync(scope, draftId, cancellationToken);
+        DraftRequestResponse? existing = authorizedUpdatedUtc is DateTime revision
+            ? await _draftRepository.GetAtAccessRevisionAsync(
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId, draftId, revision, cancellationToken)
+            : await GetAsync(scope, draftId, cancellationToken);
 
         if (existing is null)
             return null;
@@ -160,16 +164,7 @@ public sealed class DraftRequestMutateStage(
             DraftDocumentMutator.RecordAssertedAnswer(existing.Document, questionKey, answer);
         }
 
-        DraftRequestResponse? updated = await _draftRepository.UpdateAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            draftId,
-            existing.Status,
-            existing.Document,
-            existing.RedirectReason,
-            existing.SpawnedRunId,
-            cancellationToken);
+        DraftRequestResponse? updated = await UpdateQuestionAsync(scope, draftId, existing, authorizedUpdatedUtc, cancellationToken);
 
         if (updated is not null)
         {
@@ -185,11 +180,12 @@ public sealed class DraftRequestMutateStage(
         return updated;
     }
 
-    public async Task<DraftRequestResponse?> SkipQuestionAsync(
-        ScopeContext scope,
-        Guid draftId,
-        SkipDraftQuestionRequest request,
-        CancellationToken cancellationToken)
+    public Task<DraftRequestResponse?> SkipQuestionAsync(
+        ScopeContext scope, Guid draftId, SkipDraftQuestionRequest request, CancellationToken cancellationToken) =>
+        SkipQuestionAsync(scope, draftId, request, authorizedUpdatedUtc: null, cancellationToken);
+
+    public async Task<DraftRequestResponse?> SkipQuestionAsync(ScopeContext scope, Guid draftId, SkipDraftQuestionRequest request,
+        DateTime? authorizedUpdatedUtc, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(request);
@@ -199,7 +195,10 @@ public sealed class DraftRequestMutateStage(
 
         string questionKey = request.QuestionKey.Trim();
 
-        DraftRequestResponse? existing = await GetAsync(scope, draftId, cancellationToken);
+        DraftRequestResponse? existing = authorizedUpdatedUtc is DateTime revision
+            ? await _draftRepository.GetAtAccessRevisionAsync(
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId, draftId, revision, cancellationToken)
+            : await GetAsync(scope, draftId, cancellationToken);
 
         if (existing is null)
             return null;
@@ -225,17 +224,16 @@ public sealed class DraftRequestMutateStage(
         existing.Document.QuestionAnswers.Remove(questionKey);
         DraftDocumentMutator.UpsertSkipped(existing.Document, questionKey, question.Tier);
 
-        return await _draftRepository.UpdateAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            draftId,
-            existing.Status,
-            existing.Document,
-            existing.RedirectReason,
-            existing.SpawnedRunId,
-            cancellationToken);
+        return await UpdateQuestionAsync(scope, draftId, existing, authorizedUpdatedUtc, cancellationToken);
     }
+
+    private Task<DraftRequestResponse?> UpdateQuestionAsync(
+        ScopeContext scope, Guid draftId, DraftRequestResponse existing,
+        DateTime? authorizedUpdatedUtc, CancellationToken cancellationToken) =>
+        authorizedUpdatedUtc.HasValue
+            ? _draftRepository.UpdateAtAccessRevisionAsync(existing, cancellationToken)
+            : _draftRepository.UpdateAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, draftId,
+                existing.Status, existing.Document, existing.RedirectReason, existing.SpawnedRunId, cancellationToken);
 
     public async Task<DraftRequestResponse?> ReopenAsync(ScopeContext scope, Guid draftId, CancellationToken cancellationToken)
     {

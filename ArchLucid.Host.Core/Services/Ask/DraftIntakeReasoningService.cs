@@ -178,39 +178,15 @@ public sealed class DraftIntakeReasoningService(
         };
     }
 
-    private async Task<HashSet<Guid>?> AuthorizeDraftAsync(
-        DraftRequestResponse draft, Guid draftId, ScopeContext scope, string actorId, CancellationToken ct)
-    {
-        if (draft.DraftId != draftId || draft.TenantId != scope.TenantId ||
-            draft.WorkspaceId != scope.WorkspaceId || draft.ProjectId != scope.ProjectId)
-            return null;
-
-        if (draft.ArchitectureId is Guid architectureId)
-        {
-            if (architectureId == Guid.Empty ||
-                !await _evidenceAccess.CanDecideArchitectureAsync(scope, architectureId, ct))
-                return null;
-        }
-        else if (!string.Equals(draft.CreatedByUserId, actorId, StringComparison.Ordinal))
-        {
-            // A legacy draft without a linked architecture has no share record.
-            // Do not treat that absence as project-wide ownership.
-            return null;
-        }
-
-        HashSet<Guid> runs = [];
-        foreach (string? anchor in new[] { draft.Document.PriorRunId, draft.SpawnedRunId })
-        {
-            if (string.IsNullOrWhiteSpace(anchor))
-                continue;
-            if (!Guid.TryParse(anchor, out Guid runId) || runId == Guid.Empty)
-                return null;
-            if (runs.Add(runId) && !await _evidenceAccess.CanReadRunAsync(scope, runId, ct))
-                return null;
-        }
-
-        return runs;
-    }
+    private Task<HashSet<Guid>?> AuthorizeDraftAsync(
+        DraftRequestResponse draft, Guid draftId, ScopeContext scope, string actorId, CancellationToken ct) =>
+        DraftResourceAccessPolicy.AuthorizeAsync(
+            new DraftRequestAccessMetadata(draft.DraftId, draft.TenantId, draft.WorkspaceId, draft.ProjectId,
+                draft.ArchitectureId, draft.CreatedByUserId, draft.Document.PriorRunId, draft.SpawnedRunId, draft.UpdatedUtc),
+            draftId, scope, actorId,
+            (architectureId, token) => _evidenceAccess.CanDecideArchitectureAsync(scope, architectureId, token),
+            (runId, token) => _evidenceAccess.CanReadRunAsync(scope, runId, token),
+            ct);
 
     private static bool IsUnanchoredInScope(ConversationThread thread, ScopeContext scope) =>
         thread.ThreadId != Guid.Empty && !thread.ArchivedUtc.HasValue &&
