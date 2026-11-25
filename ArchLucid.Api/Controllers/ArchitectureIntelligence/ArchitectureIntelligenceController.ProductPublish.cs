@@ -1,11 +1,8 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.ArchitectureIntelligence;
-using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Persistence.Queries;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,17 +30,18 @@ public sealed partial class ArchitectureIntelligenceController
                 return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
             }
 
-            if (Guid.TryParse(runId, out Guid runGuid))
-            {
-                IActionResult? sealedGuardResult =
-                    await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+            if (!Guid.TryParse(runId, out Guid runGuid) || runGuid == Guid.Empty)
+                return this.NotFoundProblem("Product run was not found.", ProblemTypes.RunNotFound);
 
-                if (sealedGuardResult is not null)
-                    return sealedGuardResult;
-            }
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(
+                scope, runGuid, requireDecide: false, cancellationToken, allowStandalone: false);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
             ArchitectureIntelligenceProductRunSourceContextLoadResult loaded =
-                await _productRunSourceContextLoader.LoadAsync(runId, cancellationToken);
+                await _productRunSourceContextLoader.LoadAsync(runGuid.ToString("D"), cancellationToken);
 
             if (!loaded.Found)
             {

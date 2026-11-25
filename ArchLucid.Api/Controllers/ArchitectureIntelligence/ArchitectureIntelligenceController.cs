@@ -1,11 +1,14 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
@@ -38,7 +41,10 @@ public sealed partial class ArchitectureIntelligenceController(
     IAuthorityQueryService authorityQueryService,
     IRunDetailQueryService runDetailQueryService,
     IManifestHashService manifestHashService,
-    IAuditService auditService) : ControllerBase
+    IAuditService auditService,
+    IArchitectureShareAccessGate architectureShareAccessGate,
+    IArchitectureIntelligenceStandaloneRunStore standaloneRunStore,
+    IActorContext actorContext) : ControllerBase
 {
     private readonly IClosedLoopArchitectureReasoningOrchestrator _reasoningOrchestrator =
         reasoningOrchestrator ?? throw new ArgumentNullException(nameof(reasoningOrchestrator));
@@ -68,6 +74,15 @@ public sealed partial class ArchitectureIntelligenceController(
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
+        architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
+
+    private readonly IArchitectureIntelligenceStandaloneRunStore _standaloneRunStore =
+        standaloneRunStore ?? throw new ArgumentNullException(nameof(standaloneRunStore));
+
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     private bool TryPrepareRequest(
         ClosedLoopReasoningRequest? request,

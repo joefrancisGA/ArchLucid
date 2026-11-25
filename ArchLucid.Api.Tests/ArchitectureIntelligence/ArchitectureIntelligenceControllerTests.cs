@@ -1,6 +1,8 @@
 using ArchLucid.Api.Controllers.ArchitectureIntelligence;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Common;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -157,6 +159,11 @@ public sealed class ArchitectureIntelligenceControllerTests
             .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        Mock<IArchitectureShareAccessGate> gate = new();
+        gate.Setup(g => g.EvaluateRunReadAsync(
+                It.IsAny<System.Security.Claims.ClaimsPrincipal>(), It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((true, true));
+
         return new ArchitectureIntelligenceController(
             reasoningOrchestrator ?? Mock.Of<IClosedLoopArchitectureReasoningOrchestrator>(),
             goldenArchitectureTestRunner ?? Mock.Of<IGoldenArchitectureTestRunner>(),
@@ -167,7 +174,10 @@ public sealed class ArchitectureIntelligenceControllerTests
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
             SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
             SealedManifestHashTestSupport.CreateManifestHashService(),
-            auditService.Object)
+            auditService.Object,
+            gate.Object,
+            new InMemoryArchitectureIntelligenceStandaloneRunStore(),
+            Mock.Of<IActorContext>(actor => actor.GetActorId() == "actor"))
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
