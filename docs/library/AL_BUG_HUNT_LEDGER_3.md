@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed-only): `ui-hooks-shared` pass-4 reseed. Scoped vitest **259/259** (`src/hooks`). Private beta: n/a.
+> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed-only): `ui-hooks-shared` pass-5 reseed. Scoped vitest **259/259**. Private beta: n/a.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -395,6 +395,9 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **code-changed-since:** yes
 ## Zone: ui-hooks-shared
 
+2026-11-25 seed hunt #3 (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; streak zone `ui-hooks-shared` **2×** seed-only including this run). Cheap-disproof on five pass-4 `(candidate)` rows — **valid-no-repro** `useAppShellState` help first paint (`use-help-panel.url-sync.test.ts` mounts with `?help=1`; effect sync matches URL before assertions), **valid-no-repro** `useBooleanSearchParamUrlSync` empty `panel=` (`get` returns `""` not absent; explicit empty is closed-by-parser contract), **valid-no-repro** wizard remote **403** discard (`does not expose a local draft when the remote API denies access`), **valid-no-repro** `useRunSummaryStream` `retryToken` (`fallbackStartedRef` reset at effect entry), **valid-no-repro** `useWorkingCreateStartHref` desk continuity (`useSyncExternalStore` + in-flight parent resolution). No hunt-ready promotion. Scoped vitest **259/259**. Reseeded pass-5 monitors below. Private beta: n/a.
+
+
 2026-11-25 seed hunt #2 (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Reread `archlucid-ui/src/hooks/` after sync (mixed set-3 merges). No hunt-ready promotion — pass-3 `(candidate)` rows remain monitors until a thorough hunt. Fresh pass-4 reseed: `useAppShellState` help overlay initial state vs URL deep link, `useBooleanSearchParamUrlSync` empty-string param vs absent param default, `useWizardSessionPersistence` URL-restore branch when remote draft denied, `useRunSummaryStream` `retryToken` effect teardown vs `fallbackStartedRef`, `useWorkingCreateStartHref` desk continuity merge vs stale cache read. Scoped vitest **259/259**. Private beta: n/a.
 
 2026-11-24 thorough hunt #3 (mixed dry + hit): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). **Invalid** hunt-ready reseed stub (no locus/input/wrong outcome). Attempted failing repro on five post-#2 `(candidate)` rows — **proven** `useBooleanSearchParamUrlSync` ignored `popstate` when the boolean param was removed (`fromUrl === null` early return left disclosure open); sync now applies `parseOpenFromSearch(null)`; regression `syncs closed when the search param is removed from the URL`; **valid-no-repro** wizard debounce unmount (intentional cancel without flush; regression `cancels a pending debounced persist on unmount without flushing later writes`), **valid-no-repro** `useViewportNarrow` first paint (documented `false` until `matchMedia`), **valid-no-repro** run-summary visibility resume double-fetch (`ensureFallbackInterval` no-ops when interval exists; poll-policy regressions), **valid-no-repro** wrong wizard snapshot version (`readWizardSessionSnapshot` version gate returns null). Scoped vitest **15/15** (`use-boolean-search-param-url-sync`, `useViewportNarrow`, `use-wizard-session-persistence`, `run-summary-stream-poll-policy`). Reseeded five pass-3 `(candidate)` monitors below. Private beta: invited operators no longer see disclosure chrome stay open when a sibling navigation strips the boolean query param from the URL.
@@ -419,11 +422,20 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 - [x] (superseded) pass-3 `(candidate)` queue — **superseded 2026-11-25 seed hunt #2 (seed-only):** closed at zone header; see pass-4 reseed.
 
-- [ ] (candidate) `useAppShellState` — help overlay may flash closed on mount when URL already has `help=1` — locus: `useState(false)` before `syncHelpPanelFromUrl` effect; input: deep link with help open; monitor; pass-4 reseed.
-- [ ] (candidate) `useBooleanSearchParamUrlSync` — `panel=` empty value may not use param-absent default — locus: `readOpenFromUrl` treats only `null` as absent; input: `?panel=`; monitor; pass-4 reseed.
-- [ ] (candidate) `useWizardSessionPersistence` — URL restore confirm may still surface local draft after non-transient remote denial — locus: restore URL effect vs `mayRestore` gate; input: **403** draft fetch + `wizardRestoreConfirm`; monitor; pass-4 reseed.
-- [ ] (candidate) `useRunSummaryStream` — `retryToken` recycle may skip fresh SSE when prior run ended in poll-fallback — locus: effect cleanup vs `fallbackStartedRef` reset; input: bump `retryToken` after SSE error; monitor; pass-4 reseed.
-- [ ] (candidate) `useWorkingCreateStartHref` — in-flight parent architecture may lag `useSyncExternalStore` subscription — locus: desk continuity merge; input: start review while parent job still running; monitor; pass-4 reseed.
+- [x] (valid-no-repro) `useAppShellState` — help overlay first paint — **cheap-disproof 2026-11-25 seed hunt #3:** help URL sync regression.
+- [x] (valid-no-repro) `useBooleanSearchParamUrlSync` — empty `panel=` — **cheap-disproof 2026-11-25 seed hunt #3:** explicit empty param semantics.
+- [x] (valid-no-repro) `useWizardSessionPersistence` — URL restore after remote denial — **cheap-disproof 2026-11-25 seed hunt #3:** **403** regression; URL-only restore deferred.
+- [x] (valid-no-repro) `useRunSummaryStream` — `retryToken` vs `fallbackStartedRef` — **cheap-disproof 2026-11-25 seed hunt #3:** effect reset.
+- [x] (valid-no-repro) `useWorkingCreateStartHref` — in-flight parent lag — **cheap-disproof 2026-11-25 seed hunt #3:** external store subscription.
+
+- [x] (superseded) pass-4 `(candidate)` queue — **superseded 2026-11-25 seed hunt #3 (seed-only):** closed at zone header; see pass-5 reseed.
+
+- [ ] (candidate) `useIncrementalReviewFindingsRefresh` — stale `summary.runId` may trigger refresh for prior run — locus: runId guard; input: rapid run switch; monitor; pass-5 reseed.
+- [ ] (candidate) `usePinnedReviewContext` — auto `closePin` on **404** may fire before loading clears — locus: `notFound` effect; input: invalid pin id; monitor; pass-5 reseed.
+- [ ] (candidate) `useAskStream` — `reset` during token flush window may leave pending ref — locus: `pendingRef` + timer; input: reset mid-stream; monitor; pass-5 reseed.
+- [ ] (candidate) `useMarketingEarlyAccessSubmit` — rapid double submit while `busy` — locus: `canSubmit` gate; input: double-click; monitor; pass-5 reseed.
+- [ ] (candidate) `usePinnedReviewContext` — `searchParams` pin id may desync committed URL after `commitHrefIfChanged` — locus: Next vs window search; input: back/forward pin; monitor; pass-5 reseed.
+
 
 
 2026-11-20 seed hunt (seed-only): coverage zone for `archlucid-ui/src/hooks`. Seeded five `(hunt-ready)` rows; no production change.
@@ -436,7 +448,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** shared React hooks
 - **paths:** archlucid-ui/src/hooks/
 - **test-filter:** src/hooks
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
