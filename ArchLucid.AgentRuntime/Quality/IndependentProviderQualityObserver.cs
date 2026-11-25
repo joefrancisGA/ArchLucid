@@ -122,6 +122,9 @@ public sealed class IndependentProviderQualityObserver(IProviderQualityMonitor m
                         result.Snapshot.KnownSampleCount,
                         result.Snapshot.UnknownSampleCount,
                         result.Snapshot.BadSampleCount,
+                        result.Snapshot.DecisionWindowKnownSamples,
+                        result.Snapshot.DecisionWindowWeightedBadRate,
+                        result.Snapshot.DecisionWindowWilsonLowerBound,
                         adjudicatorKind = method,
                     }),
                 }, cancellationToken).ConfigureAwait(false);

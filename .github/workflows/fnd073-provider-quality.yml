@@ -10,6 +10,7 @@ on:
       - 'ArchLucid.Host.Composition/Startup/Modules/Agents/**'
       - 'ArchLucid.AgentRuntime.Tests/Quality/ProviderQualityMonitorTests.cs'
       - 'ArchLucid.AgentRuntime.Tests/Quality/IndependentProviderQualityObserverTests.cs'
+      - 'ArchLucid.AgentRuntime.Tests/Quality/DurableProviderQualityRolloutSqlTests.cs'
       - 'ArchLucid.Core/Llm/IIndependentProviderQualityObserver.cs'
       - 'ArchLucid.Core/Resilience/IProviderQualityStateStore.cs'
       - 'ArchLucid.Persistence/Resilience/SqlProviderQualityStateStore.cs'
@@ -117,17 +118,33 @@ jobs:
           dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj
           -c Release --filter FullyQualifiedName~SqlProviderQualityStateStoreSqlIntegrationTests
           --logger "trx;LogFileName=fnd073-sql.trx" --results-directory "$RUNNER_TEMP/fnd073-test-results"
-      - name: Require both SQL regressions to execute and pass
+      - name: Replay provider-quality rollout against the real SQL adapter
+        run: >-
+          dotnet test ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj
+          -c Release --filter FullyQualifiedName~DurableProviderQualityRolloutSqlTests
+          --logger "trx;LogFileName=fnd073-replay.trx" --results-directory "$RUNNER_TEMP/fnd073-test-results"
+      - name: Require SQL regressions and rollout replay to execute and pass
         shell: bash
         run: |
           python3 - <<'PY'
           import os
           from pathlib import Path
           from xml.etree import ElementTree as ET
-          trx = Path(os.environ["RUNNER_TEMP"]) / "fnd073-test-results" / "fnd073-sql.trx"
-          results = ET.parse(trx).findall(".//{*}UnitTestResult")
-          if len(results) != 2 or any(result.get("outcome") != "Passed" for result in results):
-              raise SystemExit("Expected both FND-073 SQL regressions to execute and pass.")
+          directory = Path(os.environ["RUNNER_TEMP"]) / "fnd073-test-results"
+          for name, expected in (("fnd073-sql.trx", 2), ("fnd073-replay.trx", 2)):
+              results = ET.parse(directory / name).findall(".//{*}UnitTestResult")
+              if len(results) != expected or any(result.get("outcome") != "Passed" for result in results):
+                  raise SystemExit(f"Expected {expected} FND-073 tests to execute and pass in {name}.")
+          replay = ET.parse(directory / "fnd073-replay.trx")
+          lines = [line.strip() for node in replay.findall(".//{*}StdOut")
+                   for line in (node.text or "").splitlines()
+                   if line.strip().startswith("FND073_REPLAY ")]
+          if len(lines) != 1:
+              raise SystemExit("Expected exactly one synthetic replay measurement.")
+          print(lines[0])
+          with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a") as summary:
+              summary.write("### FND-073 isolated replay (synthetic cohorts, loopback SQL)\n\n")
+              summary.write("`" + lines[0] + "`\n")
           PY
       - name: Remove disposable SQL Server
         if: always()
