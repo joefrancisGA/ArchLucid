@@ -8,6 +8,29 @@ namespace ArchLucid.Core.Tests.Costing;
 public sealed class AwsEc2OfferIndexParserTests
 {
     [Fact]
+    public void TryGetLinuxOnDemandHourlyUsd_skips_invalid_products_and_terms_before_a_valid_offer()
+    {
+        const string sample = """
+            {
+              "products": {
+                "empty": null,
+                "older": { "attributes": { "instanceType": "t3.micro", "operatingSystem": "Linux", "tenancy": "Shared", "preInstalledSw": "NA" } },
+                "current": { "attributes": { "instanceType": "t3.micro", "operatingSystem": "Linux", "tenancy": "Shared", "preInstalledSw": "NA" } }
+              },
+              "terms": { "OnDemand": {
+                "older": { "invalid": { "priceDimensions": null } },
+                "current": { "term": { "priceDimensions": {
+                  "empty": null,
+                  "hourly": { "unit": "Hrs", "pricePerUnit": { "USD": "0.0104" } }
+                } } }
+              } }
+            }
+            """;
+
+        AwsEc2OfferIndexParser.TryGetLinuxOnDemandHourlyUsd(sample, "t3.micro").Should().Be(0.0104m);
+    }
+
+    [Fact]
     public void TryGetLinuxOnDemandHourlyUsd_parses_sample_offer_index()
     {
         const string sample = """

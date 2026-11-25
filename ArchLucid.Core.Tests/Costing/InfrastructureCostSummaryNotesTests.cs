@@ -8,6 +8,22 @@ namespace ArchLucid.Core.Tests.Costing;
 [Trait("Category", "Unit")]
 public sealed class InfrastructureCostSummaryNotesTests
 {
+    [Theory]
+    [InlineData(RuntimePlatform.Ec2, "AWS")]
+    [InlineData(RuntimePlatform.Gke, "GCP")]
+    public void ComposeIllustrativeOnlyNote_identifies_offline_estimates(RuntimePlatform platform, string cloud)
+    {
+        InfrastructureCostEstimateTotals totals = new(
+            [new InfrastructureCostLine("topology", "app", platform, "product", 45m, InfrastructureCostPriceSource.Estimated)],
+            45m,
+            AnyRetailPricing: false,
+            AllRetailPricing: false);
+
+        string note = InfrastructureCostSummaryNotes.ComposeIllustrativeOnlyNote(totals);
+
+        note.Should().Be($"Illustrative {cloud} infrastructure USD/month (live pricing disabled).");
+    }
+
     [Fact]
     public void ComposeRetailBlendNote_aws_only_does_not_claim_azure_retail()
     {

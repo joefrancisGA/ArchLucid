@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Text.Json;
 
+using ArchLucid.Core.Json;
+
 namespace ArchLucid.Core.Costing;
 
 /// <summary>Parses AWS Price List EC2 regional offer index JSON for OnDemand hourly USD rates.</summary>
@@ -13,13 +15,15 @@ public static class AwsEc2OfferIndexParser
 
         using JsonDocument document = JsonDocument.Parse(offerJson);
 
-        if (!TryGetPropertyCaseInsensitive(document.RootElement, "products", out JsonElement products))
+        if (!JsonObjectPropertyLookup.TryGetIgnoreCase(document.RootElement, "products", out JsonElement products)
+            || products.ValueKind != JsonValueKind.Object)
             return null;
 
-        if (!TryGetPropertyCaseInsensitive(document.RootElement, "terms", out JsonElement terms))
+        if (!JsonObjectPropertyLookup.TryGetIgnoreCase(document.RootElement, "terms", out JsonElement terms))
             return null;
 
-        if (!TryGetPropertyCaseInsensitive(terms, "OnDemand", out JsonElement onDemandRoot))
+        if (!JsonObjectPropertyLookup.TryGetIgnoreCase(terms, "OnDemand", out JsonElement onDemandRoot)
+            || onDemandRoot.ValueKind != JsonValueKind.Object)
             return null;
 
         string normalizedInstance = instanceType.Trim();
@@ -28,7 +32,7 @@ public static class AwsEc2OfferIndexParser
         {
             JsonElement product = productEntry.Value;
 
-            if (!TryGetPropertyCaseInsensitive(product, "attributes", out JsonElement attributes))
+            if (!JsonObjectPropertyLookup.TryGetIgnoreCase(product, "attributes", out JsonElement attributes))
                 continue;
 
             if (!TryReadAttribute(attributes, "instanceType", out string? foundType)
@@ -55,26 +59,28 @@ public static class AwsEc2OfferIndexParser
                 continue;
             }
 
-            if (!TryGetPropertyCaseInsensitive(onDemandRoot, productEntry.Name, out JsonElement skuTerms))
+            if (!JsonObjectPropertyLookup.TryGetIgnoreCase(onDemandRoot, productEntry.Name, out JsonElement skuTerms)
+                || skuTerms.ValueKind != JsonValueKind.Object)
                 continue;
 
             foreach (JsonProperty skuTerm in skuTerms.EnumerateObject())
             {
-                if (!TryGetPropertyCaseInsensitive(skuTerm.Value, "priceDimensions", out JsonElement dimensions))
+                if (!JsonObjectPropertyLookup.TryGetIgnoreCase(skuTerm.Value, "priceDimensions", out JsonElement dimensions)
+                    || dimensions.ValueKind != JsonValueKind.Object)
                     continue;
 
                 foreach (JsonProperty dimension in dimensions.EnumerateObject())
                 {
-                    if (!TryGetPropertyCaseInsensitive(dimension.Value, "unit", out JsonElement unitElement))
+                    if (!JsonObjectPropertyLookup.TryGetIgnoreCase(dimension.Value, "unit", out JsonElement unitElement))
                         continue;
 
                     if (!TryReadHourlyUnit(unitElement))
                         continue;
 
-                    if (!TryGetPropertyCaseInsensitive(dimension.Value, "pricePerUnit", out JsonElement pricePerUnit))
+                    if (!JsonObjectPropertyLookup.TryGetIgnoreCase(dimension.Value, "pricePerUnit", out JsonElement pricePerUnit))
                         continue;
 
-                    if (!TryGetPropertyCaseInsensitive(pricePerUnit, "USD", out JsonElement usdElement))
+                    if (!JsonObjectPropertyLookup.TryGetIgnoreCase(pricePerUnit, "USD", out JsonElement usdElement))
                         continue;
 
                     if (TryReadUsdPrice(usdElement, out decimal hourly))
@@ -146,7 +152,7 @@ public static class AwsEc2OfferIndexParser
     {
         value = null;
 
-        if (!TryGetPropertyCaseInsensitive(attributes, name, out JsonElement element))
+        if (!JsonObjectPropertyLookup.TryGetIgnoreCase(attributes, name, out JsonElement element))
             return false;
 
         if (element.ValueKind == JsonValueKind.Number)
@@ -180,22 +186,5 @@ public static class AwsEc2OfferIndexParser
         }
 
         return null;
-    }
-
-    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
-    {
-        foreach (JsonProperty property in element.EnumerateObject())
-        {
-            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            value = property.Value;
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
     }
 }

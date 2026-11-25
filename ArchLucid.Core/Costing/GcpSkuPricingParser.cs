@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Core.Json;
+
 namespace ArchLucid.Core.Costing;
 
 internal static partial class GcpSkuPricingParser
@@ -8,7 +10,7 @@ internal static partial class GcpSkuPricingParser
     {
         hourlyUsd = 0m;
 
-        if (!TryGetPropertyCaseInsensitive(sku, "description", out JsonElement descriptionElement)
+        if (!JsonObjectPropertyLookup.TryGetIgnoreCase(sku, "description", out JsonElement descriptionElement)
             || descriptionElement.ValueKind != JsonValueKind.String)
         {
             return false;
@@ -24,18 +26,18 @@ internal static partial class GcpSkuPricingParser
             return false;
         }
 
-        if (!TryGetPropertyCaseInsensitive(sku, "pricingInfo", out JsonElement pricingInfo)
-            || pricingInfo.GetArrayLength() == 0)
+        if (!JsonObjectPropertyLookup.TryGetIgnoreCase(sku, "pricingInfo", out JsonElement pricingInfo)
+            || pricingInfo.ValueKind != JsonValueKind.Array)
         {
             return false;
         }
 
         foreach (JsonElement pricingEntry in pricingInfo.EnumerateArray())
         {
-            if (!TryGetPropertyCaseInsensitive(pricingEntry, "pricingExpression", out JsonElement expression))
+            if (!JsonObjectPropertyLookup.TryGetIgnoreCase(pricingEntry, "pricingExpression", out JsonElement expression))
                 continue;
 
-            if (!TryGetPropertyCaseInsensitive(expression, "usageUnit", out JsonElement usageUnit)
+            if (!JsonObjectPropertyLookup.TryGetIgnoreCase(expression, "usageUnit", out JsonElement usageUnit)
                 || !IsHourlyUsageUnit(usageUnit))
             {
                 continue;
@@ -48,23 +50,6 @@ internal static partial class GcpSkuPricingParser
 
             return true;
         }
-
-        return false;
-    }
-
-    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
-    {
-        foreach (JsonProperty property in element.EnumerateObject())
-        {
-            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            value = property.Value;
-
-            return true;
-        }
-
-        value = default;
 
         return false;
     }

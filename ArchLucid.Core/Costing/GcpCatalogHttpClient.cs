@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Core.Http;
+using ArchLucid.Core.Json;
 
 using Microsoft.Extensions.Logging;
 
@@ -45,12 +46,14 @@ internal sealed class GcpCatalogHttpClient
             {
                 Uri requestUri = BuildSkuListRequestUri(apiKey, pageToken);
 
-                using JsonDocument document = await JsonDocument.ParseAsync(
-                    await http.GetStreamAsync(requestUri, ct).ConfigureAwait(false),
-                    cancellationToken: ct).ConfigureAwait(false);
+                using Stream body = await http.GetStreamAsync(requestUri, ct).ConfigureAwait(false);
+                using JsonDocument document = await JsonDocument.ParseAsync(body, cancellationToken: ct).ConfigureAwait(false);
 
-                if (!TryGetPropertyCaseInsensitive(document.RootElement, "skus", out JsonElement skus))
-                    return null;
+                if (!JsonObjectPropertyLookup.TryGetIgnoreCase(document.RootElement, "skus", out JsonElement skus)
+                    || skus.ValueKind != JsonValueKind.Array)
+                {
+                    return matchedHourly;
+                }
 
                 foreach (JsonElement sku in skus.EnumerateArray())
                 {
@@ -90,7 +93,7 @@ internal sealed class GcpCatalogHttpClient
 
     private static string? TryReadNextPageToken(JsonElement root)
     {
-        if (!TryGetPropertyCaseInsensitive(root, "nextPageToken", out JsonElement tokenElement))
+        if (!JsonObjectPropertyLookup.TryGetIgnoreCase(root, "nextPageToken", out JsonElement tokenElement))
             return null;
 
         if (tokenElement.ValueKind != JsonValueKind.String)
@@ -99,22 +102,5 @@ internal sealed class GcpCatalogHttpClient
         string? token = tokenElement.GetString()?.Trim();
 
         return string.IsNullOrWhiteSpace(token) ? null : token;
-    }
-
-    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
-    {
-        foreach (JsonProperty property in element.EnumerateObject())
-        {
-            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            value = property.Value;
-
-            return true;
-        }
-
-        value = default;
-
-        return false;
     }
 }

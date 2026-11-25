@@ -12,6 +12,20 @@ namespace ArchLucid.Core.Tests.Costing;
 public sealed class AzureRetailPricesCatalogClientCacheTests
 {
     [Fact]
+    public async Task TryGetConsumptionMonthlyUsdAsync_skips_null_price_rows()
+    {
+        using RecoveringRetailHandler handler = new(failFirstRequest: false, includeNullRow: true);
+        using HttpClient httpClient = new(handler, disposeHandler: false);
+        AzureRetailPricesCatalogClient retailPrices = new(() => httpClient, TimeProvider.System, logger: null);
+
+        decimal? monthly = await retailPrices.TryGetConsumptionMonthlyUsdAsync(
+            "Virtual Machines", "eastus", "Standard_D2s_v3", 1, CancellationToken.None);
+
+        monthly.Should().Be(730m);
+        handler.RequestCount.Should().Be(1);
+    }
+
+    [Fact]
     public async Task TryGetConsumptionMonthlyUsdAsync_retries_after_a_failed_request()
     {
         using RecoveringRetailHandler handler = new();
@@ -28,7 +42,8 @@ public sealed class AzureRetailPricesCatalogClientCacheTests
         handler.RequestCount.Should().Be(2);
     }
 
-    private sealed class RecoveringRetailHandler : HttpMessageHandler
+    private sealed class RecoveringRetailHandler(bool failFirstRequest = true, bool includeNullRow = false)
+        : HttpMessageHandler
     {
         public int RequestCount { get; private set; }
 
@@ -37,26 +52,22 @@ public sealed class AzureRetailPricesCatalogClientCacheTests
             CancellationToken cancellationToken)
         {
             RequestCount++;
-            return Task.FromResult(RequestCount == 1
+            var price = new
+            {
+                CurrencyCode = "USD",
+                Type = "Consumption",
+                UnitOfMeasure = "1 Hour",
+                UnitPrice = 1m,
+                SkuName = "Standard_D2s_v3",
+                ServiceName = "Virtual Machines",
+                ArmRegionName = "eastus",
+            };
+            object?[] items = includeNullRow ? [null, price] : [price];
+            return Task.FromResult(failFirstRequest && RequestCount == 1
                 ? new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
                 : new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    Content = JsonContent.Create(new
-                    {
-                        Items = new[]
-                        {
-                            new
-                            {
-                                CurrencyCode = "USD",
-                                Type = "Consumption",
-                                UnitOfMeasure = "1 Hour",
-                                UnitPrice = 1m,
-                                SkuName = "Standard_D2s_v3",
-                                ServiceName = "Virtual Machines",
-                                ArmRegionName = "eastus",
-                            },
-                        },
-                    }),
+                    Content = JsonContent.Create(new { Items = items }),
                 });
         }
     }

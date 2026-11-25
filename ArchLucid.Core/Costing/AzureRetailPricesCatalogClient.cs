@@ -114,13 +114,13 @@ public sealed partial class AzureRetailPricesCatalogClient
                 return null;
             }
 
-            RetailPriceDto[] rows = pagePayload?.Items ?? [];
+            RetailPriceDto?[] rows = pagePayload?.Items ?? [];
 
             cursor = pagePayload?.NextLink();
 
-            foreach (RetailPriceDto dto in rows)
+            foreach (RetailPriceDto? dto in rows)
             {
-                if (!LooksLikeConsumptionUsd(dto))
+                if (dto is null || !LooksLikeConsumptionUsd(dto))
                     continue;
 
                 if (!string.Equals(dto.ServiceName ?? string.Empty,

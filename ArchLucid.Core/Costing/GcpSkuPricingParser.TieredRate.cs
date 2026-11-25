@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Core.Json;
+
 namespace ArchLucid.Core.Costing;
 
 internal static partial class GcpSkuPricingParser
@@ -8,34 +10,38 @@ internal static partial class GcpSkuPricingParser
     {
         hourlyUsd = 0m;
 
-        if (!TryGetPropertyCaseInsensitive(pricingInfo, "pricingExpression", out JsonElement expression))
+        if (!JsonObjectPropertyLookup.TryGetIgnoreCase(pricingInfo, "pricingExpression", out JsonElement expression))
             return false;
 
-        if (!TryGetPropertyCaseInsensitive(expression, "tieredRates", out JsonElement tieredRates)
-            || tieredRates.GetArrayLength() == 0)
+        if (!JsonObjectPropertyLookup.TryGetIgnoreCase(expression, "tieredRates", out JsonElement tieredRates)
+            || tieredRates.ValueKind != JsonValueKind.Array)
         {
             return false;
         }
 
         foreach (JsonElement tier in tieredRates.EnumerateArray())
         {
-            if (!TryGetPropertyCaseInsensitive(tier, "unitPrice", out JsonElement unitPrice))
+            if (!JsonObjectPropertyLookup.TryGetIgnoreCase(tier, "unitPrice", out JsonElement unitPrice)
+                || unitPrice.ValueKind != JsonValueKind.Object)
+            {
                 continue;
+            }
 
+            // An omitted zero component is valid; a present value that cannot be read is not zero.
             long units = 0;
 
-            if (TryGetPropertyCaseInsensitive(unitPrice, "units", out JsonElement unitsElement)
+            if (JsonObjectPropertyLookup.TryGetIgnoreCase(unitPrice, "units", out JsonElement unitsElement)
                 && !TryReadInt64Token(unitsElement, out units))
             {
-                units = 0;
+                continue;
             }
 
             int nanos = 0;
 
-            if (TryGetPropertyCaseInsensitive(unitPrice, "nanos", out JsonElement nanosElement)
+            if (JsonObjectPropertyLookup.TryGetIgnoreCase(unitPrice, "nanos", out JsonElement nanosElement)
                 && !TryReadInt32Token(nanosElement, out nanos))
             {
-                nanos = 0;
+                continue;
             }
 
             hourlyUsd = units + nanos / 1_000_000_000m;
