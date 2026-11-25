@@ -45,6 +45,33 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "pattern-exact")?.value).toBe("150%");
   });
 
+  it("omits windowLine on executive metric tiles when metrics are unloaded", () => {
+    const metrics = {
+      openFindings: 3,
+      criticalExposureCount: 1,
+      recurrenceCount: 2,
+      createdThisWeek: 1,
+      remediatedThisWeek: 2,
+      netBurn: -1,
+      patternCoverageExactMatchPercent: 10,
+      automationPercent: 20,
+      exceptionsActive: 4,
+    } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, false);
+    const tileIdsWithWindowLine = [
+      "open-findings-queue",
+      "critical-exposure",
+      "recurrence",
+      "net-burn",
+      "pattern-exact",
+      "automation",
+      "exceptions-active",
+    ];
+
+    for (const tileId of tileIdsWithWindowLine) {
+      expect(tiles.find((tile) => tile.id === tileId)?.windowLine).toBeUndefined();
+    }
+  });
   it("omits ruleLine on open-findings-factory when metrics are unloaded", () => {
     const metrics = { openFindings: 3 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, false);

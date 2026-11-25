@@ -63,12 +63,20 @@ export function buildRemediationFactoryExecutiveMetricTiles(
     return normalized === null ? null : formatRemediationFactoryPercentPoints(normalized);
   }
 
+  
+
+  function windowLineWhenLoaded(line: string): string | undefined {
+    return metricsLoaded ? line : undefined;
+  }
+
   return [
     {
       id: "open-findings-queue",
       label: "Open findings (queue)",
       scopeLine: WORKSPACE_SCOPE,
-      windowLine: "Governance queue open filter — may differ from factory metrics API.",
+      windowLine: windowLineWhenLoaded(
+        "Governance queue open filter — may differ from factory metrics API.",
+      ),
       value: formatCount(metrics?.openFindings),
       href: openFindingsHref,
     },
@@ -93,7 +101,9 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       id: "critical-exposure",
       label: "Critical exposure",
       scopeLine: WORKSPACE_SCOPE,
-      windowLine: "Factory metric — linked queue uses critical-error filter and may differ.",
+      windowLine: windowLineWhenLoaded(
+        "Factory metric — linked queue uses critical-error filter and may differ.",
+      ),
       valueFootnote:
         !metricsLoaded || metrics == null
           ? null
@@ -107,14 +117,18 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       id: "recurrence",
       label: "Recurrence (7d)",
       scopeLine: WORKSPACE_SCOPE,
-      windowLine: `${METRICS_WINDOW} · findings that reopened after remediation in this metric`,
+      windowLine: windowLineWhenLoaded(
+        `${METRICS_WINDOW} · findings that reopened after remediation in this metric`,
+      ),
       value: formatCount(metrics?.recurrenceCount),
     },
     {
       id: "net-burn",
       label: "Net burn (7d)",
       scopeLine: WORKSPACE_SCOPE,
-      windowLine: `${METRICS_WINDOW} · opened minus remediated — not cloud spend`,
+      windowLine: windowLineWhenLoaded(
+        `${METRICS_WINDOW} · opened minus remediated — not cloud spend`,
+      ),
       valueFootnote:
         !metricsLoaded || metrics == null
           ? null
@@ -125,21 +139,21 @@ export function buildRemediationFactoryExecutiveMetricTiles(
       id: "pattern-exact",
       label: "Pattern exact match %",
       scopeLine: WORKSPACE_SCOPE,
-      windowLine: REMEDIATION_FACTORY_PERCENT_POPULATION_LINE,
+      windowLine: windowLineWhenLoaded(REMEDIATION_FACTORY_PERCENT_POPULATION_LINE),
       value: formatPercentPoints(metrics?.patternCoverageExactMatchPercent),
     },
     {
       id: "automation",
       label: "Automation %",
       scopeLine: WORKSPACE_SCOPE,
-      windowLine: REMEDIATION_FACTORY_PERCENT_POPULATION_LINE,
+      windowLine: windowLineWhenLoaded(REMEDIATION_FACTORY_PERCENT_POPULATION_LINE),
       value: formatPercentPoints(metrics?.automationPercent),
     },
     {
       id: "exceptions-active",
       label: "Exceptions active",
       scopeLine: WORKSPACE_SCOPE,
-      windowLine: "Current snapshot — not the 7-day window",
+      windowLine: windowLineWhenLoaded("Current snapshot — not the 7-day window"),
       valueFootnote:
         !metricsLoaded || metrics == null ? null : `${METRICS_WINDOW} · ${metrics.exceptionsExpiringSoon} expiring soon`,
       value: formatCount(metrics?.exceptionsActive),

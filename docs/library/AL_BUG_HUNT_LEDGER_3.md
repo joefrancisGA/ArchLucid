@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-infra-resource-hub` pass-496 cheap-disproof. ResourceHubClient **148/148**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 `ui-lib-remediation-factory` pass-15 windowLine. **133/133**. — hunt 2026-11-25 seed hunt (seed-only, dry): `ui-infra-resource-hub` pass-496 cheap-disproof. ResourceHubClient **148/148**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -98,7 +98,7 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 - **test-filter:** lib/governance
 - **hunts:** 8
 - **bugs-found:** 4
-- **consecutive-dry-hunts:** 0`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
+- **consecutive-dry-hunts:** 0`r`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -379,6 +379,21 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-15 (`shouldRotate: false`; hint override). **proven** `windowLine` on executive metric tiles — static window/helper copy rendered while `metricsLoaded` was false; gate via `windowLineWhenLoaded`. Regression `omits windowLine on executive metric tiles when metrics are unloaded`. **valid-no-repro** metrics closed drops `off` token (`treats OFF metrics disclosure token as closed` + closed write drops param), **valid-no-repro** empty metrics param defaults closed (`parseRemediationFactoryMetricsSummaryOpen`), **valid-no-repro** lone dots chip label (`formatAttackPathReportPathChipLabel` returns `...`), **valid-no-repro** href preserves foreign params (`remediationFactoryHrefFromSearch` + round-trip `selectedPath`). Pass-16 reseed below. Scoped vitest **133/133**. Private beta: invited operators no longer see rolling-window and population helper lines under loading/not-computed remediation factory metric tiles.
+
+- [x] (superseded) pass-15 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-16 reseed.
+- [x] (proven) `buildRemediationFactoryExecutiveMetricTiles` — windowLine when unloaded — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics closed drops off token — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** OFF read + closed write param delete.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — empty metrics param — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** trim-empty → closed.
+- [x] (valid-no-repro) `formatAttackPathReportPathChipLabel` — lone dots path id — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** existing ellipsis passthrough test.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves selectedPath param — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** round-trip + foreign query regressions.
+
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — scopeLine when unloaded — locus: static workspace scope; monitor; pass-16 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics closed drops `no` token — locus: open parse allowlist; monitor; pass-16 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics param — locus: first token wins; monitor; pass-16 reseed.
+- [ ] (candidate) `attackPathReportPathChipOverflowLine` — single id list — locus: overflow helper; monitor; pass-16 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves path alias param — locus: disclosure writer; monitor; pass-16 reseed.
+
 2026-11-25 thorough hunt (seed→hit): automatic set-3 picker exhausted; continued `ui-lib-remediation-factory` pass-14 (`shouldRotate: false`). Promoted ruleLine on factory tiles — **proven** prioritization rule text showed on open-findings/risk-weighted tiles while `metricsLoaded` was false; gate `ruleLine` on `metricsLoaded`. Regression `omits ruleLine on open-findings-factory when metrics are unloaded`. **valid-no-repro** metrics closed drops `false` token, **valid-no-repro** padded `true` open parse, **valid-no-repro** whitespace-only overflow list, **valid-no-repro** href preserves `toSnapshot`. Scoped vitest **130/130**. Reseeded pass-15 below. Private beta: invited operators no longer see IE15 rule chrome under loading/not-computed metric tiles.
 
 - [x] (superseded) pass-14 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-15 reseed.
@@ -559,7 +574,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **test-filter:** remediation-factory
 - **hunts:** 39
 - **bugs-found:** 17
-- **consecutive-dry-hunts:** 0`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
+- **consecutive-dry-hunts:** 0`r`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ## Zone: ui-hooks-shared
@@ -3891,7 +3906,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** HelpDocsClient
 - **hunts:** 27
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 0`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
+- **consecutive-dry-hunts:** 0`r`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -9622,7 +9637,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~Contracts
 - **hunts:** 17
 - **bugs-found:** 12
-- **consecutive-dry-hunts:** 0`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
+- **consecutive-dry-hunts:** 0`r`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11518,7 +11533,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** marketing
 - **hunts:** 10
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 0`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
+- **consecutive-dry-hunts:** 0`r`n- **last-hunt:** 2026-11-25`n- **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
