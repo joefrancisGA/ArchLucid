@@ -56,6 +56,18 @@ public static class AzureInventoryEventGridSubscriptionParser
                 TryReadBoundedString(element, "deliveryAuthentication", MaxNameLength)),
             DeliveryUserAssignedIdentityResourceId = AzureInventoryEventGridDeliveryAuthentication.ValidateIdentityResourceId(
                 TryReadBoundedString(element, "deliveryUserAssignedIdentityResourceId", MaxIdentifierLength)),
+            DeadLetterStatus = TryReadBoundedString(element, "deadLetterStatus", MaxNameLength) switch
+            {
+                "configured" => "configured",
+                "not-observed" => "not-observed",
+                _ => "unknown",
+            },
+            DeadLetterResourceId = AzureInventoryEventGridDeadLetterEvidence.ValidateContainerResourceId(
+                TryReadBoundedString(element, "deadLetterResourceId", MaxIdentifierLength)),
+            DeadLetterAuthentication = AzureInventoryEventGridDeliveryAuthentication.Normalize(
+                TryReadBoundedString(element, "deadLetterAuthentication", MaxNameLength)),
+            DeadLetterIdentityResourceId = AzureInventoryEventGridDeliveryAuthentication.ValidateIdentityResourceId(
+                TryReadBoundedString(element, "deadLetterIdentityResourceId", MaxIdentifierLength)),
             CollectionStatus = collectionStatus.Trim(),
             WarningCode = TryReadBoundedString(element, "warningCode", MaxNameLength),
         };
