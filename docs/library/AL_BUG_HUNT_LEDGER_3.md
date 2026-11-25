@@ -381,6 +381,22 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 
 ## Zone: ui-lib-remediation-factory
 
+2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-28 (`shouldRotate: false`; hint override). **proven** `netBurnWeeklyFootnoteWhenLoaded` / `exceptionsExpiringFootnoteWhenLoaded` — weekly net-burn and exceptions footnotes stringified fractional API counts (e.g. `Created 1.2`); require whole numbers before composing footnotes. **valid-no-repro** fractional open findings tile (pass-27 `formatCount` guard; regression added), **valid-no-repro** critical-exposure `0.0` footnote, **valid-no-repro** metrics writer canonical `1`, **valid-no-repro** sub-point percent display contract. Regressions `omits net-burn footnote when weekly counts are fractional`, `omits fractional open findings in metric tiles`, `omits exceptions footnote when expiring-soon count is fractional`. Pass-29 reseed below. Scoped vitest **155/155**. Private beta: invited operators no longer see fractional weekly created/remediated or expiring-soon counts in remediation factory metric tile footnotes.
+
+- [x] (superseded) pass-28 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-29 reseed.
+- [x] (proven) `netBurnWeeklyFootnoteWhenLoaded` — fractional created count — **proven 2026-11-25 thorough hunt (seed→hit):** regressions cited in hunt note.
+- [x] (proven) `exceptionsExpiringFootnoteWhenLoaded` — fractional expiring count — **proven 2026-11-25 thorough hunt (seed→hit):** regression cited in hunt note.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricTiles` — fractional open findings tile — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** regression added.
+- [x] (valid-no-repro) `buildRemediationFactoryExecutiveMetricPresentations` — critical-exposure zero hint with fractional raw — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** `0.0` is integer.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open writes `true` string — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** writes `1`.
+- [x] (valid-no-repro) `formatRemediationFactoryPercentPoints` — sub-point percent display — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** API points scale.
+
+- [ ] (candidate) `exceptionsExpiringFootnoteWhenLoaded` — negative expiring count — locus: footnote; input: -1 expiring; monitor; pass-29 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — fractional recurrence count — locus: formatCount; input: 0.8 recurrence; monitor; pass-29 reseed.
+- [ ] (candidate) `remediationFactoryDecimalMetricPresentation` — fractional risk-weighted — locus: decimal; input: 1.005; monitor; pass-29 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — metrics open `True` mixed case — locus: parse; input: TRUE; monitor; pass-29 reseed.
+- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — open findings href when count absent — locus: table; input: null open; monitor; pass-29 reseed.
+
 2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-27 (`shouldRotate: false`; hint override). **proven** `buildRemediationFactoryExecutiveMetricTiles` — `formatCount` and net-burn tile values still rendered fractional API numbers (e.g. `1.9` critical exposure, `1.5` net burn) while executive table presentation already required whole numbers; align tile formatters with integer guards. Regressions `omits fractional critical exposure in metric tiles`, `omits fractional net burn in metric tiles`, `renders fractional net burn as not measured in the executive table`. **valid-no-repro** critical-exposure hint for fractional count, **valid-no-repro** Infinity percent, **valid-no-repro** metrics open `1.0` string token, **valid-no-repro** blank pathname href override (existing tests). Pass-28 reseed below. Scoped vitest **152/152**. Private beta: invited operators no longer see fractional counts in remediation factory metric tiles when the API returns non-integer values.
 
 - [x] (superseded) pass-27 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (seed→hit):** pass-28 reseed.
@@ -391,11 +407,6 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — metrics open `1.0` string — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** token allowlist is exact.
 - [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — empty pathname override — **cheap-disproof 2026-11-25 thorough hunt (seed→hit):** existing pathname regressions.
 
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricTiles` — fractional open findings tile — locus: formatCount; input: 2.3 open; monitor; pass-28 reseed.
-- [ ] (candidate) `netBurnWeeklyFootnoteWhenLoaded` — fractional created count — locus: tile footnote; input: 1.2 created; monitor; pass-28 reseed.
-- [ ] (candidate) `buildRemediationFactoryExecutiveMetricPresentations` — critical-exposure zero hint with fractional raw — locus: footnote; input: 0.0 count; monitor; pass-28 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open writes `true` string — locus: writer; input: open true; monitor; pass-28 reseed.
-- [ ] (candidate) `formatRemediationFactoryPercentPoints` — sub-point percent display — locus: tile percent; input: 0.4; monitor; pass-28 reseed.
 
 2026-11-25 thorough hunt (seed→hit): automatic set-3 picker `exhaustedAll`; continued `ui-lib-remediation-factory` pass-26 (`shouldRotate: false`; hint override). **proven** executive count presentation — fractional `criticalExposureCount` rendered as `1.9` in the table; require whole-number counts in `remediationFactoryCountMetricPresentation`. **proven** `architectOutcomeDeltaScopeNote` — zero comparison population still printed `0 resources in comparison scope` beside a measured delta; treat zero as not measured. Regressions `renders fractional critical exposure counts as not measured`, `renders zero architect outcome denominators as not measured in scope notes`. **valid-no-repro** NaN average age, **valid-no-repro** pattern hint at zero percent, **valid-no-repro** whitespace-only selection id (existing url-state regression). Pass-27 reseed below. Scoped vitest **149/149**. Private beta: invited operators no longer see fractional finding counts or a zero-resource comparison scope beside measured architect deltas when factory metrics return invalid population values.
 
@@ -704,8 +715,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 49
-- **bugs-found:** 27
+- **hunts:** 50
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25

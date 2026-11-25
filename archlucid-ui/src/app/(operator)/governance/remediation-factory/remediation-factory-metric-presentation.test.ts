@@ -257,6 +257,27 @@ describe("remediation-factory-metric-presentation", () => {
     expect(tiles.find((tile) => tile.id === "exceptions-active")?.valueFootnote).toBeNull();
   });
 
+
+  it("omits net-burn footnote when weekly counts are fractional", () => {
+    const metrics = { createdThisWeek: 1.2, remediatedThisWeek: 5, netBurn: 4 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "net-burn")?.valueFootnote).toBeNull();
+  });
+
+  it("omits fractional open findings in metric tiles", () => {
+    const metrics = { openFindings: 2.3 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "open-findings-factory")?.value).toBeNull();
+  });
+
+  it("omits exceptions footnote when expiring-soon count is fractional", () => {
+    const metrics = { exceptionsActive: 2, exceptionsExpiringSoon: 1.5 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "exceptions-active")?.valueFootnote).toBeNull();
+  });
   it("omits net-burn footnote when weekly counts are not returned", () => {
     const metrics = { netBurn: 2 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);

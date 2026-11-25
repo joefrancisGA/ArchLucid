@@ -33,7 +33,7 @@ function netBurnWeeklyFootnoteWhenLoaded(
   const created = parseNonNegativeFiniteNumber(metrics.createdThisWeek);
   const remediated = parseNonNegativeFiniteNumber(metrics.remediatedThisWeek);
 
-  if (created === null || remediated === null) {
+  if (created === null || remediated === null || !Number.isInteger(created) || !Number.isInteger(remediated)) {
     return null;
   }
 
@@ -50,7 +50,7 @@ function exceptionsExpiringFootnoteWhenLoaded(
 
   const expiringSoon = parseNonNegativeFiniteNumber(metrics.exceptionsExpiringSoon);
 
-  if (expiringSoon === null) {
+  if (expiringSoon === null || !Number.isInteger(expiringSoon)) {
     return null;
   }
 
