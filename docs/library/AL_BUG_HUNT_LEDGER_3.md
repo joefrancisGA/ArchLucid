@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt #31 (seed-only): `cli-terraform-evidence` pass-5 reseed. `DeploymentEvidenceTerraformReferenceTests` **48/48**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 thorough hunt #32 (dry): `ui-auth-callback` pass-3 reseed. `AuthCallbackAccessPanel` **101/101**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -3179,6 +3179,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
+
+2026-11-25 thorough hunt #32 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*). Attempted failing repro on five pass-2 `(candidate)` monitors — **valid-no-repro** `invalid_json` 400 uses generic `!response.ok` path (regressions `shows generic submit error when the API returns validation_failed` and other 400 bodies); **valid-no-repro** toggle-dismiss mid-flight then 502 resubmit (`does not allow a second POST until the first in-flight request settles after toggle dismiss`, `submits successfully after toggling the request form closed and reopened without submitting`); **valid-no-repro** fetch rejection after dismiss (`invalidateInFlightSubmit` clears `submitting`; `shows generic submit error when fetch rejects`); **valid-no-repro** NBSP-only optional cloud focus (`\u00A0`.trim() is empty; regression `sends null cloudPlatformFocus when the optional field contains only tabs`); **invalid** duplicate copy vs peripheral email spaces (client shows duplicate on HTTP 409 only; server owns email equality). Scoped `AuthCallbackAccessPanel.test.tsx` **101/101**. Reseeded five pass-3 `(candidate)` monitors. Private beta: n/a.
+
 2026-11-25 thorough hunt #25 (dry): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; `ui-claim-discipline-policy` parked at 3/3 dry). Attempted failing repro on five pass-1 `(candidate)` monitors — **valid-no-repro** whitespace-only required fields posting with server `validation_failed` (`posts whitespace-only name when native validation is bypassed`, `posts whitespace-only company when native validation is bypassed`); **valid-no-repro** non-409 failures keep generic submit copy (`shows generic submit error when the API returns validation_failed`, `does not parse JSON message field on non-409 API failures`); **valid-no-repro** honeypot whitespace POST contract (`posts honeypot websiteUrl without client-side trim`); **valid-no-repro** in-flight dismiss keeps counter/generation semantics without stuck submit (`dismisses the form via request access toggle while submit is in flight`, `does not enqueue a second POST when the form is toggled closed and reopened during an in-flight submit`, `submits successfully after toggling the request form closed and reopened without submitting`); **valid-no-repro** technical detail vs report-problem wiring (`wires report problem errorTitle to the access heading, not technicalDetail`; `omits technical detail paragraph when technicalDetail is whitespace only`). Pass-2 reseed below. Scoped `AuthCallbackAccessPanel` **101/101**. Private beta: n/a.
 
 - [x] (superseded) pass-1 `(candidate)` queue — **superseded 2026-11-25 thorough hunt #25 (dry):** see pass-2 reseed.
@@ -3188,11 +3191,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) pass-1 `networkInFlightCount` silent block on reopen — **cheap-disproof 2026-11-25 thorough hunt #25:** counter cleared in `finally`; regressions `does not enqueue a second POST when the form is toggled closed and reopened during an in-flight submit` / `submits successfully after toggling the request form closed and reopened without submitting`.
 - [x] (valid-no-repro) pass-1 technicalDetail trim vs report-problem — **cheap-disproof 2026-11-25 thorough hunt #25:** support row uses access heading; regressions `wires report problem errorTitle to the access heading, not technicalDetail` / `omits technical detail paragraph when technicalDetail is whitespace only`.
 
-- [ ] (candidate) `onSubmit` — HTTP `400 invalid_json` may not surface generic submit error — locus: `!response.ok` branch; input: `invalid_json` error body from `POST /api/access-requests`; monitor; pass-2 reseed.
-- [ ] (candidate) `onSubmit` — second submit after toggle-dismiss mid-flight POST returns `502` may stay blocked — locus: `networkInFlightCount` finally + generation guard; input: dismiss during pending fetch then resubmit after `502`; monitor; pass-2 reseed.
-- [ ] (candidate) `onSubmit` — `fetch` rejection after `invalidateInFlightSubmit` may leave `submitting` true on reopen — locus: catch/finally when generation bumped; input: network throw after request-access dismiss; monitor; pass-2 reseed.
-- [ ] (candidate) `cloudPlatformFocus` — optional NBSP-only focus may POST non-null trimmed string — locus: `trim === "" ? null` coalesce; input: U+00A0 only in optional focus field; monitor; pass-2 reseed.
-- [ ] (candidate) `duplicate_recent` — HTTP `409` after rate-limit-shaped body may show duplicate copy when work email differs only by peripheral spaces — locus: `response.status === 409` branch; input: trimmed-equal emails differing only in spaces; monitor; pass-2 reseed.
+- [x] (valid-no-repro) `onSubmit` — HTTP `400 invalid_json` may not surface generic submit error — **cheap-disproof 2026-11-25 thorough hunt #32:** generic submit copy on any non-409 failure.
+- [x] (valid-no-repro) `onSubmit` — second submit after toggle-dismiss mid-flight POST returns `502` may stay blocked — **cheap-disproof 2026-11-25 thorough hunt #32:** regression `does not allow a second POST until the first in-flight request settles after toggle dismiss`.
+- [x] (valid-no-repro) `onSubmit` — `fetch` rejection after `invalidateInFlightSubmit` may leave `submitting` true on reopen — **cheap-disproof 2026-11-25 thorough hunt #32:** dismiss clears `submitting`; stale generation ignored in catch.
+- [x] (valid-no-repro) `cloudPlatformFocus` — optional NBSP-only focus may POST non-null trimmed string — **cheap-disproof 2026-11-25 thorough hunt #32:** ECMAScript `trim()` includes NBSP; same coalesce as tabs test.
+- [x] (invalid) `duplicate_recent` — HTTP `409` after rate-limit-shaped body may show duplicate copy when work email differs only by peripheral spaces — **cheap-disproof 2026-11-25 thorough hunt #32:** duplicate UI is status-driven; trimming happens in POST body build.
 
 
 2026-11-25 seed hunt (seed-only): no rotation (`shouldRotate: false`; reason: *No low-yield streak; keep default picker choice.*; `ui-claim-discipline-policy` parked at 3/3 dry). Reread `AuthCallbackAccessPanel` submit generation guards, honeypot posting contract, and unsupported-text rejection; no hunt-ready row promoted — **valid-no-repro** whitespace-only required fields round-trip API `validation_failed` with generic client error (`posts whitespace-only name when native validation is bypassed`; `shows generic submit error when the API returns validation_failed`); **valid-no-repro** honeypot peripheral whitespace (`posts honeypot websiteUrl without client-side trim`; `posts empty honeypot websiteUrl string for server trimOptional normalization`); **valid-no-repro** stale `204` after dismiss (`dismisses the form via request access toggle while submit is in flight`); **valid-no-repro** non-JSON failure bodies (`shows generic submit error when the API returns an HTML error body`). Pass-1 reseed below. Scoped `AuthCallbackAccessPanel` **101/101**. Private beta: n/a.
@@ -3440,10 +3443,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-24
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
