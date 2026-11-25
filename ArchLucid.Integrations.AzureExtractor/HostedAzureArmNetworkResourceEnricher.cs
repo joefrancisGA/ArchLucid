@@ -38,12 +38,16 @@ internal static class HostedAzureArmNetworkResourceEnricher
                         cancellationToken)
                     .ConfigureAwait(false);
 
+                if (typedResources is HostedAzureArmTypeListCollection { PartialCollection: true })
+                    warnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+
                 merged = HostedAzureArmResourceRecordMerger
                     .MergeByResourceId(merged, typedResources)
                     .ToList();
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
+                warnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
                 warnings.Add($"hosted-type-list-failed:{descriptor.ResourceType}");
 
                 if (logger.IsEnabled(LogLevel.Debug))
@@ -62,6 +66,7 @@ internal static class HostedAzureArmNetworkResourceEnricher
             subscriptionId,
             merged,
             logger,
+            warnings,
             cancellationToken).ConfigureAwait(false);
 
         if (privateDnsLinks.Count > 0)
@@ -75,6 +80,7 @@ internal static class HostedAzureArmNetworkResourceEnricher
             subscriptionId,
             merged,
             logger,
+            warnings,
             cancellationToken).ConfigureAwait(false);
 
         if (peeringResources.Count > 0)
@@ -89,6 +95,7 @@ internal static class HostedAzureArmNetworkResourceEnricher
                 subscriptionId,
                 merged,
                 logger,
+            warnings,
                 cancellationToken).ConfigureAwait(false);
 
         if (nspAssociationResources.Count > 0)
@@ -103,6 +110,7 @@ internal static class HostedAzureArmNetworkResourceEnricher
                 subscriptionId,
                 merged,
                 logger,
+            warnings,
                 cancellationToken).ConfigureAwait(false);
 
         if (amplsScopedResources.Count > 0)
@@ -119,6 +127,7 @@ internal static class HostedAzureArmNetworkResourceEnricher
         string subscriptionId,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
         ILogger logger,
+        List<string> warnings,
         CancellationToken cancellationToken)
     {
         List<HostedAzureArmResourceRecord> linkResources = [];
@@ -137,10 +146,13 @@ internal static class HostedAzureArmNetworkResourceEnricher
                         cancellationToken)
                     .ConfigureAwait(false);
 
+                if (zoneLinks is HostedAzureArmTypeListCollection { PartialCollection: true })
+                    warnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
                 linkResources.AddRange(zoneLinks);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
+                warnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
                 if (logger.IsEnabled(LogLevel.Debug))
                 {
                     logger.LogDebug(
@@ -160,6 +172,7 @@ internal static class HostedAzureArmNetworkResourceEnricher
         string subscriptionId,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
         ILogger logger,
+        List<string> warnings,
         CancellationToken cancellationToken)
     {
         List<HostedAzureArmResourceRecord> peeringResources = [];
@@ -182,6 +195,9 @@ internal static class HostedAzureArmNetworkResourceEnricher
                         cancellationToken)
                     .ConfigureAwait(false);
 
+                if (listed is null or HostedAzureArmTypeListCollection { PartialCollection: true })
+                    warnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+
                 if (listed is null || listed.Count == 0)
                 {
                     continue;
@@ -191,6 +207,7 @@ internal static class HostedAzureArmNetworkResourceEnricher
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
+                warnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
                 if (logger.IsEnabled(LogLevel.Debug))
                 {
                     logger.LogDebug(
@@ -210,6 +227,7 @@ internal static class HostedAzureArmNetworkResourceEnricher
         string subscriptionId,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
         ILogger logger,
+        List<string> warnings,
         CancellationToken cancellationToken)
     {
         List<HostedAzureArmResourceRecord> associationResources = [];
@@ -227,6 +245,9 @@ internal static class HostedAzureArmNetworkResourceEnricher
                         cancellationToken)
                     .ConfigureAwait(false);
 
+                if (listed is HostedAzureArmTypeListCollection { PartialCollection: true })
+                    warnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+
                 if (listed.Count > 0)
                 {
                     associationResources.AddRange(listed);
@@ -234,6 +255,7 @@ internal static class HostedAzureArmNetworkResourceEnricher
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
+                warnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
                 if (logger.IsEnabled(LogLevel.Debug))
                 {
                     logger.LogDebug(
@@ -253,6 +275,7 @@ internal static class HostedAzureArmNetworkResourceEnricher
         string subscriptionId,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
         ILogger logger,
+        List<string> warnings,
         CancellationToken cancellationToken)
     {
         List<HostedAzureArmResourceRecord> scopedResources = [];
@@ -270,6 +293,9 @@ internal static class HostedAzureArmNetworkResourceEnricher
                         cancellationToken)
                     .ConfigureAwait(false);
 
+                if (listed is HostedAzureArmTypeListCollection { PartialCollection: true })
+                    warnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
+
                 if (listed.Count > 0)
                 {
                     scopedResources.AddRange(listed);
@@ -277,6 +303,7 @@ internal static class HostedAzureArmNetworkResourceEnricher
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
+                warnings.Add(AzureInventoryPaasChildCompletenessWarningCodes.PartialChildEnumeration);
                 if (logger.IsEnabled(LogLevel.Debug))
                 {
                     logger.LogDebug(

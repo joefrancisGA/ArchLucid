@@ -15,6 +15,67 @@ namespace ArchLucid.Integrations.AzureExtractor.Tests;
 
 public sealed class GetOnlyHostedAzureArmReadClientTests
 {
+    [Theory]
+    [InlineData("type")]
+    [InlineData("dns")]
+    [InlineData("peering")]
+    [InlineData("perimeter")]
+    [InlineData("monitor")]
+    public async Task TypedResourceListings_report_incomplete_on_denied_read(string family)
+    {
+        const string subscription = "11111111-1111-1111-1111-111111111111";
+        const string prefix = "/subscriptions/" + subscription + "/resourceGroups/rg/providers/";
+        using HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.Forbidden)));
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmResourceRecord> result = await (family switch
+        {
+            "type" => client.ListSubscriptionResourcesByTypeAsync("token", subscription,
+                "Microsoft.Network/virtualNetworks", CancellationToken.None),
+            "dns" => client.ListPrivateDnsZoneVirtualNetworkLinksAsync("token", subscription,
+                prefix + "Microsoft.Network/privateDnsZones/zone", CancellationToken.None),
+            "peering" => client.ListVirtualNetworkPeeringsAsync("token", subscription,
+                prefix + "Microsoft.Network/virtualNetworks/vnet", CancellationToken.None),
+            "perimeter" => client.ListNetworkSecurityPerimeterResourceAssociationsAsync("token", subscription,
+                prefix + "Microsoft.Network/networkSecurityPerimeters/nsp", CancellationToken.None),
+            "monitor" => client.ListMonitorPrivateLinkScopeScopedResourcesAsync("token", subscription,
+                prefix + "Microsoft.Insights/privateLinkScopes/scope", CancellationToken.None),
+            _ => throw new InvalidOperationException("Unexpected family."),
+        });
+
+        Assert.Empty(result);
+        Assert.True(Assert.IsType<HostedAzureArmTypeListCollection>(result).PartialCollection);
+    }
+
+    [Theory]
+    [InlineData("{}", true)]
+    [InlineData("{\"value\":[null]}", true)]
+    [InlineData("{\"value\":[],\"nextLink\":42}", true)]
+    [InlineData("{\"value\":[],\"nextLink\":null}", false)]
+    public async Task TypedResourceListing_distinguishes_malformed_from_complete_empty(string body, bool partial)
+    {
+        const string subscription = "11111111-1111-1111-1111-111111111111";
+        using HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            }));
+        using HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(
+            httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmResourceRecord> result = await client.ListVirtualNetworkPeeringsAsync(
+            "token", subscription,
+            "/subscriptions/" + subscription + "/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet",
+            CancellationToken.None);
+
+        Assert.Empty(result);
+        Assert.Equal(partial, Assert.IsType<HostedAzureArmTypeListCollection>(result).PartialCollection);
+    }
+
     [Fact]
     public async Task ListSubscriptionResourcesAsync_uses_get_only_against_management_azure_com()
     {

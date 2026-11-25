@@ -200,6 +200,8 @@ public sealed class HostedAzureExtractorClient(
 
         IReadOnlyList<HostedAzureArmResourceRecord> inventoryResources = resources;
         List<string> collectionWarnings = [];
+        collectionWarnings.AddRange(enrichResult.Warnings);
+        collectionWarnings.AddRange(paasEnrichResult.Warnings);
 
         if (indexResources is HostedAzureArmResourceCollection { PartialCollection: true })
         {
@@ -377,6 +379,7 @@ public sealed class HostedAzureExtractorClient(
         List<HostedAzureArmDefenderVulnerabilityCountRecord> defenderVulnerabilityCounts = [];
         List<HostedAzureArmDefenderVulnerabilityFindingRecord> defenderVulnerabilityFindings = [];
         List<string> defenderCompanionWarnings = [];
+        List<string> resourceEnrichmentWarnings = [];
 
         standingRoleAssignments.AddRange(
             await _armReadClient
@@ -424,6 +427,8 @@ public sealed class HostedAzureExtractorClient(
                     cancellationToken)
                 .ConfigureAwait(false);
 
+            resourceEnrichmentWarnings.AddRange(enrichResult.Warnings);
+            resourceEnrichmentWarnings.AddRange(paasEnrichResult.Warnings);
             resources.AddRange(paasEnrichResult.Resources);
 
             standingRoleAssignments.AddRange(
@@ -544,6 +549,7 @@ public sealed class HostedAzureExtractorClient(
 
         IReadOnlyList<HostedAzureArmResourceRecord> inventoryResources = resources;
         List<string> collectionWarnings = [];
+        collectionWarnings.AddRange(resourceEnrichmentWarnings);
 
         if (subscriptionResourceCollectionPartial)
         {
