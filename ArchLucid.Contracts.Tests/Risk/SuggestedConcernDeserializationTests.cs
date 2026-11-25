@@ -114,4 +114,21 @@ public sealed class SuggestedConcernDeserializationTests
 
         concern.Statement.Should().BeEmpty();
     }
+    [Fact]
+    public void Deserialize_null_concern_id_yields_empty_string_not_null()
+    {
+        const string json = """
+            {
+              "concernId": null,
+              "statement": "Test",
+              "source": 0,
+              "consequence": 0,
+              "reversibility": 0
+            }
+            """;
+
+        SuggestedConcern concern = JsonSerializer.Deserialize<SuggestedConcern>(json, ContractJson.Default)!;
+
+        concern.ConcernId.Should().BeEmpty();
+    }
 }

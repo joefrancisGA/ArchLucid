@@ -4,11 +4,13 @@ namespace ArchLucid.Contracts.Risk;
 
 public sealed class SuggestedConcern
 {
+    private string concernId = string.Empty;
+
     public string ConcernId
     {
-        get;
-        set;
-    } = Guid.NewGuid().ToString("N");
+        get => concernId;
+        set => concernId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>Plain language, specific, references named entities from customer context.</summary>
     private string statement = string.Empty;

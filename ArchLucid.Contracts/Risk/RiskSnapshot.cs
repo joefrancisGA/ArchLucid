@@ -5,11 +5,13 @@ namespace ArchLucid.Contracts.Risk;
 /// <summary>Immutable risk analysis snapshot for one review run (mirrors <see cref="Findings.FindingsSnapshot" />).</summary>
 public sealed class RiskSnapshot
 {
+    private string snapshotId = string.Empty;
+
     public string SnapshotId
     {
-        get;
-        set;
-    } = Guid.NewGuid().ToString("N");
+        get => snapshotId;
+        set => snapshotId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     private string reviewRunId = string.Empty;
 

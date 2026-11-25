@@ -1,4 +1,4 @@
-> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed→hit): `archlucid-contracts` pass-9 reseed. ComplianceRule nested coalesce. Scoped deserialization **6/6**.
+> **Scope:** Contributor-reference — hunt 2026-11-25 seed hunt (seed→hit): `archlucid-contracts` pass-10 reseed. Snapshot/id string coalesce. Scoped deserialization **12/12**.
 ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync and push `bugsmash-3`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: ui-lib-governance
@@ -8945,6 +8945,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; hit-rate cooldown waived). Promoted pass-9 `ContextSnapshot.ProjectId`, `RiskSnapshot.SnapshotId`, and `SuggestedConcern.ConcernId` — **proven** explicit JSON `null` bypassed `=""` / guid initializers; `CoalesceRequired` on backing-field setters; regressions `Deserialize_null_project_id_yields_empty_string_not_null`, `Deserialize_null_snapshot_id_yields_empty_string_not_null`, `Deserialize_null_concern_id_yields_empty_string_not_null`. **valid-no-repro** pass-9 `ComplianceRulePack.Name`/`RulePackHash` (pack-level coalesce prior hit), **invalid** `ContextSnapshot.DeltaSummary` (nullable optional; null is valid). Pass-10 reseed below. Scoped deserialization **12/12**. Private beta: context and risk snapshot JSON with null project/snapshot/concern ids deserializes to empty strings so ingest and risk replay queries do not null-reference.
+
+
 2026-11-25 seed hunt (seed→hit): no rotation (`shouldRotate: false`; hit-rate cooldown waived). Promoted pass-8 `ComplianceRule` headline strings and `Severity`/`Priority` — **proven** explicit JSON `null` left `null!`/initializer defaults bypassed; `CoalesceRequired` / `CoalesceStringDefault`; regressions `Deserialize_null_rule_headline_strings_yield_empty_strings_not_null`, `Deserialize_null_severity_and_priority_yield_defaults_not_null`, `Deserialize_null_nested_rule_inside_pack_yields_empty_strings_not_null`. **valid-no-repro** pass-8 `RiskSnapshot.ReviewRunId` sibling (`CoalesceRequired` prior hit), **invalid** `ComplianceRuleApplicabilityConditions` applicability strings (list-only surface). Pass-9 reseed below. Scoped deserialization **6/6**. Private beta: compliance rule pack nested rule JSON with null headline or severity fields deserializes to empty strings and legacy defaults so pack import does not null-reference child rules.
 
 
@@ -8994,11 +8997,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `ComplianceRuleApplicabilityConditions` gate strings — **cheap-disproof 2026-11-25 seed hunt:** optional `CloudProviders` list only.
 - [x] (superseded) pass-8 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-9 reseed.
 
-- [ ] (candidate) `ContextSnapshot.ProjectId` — explicit JSON `null` may bypass `= ""` initializer — locus: auto-property setter; input: snapshot JSON; monitor; pass-9 reseed.
-- [ ] (candidate) `ContextSnapshot.DeltaSummary` — explicit JSON `null` on optional summary string — locus: nullable property; input: ingest replay; monitor; pass-9 reseed.
-- [ ] (candidate) `ComplianceRulePack.Name` / `RulePackHash` regression sibling after pack-level coalesce — locus: nested pack round-trip; input: child rule non-null with null pack name; monitor; pass-9 reseed.
-- [ ] (candidate) `RiskSnapshot.SnapshotId` — explicit JSON `null` on snapshot key — locus: auto-property setter; input: stored risk snapshot JSON; monitor; pass-9 reseed.
-- [ ] (candidate) `SuggestedConcern.ConcernId` — explicit JSON `null` may bypass guid initializer — locus: auto-property setter; input: concern child row; monitor; pass-9 reseed.
+- [x] (proven) `ContextSnapshot.ProjectId` — explicit JSON `null` bypassing `=""` initializer — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regression above.
+- [x] (proven) `RiskSnapshot.SnapshotId` — explicit JSON `null` on snapshot key — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regression above.
+- [x] (proven) `SuggestedConcern.ConcernId` — explicit JSON `null` bypassing guid initializer — **hit 2026-11-25 seed hunt:** `CoalesceRequired`; regression above.
+- [x] (valid-no-repro) pass-9 `ComplianceRulePack.Name` / `RulePackHash` — **cheap-disproof 2026-11-25 seed hunt:** pack identity coalesce shipped prior run.
+- [x] (invalid) `ContextSnapshot.DeltaSummary` — **cheap-disproof 2026-11-25 seed hunt:** `string?` optional; JSON null is valid absence.
+- [x] (superseded) pass-9 `(candidate)` queue — **superseded 2026-11-25 seed hunt (seed→hit):** pass-10 reseed.
+
+- [ ] (candidate) `CanonicalObject.ObjectId` — explicit JSON `null` may bypass guid initializer — locus: auto-property setter; input: canonical row JSON; monitor; pass-10 reseed.
+- [ ] (candidate) `RequirementSmell` with null `RequirementId` inside `RiskSnapshot` list — locus: nested deserialize; input: risk snapshot concerns array; monitor; pass-10 reseed.
+- [ ] (candidate) `ArchitectureTradeoff` headline strings in risk snapshot tradeoffs list — locus: auto-property setters; input: null tradeoff row JSON; monitor; pass-10 reseed.
+- [ ] (candidate) `ExecutionContextItem` label/value strings — explicit JSON `null` on execution context rows — locus: nested list setters; input: risk snapshot executionContext; monitor; pass-10 reseed.
+- [ ] (candidate) `ContextSnapshot` GUID columns — explicit JSON `null` on `snapshotId`/`runId` Guid properties — locus: struct defaults; input: ingest JSON; monitor; pass-10 reseed.
+
 
 
 
@@ -9153,8 +9164,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 11
-- **bugs-found:** 10
+- **hunts:** 12
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
