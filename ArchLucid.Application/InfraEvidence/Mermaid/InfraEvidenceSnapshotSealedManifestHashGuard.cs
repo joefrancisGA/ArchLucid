@@ -34,6 +34,33 @@ public static class InfraEvidenceSnapshotSealedManifestHashGuard
             manifestHashService, canReadRunAsync, cancellationToken);
     }
 
+    /// <summary>Authorizes distinct citations before passing only readable runs to the bulk manifest query.</summary>
+    public static async Task EnsureReadableCitedRunsSealedOrThrowAsync(
+        ScopeContext scope,
+        IEnumerable<Guid> runIds,
+        IAuthorityQueryService authorityQueryService,
+        IManifestHashService manifestHashService,
+        Func<Guid, CancellationToken, Task<bool>> canReadRunAsync,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(runIds);
+        ArgumentNullException.ThrowIfNull(canReadRunAsync);
+
+        List<Guid> readableRunIds = [];
+        foreach (Guid runId in DistinctNonEmptyRunIds(runIds))
+        {
+            if (await canReadRunAsync(runId, cancellationToken))
+                readableRunIds.Add(runId);
+        }
+
+        await GovernanceDispositionSealedManifestGuard.EnsureDistinctRunsSealedManifestHashOrThrowAsync(
+            readableRunIds, scope, authorityQueryService, manifestHashService, cancellationToken);
+    }
+
+    private static IEnumerable<Guid> DistinctNonEmptyRunIds(IEnumerable<Guid> runIds) =>
+        runIds.Where(candidate => candidate != Guid.Empty).Distinct();
+
     private static async Task EnsureCoreAsync(
         ScopeContext scope,
         Guid snapshotId,
@@ -56,7 +83,7 @@ public static class InfraEvidenceSnapshotSealedManifestHashGuard
             snapshotId,
             cancellationToken);
 
-        foreach (Guid runId in runIds.Where(candidate => candidate != Guid.Empty).Distinct())
+        foreach (Guid runId in DistinctNonEmptyRunIds(runIds))
         {
             if (canReadRunAsync is not null && !await canReadRunAsync(runId, cancellationToken))
                 continue;
