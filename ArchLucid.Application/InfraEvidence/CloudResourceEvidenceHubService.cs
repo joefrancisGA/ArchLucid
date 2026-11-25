@@ -71,8 +71,28 @@ public sealed class CloudResourceEvidenceHubService(
                 cancellationToken);
         }
 
-        (int page, int pageSize) = PaginationDefaults.Normalize(query.Page, query.PageSize);
-        Guid snapshotId = ResolveHubSnapshotId(query.SnapshotId, identity);
+        bool explicitSnapshot = query.SnapshotId.GetValueOrDefault() != Guid.Empty;
+        Guid snapshotId = explicitSnapshot ? query.SnapshotId.GetValueOrDefault() : identity.LastSeenSnapshotId.GetValueOrDefault();
+
+        if (snapshotId != Guid.Empty)
+        {
+            AzureInventorySnapshotRecord? snapshot =
+                await snapshotRepository.TryGetBySnapshotIdAsync(scope, snapshotId, cancellationToken);
+            if (snapshot is null || snapshot.SnapshotId != snapshotId || snapshot.TenantId != scope.TenantId ||
+                snapshot.WorkspaceId != scope.WorkspaceId || snapshot.ProjectId != scope.ProjectId)
+            {
+                if (explicitSnapshot)
+                {
+                    return new CloudResourceEvidenceHubQueryResult
+                    {
+                        Succeeded = false,
+                        ErrorMessage = "Snapshot was not found in the current project scope.",
+                    };
+                }
+
+                snapshotId = Guid.Empty;
+            }
+        }
 
         if (snapshotId != Guid.Empty)
         {
@@ -86,6 +106,7 @@ public sealed class CloudResourceEvidenceHubService(
                 cancellationToken);
         }
 
+        (int page, int pageSize) = PaginationDefaults.Normalize(query.Page, query.PageSize);
         ResourceHubSlice? resourceSlice = snapshotId != Guid.Empty
             ? await LoadResourceHubSliceAsync(
                 scope,
@@ -499,15 +520,13 @@ public sealed class CloudResourceEvidenceHubService(
         Guid cloudResourceId,
         CancellationToken cancellationToken)
     {
-        Guid newerSnapshotId = snapshotId != Guid.Empty ? snapshotId : identity.LastSeenSnapshotId ?? Guid.Empty;
-
-        if (newerSnapshotId == Guid.Empty || string.IsNullOrWhiteSpace(identity.SubscriptionOrAccountId))
+        if (snapshotId == Guid.Empty || string.IsNullOrWhiteSpace(identity.SubscriptionOrAccountId))
             return [];
 
         Guid? priorSnapshotId = await snapshotRepository.TryGetPriorMaterializedSnapshotIdAsync(
             scope,
             identity.SubscriptionOrAccountId,
-            newerSnapshotId,
+            snapshotId,
             cancellationToken);
 
         if (!priorSnapshotId.HasValue || priorSnapshotId.Value == Guid.Empty)
@@ -516,7 +535,7 @@ public sealed class CloudResourceEvidenceHubService(
         AzureInventoryDiffSummaryRecord? diffSummary = await diffRepository.TryGetBySnapshotPairAsync(
             scope,
             priorSnapshotId.Value,
-            newerSnapshotId,
+            snapshotId,
             cancellationToken);
 
         if (diffSummary is null)
@@ -667,15 +686,6 @@ public sealed class CloudResourceEvidenceHubService(
     }
 
 
-    private static Guid ResolveHubSnapshotId(Guid? querySnapshotId, CloudResourceIdentityRecord identity)
-    {
-        if (querySnapshotId is Guid requested && requested != Guid.Empty)
-        {
-            return requested;
-        }
-
-        return identity.LastSeenSnapshotId ?? Guid.Empty;
-    }
     private static CloudResourceEvidenceFindingHubItem MapOperationalFinding(OperationalSecurityFindingRecord row)
         => new()
         {

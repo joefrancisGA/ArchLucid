@@ -470,6 +470,91 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
   }
 
   [SkippableFact]
+  public async Task CloudResourceExplorer_and_hub_identity_use_only_project_observations_and_mappings()
+  {
+    Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+    SqlConnectionFactory factory = new(fixture.ConnectionString);
+    SqlCloudResourceIdentityDirectory directory = new(factory);
+    SqlAzureExtractorPackageRepository packages = new(factory);
+    SqlAzureInventorySnapshotRepository snapshots = new(factory);
+    SqlAdvisoryTerraformRepresentationRepository mappings = new(factory);
+    ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+    ScopeContext otherWorkspace = new() { TenantId = scope.TenantId, WorkspaceId = Guid.NewGuid(), ProjectId = scope.ProjectId };
+    ScopeContext otherProject = new() { TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = Guid.NewGuid() };
+    DateTime first = new(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc);
+    DateTime lastLocal = first.AddHours(1);
+    const string resourceType = "Microsoft.Storage/storageAccounts";
+    string armId = $"/subscriptions/sub/resourceGroups/rg/providers/{resourceType}/{Guid.NewGuid():N}";
+
+    var initial = await AddObservationAsync(scope, first);
+    var local = await AddObservationAsync(scope, lastLocal);
+    var foreignWorkspace = await AddObservationAsync(otherWorkspace, first.AddHours(2));
+    var foreignProject = await AddObservationAsync(otherProject, first.AddHours(3));
+
+    local.Resource.Should().Be(initial.Resource);
+    foreignWorkspace.Resource.Should().Be(initial.Resource);
+    foreignProject.Resource.Should().Be(initial.Resource);
+    var global = await directory.TryGetByCloudResourceIdAsync(scope, initial.Resource);
+    global!.LastSeenSnapshotId.Should().Be(foreignProject.Snapshot);
+    var scoped = await directory.TryGetByCloudResourceIdInScopeAsync(scope, initial.Resource);
+    scoped!.LastSeenSnapshotId.Should().Be(local.Snapshot);
+    scoped.LastSeenUtc.Should().Be(lastLocal);
+    var (visible, total) = await directory.ListForExplorerAsync(scope, null, null, null, CloudResourceExplorerWorkQueue.All, 1, 10);
+    total.Should().Be(1);
+    CloudResourceIdentityRecord explorer = visible.Should().ContainSingle().Which.Identity;
+    explorer.LastSeenSnapshotId.Should().Be(local.Snapshot);
+    explorer.LastSeenUtc.Should().Be(lastLocal);
+
+    (await mappings.TryGetMappingByCloudResourceIdAsync(scope, local.Snapshot, initial.Resource))
+      .Should().NotBeNull();
+    (await mappings.TryGetMappingByCloudResourceIdAsync(scope, foreignWorkspace.Snapshot, initial.Resource))
+      .Should().BeNull();
+    (await mappings.TryGetMappingByCloudResourceIdAsync(scope, foreignProject.Snapshot, initial.Resource))
+      .Should().BeNull();
+
+    async Task<(Guid Snapshot, Guid Resource)> AddObservationAsync(ScopeContext owner, DateTime observedUtc)
+    {
+      Guid packageId = Guid.NewGuid(), snapshotId = Guid.NewGuid();
+      await packages.InsertAsync(new AzureExtractorPackageRecord
+      {
+        PackageId = packageId, TenantId = owner.TenantId, WorkspaceId = owner.WorkspaceId, ProjectId = owner.ProjectId,
+        CreatedUtc = observedUtc, SchemaVersion = 1, OriginalFileName = "explorer-observation.zip",
+        ManifestJson = "{}", PackageBytes = [0x50, 0x4B],
+      });
+      await snapshots.InsertHeaderAsync(new AzureInventorySnapshotRecord
+      {
+        SnapshotId = snapshotId, TenantId = owner.TenantId, WorkspaceId = owner.WorkspaceId, ProjectId = owner.ProjectId,
+        PackageId = packageId, CaptureStatus = AzureInventoryCaptureStatus.Pending,
+        CapturedUtc = observedUtc, CreatedUtc = observedUtc, UpdatedUtc = observedUtc,
+      });
+      var identity = await directory.UpsertOnSnapshotAsync(owner, CloudProvider.Azure, armId, snapshotId,
+        resourceType, "sub", "rg", "eastus", "shared");
+      await snapshots.MaterializeSnapshotAsync(owner, snapshotId, new AzureInventorySnapshotMaterializeWriteRequest
+      {
+        CaptureStatus = AzureInventoryCaptureStatus.Succeeded, ResourceCount = 1,
+        Resources =
+        [
+          new AzureInventoryResourceRecord
+          {
+            ResourceRowId = Guid.NewGuid(), SnapshotId = snapshotId, TenantId = owner.TenantId,
+            CloudResourceId = identity.CloudResourceId, AzureResourceId = armId, ResourceType = resourceType,
+          },
+        ],
+      });
+      await mappings.ReplaceMappingsAsync(owner, snapshotId,
+      [
+        new AdvisoryTerraformResourceMappingRecord
+        {
+          SnapshotId = snapshotId, CloudResourceId = identity.CloudResourceId, AzureResourceId = armId,
+          TerraformAddress = "azurerm_storage_account.shared", CategoryFolder = "storage",
+          GenerationMethod = AdvisoryTerraformGenerationMethod.SnapshotReconstruction,
+        },
+      ]);
+      return (snapshotId, identity.CloudResourceId);
+    }
+  }
+
+  [SkippableFact]
   public async Task CloudResourceExplorer_orders_same_timestamp_resources_across_pages()
   {
     Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);

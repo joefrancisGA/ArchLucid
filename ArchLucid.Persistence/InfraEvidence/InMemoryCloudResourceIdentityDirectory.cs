@@ -14,6 +14,7 @@ public sealed class InMemoryCloudResourceIdentityDirectory : ICloudResourceIdent
 {
     private readonly ConcurrentDictionary<ExternalKey, CloudResourceIdentityRecord> _byExternalKey = new();
     private readonly ConcurrentDictionary<CloudResourceKey, CloudResourceIdentityRecord> _byCloudResourceId = new();
+    private readonly ConcurrentDictionary<CloudResourceKey, CloudResourceIdentityRecord> _ownerObservations = new();
 
     public Task<CloudResourceIdentityRecord> UpsertOnSnapshotAsync(
         ScopeContext scope,
@@ -48,8 +49,15 @@ public sealed class InMemoryCloudResourceIdentityDirectory : ICloudResourceIdent
                 region,
                 displayName);
 
+            CloudResourceKey key = new(scope.TenantId, updated.CloudResourceId);
             _byExternalKey[externalKey] = updated;
-            _byCloudResourceId[new CloudResourceKey(scope.TenantId, updated.CloudResourceId)] = updated;
+            _byCloudResourceId[key] = updated;
+            if (existing.WorkspaceId == scope.WorkspaceId && existing.ProjectId == scope.ProjectId)
+            {
+                _ownerObservations.AddOrUpdate(key, updated,
+                    (_, owned) => CloneRecord(owned, snapshotId, utcNow, resourceType,
+                        subscriptionOrAccountId, resourceGroupOrProject, region, displayName));
+            }
 
             return Task.FromResult(updated);
         }
@@ -75,6 +83,7 @@ public sealed class InMemoryCloudResourceIdentityDirectory : ICloudResourceIdent
 
         _byExternalKey[externalKey] = inserted;
         _byCloudResourceId[new CloudResourceKey(scope.TenantId, inserted.CloudResourceId)] = inserted;
+        _ownerObservations[new CloudResourceKey(scope.TenantId, inserted.CloudResourceId)] = inserted;
 
         return Task.FromResult(inserted);
     }
@@ -127,7 +136,7 @@ public sealed class InMemoryCloudResourceIdentityDirectory : ICloudResourceIdent
         cancellationToken.ThrowIfCancellationRequested();
         if (cloudResourceId == Guid.Empty || scope.TenantId == Guid.Empty ||
             scope.WorkspaceId == Guid.Empty || scope.ProjectId == Guid.Empty ||
-            !_byCloudResourceId.TryGetValue(new CloudResourceKey(scope.TenantId, cloudResourceId), out var record) ||
+            !_ownerObservations.TryGetValue(new CloudResourceKey(scope.TenantId, cloudResourceId), out var record) ||
             record.WorkspaceId != scope.WorkspaceId || record.ProjectId != scope.ProjectId)
             return Task.FromResult<CloudResourceIdentityRecord?>(null);
 
@@ -159,7 +168,7 @@ public sealed class InMemoryCloudResourceIdentityDirectory : ICloudResourceIdent
         string? trimmedType = string.IsNullOrWhiteSpace(resourceType) ? null : resourceType.Trim();
         string? trimmedGroup = string.IsNullOrWhiteSpace(resourceGroup) ? null : resourceGroup.Trim();
 
-        IEnumerable<CloudResourceIdentityRecord> query = _byCloudResourceId.Values.Where(record =>
+        IEnumerable<CloudResourceIdentityRecord> query = _ownerObservations.Values.Where(record =>
             record.TenantId == scope.TenantId
             && record.WorkspaceId == scope.WorkspaceId
             && record.ProjectId == scope.ProjectId

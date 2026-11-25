@@ -239,13 +239,19 @@ public sealed partial class SqlCloudResourceIdentityDirectory(ISqlConnectionFact
             (scope.TenantId == Guid.Empty || scope.WorkspaceId == Guid.Empty || scope.ProjectId == Guid.Empty)))
             return null;
 
-        const string sql = """
+        string seenColumns = requireProject
+            ? "latestObservation.SnapshotId AS LastSeenSnapshotId, FirstSeenUtc, "
+                + "COALESCE(latestObservation.ObservedUtc, FirstSeenUtc) AS LastSeenUtc"
+            : "LastSeenSnapshotId, FirstSeenUtc, LastSeenUtc";
+        string observations = requireProject ? ScopedLatestObservationSql : string.Empty;
+        string sql = $"""
                            SELECT TOP (1)
                                CloudResourceId, TenantId, WorkspaceId, ProjectId, Provider,
                                ExternalResourceIdNormalized, ResourceType, SubscriptionOrAccountId,
                                ResourceGroupOrProject, Region, DisplayName,
-                               FirstSeenSnapshotId, LastSeenSnapshotId, FirstSeenUtc, LastSeenUtc
+                               FirstSeenSnapshotId, {seenColumns}
                            FROM dbo.CloudResourceIdentities
+                           {observations}
                            WHERE TenantId = @TenantId
                                AND CloudResourceId = @CloudResourceId
                                AND (@RequireProject = 0 OR (WorkspaceId = @WorkspaceId AND ProjectId = @ProjectId));
@@ -262,6 +268,8 @@ public sealed partial class SqlCloudResourceIdentityDirectory(ISqlConnectionFact
                     scope.TenantId, scope.WorkspaceId, scope.ProjectId,
                     RequireProject = requireProject,
                     CloudResourceId = cloudResourceId,
+                    SucceededStatus = (int)AzureInventoryCaptureStatus.Succeeded,
+                    PartialStatus = (int)AzureInventoryCaptureStatus.Partial,
                 },
                 cancellationToken: cancellationToken));
 
@@ -361,11 +369,13 @@ public sealed partial class SqlCloudResourceIdentityDirectory(ISqlConnectionFact
                                    CloudResourceId, TenantId, WorkspaceId, ProjectId, Provider,
                                    ExternalResourceIdNormalized, ResourceType, SubscriptionOrAccountId,
                                    ResourceGroupOrProject, Region, DisplayName,
-                                   FirstSeenSnapshotId, LastSeenSnapshotId, FirstSeenUtc, LastSeenUtc,
+                                   FirstSeenSnapshotId, latestObservation.SnapshotId AS LastSeenSnapshotId, FirstSeenUtc,
+                                   COALESCE(latestObservation.ObservedUtc, FirstSeenUtc) AS LastSeenUtc,
                                    {OpenOperationalFindingsCountSql} AS OpenOperationalFindingsCount,
                                    {OpenRemediationInstancesCountSql} AS OpenRemediationInstancesCount,
                                    {InventoryDriftChangeCountSql} AS InventoryDriftChangeCount
                                FROM dbo.CloudResourceIdentities
+                               {ScopedLatestObservationSql}
                                WHERE TenantId = @TenantId
                                  AND WorkspaceId = @WorkspaceId
                                  AND ProjectId = @ProjectId
@@ -376,7 +386,7 @@ public sealed partial class SqlCloudResourceIdentityDirectory(ISqlConnectionFact
                                  AND {VisibleExplorerAzureResourceIdPredicate}
                                  {workQueueFilter}
                                  {PersistenceTenantScope.AndTripleWhere(scope)}
-                               ORDER BY LastSeenUtc DESC, CloudResourceId ASC
+                               ORDER BY COALESCE(latestObservation.ObservedUtc, FirstSeenUtc) DESC, CloudResourceId ASC
                                OFFSET @Skip ROWS FETCH NEXT @PageSize ROWS ONLY;
                                """;
 
@@ -397,6 +407,8 @@ public sealed partial class SqlCloudResourceIdentityDirectory(ISqlConnectionFact
             FindingStatusRecurred = (int)OperationalSecurityFindingStatus.Recurred,
             FindingStatusAwaitingVerification = (int)OperationalSecurityFindingStatus.AwaitingVerification,
             RemediationStatusClosed = (int)RemediationInstanceStatus.Closed,
+            SucceededStatus = (int)AzureInventoryCaptureStatus.Succeeded,
+            PartialStatus = (int)AzureInventoryCaptureStatus.Partial,
         };
 
         using System.Data.IDbConnection conn =
@@ -416,6 +428,25 @@ public sealed partial class SqlCloudResourceIdentityDirectory(ISqlConnectionFact
 
         return (items, totalCount);
     }
+
+    // Ingestion retains a tenant-wide identity. Derive the read-side sighting
+    // from materialized evidence in the owning project, never the global last write.
+    private const string ScopedLatestObservationSql = """
+        LEFT JOIN (
+            SELECT r.CloudResourceId AS ObservedResourceId, s.SnapshotId,
+                   COALESCE(s.CapturedUtc, s.CreatedUtc) AS ObservedUtc,
+                   ROW_NUMBER() OVER (
+                       PARTITION BY r.CloudResourceId
+                       ORDER BY COALESCE(s.CapturedUtc, s.CreatedUtc) DESC, s.CreatedUtc DESC, s.SnapshotId DESC
+                   ) AS ObservationRank
+            FROM dbo.AzureInventorySnapshots s
+            INNER JOIN dbo.AzureInventoryResources r ON r.TenantId = s.TenantId AND r.SnapshotId = s.SnapshotId
+            WHERE s.TenantId = @TenantId AND s.WorkspaceId = @WorkspaceId AND s.ProjectId = @ProjectId
+              AND s.CaptureStatus IN (@SucceededStatus, @PartialStatus)
+              AND r.CloudResourceId IS NOT NULL
+        ) latestObservation ON latestObservation.ObservedResourceId = dbo.CloudResourceIdentities.CloudResourceId
+                            AND latestObservation.ObservationRank = 1
+        """;
 
     // Resource identity is tenant-deduplicated. Work items must also belong to
     // the identity's workspace and project; a shared resource ID is not scope authority.
