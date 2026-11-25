@@ -370,7 +370,8 @@ public static class AzureInventorySecurityEdgeMaterializer
         AzureInventoryPrivateEndpointReachableEdgeMapper.MapPeReachableTargets(
             relationships,
             relationshipKeys,
-            warnings);
+            warnings,
+            resources);
 
         if (sqlDatabasePrincipalsFilePresent)
         {
