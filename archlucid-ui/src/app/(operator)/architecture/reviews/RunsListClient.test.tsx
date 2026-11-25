@@ -1905,6 +1905,36 @@ describe("RunsListClient inspector", () => {
     expect(nextLink).toHaveAttribute("href", expect.stringContaining("page=2"));
   });
 
+  it("preserves committed cursor when compareRuns is toggled while useSearchParams lags pagination", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    runsListSearchParamsHarness.state.routerQuery = "page=1";
+    runsListSearchParamsHarness.state.committedQuery = "page=2&cursor=cursor-page-2";
+
+    render(
+      <RunsListClient
+        runs={[sampleRun, secondRun]}
+        projectId="default"
+        page={2}
+        pageSize={20}
+        totalCount={40}
+        nextCursor="cursor-page-2"
+      />,
+    );
+
+    fireEvent.click(within(screen.getByTestId(`runs-row-${sampleRun.runId}`)).getByRole("checkbox"));
+    fireEvent.click(within(screen.getByTestId(`runs-row-${secondRun.runId}`)).getByRole("checkbox"));
+
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("cursor=cursor-page-2");
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("page=2");
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(`compareRuns=${sampleRun.runId}`);
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(secondRun.runId);
+  });
+
   it("preserves compareRuns in debounced q= sync when compare was toggled before useSearchParams catches up", async () => {
     vi.useFakeTimers();
 

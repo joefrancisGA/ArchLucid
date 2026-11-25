@@ -27,6 +27,7 @@ import { parseBuyerPackageScopeFilter } from "./buyer-package-scope-url";
 import {
   parseRunsListSearchQuery,
   runsListClearSearchHrefFromSearch,
+  runsListCompareInspectorNavigationSearchFromSearch,
   runsListEffectiveSearchFromSearch,
   runsListNavigationSearchFromSearch,
   runsListSearchHrefFromSearch,
@@ -338,7 +339,11 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     (inspectorRunId: string | null, compareRunIds: readonly string[]) => {
       commitHrefIfChanged(
         runsListCompareInspectorHrefFromSearch(
-          runsListEffectiveSearchFromSearch(routerSearchString, filterTextRef.current),
+          runsListCompareInspectorNavigationSearchFromSearch(
+            routerSearchString,
+            readWindowLocationSearch(),
+            filterTextRef.current,
+          ),
           { inspectorRunId, compareRunIds },
           pathname,
         ),
