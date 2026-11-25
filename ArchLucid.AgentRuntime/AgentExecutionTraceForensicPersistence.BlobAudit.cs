@@ -125,6 +125,8 @@ public sealed partial class AgentExecutionTraceForensicPersistence
         TagList tags = new() { { "agent_type", agentLabel }, { "blob_type", blobType } };
 
         for (int attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
 
             try
             {
@@ -132,6 +134,8 @@ public sealed partial class AgentExecutionTraceForensicPersistence
             }
             catch (Exception ex)
             {
+                // The caller distinguishes external cancellation from its own upload deadline.
+                cancellationToken.ThrowIfCancellationRequested();
                 _logger.LogWarning(
                     ex,
                     "Agent trace {BlobType} blob write attempt {Attempt}/{MaxAttempts} failed for TraceId={TraceId}",
@@ -144,6 +148,7 @@ public sealed partial class AgentExecutionTraceForensicPersistence
 
                     await Task.Delay(retryDelayMs, cancellationToken);
             }
+        }
 
         ArchLucidInstrumentation.AgentTraceBlobUploadFailuresTotal.Add(1, tags);
 

@@ -145,7 +145,7 @@ class Current900LineageTests(unittest.TestCase):
     def test_tampered_source_pin_digest_fails(self):
         p = self.inputs()
         p[0][0]["spans"] = [[1, 1]]
-        with self.assertRaisesRegex(ValueError, "audit"):
+        with self.assertRaisesRegex(ValueError, "historical original pin evidence incomplete or altered"):
             self.prove(p)
 
     def test_recent_blob_must_match_real_git_commit_tree(self):
