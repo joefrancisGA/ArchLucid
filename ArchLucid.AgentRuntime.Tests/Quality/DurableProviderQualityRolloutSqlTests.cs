@@ -158,12 +158,7 @@ public sealed class DurableProviderQualityRolloutSqlTests(ITestOutputHelper outp
 
         double updateP95 = Percentile(updateLatency, .95);
         double admissionP95 = Percentile(admissionLatency, .95);
-        output.WriteLine(FormattableString.Invariant(
-            $"FND073_REPLAY coverage=offline-policy-scenarios coverage_limit=no-production-telemetry no_customer_data=true " +
-            $"healthy_false_quarantines={healthyTrips.Count}/{healthyCohorts} degraded_detected={degradedTrips.Count}/{degradedCohorts} " +
-            $"observations={updateLatency.Count} concurrency=4 sql_update_p50_ms={Percentile(updateLatency, .50):F2} " +
-            $"sql_update_p95_ms={updateP95:F2} sql_admit_p50_ms={Percentile(admissionLatency, .50):F2} " +
-            $"sql_admit_p95_ms={admissionP95:F2} sql_p95_budget_ms={p95BudgetMs:F0}"));
+        output.WriteLine(FormattableString.Invariant($"FND073_REPLAY coverage=offline-policy-scenarios coverage_limit=no-production-telemetry no_customer_data=true healthy_false_quarantines={healthyTrips.Count}/{healthyCohorts} degraded_detected={degradedTrips.Count}/{degradedCohorts} observations={updateLatency.Count} concurrency=4 sql_update_p50_ms={Percentile(updateLatency, .50):F2} sql_update_p95_ms={updateP95:F2} sql_admit_p50_ms={Percentile(admissionLatency, .50):F2} sql_admit_p95_ms={admissionP95:F2} sql_p95_budget_ms={p95BudgetMs:F0}"));
         Assert.True(updateP95 <= p95BudgetMs,
             $"SQL quality update p95 {updateP95:F2} ms exceeded the {p95BudgetMs:F0} ms offline replay budget.");
         Assert.True(admissionP95 <= p95BudgetMs,
