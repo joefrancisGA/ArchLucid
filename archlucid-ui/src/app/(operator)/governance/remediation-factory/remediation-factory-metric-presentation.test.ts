@@ -365,6 +365,30 @@ describe("remediation-factory-metric-presentation", () => {
     expect(REMEDIATION_FACTORY_METRICS_MEASUREMENT_BODY).toContain("IE15-priority-v1");
   });
 
+
+  it("omits exceptions-active table hint when expiring-soon count is fractional", () => {
+    const metrics = { exceptionsActive: 2, exceptionsExpiringSoon: 1.5 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricPresentations({
+      metrics,
+      openFindingsHref: "/security/findings",
+    });
+
+    expect(tiles.find((tile) => tile.key === "exceptions-active")?.hint).toBeUndefined();
+  });
+
+  it("omits exceptions footnote when expiring-soon count is negative", () => {
+    const metrics = { exceptionsActive: 2, exceptionsExpiringSoon: -1 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "exceptions-active")?.valueFootnote).toBeNull();
+  });
+
+  it("omits fractional recurrence counts in metric tiles", () => {
+    const metrics = { recurrenceCount: 0.8 } as RemediationFactoryMetrics;
+    const tiles = buildRemediationFactoryExecutiveMetricTiles(metrics, true);
+
+    expect(tiles.find((tile) => tile.id === "recurrence")?.value).toBeNull();
+  });
   it("omits exceptions-active table hint when expiring-soon count is not returned", () => {
     const metrics = { exceptionsActive: 3 } as RemediationFactoryMetrics;
     const tiles = buildRemediationFactoryExecutiveMetricPresentations({

@@ -243,7 +243,7 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
 
         const expiringSoon = parseNonNegativeFiniteNumber(metrics.exceptionsExpiringSoon);
 
-        if (expiringSoon === null) {
+        if (expiringSoon === null || !Number.isInteger(expiringSoon)) {
           return undefined;
         }
 
