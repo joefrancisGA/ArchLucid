@@ -960,8 +960,10 @@ public sealed class AnalysisRunIdCanonicalizationTests
         merged.Should().BeEmpty();
     }
 
-    [Fact]
-    public async Task CompareQuality_LoadLlmCostSlicesByRunIdAsync_dedupes_slices_when_repository_merges_duplicate_traces()
+    [Theory]
+    [InlineData(true, 1)]
+    [InlineData(false, 2)]
+    public async Task LoadLlmCostSlices_merges_alias_copies_but_preserves_distinct_equal_calls(bool mirroredAlias, int expectedCount)
     {
         Guid runGuid = Guid.Parse("abababab-abab-abab-abab-abababababab");
         string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
@@ -972,8 +974,9 @@ public sealed class AnalysisRunIdCanonicalizationTests
         await traceRepository.CreateAsync(
             new AgentExecutionTrace
             {
-                TraceId = "trace-dup-a",
-                RunId = legacyUpperRunId,
+                TraceId = "trace-first",
+                TaskId = "inventory",
+                RunId = canonicalRunId,
                 ModelDeploymentName = "gpt-4o",
                 InputTokenCount = 100,
                 OutputTokenCount = 25,
@@ -982,8 +985,9 @@ public sealed class AnalysisRunIdCanonicalizationTests
         await traceRepository.CreateAsync(
             new AgentExecutionTrace
             {
-                TraceId = "trace-dup-b",
-                RunId = legacyUpperRunId,
+                TraceId = mirroredAlias ? "trace-first" : "trace-second",
+                TaskId = mirroredAlias ? "inventory" : "topology",
+                RunId = mirroredAlias ? legacyUpperRunId : canonicalRunId,
                 ModelDeploymentName = "gpt-4o",
                 InputTokenCount = 100,
                 OutputTokenCount = 25,
@@ -997,8 +1001,13 @@ public sealed class AnalysisRunIdCanonicalizationTests
                 canonicalRunId,
                 CancellationToken.None);
 
-        merged.Should().ContainSingle();
-        merged[0].InputTokenCount.Should().Be(100);
+        merged.Should().HaveCount(expectedCount);
+        merged.Should().AllSatisfy(slice =>
+        {
+            slice.ModelDeploymentName.Should().Be("gpt-4o");
+            slice.InputTokenCount.Should().Be(100);
+            slice.OutputTokenCount.Should().Be(25);
+        });
     }
 
     [Fact]
