@@ -20,7 +20,12 @@ public sealed class AskEvidenceAccess(
             !ArchitectureShareAuthorityProbe.HasReadAuthority(user))
             return null;
 
-        return actor.GetActorId();
+        string actorId = actor.GetActorId();
+        // The audit fallback is not an identified principal for evidence access.
+        return string.IsNullOrWhiteSpace(actorId) ||
+               string.Equals(actorId, "api-user", StringComparison.OrdinalIgnoreCase)
+            ? null
+            : actorId;
     }
 
     public async Task<bool> CanReadRunAsync(ScopeContext scope, Guid runId, CancellationToken ct)
