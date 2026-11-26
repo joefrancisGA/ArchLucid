@@ -1,7 +1,8 @@
 name: FND-010 Managed Checkpoint Contract
+# Ordinary PR coverage is supplied by fnd015-consolidated-reference-verification.yml.
 on:
   pull_request:
-    branches: [master, main, architecture/fnd010-independent-signed-checkpoints]
+    branches: [architecture/fnd010-independent-signed-checkpoints]
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
