@@ -1,7 +1,6 @@
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination.Cosmos;
 using ArchLucid.Persistence.Cosmos;
@@ -72,7 +71,8 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => sqlLoader.Object);
         services.AddScoped(_ => cosmosWriter.Object);
-        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterSealedManifestGuardServices(services, snapshot.RunId);
+        RegisterGraphBinding(services, tenantId, workspaceId, projectId, snapshot.RunId,
+            graphSnapshotId, snapshot.ContextSnapshotId);
         ServiceProvider provider = services.BuildServiceProvider();
 
         CosmosGraphSnapshotOutboxProcessor sut = new(
@@ -121,6 +121,9 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
     {
         Guid outboxId = Guid.NewGuid();
         Guid graphSnapshotId = Guid.NewGuid();
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
 
         GraphSnapshot snapshot = new()
         {
@@ -140,9 +143,9 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
                     OutboxId = outboxId,
                     GraphSnapshotId = graphSnapshotId,
                     RunId = snapshot.RunId,
-                    TenantId = Guid.NewGuid(),
-                    WorkspaceId = Guid.NewGuid(),
-                    ProjectId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
                     CreatedUtc = TimeProvider.System.UtcNowDateTime(),
                     AttemptCount = 998
                 }
@@ -165,7 +168,8 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => sqlLoader.Object);
         services.AddScoped(_ => cosmosWriter.Object);
-        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterSealedManifestGuardServices(services, snapshot.RunId);
+        RegisterGraphBinding(services, tenantId, workspaceId, projectId, snapshot.RunId,
+            graphSnapshotId, snapshot.ContextSnapshotId);
         ServiceProvider provider = services.BuildServiceProvider();
 
         CosmosGraphSnapshotOutboxProcessorOptions options = new() { MaxAttemptsBeforeDeadLetter = 5000 };
@@ -195,6 +199,9 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
     {
         Guid outboxId = Guid.NewGuid();
         Guid graphSnapshotId = Guid.NewGuid();
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
 
         Mock<ICosmosGraphSnapshotOutboxRepository> outbox = new();
@@ -207,9 +214,9 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
                     OutboxId = outboxId,
                     GraphSnapshotId = graphSnapshotId,
                     RunId = runId,
-                    TenantId = Guid.NewGuid(),
-                    WorkspaceId = Guid.NewGuid(),
-                    ProjectId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 }
             ]);
@@ -222,17 +229,12 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
 
         Mock<ICosmosGraphSnapshotOutboxCosmosWriter> cosmosWriter = new();
 
-        Mock<IAuthorityQueryService> authorityQuery = new();
-        authorityQuery
-            .Setup(q => q.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RunDetailDto?)null);
-
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => sqlLoader.Object);
         services.AddScoped(_ => cosmosWriter.Object);
-        services.AddScoped(_ => authorityQuery.Object);
-        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
+        RegisterGraphBinding(services, tenantId, workspaceId, projectId, runId,
+            graphSnapshotId, Guid.NewGuid());
         ServiceProvider provider = services.BuildServiceProvider();
 
         CosmosGraphSnapshotOutboxProcessor sut = new(
@@ -258,82 +260,13 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
     }
 
     [Fact]
-    public async Task ProcessPendingBatchAsync_marks_processed_when_manifest_compare_run_no_longer_found_but_sql_graph_exists()
-    {
-        Guid outboxId = Guid.NewGuid();
-        Guid graphSnapshotId = Guid.NewGuid();
-        Guid runId = Guid.NewGuid();
-
-        GraphSnapshot snapshot = new()
-        {
-            GraphSnapshotId = graphSnapshotId,
-            ContextSnapshotId = Guid.NewGuid(),
-            RunId = runId,
-            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-        };
-
-        Mock<ICosmosGraphSnapshotOutboxRepository> outbox = new();
-        outbox
-            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new CosmosGraphSnapshotOutboxEntry
-                {
-                    OutboxId = outboxId,
-                    GraphSnapshotId = graphSnapshotId,
-                    RunId = runId,
-                    TenantId = Guid.NewGuid(),
-                    WorkspaceId = Guid.NewGuid(),
-                    ProjectId = Guid.NewGuid(),
-                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
-                }
-            ]);
-        outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-
-        Mock<ICosmosGraphSnapshotOutboxSqlLoader> sqlLoader = new();
-        sqlLoader
-            .Setup(l => l.LoadAsync(It.IsAny<ScopeContext>(), graphSnapshotId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(snapshot);
-
-        Mock<ICosmosGraphSnapshotOutboxCosmosWriter> cosmosWriter = new();
-
-        Mock<IAuthorityQueryService> authorityQuery = new();
-        authorityQuery
-            .Setup(q => q.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RunDetailDto?)null);
-
-        ServiceCollection services = [];
-        services.AddScoped(_ => outbox.Object);
-        services.AddScoped(_ => sqlLoader.Object);
-        services.AddScoped(_ => cosmosWriter.Object);
-        services.AddScoped(_ => authorityQuery.Object);
-        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
-        ServiceProvider provider = services.BuildServiceProvider();
-
-        CosmosGraphSnapshotOutboxProcessor sut = new(
-            provider.GetRequiredService<IServiceScopeFactory>(),
-            Options.Create(new CosmosGraphSnapshotOutboxProcessorOptions()),
-            TimeProvider.System,
-            NullLogger<CosmosGraphSnapshotOutboxProcessor>.Instance);
-
-        await sut.ProcessPendingBatchAsync(CancellationToken.None);
-
-        outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
-        outbox.Verify(
-            o => o.RecordBackoffAfterProcessingFailureAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<DateTime>(),
-                It.IsAny<string>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
-        cosmosWriter.Verify(w => w.SaveAsync(It.IsAny<GraphSnapshot>(), It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [Fact]
     public async Task ProcessPendingBatchAsync_marks_processed_when_sql_graph_run_id_disagrees_with_outbox_entry()
     {
         Guid outboxId = Guid.NewGuid();
         Guid graphSnapshotId = Guid.NewGuid();
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
         Guid outboxRunId = Guid.NewGuid();
         Guid sqlRunId = Guid.NewGuid();
 
@@ -355,9 +288,9 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
                     OutboxId = outboxId,
                     GraphSnapshotId = graphSnapshotId,
                     RunId = outboxRunId,
-                    TenantId = Guid.NewGuid(),
-                    WorkspaceId = Guid.NewGuid(),
-                    ProjectId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 }
             ]);
@@ -369,13 +302,12 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
             .ReturnsAsync(snapshot);
 
         Mock<ICosmosGraphSnapshotOutboxCosmosWriter> cosmosWriter = new();
-        Mock<IAuthorityQueryService> authorityQuery = new();
-
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => sqlLoader.Object);
         services.AddScoped(_ => cosmosWriter.Object);
-        services.AddScoped(_ => authorityQuery.Object);
+        RegisterGraphBinding(services, tenantId, workspaceId, projectId, outboxRunId,
+            graphSnapshotId, snapshot.ContextSnapshotId);
         ServiceProvider provider = services.BuildServiceProvider();
 
         CosmosGraphSnapshotOutboxProcessor sut = new(
@@ -387,12 +319,6 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
         await sut.ProcessPendingBatchAsync(CancellationToken.None);
 
         outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
-        authorityQuery.Verify(
-            q => q.GetRunDetailForManifestCompareAsync(
-                It.IsAny<ScopeContext>(),
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
         cosmosWriter.Verify(w => w.SaveAsync(It.IsAny<GraphSnapshot>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -401,6 +327,9 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
     {
         Guid outboxId = Guid.NewGuid();
         Guid graphSnapshotId = Guid.NewGuid();
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
 
         GraphSnapshot snapshot = new()
@@ -421,9 +350,9 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
                     OutboxId = outboxId,
                     GraphSnapshotId = graphSnapshotId,
                     RunId = runId,
-                    TenantId = Guid.NewGuid(),
-                    WorkspaceId = Guid.NewGuid(),
-                    ProjectId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 }
             ]);
@@ -438,25 +367,12 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
 
         Mock<ICosmosGraphSnapshotOutboxCosmosWriter> cosmosWriter = new();
 
-        ManifestDocument goldenManifest =
-            CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(runId, "sealed-stored-hash");
-        Mock<IAuthorityQueryService> authorityQuery = new();
-        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(
-            authorityQuery,
-            runId,
-            goldenManifest);
-
-        Mock<IManifestHashService> manifestHashService = new();
-        manifestHashService
-            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
-            .Returns("recomputed-different-hash");
-
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => sqlLoader.Object);
         services.AddScoped(_ => cosmosWriter.Object);
-        services.AddScoped(_ => authorityQuery.Object);
-        services.AddScoped(_ => manifestHashService.Object);
+        RegisterGraphBinding(services, tenantId, workspaceId, projectId, runId,
+            graphSnapshotId, snapshot.ContextSnapshotId, "sealed-stored-hash", "recomputed-different-hash");
         ServiceProvider provider = services.BuildServiceProvider();
 
         CosmosGraphSnapshotOutboxProcessor sut = new(
@@ -477,6 +393,7 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+        sqlLoader.VerifyNoOtherCalls();
         cosmosWriter.Verify(w => w.SaveAsync(It.IsAny<GraphSnapshot>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -485,6 +402,10 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
     {
         Guid outboxId = Guid.NewGuid();
         Guid graphSnapshotId = Guid.NewGuid();
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
 
         Mock<ICosmosGraphSnapshotOutboxRepository> outbox = new();
         outbox
@@ -495,10 +416,10 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
                 {
                     OutboxId = outboxId,
                     GraphSnapshotId = graphSnapshotId,
-                    RunId = Guid.NewGuid(),
-                    TenantId = Guid.NewGuid(),
-                    WorkspaceId = Guid.NewGuid(),
-                    ProjectId = Guid.NewGuid(),
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 }
             ]);
@@ -520,7 +441,8 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => sqlLoader.Object);
         services.AddScoped(_ => Mock.Of<ICosmosGraphSnapshotOutboxCosmosWriter>());
-        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
+        RegisterGraphBinding(services, tenantId, workspaceId, projectId, runId,
+            graphSnapshotId, Guid.NewGuid());
         ServiceProvider provider = services.BuildServiceProvider();
 
         CosmosGraphSnapshotOutboxProcessor sut = new(
@@ -539,6 +461,24 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    private static void RegisterGraphBinding(
+        ServiceCollection services, Guid tenantId, Guid workspaceId, Guid projectId, Guid runId,
+        Guid graphSnapshotId, Guid contextSnapshotId, string storedHash = "sealed-outbox-test-hash",
+        string? computedHash = null)
+    {
+        ManifestDocument manifest = new()
+        {
+            TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId,
+            RunId = runId, ManifestId = Guid.NewGuid(), GraphSnapshotId = graphSnapshotId,
+            ContextSnapshotId = contextSnapshotId, ManifestHash = storedHash
+        };
+        RetrievalIndexingBindingTestSupport.RegisterCommittedRun(services, manifest);
+        Mock<IAuthorityQueryService> query = new(MockBehavior.Strict);
+        RetrievalIndexingBindingTestSupport.SetupManifest(query, manifest);
+        services.AddScoped(_ => query.Object);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services, computedHash ?? storedHash);
     }
 
     private sealed class ThrowingWarningLogger<T> : ILogger<T>

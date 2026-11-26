@@ -3,7 +3,6 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Manifest;
-using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -77,12 +76,13 @@ public sealed class RetrievalIndexingOutboxProcessorReplayIdempotencyTests
 
         Mock<IAuthorityQueryService> query = new();
         query
-            .Setup(q => q.GetRunDetailForRetrievalIndexingAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .Setup(q => q.GetRunDetailForCommittedProjectionAsync(
+                It.IsAny<ScopeContext>(), It.IsAny<RunRecord>(), It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
-        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(
-            query,
-            runId,
-            detail.GoldenManifest!);
+        ManifestDocument manifest = detail.GoldenManifest!;
+        manifest.GraphSnapshotId = detail.GraphSnapshot!.GraphSnapshotId;
+        manifest.FindingsSnapshotId = detail.FindingsSnapshot!.FindingsSnapshotId;
+        RetrievalIndexingBindingTestSupport.SetupManifest(query, manifest);
 
         Mock<IArtifactQueryService> artifactQuery = new();
         artifactQuery
@@ -110,6 +110,7 @@ public sealed class RetrievalIndexingOutboxProcessorReplayIdempotencyTests
             .Returns(Task.CompletedTask);
 
         ServiceCollection services = [];
+        RetrievalIndexingBindingTestSupport.RegisterCommittedRun(services, manifest);
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => query.Object);
         services.AddScoped(_ => artifactQuery.Object);

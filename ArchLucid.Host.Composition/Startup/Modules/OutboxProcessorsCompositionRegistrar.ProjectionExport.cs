@@ -28,6 +28,7 @@ internal static partial class OutboxProcessorsCompositionRegistrar
 
     internal static void RegisterRunExportBlobPushOutbox(IServiceCollection services, ArchLucidHostingRole hostingRole)
     {
+        services.AddScoped<IRunExportBlobPushAuthorization, RunExportBlobPushAuthorization>();
         services.AddSingleton<IRunExportBlobPushOutboxProcessor, RunExportBlobPushOutboxProcessor>();
 
         if (hostingRole is not (ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker))

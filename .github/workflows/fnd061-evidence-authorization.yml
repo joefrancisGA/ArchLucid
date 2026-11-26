@@ -2,7 +2,7 @@ name: FND-061 Evidence Authorization
 
 on:
   pull_request:
-    branches: [master, main, RC49]
+    branches: [master, main, RC49, fnd061/retrieval-indexing-authorization]
   merge_group:
     branches: [master, main, RC49]
 
@@ -22,8 +22,28 @@ jobs:
       - name: Verify scoped authorization precedes protected evidence reads
         run: >-
           dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~EvidenceReadAuthorizationGateTests|FullyQualifiedName~SecureNowSnapshotHttpBoundaryTests|FullyQualifiedName~TerraformAdvisoryCitedRunHttpTests|FullyQualifiedName~AuthorityRunEventsControllerShareAccessTests|FullyQualifiedName~OutboundExportShareDenial'
+          --filter 'FullyQualifiedName~EvidenceReadAuthorizationGateTests|FullyQualifiedName~SecureNowSnapshotHttpBoundaryTests|FullyQualifiedName~TerraformAdvisoryCitedRunHttpTests|FullyQualifiedName~AuthorityRunEventsControllerShareAccessTests|FullyQualifiedName~OutboundExportShareDenial|FullyQualifiedName~BlobExportRequesterBinding|FullyQualifiedName~DraftRequestsControllerTests|FullyQualifiedName~FindingInsightSignalShareAccessTests'
+      - name: Verify draft reasoning authorizes before loading the draft body
+        run: >-
+          dotnet test ArchLucid.Host.Core.Tests/ArchLucid.Host.Core.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~DraftIntakeReasoningShareAccessTests|FullyQualifiedName~DraftIntakeReasoningServiceTests'
+      - name: Verify indexing, replication, and projection jobs check committed scope and seal
+        run: >-
+          dotnet test ArchLucid.Host.Composition.Tests/ArchLucid.Host.Composition.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~RetrievalIndexingOutboxAuthorizationTests|FullyQualifiedName~RetrievalIndexingOutboxProcessorCorrelationTests|FullyQualifiedName~RetrievalIndexingOutboxProcessorReplayIdempotencyTests|FullyQualifiedName~CosmosGraphSnapshotOutboxAuthorizationTests|FullyQualifiedName~CosmosGraphSnapshotOutboxProcessorTests|FullyQualifiedName~PostCommitProjectionOutboxAuthorizationTests|FullyQualifiedName~PostCommitProjectionOutboxProcessorTests'
+      - name: Verify projection producer and downstream consumers
+        run: >-
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~PostCommitProjectionEnqueuerTests|FullyQualifiedName~FindingPriorityRerankerTests|FullyQualifiedName~FindingIacStubGenerator|FullyQualifiedName~DecisionEngineV2NodeMaterializerTests'
+      - name: Verify projection adapters consume only bound evidence
+        run: >-
+          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~GetRunDetailForCommittedProjectionAsync_reads_only_bound_evidence'
       - name: Verify warm graph projections cannot cross scope
         run: >-
           dotnet test ArchLucid.KnowledgeGraph.Tests/ArchLucid.KnowledgeGraph.Tests.csproj -c Release
           --filter 'FullyQualifiedName~Warm_projection_is_not_reused_across_a_scope_boundary'
+      - name: Verify queued blob exports honor current requester access
+        run: >-
+          dotnet test ArchLucid.Host.Composition.Tests/ArchLucid.Host.Composition.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~RunExportBlobPushRequesterAuthorizationTests'

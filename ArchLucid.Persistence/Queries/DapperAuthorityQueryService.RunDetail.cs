@@ -3,6 +3,8 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 
@@ -191,11 +193,12 @@ public sealed partial class DapperAuthorityQueryService
     }
 
     /// <inheritdoc />
-    public async Task<RunDetailDto?> GetRunDetailForRetrievalIndexingAsync(ScopeContext scope, Guid runId, CancellationToken ct)
+    public async Task<RunDetailDto?> GetRunDetailForCommittedProjectionAsync(
+        ScopeContext scope, RunRecord authorizedRun, ManifestDocument verifiedManifest, CancellationToken ct)
     {
-        RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct);
-
-        if (run is null)
+        RunRecord run = authorizedRun;
+        if (!CommittedRunEvidenceBinding.MatchesRun(scope, run.RunId, run) ||
+            !CommittedRunEvidenceBinding.MatchesManifest(scope, run, verifiedManifest))
             return null;
 
         Task<GraphSnapshot?> graphTask = run.GraphSnapshotId.HasValue
@@ -212,14 +215,11 @@ public sealed partial class DapperAuthorityQueryService
         Task<DecisionTraceDto?> traceTask = run.DecisionTraceId.HasValue
             ? decisionTraceRepository.GetByIdAsync(scope, run.DecisionTraceId.Value, ct)
             : Task.FromResult<DecisionTraceDto?>(null);
-        Task<ManifestDocument?> manifestTask = run.GoldenManifestId.HasValue
-            ? goldenManifestRepository.GetByIdAsync(scope, run.GoldenManifestId.Value, ct)
-            : Task.FromResult<ManifestDocument?>(null);
         Task<ArtifactBundle?> bundleTask = run.GoldenManifestId.HasValue
             ? artifactBundleRepository.GetByManifestIdAsync(scope, run.GoldenManifestId.Value, loadArtifactBodies: false, ct)
             : Task.FromResult<ArtifactBundle?>(null);
 
-        await Task.WhenAll(graphTask, findingsTask, traceTask, manifestTask, bundleTask);
+        await Task.WhenAll(graphTask, findingsTask, traceTask, bundleTask);
 
         return new RunDetailDto
         {
@@ -227,7 +227,7 @@ public sealed partial class DapperAuthorityQueryService
             GraphSnapshot = await graphTask,
             FindingsSnapshot = await findingsTask,
             AuthorityTrace = await traceTask,
-            GoldenManifest = await manifestTask,
+            GoldenManifest = verifiedManifest,
             ArtifactBundle = await bundleTask,
         };
     }

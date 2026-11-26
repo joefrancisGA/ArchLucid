@@ -154,12 +154,14 @@ public sealed partial class DapperDraftRequestRepository(ISqlConnectionFactory c
         });
         parameters.Add("UpdatedUtc", expected.UpdatedUtc, DbType.DateTime2);
         DateTime now = TimeProvider.System.GetUtcNow().UtcDateTime;
-        parameters.Add("Now", now <= expected.UpdatedUtc ? expected.UpdatedUtc.AddTicks(1) : now, DbType.DateTime2);
+        DateTime boundUpdatedUtc = now <= expected.UpdatedUtc ? expected.UpdatedUtc.AddTicks(1) : now;
+        parameters.Add("Now", boundUpdatedUtc, DbType.DateTime2);
         int rows = await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, parameters,
             cancellationToken: ct, commandTimeout: InteractiveDraftCommandTimeoutSeconds));
 
         return rows == 1
-            ? await GetAsync(expected.TenantId, expected.WorkspaceId, expected.ProjectId, expected.DraftId, ct)
+            ? await GetAtAccessRevisionAsync(
+                expected.TenantId, expected.WorkspaceId, expected.ProjectId, expected.DraftId, boundUpdatedUtc, ct)
             : null;
     }
 

@@ -109,6 +109,65 @@ public sealed class ArchitectureDiagramModelRecordJsonRoundTripTests
         failureReason.Should().BeNull();
     }
 
+    [Theory]
+    [InlineData("api", "missing")]
+    [InlineData("missing", "api")]
+    public void TryValidate_rejects_an_edge_with_an_unknown_source_or_target(string sourceId, string targetId)
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Nodes = [new ArchitectureDiagramNodeRecord { Id = "api", Label = "API" }],
+            Edges = [new ArchitectureDiagramEdgeRecord { Id = "e1", SourceId = sourceId, TargetId = targetId }],
+        };
+
+        bool valid = ArchitectureDiagramModelValidator.TryValidate(model, out string? failureReason);
+
+        valid.Should().BeFalse();
+        failureReason.Should().Contain("unknown node id");
+    }
+
+    [Fact]
+    public void TryValidate_matches_padded_ids_and_references_in_a_nested_diagram()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Subgraphs =
+            [
+                new ArchitectureDiagramSubgraphRecord { Id = "  network ", Label = "Network" },
+                new ArchitectureDiagramSubgraphRecord { Id = " services  ", Label = "Services", ParentSubgraphId = " network  " },
+            ],
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord { Id = "  api ", Label = "API", SubgraphId = " services " },
+                new ArchitectureDiagramNodeRecord { Id = " store  ", Label = "Data store", SubgraphId = "  network " },
+            ],
+            Edges = [new ArchitectureDiagramEdgeRecord { Id = "data-flow", SourceId = " api  ", TargetId = "  store " }],
+        };
+
+        bool valid = ArchitectureDiagramModelValidator.TryValidate(model, out string? failureReason);
+
+        valid.Should().BeTrue();
+        failureReason.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryValidate_rejects_a_subgraph_with_an_unknown_parent()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Subgraphs =
+            [
+                new ArchitectureDiagramSubgraphRecord { Id = "network", Label = "Network" },
+                new ArchitectureDiagramSubgraphRecord { Id = "services", Label = "Services", ParentSubgraphId = "missing" },
+            ],
+        };
+
+        bool valid = ArchitectureDiagramModelValidator.TryValidate(model, out string? failureReason);
+
+        valid.Should().BeFalse();
+        failureReason.Should().Contain("unknown parent").And.Contain("missing");
+    }
+
     [Fact]
     public void TryValidate_rejects_unknown_node_kind()
     {

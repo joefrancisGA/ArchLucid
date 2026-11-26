@@ -38,6 +38,24 @@ internal static class InventoryPrivilegePathCanReachAppender
                         relationship.ToAzureResourceId,
                         relationship.InferenceSource)));
 
+        var propertiesByRow = snapshot.Properties.ToLookup(property => property.ResourceRowId);
+        var endpointResources = snapshot.Resources
+            .Where(resource => string.Equals(resource.ResourceType, "Microsoft.Network/privateEndpoints", StringComparison.OrdinalIgnoreCase))
+            .GroupBy(resource => ArmResourceIdNormalizer.Normalize(resource.AzureResourceId), StringComparer.OrdinalIgnoreCase)
+            .Where(group => group.Count() == 1)
+            .ToDictionary(group => group.Key, group => new AzureInventoryReachabilityResourceProperties
+            {
+                ResourceType = group.Single().ResourceType,
+                Properties = propertiesByRow[group.Single().ResourceRowId]
+                    .Where(property => !string.IsNullOrWhiteSpace(property.PropertyKey))
+                    .GroupBy(property => property.PropertyKey, StringComparer.OrdinalIgnoreCase)
+                    .ToDictionary(properties => properties.Key,
+                        properties => properties.Select(property => property.PropertyValue ?? string.Empty)
+                            .Distinct(StringComparer.Ordinal).Count() == 1
+                            ? properties.First().PropertyValue ?? string.Empty : string.Empty,
+                        StringComparer.OrdinalIgnoreCase),
+            }, StringComparer.OrdinalIgnoreCase);
+
         foreach (AzureInventoryResourceRelationshipReadModel relationship in snapshot.Relationships)
         {
             if (!string.Equals(
@@ -51,6 +69,10 @@ internal static class InventoryPrivilegePathCanReachAppender
             if (!dnsJoinIndex.HasPeReachableTarget(relationship.FromAzureResourceId, relationship.ToAzureResourceId))
                 continue;
 
+            if (InventoryPrivateFlowVerdict.Evaluate(dnsJoinIndex, relationship.FromAzureResourceId,
+                    relationship.ToAzureResourceId, endpointResources) == AzurePrivateConnectivityState.Blocked)
+                continue;
+
             InventoryPrivilegePathGraph.AddEdge(
                 outgoing,
                 new PrivilegePathEdge
@@ -58,8 +80,8 @@ internal static class InventoryPrivilegePathCanReachAppender
                     FromNodeId = relationship.FromAzureResourceId,
                     ToNodeId = relationship.ToAzureResourceId,
                     EdgeType = GraphEdgeTypes.CanReach,
-                    ProvenanceKind = ProvenanceKind.DerivedFact,
-                    InferenceSource = GraphEdgeInferenceSources.InventoryPeReachableTarget,
+                    ProvenanceKind = ProvenanceKind.DeterministicInference,
+                    InferenceSource = SecureNowArchitectConstants.InsufficientEvidenceDnsHopEdgeType,
                 });
         }
 
@@ -70,7 +92,9 @@ internal static class InventoryPrivilegePathCanReachAppender
         {
             foreach (string targetArmId in intentTargets)
             {
-                if (!dnsJoinIndex.IsMissingDnsJoin(computeArmId, targetArmId))
+                if (!dnsJoinIndex.IsMissingDnsJoin(computeArmId, targetArmId)
+                    || InventoryPrivateFlowVerdict.Evaluate(dnsJoinIndex, computeArmId, targetArmId,
+                        endpointResources) == AzurePrivateConnectivityState.Blocked)
                 {
                     continue;
                 }

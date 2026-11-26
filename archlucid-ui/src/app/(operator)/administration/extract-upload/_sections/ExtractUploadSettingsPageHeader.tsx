@@ -21,6 +21,7 @@ import {
   extractUploadSettingsPageTitle,
   extractUploadSettingsPageSubtitle,
 } from "@/lib/extract-upload-settings-page-copy";
+import { EXTRACT_UPLOAD_SETTINGS_CLAIM_DISCIPLINE } from "@/lib/extract-upload-settings-evidence-copy";
 import { extractUploadSettingsNavHrefForPath } from "@/lib/extract-upload-settings-route";
 import { cn } from "@/lib/utils";
 
@@ -78,6 +79,9 @@ export function ExtractUploadSettingsPageHeader(
       navHref={navHref}
       headingLevel="h1"
       subtitle={extractUploadSettingsPageSubtitle(buyerPolishedShell, productLine)}
+      subtitleTestId="extract-upload-settings-lead"
+      claimDiscipline={EXTRACT_UPLOAD_SETTINGS_CLAIM_DISCIPLINE}
+      claimDisciplineTestId="extract-upload-settings-claim-discipline"
       subtitleClassName={buyerPolishedShell ? HELP_PAGE_LAYOUT.readingBody : undefined}
       statusBadge={
         inventoryStatus !== null ? (

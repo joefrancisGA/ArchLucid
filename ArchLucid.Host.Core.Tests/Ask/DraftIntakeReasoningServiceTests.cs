@@ -47,14 +47,7 @@ public sealed class DraftIntakeReasoningServiceTests
         };
 
         Mock<IDraftRequestRepository> repository = new();
-        repository
-            .Setup(static r => r.GetAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(draft);
+        SetUpAuthorizedDraft(repository, draft);
         repository
             .Setup(r => r.TryBindConversationThreadAsync(draft, threadId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((DraftRequestResponse expected, Guid id, CancellationToken _) =>
@@ -135,23 +128,16 @@ public sealed class DraftIntakeReasoningServiceTests
         Guid draftId = Guid.Parse("66666666-6666-6666-6666-666666666666");
 
         Mock<IDraftRequestRepository> repository = new();
-        repository
-            .Setup(r => r.GetAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                draftId,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new DraftRequestResponse
-            {
-                DraftId = draftId,
-                TenantId = _scope.TenantId,
-                WorkspaceId = _scope.WorkspaceId,
-                ProjectId = _scope.ProjectId,
-                CreatedByUserId = "operator@test",
-                Status = DraftRequestStatus.RunSpawned,
-                Document = new DraftRequestDocument(),
-            });
+        SetUpAuthorizedDraft(repository, new DraftRequestResponse
+        {
+            DraftId = draftId,
+            TenantId = _scope.TenantId,
+            WorkspaceId = _scope.WorkspaceId,
+            ProjectId = _scope.ProjectId,
+            CreatedByUserId = "operator@test",
+            Status = DraftRequestStatus.RunSpawned,
+            Document = new DraftRequestDocument(),
+        });
 
         DraftIntakeReasoningService sut = new(
             repository.Object,
@@ -192,14 +178,7 @@ public sealed class DraftIntakeReasoningServiceTests
         };
 
         Mock<IDraftRequestRepository> repository = new();
-        repository
-            .Setup(static r => r.GetAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(draft);
+        SetUpAuthorizedDraft(repository, draft);
         repository
             .Setup(r => r.TryBindConversationThreadAsync(draft, threadId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((DraftRequestResponse expected, Guid id, CancellationToken _) =>
@@ -288,14 +267,7 @@ public sealed class DraftIntakeReasoningServiceTests
         };
 
         Mock<IDraftRequestRepository> repository = new();
-        repository
-            .Setup(static r => r.GetAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(draft);
+        SetUpAuthorizedDraft(repository, draft);
         repository
             .Setup(r => r.TryBindConversationThreadAsync(draft, threadId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((DraftRequestResponse expected, Guid id, CancellationToken _) =>
@@ -384,14 +356,7 @@ public sealed class DraftIntakeReasoningServiceTests
         };
 
         Mock<IDraftRequestRepository> repository = new();
-        repository
-            .Setup(static r => r.GetAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(draft);
+        SetUpAuthorizedDraft(repository, draft);
         repository
             .Setup(r => r.TryBindConversationThreadAsync(draft, threadId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((DraftRequestResponse expected, Guid id, CancellationToken _) =>
@@ -460,6 +425,18 @@ public sealed class DraftIntakeReasoningServiceTests
 
         result.Should().NotBeNull();
         result!.Answer.Should().Be(DevSwitchableAgentCompletionClient.LiveCompletionUnavailableMessage);
+    }
+
+    private static void SetUpAuthorizedDraft(Mock<IDraftRequestRepository> repository, DraftRequestResponse draft)
+    {
+        repository.Setup(r => r.GetAccessMetadataAsync(draft.TenantId, draft.WorkspaceId, draft.ProjectId,
+                draft.DraftId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new DraftRequestAccessMetadata(draft.DraftId, draft.TenantId, draft.WorkspaceId,
+                draft.ProjectId, draft.ArchitectureId, draft.CreatedByUserId, draft.Document.PriorRunId,
+                draft.SpawnedRunId, draft.UpdatedUtc));
+        repository.Setup(r => r.GetAtAccessRevisionAsync(draft.TenantId, draft.WorkspaceId, draft.ProjectId,
+                draft.DraftId, draft.UpdatedUtc, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(draft);
     }
 
     private static IAskEvidenceAccess CreateAccess()

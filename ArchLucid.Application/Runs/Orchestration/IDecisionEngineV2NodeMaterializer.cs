@@ -1,3 +1,6 @@
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Models;
+
 namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <summary>
@@ -8,8 +11,8 @@ namespace ArchLucid.Application.Runs.Orchestration;
 public interface IDecisionEngineV2NodeMaterializer
 {
     /// <summary>
-    ///     Creates decision nodes for <paramref name="runId" /> when none exist so
+    ///     Creates decision nodes for the verified committed run when none exist so
     ///     <c>GET /v1/architecture/review/{runId}/decisions</c> is populated.
     /// </summary>
-    Task MaterializeIfMissingAsync(string runId, CancellationToken cancellationToken);
+    Task MaterializeForCommittedRunAsync(ScopeContext scope, RunRecord run, CancellationToken cancellationToken);
 }

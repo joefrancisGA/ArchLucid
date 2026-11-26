@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
 import { SecureNowBetaSkuContentsSection } from "@/components/product-line/SecureNowBetaSkuContentsSection";
 import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
 import { SecureNowPublishedListPriceSection } from "@/components/product-line/SecureNowPublishedListPriceSection";
@@ -22,13 +23,27 @@ import {
   SECURENOW_QUOTE_PACKET_SN_EVAL_BODY,
   SECURENOW_QUOTE_PACKET_SN_EVAL_HEADING,
 } from "@/lib/product-line/securenow-quote-packet-copy";
+import { cn } from "@/lib/utils";
 
 export function SecureNowQuotePacketPageView(): React.JSX.Element {
   return (
     <OperatorPageContainer variant="full" data-testid="securenow-quote-packet-page">
-      <OperatorPageHeader title={SECURENOW_QUOTE_PACKET_HEADING} subtitle={SECURENOW_QUOTE_PACKET_LEAD} />
+      <OperatorPageHeader
+        title={SECURENOW_QUOTE_PACKET_HEADING}
+        subtitle={SECURENOW_QUOTE_PACKET_LEAD}
+        claimDiscipline={SECURENOW_QUOTE_PACKET_GUARDRAIL}
+        claimDisciplineTestId="securenow-quote-packet-claim-discipline"
+        titleTestId="securenow-quote-packet-heading"
+        subtitleTestId="securenow-quote-packet-lead"
+      />
 
-      <main className="mt-6 max-w-3xl space-y-6">
+      <main id="main-content" tabIndex={-1} className="mt-6 max-w-3xl space-y-6">
+        <SecureNowAdminPartialCaptureStrip
+          testId="securenow-quote-packet-partial-capture"
+          cloudConnectionsTestId="securenow-quote-packet-partial-capture-cloud-connections"
+          extractUploadTestId="securenow-quote-packet-partial-capture-extract-upload"
+        />
+
         <section
           id={PROCUREMENT_SN_EVAL_ANCHOR_FRAGMENT}
           aria-labelledby="securenow-quote-packet-sn-eval-heading"
@@ -95,8 +110,24 @@ export function SecureNowQuotePacketPageView(): React.JSX.Element {
           </ul>
         </section>
 
-        <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_QUOTE_PACKET_GUARDRAIL}</p>
-        <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_QUOTE_PACKET_COMMERCE_LIMIT}</p>
+        <p className={OPERATOR_TYPOGRAPHY.body} data-testid="securenow-quote-packet-commerce-limit">
+          {SECURENOW_QUOTE_PACKET_COMMERCE_LIMIT}
+        </p>
+
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-quote-packet-sources">
+          <span className="font-medium text-al-text-primary">Sources:</span> Published list prices and SKU meters for
+          quote preparation — quote-only; not countersigned order, tax identity, or in-product commerce authorization.
+        </p>
+
+        <p className={OPERATOR_TYPOGRAPHY.body}>
+          <Link className={OPERATOR_LINK.inline} href="/administration">
+            Administration hub
+          </Link>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href="/">
+            Home
+          </Link>
+        </p>
       </main>
     </OperatorPageContainer>
   );

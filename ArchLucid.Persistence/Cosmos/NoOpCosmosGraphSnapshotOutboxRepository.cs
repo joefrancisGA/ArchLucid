@@ -6,6 +6,14 @@ namespace ArchLucid.Persistence.Cosmos;
 public sealed class NoOpCosmosGraphSnapshotOutboxRepository : ICosmosGraphSnapshotOutboxRepository
 {
     /// <inheritdoc />
+    public Task DeferUntilAsync(
+        Guid outboxId, DateTime expectedLeaseUtc, DateTime nextAttemptUtc, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
     public Task EnqueueAsync(
         Guid graphSnapshotId,
         Guid runId,

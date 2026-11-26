@@ -795,7 +795,8 @@ public sealed class ArtifactExportSealedManifestRuntimeConflictTests
             Mock.Of<IGraphSnapshotRepository>(),
             Mock.Of<IAgentExecutionTraceRepository>(),
             Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
-            Mock.Of<IArchitectureInventoryBindingRepository>())
+            Mock.Of<IArchitectureInventoryBindingRepository>(),
+            Mock.Of<ArchLucid.Host.Core.Coordination.Export.IRunExportBlobPushAuthorization>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

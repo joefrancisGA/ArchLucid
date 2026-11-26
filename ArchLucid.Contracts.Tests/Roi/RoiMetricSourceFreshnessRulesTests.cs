@@ -105,4 +105,18 @@ public sealed class RoiMetricSourceFreshnessRulesTests
 
         disposition.Should().Be("WARN");
     }
+
+    [Theory]
+    [InlineData(RoiMetricSourceKind.ExtractorZip)]
+    [InlineData(RoiMetricSourceKind.RetailPriceRow)]
+    public void Fresh_classified_evidence_is_not_benchmark_only(RoiMetricSourceKind sourceKind)
+    {
+        IReadOnlyList<RoiMetricSourceRow> sources =
+        [
+            new("cost", "Cost", "100", sourceKind, "evidence"),
+        ];
+
+        RoiMetricSourceFreshnessRules.ResolveDisposition(UtcNow.AddDays(-1), false, 100m, sources, UtcNow)
+            .Should().Be("PASS");
+    }
 }

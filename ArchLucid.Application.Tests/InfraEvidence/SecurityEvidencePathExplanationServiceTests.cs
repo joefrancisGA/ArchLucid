@@ -348,6 +348,7 @@ public sealed class SecurityEvidencePathExplanationServiceTests
         sample.Verify(x => x.RecordAsync(scope, explanation.ExplanationId, expected, false,
             It.Is<InventoryFalsificationProbe?>(record => ReferenceEquals(record, explanation.InventoryFalsification)),
             It.IsAny<CancellationToken>()), Times.Once);
+        sample.VerifyGet(x => x.IsSyntheticRecovery, Times.Once);
         sample.VerifyNoOtherCalls();
 
         if (stale || wrongProject || !typedClaim || !citesHop)

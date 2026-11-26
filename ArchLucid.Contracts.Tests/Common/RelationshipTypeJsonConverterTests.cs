@@ -26,6 +26,13 @@ public sealed class RelationshipTypeJsonConverterTests
     }
 
     [Fact]
+    public void Read_distinguishes_publisher_alias_from_subscriber_alias()
+    {
+        JsonSerializer.Deserialize<RelationshipType>("\"publish\"", Options).Should().Be(RelationshipType.PublishesTo);
+        JsonSerializer.Deserialize<RelationshipType>("\"subscribe\"", Options).Should().Be(RelationshipType.SubscribesTo);
+    }
+
+    [Fact]
     public void Read_integer_out_of_range_throws()
     {
         Action act = () => JsonSerializer.Deserialize<RelationshipType>("99", Options);

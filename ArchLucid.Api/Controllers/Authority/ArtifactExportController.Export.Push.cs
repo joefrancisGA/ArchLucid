@@ -8,6 +8,7 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Security;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Host.Core.Auth.Services;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.AspNetCore.Authorization;
@@ -47,11 +48,20 @@ public sealed partial class ArtifactExportController
         if (shareDenied is not null)
             return shareDenied;
 
-        string? sasRejection =
-            await AllowedRunExportBlobDestinationUrlPolicy
-                .TryGetRejectionReasonAfterDnsResolveAsync(request.DestinationSasUrl, ct)
-                .ConfigureAwait(false);
+        string? sasRejection = AllowedRunExportBlobDestinationUrlPolicy.TryGetRejectionReason(request.DestinationSasUrl);
+        if (sasRejection is not null)
+            return this.BadRequestProblem(sasRejection, ProblemTypes.ValidationFailed);
 
+        string? actorKey = User.Identity?.IsAuthenticated == true ? HttpActorContext.TryGetJwtActorId(User) : null;
+        Guid? directoryUserId = actorKey is null
+            ? null
+            : await blobPushAuthorization.AuthorizeAsync(scope, runId, actorKey, expectedDirectoryUserId: null, ct);
+        if (directoryUserId is not Guid requesterId || requesterId == Guid.Empty || actorKey is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        sasRejection = await AllowedRunExportBlobDestinationUrlPolicy
+            .TryGetRejectionReasonAfterDnsResolveAsync(request.DestinationSasUrl, ct)
+            .ConfigureAwait(false);
         if (sasRejection is not null)
             return this.BadRequestProblem(sasRejection, ProblemTypes.ValidationFailed);
 
@@ -86,6 +96,8 @@ public sealed partial class ArtifactExportController
             scope.WorkspaceId,
             scope.ProjectId,
             request.DestinationSasUrl,
+            actorKey,
+            requesterId,
             ct);
 
         await auditService.LogAsync(

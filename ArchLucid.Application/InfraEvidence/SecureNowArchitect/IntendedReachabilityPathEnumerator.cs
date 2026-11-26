@@ -309,6 +309,22 @@ internal static class IntendedReachabilityPathEnumerator
             }
         }
 
+        // A DNS topology join is configuration evidence, not a measured connection.
+        // Preserve existing denial evaluation before adding this uncertainty.
+        if (hasPrivatePeReachableHop && !hasInsufficientEvidence)
+        {
+            PrivilegePathEdge privateHop = hops.First(InventoryReachabilityPathGraph.IsPeReachablePrivateHop);
+            finalHops.Add(new PrivilegePathEdge
+            {
+                FromNodeId = privateHop.FromNodeId,
+                ToNodeId = privateHop.ToNodeId,
+                EdgeType = SecureNowArchitectConstants.InsufficientEvidenceDnsHopEdgeType,
+                ProvenanceKind = ProvenanceKind.DeterministicInference,
+                RoleName = null,
+            });
+            hasInsufficientEvidence = true;
+        }
+
         candidate = new ReachabilityPathCandidate
         {
             Hops = finalHops,

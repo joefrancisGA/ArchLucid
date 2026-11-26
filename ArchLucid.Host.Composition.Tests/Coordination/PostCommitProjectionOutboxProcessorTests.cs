@@ -14,6 +14,7 @@ using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination.Projection;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Coordination.Projection;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Queries;
@@ -62,20 +63,10 @@ public sealed class PostCommitProjectionOutboxProcessorTests
             ]);
         outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-        Mock<IAuthorityQueryService> authorityQuery = new();
-        authorityQuery
-            .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RunDetailDto?)null);
-        authorityQuery
-            .Setup(q => q.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RunDetailDto?)null);
-
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
-        services.AddScoped(_ => authorityQuery.Object);
-        services.AddScoped(_ => Mock.Of<IProvenanceGraphAccessService>());
+        services.AddScoped(_ => Mock.Of<IRunRepository>());
         services.AddScoped(_ => Mock.Of<IAuditService>());
-        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
         ServiceProvider provider = services.BuildServiceProvider();
 
         PostCommitProjectionOutboxProcessor sut = new(
@@ -108,7 +99,12 @@ public sealed class PostCommitProjectionOutboxProcessorTests
         using ActivityListener listener = new();
         listener.ShouldListenTo = s => s.Name == ArchLucidMeterNames.AuthorityRunActivitySource;
         listener.Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded;
-        listener.ActivityStopped = stopped.Add;
+        listener.ActivityStopped = activity =>
+        {
+            if (string.Equals(activity.GetTagItem("archlucid.outbox_id") as string, outboxId.ToString("D"),
+                    StringComparison.Ordinal))
+                stopped.Add(activity);
+        };
         ActivitySource.AddActivityListener(listener);
 
         Mock<IPostCommitProjectionOutboxRepository> outbox = new();
@@ -129,21 +125,10 @@ public sealed class PostCommitProjectionOutboxProcessorTests
             ]);
         outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-        Mock<IAuthorityQueryService> authorityQuery = new();
-        authorityQuery
-            .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RunDetailDto?)null);
-        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(
-            authorityQuery,
-            runId,
-            CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(runId));
-
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
-        services.AddScoped(_ => authorityQuery.Object);
-        services.AddScoped(_ => Mock.Of<IProvenanceGraphAccessService>());
+        services.AddScoped(_ => Mock.Of<IRunRepository>());
         services.AddScoped(_ => Mock.Of<IAuditService>());
-        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
         ServiceProvider provider = services.BuildServiceProvider();
 
         PostCommitProjectionOutboxProcessor sut = new(
@@ -336,19 +321,15 @@ public sealed class PostCommitProjectionOutboxProcessorTests
 
         Mock<IAuthorityQueryService> authorityQuery = new();
         authorityQuery
-            .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .Setup(q => q.GetRunDetailForCommittedProjectionAsync(
+                It.IsAny<ScopeContext>(), It.IsAny<RunRecord>(), It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunDetailDto?)null);
-        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(
-            authorityQuery,
-            runId,
-            CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(runId));
-
+        ManifestDocument manifest = ScopedManifest(runId, scope.TenantId, scope.WorkspaceId, scope.ProjectId);
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => authorityQuery.Object);
-        services.AddScoped(_ => Mock.Of<IProvenanceGraphAccessService>());
         services.AddScoped(_ => Mock.Of<IAuditService>());
-        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
+        RegisterBinding(services, authorityQuery, manifest);
         ServiceProvider provider = services.BuildServiceProvider();
 
         int scopeCreates = 0;
@@ -379,6 +360,9 @@ public sealed class PostCommitProjectionOutboxProcessorTests
     {
         Guid outboxId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
         Mock<IPostCommitProjectionOutboxRepository> outbox = new();
         outbox
             .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
@@ -389,9 +373,9 @@ public sealed class PostCommitProjectionOutboxProcessorTests
                     OutboxId = outboxId,
                     WorkType = PostCommitProjectionWorkTypes.DecisionEngineV2NodeMaterialization,
                     RunId = runId,
-                    TenantId = Guid.NewGuid(),
-                    WorkspaceId = Guid.NewGuid(),
-                    ProjectId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 }
             ]);
@@ -399,14 +383,16 @@ public sealed class PostCommitProjectionOutboxProcessorTests
 
         Mock<IDecisionEngineV2NodeMaterializer> materializer = new();
         materializer
-            .Setup(m => m.MaterializeIfMissingAsync(runId.ToString("N"), It.IsAny<CancellationToken>()))
+            .Setup(m => m.MaterializeForCommittedRunAsync(It.IsAny<ScopeContext>(), It.Is<RunRecord>(r => r.RunId == runId), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => materializer.Object);
         services.AddScoped(_ => Mock.Of<IAuditService>());
-        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterSealedManifestGuardServices(services, runId);
+        Mock<IAuthorityQueryService> authorityQuery = new(MockBehavior.Strict);
+        services.AddScoped(_ => authorityQuery.Object);
+        RegisterBinding(services, authorityQuery, ScopedManifest(runId, tenantId, workspaceId, projectId));
         ServiceProvider provider = services.BuildServiceProvider();
 
         PostCommitProjectionOutboxProcessor sut = new(
@@ -418,7 +404,7 @@ public sealed class PostCommitProjectionOutboxProcessorTests
         await sut.ProcessPendingBatchAsync(CancellationToken.None);
 
         materializer.Verify(
-            m => m.MaterializeIfMissingAsync(runId.ToString("N"), It.IsAny<CancellationToken>()),
+            m => m.MaterializeForCommittedRunAsync(It.IsAny<ScopeContext>(), It.Is<RunRecord>(r => r.RunId == runId), It.IsAny<CancellationToken>()),
             Times.Once);
         outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -428,14 +414,17 @@ public sealed class PostCommitProjectionOutboxProcessorTests
     {
         Guid outboxId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
-        ManifestDocument compareManifest = CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(runId);
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        ManifestDocument compareManifest = ScopedManifest(runId, tenantId, workspaceId, projectId);
         ManifestDocument runDetailManifest = CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(
             runId,
             manifestHash: "stale-run-detail-manifest-hash");
 
         RunDetailDto detail = new()
         {
-            Run = new RunRecord { RunId = runId, CreatedUtc = TimeProvider.System.UtcNowDateTime() },
+            Run = RetrievalIndexingBindingTestSupport.CreateCommittedRun(compareManifest),
             GoldenManifest = runDetailManifest,
             GraphSnapshot = new GraphSnapshot
             {
@@ -458,9 +447,9 @@ public sealed class PostCommitProjectionOutboxProcessorTests
                     OutboxId = outboxId,
                     WorkType = PostCommitProjectionWorkTypes.ProvenanceSnapshotMaterialization,
                     RunId = runId,
-                    TenantId = Guid.NewGuid(),
-                    WorkspaceId = Guid.NewGuid(),
-                    ProjectId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 }
             ]);
@@ -468,9 +457,9 @@ public sealed class PostCommitProjectionOutboxProcessorTests
 
         Mock<IAuthorityQueryService> authorityQuery = new();
         authorityQuery
-            .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .Setup(q => q.GetRunDetailForCommittedProjectionAsync(
+                It.IsAny<ScopeContext>(), It.IsAny<RunRecord>(), It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
-        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(authorityQuery, runId, compareManifest);
 
         Mock<IProvenanceGraphAccessService> provenanceGraphAccess = new();
 
@@ -479,7 +468,11 @@ public sealed class PostCommitProjectionOutboxProcessorTests
         services.AddScoped(_ => authorityQuery.Object);
         services.AddScoped(_ => provenanceGraphAccess.Object);
         services.AddScoped(_ => Mock.Of<IAuditService>());
-        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
+        compareManifest.GraphSnapshotId = detail.GraphSnapshot!.GraphSnapshotId;
+        compareManifest.FindingsSnapshotId = detail.FindingsSnapshot!.FindingsSnapshotId;
+        detail.Run.GraphSnapshotId = compareManifest.GraphSnapshotId;
+        detail.Run.FindingsSnapshotId = compareManifest.FindingsSnapshotId;
+        RegisterBinding(services, authorityQuery, compareManifest);
         ServiceProvider provider = services.BuildServiceProvider();
 
         PostCommitProjectionOutboxProcessor sut = new(
@@ -532,17 +525,10 @@ public sealed class PostCommitProjectionOutboxProcessorTests
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        Mock<IAuthorityQueryService> authorityQuery = new();
-        authorityQuery
-            .Setup(q => q.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RunDetailDto?)null);
-
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
-        services.AddScoped(_ => authorityQuery.Object);
-        services.AddScoped(_ => Mock.Of<IProvenanceGraphAccessService>());
+        services.AddScoped(_ => Mock.Of<IRunRepository>());
         services.AddScoped(_ => Mock.Of<IAuditService>());
-        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
         ServiceProvider provider = services.BuildServiceProvider();
 
         PostCommitProjectionOutboxProcessor sut = new(
@@ -568,14 +554,17 @@ public sealed class PostCommitProjectionOutboxProcessorTests
     {
         Guid outboxId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
-        ManifestDocument compareManifest = CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(runId);
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        ManifestDocument compareManifest = ScopedManifest(runId, tenantId, workspaceId, projectId);
         ManifestDocument runDetailManifest = CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(
             runId,
             manifestHash: "stale-run-detail-manifest-hash");
 
         RunDetailDto detail = new()
         {
-            Run = new RunRecord { RunId = runId, CreatedUtc = TimeProvider.System.UtcNowDateTime() },
+            Run = RetrievalIndexingBindingTestSupport.CreateCommittedRun(compareManifest),
             GoldenManifest = runDetailManifest,
             GraphSnapshot = new GraphSnapshot
             {
@@ -598,9 +587,9 @@ public sealed class PostCommitProjectionOutboxProcessorTests
                     OutboxId = outboxId,
                     WorkType = PostCommitProjectionWorkTypes.ProvenanceSnapshotMaterialization,
                     RunId = runId,
-                    TenantId = Guid.NewGuid(),
-                    WorkspaceId = Guid.NewGuid(),
-                    ProjectId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
                     CreatedUtc = TimeProvider.System.UtcNowDateTime()
                 }
             ]);
@@ -615,16 +604,20 @@ public sealed class PostCommitProjectionOutboxProcessorTests
 
         Mock<IAuthorityQueryService> authorityQuery = new();
         authorityQuery
-            .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .Setup(q => q.GetRunDetailForCommittedProjectionAsync(
+                It.IsAny<ScopeContext>(), It.IsAny<RunRecord>(), It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
-        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(authorityQuery, runId, compareManifest);
 
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => authorityQuery.Object);
         services.AddScoped(_ => Mock.Of<IProvenanceGraphAccessService>());
         services.AddScoped(_ => Mock.Of<IAuditService>());
-        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
+        compareManifest.GraphSnapshotId = detail.GraphSnapshot!.GraphSnapshotId;
+        compareManifest.FindingsSnapshotId = detail.FindingsSnapshot!.FindingsSnapshotId;
+        detail.Run.GraphSnapshotId = compareManifest.GraphSnapshotId;
+        detail.Run.FindingsSnapshotId = compareManifest.FindingsSnapshotId;
+        RegisterBinding(services, authorityQuery, compareManifest);
         ServiceProvider provider = services.BuildServiceProvider();
 
         PostCommitProjectionOutboxProcessor sut = new(
@@ -643,6 +636,23 @@ public sealed class PostCommitProjectionOutboxProcessorTests
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    private static ManifestDocument ScopedManifest(Guid runId, Guid tenantId, Guid workspaceId, Guid projectId)
+    {
+        ManifestDocument manifest = CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(runId);
+        manifest.TenantId = tenantId;
+        manifest.WorkspaceId = workspaceId;
+        manifest.ProjectId = projectId;
+        return manifest;
+    }
+
+    private static void RegisterBinding(
+        ServiceCollection services, Mock<IAuthorityQueryService> query, ManifestDocument manifest)
+    {
+        RetrievalIndexingBindingTestSupport.RegisterCommittedRun(services, manifest);
+        RetrievalIndexingBindingTestSupport.SetupManifest(query, manifest);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
     }
 
     private sealed class ThrowingWarningLogger<T> : ILogger<T>

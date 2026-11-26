@@ -73,6 +73,10 @@ export function SecureNowSkuCardView(): React.JSX.Element {
             Why SecureNow
           </Link>
         </p>
+        <p className={cn("m-0", MARKETING_TYPOGRAPHY.meta)} data-testid="securenow-sku-sources">
+          <span className="font-medium text-al-text-primary">Sources:</span> Published SKU and list-price packaging — quote-only;
+          not in-product billing or beta GO clearance.
+        </p>
       </div>
     </MarketingPageShell>
   );
