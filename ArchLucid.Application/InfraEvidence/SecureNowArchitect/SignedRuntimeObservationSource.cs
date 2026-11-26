@@ -31,7 +31,7 @@ internal interface IScopedRuntimeTelemetryReader
 /// A trusted producer must attest actual process versions and instance enumeration.
 /// </summary>
 internal sealed class SignedRuntimeObservationSource(
-    IScopedRuntimeTelemetryReader reader, TimeProvider clock) : IAuthorizedRuntimeObservationSource
+    IScopedRuntimeTelemetryReader reader, TimeProvider clock, IRuntimeAttestationReplayGuard replayGuard) : IAuthorizedRuntimeObservationSource
 {
     private const int MaximumPayloadBytes = 1024 * 1024;
     private static readonly TimeSpan MaximumLifetime = TimeSpan.FromMinutes(15);
@@ -92,10 +92,15 @@ internal sealed class SignedRuntimeObservationSource(
                 return null;
             }
 
+            string digest = Convert.ToHexString(SHA256.HashData(payload));
+            cancellationToken.ThrowIfCancellationRequested();
+            if (!replayGuard.TryAccept(request, attestation.IssuedAt, batch.EnumeratedAt,
+                    attestation.ExpiresAt, digest, now)) return null;
+
             // Cite the verified bytes, not a caller-provided URL or unverifiable claim.
             return batch with
             {
-                EvidenceReference = $"runtime-attestation:sha256:{Convert.ToHexString(SHA256.HashData(payload))}",
+                EvidenceReference = $"runtime-attestation:sha256:{digest}",
             };
         }
         catch (Exception exception) when (exception is CryptographicException
