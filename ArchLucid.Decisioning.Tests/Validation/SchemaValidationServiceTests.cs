@@ -159,11 +159,7 @@ public sealed class SchemaValidationServiceTests
 
         SchemaValidationResult result = service.ValidateAgentResultJson(invalidJson);
 
-        if (result.IsValid)
-
-            return;
-
-
+        result.IsValid.Should().BeFalse("the payload lacks the required AgentResult fields");
         result.DetailedErrors.Should().NotBeEmpty();
         result.DetailedErrors.Should().AllSatisfy(error =>
         {
@@ -190,10 +186,8 @@ public sealed class SchemaValidationServiceTests
 
         SchemaValidationResult result = service.ValidateAgentResultJson(invalidJson);
 
-        if (!result.IsValid)
-
-            result.DetailedErrors.Should().BeEmpty();
-
+        result.IsValid.Should().BeFalse("disabling detailed diagnostics must not disable schema validation");
+        result.DetailedErrors.Should().BeEmpty();
     }
 
     [Fact]

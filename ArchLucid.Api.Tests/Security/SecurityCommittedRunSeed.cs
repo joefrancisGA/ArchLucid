@@ -14,14 +14,12 @@ internal static class SecurityCommittedRunSeed
 
     internal static async Task<Result> SeedDefaultScopeCommittedRunAsync(CancellationToken cancellationToken = default)
     {
-        GreenfieldSqlIntegrationWarmup.SkipIfShardWarmupAlreadyTimedOut();
-
         await using IdorGreenfieldSqlApiFactory factory = new();
 
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostAsync(
                 primer,
                 cancellationToken: cancellationToken).ConfigureAwait(false);
         }

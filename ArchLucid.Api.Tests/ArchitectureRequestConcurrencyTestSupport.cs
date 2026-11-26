@@ -329,7 +329,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             bootstrapBody);
     }
 
-    private static async Task RunUnderGreenfieldHostBootstrapBudgetAsync(
+    private static Task RunUnderGreenfieldHostBootstrapBudgetAsync(
         CancellationToken cancellationToken,
         string entryPointName,
         Func<CancellationToken, Task> warmupBody)
@@ -342,35 +342,8 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             + "; budget="
             + GreenfieldSqlHostBootstrapBudget);
 
-        using CancellationTokenSource bootstrap = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        bootstrap.CancelAfter(GreenfieldSqlHostBootstrapBudget);
-        CancellationToken ct = bootstrap.Token;
-
-        try
-        {
-            await warmupBody(ct);
-        }
-        catch (OperationCanceledException ex) when (bootstrap.Token.IsCancellationRequested)
-        {
-            throw CreateWarmupTimedOutException(ex, entryPointName);
-        }
-    }
-
-    private static WarmupTimedOutException CreateWarmupTimedOutException(
-        OperationCanceledException ex,
-        string entryPointName)
-    {
-        return new WarmupTimedOutException(
-            "Greenfield SQL host warmup exceeded "
-            + nameof(GreenfieldSqlHostBootstrapBudget)
-            + " ("
-            + GreenfieldSqlHostBootstrapBudget
-            + "). See "
-            + entryPointName
-            + " and "
-            + nameof(WarmSingleCreateRunPathAsync)
-            + ".",
-            ex);
+        return GreenfieldSqlIntegrationWarmup.Shared.RunUnderBudgetAsync(
+            warmupBody, GreenfieldSqlHostBootstrapBudget, entryPointName, cancellationToken);
     }
 
     /// <summary>

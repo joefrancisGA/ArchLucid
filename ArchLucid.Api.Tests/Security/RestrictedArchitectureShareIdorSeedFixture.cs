@@ -41,7 +41,7 @@ public sealed class RestrictedArchitectureShareIdorSeedFixture : IAsyncLifetime
         if (!SqlReachable)
             return;
 
-        if (GreenfieldSqlIntegrationWarmup.ShardWarmupTimedOut)
+        if (GreenfieldSqlIntegrationWarmup.Shared.ShardWarmupTimedOut)
         {
             ShardWarmupTimedOut = true;
             return;
@@ -58,12 +58,6 @@ public sealed class RestrictedArchitectureShareIdorSeedFixture : IAsyncLifetime
                 warmupClient);
 
             (SeedRunId, RestrictedArchitectureId) = await SeedRestrictedArchitectureAsync();
-        }
-        catch (WarmupTimedOutException)
-        {
-            GreenfieldSqlIntegrationWarmup.RecordShardWarmupTimedOut();
-            ShardWarmupTimedOut = true;
-            await TeardownFactoryAsync();
         }
         catch (Exception ex)
         {

@@ -76,6 +76,7 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
     public async Task Parallel_posts_with_same_idempotency_key_yield_single_run_id()
     {
         Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
+        GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
         await using GreenfieldSqlApiFactory factory = new();
         HttpClient client = factory.CreateClient();
@@ -87,7 +88,7 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
 
         // Readiness + list-runs only: post-create-run warm competes with the parallel idempotency burst and can
         // exhaust GreenfieldSqlHostBootstrapBudget on cold CI SQL before the test hang guard starts.
-        await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
+        await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostAsync(
             client,
             includePostCreateRunWarmup: false);
 

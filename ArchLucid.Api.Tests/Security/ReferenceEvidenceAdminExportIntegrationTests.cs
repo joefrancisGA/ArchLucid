@@ -21,51 +21,45 @@ public sealed class ReferenceEvidenceAdminExportIntegrationTests
     {
         Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), "SQL integration env not configured");
 
-        try
-        {
-            GreenfieldIntegrationTenantScope.Scope scope = GreenfieldIntegrationTenantScope.CreateUniqueScope();
-            string testTag = "it-ref-evid-" + Guid.NewGuid().ToString("N");
+        GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
-            await using IdorGreenfieldSqlApiFactory factory = new();
-            await GreenfieldIntegrationTenantScope.EnsureScopeAfterGreenfieldHostReadyAsync(factory, scope);
+        GreenfieldIntegrationTenantScope.Scope scope = GreenfieldIntegrationTenantScope.CreateUniqueScope();
+        string testTag = "it-ref-evid-" + Guid.NewGuid().ToString("N");
 
-            using HttpClient client = factory.CreateClient();
-            GreenfieldIntegrationTenantScope.WireScope(client, scope);
+        await using IdorGreenfieldSqlApiFactory factory = new();
+        await GreenfieldIntegrationTenantScope.EnsureScopeAfterGreenfieldHostReadyAsync(factory, scope);
 
-            string requestId = testTag[..Math.Min(testTag.Length, 32)];
-            HttpResponseMessage create = await client.PostGreenfieldArchitectureRequestForTestAsync(
-                TestRequestFactory.CreateArchitectureRequest(requestId),
-                "tb291-ref-");
-            await create.EnsureSuccessForTestAsync();
-            CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(ArchitectureRequestConcurrencyTestSupport.JsonOptions);
-            string realRunId = created!.Run.RunId;
-            HarnessDemoBaselineSupport.AssertRunIdIsNotShowcase(realRunId);
+        using HttpClient client = factory.CreateClient();
+        GreenfieldIntegrationTenantScope.WireScope(client, scope);
 
-            await ArchitectureRequestConcurrencyTestSupport.PostExecuteWithGreenfieldTransientRetryAsync(client, realRunId);
-            await ArchitectureRequestConcurrencyTestSupport.PostCommitWithGreenfieldTransientRetryAsync(client, realRunId);
+        string requestId = testTag[..Math.Min(testTag.Length, 32)];
+        HttpResponseMessage create = await client.PostGreenfieldArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest(requestId),
+            "tb291-ref-");
+        await create.EnsureSuccessForTestAsync();
+        CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(ArchitectureRequestConcurrencyTestSupport.JsonOptions);
+        string realRunId = created!.Run.RunId;
+        HarnessDemoBaselineSupport.AssertRunIdIsNotShowcase(realRunId);
 
-            string readmeText = await GreenfieldCommittedRunReadinessPoll.WaitUntilReferenceEvidenceReadmeAnchorsRunAsync(
-                client,
-                realRunId);
+        await ArchitectureRequestConcurrencyTestSupport.PostExecuteWithGreenfieldTransientRetryAsync(client, realRunId);
+        await ArchitectureRequestConcurrencyTestSupport.PostCommitWithGreenfieldTransientRetryAsync(client, realRunId);
 
-            readmeText.Should().Contain(realRunId, because: "bundle must anchor on tenant real committed run");
-            HarnessDemoBaselineSupport.AssertTextExcludesShowcaseRunKeys(readmeText);
+        string readmeText = await GreenfieldCommittedRunReadinessPoll.WaitUntilReferenceEvidenceReadmeAnchorsRunAsync(
+            client,
+            realRunId);
 
-            HttpResponseMessage export = await client.GetAsync("/v1/admin/reference-evidence?includeDemo=false");
-            export.StatusCode.Should().Be(HttpStatusCode.OK);
+        readmeText.Should().Contain(realRunId, because: "bundle must anchor on tenant real committed run");
+        HarnessDemoBaselineSupport.AssertTextExcludesShowcaseRunKeys(readmeText);
 
-            byte[] zipBytes = await export.Content.ReadAsByteArrayAsync();
-            zipBytes.Length.Should().BePositive();
+        HttpResponseMessage export = await client.GetAsync("/v1/admin/reference-evidence?includeDemo=false");
+        export.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            using MemoryStream ms = new(zipBytes);
-            using ZipArchive zip = new(ms, ZipArchiveMode.Read, false);
-            zip.Entries.Should().Contain(e => e.FullName == "pilot-run-deltas.json");
-        }
-        catch (GreenfieldCommitRetryBudgetExhaustedException)
-        {
-            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
-            return;
-        }
+        byte[] zipBytes = await export.Content.ReadAsByteArrayAsync();
+        zipBytes.Length.Should().BePositive();
+
+        using MemoryStream ms = new(zipBytes);
+        using ZipArchive zip = new(ms, ZipArchiveMode.Read, false);
+        zip.Entries.Should().Contain(e => e.FullName == "pilot-run-deltas.json");
     }
 
 }

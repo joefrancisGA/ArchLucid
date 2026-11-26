@@ -54,12 +54,10 @@ public sealed class AdminConfigurationSummaryEndpointTests(PlatformOperatorRoleA
         AdminConfigSummaryResponse? parsed = JsonSerializer.Deserialize<AdminConfigSummaryResponse>(body, JsonOptions);
 
         parsed.Should().NotBeNull();
-        ConfigSummaryKeyRow? conn =
-            parsed.Keys?.FirstOrDefault(k => k.ConfigPath?.Contains("ConnectionString", StringComparison.Ordinal) == true);
-
-        if (conn is null || !conn.IsSet)
-            return;
-
-        conn.EffectiveValue.Should().Be("***");
+        parsed.Keys.Should().NotBeNull();
+        ConfigSummaryKeyRow conn = parsed.Keys!.Should()
+            .ContainSingle(k => k.ConfigPath == "ConnectionStrings:ArchLucid").Which;
+        conn.IsSet.Should().BeTrue("the API fixture configures its disposable SQL catalog");
+        Assert.True(conn.EffectiveValue == "***", "the configured SQL connection string must be masked");
     }
 }

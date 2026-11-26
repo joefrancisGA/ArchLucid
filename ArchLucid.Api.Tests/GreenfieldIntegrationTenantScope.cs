@@ -42,7 +42,7 @@ internal static class GreenfieldIntegrationTenantScope
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostAsync(
                 primer,
                 cancellationToken: cancellationToken);
         }

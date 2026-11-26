@@ -44,30 +44,19 @@ public sealed class AuditExportTenantIsolationIntegrationTests
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
-        try
-        {
-            Guid runGuid = await SeedTenantACommittedRunAsync();
+        GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
-            await using GreenfieldSqlApiFactory factory = new();
-            using HttpClient clientB = factory.CreateClient();
-            WireScope(clientB, TenantB, WorkspaceB, ProjectB);
+        Guid runGuid = await SeedTenantACommittedRunAsync();
 
-            HttpResponseMessage list = await clientB.GetAsync("/v1/audit?take=200");
-            await list.EnsureSuccessForTestAsync();
+        await using GreenfieldSqlApiFactory factory = new();
+        using HttpClient clientB = factory.CreateClient();
+        WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
-            string json = await list.Content.ReadAsStringAsync();
-            json.Should().NotContain(runGuid.ToString("D"), because: "tenant B audit list must not include tenant A run id");
-        }
-        catch (WarmupTimedOutException)
-        {
-            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
-            return;
-        }
-        catch (GreenfieldCommitRetryBudgetExhaustedException)
-        {
-            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
-            return;
-        }
+        HttpResponseMessage list = await clientB.GetAsync("/v1/audit?take=200");
+        await list.EnsureSuccessForTestAsync();
+
+        string json = await list.Content.ReadAsStringAsync();
+        json.Should().NotContain(runGuid.ToString("D"), because: "tenant B audit list must not include tenant A run id");
     }
 
     [SkippableFact]
@@ -75,30 +64,19 @@ public sealed class AuditExportTenantIsolationIntegrationTests
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
-        try
-        {
-            Guid runGuid = await SeedTenantACommittedRunAsync();
+        GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
-            await using GreenfieldSqlApiFactory factory = new();
-            using HttpClient clientB = factory.CreateClient();
-            WireScope(clientB, TenantB, WorkspaceB, ProjectB);
+        Guid runGuid = await SeedTenantACommittedRunAsync();
 
-            HttpResponseMessage export = await clientB.GetAsync($"/v1/audit/export/csv?runId={runGuid:D}&maxRows=500");
-            await export.EnsureSuccessForTestAsync();
+        await using GreenfieldSqlApiFactory factory = new();
+        using HttpClient clientB = factory.CreateClient();
+        WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
-            string csv = await export.Content.ReadAsStringAsync();
-            csv.Should().NotContain(runGuid.ToString("D"), because: "tenant B CSV export must not leak tenant A run id filter results");
-        }
-        catch (WarmupTimedOutException)
-        {
-            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
-            return;
-        }
-        catch (GreenfieldCommitRetryBudgetExhaustedException)
-        {
-            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
-            return;
-        }
+        HttpResponseMessage export = await clientB.GetAsync($"/v1/audit/export/csv?runId={runGuid:D}&maxRows=500");
+        await export.EnsureSuccessForTestAsync();
+
+        string csv = await export.Content.ReadAsStringAsync();
+        csv.Should().NotContain(runGuid.ToString("D"), because: "tenant B CSV export must not leak tenant A run id filter results");
     }
 
     [SkippableFact]
@@ -106,33 +84,22 @@ public sealed class AuditExportTenantIsolationIntegrationTests
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
-        try
-        {
-            Guid runGuid = await SeedTenantACommittedRunAsync();
+        GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
-            await using GreenfieldSqlApiFactory factory = new();
-            using HttpClient clientB = factory.CreateClient();
-            WireScope(clientB, TenantB, WorkspaceB, ProjectB);
+        Guid runGuid = await SeedTenantACommittedRunAsync();
 
-            HttpResponseMessage search = await clientB.GetAsync($"/v1/audit/search?runId={runGuid:D}&take=200");
-            await search.EnsureSuccessForTestAsync();
+        await using GreenfieldSqlApiFactory factory = new();
+        using HttpClient clientB = factory.CreateClient();
+        WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
-            CursorPagedResponse<AuditEvent>? page =
-                await search.Content.ReadFromJsonAsync<CursorPagedResponse<AuditEvent>>(JsonOptions);
+        HttpResponseMessage search = await clientB.GetAsync($"/v1/audit/search?runId={runGuid:D}&take=200");
+        await search.EnsureSuccessForTestAsync();
 
-            page.Should().NotBeNull();
-            page!.Items.Should().BeEmpty(because: "tenant B scoped audit search must not return tenant A run events");
-        }
-        catch (WarmupTimedOutException)
-        {
-            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
-            return;
-        }
-        catch (GreenfieldCommitRetryBudgetExhaustedException)
-        {
-            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
-            return;
-        }
+        CursorPagedResponse<AuditEvent>? page =
+            await search.Content.ReadFromJsonAsync<CursorPagedResponse<AuditEvent>>(JsonOptions);
+
+        page.Should().NotBeNull();
+        page!.Items.Should().BeEmpty(because: "tenant B scoped audit search must not return tenant A run events");
     }
 
     private static async Task<Guid> SeedTenantACommittedRunAsync()
@@ -141,10 +108,8 @@ public sealed class AuditExportTenantIsolationIntegrationTests
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostAsync(primer);
         }
-
-        GreenfieldSqlIntegrationWarmup.SkipIfShardWarmupAlreadyTimedOut();
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
 

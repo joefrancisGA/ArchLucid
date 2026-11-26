@@ -1,9 +1,8 @@
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Thrown when greenfield SQL commit retries exceed the wall-clock budget on a loaded CI shard (CI #2377).
-///     Callers should treat like <see cref="WarmupTimedOutException" /> and skip via
-///     <see cref="GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload" />.
+///     Reports a greenfield SQL commit retry exhaustion with the last observed run diagnostics.
+///     Unlike a host bootstrap timeout, this is specific to the run and does not trip the shard circuit breaker.
 /// </summary>
 internal sealed class GreenfieldCommitRetryBudgetExhaustedException : InvalidOperationException
 {

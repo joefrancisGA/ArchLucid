@@ -51,7 +51,7 @@ public sealed class IdorSeedFixture : IAsyncLifetime
         if (!SqlReachable)
             return;
 
-        if (GreenfieldSqlIntegrationWarmup.ShardWarmupTimedOut)
+        if (GreenfieldSqlIntegrationWarmup.Shared.ShardWarmupTimedOut)
         {
             ShardWarmupTimedOut = true;
             return;
@@ -64,21 +64,12 @@ public sealed class IdorSeedFixture : IAsyncLifetime
             using HttpClient warmupClient = Factory.CreateClient();
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(warmupClient);
 
-            // Call WarmGreenfieldSqlHostForArchitectureRequestTestsAsync directly (not the
-            // WarmArchitectureRequestHostOrSkipOnShardOverloadAsync helper) because the
-            // helper calls Skip.IfNot which throws SkipException — invalid in IAsyncLifetime.
             await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostForArchitectureRequestTestsAsync(
                 warmupClient);
 
             await EnsureAlternateWorkspaceAsync();
 
             (SeedRunId, SeedRequestId) = await SeedDefaultWorkspaceRunAsync();
-        }
-        catch (WarmupTimedOutException)
-        {
-            GreenfieldSqlIntegrationWarmup.RecordShardWarmupTimedOut();
-            ShardWarmupTimedOut = true;
-            await TeardownFactoryAsync();
         }
         catch (Exception ex)
         {

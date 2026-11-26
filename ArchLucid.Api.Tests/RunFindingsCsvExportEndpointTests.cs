@@ -1,7 +1,5 @@
 ﻿using System.Net;
 
-using ArchLucid.Application.Reporting;
-
 using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
@@ -26,18 +24,17 @@ public sealed class RunFindingsCsvExportEndpointTests(ArchLucidApiFactory factor
     [Fact]
     public async Task ExportRunFindingsCsv_includes_external_tracking_header_columns()
     {
-        Guid runId = HarnessDemoBaselineSupport.AuthorityRunId;
+        await HarnessDemoBaselineSupport.EnsureSeededAsync(Factory.Services);
 
-        using HttpResponseMessage res = await Client.GetReviewFindingsExportCsvHttpAsync(runId);
-
-        // Guard with return rather than Skip.If: throwing SkipException after an async operation
-        // causes the [SkippableFact] vstest runner to re-queue the test indefinitely (proven 30+
-        // iteration infinite hang on CI shard 2 chunk 3 before this fix).
-        if (res.StatusCode == HttpStatusCode.NotFound)
-            return;
+        using HttpResponseMessage res = await Client.GetReviewFindingsExportCsvHttpAsync(
+            HarnessDemoBaselineSupport.AuthorityRunId);
 
         res.StatusCode.Should().Be(HttpStatusCode.OK);
-        string csv = await res.Content.ReadAsStringAsync();
-        csv.Should().StartWith(ArchitectureRunFindingsCsvFormatter.HeaderLine);
+        using StringReader csv = new(await res.Content.ReadAsStringAsync());
+        string? header = csv.ReadLine();
+        header.Should().NotBeNullOrWhiteSpace();
+        header!.Split(',').TakeLast(7).Should().Equal(
+            "Provider", "ExternalKey", "ExternalUrl", "HumanReviewStatus",
+            "LatestDisposition", "RevisitDueUtc", "ItsmLinkedTicketsSummary");
     }
 }
