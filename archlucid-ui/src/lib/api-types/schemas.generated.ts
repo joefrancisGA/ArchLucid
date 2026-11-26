@@ -399,6 +399,7 @@ export interface components {
             confidence?: number | string;
             falsificationEvidenceNeeded?: string;
             hypothesis?: string;
+            inventoryProbe?: null | components["schemas"]["InventoryFalsificationProbe"];
             lane?: components["schemas"]["AdversarialLane"];
             sourceFindingId?: null | string;
             suppressed?: boolean;
@@ -5827,6 +5828,13 @@ export interface components {
             rollupDate?: string;
             rows?: components["schemas"]["InternalCrossTenantRollupDailyItemResponse"][];
         };
+        /** @enum {string} */
+        InventoryFalsificationOutcome: "Untestable" | "Refuted" | "SurvivedWithinTestedScope" | "HumanReviewRequired";
+        InventoryFalsificationProbe: {
+            coverage: string;
+            outcome: components["schemas"]["InventoryFalsificationOutcome"];
+            verification: null | components["schemas"]["PublicNetworkAccessVerification"];
+        };
         InvitationValidationResponse: {
             allowEmailCode?: boolean;
             appRole?: null | string;
@@ -8548,7 +8556,7 @@ export interface components {
             subjectId?: string;
         };
         RecordRunOperatorGovernanceDispositionRequest: {
-            decision?: components["schemas"]["RunOperatorGovernanceDecision"];
+            decision: components["schemas"]["RunOperatorGovernanceDecision"];
             rationale?: null | string;
         };
         RegisterItsmCorrelationRequest: {
