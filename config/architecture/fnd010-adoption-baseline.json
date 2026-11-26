@@ -1740,23 +1740,69 @@
       "controllerFile": "InfraEvidence/CloudResourceEvidenceHubController.cs",
       "action": "ListCloudResources",
       "source": "ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController.cs",
-      "status": "unverified",
-      "reason": "Scoped resource explorer delegate observed; downstream resource visibility and cache authority not traced.",
+      "status": "conformant",
+      "reason": "ReadAuthority and resolved project scope precede the Explorer query. Materialized observations, work counts, queue membership and paging totals stay within tenant/workspace/project in SQL; the in-memory directory restricts the owner project.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController.cs",
           "blob": "014d2b45438ee39d7217f701b4b2fae0e8dd03f2"
+        },
+        {
+          "path": "ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs",
+          "blob": "225828663719fc07b26b5399d75069149a2dd8b0"
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/SqlCloudResourceIdentityDirectory.cs",
+          "blob": "bff6269b4a7d4cb6b375174746073319621c23f0"
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/InMemoryCloudResourceIdentityDirectory.cs",
+          "blob": "48b9fb650bb1c79cea7d71d37a1ac32655180223"
+        },
+        {
+          "path": "ArchLucid.Application/InfraEvidence/CloudResourceExplorerQueryService.cs",
+          "blob": "44060c663077da14aa6ac8516e35b5190c82275b"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController.cs",
+          "start": "public async Task<IActionResult> ListCloudResources(",
+          "tokens": [
+            "GetCurrentScope()",
+            "ListCloudResourcesAsync(",
+            "scope,"
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/InfraEvidence/CloudResourceExplorerQueryService.cs",
+          "start": "public async Task<PagedResponse<CloudResourceSummary>> ListCloudResourcesAsync(",
+          "tokens": [
+            "identityDirectory.ListForExplorerAsync(",
+            "scope,",
+            "PagedResponseBuilder.FromDatabasePage("
+          ]
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/SqlCloudResourceIdentityDirectory.cs",
+          "start": "public async Task<(IReadOnlyList<CloudResourceExplorerListItem> Items, int TotalCount)> ListForExplorerAsync(",
+          "tokens": [
+            "WHERE TenantId = @TenantId",
+            "AND WorkspaceId = @WorkspaceId",
+            "AND ProjectId = @ProjectId",
+            "SELECT COUNT(1) {scopedRowsSql}",
+            "OFFSET @Skip ROWS"
+          ]
+        }
+      ]
     },
     {
       "id": "CloudResourceEvidenceHubController.GetHub",
       "controllerFile": "InfraEvidence/CloudResourceEvidenceHubController.cs",
       "action": "GetHub",
       "source": "ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController.cs",
-      "status": "partial",
-      "reason": "Explicit nonempty run mode checks gate before service. Snapshot/assessment/default modes not established equivalent; do not infer a bypass or compliance for those modes.",
+      "status": "conformant",
+      "reason": "HTTP and shared Hub boundaries check explicit run sharing before run evidence. Exact-scope resource identity and snapshot headers precede snapshot enrichment; cited-run manifests require current sharing. Audit lineage resolves only matching scoped assessment rows; selectors only narrow the lookup.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController.cs",
@@ -1773,9 +1819,119 @@
         {
           "path": "ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController.SealedManifestGuard.cs",
           "blob": "704cbb3eeab679d7214665d4eaf2020726f6c69d"
+        },
+        {
+          "path": "ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs",
+          "blob": "225828663719fc07b26b5399d75069149a2dd8b0"
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/SqlCloudResourceIdentityDirectory.cs",
+          "blob": "bff6269b4a7d4cb6b375174746073319621c23f0"
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/InMemoryCloudResourceIdentityDirectory.cs",
+          "blob": "48b9fb650bb1c79cea7d71d37a1ac32655180223"
+        },
+        {
+          "path": "ArchLucid.Application/InfraEvidence/CloudResourceEvidenceHubService.cs",
+          "blob": "056911a20ebf876d096acc495dc72a882d1f15bf"
+        },
+        {
+          "path": "ArchLucid.Application/InfraEvidence/CloudResourceAuditLineageResolver.cs",
+          "blob": "5d2e0e35eae963a1fc7646b406ca6d2e11808466"
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/SqlAuditEvidenceSnapshotRepository.cs",
+          "blob": "57233d21b4b23e294f3daa0c739ecb55a9a29302"
+        },
+        {
+          "path": "ArchLucid.Application/InfraEvidence/IInfraEvidenceRunReadAccess.cs",
+          "blob": "056803567c057a1cdcc1ca2a729c9ca77b2bba72"
+        },
+        {
+          "path": "ArchLucid.Application/InfraEvidence/Mermaid/InfraEvidenceSnapshotSealedManifestHashGuard.cs",
+          "blob": "4dd43b94a000388a98606ab2f7184014eabbdf66"
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/SqlAzureInventorySnapshotRepository.cs",
+          "blob": "b6a801c7a940002dedd17800feefddd7bc8b0529"
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/SqlAzureInventorySnapshotRepository.ListResourcesPaged.cs",
+          "blob": "ebd5d9f24e912863fc68397dabb4620a2d7468e9"
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/SqlAzureInventorySnapshotRepository.ResourceHubSlice.cs",
+          "blob": "56c1eeeeb2932652658b6bbf6bde2163cf00b09a"
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/SqlAdvisoryTerraformRepresentationRepository.cs",
+          "blob": "e1b7995599217540bda379b570d90c59a5f22dea"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController.cs",
+          "start": "public async Task<IActionResult> GetHub(",
+          "tokens": [
+            "EnsureRunReadAllowedAsync(",
+            "if (denied is not null)",
+            "EnsureHubRunSealedManifestAllowedAsync(",
+            "hubService.TryGetHubAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/InfraEvidence/CloudResourceEvidenceHubService.cs",
+          "start": "public async Task<CloudResourceEvidenceHubQueryResult> TryGetHubAsync(",
+          "tokens": [
+            "runReadAccess.CanReadRunAsync(",
+            "Succeeded = false",
+            "TryGetByCloudResourceIdInScopeAsync(",
+            "EnsureRunSealedOrThrowAsync(",
+            "TryGetBySnapshotIdAsync(",
+            "snapshot.ProjectId != scope.ProjectId",
+            "EnsureRunCitedSnapshotSealedOrThrowAsync(",
+            "LoadResourceHubSliceAsync(",
+            "auditLineageResolver.ResolveAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/InfraEvidence/Mermaid/InfraEvidenceSnapshotSealedManifestHashGuard.cs",
+          "start": "private static async Task EnsureCoreAsync(",
+          "tokens": [
+            "ListRunIdsBySnapshotAsync(",
+            "if (canReadRunAsync is not null && !await canReadRunAsync(",
+            "continue;",
+            "EnsureRunSealedManifestHashOrThrowAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/InfraEvidence/CloudResourceAuditLineageResolver.cs",
+          "start": "public async Task<CloudResourceAuditLineageLink> ResolveAsync(",
+          "tokens": [
+            "ListLineageContextsByCloudResourceIdInScopeAsync(",
+            "scope.ToProjectScopeKey()",
+            "NonEmpty(query.AssessmentId)",
+            "NonEmpty(query.AuditEvidenceSnapshotId)",
+            "NonEmpty(query.ControlId)",
+            "if (contexts.Count == 0)"
+          ]
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/SqlAuditEvidenceSnapshotRepository.cs",
+          "start": "public async Task<IReadOnlyList<AuditEvidenceSnapshotLineageContextRecord>> ListLineageContextsByCloudResourceIdInScopeAsync(",
+          "tokens": [
+            "INNER JOIN dbo.AuditAssessments",
+            "WHERE i.TenantId = @TenantId",
+            "a.WorkspaceId = @WorkspaceId AND a.ProjectId = @ProjectId",
+            "AND i.CloudResourceId = @CloudResourceId",
+            "AND (@AssessmentId IS NULL",
+            "AND (@SnapshotId IS NULL",
+            "AND (@ControlId IS NULL",
+            "ORDER BY"
+          ]
+        }
+      ]
     },
     {
       "id": "DraftRequestsController.ReasonDraft",

@@ -99,6 +99,36 @@ jobs:
           dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release
           --filter 'FullyQualifiedName~SqlAzureInventorySnapshotRepositorySqlIntegrationTests|FullyQualifiedName~SqlSecurityEvidencePathRepositorySqlIntegrationTests|FullyQualifiedName~SqlAuditEvidenceReferentialScopeTests|FullyQualifiedName~SqlAuditManualEvidenceScopePredicateTests|FullyQualifiedName~SqlAuditEvidenceProjectIsolationTests|FullyQualifiedName~SqlAuditFrameworkEffectiveDateTests'
           --logger 'trx;LogFileName=securenow-sql.trx'
+      - name: Require Explorer and Evidence Hub SQL isolation cases to execute
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          expected = {
+              ("SqlAzureInventorySnapshotRepositorySqlIntegrationTests", "CloudResourceExplorer_work_counts_and_queues_exclude_other_workspaces_and_projects"),
+              ("SqlAzureInventorySnapshotRepositorySqlIntegrationTests", "CloudResourceExplorer_and_hub_identity_use_only_project_observations_and_mappings"),
+              ("SqlAuditEvidenceProjectIsolationTests", "Architecture_links_are_visible_only_to_owning_project_and_foreign_writes_fail"),
+          }
+          trx = ET.parse(Path("ArchLucid.Persistence.Tests/TestResults/securenow-sql.trx"))
+          definitions = {}
+          for unit in trx.findall(".//{*}UnitTest"):
+              method = unit.find("{*}TestMethod")
+              if method is not None:
+                  class_name = method.attrib["className"].split(",", 1)[0].rsplit(".", 1)[-1]
+                  definitions[unit.attrib["id"]] = (class_name, method.attrib["name"])
+
+          outcomes = {test: [] for test in expected}
+          for result in trx.findall(".//{*}UnitTestResult"):
+              test = definitions.get(result.get("testId"))
+              if test in outcomes:
+                  outcomes[test].append(result.get("outcome"))
+          failures = [f"{cls}.{name}: {outcomes[cls, name]}" for cls, name in sorted(expected)
+                      if outcomes[cls, name] != ["Passed"]]
+          if failures:
+              raise SystemExit("Expected each scoped SQL case to execute and pass exactly once:\n" + "\n".join(failures))
+          print("Three Explorer and Evidence Hub SQL isolation cases executed and passed.")
+          PY
       - name: Record path inspector timing and query-call assertion
         if: always()
         run: |

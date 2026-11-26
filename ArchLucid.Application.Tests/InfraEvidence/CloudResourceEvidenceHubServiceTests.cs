@@ -53,6 +53,35 @@ public sealed class CloudResourceEvidenceHubServiceTests
     }
 
     [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task TryGetHubAsync_explicit_run_denial_stops_before_any_evidence_read(bool configured)
+    {
+        ScopeContext scope = CreateScope();
+        Guid runId = Guid.NewGuid();
+        Mock<ICloudResourceIdentityDirectory> identity = new(MockBehavior.Strict);
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        Mock<IAzureInventorySnapshotRepository> snapshots = new(MockBehavior.Strict);
+        Mock<IInfraEvidenceRunReadAccess> access = new(MockBehavior.Strict);
+        access.Setup(a => a.CanReadRunAsync(scope, runId, CancellationToken.None)).ReturnsAsync(false);
+        CloudResourceEvidenceHubService service = CreateService(identity.Object,
+            authorityQueryService: authority.Object, snapshotRepository: snapshots.Object,
+            runReadAccess: configured ? access.Object : null);
+
+        CloudResourceEvidenceHubQueryResult result = await service.TryGetHubAsync(scope, Guid.NewGuid(),
+            new CloudResourceEvidenceHubQuery { RunId = runId, SnapshotId = Guid.NewGuid() });
+
+        result.Succeeded.Should().BeFalse();
+        result.Hub.Should().BeNull();
+        result.ErrorMessage.Should().Contain("not found");
+        access.Verify(a => a.CanReadRunAsync(scope, runId, CancellationToken.None),
+            configured ? Times.Once() : Times.Never());
+        identity.VerifyNoOtherCalls();
+        authority.VerifyNoOtherCalls();
+        snapshots.VerifyNoOtherCalls();
+    }
+
+    [Theory]
     [InlineData("tenant")]
     [InlineData("workspace")]
     [InlineData("project")]
@@ -311,11 +340,17 @@ public sealed class CloudResourceEvidenceHubServiceTests
                 },
             });
 
+        Mock<IInfraEvidenceRunReadAccess> access = new(MockBehavior.Strict);
+        access.SetupSequence(a => a.CanReadRunAsync(scope, runId, CancellationToken.None))
+            .ReturnsAsync(true)
+            .ReturnsAsync(true)
+            .ReturnsAsync(false);
         CloudResourceEvidenceHubService hubService = CreateService(
             identityDirectory,
             operationalRepository: operationalRepository,
             authorityQueryService: authorityQuery.Object,
-            manifestHashService: SealedManifestHashTestSupport.CreateManifestHashService());
+            manifestHashService: SealedManifestHashTestSupport.CreateManifestHashService(),
+            runReadAccess: access.Object);
 
         CloudResourceEvidenceHubQueryResult result = await hubService.TryGetHubAsync(
             scope,
@@ -356,6 +391,14 @@ public sealed class CloudResourceEvidenceHubServiceTests
             .Which.Title.Should().Be("Zone coverage gap");
         nextPage.Hub.ArchitectureReviewFindings.TotalCount.Should().Be(2);
         nextPage.Hub.ArchitectureReviewFindings.HasMore.Should().BeFalse();
+
+        authorityQuery.Invocations.Clear();
+        CloudResourceEvidenceHubQueryResult revoked = await hubService.TryGetHubAsync(
+            scope, cloudResourceId, new CloudResourceEvidenceHubQuery { RunId = runId, SnapshotId = snapshotId });
+        revoked.Succeeded.Should().BeFalse();
+        revoked.Hub.Should().BeNull();
+        access.Verify(a => a.CanReadRunAsync(scope, runId, CancellationToken.None), Times.Exactly(3));
+        authorityQuery.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -650,13 +693,14 @@ public sealed class CloudResourceEvidenceHubServiceTests
             });
 
     private static CloudResourceEvidenceHubService CreateService(
-        FakeCloudResourceIdentityDirectory identityDirectory,
+        ICloudResourceIdentityDirectory identityDirectory,
         FakeOperationalSecurityFindingRepository? operationalRepository = null,
         IAuthorityQueryService? authorityQueryService = null,
         IManifestHashService? manifestHashService = null,
         IAzureInventorySnapshotRepository? snapshotRepository = null,
         IAdvisoryTerraformRepresentationRepository? terraformRepository = null,
-        IArchitectureDiagramReconciliationRepository? citationRepository = null)
+        IArchitectureDiagramReconciliationRepository? citationRepository = null,
+        IInfraEvidenceRunReadAccess? runReadAccess = null)
     {
         operationalRepository ??= new FakeOperationalSecurityFindingRepository();
 
@@ -744,7 +788,8 @@ public sealed class CloudResourceEvidenceHubServiceTests
             citationRepository ?? reconciliationRepository.Object,
             authorityQueryService ?? authorityQuery.Object,
             auditLineageResolver.Object,
-            manifestHashService ?? SealedManifestHashTestSupport.CreateManifestHashService());
+            manifestHashService ?? SealedManifestHashTestSupport.CreateManifestHashService(),
+            runReadAccess);
     }
 
     private sealed class FakeCloudResourceIdentityDirectory : ICloudResourceIdentityDirectory
