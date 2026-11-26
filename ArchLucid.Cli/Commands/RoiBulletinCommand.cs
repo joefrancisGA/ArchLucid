@@ -68,7 +68,7 @@ internal static class RoiBulletinCommand
             return CliCommandShared.ExitCodeForFailedConnection(outcome);
 
         string normalized = baseUrl.Trim().TrimEnd('/');
-        using HttpClient http = new();
+        using HttpClient http = CliHttpClientFactory.Create();
         http.BaseAddress = new Uri(normalized + "/");
         http.DefaultRequestHeaders.Remove("Accept");
         http.DefaultRequestHeaders.Add("Accept", "application/json");
