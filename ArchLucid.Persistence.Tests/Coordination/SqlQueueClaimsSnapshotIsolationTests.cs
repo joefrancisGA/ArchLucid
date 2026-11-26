@@ -26,13 +26,23 @@ public sealed class SqlQueueClaimsSnapshotIsolationTests(SqlServerPersistenceFix
         Guid tenant = Guid.NewGuid(), workspace = Guid.NewGuid(), project = Guid.NewGuid(), localRun = Guid.NewGuid();
         Guid[] foreignRuns = [Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()];
         Guid[] allRuns = [localRun, .. foreignRuns];
+        Guid foreignTenant = Guid.NewGuid(), foreignWorkspace = Guid.NewGuid(), foreignProject = Guid.NewGuid();
 
         try
         {
+            // The outbox has a real FK to the persisted review; seed all four distinct scopes.
+            await connection.ExecuteAsync("""
+                INSERT INTO dbo.Runs (RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, CreatedUtc)
+                VALUES (@localRun, @tenant, @workspace, @project, N'fixture', SYSUTCDATETIME()),
+                       (@foreignRun0, @foreignTenant, @workspace, @project, N'fixture', SYSUTCDATETIME()),
+                       (@foreignRun1, @tenant, @foreignWorkspace, @project, N'fixture', SYSUTCDATETIME()),
+                       (@foreignRun2, @tenant, @workspace, @foreignProject, N'fixture', SYSUTCDATETIME());
+                """, new { localRun, tenant, workspace, project, foreignTenant, foreignWorkspace, foreignProject,
+                    foreignRun0 = foreignRuns[0], foreignRun1 = foreignRuns[1], foreignRun2 = foreignRuns[2] });
             await repository.EnqueueAsync(localRun, tenant, workspace, project, "{}");
-            await repository.EnqueueAsync(foreignRuns[0], Guid.NewGuid(), workspace, project, "{}");
-            await repository.EnqueueAsync(foreignRuns[1], tenant, Guid.NewGuid(), project, "{}");
-            await repository.EnqueueAsync(foreignRuns[2], tenant, workspace, Guid.NewGuid(), "{}");
+            await repository.EnqueueAsync(foreignRuns[0], foreignTenant, workspace, project, "{}");
+            await repository.EnqueueAsync(foreignRuns[1], tenant, foreignWorkspace, project, "{}");
+            await repository.EnqueueAsync(foreignRuns[2], tenant, workspace, foreignProject, "{}");
 
             using IDisposable drain = AmbientScopeContext.Push(new ScopeContext
             {
@@ -51,6 +61,7 @@ public sealed class SqlQueueClaimsSnapshotIsolationTests(SqlServerPersistenceFix
         finally
         {
             await connection.ExecuteAsync("DELETE FROM dbo.AuthorityPipelineWorkOutbox WHERE RunId IN @allRuns;", new { allRuns });
+            await connection.ExecuteAsync("DELETE FROM dbo.Runs WHERE RunId IN @allRuns;", new { allRuns });
         }
     }
 
