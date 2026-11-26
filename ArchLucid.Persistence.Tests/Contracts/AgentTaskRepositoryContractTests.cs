@@ -53,8 +53,8 @@ public abstract class AgentTaskRepositoryContractTests
         IReadOnlyList<AgentTask> loaded = await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
 
         loaded.Should().HaveCount(2);
-        loaded[0].TaskId.Should().Be("t1");
-        loaded[1].TaskId.Should().Be("t2");
+        loaded[0].TaskId.Should().Be(ArchitectureCommitTestSeed.RunScopedRowId(runId, "t1"));
+        loaded[1].TaskId.Should().Be(ArchitectureCommitTestSeed.RunScopedRowId(runId, "t2"));
         loaded.Should().OnlyContain(t => t.RunId == runId);
     }
 
@@ -69,7 +69,7 @@ public abstract class AgentTaskRepositoryContractTests
 
         DateTime createdUtc = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         AgentTask[] tasks = Enumerable.Range(0, 501)
-            .Select(index => NewTask(runId, $"task-{runId}-{index}", AgentType.Topology, createdUtc.AddSeconds(index)))
+            .Select(index => NewTask(runId, $"task-{index}", AgentType.Topology, createdUtc.AddSeconds(index)))
             .ToArray();
         await repo.CreateManyAsync(tasks, CancellationToken.None);
 
@@ -91,11 +91,11 @@ public abstract class AgentTaskRepositoryContractTests
         loaded.Should().BeEmpty();
     }
 
-    private static AgentTask NewTask(string runId, string taskId, AgentType type, DateTime createdUtc)
+    private static AgentTask NewTask(string runId, string label, AgentType type, DateTime createdUtc)
     {
         return new AgentTask
         {
-            TaskId = taskId,
+            TaskId = ArchitectureCommitTestSeed.RunScopedRowId(runId, label),
             RunId = runId,
             AgentType = type,
             Objective = "obj",

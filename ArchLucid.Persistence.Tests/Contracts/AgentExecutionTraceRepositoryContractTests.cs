@@ -53,8 +53,8 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
 
         list.Should().HaveCount(2);
-        list[0].TraceId.Should().Be("t1");
-        list[1].TraceId.Should().Be("t2");
+        list[0].TraceId.Should().Be(ArchitectureCommitTestSeed.RunScopedRowId(runId, "t1"));
+        list[1].TraceId.Should().Be(ArchitectureCommitTestSeed.RunScopedRowId(runId, "t2"));
     }
 
     [SkippableFact]
@@ -65,23 +65,20 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         string requestId = "aet-upsert-" + Guid.NewGuid().ToString("N");
         string runId = Guid.NewGuid().ToString("N");
         AgentTask task = NewTask(runId, "task-upsert");
-        // TraceId is a global SQL primary key: keep IDs unique across shared-fixture tests.
-        string firstTraceId = "first-trace-" + runId;
-        string secondTraceId = "second-trace-" + runId;
 
         await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
 
         await repo.CreateAsync(
-            NewTrace(runId, task.TaskId, firstTraceId, TimeProvider.System.UtcNowDateTime().AddMinutes(-1)),
+            NewTrace(runId, task.TaskId, "first-trace", TimeProvider.System.UtcNowDateTime().AddMinutes(-1)),
             CancellationToken.None);
         await repo.CreateAsync(
-            NewTrace(runId, task.TaskId, secondTraceId, TimeProvider.System.UtcNowDateTime()),
+            NewTrace(runId, task.TaskId, "second-trace", TimeProvider.System.UtcNowDateTime()),
             CancellationToken.None);
 
         IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
 
         list.Should().ContainSingle();
-        list[0].TraceId.Should().Be(secondTraceId);
+        list[0].TraceId.Should().Be(ArchitectureCommitTestSeed.RunScopedRowId(runId, "second-trace"));
     }
 
     [SkippableFact]
@@ -140,7 +137,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         IReadOnlyList<AgentExecutionTrace> forTask = await repo.GetByTaskIdAsync(task.TaskId, CancellationToken.None);
 
         forTask.Should().ContainSingle();
-        forTask[0].TraceId.Should().Be("attempt-0-b");
+        forTask[0].TraceId.Should().Be(ArchitectureCommitTestSeed.RunScopedRowId(runId, "attempt-0-b"));
         forTask[0].AttemptIndex.Should().Be(0);
         forTask[0].ParseSucceeded.Should().BeTrue();
     }
@@ -185,13 +182,9 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         IAgentExecutionTraceRepository repo = CreateRepository();
         string requestId = "aet-sum-req-" + Guid.NewGuid().ToString("N");
         string runId = Guid.NewGuid().ToString("N");
-        string suffix = Guid.NewGuid().ToString("N")[..8];
-        string trace0 = "sum0-" + suffix;
-        string trace1 = "sum1-" + suffix;
-        string trace2 = "sum2-" + suffix;
-        AgentTask task0 = NewTask(runId, "task-sum0-" + suffix);
-        AgentTask task1 = NewTask(runId, "task-sum1-" + suffix);
-        AgentTask task2 = NewTask(runId, "task-sum2-" + suffix);
+        AgentTask task0 = NewTask(runId, "task-sum0");
+        AgentTask task1 = NewTask(runId, "task-sum1");
+        AgentTask task2 = NewTask(runId, "task-sum2");
 
         await PrepareRunAndTaskAsync(requestId, runId, task0, CancellationToken.None);
         await PrepareRunAndTaskAsync(requestId, runId, task1, CancellationToken.None);
@@ -200,7 +193,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         AgentExecutionTrace rich = NewTrace(
             runId,
             task1.TaskId,
-            trace1,
+            "sum1",
             TimeProvider.System.UtcNowDateTime().AddMinutes(-2));
         rich.InputTokenCount = 11;
         rich.OutputTokenCount = 22;
@@ -209,10 +202,10 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         rich.ModelDeploymentName = "gpt-test";
         rich.QualityWarning = true;
 
-        await repo.CreateAsync(NewTrace(runId, task0.TaskId, trace0, TimeProvider.System.UtcNowDateTime().AddMinutes(-3)),
+        await repo.CreateAsync(NewTrace(runId, task0.TaskId, "sum0", TimeProvider.System.UtcNowDateTime().AddMinutes(-3)),
             CancellationToken.None);
         await repo.CreateAsync(rich, CancellationToken.None);
-        await repo.CreateAsync(NewTrace(runId, task2.TaskId, trace2, TimeProvider.System.UtcNowDateTime().AddMinutes(-1)),
+        await repo.CreateAsync(NewTrace(runId, task2.TaskId, "sum2", TimeProvider.System.UtcNowDateTime().AddMinutes(-1)),
             CancellationToken.None);
 
         ScopeContext scope = ArchitectureCommitTestSeed.AsScopeContext();
@@ -223,7 +216,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         total.Should().Be(3);
         count.Should().Be(3);
         page.Should().ContainSingle();
-        page[0].TraceId.Should().Be(trace1);
+        page[0].TraceId.Should().Be(rich.TraceId);
         page[0].RunId.Should().Be(runId);
         page[0].InputTokenCount.Should().Be(11);
         page[0].OutputTokenCount.Should().Be(22);
@@ -257,7 +250,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         IReadOnlyList<AgentExecutionTrace> forA = await repo.GetByTaskIdAsync(taskA.TaskId, CancellationToken.None);
 
         forA.Should().ContainSingle();
-        forA[0].TraceId.Should().Be("x1");
+        forA[0].TraceId.Should().Be(ArchitectureCommitTestSeed.RunScopedRowId(runId, "x1"));
     }
 
     [SkippableFact]
@@ -275,7 +268,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         await repo.CreateAsync(created, CancellationToken.None);
 
         await repo.PatchBlobStorageFieldsAsync(
-            "patch-trace",
+            created.TraceId,
             "file:///sys",
             "file:///usr",
             "file:///rsp",
@@ -303,7 +296,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         await repo.CreateAsync(created, CancellationToken.None);
 
         await repo.PatchInlinePromptFallbackAsync(
-            "inline-trace",
+            created.TraceId,
             "sys-full",
             null,
             "resp-full",
@@ -316,7 +309,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         t.FullResponseInline.Should().Be("resp-full");
 
         await repo.PatchInlinePromptFallbackAsync(
-            "inline-trace",
+            created.TraceId,
             null,
             "user-full",
             null,
@@ -340,12 +333,13 @@ public abstract class AgentExecutionTraceRepositoryContractTests
 
         await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
 
-        await repo.CreateAsync(NewTrace(runId, task.TaskId, "by-trace-id-1", TimeProvider.System.UtcNowDateTime()), CancellationToken.None);
+        AgentExecutionTrace created = NewTrace(runId, task.TaskId, "by-trace-id-1", TimeProvider.System.UtcNowDateTime());
+        await repo.CreateAsync(created, CancellationToken.None);
 
-        AgentExecutionTrace? found = await repo.GetByTraceIdAsync("by-trace-id-1", CancellationToken.None);
+        AgentExecutionTrace? found = await repo.GetByTraceIdAsync(created.TraceId, CancellationToken.None);
 
         found.Should().NotBeNull();
-        found.TraceId.Should().Be("by-trace-id-1");
+        found.TraceId.Should().Be(created.TraceId);
         found.RunId.Should().Be(runId);
     }
 
@@ -360,12 +354,12 @@ public abstract class AgentExecutionTraceRepositoryContractTests
 
         await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
 
-        await repo.CreateAsync(NewTrace(runId, task.TaskId, "inline-fail-trace", TimeProvider.System.UtcNowDateTime()),
-            CancellationToken.None);
+        AgentExecutionTrace created = NewTrace(runId, task.TaskId, "inline-fail-trace", TimeProvider.System.UtcNowDateTime());
+        await repo.CreateAsync(created, CancellationToken.None);
 
-        await repo.PatchInlineFallbackFailedAsync("inline-fail-trace", true, CancellationToken.None);
+        await repo.PatchInlineFallbackFailedAsync(created.TraceId, true, CancellationToken.None);
 
-        AgentExecutionTrace? t = await repo.GetByTraceIdAsync("inline-fail-trace", CancellationToken.None);
+        AgentExecutionTrace? t = await repo.GetByTraceIdAsync(created.TraceId, CancellationToken.None);
 
         t.Should().NotBeNull();
         t.InlineFallbackFailed.Should().BeTrue();
@@ -382,11 +376,12 @@ public abstract class AgentExecutionTraceRepositoryContractTests
 
         await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
 
-        await repo.CreateAsync(NewTrace(runId, task.TaskId, "qw-trace", TimeProvider.System.UtcNowDateTime()), CancellationToken.None);
+        AgentExecutionTrace created = NewTrace(runId, task.TaskId, "qw-trace", TimeProvider.System.UtcNowDateTime());
+        await repo.CreateAsync(created, CancellationToken.None);
 
-        await repo.PatchQualityWarningAsync("qw-trace", true, CancellationToken.None);
+        await repo.PatchQualityWarningAsync(created.TraceId, true, CancellationToken.None);
 
-        AgentExecutionTrace? t = await repo.GetByTraceIdAsync("qw-trace", CancellationToken.None);
+        AgentExecutionTrace? t = await repo.GetByTraceIdAsync(created.TraceId, CancellationToken.None);
 
         t.Should().NotBeNull();
         t.QualityWarning.Should().BeTrue();
@@ -403,11 +398,12 @@ public abstract class AgentExecutionTraceRepositoryContractTests
 
         await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
 
-        await repo.CreateAsync(NewTrace(runId, task.TaskId, "qr-trace", TimeProvider.System.UtcNowDateTime()), CancellationToken.None);
+        AgentExecutionTrace created = NewTrace(runId, task.TaskId, "qr-trace", TimeProvider.System.UtcNowDateTime());
+        await repo.CreateAsync(created, CancellationToken.None);
 
-        await repo.PatchQualityRejectedAsync("qr-trace", true, CancellationToken.None);
+        await repo.PatchQualityRejectedAsync(created.TraceId, true, CancellationToken.None);
 
-        AgentExecutionTrace? t = await repo.GetByTraceIdAsync("qr-trace", CancellationToken.None);
+        AgentExecutionTrace? t = await repo.GetByTraceIdAsync(created.TraceId, CancellationToken.None);
 
         t.Should().NotBeNull();
         t.QualityRejected.Should().BeTrue();
@@ -421,28 +417,27 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         string requestId = "aet-concurrent-patch-req-" + Guid.NewGuid().ToString("N");
         string runId = Guid.NewGuid().ToString("N");
         AgentTask task = NewTask(runId, "task-concurrent-patch");
-        string traceId = "concurrent-patch-trace-" + runId;
+        AgentExecutionTrace created = NewTrace(runId, task.TaskId, "concurrent-patch", TimeProvider.System.UtcNowDateTime());
 
         await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
-        await repo.CreateAsync(NewTrace(runId, task.TaskId, traceId, TimeProvider.System.UtcNowDateTime()),
-            CancellationToken.None);
+        await repo.CreateAsync(created, CancellationToken.None);
 
         TaskCompletionSource start = new(TaskCreationOptions.RunContinuationsAsynchronously);
         Task warningPatch = Task.Run(async () =>
         {
             await start.Task;
-            await repo.PatchQualityWarningAsync(traceId, true, CancellationToken.None);
+            await repo.PatchQualityWarningAsync(created.TraceId, true, CancellationToken.None);
         });
         Task rejectedPatch = Task.Run(async () =>
         {
             await start.Task;
-            await repo.PatchQualityRejectedAsync(traceId, true, CancellationToken.None);
+            await repo.PatchQualityRejectedAsync(created.TraceId, true, CancellationToken.None);
         });
 
         start.SetResult();
         await Task.WhenAll(warningPatch, rejectedPatch);
 
-        AgentExecutionTrace? trace = await repo.GetByTraceIdAsync(traceId, CancellationToken.None);
+        AgentExecutionTrace? trace = await repo.GetByTraceIdAsync(created.TraceId, CancellationToken.None);
 
         trace.Should().NotBeNull();
         trace.QualityWarning.Should().BeTrue();
@@ -574,24 +569,21 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         string requestId = "aet-case-" + Guid.NewGuid().ToString("N");
         string runId = Guid.NewGuid().ToString("N");
         AgentTask task = NewTask(runId, "task-case");
-        // TraceId is a global SQL primary key: keep IDs unique across shared-fixture tests.
-        string firstTraceId = "first-trace-" + runId;
-        string secondTraceId = "second-trace-" + runId;
 
         await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
 
         await repo.CreateAsync(
-            NewTrace(runId, task.TaskId, firstTraceId, TimeProvider.System.UtcNowDateTime().AddMinutes(-1), attemptIndex: 2),
+            NewTrace(runId, task.TaskId, "first-trace", TimeProvider.System.UtcNowDateTime().AddMinutes(-1), attemptIndex: 2),
             CancellationToken.None);
         await repo.CreateAsync(
-            NewTrace(runId, "Task-Case", secondTraceId, TimeProvider.System.UtcNowDateTime(), attemptIndex: 2),
+            NewTrace(runId, task.TaskId.ToUpperInvariant(), "second-trace", TimeProvider.System.UtcNowDateTime(), attemptIndex: 2),
             CancellationToken.None);
 
         IReadOnlyList<AgentExecutionTrace> list =
             await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
 
         list.Should().ContainSingle();
-        list[0].TraceId.Should().Be(secondTraceId);
+        list[0].TraceId.Should().Be(ArchitectureCommitTestSeed.RunScopedRowId(runId, "second-trace"));
     }
 
     [SkippableFact]
@@ -602,24 +594,21 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         string requestId = "aet-ws-" + Guid.NewGuid().ToString("N");
         string runId = Guid.NewGuid().ToString("N");
         AgentTask task = NewTask(runId, "task-ws");
-        // TraceId is a global SQL primary key: keep IDs unique across shared-fixture tests.
-        string firstTraceId = "first-trace-" + runId;
-        string secondTraceId = "second-trace-" + runId;
 
         await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
 
         await repo.CreateAsync(
-            NewTrace(runId, " task-ws ", firstTraceId, TimeProvider.System.UtcNowDateTime().AddMinutes(-1), attemptIndex: 2),
+            NewTrace(runId, $" {task.TaskId} ", "first-trace", TimeProvider.System.UtcNowDateTime().AddMinutes(-1), attemptIndex: 2),
             CancellationToken.None);
         await repo.CreateAsync(
-            NewTrace(runId, task.TaskId, secondTraceId, TimeProvider.System.UtcNowDateTime(), attemptIndex: 2),
+            NewTrace(runId, task.TaskId, "second-trace", TimeProvider.System.UtcNowDateTime(), attemptIndex: 2),
             CancellationToken.None);
 
         IReadOnlyList<AgentExecutionTrace> list =
             await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
 
         list.Should().ContainSingle();
-        list[0].TraceId.Should().Be(secondTraceId);
+        list[0].TraceId.Should().Be(ArchitectureCommitTestSeed.RunScopedRowId(runId, "second-trace"));
     }
 
     [SkippableFact]
@@ -630,17 +619,17 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         IAgentExecutionTraceRepository repo = CreateRepository();
         string requestId = "aet-retry-" + Guid.NewGuid().ToString("N");
         string runId = Guid.NewGuid().ToString("N");
-        AgentTask firstTask = NewTask(runId, Guid.NewGuid().ToString("N"));
-        AgentTask secondTask = NewTask(runId, Guid.NewGuid().ToString("N"));
+        AgentTask firstTask = NewTask(runId, "task-retry-first");
+        AgentTask secondTask = NewTask(runId, "task-retry-second");
         await PrepareRunAndTaskAsync(requestId, runId, firstTask, CancellationToken.None);
         await PrepareRunAndTaskAsync(requestId, runId, secondTask, CancellationToken.None);
         DateTime created = new(2026, 5, 1, 10, 0, 0, DateTimeKind.Utc);
 
-        AgentExecutionTrace first = Trace(firstTask);
-        AgentExecutionTrace distinct = Trace(secondTask);
+        AgentExecutionTrace first = Trace(firstTask, "retry-first");
+        AgentExecutionTrace distinct = Trace(secondTask, "retry-distinct");
         await repo.CreateAsync(first, CancellationToken.None);
         await repo.CreateAsync(distinct, CancellationToken.None);
-        AgentExecutionTrace replacement = Trace(firstTask);
+        AgentExecutionTrace replacement = Trace(firstTask, "retry-replacement");
         await repo.CreateAsync(replacement, CancellationToken.None);
 
         ScopeContext scope = ArchitectureCommitTestSeed.AsScopeContext();
@@ -661,9 +650,9 @@ public abstract class AgentExecutionTraceRepositoryContractTests
             slice.OutputTokenCount.Should().Be(25);
         });
 
-        AgentExecutionTrace Trace(AgentTask task)
+        AgentExecutionTrace Trace(AgentTask task, string label)
         {
-            AgentExecutionTrace trace = NewTrace(runId, task.TaskId, Guid.NewGuid().ToString("N"), created,
+            AgentExecutionTrace trace = NewTrace(runId, task.TaskId, label, created,
                 modelDeploymentName: "fixture-model");
             trace.InputTokenCount = 100;
             trace.OutputTokenCount = 25;
@@ -671,11 +660,44 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         }
     }
 
-    private static AgentTask NewTask(string runId, string taskId)
+    [SkippableFact]
+    [Trait("Suite", "Core")]
+    public async Task Same_trace_and_task_labels_are_isolated_across_runs()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentExecutionTraceRepository repo = CreateRepository();
+        string requestId = "aet-isolation-" + Guid.NewGuid().ToString("N");
+        string firstRunId = Guid.NewGuid().ToString("N");
+        string secondRunId = Guid.NewGuid().ToString("N");
+        AgentTask firstTask = NewTask(firstRunId, "task");
+        AgentTask secondTask = NewTask(secondRunId, "task");
+        DateTime createdUtc = new(2026, 5, 1, 10, 0, 0, DateTimeKind.Utc);
+        AgentExecutionTrace first = NewTrace(firstRunId, firstTask.TaskId, "trace", createdUtc);
+        AgentExecutionTrace second = NewTrace(secondRunId, secondTask.TaskId, "trace", createdUtc);
+
+        await PrepareRunAndTaskAsync(requestId, firstRunId, firstTask, CancellationToken.None);
+        await PrepareRunAndTaskAsync(requestId, secondRunId, secondTask, CancellationToken.None);
+        await repo.CreateAsync(first, CancellationToken.None);
+        await repo.CreateAsync(second, CancellationToken.None);
+        await repo.PatchQualityWarningAsync(first.TraceId, true, CancellationToken.None);
+
+        IReadOnlyList<AgentExecutionTrace> firstRows = await repo.GetByTaskIdAsync(firstTask.TaskId, CancellationToken.None);
+        IReadOnlyList<AgentExecutionTrace> secondRows = await repo.GetByTaskIdAsync(secondTask.TaskId, CancellationToken.None);
+        AgentExecutionTrace firstRow = firstRows.Should().ContainSingle().Subject;
+        AgentExecutionTrace secondRow = secondRows.Should().ContainSingle().Subject;
+        firstRow.RunId.Should().Be(firstRunId);
+        firstRow.TraceId.Should().Be(first.TraceId).And.NotBe(secondRow.TraceId);
+        firstRow.QualityWarning.Should().BeTrue();
+        secondRow.RunId.Should().Be(secondRunId);
+        secondRow.TraceId.Should().Be(second.TraceId);
+        secondRow.QualityWarning.Should().BeFalse();
+    }
+
+    private static AgentTask NewTask(string runId, string label)
     {
         return new AgentTask
         {
-            TaskId = taskId,
+            TaskId = ArchitectureCommitTestSeed.RunScopedRowId(runId, label),
             RunId = runId,
             AgentType = AgentType.Topology,
             Objective = "o",
@@ -688,7 +710,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
     private static AgentExecutionTrace NewTrace(
         string runId,
         string taskId,
-        string traceId,
+        string label,
         DateTime createdUtc,
         AgentType agentType = AgentType.Topology,
         string? modelDeploymentName = null,
@@ -697,7 +719,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
     {
         return new AgentExecutionTrace
         {
-            TraceId = traceId,
+            TraceId = ArchitectureCommitTestSeed.RunScopedRowId(runId, label),
             RunId = runId,
             TaskId = taskId,
             AgentType = agentType,

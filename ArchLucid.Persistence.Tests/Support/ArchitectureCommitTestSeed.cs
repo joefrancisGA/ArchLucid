@@ -30,6 +30,12 @@ public static class ArchitectureCommitTestSeed
         ProjectId = SeedScopeProjectId,
     };
 
+    /// <summary>
+    ///     Namespaces a short test label by the run GUID for globally keyed SQL rows.
+    ///     Use labels of at most 31 characters with an N-format GUID to fit the 64-character columns.
+    /// </summary>
+    public static string RunScopedRowId(string runId, string label) => $"{runId}-{label}";
+
     /// <summary>Inserts <c>dbo.ArchitectureRequests</c> only (idempotent on <paramref name="requestId" />).</summary>
     public static async Task InsertArchitectureRequestOnlyAsync(
         SqlConnection connection,

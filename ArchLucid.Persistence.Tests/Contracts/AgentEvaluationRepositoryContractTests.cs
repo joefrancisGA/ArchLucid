@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Tests.Support;
 
 using ArchLucid.Core.Scoping;
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -48,7 +49,7 @@ public abstract class AgentEvaluationRepositoryContractTests
         IReadOnlyList<AgentEvaluationRecord> loaded = await repo.GetByRunIdAsync(runId, CancellationToken.None);
 
         loaded.Should().HaveCount(1);
-        loaded[0].EvaluationId.Should().Be("e3");
+        loaded[0].EvaluationId.Should().Be(ArchitectureCommitTestSeed.RunScopedRowId(runId, "e3"));
         loaded[0].EvaluationType.Should().Be(EvaluationTypeConstants.Oppose);
     }
 
@@ -75,20 +76,20 @@ public abstract class AgentEvaluationRepositoryContractTests
         IReadOnlyList<AgentEvaluationRecord> loaded = await repo.GetByRunIdAsync(runId, CancellationToken.None);
 
         loaded.Should().HaveCount(2);
-        loaded[0].EvaluationId.Should().Be("early");
-        loaded[1].EvaluationId.Should().Be("late");
+        loaded[0].EvaluationId.Should().Be(ArchitectureCommitTestSeed.RunScopedRowId(runId, "early"));
+        loaded[1].EvaluationId.Should().Be(ArchitectureCommitTestSeed.RunScopedRowId(runId, "late"));
     }
 
     private static AgentEvaluationRecord NewEvaluation(
         string runId,
         string taskId,
-        string evaluationId,
+        string label,
         string evaluationType,
         DateTime? createdUtc = null)
     {
         return new AgentEvaluationRecord
         {
-            EvaluationId = evaluationId,
+            EvaluationId = ArchitectureCommitTestSeed.RunScopedRowId(runId, label),
             RunId = runId,
             TargetAgentTaskId = taskId,
             EvaluationType = evaluationType,
