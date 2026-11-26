@@ -25,7 +25,7 @@ internal static class SponsorOnePagerCommand
             return CliCommandShared.ExitCodeForFailedConnection(outcome);
 
         string normalized = baseUrl.Trim().TrimEnd('/');
-        using HttpClient http = new();
+        using HttpClient http = CliHttpClientFactory.Create();
         http.Timeout = TimeSpan.FromSeconds(120);
         http.BaseAddress = new Uri(normalized + "/");
         http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/pdf"));
