@@ -53,6 +53,7 @@ public sealed class EntraGroupMembershipGraphReaderTests
 
         Assert.Empty(result.Memberships);
         Assert.False(result.Forbidden);
+
         if (scenario == "empty")
             Assert.Empty(result.Warnings);
         else

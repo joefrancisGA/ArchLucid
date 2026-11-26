@@ -657,7 +657,7 @@ export function DiagramsWorkbenchClient() {
     if (urlSeedNodeId.length > 0) {
       setSeedNodeDraft(urlSeedNodeId);
       setAppliedSeedNodeId(urlSeedNodeId);
-    } else if (snapshotChanged) {
+    } else {
       setSeedNodeDraft("");
       setAppliedSeedNodeId("");
     }
@@ -1188,6 +1188,8 @@ export function DiagramsWorkbenchClient() {
 
     return filterInfraEvidenceMermaidOutline(seedCatalogOutline, includeNeverShow);
   }, [includeNeverShow, seedCatalogOutline]);
+
+  const seedPickerNodes = visibleSeedCatalogOutline?.nodes ?? seedCandidateNodes;
 
   const diagramWalkthrough = useMemo(() => {
     if (familyFilteredOutline == null) {
@@ -2646,7 +2648,7 @@ export function DiagramsWorkbenchClient() {
             </span>
           </div>
           <div className="flex flex-wrap items-end gap-3">
-            {seedCandidateNodes.length > 0 ? (
+            {seedPickerNodes.length > 0 ? (
               <label className="flex min-w-[16rem] flex-1 flex-col gap-1">
                 <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
                   {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
@@ -2655,7 +2657,7 @@ export function DiagramsWorkbenchClient() {
                   className={cn("w-full", cnField)}
                   data-testid="infra-diagrams-seed-node-picker"
                   value={
-                    seedCandidateNodes.some(
+                    seedPickerNodes.some(
                       (node) => resolveInfraEvidenceOutlineSeedNodeId(node) === seedNodeDraft,
                     )
                       ? seedNodeDraft
@@ -2672,7 +2674,7 @@ export function DiagramsWorkbenchClient() {
                   }}
                 >
                   <option value="">Select a starting resource</option>
-                  {seedCandidateNodes.map((node) => {
+                  {seedPickerNodes.map((node) => {
                     const seedValue = resolveInfraEvidenceOutlineSeedNodeId(node);
 
                     return (
@@ -2688,7 +2690,7 @@ export function DiagramsWorkbenchClient() {
               <>
                 <div className="grid min-w-[16rem] flex-1 gap-2">
                   <Label htmlFor="infra-diagrams-seed-node-input">
-                    {seedCandidateNodes.length > 0
+                    {seedPickerNodes.length > 0
                       ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL
                       : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
                   </Label>
@@ -2708,7 +2710,7 @@ export function DiagramsWorkbenchClient() {
               <>
                 <label className="flex min-w-[16rem] flex-1 flex-col gap-1">
                   <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
-                    {seedCandidateNodes.length > 0
+                    {seedPickerNodes.length > 0
                       ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL
                       : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
                   </span>
