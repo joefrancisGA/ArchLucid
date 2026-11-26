@@ -37,6 +37,20 @@ public sealed class InMemoryRetrievalIndexingOutboxRepositoryRecoverabilityTests
     }
 
     [Fact]
+    public async Task Backoff_retries_keep_job_identity_and_allow_one_claim_per_job()
+    {
+        DateTime utc = new(2026, 5, 24, 14, 0, 0, DateTimeKind.Utc);
+        InMemoryRetrievalIndexingOutboxRepository sut = new(() => utc);
+        DateTime due = utc.AddMinutes(10);
+
+        await RetrievalOutboxRetryAssertions.VerifyAsync(sut, due, _ =>
+        {
+            utc = due;
+            return Task.CompletedTask;
+        });
+    }
+
+    [Fact]
     public async Task RecordDeadLetter_increments_dead_counters_and_blocks_dequeue()
     {
         DateTime utc = new DateTime(2026, 5, 24, 13, 0, 0, DateTimeKind.Utc);
