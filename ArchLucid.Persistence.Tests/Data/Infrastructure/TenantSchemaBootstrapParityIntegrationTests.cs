@@ -16,6 +16,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 
 [Trait("Category", "SqlServerContainer")]
+[Trait("Category", "SqlServerFreshSchema")]
 [Trait("Suite", "Persistence")]
 public sealed class TenantSchemaBootstrapParityIntegrationTests
 {

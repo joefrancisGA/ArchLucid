@@ -100,13 +100,7 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
         {
             await SqlServerTestCatalogCommands.EnsureCatalogExistsAsync(connectionString, CancellationToken.None);
 
-            DatabaseMigrator.Run(connectionString);
-
-            await RunPersistenceContractSupplementAsync(connectionString);
-
-            await EnsureArchLucidAppSealedTableDeniesAsync(connectionString);
-
-            await PrimeGovernanceContractTenantAsync(connectionString);
+            await PrepareCatalogAsync(connectionString);
 
             ConnectionString = connectionString;
             IsSqlServerAvailable = true;
@@ -126,13 +120,7 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
         {
             await SqlServerTestCatalogCommands.EnsureCatalogExistsAsync(connectionString, CancellationToken.None);
 
-            DatabaseMigrator.Run(connectionString);
-
-            await RunPersistenceContractSupplementAsync(connectionString);
-
-            await EnsureArchLucidAppSealedTableDeniesAsync(connectionString);
-
-            await PrimeGovernanceContractTenantAsync(connectionString);
+            await PrepareCatalogAsync(connectionString);
 
             ConnectionString = connectionString;
             IsSqlServerAvailable = true;
@@ -143,6 +131,14 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
         {
             return false;
         }
+    }
+
+    internal static async Task PrepareCatalogAsync(string connectionString)
+    {
+        DatabaseMigrator.Run(connectionString);
+        await RunPersistenceContractSupplementAsync(connectionString);
+        await EnsureArchLucidAppSealedTableDeniesAsync(connectionString);
+        await PrimeGovernanceContractTenantAsync(connectionString);
     }
 
     /// <summary>
