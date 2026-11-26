@@ -71,6 +71,7 @@ import {
 } from "@/lib/infra-evidence/resource-hub-tab-partial-capture-copy";
 import { SecureNowInfraPartialCaptureStrip } from "@/components/product-line/SecureNowInfraPartialCaptureStrip";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { SECURENOW_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
@@ -1427,6 +1428,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
       <main
         id={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PRIMARY_CONTENT_ID}
+        tabIndex={-1}
         className={cn("flex w-full flex-col gap-4 scroll-mt-24")}
         data-testid="infra-resource-hub-primary-content"
       >
@@ -2996,6 +2998,17 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       ) : null}
 
       <ResourceHubClaimOrientationStrip />
+        {pathname.startsWith("/infrastructure") ? (
+          <p className={OPERATOR_TYPOGRAPHY.body} data-testid="infrastructure-resource-hub-wayfinding">
+            <Link className={OPERATOR_LINK.inline} href={SECURENOW_INFRASTRUCTURE_RESOURCES_PATH}>
+              Resource explorer
+            </Link>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href="/">
+              Home
+            </Link>
+          </p>
+        ) : null}
       </main>
 
       <ResourceHubCreateRemediationConfirmDialog
