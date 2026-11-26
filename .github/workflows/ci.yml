@@ -299,7 +299,7 @@ jobs:
     needs: gitleaks
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: ${{ fromJSON(github.event_name == 'pull_request' && '["ubuntu-latest"]' || '["ubuntu-latest","windows-latest","macos-latest"]') }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
@@ -4999,19 +4999,30 @@ jobs:
   ui-playwright-console-network:
     name: "Operator UI: console/network smoke (PR)"
     needs: gitleaks
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+
+      - name: Check whether UI smoke is relevant
+        id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: python3 scripts/ci/authorization_ci_scope.py
 
       - uses: actions/setup-node@v7
+        if: steps.scope.outputs.run_tests == 'true'
         with:
           node-version: "22"
           cache: npm
           cache-dependency-path: archlucid-ui/package-lock.json
 
       - name: Build mock UI and install Chromium
+        if: steps.scope.outputs.run_tests == 'true'
         working-directory: archlucid-ui
         env:
           CI: true
@@ -5028,6 +5039,7 @@ jobs:
           MOCK_E2E_SKIP_NEXT_BUILD=1 npx playwright install --with-deps chromium
 
       - name: Run public console and network guards
+        if: steps.scope.outputs.run_tests == 'true'
         working-directory: archlucid-ui
         env:
           CI: true
@@ -5036,7 +5048,7 @@ jobs:
         run: npx playwright test -c playwright.mock.config.ts e2e/founder-console-network.spec.ts
 
       - uses: actions/upload-artifact@v7
-        if: always()
+        if: always() && steps.scope.outputs.run_tests == 'true'
         with:
           name: ui-console-network-playwright-report
           path: archlucid-ui/playwright-report
