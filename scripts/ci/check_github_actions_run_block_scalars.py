@@ -23,9 +23,9 @@ from pathlib import Path
 # `run:` on its own line, then an indented value that is not a block scalar
 # (`|`, `>`, with optional chomp/indent indicators) or a flow collection.
 _FOLDED_RUN = re.compile(
-    r"(?m)^(?P<indent>[ \t]+)run:[ \t]*\r?\n"
+    r"(?m)^(?P<indent>[ \t]+)(?:- +)?run:[ \t]*\r?\n"
     r"(?:(?P=indent)[ \t]+#[^\n]*\r?\n)*"
-    r"(?P=indent)[ \t]+(?![\|>\[{])"
+    r"(?P=indent)[ \t]+(?P<value>[^\s|>\[{#][^\r\n]*)"
 )
 
 _WORKFLOWS_REL = ".github/workflows"
@@ -40,6 +40,17 @@ def find_folded_run_steps(text: str) -> list[int]:
     hits: list[int] = []
 
     for match in _FOLDED_RUN.finditer(text):
+        # defaults.run is a mapping, not a step's shell-command scalar.
+        previous = next(
+            (line for line in reversed(text[:match.start()].splitlines())
+             if line.strip() and not line.lstrip().startswith("#")),
+            "",
+        )
+        if (previous.strip() == "defaults:"
+                and len(previous) - len(previous.lstrip()) < len(match["indent"])
+                and re.match(r"(?:working-directory|shell)\s*:", match["value"])):
+            continue
+
         hits.append(text.count("\n", 0, match.start()) + 1)
 
     return hits
