@@ -1366,6 +1366,40 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+  it("treats ON metrics disclosure token with fullwidth less-than sign inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF1Cn`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with black large square inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25E6ue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("canonicalizes metrics open to 1 when writing open state from a padded FALSE base", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: true,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}= FALSE `,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
+  });
+
+  it("uses the first metrics disclosure token when OFF precedes on in the query string", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=OFF&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=on`,
+      ).metricsSummaryOpen,
+    ).toBe(false);
+  });
   it("uses the first metrics disclosure token when FALSE precedes off in the query string", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(
