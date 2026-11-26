@@ -16,7 +16,8 @@ public static class AuditControlEvaluationBuilder
         IReadOnlyList<AuditEvidenceRequirementSelectionRecord> selections,
         IReadOnlyList<string> approvedExceptionIds,
         IReadOnlyList<string> failingAzureResourceIds,
-        DateTime createdUtc)
+        DateTime createdUtc,
+        bool inventoryCaptureComplete = true)
     {
         ArgumentNullException.ThrowIfNull(selections);
         ArgumentNullException.ThrowIfNull(approvedExceptionIds);
@@ -62,6 +63,9 @@ public static class AuditControlEvaluationBuilder
             : approvedExceptionIds.Count > 0
                 ? AuditEvaluationOutcome.TechnicallySupported
                 : AuditEvaluationOutcome.TechnicallyNotSupported;
+
+        if (!inventoryCaptureComplete && outcome == AuditEvaluationOutcome.TechnicallySupported)
+            return BuildInsufficient(controlId, frameworkId, snapshotId, tenantId, requirementIds, approvedExceptionIds, createdUtc);
 
         string evaluationText = BuildEvaluationText(passCount, applicableCount, approvedExceptionIds, failingAzureResourceIds);
         string formula = $"passCount={passCount}; applicableCount={applicableCount}; failingResources={failingCount}";
