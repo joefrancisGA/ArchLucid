@@ -10,7 +10,8 @@ A mapping like::
 is a plain/folded scalar. GitHub Actions joins the lines with spaces, so
 Playwright receives extra install targets (``npx``, ``playwright``, ``test``)
 instead of running two commands. Require a block scalar (``|`` / ``>``) for
-any multiline ``run:`` value.
+any multiline command value. ``defaults.run`` is a YAML mapping, not a
+command step.
 """
 
 from __future__ import annotations
@@ -20,12 +21,12 @@ import re
 import sys
 from pathlib import Path
 
-# `run:` on its own line, then an indented value that is not a block scalar
-# (`|`, `>`, with optional chomp/indent indicators) or a flow collection.
-_FOLDED_RUN = re.compile(
-    r"(?m)^(?P<indent>[ \t]+)run:[ \t]*\r?\n"
-    r"(?:(?P=indent)[ \t]+#[^\n]*\r?\n)*"
-    r"(?P=indent)[ \t]+(?![\|>\[{])"
+# Match the key on its own line, including when it opens a sequence item.
+_RUN_KEY = re.compile(
+    r'''(?P<indent>[ \t]*)(?P<item>-[ \t]+)?(?:run|'run'|"run"):[ \t]*(?:#.*)?$'''
+)
+_DEFAULTS_KEY = re.compile(
+    r'''[ \t]*(?:defaults|'defaults'|"defaults"):[ \t]*(?:&[\w-]+[ \t]*)?(?:#.*)?$'''
 )
 
 _WORKFLOWS_REL = ".github/workflows"
@@ -36,11 +37,35 @@ def repo_root() -> Path:
 
 
 def find_folded_run_steps(text: str) -> list[int]:
-    """Return 1-based line numbers of folded multiline `run:` keys."""
+    """Return 1-based line numbers of indented plain command values."""
     hits: list[int] = []
+    defaults_indent: int | None = None
+    pending_run: tuple[int, int] | None = None
 
-    for match in _FOLDED_RUN.finditer(text):
-        hits.append(text.count("\n", 0, match.start()) + 1)
+    for number, line in enumerate(text.splitlines(), start=1):
+        value = line.lstrip(" \t")
+        if not value or value.startswith("#"):
+            continue
+
+        indent = len(line) - len(value)
+        if pending_run is not None:
+            run_line, key_indent = pending_run
+            if indent > key_indent and not value.startswith(("|", ">", "[", "{")):
+                hits.append(run_line)
+            pending_run = None
+
+        if defaults_indent is not None:
+            if indent > defaults_indent:
+                continue
+            defaults_indent = None
+
+        if _DEFAULTS_KEY.fullmatch(line):
+            defaults_indent = indent
+            continue
+
+        match = _RUN_KEY.fullmatch(line)
+        if match is not None:
+            pending_run = (number, indent + len(match.group("item") or ""))
 
     return hits
 
