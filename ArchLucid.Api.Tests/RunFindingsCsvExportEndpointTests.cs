@@ -27,10 +27,11 @@ public sealed class RunFindingsCsvExportEndpointTests(ArchLucidApiFactory factor
         using HttpResponseMessage res = await review.GetFindingsExportCsvHttpAsync(Client);
 
         res.StatusCode.Should().Be(HttpStatusCode.OK);
-        using StringReader csv = new(await res.Content.ReadAsStringAsync());
-        string? header = csv.ReadLine();
-        header.Should().NotBeNullOrWhiteSpace();
-        header!.Split(',').TakeLast(7).Should().Equal(
+        string csv = await res.Content.ReadAsStringAsync();
+        // Reviewer notices appear before the column header, even when there are no finding rows.
+        string header = csv.Split('\n').Should().ContainSingle(
+            line => line.StartsWith("FindingId,", StringComparison.Ordinal)).Which.TrimEnd('\r');
+        header.Split(',').TakeLast(7).Should().Equal(
             "Provider", "ExternalKey", "ExternalUrl", "HumanReviewStatus",
             "LatestDisposition", "RevisitDueUtc", "ItsmLinkedTicketsSummary");
     }
