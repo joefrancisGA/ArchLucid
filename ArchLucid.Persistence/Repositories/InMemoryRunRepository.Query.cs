@@ -154,6 +154,7 @@ public sealed partial class InMemoryRunRepository
                     if (!RunRepositoryCore.IsActiveInScope(candidate, scope) ||
                         candidate.ArchitectureId != architectureId ||
                         candidate.GoldenManifestId.HasValue ||
+                        candidate.FindingsSnapshotId.HasValue ||
                         !candidate.GraphSnapshotId.HasValue)
                         break;
 

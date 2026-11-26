@@ -105,6 +105,7 @@ internal static partial class RunRepositorySql
                                                               AND ArchitectureId = @ArchitectureId
                                                               AND ArchivedUtc IS NULL
                                                               AND GraphSnapshotId IS NOT NULL
+                                                              AND FindingsSnapshotId IS NULL
                                                               AND GoldenManifestId IS NULL;
 
                                                             SELECT RunId FROM @UpdatedRuns;

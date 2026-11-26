@@ -111,8 +111,8 @@ public interface IRunRepository
         CancellationToken ct);
 
     /// <summary>
-    ///     Clears <see cref="RunRecord.GraphSnapshotId" /> on non-archived, unsealed runs for
-    ///     <paramref name="architectureId" /> and returns the IDs of runs whose pointer was cleared.
+    ///     Clears <see cref="RunRecord.GraphSnapshotId" /> on active runs for <paramref name="architectureId" />
+    ///     that have neither findings nor a sealed manifest. Returns the IDs of the affected runs.
     /// </summary>
     Task<IReadOnlyList<Guid>> ClearGraphSnapshotForArchitectureAsync(
         ScopeContext scope,
