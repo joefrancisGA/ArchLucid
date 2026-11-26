@@ -226,6 +226,7 @@ public sealed class ArchitectureShareAccessGateNotFoundPolicyTests
         AskEvidenceAccess adapter = new(BuildSut(), new HttpContextAccessor { HttpContext = http }, _actorContext.Object);
 
         (await adapter.CanDecideArchitectureAsync(Scope, ArchitectureId, CancellationToken.None)).Should().Be(expected);
+
         if (role == "Reader")
         {
             adapter.GetAuthorizedDraftActorId().Should().BeNull();

@@ -1,0 +1,37 @@
+name: CI runner usage report
+on:
+  schedule:
+    - cron: '20 11 * * *'
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+concurrency:
+  group: ci-runner-usage
+  cancel-in-progress: false
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: Report recent completed runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ci-usage
+          since="$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ)"
+          gh api --paginate "repos/$REPOSITORY/actions/runs?status=completed&created=%3E%3D$since&per_page=100" --jq '.workflow_runs[].id' | sort -u > artifacts/ci-usage/run-ids.txt
+          while IFS= read -r id; do
+            python3 scripts/ci/report_runner_minutes.py --repo "$REPOSITORY" --run-id "$id" --json-out "artifacts/ci-usage/$id.json" >/dev/null
+          done < artifacts/ci-usage/run-ids.txt
+          python3 scripts/ci/summarize_runner_usage.py artifacts/ci-usage >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ci-runner-usage
+          path: artifacts/ci-usage/
+          retention-days: 14
+          if-no-files-found: warn

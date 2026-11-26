@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -293,6 +293,7 @@ export function RemediationFactoryClient() {
   const { productLine } = useProductLine();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname() ?? "";
   const navHref = remediationFactoryPathForProductLine(productLine);
   const pageTitle = resolveSecureNowPageHeading(
     productLine,
@@ -792,8 +793,9 @@ export function RemediationFactoryClient() {
         <SecureNowRemediationFactoryStepFocusBanner selectedPathId={selectedPathId} />
       ) : null}
 
-      <div
+      <main
         id={REMEDIATION_FACTORY_PRIMARY_CONTENT_ID}
+        tabIndex={-1}
         className="scroll-mt-24 space-y-4"
         data-testid="remediation-factory-primary-content"
       >
@@ -1213,7 +1215,18 @@ export function RemediationFactoryClient() {
           <RemediationSimulatorOutput explanation={simulatorExplanation} generatedAt={simulatorGeneratedAt} />
         ) : null}
       </section>
-      </div>
+        {pathname === SECURENOW_REMEDIATION_FACTORY_PATH || pathname.startsWith("/security/remediation") ? (
+          <p className={OPERATOR_TYPOGRAPHY.body} data-testid="infrastructure-remediation-factory-wayfinding">
+            <Link className={OPERATOR_LINK.inline} href={SECURENOW_REMEDIATION_FACTORY_PATH}>
+              Remediation factory
+            </Link>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href="/">
+              Home
+            </Link>
+          </p>
+        ) : null}
+      </main>
     </div>
   );
 }

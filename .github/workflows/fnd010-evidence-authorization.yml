@@ -1,9 +1,14 @@
 name: FND-010 Evidence Authorization Boundary
 
+# Ordinary PR coverage is supplied by fnd015-consolidated-reference-verification.yml.
 on:
   pull_request:
-    branches: [master, main, architecture/fnd005-full-record-replay]
+    branches: [architecture/fnd005-full-record-replay]
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read

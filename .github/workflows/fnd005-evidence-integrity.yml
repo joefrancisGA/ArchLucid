@@ -1,9 +1,14 @@
 name: FND-005 Evidence Integrity Verification
 
+# Ordinary PR coverage is supplied by fnd015-consolidated-reference-verification.yml.
 on:
   pull_request:
-    branches: [master, main, architecture/fnd005-evidence-integrity-verifier]
+    branches: [architecture/fnd005-evidence-integrity-verifier]
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
