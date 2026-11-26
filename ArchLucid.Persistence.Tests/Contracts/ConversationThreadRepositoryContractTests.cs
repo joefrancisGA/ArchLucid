@@ -18,13 +18,9 @@ public abstract class ConversationThreadRepositoryContractTests
     private Guid WorkspaceId => _testScope.WorkspaceId;
     private Guid ProjectId => _testScope.ProjectId;
 
-    /// <summary>
-    ///     <see cref="IConversationThreadRepository.ArchiveThreadsLastUpdatedBeforeAsync" /> touches all rows in SQL; shared
-    ///     fixture is not isolated.
-    /// </summary>
-    protected virtual bool IncludeArchiveContractTest => true;
-
     protected abstract IConversationThreadRepository CreateRepository();
+
+    protected virtual Task<IConversationThreadRepository> CreateArchiveRepositoryAsync() => Task.FromResult(CreateRepository());
 
     protected virtual void SkipIfSqlServerUnavailable()
     {
@@ -165,23 +161,21 @@ public abstract class ConversationThreadRepositoryContractTests
     [SkippableFact]
     public async Task ArchiveThreadsLastUpdatedBefore_excludes_from_get()
     {
-        Skip.IfNot(
-            IncludeArchiveContractTest,
-            "Shared SQL: ArchiveThreadsLastUpdatedBeforeAsync is global to conversation threads.");
-
         SkipIfSqlServerUnavailable();
-        IConversationThreadRepository repo = CreateRepository();
-        ConversationThread old = NewThread(TimeProvider.System.UtcNowDateTime().AddDays(-10));
+        IConversationThreadRepository repo = await CreateArchiveRepositoryAsync();
+        DateTimeOffset cutoff = new(2026, 4, 1, 9, 0, 0, TimeSpan.Zero);
+        ConversationThread old = NewThread(cutoff.UtcDateTime.AddDays(-10));
+        ConversationThread recent = NewThread(cutoff.UtcDateTime.AddDays(1));
         await repo.CreateAsync(old, CancellationToken.None);
+        await repo.CreateAsync(recent, CancellationToken.None);
 
-        int n = await repo.ArchiveThreadsLastUpdatedBeforeAsync(
-            TimeProvider.System.GetUtcNow().AddDays(-1),
-            CancellationToken.None);
+        int n = await repo.ArchiveThreadsLastUpdatedBeforeAsync(cutoff, CancellationToken.None);
 
-        n.Should().BeGreaterThan(0);
+        n.Should().Be(1);
 
         ConversationThread? after = await repo.GetByIdAsync(old.ThreadId, CancellationToken.None);
 
         after.Should().BeNull();
+        (await repo.GetByIdAsync(recent.ThreadId, CancellationToken.None)).Should().NotBeNull();
     }
 }

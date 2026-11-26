@@ -52,19 +52,9 @@ public sealed class AuthorityChainRunForeignKeyPreventionSqlIntegrationTests(Sql
             "fk-prevent-test",
             CancellationToken.None);
 
-        int fkPresent = await conn.ExecuteScalarAsync<int>(
-            new CommandDefinition(
-                """
-                SELECT COUNT(1)
-                FROM sys.foreign_keys
-                WHERE name = N'FK_GoldenManifests_Runs_RunId'
-                  AND parent_object_id = OBJECT_ID(N'dbo.GoldenManifests');
-                """,
-                cancellationToken: CancellationToken.None));
-
-        Skip.If(
-            fkPresent == 0,
-            "Test catalog does not define FK_GoldenManifests_Runs_RunId (unexpected for SQL persistence tests).");
+        const string constraint = "FK_GoldenManifests_Runs_RunId";
+        await SqlCatalogContract.RequireForeignKeyAsync(
+            conn, "dbo.GoldenManifests", constraint, "dbo.Runs", CancellationToken.None);
 
         const string insertManifest = """
                                       IF NOT EXISTS (SELECT 1 FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId)
@@ -100,5 +90,6 @@ public sealed class AuthorityChainRunForeignKeyPreventionSqlIntegrationTests(Sql
         ExceptionAssertions<SqlException> assertion = await act.Should().ThrowAsync<SqlException>();
 
         assertion.Which.Number.Should().Be(547);
+        assertion.Which.Message.Should().Contain(constraint);
     }
 }
