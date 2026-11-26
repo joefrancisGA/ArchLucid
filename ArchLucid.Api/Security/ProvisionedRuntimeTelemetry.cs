@@ -159,7 +159,7 @@ internal static class RuntimeTelemetryRegistration
             });
         services.AddScoped<IScopedRuntimeDigestSigner>(provider => new KeyVaultRuntimeDigestSigner(
             provider.GetRequiredService<IConfiguration>(),
-            new Azure.Identity.ManagedIdentityCredential(),
+            new Azure.Identity.ManagedIdentityCredential(Azure.Identity.ManagedIdentityId.SystemAssigned),
             provider.GetRequiredService<IHttpClientFactory>().CreateClient("SecureNowRuntimeKeyVault"),
             provider.GetRequiredService<IRuntimeAttestationPublicationAuthority>(),
             provider.GetRequiredService<IRuntimeTelemetryTrustRegistry>()));
