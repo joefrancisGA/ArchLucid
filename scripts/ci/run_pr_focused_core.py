@@ -36,7 +36,13 @@ def main():
                           capture_output=True, check=False)
     paths = [p.decode("utf-8") for p in diff.stdout.split(b"\0") if p] if diff.returncode == 0 else []
     selected = select_projects(paths, projects)
-    print(f"Focused PR core validation: {len(selected)} of {len(projects)} projects", flush=True)
+    # Keep broad regression parallel rather than serializing it on the build runner.
+    mode = "focused" if len(selected) <= 2 else "full"
+    with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+        output.write(f"mode={mode}\n")
+    print(f"PR core validation: {mode}; {len(selected)} of {len(projects)} projects", flush=True)
+    if mode == "full":
+        return
     for project in selected:
         print(f"Testing {project}", flush=True)
         cmd = ["timeout", "--kill-after=30s", "14m", "dotnet", "test", project,
