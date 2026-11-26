@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Findings;
@@ -37,6 +38,7 @@ public sealed partial class FindingInsightSignalController(
     IScopeContextProvider scopeProvider,
     IManifestHashService manifestHashService,
     IAuditService auditService,
+    IArchitectureShareAccessGate architectureShareAccessGate,
     ILogger<FindingInsightSignalController> logger) : ControllerBase
 {
     private readonly IAuthorityQueryService _authorityQuery =
@@ -49,6 +51,9 @@ public sealed partial class FindingInsightSignalController(
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
+        architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
 
     private readonly ILogger<FindingInsightSignalController> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -76,6 +81,11 @@ public sealed partial class FindingInsightSignalController(
             return Unauthorized();
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        IActionResult? denied = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this, User, scope, runId, cancellationToken);
+        if (denied is not null)
+            return denied;
 
         if (!await TryResolveFindingOnRunAsync(scope, runId, trimmedFindingId, cancellationToken))
         {
@@ -127,6 +137,11 @@ public sealed partial class FindingInsightSignalController(
             return Unauthorized();
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        IActionResult? denied = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this, User, scope, runId, cancellationToken);
+        if (denied is not null)
+            return denied;
 
         if (!await TryResolveFindingOnRunAsync(scope, runId, trimmedFindingId, cancellationToken))
         {

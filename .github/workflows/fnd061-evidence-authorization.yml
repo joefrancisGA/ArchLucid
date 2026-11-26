@@ -22,7 +22,11 @@ jobs:
       - name: Verify scoped authorization precedes protected evidence reads
         run: >-
           dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~EvidenceReadAuthorizationGateTests|FullyQualifiedName~SecureNowSnapshotHttpBoundaryTests|FullyQualifiedName~TerraformAdvisoryCitedRunHttpTests|FullyQualifiedName~AuthorityRunEventsControllerShareAccessTests|FullyQualifiedName~OutboundExportShareDenial|FullyQualifiedName~BlobExportRequesterBinding'
+          --filter 'FullyQualifiedName~EvidenceReadAuthorizationGateTests|FullyQualifiedName~SecureNowSnapshotHttpBoundaryTests|FullyQualifiedName~TerraformAdvisoryCitedRunHttpTests|FullyQualifiedName~AuthorityRunEventsControllerShareAccessTests|FullyQualifiedName~OutboundExportShareDenial|FullyQualifiedName~BlobExportRequesterBinding|FullyQualifiedName~DraftRequestsControllerTests|FullyQualifiedName~FindingInsightSignalShareAccessTests'
+      - name: Verify draft reasoning authorizes before loading the draft body
+        run: >-
+          dotnet test ArchLucid.Host.Core.Tests/ArchLucid.Host.Core.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~DraftIntakeReasoningShareAccessTests|FullyQualifiedName~DraftIntakeReasoningServiceTests'
       - name: Verify indexing, replication, and projection jobs check committed scope and seal
         run: >-
           dotnet test ArchLucid.Host.Composition.Tests/ArchLucid.Host.Composition.Tests.csproj -c Release

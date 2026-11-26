@@ -48,10 +48,12 @@ public sealed class DraftIntakeReasoningShareAccessTests
     [Theory]
     [InlineData("linked-denied")]
     [InlineData("legacy-other-owner")]
-    [InlineData("wrong-scope")]
+    [InlineData("wrong-tenant")]
+    [InlineData("wrong-workspace")]
+    [InlineData("wrong-project")]
     [InlineData("prior-denied")]
     [InlineData("invalid-prior")]
-    public async Task Unauthorized_draft_or_run_stops_before_thread_and_model(string scenario)
+    public async Task Unauthorized_draft_or_run_stops_before_payload_thread_and_model(string scenario)
     {
         Harness h = new();
         DraftRequestResponse draft = Draft();
@@ -65,7 +67,13 @@ public sealed class DraftIntakeReasoningShareAccessTests
             case "legacy-other-owner":
                 draft.CreatedByUserId = "jwt:tenant:other";
                 break;
-            case "wrong-scope":
+            case "wrong-tenant":
+                draft.TenantId = Guid.NewGuid();
+                break;
+            case "wrong-workspace":
+                draft.WorkspaceId = Guid.NewGuid();
+                break;
+            case "wrong-project":
                 draft.ProjectId = Guid.NewGuid();
                 break;
             case "prior-denied":
@@ -77,10 +85,30 @@ public sealed class DraftIntakeReasoningShareAccessTests
                 draft.Document.PriorRunId = "not-a-run";
                 break;
         }
-        draft.Document.ConversationThreadId = Guid.NewGuid();
-        h.Load(draft);
+        h.SetUpMetadata(draft);
 
         (await h.ReasonAsync()).Should().BeNull();
+        h.Drafts.Verify(d => d.GetAccessMetadataAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId,
+            DraftId, CancellationToken.None), Times.Once);
+        h.Drafts.VerifyNoOtherCalls();
+        h.Threads.VerifyNoOtherCalls();
+        h.Conversation.VerifyNoOtherCalls();
+        h.Llm.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Stale_authorized_revision_stops_before_thread_and_model()
+    {
+        Harness h = new();
+        DraftRequestResponse draft = Draft();
+        h.SetUpMetadata(draft);
+        h.Drafts.Setup(d => d.GetAtAccessRevisionAsync(Scope.TenantId, Scope.WorkspaceId,
+            Scope.ProjectId, DraftId, draft.UpdatedUtc, CancellationToken.None))
+            .ReturnsAsync((DraftRequestResponse?)null);
+
+        (await h.ReasonAsync()).Should().BeNull();
+        h.Drafts.Verify(d => d.GetAtAccessRevisionAsync(Scope.TenantId, Scope.WorkspaceId,
+            Scope.ProjectId, DraftId, draft.UpdatedUtc, CancellationToken.None), Times.Once);
         h.Threads.VerifyNoOtherCalls();
         h.Conversation.VerifyNoOtherCalls();
         h.Llm.VerifyNoOtherCalls();
@@ -146,10 +174,14 @@ public sealed class DraftIntakeReasoningShareAccessTests
         draft.Document.PriorRunId = prior.ToString("N");
         ConversationThread thread = Thread();
         draft.Document.ConversationThreadId = thread.ThreadId;
-        h.Load(draft);
-        h.Access.Setup(a => a.CanDecideArchitectureAsync(Scope, ArchitectureId, CancellationToken.None))
+        h.SetUpMetadata(draft);
+        MockSequence sequence = new();
+        h.Access.InSequence(sequence).Setup(a => a.CanDecideArchitectureAsync(Scope, ArchitectureId, CancellationToken.None))
             .ReturnsAsync(true);
-        h.Access.Setup(a => a.CanReadRunAsync(Scope, prior, CancellationToken.None)).ReturnsAsync(true);
+        h.Access.InSequence(sequence).Setup(a => a.CanReadRunAsync(Scope, prior, CancellationToken.None))
+            .ReturnsAsync(true);
+        h.Drafts.InSequence(sequence).Setup(d => d.GetAtAccessRevisionAsync(Scope.TenantId, Scope.WorkspaceId,
+            Scope.ProjectId, DraftId, draft.UpdatedUtc, CancellationToken.None)).ReturnsAsync(draft);
         h.Threads.Setup(t => t.GetByIdAsync(thread.ThreadId, CancellationToken.None)).ReturnsAsync(thread);
         h.Conversation.Setup(c => c.GetVerifiedDraftHistoryAsync(Scope, thread.ThreadId, It.IsAny<int>(),
                 DraftId, ArchitectureId, Actor, It.Is<IReadOnlySet<Guid>>(ids => ids.SetEquals(new[] { prior })),
@@ -203,6 +235,7 @@ public sealed class DraftIntakeReasoningShareAccessTests
     {
         DraftId = DraftId, TenantId = Scope.TenantId, WorkspaceId = Scope.WorkspaceId,
         ProjectId = Scope.ProjectId, CreatedByUserId = Actor, Status = DraftRequestStatus.Drafting,
+        UpdatedUtc = DateTime.UnixEpoch,
         Document = new DraftRequestDocument { FreeTextIntent = "A draft" },
     };
 
@@ -243,9 +276,18 @@ public sealed class DraftIntakeReasoningShareAccessTests
         public Harness(string? actor = Actor) =>
             Access.Setup(a => a.GetAuthorizedDraftActorId()).Returns(actor);
 
-        public void Load(DraftRequestResponse draft) =>
-            Drafts.Setup(d => d.GetAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, DraftId,
-                CancellationToken.None)).ReturnsAsync(draft);
+        public void SetUpMetadata(DraftRequestResponse draft) =>
+            Drafts.Setup(d => d.GetAccessMetadataAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId,
+                DraftId, CancellationToken.None)).ReturnsAsync(new DraftRequestAccessMetadata(draft.DraftId,
+                    draft.TenantId, draft.WorkspaceId, draft.ProjectId, draft.ArchitectureId, draft.CreatedByUserId,
+                    draft.Document.PriorRunId, draft.SpawnedRunId, draft.UpdatedUtc));
+
+        public void Load(DraftRequestResponse draft)
+        {
+            SetUpMetadata(draft);
+            Drafts.Setup(d => d.GetAtAccessRevisionAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId,
+                DraftId, draft.UpdatedUtc, CancellationToken.None)).ReturnsAsync(draft);
+        }
 
         public void Bind(DraftRequestResponse draft, ConversationThread fresh)
         {
