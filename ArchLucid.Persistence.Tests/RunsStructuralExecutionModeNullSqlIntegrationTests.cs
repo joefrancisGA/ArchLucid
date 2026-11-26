@@ -8,7 +8,7 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Tests;
 
-/// <summary>INV-002: <c>dbo.Runs.StructuralExecutionMode</c> rejects explicit NULL inserts.</summary>
+/// <summary>INV-002: <c>dbo.Runs.StructuralExecutionMode</c> rejects an explicit NULL update.</summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
 [Trait("Suite", "SqlServer")]
@@ -30,17 +30,8 @@ public sealed class RunsStructuralExecutionModeNullSqlIntegrationTests(SqlServer
 
         Guid runId = Guid.NewGuid();
 
-        int columnPresent = await connection.ExecuteScalarAsync<int>(
-            new CommandDefinition(
-                """
-                SELECT COUNT(1)
-                FROM sys.columns
-                WHERE object_id = OBJECT_ID(N'dbo.Runs')
-                  AND name = N'StructuralExecutionMode';
-                """,
-                cancellationToken: CancellationToken.None));
-
-        Skip.If(columnPresent == 0, "Catalog does not yet define dbo.Runs.StructuralExecutionMode.");
+        await SqlCatalogContract.RequireColumnAsync(
+            connection, "dbo.Runs", "StructuralExecutionMode", CancellationToken.None, mustBeNotNull: true);
 
         await AuthorityRunChainTestSeed.InsertRunAsync(connection, TenantId, WorkspaceId, ProjectId, runId, "null-mode-test", CancellationToken.None);
 
@@ -56,5 +47,6 @@ public sealed class RunsStructuralExecutionModeNullSqlIntegrationTests(SqlServer
         ExceptionAssertions<SqlException> assertion = await act.Should().ThrowAsync<SqlException>();
 
         assertion.Which.Number.Should().Be(515, "SET to NULL on NOT NULL column should fail as 515 on SQL Server.");
+        assertion.Which.Message.Should().Contain("StructuralExecutionMode");
     }
 }

@@ -10,24 +10,14 @@ namespace ArchLucid.Persistence.Tests.Contracts;
 /// </summary>
 public abstract class RunRepositoryContractTests
 {
-    /// <summary>
-    ///     <see cref="IRunRepository.ArchiveRunsCreatedBeforeAsync" /> updates all matching rows in SQL; the shared container
-    ///     fixture is not isolated per test, so only the in-memory implementation runs this case.
-    /// </summary>
-    protected virtual bool IncludeArchiveRunsCreatedBeforeContractTest => true;
-
-    /// <summary>
-    ///     <see cref="IRunRepository.ArchiveRunsByIdsAsync" /> touches global <c>dbo.Runs</c> in SQL; only the in-memory
-    ///     implementation runs this case against the shared container.
-    /// </summary>
-    protected virtual bool IncludeArchiveRunsByIdsContractTest => true;
-
     /// <summary>No-op for in-memory; Dapper + SQL subclasses skip when SQL is unavailable.</summary>
     protected virtual void SkipIfSqlServerUnavailable()
     {
     }
 
     protected abstract IRunRepository CreateRepository();
+
+    protected virtual Task<IRunRepository> CreateArchiveRepositoryAsync() => Task.FromResult(CreateRepository());
 
     private static ScopeContext NewScope()
     {
@@ -191,36 +181,31 @@ public abstract class RunRepositoryContractTests
     [SkippableFact]
     public async Task ArchiveRunsCreatedBefore_async_marks_rows_and_excludes_from_get()
     {
-        Skip.IfNot(
-            IncludeArchiveRunsCreatedBeforeContractTest,
-            "Shared SQL: ArchiveRunsCreatedBeforeAsync is global to dbo.Runs.");
-
         SkipIfSqlServerUnavailable();
-        IRunRepository repo = CreateRepository();
+        IRunRepository repo = await CreateArchiveRepositoryAsync();
         ScopeContext scope = NewScope();
-        RunRecord oldRun = NewRun(scope, "proj_arch", TimeProvider.System.UtcNowDateTime().AddDays(-5));
+        DateTimeOffset cutoff = new(2026, 4, 1, 9, 0, 0, TimeSpan.Zero);
+        RunRecord oldRun = NewRun(scope, "proj_arch", cutoff.UtcDateTime.AddDays(-5));
+        RunRecord recentRun = NewRun(scope, "proj_arch", cutoff.UtcDateTime.AddDays(1));
 
         await repo.SaveAsync(oldRun, CancellationToken.None);
+        await repo.SaveAsync(recentRun, CancellationToken.None);
 
-        RunArchiveBatchResult batch =
-            await repo.ArchiveRunsCreatedBeforeAsync(TimeProvider.System.GetUtcNow().AddDays(-1), CancellationToken.None);
+        RunArchiveBatchResult batch = await repo.ArchiveRunsCreatedBeforeAsync(cutoff, CancellationToken.None);
 
         batch.UpdatedCount.Should().Be(1);
 
         RunRecord? after = await repo.GetByIdAsync(scope, oldRun.RunId, CancellationToken.None);
 
         after.Should().BeNull();
+        (await repo.GetByIdAsync(scope, recentRun.RunId, CancellationToken.None)).Should().NotBeNull();
     }
 
     [SkippableFact]
     public async Task ArchiveRunsByIds_async_archives_only_requested_rows_and_classifies_failures()
     {
-        Skip.IfNot(
-            IncludeArchiveRunsByIdsContractTest,
-            "Shared SQL: ArchiveRunsByIdsAsync is not isolated per test on dbo.Runs.");
-
         SkipIfSqlServerUnavailable();
-        IRunRepository repo = CreateRepository();
+        IRunRepository repo = await CreateArchiveRepositoryAsync();
         ScopeContext scope = NewScope();
         RunRecord a = NewRun(scope, "proj_ids", TimeProvider.System.UtcNowDateTime());
         RunRecord b = NewRun(scope, "proj_ids", TimeProvider.System.UtcNowDateTime());
@@ -240,6 +225,7 @@ public abstract class RunRepositoryContractTests
         RunRecord? aAfter = await repo.GetByIdAsync(scope, a.RunId, CancellationToken.None);
 
         aAfter.Should().BeNull();
+        (await repo.GetByIdAsync(scope, b.RunId, CancellationToken.None)).Should().NotBeNull();
 
         RunArchiveByIdsResult second = await repo.ArchiveRunsByIdsAsync([a.RunId, b.RunId], CancellationToken.None);
 
@@ -247,5 +233,6 @@ public abstract class RunRepositoryContractTests
         second.Failed.Should().ContainSingle();
         second.Failed[0].RunId.Should().Be(a.RunId);
         second.Failed[0].Reason.Should().Be("Run already archived.");
+        (await repo.GetByIdAsync(scope, b.RunId, CancellationToken.None)).Should().BeNull();
     }
 }

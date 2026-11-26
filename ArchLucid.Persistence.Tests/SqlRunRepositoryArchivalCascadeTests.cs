@@ -14,24 +14,28 @@ namespace ArchLucid.Persistence.Tests;
 ///     <c>dbo.ContextSnapshots</c>, <c>dbo.GraphSnapshots</c>, and <c>dbo.DecisioningTraces</c> (migration 067 +
 ///     repository batch SQL).
 /// </summary>
-[Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
+[Trait("Category", SqlServerDisposablePersistenceFixture.Category)]
 [Trait("Suite", "Persistence")]
-public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFixture fixture)
+public sealed class SqlRunRepositoryArchivalCascadeTests : IAsyncLifetime
 {
+    // A per-test catalog keeps the global date-based archive from touching other tests' runs.
+    private readonly SqlServerDisposablePersistenceFixture _fixture = new();
+
+    public Task InitializeAsync() => _fixture.InitializeAsync();
+
+    public Task DisposeAsync() => _fixture.DisposeAsync();
     [SkippableFact]
     public async Task ArchiveRunsCreatedBeforeAsync_cascades_ArchivedUtc_to_context_graph_decisioning_and_findings()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(_fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
-        await using SqlConnection probe = new(fixture.ConnectionString);
+        await using SqlConnection probe = new(_fixture.ConnectionString);
         await probe.OpenAsync(CancellationToken.None);
 
-        Skip.IfNot(
-            await RunArchiveCascadeArchivedUtcColumnsExistAsync(probe, CancellationToken.None),
-            "dbo.FindingsSnapshots.ArchivedUtc (066) and context/graph/decisioning ArchivedUtc (067) are required.");
+        await RequireRunArchiveCascadeColumnsAsync(probe, CancellationToken.None);
 
-        TestSqlConnectionFactory sqlFactory = new(fixture.ConnectionString);
+        TestSqlConnectionFactory sqlFactory = new(_fixture.ConnectionString);
         TestAuthorityRunListConnectionFactory listFactory = new(sqlFactory);
         SqlRunRepository repo = SqlRunRepositoryTestFactory.Create(sqlFactory, listFactory);
 
@@ -46,7 +50,7 @@ public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFix
         RunRecord run = NewRun(scope, runId, slug, TimeProvider.System.UtcNowDateTime().AddDays(-10));
         await repo.SaveAsync(run, CancellationToken.None);
 
-        await using SqlConnection seed = new(fixture.ConnectionString);
+        await using SqlConnection seed = new(_fixture.ConnectionString);
         await seed.OpenAsync(CancellationToken.None);
 
         await AuthorityRunChainTestSeed.SeedSnapshotChainForExistingRunAsync(
@@ -94,16 +98,14 @@ public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFix
     [SkippableFact]
     public async Task ArchiveRunsByIdsAsync_cascades_ArchivedUtc_to_context_graph_decisioning_and_findings()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(_fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
-        await using SqlConnection probe = new(fixture.ConnectionString);
+        await using SqlConnection probe = new(_fixture.ConnectionString);
         await probe.OpenAsync(CancellationToken.None);
 
-        Skip.IfNot(
-            await RunArchiveCascadeArchivedUtcColumnsExistAsync(probe, CancellationToken.None),
-            "dbo.FindingsSnapshots.ArchivedUtc (066) and context/graph/decisioning ArchivedUtc (067) are required.");
+        await RequireRunArchiveCascadeColumnsAsync(probe, CancellationToken.None);
 
-        TestSqlConnectionFactory sqlFactory = new(fixture.ConnectionString);
+        TestSqlConnectionFactory sqlFactory = new(_fixture.ConnectionString);
         TestAuthorityRunListConnectionFactory listFactory = new(sqlFactory);
         SqlRunRepository repo = SqlRunRepositoryTestFactory.Create(sqlFactory, listFactory);
 
@@ -118,7 +120,7 @@ public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFix
         RunRecord run = NewRun(scope, runId, slug, TimeProvider.System.UtcNowDateTime());
         await repo.SaveAsync(run, CancellationToken.None);
 
-        await using SqlConnection seed = new(fixture.ConnectionString);
+        await using SqlConnection seed = new(_fixture.ConnectionString);
         await seed.OpenAsync(CancellationToken.None);
 
         await AuthorityRunChainTestSeed.SeedSnapshotChainForExistingRunAsync(
@@ -158,16 +160,15 @@ public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFix
     [SkippableFact]
     public async Task ArchiveRunsByIdsAsync_cascades_ArchivedUtc_to_golden_manifest_row()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(_fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
-        await using SqlConnection probe = new(fixture.ConnectionString);
+        await using SqlConnection probe = new(_fixture.ConnectionString);
         await probe.OpenAsync(CancellationToken.None);
 
-        Skip.IfNot(
-            await GoldenManifestArchivedUtcExistsAsync(probe, CancellationToken.None),
-            "dbo.GoldenManifests.ArchivedUtc (066) is required.");
+        await SqlCatalogContract.RequireColumnAsync(
+            probe, "dbo.GoldenManifests", "ArchivedUtc", CancellationToken.None);
 
-        TestSqlConnectionFactory sqlFactory = new(fixture.ConnectionString);
+        TestSqlConnectionFactory sqlFactory = new(_fixture.ConnectionString);
         TestAuthorityRunListConnectionFactory listFactory = new(sqlFactory);
         SqlRunRepository repo = SqlRunRepositoryTestFactory.Create(sqlFactory, listFactory);
 
@@ -183,7 +184,7 @@ public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFix
         RunRecord run = NewRun(scope, runId, slug, TimeProvider.System.UtcNowDateTime());
         await repo.SaveAsync(run, CancellationToken.None);
 
-        await using SqlConnection seed = new(fixture.ConnectionString);
+        await using SqlConnection seed = new(_fixture.ConnectionString);
         await seed.OpenAsync(CancellationToken.None);
 
         await AuthorityRunChainTestSeed.SeedSnapshotChainForExistingRunAsync(
@@ -241,17 +242,6 @@ public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFix
         manifestArchived.Should().NotBeNull("GoldenManifests.ArchivedUtc should be set in the same batch as dbo.Runs.");
     }
 
-    private static async Task<bool> GoldenManifestArchivedUtcExistsAsync(SqlConnection connection, CancellationToken ct)
-    {
-        const string sql = """
-                           SELECT CASE WHEN COL_LENGTH(N'dbo.GoldenManifests', N'ArchivedUtc') IS NOT NULL THEN 1 ELSE 0 END;
-                           """;
-
-        int flag = await connection.QuerySingleAsync<int>(new CommandDefinition(sql, cancellationToken: ct));
-
-        return flag == 1;
-    }
-
     private static ScopeContext NewScope()
     {
         return new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
@@ -271,21 +261,10 @@ public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFix
         };
     }
 
-    private static async Task<bool> RunArchiveCascadeArchivedUtcColumnsExistAsync(SqlConnection connection,
-        CancellationToken ct)
+    private static async Task RequireRunArchiveCascadeColumnsAsync(SqlConnection connection, CancellationToken ct)
     {
-        const string sql = """
-                           SELECT CASE
-                               WHEN COL_LENGTH(N'dbo.FindingsSnapshots', N'ArchivedUtc') IS NOT NULL
-                                AND COL_LENGTH(N'dbo.ContextSnapshots', N'ArchivedUtc') IS NOT NULL
-                                AND COL_LENGTH(N'dbo.GraphSnapshots', N'ArchivedUtc') IS NOT NULL
-                                AND COL_LENGTH(N'dbo.DecisioningTraces', N'ArchivedUtc') IS NOT NULL
-                               THEN 1 ELSE 0 END;
-                           """;
-
-        int flag = await connection.QuerySingleAsync<int>(new CommandDefinition(sql, cancellationToken: ct));
-
-        return flag == 1;
+        foreach (string table in new[] { "dbo.FindingsSnapshots", "dbo.ContextSnapshots", "dbo.GraphSnapshots", "dbo.DecisioningTraces" })
+            await SqlCatalogContract.RequireColumnAsync(connection, table, "ArchivedUtc", ct);
     }
 
     private static async Task<DateTime?> ReadArchivedUtcAsync(
