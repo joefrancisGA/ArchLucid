@@ -1,12 +1,5 @@
 namespace ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 
-// Explicit vendor package status avoids unsafe ordering of distribution backport suffixes.
-// Each record covers an exact executing package release, not merely an upstream version.
-internal enum VendorReleaseDisposition { Unknown, Affected, Fixed, NotAffected }
-internal sealed record VerifiedVendorRuntimeRelease(
-    string AdvisoryId, string Product, string Vendor, string Distribution, string PackageVersion,
-    VendorReleaseDisposition Disposition, string EvidenceId, DateTimeOffset VerifiedAt, DateTimeOffset ValidUntil);
-
 internal static class VerifiedVendorRuntimeReleaseAssessment
 {
     public static VendorReleaseDisposition Assess(RuntimeObservation observation, string advisoryId,
@@ -25,6 +18,7 @@ internal static class VerifiedVendorRuntimeReleaseAssessment
             string.Equals(r.Vendor, observation.Vendor, StringComparison.OrdinalIgnoreCase) &&
             string.Equals(r.Distribution, observation.Distribution, StringComparison.OrdinalIgnoreCase) &&
             string.Equals(r.PackageVersion, observation.Version, StringComparison.Ordinal)).ToArray();
+
         if (matching.Length != 1) return VendorReleaseDisposition.Unknown;
         var release = matching[0];
         return string.IsNullOrWhiteSpace(release.EvidenceId) || release.VerifiedAt > now ||

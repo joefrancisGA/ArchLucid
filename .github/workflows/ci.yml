@@ -299,7 +299,7 @@ jobs:
     needs: gitleaks
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: ${{ fromJSON(github.event_name == 'pull_request' && '["ubuntu-latest"]' || '["ubuntu-latest","windows-latest","macos-latest"]') }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
@@ -3020,6 +3020,8 @@ jobs:
       }}
     runs-on: ubuntu-latest
     timeout-minutes: 50
+    outputs:
+      pr_core_mode: ${{ steps.focused.outputs.mode }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -3064,12 +3066,19 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+      - name: Focused PR regression on existing compilation
+        id: focused
+        if: github.event_name == 'pull_request' && needs.ci-path-lanes.outputs.run_dotnet == 'true'
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: python3 scripts/ci/run_pr_focused_core.py --base "$PR_BASE_SHA"
+
       - name: Pack bin/obj for test shards
-        if: needs.ci-path-lanes.outputs.run_dotnet == 'true'
+        if: needs.ci-path-lanes.outputs.run_dotnet == 'true' && steps.focused.outputs.mode != 'focused'
         run: bash scripts/ci/pack_corset_build_outputs.sh "${{ runner.temp }}/corset-build-outputs.tgz"
 
       - name: Upload corset build outputs artifact
-        if: needs.ci-path-lanes.outputs.run_dotnet == 'true'
+        if: needs.ci-path-lanes.outputs.run_dotnet == 'true' && steps.focused.outputs.mode != 'focused'
         uses: actions/upload-artifact@v7
         with:
           name: corset-build-outputs-${{ github.sha }}
@@ -3090,6 +3099,7 @@ jobs:
         !cancelled()
         && needs.ci-path-lanes.result == 'success'
         && needs.dotnet-fast-core-build.result == 'success'
+        && needs.dotnet-fast-core-build.outputs.pr_core_mode != 'focused'
         && (github.ref == 'refs/heads/RC43' || github.ref == 'refs/heads/RC44' || github.ref == 'refs/heads/RC46' || github.ref == 'refs/heads/RC47' || github.ref == 'refs/heads/RC49' || needs.openapi-contract-snapshot.result == 'success')
       }}
     runs-on: ubuntu-latest
@@ -3216,7 +3226,9 @@ jobs:
             failed+=("dotnet-fast-core-build:${build_result}")
           else
             test_result="${{ needs.dotnet-fast-core-test.result }}"
-            if [ "$test_result" != "success" ]; then
+            if [ "$test_result" = "skipped" ] && [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ needs.dotnet-fast-core-build.outputs.pr_core_mode }}" = "focused" ]; then
+              echo "Focused PR regression completed on the build runner; full shards reserved for broad changes and release validation."
+            elif [ "$test_result" != "success" ]; then
               while IFS= read -r line; do
                 if [ -n "$line" ]; then
                   failed+=("$line")
@@ -3236,7 +3248,7 @@ jobs:
             exit 1
           fi
 
-          echo "Fast core corset completed (build + all shards)."
+          echo "Fast core corset completed for the selected validation mode."
 
 
   dotnet-fast-core-artifacts:
@@ -4999,19 +5011,30 @@ jobs:
   ui-playwright-console-network:
     name: "Operator UI: console/network smoke (PR)"
     needs: gitleaks
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+
+      - name: Check whether UI smoke is relevant
+        id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: python3 scripts/ci/authorization_ci_scope.py
 
       - uses: actions/setup-node@v7
+        if: steps.scope.outputs.run_tests == 'true'
         with:
           node-version: "22"
           cache: npm
           cache-dependency-path: archlucid-ui/package-lock.json
 
       - name: Build mock UI and install Chromium
+        if: steps.scope.outputs.run_tests == 'true'
         working-directory: archlucid-ui
         env:
           CI: true
@@ -5028,6 +5051,7 @@ jobs:
           MOCK_E2E_SKIP_NEXT_BUILD=1 npx playwright install --with-deps chromium
 
       - name: Run public console and network guards
+        if: steps.scope.outputs.run_tests == 'true'
         working-directory: archlucid-ui
         env:
           CI: true
@@ -5036,7 +5060,7 @@ jobs:
         run: npx playwright test -c playwright.mock.config.ts e2e/founder-console-network.spec.ts
 
       - uses: actions/upload-artifact@v7
-        if: always()
+        if: always() && steps.scope.outputs.run_tests == 'true'
         with:
           name: ui-console-network-playwright-report
           path: archlucid-ui/playwright-report

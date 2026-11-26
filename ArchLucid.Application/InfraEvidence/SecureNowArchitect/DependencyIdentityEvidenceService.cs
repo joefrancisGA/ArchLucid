@@ -2,16 +2,6 @@ using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 
-// Only independently authenticated, server-owned providers may supply these bindings.
-internal interface IVerifiedDependencyIdentityBindingSource
-{
-    Task<IReadOnlyList<VerifiedDependencyIdentityBinding>?> ReadAsync(RuntimeObservationRequest request,
-        CancellationToken ct);
-}
-
-internal sealed record DependencyIdentityEvidenceAssessment(bool BindingEvidenceAvailable,
-    IReadOnlyList<DependencyIdentityExposure> Exposures);
-
 internal sealed class DependencyIdentityEvidenceService(IVerifiedDependencyIdentityBindingSource source,
     TimeProvider clock)
 {
@@ -20,6 +10,7 @@ internal sealed class DependencyIdentityEvidenceService(IVerifiedDependencyIdent
         TimeSpan maximumAge, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
+
         if (scope.TenantId == Guid.Empty || scope.WorkspaceId == Guid.Empty || scope.ProjectId == Guid.Empty ||
             request.TenantId != scope.TenantId || request.WorkspaceId != scope.WorkspaceId ||
             request.ProjectId != scope.ProjectId || maximumAge <= TimeSpan.Zero ||
@@ -28,6 +19,7 @@ internal sealed class DependencyIdentityEvidenceService(IVerifiedDependencyIdent
             return new(false, []);
         var bindings = await source.ReadAsync(request, ct);
         ct.ThrowIfCancellationRequested();
+
         if (bindings is null || bindings.Count > 10000 || bindings.Any(b => b is null || b.Scope != request))
             return new(false, []);
         return new(true, DependencyIdentityBlastRadiusAssessment.Assess(scope, request, observation, match,

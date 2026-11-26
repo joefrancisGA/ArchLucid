@@ -31,22 +31,27 @@ internal sealed class RuntimeSecurityScheduledWorker(
         var root = config.GetSection("SecureNow:RuntimeTelemetry:Scopes");
         // Reject over-large configurations rather than silently starving later scopes.
         var candidates = root.GetChildren().Take(33).ToArray();
+
         if (candidates.Length > 32)
         {
             logger.LogWarning("Runtime security scheduler exceeds its configured scope limit.");
             return;
         }
+
         foreach (var candidate in candidates)
         {
             ct.ThrowIfCancellationRequested();
+
             if (!RuntimeTelemetryProvisioning.Enabled(config) ||
                 !bool.TryParse(config["SecureNow:RuntimeTelemetry:SchedulerEnabled"], out bool enabled) || !enabled)
                 return;
             string? json = candidate["ScheduledRequestJson"];
+
             if (json is not { Length: > 0 and <= 8192 }) continue;
             try
             {
                 var request = JsonSerializer.Deserialize<RuntimeObservationRequest>(json);
+
                 if (request is null || !string.Equals(candidate.Key,
                     RuntimeTelemetryProvisioning.ScopeKey(request), StringComparison.OrdinalIgnoreCase))
                     continue;
@@ -59,6 +64,7 @@ internal sealed class RuntimeSecurityScheduledWorker(
                 await using var services = scopes.CreateAsyncScope();
                 var executor = services.ServiceProvider.GetRequiredService<RuntimeSecurityExecutionService>();
                 var result = await executor.ExecuteAsync(scope, request, TimeSpan.FromMinutes(5), deadline.Token);
+
                 if (result.Candidates > 0 && !result.Persisted)
                     logger.LogWarning("Runtime security assessment generated candidates but persistence was not confirmed.");
             }

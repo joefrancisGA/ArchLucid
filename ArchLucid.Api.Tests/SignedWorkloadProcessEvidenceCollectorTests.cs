@@ -32,6 +32,7 @@ public sealed class SignedWorkloadProcessEvidenceCollectorTests
     {
         using var fixture = new Fixture();
         var valid = Attestation();
+
         foreach (var invalid in new[]
         {
             valid with { Batch = valid.Batch with { Scope = Request with { TenantId = Guid.NewGuid() } } },

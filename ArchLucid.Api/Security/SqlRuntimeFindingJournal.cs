@@ -16,6 +16,7 @@ internal sealed class SqlRuntimeFindingJournal(ISqlConnectionFactory? connection
         CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
+
         if (connections is null || !RuntimeTelemetryProvisioning.Enabled(config) ||
             !assessment.CatalogCurrent || request.TenantId == Guid.Empty ||
             request.WorkspaceId == Guid.Empty || request.ProjectId == Guid.Empty ||
@@ -34,6 +35,7 @@ internal sealed class SqlRuntimeFindingJournal(ISqlConnectionFactory? connection
         try
         {
             var payload = JsonSerializer.SerializeToUtf8Bytes(assessment);
+
             if (payload.Length > 1048576) return false;
             await using var connection = await connections.CreateOpenConnectionAsync(ct);
             await using var command = connection.CreateCommand();
@@ -47,6 +49,7 @@ internal sealed class SqlRuntimeFindingJournal(ISqlConnectionFactory? connection
                 Convert.FromHexString(RuntimeTelemetryProvisioning.ScopeKey(request));
             command.Parameters.Add("@payloadHash", SqlDbType.Binary, 32).Value = SHA256.HashData(payload);
             command.Parameters.Add("@payload", SqlDbType.VarBinary, -1).Value = payload;
+
             if (!await authority.CanPublishAsync(request, ct)) return false;
             return await command.ExecuteScalarAsync(ct) is bool accepted && accepted;
         }

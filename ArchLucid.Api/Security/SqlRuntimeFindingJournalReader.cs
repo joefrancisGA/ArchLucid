@@ -7,9 +7,6 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Api.Security;
 
-internal sealed record RuntimeFindingJournalEntry(DateTime RecordedUtc, string PayloadHash,
-    RuntimeCatalogAssessment Assessment);
-
 // Historical evidence only: reading an old observation never establishes current exposure.
 internal sealed class SqlRuntimeFindingJournalReader(ISqlConnectionFactory? connections,
     IRuntimeTelemetryReadAuthority authority)
@@ -18,6 +15,7 @@ internal sealed class SqlRuntimeFindingJournalReader(ISqlConnectionFactory? conn
         RuntimeObservationRequest request, int limit, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
+
         if (connections is null || limit is < 1 or > 20 || request.TenantId == Guid.Empty ||
             request.WorkspaceId == Guid.Empty || request.ProjectId == Guid.Empty ||
             string.IsNullOrWhiteSpace(request.ResourceId) || string.IsNullOrWhiteSpace(request.DeploymentGeneration) ||
@@ -48,6 +46,7 @@ internal sealed class SqlRuntimeFindingJournalReader(ISqlConnectionFactory? conn
                     var hash = reader.GetFieldValue<byte[]>(1);
                     var bytes = reader.GetFieldValue<byte[]>(2);
                     var entry = Validate(request, reader.GetDateTime(0), hash, bytes);
+
                     if (entry is null) return null;
                     entries.Add(entry);
                 }
@@ -68,6 +67,7 @@ internal sealed class SqlRuntimeFindingJournalReader(ISqlConnectionFactory? conn
         try
         {
             var assessment = JsonSerializer.Deserialize<RuntimeCatalogAssessment>(bytes);
+
             if (assessment is null || !assessment.CatalogCurrent || assessment.Findings is null ||
                 assessment.LifecycleFindings is null ||
                 assessment.Findings.Count + assessment.LifecycleFindings.Count is <= 0 or > 2000 ||

@@ -189,10 +189,15 @@ public sealed class AuthorityPipelineWorkProcessorTests
     {
         AuthorityPipelineWorkOutboxEntry entry = CreateEntryWithValidPayload();
         RunRecord header = CreateBoundRun(entry);
+
         if (mismatch == "tenant") header.TenantId = Guid.NewGuid();
+
         if (mismatch == "workspace") header.WorkspaceId = Guid.NewGuid();
+
         if (mismatch == "project") header.ScopeProjectId = Guid.NewGuid();
+
         if (mismatch == "run") header.RunId = Guid.NewGuid();
+
         if (mismatch == "archived") header.ArchivedUtc = DateTime.UtcNow;
 
         Mock<IAuthorityPipelineWorkRepository> outbox = new();
@@ -664,6 +669,7 @@ public sealed class AuthorityPipelineWorkProcessorTests
         services.AddSingleton(outbox.Object);
         services.AddSingleton(orchestrator.Object);
         services.AddSingleton(runRepository?.Object ?? new Mock<IRunRepository>().Object);
+
         if (bundles is null)
         {
             bundles = new Mock<IEvidenceBundleRepository>();

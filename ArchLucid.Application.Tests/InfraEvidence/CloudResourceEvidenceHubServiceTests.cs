@@ -208,6 +208,7 @@ public sealed class CloudResourceEvidenceHubServiceTests
             { SnapshotId = explicitlyRequested ? snapshotId : null });
 
         result.Succeeded.Should().Be(!explicitlyRequested);
+
         if (explicitlyRequested)
             result.ErrorMessage.Should().Be("Snapshot was not found in the current project scope.");
         else

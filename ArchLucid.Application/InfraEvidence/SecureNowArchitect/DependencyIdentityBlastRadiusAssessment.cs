@@ -2,17 +2,6 @@ using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 
-// The upstream verifier must establish artifact execution, deployment and identity links
-// from authoritative sources. A dependency match alone does not establish identity exposure.
-internal sealed record VerifiedDependencyIdentityBinding(
-    RuntimeObservationRequest Scope, string ArtifactEvidenceId, string IdentityId,
-    bool ArtifactExecuting, IReadOnlyList<string> GrantedCapabilities,
-    string BindingEvidenceId, DateTimeOffset ObservedAt, DateTimeOffset ValidUntil);
-
-internal sealed record DependencyIdentityExposure(
-    RuntimeObservationRequest Scope, string IdentityId, string DependencyEvidenceId,
-    string BindingEvidenceId, IReadOnlyList<string> AdvisoryIds, IReadOnlyList<string> GrantedCapabilities);
-
 internal static class DependencyIdentityBlastRadiusAssessment
 {
     public static IReadOnlyList<DependencyIdentityExposure> Assess(ScopeContext scope,
@@ -33,12 +22,15 @@ internal static class DependencyIdentityBlastRadiusAssessment
             string.Equals(b.ArtifactEvidenceId, observation.EvidenceId, StringComparison.Ordinal) &&
             !string.IsNullOrWhiteSpace(b.IdentityId)).ToArray();
         var exposures = new List<DependencyIdentityExposure>();
+
         foreach (var group in candidates.GroupBy(b => b.IdentityId, StringComparer.Ordinal))
         {
             // Ambiguous or contradictory provenance cannot establish an exposure.
             var records = group.ToArray();
+
             if (records.Length != 1) continue;
             var b = records[0];
+
             if (!b.ArtifactExecuting || b.ObservedAt > now || now - b.ObservedAt > maximumAge ||
                 b.ValidUntil <= now || b.ValidUntil <= b.ObservedAt ||
                 string.IsNullOrWhiteSpace(b.BindingEvidenceId) ||
