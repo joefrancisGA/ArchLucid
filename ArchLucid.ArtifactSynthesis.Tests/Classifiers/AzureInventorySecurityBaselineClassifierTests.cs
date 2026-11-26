@@ -36,7 +36,7 @@ public sealed class AzureInventorySecurityBaselineClassifierTests
         string segment, string value, string? expectedMessage)
     {
         string json = $"""
-            [{"resourceType":"Microsoft.EventGrid/{{segment}}","resourceId":"resource1","properties":{"disableLocalAuth":{{value}}}}]
+            [{"resourceType":"Microsoft.EventGrid/{{segment}}","resourceId":"resource1","properties":{"disableLocalAuth":{{value}}} }]
             """;
         var findings = AzureInventorySecurityBaselineClassifier.ClassifyFromResourcesJson(json);
 
