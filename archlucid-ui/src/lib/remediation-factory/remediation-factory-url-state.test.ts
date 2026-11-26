@@ -1381,6 +1381,17 @@ describe("remediation-factory-url-state", () => {
 
 
 
+  it("treats ON metrics disclosure token with halfwidth ideographic question mark inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF67n`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with white small square inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25ABue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
   it("treats ON metrics disclosure token with halfwidth ideographic colon inside the word as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF66n`).metricsSummaryOpen,
@@ -2129,7 +2140,21 @@ describe("remediation-factory-url-state", () => {
       `/governance/remediation-factory?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1&${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=${findingId}`,
     );
   });
-  it("canonicalizes metrics open to 1 when writing open state from a padded on base", () => {
+
+  it("canonicalizes metrics open to 1 when writing open state from a padded YES base", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: true,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}= YES `,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
+  });  it("canonicalizes metrics open to 1 when writing open state from a padded on base", () => {
     const params = remediationFactoryUrlStateToSearchParams(
       {
         selectedFindingId: null,
@@ -3036,7 +3061,17 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
-  it("remediationFactoryHrefFromSearch preserves a toSnapshot query param on pathname-only href when clearing path", () => {
+
+  it("remediationFactoryHrefFromSearch preserves a fromSnapshot query param on pathname-only href when clearing path", () => {
+    const fromId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+    const pathId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    const href = remediationFactoryHrefFromSearch(
+      "/governance/remediation-factory",
+      `${REMEDIATION_FACTORY_SELECTED_PATH_PARAM}=${pathId}&${REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM}=${fromId}`,
+    );
+
+    expect(href).toContain(`${REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM}=${fromId}`);
+  });  it("remediationFactoryHrefFromSearch preserves a toSnapshot query param on pathname-only href when clearing path", () => {
     const toId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
     const pathId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
     const href = remediationFactoryHrefFromSearch(
