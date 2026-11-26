@@ -8,6 +8,7 @@ import { SecurityEvidencePathInspectPanel } from "@/components/security/Security
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SECURENOW_PILOT_DECISION_GUARDRAIL } from "@/lib/product-line/securenow-pilot-decision-copy";
 import { SECURENOW_SAMPLE_FIXTURE_LINE } from "@/lib/marketing/securenow-sample-copy";
 import {
   secureNowPilotDispositionStorageKey,
