@@ -6,12 +6,26 @@ import {
 } from "@/lib/remediation-factory/attack-path-report-path-chip-label";
 
 describe("attack-path-report-path-chip-label", () => {
+
+  it("preserves interior horizontal tab in a short path id", () => {
+    expect(formatAttackPathReportPathChipLabel("ab\tcd")).toBe("ab\tcd");
+  });
   it("returns a lone ellipsis path id without adding a second ellipsis", () => {
     expect(formatAttackPathReportPathChipLabel("…")).toBe("…");
     expect(formatAttackPathReportPathChipLabel("...")).toBe("...");
   });
 
-  it("returns null overflow line when every path id is short", () => {
+
+  it("preserves interior newline in a short path id", () => {
+    expect(formatAttackPathReportPathChipLabel("ab\ncd")).toBe("ab\ncd");
+  });
+  it("preserves interior whitespace in short path chip labels", () => {
+    expect(formatAttackPathReportPathChipLabel("a b")).toBe("a b");
+  });
+
+  it("returns null overflow line for interior-newline-only path ids", () => {
+    expect(attackPathReportPathChipOverflowLine(["\n"])).toBeNull();
+  });  it("returns null overflow line when every path id is short", () => {
     expect(attackPathReportPathChipOverflowLine(["path-a", "path-b"])).toBeNull();
   });
 
@@ -24,6 +38,12 @@ describe("attack-path-report-path-chip-label", () => {
     expect(formatAttackPathReportPathChipLabel(overBoundary).length).toBeLessThan(overBoundary.length);
   });
 
+
+  it("shows overflow honesty when a long path id contains an interior horizontal tab", () => {
+    const longWithTab = `${"a".repeat(40)}\t${"b".repeat(8)}`;
+
+    expect(attackPathReportPathChipOverflowLine([longWithTab])).toContain("Long path ids");
+  });
   it("shows overflow honesty copy only when a path id exceeds 48 characters", () => {
     const atThreshold = "a".repeat(48);
     const overThreshold = "a".repeat(49);
@@ -60,7 +80,10 @@ describe("attack-path-report-path-chip-label", () => {
     expect(attackPathReportPathChipOverflowLine(["   ", "\t"])).toBeNull();
   });
 
-  it("returns null overflow line for an empty path id list", () => {
+
+  it("returns null overflow line for a single short path id in the list", () => {
+    expect(attackPathReportPathChipOverflowLine(["short-path"])).toBeNull();
+  });  it("returns null overflow line for an empty path id list", () => {
     expect(attackPathReportPathChipOverflowLine([])).toBeNull();
   });
 });
