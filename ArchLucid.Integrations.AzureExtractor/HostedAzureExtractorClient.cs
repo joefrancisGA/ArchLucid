@@ -1,3 +1,4 @@
+using ArchLucid.Core.InfraEvidence;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Abstractions.Integrations;
@@ -247,7 +248,7 @@ public sealed class HostedAzureExtractorClient(
             .ListSubscriptionPolicyAssignmentDocumentsAsync(accessToken.Token, subscriptionId, cancellationToken)
             .ConfigureAwait(false);
 
-        IReadOnlyList<AzureInventoryEntraGroupMembershipRow> entraGroupMemberships =
+        EntraGroupMembershipGraphReadResult entraGroupMemberships =
             await TryReadEntraGroupMembershipsAsync(
                 credential,
                 roleAssignments,
@@ -262,6 +263,8 @@ public sealed class HostedAzureExtractorClient(
         HostedAzureDefenderCompanionCollectResult defenderCompanions =
             await CollectDefenderCompanionsOrEmptyAsync(accessToken.Token, subscriptionId, cancellationToken)
                 .ConfigureAwait(false);
+        collectionWarnings.AddRange(entraGroupMemberships.Warnings);
+        collectionWarnings.AddRange(addCredentialSnapshot.Warnings);
         collectionWarnings.AddRange(defenderCompanions.Warnings);
         collectionWarnings.AddRange(
             DefenderPlanCoverageWarnings.Create(defenderCompanions.Pricings, inventoryResources));
@@ -280,7 +283,7 @@ public sealed class HostedAzureExtractorClient(
             request.IncludeCost,
             collectionTimestampUtc,
             subscriptionName,
-            entraGroupMemberships,
+            entraGroupMemberships.Memberships,
             roleAssignments,
             networkAssociations,
             federatedCredentials,
@@ -550,7 +553,7 @@ public sealed class HostedAzureExtractorClient(
         }
 
         DateTimeOffset collectionTimestampUtc = TimeProvider.System.GetUtcNow();
-        IReadOnlyList<AzureInventoryEntraGroupMembershipRow> entraGroupMemberships =
+        EntraGroupMembershipGraphReadResult entraGroupMemberships =
             await TryReadEntraGroupMembershipsAsync(
                 credential,
                 roleAssignments,
@@ -562,6 +565,8 @@ public sealed class HostedAzureExtractorClient(
             managementGroupId,
             cancellationToken).ConfigureAwait(false);
 
+        collectionWarnings.AddRange(entraGroupMemberships.Warnings);
+        collectionWarnings.AddRange(addCredentialSnapshot.Warnings);
         collectionWarnings.AddRange(defenderCompanionWarnings);
         collectionWarnings.AddRange(
             DefenderPlanCoverageWarnings.Create(defenderPricings, inventoryResources));
@@ -572,7 +577,7 @@ public sealed class HostedAzureExtractorClient(
             request.IncludeCost,
             collectionTimestampUtc,
             subscriptionName: null,
-            entraGroupMemberships,
+            entraGroupMemberships.Memberships,
             roleAssignments,
             networkAssociations,
             federatedCredentials,
@@ -782,7 +787,7 @@ public sealed class HostedAzureExtractorClient(
         return value.GetString();
     }
 
-    private async Task<IReadOnlyList<AzureInventoryEntraGroupMembershipRow>> TryReadEntraGroupMembershipsAsync(
+    private async Task<EntraGroupMembershipGraphReadResult> TryReadEntraGroupMembershipsAsync(
         TokenCredential credential,
         IReadOnlyList<HostedAzureArmRoleAssignmentRecord> roleAssignments,
         string scopeLabel,
@@ -791,7 +796,10 @@ public sealed class HostedAzureExtractorClient(
         EntraGroupMembershipGraphOptions graphOptions = _entraGroupMembershipGraphOptions.CurrentValue;
 
         if (!graphOptions.Enabled)
-            return [];
+            return new EntraGroupMembershipGraphReadResult
+            {
+                Warnings = [SecurityEvidenceEntraGroupAdapterWarnings.GraphDisabled],
+            };
 
         IReadOnlyList<string> seedGroupIds = ExtractGroupPrincipalIds(roleAssignments);
 
@@ -810,10 +818,9 @@ public sealed class HostedAzureExtractorClient(
                 scopeLabel,
                 graphResult.Warnings.FirstOrDefault());
 
-            return [];
         }
 
-        return graphResult.Memberships;
+        return graphResult;
     }
 
     private async Task<EntraAddCredentialGraphReadResult> TryReadEntraAddCredentialSnapshotAsync(
@@ -825,7 +832,10 @@ public sealed class HostedAzureExtractorClient(
 
         if (!graphOptions.Enabled)
         {
-            return EntraAddCredentialGraphReadResult.Empty();
+            return new EntraAddCredentialGraphReadResult
+            {
+                Warnings = [SecurityEvidenceAddCredentialAdapterWarnings.GraphNotCollected],
+            };
         }
 
         EntraAddCredentialGraphReadResult graphResult = await _entraAddCredentialGraphReader
@@ -843,7 +853,6 @@ public sealed class HostedAzureExtractorClient(
                 scopeLabel,
                 graphResult.Warnings.FirstOrDefault());
 
-            return EntraAddCredentialGraphReadResult.Empty();
         }
 
         return graphResult;
