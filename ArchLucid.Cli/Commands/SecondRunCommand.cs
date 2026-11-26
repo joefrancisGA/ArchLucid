@@ -198,7 +198,7 @@ internal static class SecondRunCommand
     {
         try
         {
-            using HttpClient http = new();
+            using HttpClient http = CliHttpClientFactory.Create();
             http.Timeout = TimeSpan.FromSeconds(60);
             http.BaseAddress = new Uri(apiBaseUrl.TrimEnd('/') + "/");
             http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/markdown"));
