@@ -62,8 +62,8 @@ internal sealed class ProvisionedRuntimeTelemetryEnvelopeStore(IConfiguration co
             return null;
         try
         {
-            var path = Path.Combine(root, RuntimeTelemetryProvisioning.ScopeKey(request) + ".json");
-            if ((File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0) return null;
+            var path = Path.Combine(Path.GetFullPath(root), RuntimeTelemetryProvisioning.ScopeKey(request) + ".json");
+            if (!RuntimeTelemetrySpoolPath.IsRegularFileUnderPlainDirectories(path)) return null;
             await using var stream = new FileStream(path, FileMode.Open, FileAccess.Read,
                 FileShare.Read, 8192, FileOptions.Asynchronous | FileOptions.SequentialScan);
             if (stream.Length is <= 0 or > MaximumEnvelopeBytes) return null;
@@ -75,6 +75,7 @@ internal sealed class ProvisionedRuntimeTelemetryEnvelopeStore(IConfiguration co
                 if (buffer.Length + read > MaximumEnvelopeBytes) return null;
                 buffer.Write(chunk, 0, read);
             }
+            if (!RuntimeTelemetrySpoolPath.IsRegularFileUnderPlainDirectories(path)) return null;
             return JsonSerializer.Deserialize<SignedRuntimeObservationEnvelope>(buffer.ToArray());
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException or ArgumentException)
