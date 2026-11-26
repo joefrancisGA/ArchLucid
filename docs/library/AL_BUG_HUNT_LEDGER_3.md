@@ -842,11 +842,18 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `yes` then `1` — **cheap-disproof 2026-11-26 thorough hunt (hit):** regression `uses the first metrics disclosure token when yes precedes one in the query string`.
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — preserves snapshot ids when clearing path with open metrics — **cheap-disproof 2026-11-26 thorough hunt (hit):** regression `preserves snapshot ids when clearing path selection with open metrics`.
 
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — fullwidth digit zero inside `on` token — locus: Ff strip; input: `o` + U+FF10 + `n`; pass-96 reseed.
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — upper right quadrant circular arc inside true — locus: So strip; input: `tr` + U+25DC + `ue`; pass-96 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded `FALSE` base — locus: writer; input: close over ` FALSE ` base; pass-96 reseed.
-- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `ON` then `off` — locus: first-wins; input: repeated param; pass-96 reseed.
-- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves snapshot ids on pathname-only href when clearing finding — locus: href; input: metrics open + snapshots; pass-96 reseed.
+- [x] (superseded) pass-96 `(candidate)` queue — **superseded 2026-11-26 thorough hunt (hit):** pass-97 reseed.
+- [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — fullwidth digit zero inside `on` token — **proven 2026-11-26 thorough hunt (hit):** regression `treats ON metrics disclosure token with fullwidth digit zero inside the word as open on read`.
+- [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — upper right quadrant circular arc inside true — **proven 2026-11-26 thorough hunt (hit):** regression `treats true metrics disclosure token with upper right quadrant circular arc inside the word as open on read`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded `FALSE` base — **cheap-disproof 2026-11-26 thorough hunt (hit):** regression `drops padded FALSE metrics disclosure token from base search when writing closed state`.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `ON` then `off` — **cheap-disproof 2026-11-26 thorough hunt (hit):** regression `uses the first metrics disclosure token when ON precedes off in the query string`.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves snapshot ids on pathname-only href when clearing finding — **cheap-disproof 2026-11-26 thorough hunt (hit):** regression `remediationFactoryHrefFromSearch preserves a fromSnapshot query param`.
+
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — fullwidth digit one inside `on` token — locus: Ff strip; input: `o` + U+FF11 + `n`; pass-97 reseed.
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — lower left quadrant circular arc inside true — locus: So strip; input: `tr` + U+25DD + `ue`; pass-97 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded `TRUE` base — locus: writer; input: close over ` TRUE ` base; pass-97 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `no` then `on` — locus: first-wins; input: repeated param; pass-97 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — preserves finding id when clearing path with open metrics — locus: writer; input: clear path only; pass-97 reseed.
 
 - [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — horizontal tab inside yes token — locus: Cc strip; input: `y` + U+0009 + `es`; pass-68 reseed.
 - [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — treats NUL-only metrics disclosure token as closed — locus: empty after Cc strip; input: U+0000 only; pass-68 reseed.
