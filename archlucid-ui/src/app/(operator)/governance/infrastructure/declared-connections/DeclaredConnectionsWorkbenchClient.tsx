@@ -409,6 +409,7 @@ export function DeclaredConnectionsWorkbenchClient() {
 
       <main
         id={GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PRIMARY_CONTENT_ID}
+        tabIndex={-1}
         className="flex w-full max-w-none flex-col gap-4 scroll-mt-24"
         data-testid="infra-declared-connections-primary-content"
         aria-busy={loading}
@@ -784,6 +785,17 @@ export function DeclaredConnectionsWorkbenchClient() {
         </section>
 
         <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-declared-connections-build-provenance-limitation" />
+        {pathname.startsWith("/infrastructure") ? (
+          <p className={OPERATOR_TYPOGRAPHY.body} data-testid="infrastructure-declared-connections-wayfinding">
+            <Link className={OPERATOR_LINK.inline} href={SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH}>
+              Declared connections
+            </Link>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href="/">
+              Home
+            </Link>
+          </p>
+        ) : null}
       </main>
 
       <ConfirmationDialog

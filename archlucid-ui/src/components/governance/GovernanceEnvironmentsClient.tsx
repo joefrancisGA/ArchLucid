@@ -296,6 +296,7 @@ export default function GovernanceEnvironmentsClient() {
 
       <main
         id={GOVERNANCE_ENVIRONMENTS_PRIMARY_CONTENT_ID}
+        tabIndex={-1}
         className="scroll-mt-24 space-y-4"
         data-testid="governance-environments-primary-content"
       >
