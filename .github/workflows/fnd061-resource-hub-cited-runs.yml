@@ -42,5 +42,5 @@ jobs:
           --logger 'console;verbosity=normal'
       - run: >-
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~InfraEvidenceDriftWorkbenchQueryServiceTests|FullyQualifiedName~InfraEvidenceAskGroundingServiceTests'
+          --filter 'FullyQualifiedName~InfraEvidenceDriftWorkbenchQueryServiceTests|FullyQualifiedName~InfraEvidenceAskGroundingServiceTests|FullyQualifiedName~CloudResourceEvidenceHubServiceTests|FullyQualifiedName~CloudResourceExplorerQueryServiceTests|FullyQualifiedName~CloudResourceAuditLineageResolverTests'
           --logger 'console;verbosity=normal'

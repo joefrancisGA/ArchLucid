@@ -306,6 +306,14 @@ The follow-up reuses the same materialized observation for explorer type, resour
 
 The disposable SQL fixture now uses contrasting values in two foreign scopes and checks scoped payload fields plus both the page and total for local and foreign filters. App tests cover the explicit snapshot type and display name fallback.
 
+### FND-061 Explorer and Evidence Hub scope reconciliation
+
+Reviewed the two Cloud Resource actions against master `bbec19302ed9e366fd0fb0d9dd0224ca3396f036` and this change. The Explorer uses the authorized project scope for observations, work counts, queue filters, and totals. The Hub checks the owning identity and selected/default snapshot before snapshot enrichment. Snapshot citations validate manifests only for runs the current caller can read. Audit lineage joins the owning assessment before applying optional selectors and ordering; selector IDs never establish access. Existing browser cache partitioning by subject and full scope is unchanged; explicit run reads are not served from that cache.
+
+The HTTP and Ask entry points already authorize explicit runs. The shared Hub service now independently consumes the current run-share decision before any identity, manifest, or other evidence read, and denies explicit requests without an authorization adapter. No new permission, schema, identity ownership rule, or ingestion behavior was added.
+
+The scoped source census records both actions as conformant in the reviewed boundary. Runtime acceptance requires the focused Application and HTTP suites plus the exact Explorer work-count, project-observation, and audit-lineage cases to execute and pass on disposable SQL. The existing SecureNow workflow now fails if any of those three cases is missing, skipped, or not passing. This does not close FND-061 or certify the remaining HTTP/worker inventory.
+
 ### FND-061 conversation history proof before message bodies
 
 On baseline `e7dc429155b605ced0785c7a791221d29a12099c`, both direct conversation actions verified thread/run access before reading a bounded message window, but later checked per-turn actor and evidence proof. This slice moves the existing completed-turn proof evaluation ahead of body access. The list action uses only proof metadata and verified completion timestamps. The message action fetches only the approved IDs in the exact tenant/workspace/project/thread, then rechecks the question digest before projecting public fields. SQL and the in-memory implementation have separate metadata and exact-ID ports.

@@ -48,6 +48,21 @@ public sealed class CloudResourceEvidenceHubService(
             };
         }
 
+        // The hub is also consumed outside its HTTP controller. Recheck the current
+        // run share here before loading the identity, sealed manifest, or run evidence.
+        Guid? requestedRunId = query.RunId is Guid candidateRunId && candidateRunId != Guid.Empty
+            ? candidateRunId
+            : null;
+        if (requestedRunId is Guid requestedRun &&
+            (runReadAccess is null || !await runReadAccess.CanReadRunAsync(scope, requestedRun, cancellationToken)))
+        {
+            return new CloudResourceEvidenceHubQueryResult
+            {
+                Succeeded = false,
+                ErrorMessage = "Run was not found in the current project scope.",
+            };
+        }
+
         CloudResourceIdentityRecord? identity =
             await identityDirectory.TryGetByCloudResourceIdInScopeAsync(scope, cloudResourceId, cancellationToken);
 
@@ -61,7 +76,7 @@ public sealed class CloudResourceEvidenceHubService(
             };
         }
 
-        if (query.RunId is Guid runId && runId != Guid.Empty)
+        if (requestedRunId is Guid runId)
         {
             await CloudResourceEvidenceHubSealedManifestHashGuard.EnsureRunSealedOrThrowAsync(
                 runId,
@@ -125,7 +140,7 @@ public sealed class CloudResourceEvidenceHubService(
         DiagramInfrastructureCorrespondenceRow? diagramCorrespondence =
             await ResolveDiagramCorrespondenceAsync(
                 scope,
-                query.RunId,
+                requestedRunId,
                 snapshotId,
                 cloudResourceId,
                 cancellationToken);
@@ -143,7 +158,7 @@ public sealed class CloudResourceEvidenceHubService(
         List<CloudResourceEvidenceFindingHubItem> architectureItems =
             await ResolveArchitectureFindingsAsync(
                 scope,
-                query.RunId,
+                requestedRunId,
                 identity.ExternalResourceIdNormalized,
                 diagramCorrespondence,
                 cancellationToken);

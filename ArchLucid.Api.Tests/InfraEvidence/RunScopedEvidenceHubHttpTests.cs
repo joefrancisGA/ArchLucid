@@ -199,19 +199,20 @@ public sealed class RunScopedEvidenceHubHttpTests(JwtLocalSigningWebAppFactory f
         }));
         using HttpClient client = host.CreateClient();
 
-        async Task<HttpResponseMessage> ReadAsync(Guid? requestedSnapshot = null)
+        async Task<HttpResponseMessage> ReadAsync(Guid? requestedSnapshot = null, ScopeContext? requestScope = null)
         {
+            ScopeContext callerScope = requestScope ?? scope;
             string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(factory.PrivatePemForTests,
                 JwtLocalSigningWebAppFactory.JwtLocalTestIssuer, JwtLocalSigningWebAppFactory.JwtLocalTestAudience,
-                "Hub reader", [ArchLucidRoles.Reader], scope.TenantId, scope.WorkspaceId, scope.ProjectId);
+                "Hub reader", [ArchLucidRoles.Reader], callerScope.TenantId, callerScope.WorkspaceId, callerScope.ProjectId);
             Guid? selectedSnapshot = requestedSnapshot ?? (explicitSnapshot ? snapshotId : null);
             string query = selectedSnapshot.HasValue ? $"?snapshotId={selectedSnapshot.Value:D}" : string.Empty;
             using HttpRequestMessage request = new(HttpMethod.Get,
                 $"/v1/infra-evidence/cloud-resources/{resource.CloudResourceId:D}/hub{query}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            request.Headers.Add("x-tenant-id", scope.TenantId.ToString("D"));
-            request.Headers.Add("x-workspace-id", scope.WorkspaceId.ToString("D"));
-            request.Headers.Add("x-project-id", scope.ProjectId.ToString("D"));
+            request.Headers.Add("x-tenant-id", callerScope.TenantId.ToString("D"));
+            request.Headers.Add("x-workspace-id", callerScope.WorkspaceId.ToString("D"));
+            request.Headers.Add("x-project-id", callerScope.ProjectId.ToString("D"));
             return await client.SendAsync(request);
         }
 
@@ -240,6 +241,19 @@ public sealed class RunScopedEvidenceHubHttpTests(JwtLocalSigningWebAppFactory f
         using HttpResponseMessage foreignSnapshot = await ReadAsync(foreignSnapshotId);
         foreignSnapshot.StatusCode.Should().Be(HttpStatusCode.NotFound);
         reconciliations.VerifyNoOtherCalls();
+
+        snapshots.Invocations.Clear();
+        findings.Invocations.Clear();
+        remediation.Invocations.Clear();
+        lineage.Invocations.Clear();
+        using HttpResponseMessage foreignProject = await ReadAsync(requestScope: foreignScope);
+        foreignProject.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        snapshots.VerifyNoOtherCalls();
+        reconciliations.VerifyNoOtherCalls();
+        authority.VerifyNoOtherCalls();
+        findings.VerifyNoOtherCalls();
+        remediation.VerifyNoOtherCalls();
+        lineage.VerifyNoOtherCalls();
     }
 
 
