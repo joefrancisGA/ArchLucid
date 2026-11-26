@@ -149,6 +149,7 @@ internal static class RuntimeTelemetryRegistration
         services.AddScoped<IAuthorizedRuntimeObservationSource, SignedRuntimeObservationSource>();
         services.AddScoped<RuntimeObservationAdapter>();
         services.AddScoped<RuntimeDeploymentAdvisoryEvaluator>();
+        services.AddScoped<RuntimeDeploymentLifecycleEvaluator>();
         services.AddScoped<IVerifiedRuntimeAdvisoryCatalogSource, ProvisionedRuntimeAdvisoryCatalogSource>();
         services.AddScoped<RuntimeAdvisoryFindingService>();
         services.AddScoped<IRuntimeAttestationPublicationAuthority, ProvisionedRuntimePublicationAuthority>();
