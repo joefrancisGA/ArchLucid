@@ -4,8 +4,9 @@ namespace ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 // are idempotent; conflicting or older observations never replace a newer baseline.
 internal interface IRuntimeAttestationReplayGuard
 {
-    bool TryAccept(RuntimeObservationRequest scope, DateTimeOffset issuedAt,
-        DateTimeOffset enumeratedAt, DateTimeOffset expiresAt, string digest, DateTimeOffset now);
+    Task<bool> TryAcceptAsync(RuntimeObservationRequest scope, DateTimeOffset issuedAt,
+        DateTimeOffset enumeratedAt, DateTimeOffset expiresAt, string digest, DateTimeOffset now,
+        CancellationToken cancellationToken);
 }
 
 // Process-local defense in depth only. Production multi-replica/restart protection
@@ -18,7 +19,15 @@ internal sealed class ProcessRuntimeAttestationReplayGuard : IRuntimeAttestation
     private readonly Dictionary<RuntimeObservationRequest, Watermark> watermarks = new();
     private const int Capacity = 10000;
 
-    public bool TryAccept(RuntimeObservationRequest scope, DateTimeOffset issuedAt,
+    public Task<bool> TryAcceptAsync(RuntimeObservationRequest scope, DateTimeOffset issuedAt,
+        DateTimeOffset enumeratedAt, DateTimeOffset expiresAt, string digest, DateTimeOffset now,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult(TryAccept(scope, issuedAt, enumeratedAt, expiresAt, digest, now));
+    }
+
+    private bool TryAccept(RuntimeObservationRequest scope, DateTimeOffset issuedAt,
         DateTimeOffset enumeratedAt, DateTimeOffset expiresAt, string digest, DateTimeOffset now)
     {
         if (issuedAt > now || expiresAt <= now || enumeratedAt > issuedAt ||
