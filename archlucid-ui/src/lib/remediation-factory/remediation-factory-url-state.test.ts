@@ -1140,6 +1140,47 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+  it("treats ON metrics disclosure token with fullwidth number sign inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF03n`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with circle upper left quadrant inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25D9ue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("uses the first metrics disclosure token when ON precedes zero in the query string", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=ON&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=0`,
+      ).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("preserves snapshot ids when clearing finding selection with open metrics", () => {
+    const findingId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const fromId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+    const toId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: fromId,
+        toSnapshotId: toId,
+        metricsSummaryOpen: true,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1&${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=${findingId}&${REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM}=${fromId}&${REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM}=${toId}`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
+    expect(params.get(REMEDIATION_FACTORY_SELECTED_FINDING_PARAM)).toBeNull();
+    expect(params.get(REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM)).toBe(fromId);
+    expect(params.get(REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM)).toBe(toId);
+  });
+
   it("uses the first metrics disclosure token when no precedes one in the query string", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(
