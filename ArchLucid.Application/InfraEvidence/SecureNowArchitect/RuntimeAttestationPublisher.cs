@@ -11,6 +11,12 @@ internal interface IAuthorizedRuntimeAttestationProducer
         byte[] payload, CancellationToken cancellationToken);
 }
 
+// Publication is a separate privileged action. A read grant never implies permission to publish.
+internal interface IRuntimeAttestationPublicationAuthority
+{
+    Task<bool> CanPublishAsync(RuntimeObservationRequest request, CancellationToken cancellationToken);
+}
+
 internal interface IRuntimeAttestationPublicationStore
 {
     Task<bool> PublishAsync(RuntimeObservationRequest request, SignedRuntimeObservationEnvelope envelope,
@@ -18,13 +24,13 @@ internal interface IRuntimeAttestationPublicationStore
 }
 
 internal sealed class RuntimeAttestationPublisher(
-    IAuthorizedRuntimeAttestationProducer producer, IRuntimeTelemetryReadAuthority authority,
+    IAuthorizedRuntimeAttestationProducer producer, IRuntimeAttestationPublicationAuthority authority,
     IRuntimeAttestationPublicationStore store, TimeProvider clock)
 {
     public async Task<bool> PublishAsync(RuntimeObservationRequest request, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (!await authority.CanReadAsync(request, ct)) return false;
+        if (!await authority.CanPublishAsync(request, ct)) return false;
         var batch = await producer.CollectAsync(request, ct);
         var now = clock.GetUtcNow();
         if (batch is null || batch.Scope != request || batch.InstanceIds is null ||
@@ -46,10 +52,12 @@ internal sealed class RuntimeAttestationPublisher(
         var envelope = await producer.SignAsync(request, payload, ct);
         if (envelope is null || envelope.Payload is null ||
             !CryptographicOperations.FixedTimeEquals(expected, envelope.Payload) ||
-            envelope.Signature is not { Length: 64 } || string.IsNullOrWhiteSpace(envelope.KeyId))
+            envelope.Signature is not { Length: 64 } || string.IsNullOrWhiteSpace(envelope.KeyId) || envelope.KeyId.Length > 128 ||
+            !envelope.KeyId.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_' or '.'))
             return false;
         ct.ThrowIfCancellationRequested();
-        if (!await authority.CanReadAsync(request, ct)) return false;
-        return await store.PublishAsync(request, envelope, ct);
+        if (!await authority.CanPublishAsync(request, ct)) return false;
+        return await store.PublishAsync(request, new SignedRuntimeObservationEnvelope(
+            envelope.KeyId, expected, envelope.Signature.ToArray()), ct);
     }
 }
