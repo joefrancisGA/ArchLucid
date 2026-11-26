@@ -28,30 +28,36 @@ internal sealed class KeyVaultRuntimeDigestSigner(
             !keyId.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_' or '.') ||
             !TryKeyUri(configured, out var keyUri)) return null;
         var hash = digest.ToArray();
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        deadline.CancelAfter(TimeSpan.FromSeconds(15));
+        var operationToken = deadline.Token;
         try
         {
             byte[]? publicKey = await trust.ReadCurrentKeyAsync(request, keyId, ct);
             if (publicKey is not { Length: > 0 and <= 512 }) return null;
             var token = await credential.GetTokenAsync(
-                new TokenRequestContext(["https://vault.azure.net/.default"]), ct);
+                new TokenRequestContext(["https://vault.azure.net/.default"]), operationToken);
             using var message = new HttpRequestMessage(HttpMethod.Post,
                 new Uri(keyUri!.AbsoluteUri + "/sign?api-version=7.4"));
             message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
             message.Content = JsonContent.Create(new { alg = "ES256", value = Encode(hash) });
-            using var response = await transport.SendAsync(message, HttpCompletionOption.ResponseHeadersRead, ct);
+            using var response = await transport.SendAsync(message, HttpCompletionOption.ResponseHeadersRead, operationToken);
             if (!response.IsSuccessStatusCode || response.Content.Headers.ContentLength is > 8192)
                 return null;
-            await using var stream = await response.Content.ReadAsStreamAsync(ct);
+            await using var stream = await response.Content.ReadAsStreamAsync(operationToken);
             using var buffer = new MemoryStream();
             byte[] chunk = new byte[1024];
             int count;
-            while ((count = await stream.ReadAsync(chunk.AsMemory(), ct)) != 0)
+            while ((count = await stream.ReadAsync(chunk.AsMemory(), operationToken)) != 0)
             {
                 if (buffer.Length + count > 8192) return null;
                 buffer.Write(chunk, 0, count);
             }
             using var result = JsonDocument.Parse(buffer.ToArray());
-            if (!result.RootElement.TryGetProperty("kid", out var kid) ||
+            if (result.RootElement.ValueKind != JsonValueKind.Object ||
+                result.RootElement.EnumerateObject().Count(p => p.NameEquals("kid")) != 1 ||
+                result.RootElement.EnumerateObject().Count(p => p.NameEquals("value")) != 1 ||
+                !result.RootElement.TryGetProperty("kid", out var kid) ||
                 kid.ValueKind != JsonValueKind.String ||
                 !string.Equals(kid.GetString(), keyUri.AbsoluteUri, StringComparison.Ordinal) ||
                 !result.RootElement.TryGetProperty("value", out var value) ||
@@ -71,7 +77,7 @@ internal sealed class KeyVaultRuntimeDigestSigner(
                 !string.Equals(section["Publication:KeyVaultKeyUri"], configured, StringComparison.Ordinal))
                 return null;
             byte[]? currentKey = await trust.ReadCurrentKeyAsync(request, keyId, ct);
-            ct.ThrowIfCancellationRequested();
+            operationToken.ThrowIfCancellationRequested();
             return currentKey is not null && CryptographicOperations.FixedTimeEquals(publicKey, currentKey)
                 ? (keyId, signature) : null;
         }
