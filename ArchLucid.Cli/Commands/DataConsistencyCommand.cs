@@ -23,7 +23,7 @@ internal static class DataConsistencyCommand
         string? apiOverride = OptionalStringAfter(args, "--api-base-url");
         string effectiveBase = string.IsNullOrWhiteSpace(apiOverride) ? baseUrl : apiOverride.Trim().TrimEnd('/');
 
-        using HttpClient http = new();
+        using HttpClient http = CliHttpClientFactory.Create();
         http.Timeout = TimeSpan.FromMinutes(2);
         http.BaseAddress = new Uri(effectiveBase + "/");
         string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");

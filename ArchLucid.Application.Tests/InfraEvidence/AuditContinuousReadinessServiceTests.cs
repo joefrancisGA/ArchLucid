@@ -44,8 +44,22 @@ public sealed class AuditContinuousReadinessServiceTests
         Mock<IAuditContinuousReadinessService> readiness = new();
         readiness.Setup(service => service.ProcessInventoryDiffAsync(scope, summary, changes, CancellationToken.None))
             .ReturnsAsync(new AuditContinuousReadinessProcessResult { Succeeded = readinessSucceeded });
+        Mock<IAzureInventorySnapshotRepository> inventory = new();
+        foreach (Guid id in new[] { summary.SnapshotAId, summary.SnapshotBId })
+        {
+            inventory.Setup(repository => repository.TryGetSnapshotDetailAsync(
+                    It.Is<ScopeContext>(candidate => candidate.ToProjectScopeKey() == scope.ToProjectScopeKey()),
+                    id, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new AzureInventorySnapshotDetailReadModel
+                {
+                    Header = new AzureInventorySnapshotRecord
+                    {
+                        SnapshotId = id, SubscriptionId = "sub-a", CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+                    },
+                });
+        }
         AzureInventoryDiffService diffsService = new(
-            Mock.Of<IAzureInventorySnapshotRepository>(),
+            inventory.Object,
             diffs.Object,
             [new AuditContinuousReadinessDiffConsumer(scopeProvider.Object, readiness.Object)],
             NullLogger<AzureInventoryDiffService>.Instance);
@@ -53,12 +67,16 @@ public sealed class AuditContinuousReadinessServiceTests
         AzureInventoryDiffComputeResult result = await diffsService.ComputeAndPersistDiffAsync(
             scope, summary.SnapshotAId, summary.SnapshotBId);
 
-        result.Succeeded.Should().BeTrue();
+        result.Succeeded.Should().BeTrue(result.ErrorMessage ?? string.Empty);
         result.ConsumerFanOutSucceeded.Should().Be(readinessSucceeded);
     }
 
-    [Fact]
-    public async Task ProcessInventoryDiffAsync_public_ip_add_invalidates_network_evidence_and_reevaluates_control()
+    [Theory]
+    [InlineData(AuditEvaluationOutcome.InsufficientEvidence, AuditControlTechnicalTimelineState.InsufficientEvidence, false)]
+    [InlineData(AuditEvaluationOutcome.TechnicallyNotSupported, AuditControlTechnicalTimelineState.DriftDetected, true)]
+    [InlineData(AuditEvaluationOutcome.TechnicallySupported, AuditControlTechnicalTimelineState.TechnicallySupported, false)]
+    public async Task ProcessInventoryDiffAsync_preserves_the_re_evaluation_outcome(
+        AuditEvaluationOutcome outcome, AuditControlTechnicalTimelineState expectedState, bool handoff)
     {
         ScopeContext scope = CreateScope();
         Guid assessmentId = Guid.NewGuid();
@@ -142,8 +160,10 @@ public sealed class AuditContinuousReadinessServiceTests
                 Evaluation = new AuditControlEvaluationRecord
                 {
                     ControlId = controlId,
-                    Outcome = AuditEvaluationOutcome.InsufficientEvidence,
-                    EvaluationText = AuditControlEvaluationService.StaleEvidenceInsufficientLabel,
+                    Outcome = outcome,
+                    EvaluationText = outcome == AuditEvaluationOutcome.InsufficientEvidence
+                        ? AuditControlEvaluationService.StaleEvidenceInsufficientLabel
+                        : "Technical evaluation completed.",
                 },
             });
 
@@ -195,10 +215,10 @@ public sealed class AuditContinuousReadinessServiceTests
         snapshotRepository.LastFreshnessUpdateScope.Should().Be(scope.ToProjectScopeKey());
 
         timelineRepository.Records.Should().ContainSingle();
-        timelineRepository.Records[0].State.Should().Be(AuditControlTechnicalTimelineState.DriftDetected);
+        timelineRepository.Records[0].State.Should().Be(expectedState);
         timelineRepository.Records[0].InventoryDiffId.Should().Be(diffId);
 
-        findingHandoffService.Requests.Should().ContainSingle();
+        findingHandoffService.Requests.Should().HaveCount(handoff ? 1 : 0);
         evaluationService.Verify(
             service => service.TryEvaluateControlForCurrentAssessmentAsync(
                 scope,
@@ -211,8 +231,10 @@ public sealed class AuditContinuousReadinessServiceTests
             Times.Once);
     }
 
-    [Fact]
-    public async Task ProcessInventoryDiffAsync_does_not_record_drift_when_control_evaluation_fails()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ProcessInventoryDiffAsync_does_not_record_drift_without_a_valid_evaluation(bool reportedSuccess)
     {
         ScopeContext scope = CreateScope();
         ProjectScopeKey projectScope = scope.ToProjectScopeKey();
@@ -235,7 +257,11 @@ public sealed class AuditContinuousReadinessServiceTests
         evaluations.Setup(service => service.TryEvaluateControlForCurrentAssessmentAsync(
                 scope, snapshot.AuditEvidenceSnapshotId, assessment.FrameworkId, controlId,
                 It.IsAny<IReadOnlyList<string>>(), It.IsAny<IReadOnlyList<string>>(), CancellationToken.None))
-            .ReturnsAsync(new AuditControlEvaluationResult { Succeeded = false, ErrorMessage = "Evaluation write failed." });
+            .ReturnsAsync(new AuditControlEvaluationResult
+            {
+                Succeeded = reportedSuccess,
+                ErrorMessage = reportedSuccess ? null : "Evaluation write failed.",
+            });
         CapturingTimelineRepository timeline = new();
         CapturingFindingHandoffService handoff = new();
         AuditContinuousReadinessService service = new(

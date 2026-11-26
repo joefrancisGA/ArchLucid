@@ -112,7 +112,8 @@ class RemediationSqlRolePermissionsTests(unittest.TestCase):
 
     def test_insert_boundary_is_mirrored_and_fail_closed(self):
         sql = (ROOT / "ArchLucid.Persistence/Migrations/428_RemediationProcedureOnlyInserts.sql").read_text()
-        self.assertTrue(SCHEMA.read_text().rstrip().endswith(sql.rstrip()))
+        # Later migrations can append DDL without changing this permission boundary.
+        self.assertIn(sql.strip(), SCHEMA.read_text(), "Migration 428 must be mirrored in greenfield DDL")
         for table in ("RemediationInstances", "RemediationEvidence"):
             self.assertIn(f"DENY INSERT ON OBJECT::dbo.{table} TO [ArchLucidApp]", sql)
         for name in ("uspRemediationCreateScoped", "uspRemediationAppendEvidenceScoped"):

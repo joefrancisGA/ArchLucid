@@ -622,6 +622,55 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         list[0].TraceId.Should().Be(secondTraceId);
     }
 
+    [SkippableFact]
+    [Trait("Suite", "Core")]
+    public async Task Same_attempt_retry_preserves_another_task_with_identical_call_metrics()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentExecutionTraceRepository repo = CreateRepository();
+        string requestId = "aet-retry-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask firstTask = NewTask(runId, Guid.NewGuid().ToString("N"));
+        AgentTask secondTask = NewTask(runId, Guid.NewGuid().ToString("N"));
+        await PrepareRunAndTaskAsync(requestId, runId, firstTask, CancellationToken.None);
+        await PrepareRunAndTaskAsync(requestId, runId, secondTask, CancellationToken.None);
+        DateTime created = new(2026, 5, 1, 10, 0, 0, DateTimeKind.Utc);
+
+        AgentExecutionTrace first = Trace(firstTask);
+        AgentExecutionTrace distinct = Trace(secondTask);
+        await repo.CreateAsync(first, CancellationToken.None);
+        await repo.CreateAsync(distinct, CancellationToken.None);
+        AgentExecutionTrace replacement = Trace(firstTask);
+        await repo.CreateAsync(replacement, CancellationToken.None);
+
+        ScopeContext scope = ArchitectureCommitTestSeed.AsScopeContext();
+        IReadOnlyList<AgentExecutionTrace> rows = await repo.GetByRunIdAsync(scope, runId, CancellationToken.None);
+        rows.Should().HaveCount(2);
+        rows.Select(row => (row.TaskId, row.TraceId)).Should().BeEquivalentTo(new[]
+        {
+            (replacement.TaskId, replacement.TraceId),
+            (distinct.TaskId, distinct.TraceId),
+        });
+
+        IReadOnlyList<AgentExecutionTraceLlmCostSlice> slices =
+            await repo.GetLlmCostSlicesByRunIdAsync(scope, runId, CancellationToken.None);
+        slices.Should().HaveCount(2).And.AllSatisfy(slice =>
+        {
+            slice.ModelDeploymentName.Should().Be("fixture-model");
+            slice.InputTokenCount.Should().Be(100);
+            slice.OutputTokenCount.Should().Be(25);
+        });
+
+        AgentExecutionTrace Trace(AgentTask task)
+        {
+            AgentExecutionTrace trace = NewTrace(runId, task.TaskId, Guid.NewGuid().ToString("N"), created,
+                modelDeploymentName: "fixture-model");
+            trace.InputTokenCount = 100;
+            trace.OutputTokenCount = 25;
+            return trace;
+        }
+    }
+
     private static AgentTask NewTask(string runId, string taskId)
     {
         return new AgentTask

@@ -330,6 +330,8 @@ public sealed class SqlAuditEvidenceProjectIsolationTests(SqlServerPersistenceFi
         {
             (await evidence.ListArchitectureLinksByAssessmentInScopeAsync(denied.Scope, denied.AssessmentId))
                 .Should().BeEmpty(because: denied.Name + " must not list links by assessment");
+            (await evidence.ListArchitectureLinksByAssessmentIdsInScopeAsync(denied.Scope, [denied.AssessmentId]))
+                .Should().BeEmpty(because: denied.Name + " must not list batched links by assessment");
             (await evidence.ListArchitectureLinksByControlInScopeAsync(denied.Scope, denied.AssessmentId, controlId))
                 .Should().BeEmpty(because: denied.Name + " must not list links by control");
             (await evidence.ListByAssessmentInScopeAsync(denied.Scope, denied.AssessmentId))
@@ -345,5 +347,21 @@ public sealed class SqlAuditEvidenceProjectIsolationTests(SqlServerPersistenceFi
             .Should().ContainSingle(row => row.SubmissionId == submission.SubmissionId);
         (await evidence.ListArchitectureLinksByAssessmentInScopeAsync(scopeA, assessmentA))
             .Should().ContainSingle(row => row.LinkId == link.LinkId);
+
+        AuditArchitectureEvidenceLinkRecord latestLink = new()
+        {
+            LinkId = Guid.NewGuid(), TenantId = tenant, AssessmentId = assessmentA,
+            ControlId = controlId, RequirementId = requirementId, RunId = Guid.NewGuid(),
+            GoldenManifestId = Guid.NewGuid(), LinkedBy = "sql-test", LinkedUtc = link.LinkedUtc.AddMinutes(1),
+        };
+        await evidence.InsertArchitectureLinkInScopeAsync(scopeA, latestLink);
+
+        Guid[] mixedAssessments = [assessmentB, assessmentA, assessmentA, missingAssessment, Guid.Empty];
+        (await evidence.ListArchitectureLinksByAssessmentIdsInScopeAsync(scopeA, mixedAssessments))
+            .Select(row => row.LinkId).Should().Equal(latestLink.LinkId, link.LinkId);
+        (await evidence.ListArchitectureLinksByAssessmentIdsInScopeAsync(scopeB, mixedAssessments))
+            .Should().ContainSingle().Which.LinkId.Should().Be(projectBLink.LinkId);
+        (await evidence.ListArchitectureLinksByAssessmentIdsInScopeAsync(scopeA, [Guid.Empty]))
+            .Should().BeEmpty();
     }
 }

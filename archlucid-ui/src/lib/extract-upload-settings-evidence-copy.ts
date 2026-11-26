@@ -12,6 +12,9 @@ import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platf
 
 export const EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH = "/administration/extract-upload" as const;
 
+export const EXTRACT_UPLOAD_SETTINGS_CLAIM_DISCIPLINE =
+  "Validated ZIP intake stores inventory for workspace review — not automatic remediation, verified compliance, or a timed capture SLA." as const;
+
 export const EXTRACT_UPLOAD_SETTINGS_HELP_TOPIC_LABEL = "How extract and upload works" as const;
 
 export const EXTRACT_UPLOAD_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";

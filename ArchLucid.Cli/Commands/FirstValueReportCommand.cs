@@ -25,7 +25,7 @@ internal static class FirstValueReportCommand
             return CliCommandShared.ExitCodeForFailedConnection(outcome);
 
         string normalized = baseUrl.Trim().TrimEnd('/');
-        using HttpClient http = new();
+        using HttpClient http = CliHttpClientFactory.Create();
         http.Timeout = TimeSpan.FromSeconds(60);
         http.BaseAddress = new Uri(normalized + "/");
         http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/markdown"));

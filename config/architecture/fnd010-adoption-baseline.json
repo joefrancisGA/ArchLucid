@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "baselineCommit": "a4e11fa60f31ab105a1d522b37c57ad69083dbd2",
+  "baselineCommit": "c7da6821b2ccb0b87bf65c303ff63f58654fe484",
   "scope": "Source-reviewed HTTP action-method cohort. Multiple route attributes on one method count once; distinct methods count separately. Resource-specific share/entitlement before evidence/cache/model access; identity-only discovery allowed. Partial = known adoption with unresolved pre-hydration/mode limitations. No mandatory-audit or runtime claim for share-gate paths.",
   "registryPath": "scripts/ci/data/route_tier_policy_nav_registry.json",
   "registryBlob": "a45a41f449fba38a2386355898d52c6713943c90",
@@ -256,7 +256,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Application/Architecture/AuthorizedEvidenceRunResolver.cs",
@@ -491,7 +491,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Controllers/Findings/FindingInspectController.SealedManifestGuard.cs",
@@ -604,7 +604,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Controllers/Planning/ComparisonController.SealedManifestGuard.cs",
@@ -646,7 +646,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/DocxExportController.SealedManifestGuard.cs",
@@ -691,7 +691,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         }
       ],
       "orderChecks": [
@@ -740,7 +740,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.AgentRuntime/Explanation/CachingRunExplanationSummaryService.cs",
@@ -797,7 +797,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         }
       ],
       "orderChecks": [
@@ -846,7 +846,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Application/Explanation/FindingLlmAuditService.cs",
@@ -899,7 +899,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         }
       ],
       "orderChecks": [
@@ -950,7 +950,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Application/Explanation/HolisticCriticService.cs",
@@ -1003,7 +1003,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunComparisonController.SealedManifestGuard.cs",
@@ -1055,7 +1055,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunComparisonController.SealedManifestGuard.cs",
@@ -1107,7 +1107,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunComparisonController.SealedManifestGuard.cs",
@@ -1159,7 +1159,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunComparisonController.SealedManifestGuard.cs",
@@ -1211,7 +1211,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunComparisonController.SealedManifestGuard.cs",
@@ -1263,7 +1263,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunComparisonController.SealedManifestGuard.cs",
@@ -1315,7 +1315,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Controllers/Authority/RunComparisonController.SealedManifestGuard.cs",
@@ -1367,7 +1367,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Controllers/Planning/GraphController.cs",
@@ -1398,7 +1398,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Controllers/Planning/GraphController.cs",
@@ -1429,7 +1429,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Security/EvidenceReadAuthorizationGate.cs",
@@ -1498,7 +1498,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController.SealedManifestGuard.cs",
@@ -1981,7 +1981,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Support/AuthorityRunReadHandlers.Inventory.cs",
@@ -2080,7 +2080,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         }
       ],
       "orderChecks": [
@@ -2133,7 +2133,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         }
       ],
       "orderChecks": [
@@ -2186,7 +2186,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         }
       ],
       "orderChecks": [
@@ -2239,7 +2239,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         }
       ],
       "orderChecks": [
@@ -2292,7 +2292,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         }
       ],
       "orderChecks": [
@@ -2345,7 +2345,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         }
       ],
       "orderChecks": [
@@ -2390,7 +2390,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         }
       ],
       "orderChecks": [
@@ -2432,7 +2432,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         }
       ],
       "orderChecks": [
@@ -2474,7 +2474,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         }
       ],
       "orderChecks": [
@@ -2516,7 +2516,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         }
       ],
       "orderChecks": [
@@ -2554,7 +2554,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Persistence/Data/Repositories/AgentEvidencePackageRepository.cs",
@@ -2603,7 +2603,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         }
       ],
       "orderChecks": [
@@ -2641,7 +2641,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         }
       ],
       "orderChecks": [
@@ -2695,7 +2695,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         }
       ],
       "orderChecks": [
@@ -2794,7 +2794,7 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         }
       ],
       "orderChecks": [

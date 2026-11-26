@@ -23,6 +23,7 @@ public sealed class ConsultingDocxSupplementalSectionsGovernanceTests
                 [
                     new ManifestService
                     {
+                        ServiceId = "payments-api",
                         ServiceName = "PaymentsApi",
                         ServiceType = ServiceType.Api,
                         RuntimePlatform = RuntimePlatform.AppService,
@@ -47,9 +48,8 @@ public sealed class ConsultingDocxSupplementalSectionsGovernanceTests
 
         text.Should().Contain("PaymentsApi");
         text.Should().Contain("Relationships");
-        text.Should().Contain("payments-api");
-        text.Should().Contain("ledger-db");
-        text.Should().Contain("ReadsFrom");
+        text.Should().Contain("PaymentsApi ReadsFrom Component name was not stored.");
+        text.Should().NotContain("ledger-db");
         text.Should().Contain("Reads settlement rows");
     }
 

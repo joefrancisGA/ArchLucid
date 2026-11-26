@@ -85,18 +85,23 @@ public sealed class DraftIntakeReasoningService(
             scope.WorkspaceId == Guid.Empty || scope.ProjectId == Guid.Empty)
             return null;
 
-        DraftRequestResponse? draft = await _draftRepository.GetAsync(
+        DraftRequestAccessMetadata? facts = await _draftRepository.GetAccessMetadataAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
             draftId,
             cancellationToken);
 
-        if (draft is null)
+        if (facts is null)
             return null;
 
-        HashSet<Guid>? authorizedRuns = await AuthorizeDraftAsync(draft, draftId, scope, actorId, cancellationToken);
+        HashSet<Guid>? authorizedRuns = await AuthorizeDraftAsync(facts, draftId, scope, actorId, cancellationToken);
         if (authorizedRuns is null)
+            return null;
+
+        DraftRequestResponse? draft = await _draftRepository.GetAtAccessRevisionAsync(
+            scope.TenantId, scope.WorkspaceId, scope.ProjectId, draftId, facts.UpdatedUtc, cancellationToken);
+        if (draft is null)
             return null;
 
         if (!DraftRequestStateMachine.AllowsReasoning(draft.Status))
@@ -143,7 +148,10 @@ public sealed class DraftIntakeReasoningService(
                 draft.ArchitectureId != previousArchitectureId || !DraftRequestStateMachine.AllowsReasoning(draft.Status))
                 return null;
 
-            authorizedRuns = await AuthorizeDraftAsync(draft, draftId, scope, actorId, cancellationToken);
+            DraftRequestAccessMetadata boundFacts = new(draft.DraftId, draft.TenantId, draft.WorkspaceId,
+                draft.ProjectId, draft.ArchitectureId, draft.CreatedByUserId, draft.Document.PriorRunId,
+                draft.SpawnedRunId, draft.UpdatedUtc);
+            authorizedRuns = await AuthorizeDraftAsync(boundFacts, draftId, scope, actorId, cancellationToken);
             if (authorizedRuns is null)
                 return null;
         }
@@ -177,10 +185,9 @@ public sealed class DraftIntakeReasoningService(
     }
 
     private Task<HashSet<Guid>?> AuthorizeDraftAsync(
-        DraftRequestResponse draft, Guid draftId, ScopeContext scope, string actorId, CancellationToken ct) =>
+        DraftRequestAccessMetadata facts, Guid draftId, ScopeContext scope, string actorId, CancellationToken ct) =>
         DraftResourceAccessPolicy.AuthorizeAsync(
-            new DraftRequestAccessMetadata(draft.DraftId, draft.TenantId, draft.WorkspaceId, draft.ProjectId,
-                draft.ArchitectureId, draft.CreatedByUserId, draft.Document.PriorRunId, draft.SpawnedRunId, draft.UpdatedUtc),
+            facts,
             draftId, scope, actorId,
             (architectureId, token) => _evidenceAccess.CanDecideArchitectureAsync(scope, architectureId, token),
             (runId, token) => _evidenceAccess.CanReadRunAsync(scope, runId, token),

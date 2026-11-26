@@ -27,7 +27,7 @@ internal static partial class ReferenceEvidenceCommand
             return CliCommandShared.ExitCodeForFailedConnection(outcome);
 
         string normalized = baseUrl.Trim().TrimEnd('/');
-        using HttpClient http = new();
+        using HttpClient http = CliHttpClientFactory.Create();
         http.Timeout = TimeSpan.FromMinutes(3);
         http.BaseAddress = new Uri(normalized + "/");
 

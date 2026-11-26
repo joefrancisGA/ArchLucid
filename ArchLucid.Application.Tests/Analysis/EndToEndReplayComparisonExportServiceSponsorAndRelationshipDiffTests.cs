@@ -120,10 +120,8 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
 
         string md = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Detailed);
 
-        md.Should().Contain("### Added Relationships");
-        md.Should().Contain("s1 -> t1 (calls). Relationship description was not stored.");
-        md.Should().Contain("### Removed Relationships");
-        md.Should().Contain("s2 -> t2 (reads). Relationship description was not stored.");
+        ExportFieldAssertions.MarkdownSection(md, "### Added Relationships", "- s1 -> t1 (calls). Relationship description was not stored.");
+        ExportFieldAssertions.MarkdownSection(md, "### Removed Relationships", "- s2 -> t2 (reads). Relationship description was not stored.");
     }
 
     [SkippableFact]
@@ -325,6 +323,7 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
                         LeftExists = true,
                         RightExists = true,
                         AddedEvidenceRefs = ["policy-pack:encrypt-at-rest"],
+                        RemovedEvidenceRefs = ["policy-pack:legacy-baseline"],
                     }
                 ]
             }
@@ -332,8 +331,8 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
 
         string markdown = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Detailed);
 
-        markdown.Should().Contain("Added Evidence References");
-        markdown.Should().Contain("policy-pack:encrypt-at-rest");
+        ExportFieldAssertions.MarkdownSection(markdown, "### Added Evidence References", "- policy-pack:encrypt-at-rest");
+        ExportFieldAssertions.MarkdownSection(markdown, "### Removed Evidence References", "- policy-pack:legacy-baseline");
     }
 
     [SkippableFact]

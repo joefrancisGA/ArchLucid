@@ -59,8 +59,8 @@ public static class RemediationInstanceSealedManifestHashGuard
             return [];
 
         IReadOnlyList<AuditArchitectureEvidenceLinkRecord> links =
-            await auditManualEvidenceRepository.ListArchitectureLinksByAssessmentAsync(
-                scope.TenantId,
+            await auditManualEvidenceRepository.ListArchitectureLinksByAssessmentInScopeAsync(
+                scope.ToProjectScopeKey(),
                 finding.AssessmentId.Value,
                 cancellationToken);
 
@@ -107,8 +107,8 @@ public static class RemediationInstanceSealedManifestHashGuard
             return;
 
         IReadOnlyList<AuditArchitectureEvidenceLinkRecord> links =
-            await auditManualEvidenceRepository.ListArchitectureLinksByAssessmentIdsAsync(
-                scope.TenantId,
+            await auditManualEvidenceRepository.ListArchitectureLinksByAssessmentIdsInScopeAsync(
+                scope.ToProjectScopeKey(),
                 assessmentIds,
                 cancellationToken);
 
@@ -158,8 +158,8 @@ public static class RemediationInstanceSealedManifestHashGuard
             return;
 
         IReadOnlyList<AuditArchitectureEvidenceLinkRecord> links =
-            await auditManualEvidenceRepository.ListArchitectureLinksByAssessmentAsync(
-                scope.TenantId,
+            await auditManualEvidenceRepository.ListArchitectureLinksByAssessmentInScopeAsync(
+                scope.ToProjectScopeKey(),
                 finding.AssessmentId.Value,
                 cancellationToken);
 

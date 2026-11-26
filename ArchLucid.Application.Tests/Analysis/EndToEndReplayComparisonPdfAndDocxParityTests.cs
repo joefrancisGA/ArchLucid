@@ -177,12 +177,8 @@ public sealed class EndToEndReplayComparisonPdfAndDocxParityTests
         };
 
         byte[] docx = await sut.GenerateDocxAsync(report, CancellationToken.None, EndToEndComparisonExportProfile.Detailed);
-        string text = ExtractDocxBodyText(docx);
-
-        text.Should().Contain("Added Relationships");
-        text.Should().Contain("s1 -> t1 (calls). Relationship description was not stored.");
-        text.Should().Contain("Removed Relationships");
-        text.Should().Contain("s2 -> t2 (reads). Relationship description was not stored.");
+        ExportFieldAssertions.DocxSection(docx, "Added Relationships", "• s1 -> t1 (calls). Relationship description was not stored.");
+        ExportFieldAssertions.DocxSection(docx, "Removed Relationships", "• s2 -> t2 (reads). Relationship description was not stored.");
     }
 
     [SkippableFact]

@@ -155,12 +155,156 @@ public sealed class AuditControlEvaluationServiceTests
             new ResilienceAuditEvidenceSelector(),
             new DefenderAuditEvidenceSelector());
 
+    [Theory]
+    [InlineData("complete", "complete", false, false, 2, 0, AuditEvaluationOutcome.TechnicallySupported)]
+    [InlineData("complete", "partial", false, false, 2, 0, AuditEvaluationOutcome.InsufficientEvidence)]
+    [InlineData("complete", "empty", false, true, 1, 0, AuditEvaluationOutcome.TechnicallyNotSupported)]
+    [InlineData("complete", "missing", false, false, 1, 1, AuditEvaluationOutcome.InsufficientEvidence)]
+    [InlineData("complete", "failed", false, true, 1, 1, AuditEvaluationOutcome.TechnicallyNotSupported)]
+    [InlineData("complete", "recoverable", false, false, 1, 1, AuditEvaluationOutcome.InsufficientEvidence)]
+    [InlineData("missing", "complete", false, true, 1, 1, AuditEvaluationOutcome.TechnicallyNotSupported)]
+    [InlineData("missing", "mismatched", false, false, 0, 2, AuditEvaluationOutcome.InsufficientEvidence)]
+    [InlineData("complete", "complete", true, false, 2, 0, AuditEvaluationOutcome.InsufficientEvidence)]
+    [InlineData("complete", "cancelled", false, false, 0, 0, AuditEvaluationOutcome.InsufficientEvidence)]
+    public async Task Current_assessment_evaluates_all_distinct_links_and_preserves_observed_failures(
+        string first, string second, bool recordedCollectionFailure, bool observedFailure,
+        int expectedCandidates, int expectedUnavailable, AuditEvaluationOutcome expected)
+    {
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        ProjectScopeKey projectScope = scope.ToProjectScopeKey();
+        Guid auditSnapshotId = Guid.NewGuid();
+        Guid firstId = Guid.NewGuid();
+        Guid secondId = Guid.NewGuid();
+        Guid frameworkId = Guid.NewGuid();
+        Guid controlId = Guid.NewGuid();
+        Guid requirementId = Guid.NewGuid();
+        const string firstResource = "/subscriptions/sub-a/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/a";
+        const string secondResource = "/subscriptions/sub-b/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/b";
+        using CancellationTokenSource cancellation = new();
+        CancellationToken token = cancellation.Token;
+        Mock<IAzureInventorySnapshotRepository> inventory = new(MockBehavior.Strict);
+        SetUpLinkedInventory(firstId, first, firstResource);
+        SetUpLinkedInventory(secondId, second, secondResource);
+        Mock<IAuditEvidenceRequirementRepository> requirements = new(MockBehavior.Strict);
+        requirements.Setup(r => r.ListByControlIdAsync(scope.TenantId, controlId, token))
+            .ReturnsAsync([new AuditEvidenceRequirementRecord
+            {
+                RequirementId = requirementId, ControlId = controlId, FrameworkId = frameworkId,
+                EvidenceType = AuditEvidenceTypeNames.Inventory,
+            }]);
+        Mock<IAuditEvidenceSnapshotRepository> audit = new(MockBehavior.Strict);
+        audit.Setup(r => r.ListItemsInScopeAsync(projectScope, auditSnapshotId, token)).ReturnsAsync([]);
+        audit.Setup(r => r.TryGetHeaderInScopeAsync(projectScope, auditSnapshotId, token))
+            .ReturnsAsync(new AuditEvidenceSnapshotHeaderRecord
+            {
+                AuditEvidenceSnapshotId = auditSnapshotId, TenantId = scope.TenantId,
+                InventorySnapshotIds = [firstId, secondId, firstId],
+                Failures = recordedCollectionFailure ? ["A linked source failed during audit collection."] : [],
+            });
+        CapturingEvaluationRepository persistence = new();
+        AuditControlEvaluationService service = new(
+            inventory.Object, requirements.Object, BuildRegistry(), persistence, audit.Object,
+            NullLogger<AuditControlEvaluationService>.Instance);
+
+        if (second == "cancelled")
+        {
+            Func<Task> evaluate = () => service.TryEvaluateControlForCurrentAssessmentAsync(
+                scope, auditSnapshotId, frameworkId, controlId, [], [], token);
+            await evaluate.Should().ThrowAsync<OperationCanceledException>();
+            persistence.LastRequest.Should().BeNull();
+            return;
+        }
+
+        AuditControlEvaluationResult result = await service.TryEvaluateControlForCurrentAssessmentAsync(
+            scope, auditSnapshotId, frameworkId, controlId, [], observedFailure
+                ? [first == "complete" ? firstResource : secondResource] : [], token);
+
+        result.Succeeded.Should().BeTrue(result.ErrorMessage ?? string.Empty);
+        result.Evaluation!.Outcome.Should().Be(expected);
+        result.Evaluation.ApplicableCount.Should().Be(expectedCandidates);
+        result.Evaluation.RequirementIds.Should().Equal(requirementId);
+        result.EvidenceItems.Should().HaveCount(expectedCandidates);
+        if (observedFailure)
+        {
+            result.Evaluation.Formula.Should().Contain("failingResources=1");
+            result.EvidenceItems.Should().Contain(item => item.AzureResourceId ==
+                (first == "complete" ? firstResource : secondResource));
+        }
+        if (expected == AuditEvaluationOutcome.TechnicallySupported)
+            result.Evaluation.Formula.Should().NotContain("inventoryCaptureComplete=false");
+        else
+            result.Evaluation.Formula.Should().Contain("inventoryCaptureComplete=false");
+        if (expectedUnavailable > 0)
+            result.Evaluation.Formula.Should().Contain($"unavailableInventorySnapshotCount={expectedUnavailable}");
+
+        inventory.Verify(r => r.TryGetSnapshotDetailAsync(scope, firstId, token), Times.Once);
+        inventory.Verify(r => r.TryGetSnapshotDetailAsync(scope, secondId, token), Times.Once);
+        inventory.VerifyNoOtherCalls();
+        requirements.Verify(r => r.ListByControlIdAsync(scope.TenantId, controlId, token), Times.Once);
+        persistence.LastScope.Should().Be(projectScope);
+        persistence.LastRequest!.Evaluation.Should().BeSameAs(result.Evaluation);
+
+        if (second == "recoverable")
+        {
+            SetUpLinkedInventory(secondId, "complete", secondResource);
+            AuditControlEvaluationResult recovered = await service.TryEvaluateControlForCurrentAssessmentAsync(
+                scope, auditSnapshotId, frameworkId, controlId, [], [], token);
+
+            recovered.Succeeded.Should().BeTrue();
+            recovered.Evaluation!.Outcome.Should().Be(AuditEvaluationOutcome.TechnicallySupported);
+            recovered.EvidenceItems.Should().HaveCount(2);
+            result.Evaluation.Outcome.Should().Be(AuditEvaluationOutcome.InsufficientEvidence);
+        }
+
+        void SetUpLinkedInventory(Guid id, string state, string resourceId)
+        {
+            var setup = inventory.Setup(r => r.TryGetSnapshotDetailAsync(scope, id, token));
+            if (state is "failed" or "recoverable")
+            {
+                setup.ThrowsAsync(new InvalidOperationException("Simulated inventory read failure."));
+                return;
+            }
+            if (state == "missing")
+            {
+                setup.ReturnsAsync((AzureInventorySnapshotDetailReadModel?)null);
+                return;
+            }
+            if (state == "cancelled")
+            {
+                setup.ThrowsAsync(new OperationCanceledException(token));
+                return;
+            }
+            setup.ReturnsAsync(new AzureInventorySnapshotDetailReadModel
+            {
+                Header = new AzureInventorySnapshotRecord
+                {
+                    SnapshotId = state == "mismatched" ? Guid.NewGuid() : id,
+                    CaptureStatus = state is "partial" or "empty"
+                        ? AzureInventoryCaptureStatus.Partial
+                        : AzureInventoryCaptureStatus.Succeeded,
+                },
+                Resources = state == "empty"
+                    ? []
+                    : [new() { AzureResourceId = resourceId, ResourceType = "Microsoft.Storage/storageAccounts" }],
+            });
+        }
+    }
+
     private sealed class CapturingEvaluationRepository : IAuditControlEvaluationRepository
     {
         public AuditControlEvaluationPersistRequest? LastRequest
         {
             get;
             private set;
+        }
+
+        public ProjectScopeKey? LastScope { get; private set; }
+
+        public Task InsertInScopeAsync(
+            ProjectScopeKey scope, AuditControlEvaluationPersistRequest request, CancellationToken cancellationToken = default)
+        {
+            LastScope = scope;
+            return InsertAsync(request, cancellationToken);
         }
 
         public Task InsertAsync(AuditControlEvaluationPersistRequest request, CancellationToken cancellationToken = default)

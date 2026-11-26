@@ -43,6 +43,7 @@ import {
   fetchInfraEvidenceSnapshots,
   formatInfraEvidenceApiError,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
+import { driftWorkbenchNavHrefForPath } from "@/lib/infra-evidence/drift-workbench-route";
 import { shouldShowInfraDriftSnapshotsEmptyState } from "@/lib/infra-evidence/should-show-infra-drift-snapshots-empty-state";
 import { DRIFT_TWO_SNAPSHOTS_STORED_HONESTY_LINE } from "@/lib/infra-evidence/drift-two-snapshots-stored-honesty-copy";
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
@@ -199,12 +200,13 @@ import {
 import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
   SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
+  SECURENOW_INFRASTRUCTURE_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { formatInventoryShowingLine } from "@/lib/inventory-showing-count";
 import { formatAbsoluteUpdatedAtTitle } from "@/lib/relative-time";
-import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SecureNowDriftSecureNowCollectionPanel } from "@/components/product-line/SecureNowDriftSecureNowCollectionPanel";
 import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import {
@@ -269,6 +271,7 @@ export function DriftWorkbenchClient() {
   const buyerPolishedShell = useProductionEvalChrome();
   const router = useRouter();
   const pathname = usePathname() ?? "";
+  const driftNavHref = driftWorkbenchNavHrefForPath(pathname);
   const searchParams = useSearchParams();
   const driftResourceIdOpenParam = searchParams.get(INFRA_DRIFT_RESOURCE_ID_DISCLOSURE_OPEN_PARAM);
   const driftChangeIdentifiersOpenParam = searchParams.get(INFRA_DRIFT_CHANGE_IDENTIFIERS_OPEN_PARAM);
@@ -1358,7 +1361,7 @@ export function DriftWorkbenchClient() {
       <DriftBreadcrumb />
 
       <OperatorPageHeader
-        navHref={GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH}
+        navHref={driftNavHref}
         title={pageTitle}
         subtitle={
           <>
@@ -1398,6 +1401,7 @@ export function DriftWorkbenchClient() {
 
       <main
         id={GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID}
+        tabIndex={-1}
         className={cn("flex w-full flex-col gap-4 scroll-mt-24")}
         data-testid="infra-drift-primary-content"
       >
@@ -2003,6 +2007,17 @@ export function DriftWorkbenchClient() {
         ) : null}
 
         <DriftClaimOrientationStrip />
+        {pathname.startsWith(SECURENOW_INFRASTRUCTURE_PATH) ? (
+          <p className={OPERATOR_TYPOGRAPHY.body} data-testid="infrastructure-snapshots-drift-wayfinding">
+            <Link className={OPERATOR_LINK.inline} href={SECURENOW_INFRASTRUCTURE_PATH}>
+              Infrastructure hub
+            </Link>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href="/">
+              Home
+            </Link>
+          </p>
+        ) : null}
         {showBuildProvenanceStrip ? (
           <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-drift-build-provenance-limitation" />
         ) : null}

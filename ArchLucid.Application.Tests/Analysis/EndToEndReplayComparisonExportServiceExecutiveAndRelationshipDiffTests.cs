@@ -96,10 +96,8 @@ public sealed class EndToEndReplayComparisonExportServiceExecutiveAndRelationshi
 
         string md = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Detailed);
 
-        md.Should().Contain("### Added Relationships");
-        md.Should().Contain("s1 -> t1 (calls). Relationship description was not stored.");
-        md.Should().Contain("### Removed Relationships");
-        md.Should().Contain("s2 -> t2 (reads). Relationship description was not stored.");
+        ExportFieldAssertions.MarkdownSection(md, "### Added Relationships", "- s1 -> t1 (calls). Relationship description was not stored.");
+        ExportFieldAssertions.MarkdownSection(md, "### Removed Relationships", "- s2 -> t2 (reads). Relationship description was not stored.");
     }
 
     [SkippableFact]

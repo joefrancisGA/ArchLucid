@@ -48,12 +48,10 @@ public sealed class DocxArchitectureAnalysisExportServiceTests
         };
 
         byte[] docx = await sut.GenerateDocxAsync(report);
-        string text = ExtractDocxBodyText(docx);
-
-        text.Should().Contain("policy-pack:encrypt-at-rest");
-        text.Should().Contain("policy-pack:legacy-baseline");
-        text.Should().Contain("new warning");
-        text.Should().Contain("old warning");
+        ExportFieldAssertions.DocxSection(docx, "Added Evidence References", "• policy-pack:encrypt-at-rest");
+        ExportFieldAssertions.DocxSection(docx, "Removed Evidence References", "• policy-pack:legacy-baseline");
+        ExportFieldAssertions.DocxSection(docx, "Added Warnings", "• new warning");
+        ExportFieldAssertions.DocxSection(docx, "Removed Warnings", "• old warning");
     }
 
     [Fact]

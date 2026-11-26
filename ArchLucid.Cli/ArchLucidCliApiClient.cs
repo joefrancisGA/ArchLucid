@@ -97,7 +97,7 @@ public sealed partial class ArchLucidApiClient
 
             inner = new CliRetryDelegatingHandler(httpResilience) { InnerHandler = inner };
 
-        HttpClient http = new(inner, true) { BaseAddress = new Uri(normalizedBaseUrl + "/"), Timeout = TimeSpan.FromSeconds(30) };
+        HttpClient http = CliHttpClientFactory.Create(inner, disposeHandler: true, timeout: TimeSpan.FromSeconds(30), baseAddress: new Uri(normalizedBaseUrl + "/"));
         http.DefaultRequestHeaders.Add("Accept", "application/json");
 
         string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");

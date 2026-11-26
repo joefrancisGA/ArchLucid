@@ -58,6 +58,52 @@ public sealed class AuditEvidencePackageExportTests
         Encoding.UTF8.GetString(automated.Content).Should().Contain("No automated evidence rows");
     }
 
+    [Theory]
+    [InlineData(true, true, 0, AuditEvaluationOutcome.TechnicallySupported)]
+    [InlineData(true, true, 2, AuditEvaluationOutcome.InsufficientEvidence)]
+    [InlineData(false, true, 0, AuditEvaluationOutcome.InsufficientEvidence)]
+    [InlineData(false, false, 0, AuditEvaluationOutcome.InsufficientEvidence)]
+    public void BuildZip_distinguishes_incomplete_inventory_from_no_observed_failures(
+        bool complete, bool withCandidate, int unavailableSources, AuditEvaluationOutcome expected)
+    {
+        AuditEvidencePackageProjectionContext fixture = CreateFixtureContext(includeCollectedEvidence: withCandidate);
+        AuditEvidenceRequirementRecord requirement = fixture.Requirements.Single();
+        AuditEvidenceRequirementSelectionRecord selection = new()
+        {
+            Requirement = requirement,
+            CollectionStatus = withCandidate ? AuditEvidenceCollectionStatus.Collected : AuditEvidenceCollectionStatus.Insufficient,
+            Candidates = withCandidate
+                ? [new AuditEvidenceCandidateRecord { RequirementId = requirement.RequirementId }]
+                : [],
+        };
+        AuditControlEvaluationRecord evaluation = AuditControlEvaluationBuilder.Build(
+            FixedControlId, FixedFrameworkId, FixedSnapshotId, fixture.Assessment.TenantId,
+            [selection], [], [], CreateManifest().ExportedUtc, complete, unavailableSources).Evaluation;
+        AuditEvidencePackageProjectionContext context = CreateFixtureContext(
+            includeCollectedEvidence: withCandidate, evaluation: evaluation);
+        (byte[] zip, _) = AuditEvidencePackageZipBuilder.BuildZip(
+            AuditEvidencePackageProjectionBuilder.BuildEntries(context), CreateManifest());
+
+        using MemoryStream stream = new(zip);
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+        using StreamReader reader = new(archive.Entries.Single(entry =>
+            entry.FullName.EndsWith("/Evaluation.md", StringComparison.Ordinal)).Open());
+        string text = reader.ReadToEnd();
+
+        text.Should().Contain($"Outcome: **{expected}**");
+        if (complete && unavailableSources == 0)
+        {
+            text.Should().Contain("Confidence:").And.NotContain("Full control coverage is unverified");
+        }
+        else
+        {
+            text.Should().Contain("Inventory capture is incomplete. Full control coverage is unverified.")
+                .And.NotContain("Confidence:").And.NotContain("**TechnicallySupported**");
+        }
+        if (unavailableSources > 0)
+            text.Should().Contain($"Unavailable linked inventory snapshots: {unavailableSources}.");
+    }
+
     [Fact]
     public void BuildCollectionMethodology_labels_simulator_collection_method()
     {
@@ -124,7 +170,8 @@ public sealed class AuditEvidencePackageExportTests
 
     private static AuditEvidencePackageProjectionContext CreateFixtureContext(
         bool includeCollectedEvidence,
-        IReadOnlyList<AuditEvidenceSelectorDescriptorRecord>? selectorDescriptors = null)
+        IReadOnlyList<AuditEvidenceSelectorDescriptorRecord>? selectorDescriptors = null,
+        AuditControlEvaluationRecord? evaluation = null)
     {
         AuditControlRecord control = new()
         {
@@ -215,6 +262,9 @@ public sealed class AuditEvidencePackageExportTests
             Controls = [control],
             Requirements = [requirement],
             SnapshotItems = items,
+            EvaluationsByControlId = evaluation is null
+                ? new Dictionary<Guid, AuditControlEvaluationRecord>()
+                : new Dictionary<Guid, AuditControlEvaluationRecord> { [FixedControlId] = evaluation },
             ReadinessSummary = new AuditAssessmentReadinessSummaryRecord
             {
                 AggregateLabel = AuditReadinessLabels.DefaultAggregateLabel,

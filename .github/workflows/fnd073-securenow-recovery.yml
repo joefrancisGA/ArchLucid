@@ -10,6 +10,7 @@ on:
       - 'ArchLucid.Application.Tests/InfraEvidence/SecurityEvidencePathExplanationServiceTests.cs'
       - 'ArchLucid.AgentRuntime.Tests/Quality/IndependentProviderQualityObserverTests.cs'
       - '.github/workflows/fnd073-securenow-recovery.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read

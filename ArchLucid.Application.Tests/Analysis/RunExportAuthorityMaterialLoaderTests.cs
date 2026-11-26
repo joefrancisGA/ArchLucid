@@ -1,7 +1,9 @@
+using System.Text.Json;
+
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Tests.Exports;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Manifest;
-using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
@@ -18,35 +20,24 @@ namespace ArchLucid.Application.Tests.Analysis;
 public sealed class RunExportAuthorityMaterialLoaderTests
 {
     [Fact]
-    public async Task LoadAsync_serializes_manifest_and_trace_once_into_material()
+    public async Task LoadAsync_serializes_a_sealed_manifest_without_inventing_an_absent_trace()
     {
         Guid runId = Guid.NewGuid();
-        Guid manifestId = Guid.NewGuid();
-        ManifestDocument manifest = new()
-        {
-            ManifestId = manifestId,
-            Metadata = new ManifestMetadata { Name = "demo" },
-            ManifestHash = "abc",
-            RuleSetId = "rs",
-            RuleSetVersion = "1"
-        };
-
+        ManifestHashService hashes = new();
         Mock<IAuthorityQueryService> authority = new();
-        authority
-            .Setup(q => q.GetRunDetailForExportAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+        ManifestDocument manifest = SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runId, hashes);
+        authority.Setup(q => q.GetRunDetailForExportAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunDetailDto
             {
                 Run = new RunRecord
                 {
                     RunId = runId,
-                    GoldenManifestId = manifestId,
+                    GoldenManifestId = manifest.ManifestId,
                     LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
                 },
                 GoldenManifest = manifest,
-                AuthorityTrace = null
             });
-
-        RunExportAuthorityMaterialLoader sut = new(authority.Object, new ManifestHashService());
+        RunExportAuthorityMaterialLoader sut = new(authority.Object, hashes);
 
         RunExportAuthorityMaterialLoadResult result = await sut.LoadAsync(
             new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() },
@@ -56,10 +47,12 @@ public sealed class RunExportAuthorityMaterialLoaderTests
         result.RunFound.Should().BeTrue();
         result.ManifestFound.Should().BeTrue();
         result.Material.Should().NotBeNull();
-        result.Material!.ManifestId.Should().Be(manifestId);
-        result.Material.ManifestJson.Should().Contain("demo");
+        result.Material!.ManifestId.Should().Be(manifest.ManifestId);
+        using JsonDocument manifestJson = JsonDocument.Parse(result.Material.ManifestJson);
+        manifestJson.RootElement.GetProperty("runId").GetGuid().Should().Be(runId);
+        manifestJson.RootElement.GetProperty("metadata").GetProperty("version").GetString().Should().Be("v1");
         result.Material.TraceJson.Should().BeNull();
-        result.Material.ReadmeContext.ManifestDisplayName.Should().Be("demo");
+        result.Material.ReadmeContext.ManifestDisplayName.Should().Be("ArchLucid Manifest");
     }
 
     [Fact]
