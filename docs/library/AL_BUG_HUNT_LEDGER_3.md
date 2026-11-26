@@ -378,6 +378,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-11-25 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with Oriya vowel sign O (U+0B0A, Lo) inside words (e.g. `o` + U+0B0A + `n`) stayed closed because Lo vowel signs are not Cc/Cf/Z or mark-stripped; strip U+0B0A with existing invisible scalar hygiene. **valid-no-repro** pass-74 monitors (three-per-em space in true, metrics open over padded `no` base, duplicate `off`/`on`, metrics param preserved on pathname href). Pass-75 reseed below. Scoped vitest **373/373**. Private beta: Invited operators who deep-link with Oriya-vowel padding inside `remediationFactoryMetricsOpen` on tokens open the executive metrics summary instead of landing with the panel closed.
 2026-11-25 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with ideographic half-fill space (U+303F, So) inside words (e.g. `tr` + U+303F + `ue`) stayed closed because only Cc/Cf/Z and filler/braille strips ran; strip U+303F with existing invisible scalar hygiene. **valid-no-repro** pass-73 monitors (soft hyphen and word joiner inside on/yes, metrics close over padded OFF base, duplicate `on`/`off`, en quad inside ON). Pass-74 reseed below. Scoped vitest **369/369**. Private beta: Invited operators who deep-link with ideographic half-fill padding inside `remediationFactoryMetricsOpen` true/on tokens open the executive metrics summary instead of landing with the panel closed.
 2026-11-25 thorough hunt (dry): no rotation (shouldRotate: false; hint override). Attempted failing repro on five pass-72 `(candidate)` monitors — **valid-no-repro** hair space and zero-width joiner inside true/on, **valid-no-repro** metrics open over padded OFF base writer, **valid-no-repro** duplicate metrics first-wins (conflicting `1`/`0`), **valid-no-repro** interior newline in short path chip label. Regressions added for pass-72 monitors. Pass-73 reseed below. Scoped vitest **363/363**. Private beta: n/a.
 2026-11-25 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with non-blank braille pattern padding inside words (e.g. `o` + U+2801 + `n`) stayed closed because only U+2800 was stripped; strip the braille patterns block U+2800–U+28FF with existing invisible scalar hygiene. **valid-no-repro** pass-70 monitors (thin/narrow space inside on/yes, duplicate finding first-wins, metrics open over padded NO base, interior newline in long path overflow). Pass-72 reseed below. Scoped vitest **360/360**. Private beta: Invited operators who deep-link with braille-pattern padding inside `remediationFactoryMetricsOpen` on/yes tokens open the executive metrics summary instead of landing with the panel closed.
@@ -651,11 +652,18 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate word metrics tokens `on` then `off` — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `uses the first metrics disclosure token when on precedes off in the query string`.
 - [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — en quad space inside ON token — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `treats ON metrics disclosure token with en quad space inside the word as open on read`.
 
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — Oriya vowel sign inside ON token — locus: Lo mid-word; input: `o` + U+0B0A + `n`; pass-74 reseed.
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — three-per-em space inside true token — locus: Zs strip; input: `t` + U+2004 + `rue`; pass-74 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open over padded `no` base — locus: writer; input: open over ` no ` base; pass-74 reseed.
-- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate word metrics `off` then `on` — locus: first-wins; input: repeated param; pass-74 reseed.
-- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves metrics open when toggling finding only — locus: disclosure writer; input: finding mutation; pass-74 reseed.
+- [x] (superseded) pass-74 `(candidate)` queue — **superseded 2026-11-25 thorough hunt (hit):** pass-75 reseed.
+- [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — Oriya vowel sign inside ON token — **proven 2026-11-25 thorough hunt (hit):** regression `treats ON metrics disclosure token with Oriya vowel sign inside the word as open on read`.
+- [x] (valid-no-repro) `parseRemediationFactoryDisclosureOpenFromSearch` — three-per-em space inside true token — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `treats true metrics disclosure token with three-per-em space inside the word as open on read`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open over padded `no` base — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `canonicalizes metrics open to 1 when writing open state from a padded no base`.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate word metrics `off` then `on` — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `uses the first metrics disclosure token when off precedes on in the query string`.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves metrics open when toggling finding only — **cheap-disproof 2026-11-25 thorough hunt (hit):** regression `remediationFactoryHrefFromSearch preserves an open metrics disclosure param`.
+
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — Devanagari vowel sign inside yes token — locus: Lo mid-word; input: `y` + U+093F + `es`; pass-75 reseed.
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — medium mathematical space inside ON token — locus: Zs strip; input: `o` + U+205F + `n`; pass-75 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded `true` base — locus: writer; input: close over ` true ` base; pass-75 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate yes metrics with mixed case — locus: first-wins; input: `YES` then `no`; pass-75 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — clears stale finding when metrics closes — locus: writer; input: close with stale finding; pass-75 reseed.
 
 
 - [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — horizontal tab inside yes token — locus: Cc strip; input: `y` + U+0009 + `es`; pass-68 reseed.
@@ -1128,8 +1136,8 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 94
-- **bugs-found:** 81
+- **hunts:** 95
+- **bugs-found:** 82
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
