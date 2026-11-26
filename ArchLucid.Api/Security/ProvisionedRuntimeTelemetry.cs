@@ -167,7 +167,7 @@ internal static class RuntimeTelemetryRegistration
             provider.GetRequiredService<IRuntimeTelemetryTrustRegistry>()));
         // No fabricated process evidence: hosts without a trusted collector return unavailable.
         Microsoft.Extensions.DependencyInjection.Extensions.ServiceCollectionDescriptorExtensions.TryAddScoped<
-            IRuntimeProcessEvidenceCollector, UnavailableRuntimeProcessEvidenceCollector>(services);
+            IRuntimeProcessEvidenceCollector, SignedWorkloadProcessEvidenceCollector>(services);
         services.AddScoped<IAuthorizedRuntimeAttestationProducer, AuthorizedRuntimeAttestationProducer>();
         services.AddScoped<RuntimeAttestationPublisher>();
         return services;
