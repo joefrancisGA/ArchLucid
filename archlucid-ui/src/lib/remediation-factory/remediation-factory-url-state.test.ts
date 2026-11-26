@@ -1322,6 +1322,26 @@ describe("remediation-factory-url-state", () => {
     ).toBe(false);
   });
 
+  it("treats ON metrics disclosure token with fullwidth digit seven inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF17n`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with circle with two dots above inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25E3ue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("uses the first metrics disclosure token when false precedes off in the query string", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=false&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=off`,
+      ).metricsSummaryOpen,
+    ).toBe(false);
+  });
+
   it("drops padded ON metrics disclosure token from base search when writing closed state", () => {
     const params = remediationFactoryUrlStateToSearchParams(
       {
