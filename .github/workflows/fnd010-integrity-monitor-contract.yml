@@ -1,7 +1,8 @@
 name: FND-010 Independent Integrity Monitor Contract
+# Ordinary PR coverage is supplied by fnd015-consolidated-reference-verification.yml.
 on:
   pull_request:
-    branches: [master, main, architecture/fnd010-managed-checkpoint-retention, architecture/fnd010-scheduled-monitor-alerts]
+    branches: [architecture/fnd010-managed-checkpoint-retention, architecture/fnd010-scheduled-monitor-alerts]
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
