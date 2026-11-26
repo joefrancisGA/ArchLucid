@@ -188,6 +188,7 @@ internal static class RuntimeTelemetryRegistration
         services.AddScoped<IAuthorizedRuntimeAttestationProducer, AuthorizedRuntimeAttestationProducer>();
         services.AddScoped<RuntimeAttestationPublisher>();
         services.AddScoped<RuntimeSecurityExecutionService>();
+        services.AddHostedService<RuntimeSecurityScheduledWorker>();
         return services;
     }
 }
