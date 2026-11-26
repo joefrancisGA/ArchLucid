@@ -148,6 +148,25 @@ internal static class RuntimeTelemetryRegistration
             new SqlRuntimeAttestationReplayGuard(provider.GetService<ArchLucid.Persistence.Connections.ISqlConnectionFactory>()));
         services.AddScoped<IAuthorizedRuntimeObservationSource, SignedRuntimeObservationSource>();
         services.AddScoped<RuntimeObservationAdapter>();
+        services.AddScoped<IRuntimeAttestationPublicationAuthority, ProvisionedRuntimePublicationAuthority>();
+        services.AddScoped<IRuntimeAttestationPublicationStore, AtomicRuntimeAttestationPublicationStore>();
+        services.AddHttpClient("SecureNowRuntimeKeyVault", client => client.Timeout = TimeSpan.FromSeconds(15))
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            {
+                AllowAutoRedirect = false,
+                UseCookies = false,
+            });
+        services.AddScoped<IScopedRuntimeDigestSigner>(provider => new KeyVaultRuntimeDigestSigner(
+            provider.GetRequiredService<IConfiguration>(),
+            new Azure.Identity.ManagedIdentityCredential(),
+            provider.GetRequiredService<IHttpClientFactory>().CreateClient("SecureNowRuntimeKeyVault"),
+            provider.GetRequiredService<IRuntimeAttestationPublicationAuthority>(),
+            provider.GetRequiredService<IRuntimeTelemetryTrustRegistry>()));
+        // No fabricated process evidence: hosts without a trusted collector return unavailable.
+        Microsoft.Extensions.DependencyInjection.Extensions.ServiceCollectionDescriptorExtensions.TryAddScoped<
+            IRuntimeProcessEvidenceCollector, UnavailableRuntimeProcessEvidenceCollector>(services);
+        services.AddScoped<IAuthorizedRuntimeAttestationProducer, AuthorizedRuntimeAttestationProducer>();
+        services.AddScoped<RuntimeAttestationPublisher>();
         return services;
     }
 }
