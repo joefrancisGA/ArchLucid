@@ -39,7 +39,7 @@ public sealed class DapperArchitectureRunIdempotencyRepositoryContractTests(SqlS
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         IArchitectureRunIdempotencyRepository repo = CreateRepository();
-        byte[] keyHash = [0xC0, 0xDE, 0xFA, 0x11, 0xD0, 0x00];
+        byte[] keyHash = Guid.NewGuid().ToByteArray();
         byte[] fingerprint = [0x01, 0x02];
 
         Guid tenantId = Guid.Parse("10101010-1010-1010-1010-101010101010");

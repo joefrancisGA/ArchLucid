@@ -1,4 +1,5 @@
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Tests.Support;
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Persistence.Alerts;
 using ArchLucid.Persistence.Connections;
@@ -19,11 +20,11 @@ public sealed class DapperAlertRuleRepositorySqlIntegrationTests(SqlServerPersis
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         DapperAlertRuleRepository repository = new(factory);
 
-        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
-        Guid workspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
-        Guid projectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
-        Guid ruleId = Guid.Parse("44444444-4444-4444-4444-444444444444");
-        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
+        ScopeContext scope = IsolatedPersistenceTestScope.New();
+        Guid tenantId = scope.TenantId;
+        Guid workspaceId = scope.WorkspaceId;
+        Guid projectId = scope.ProjectId;
+        Guid ruleId = Guid.NewGuid();
 
         AlertRule rule = new()
         {

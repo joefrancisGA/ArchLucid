@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Tests.Support;
 
 using ArchLucid.Core.Scoping;
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -34,18 +35,18 @@ public abstract class DecisionNodeRepositoryContractTests
         DateTime t1 = new(2026, 4, 1, 9, 0, 0, DateTimeKind.Utc);
 
         await repo.CreateManyAsync(
-            [NewNode(runId, "d1", "topic-a", t0)],
+            [NewNode(runId, ArchitectureCommitTestSeed.RunScopedRowId(runId, "d1"), "topic-a", t0)],
             CancellationToken.None);
 
         await repo.CreateManyAsync(
-            [NewNode(runId, "d2", "topic-b", t1)],
+            [NewNode(runId, ArchitectureCommitTestSeed.RunScopedRowId(runId, "d2"), "topic-b", t1)],
             CancellationToken.None);
 
         IReadOnlyList<DecisionNodeRecord> loaded = await repo.GetByRunIdAsync(runId, CancellationToken.None);
 
         loaded.Should().HaveCount(2);
-        loaded[0].DecisionId.Should().Be("d1");
-        loaded[1].DecisionId.Should().Be("d2");
+        loaded[0].DecisionId.Should().Be(ArchitectureCommitTestSeed.RunScopedRowId(runId, "d1"));
+        loaded[1].DecisionId.Should().Be(ArchitectureCommitTestSeed.RunScopedRowId(runId, "d2"));
     }
 
     private static DecisionNodeRecord NewNode(string runId, string decisionId, string topic, DateTime createdUtc)

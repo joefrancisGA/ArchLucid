@@ -587,9 +587,11 @@ public abstract class AuditRepositoryContractTests
         IAuditRepository repo = CreateRepository();
         Guid isolatedProjectId = Guid.NewGuid();
         DateTime t = new(2026, 4, 28, 12, 0, 0, DateTimeKind.Utc);
-        Guid idHigh = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
-        Guid idMid = Guid.Parse("80000000-0000-0000-0000-000000000002");
-        Guid idLow = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        // Share all but the final nibble so the order is identical for SQL and in-memory GUID comparisons.
+        string prefix = Guid.NewGuid().ToString("D")[..^1];
+        Guid idHigh = Guid.Parse(prefix + "3");
+        Guid idMid = Guid.Parse(prefix + "2");
+        Guid idLow = Guid.Parse(prefix + "1");
 
         await repo.AppendAsync(
             NewEvent("KeysetTie", t, isolatedProjectId, eventId: idHigh),

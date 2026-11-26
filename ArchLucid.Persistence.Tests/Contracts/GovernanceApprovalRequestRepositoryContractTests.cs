@@ -16,6 +16,10 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
 
     protected abstract IGovernanceApprovalRequestRepository CreateRepository();
 
+    // Pending and recent-decision queries intentionally have no per-test run or project filter.
+    protected virtual Task<IGovernanceApprovalRequestRepository> CreateGlobalQueryRepositoryAsync() =>
+        Task.FromResult(CreateRepository());
+
     [SkippableFact]
     public async Task Create_then_GetById_round_trips()
     {
@@ -180,15 +184,12 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
     public async Task GetPendingAsync_returns_draft_and_submitted_ordered_by_RequestedUtc_desc()
     {
         SkipIfSqlServerUnavailable();
-        IGovernanceApprovalRequestRepository repo = CreateRepository();
+        IGovernanceApprovalRequestRepository repo = await CreateGlobalQueryRepositoryAsync();
         string runId = Guid.NewGuid().ToString("N");
         string idDraft = "apr-pend-draft-" + Guid.NewGuid().ToString("N");
         string idSubmitted = "apr-pend-sub-" + Guid.NewGuid().ToString("N");
-        // TOP (@MaxRows) is global — use end-of-range instants so rows survive dirty shared catalogs.
-        // 100ns ticks (not 995/996 ms): SQL round-trip can collapse adjacent ms near MAX, making ORDER BY unstable;
-        // see GetPendingAsync_respects_maxRows comment and GetByRunId_orders_descending_by_RequestedUtc.
-        DateTime newer = DateTime.MaxValue.AddTicks(-3);
-        DateTime older = DateTime.MaxValue.AddTicks(-4);
+        DateTime older = new(2026, 4, 1, 9, 0, 0, DateTimeKind.Utc);
+        DateTime newer = older.AddHours(1);
 
         GovernanceApprovalRequest draftOld = NewApproval(idDraft, runId, older);
         draftOld.Status = GovernanceApprovalStatus.Draft;
@@ -198,29 +199,21 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
 
         IReadOnlyList<GovernanceApprovalRequest> pending = await repo.GetPendingAsync(50, CancellationToken.None);
 
-        // GetPendingAsync is scoped to the whole table (Draft/Submitted); SQL contract tests share one database.
-        GovernanceApprovalRequest[] mine =
-            [.. pending.Where(r => r.RunId == runId).OrderByDescending(r => r.RequestedUtc)];
-
-        mine.Should().HaveCount(2);
-        mine[0].ApprovalRequestId.Should().Be(idSubmitted);
-        mine[1].ApprovalRequestId.Should().Be(idDraft);
+        pending.Select(r => r.ApprovalRequestId).Should().Equal(idSubmitted, idDraft);
     }
 
     [SkippableFact]
     public async Task GetPendingAsync_respects_maxRows()
     {
         SkipIfSqlServerUnavailable();
-        IGovernanceApprovalRequestRepository repo = CreateRepository();
+        IGovernanceApprovalRequestRepository repo = await CreateGlobalQueryRepositoryAsync();
         string runId = Guid.NewGuid().ToString("N");
         string idA = "apr-max-a-" + Guid.NewGuid().ToString("N");
         string idB = "apr-max-b-" + Guid.NewGuid().ToString("N");
         string idC = "apr-max-c-" + Guid.NewGuid().ToString("N");
-        // TOP (@MaxRows) is global; stay at the DATETIME2 ceiling with distinct ticks so we beat legacy rows and
-        // avoid ORDER BY ties with other contract tests that use the same tick band.
-        DateTime t3 = DateTime.MaxValue.AddTicks(-2);
-        DateTime t2 = DateTime.MaxValue.AddTicks(-3);
-        DateTime t1 = DateTime.MaxValue.AddTicks(-4);
+        DateTime t1 = new(2026, 4, 1, 8, 0, 0, DateTimeKind.Utc);
+        DateTime t2 = t1.AddHours(1);
+        DateTime t3 = t2.AddHours(1);
 
         await repo.CreateAsync(NewApproval(idA, runId, t1), CancellationToken.None);
         await repo.CreateAsync(NewApproval(idB, runId, t2), CancellationToken.None);
@@ -237,7 +230,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
     public async Task CountPendingApprovalsAsync_returns_uncapped_total()
     {
         SkipIfSqlServerUnavailable();
-        IGovernanceApprovalRequestRepository repo = CreateRepository();
+        IGovernanceApprovalRequestRepository repo = await CreateGlobalQueryRepositoryAsync();
         string runId = Guid.NewGuid().ToString("N");
         string idA = "apr-count-a-" + Guid.NewGuid().ToString("N");
         string idB = "apr-count-b-" + Guid.NewGuid().ToString("N");
@@ -256,7 +249,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
             await repo.GetPendingAsync((int)totalPending, CancellationToken.None);
 
         pending.Should().HaveCount(2);
-        totalPending.Should().BeGreaterThan(pending.Count);
+        totalPending.Should().Be(3);
 
         GovernanceApprovalRequest[] mine =
             [.. allPending.Where(r => r.RunId == runId)];
@@ -270,17 +263,14 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
     public async Task GetRecentDecisionsAsync_orders_by_ReviewedUtc_desc_and_excludes_pending()
     {
         SkipIfSqlServerUnavailable();
-        IGovernanceApprovalRequestRepository repo = CreateRepository();
+        IGovernanceApprovalRequestRepository repo = await CreateGlobalQueryRepositoryAsync();
         string runId = Guid.NewGuid().ToString("N");
         string idApproved = "apr-apr-" + Guid.NewGuid().ToString("N");
         string idRejected = "apr-rej-" + Guid.NewGuid().ToString("N");
         string idPending = "apr-still-open-" + Guid.NewGuid().ToString("N");
         DateTime requested = new(2026, 4, 1, 9, 0, 0, DateTimeKind.Utc);
-        // TOP (@MaxRows) is global; use DATETIME2-ceiling ticks with wide separation — not adjacent ms (e.g. .996 vs .998)
-        // near 9999-12-31: parameter/round-trip can collapse those to one instant so ordering ties and defaults to INSERT order.
-        // Match GetByRunId_orders_descending_by_RequestedUtc / GetPendingAsync_* tick bands; keep delta >> 100ns.
-        DateTime reviewedOlder = DateTime.MaxValue.AddTicks(-400);
-        DateTime reviewedNewer = DateTime.MaxValue.AddTicks(-2);
+        DateTime reviewedOlder = requested.AddHours(1);
+        DateTime reviewedNewer = requested.AddHours(2);
 
         GovernanceApprovalRequest approved = NewApproval(idApproved, runId, requested);
         approved.Status = GovernanceApprovalStatus.Approved;
@@ -299,12 +289,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         IReadOnlyList<GovernanceApprovalRequest> decisions =
             await repo.GetRecentDecisionsAsync(50, CancellationToken.None);
 
-        GovernanceApprovalRequest[] mine =
-            [.. decisions.Where(r => r.RunId == runId).OrderByDescending(r => r.ReviewedUtc)];
-
-        mine.Should().HaveCount(2);
-        mine[0].ApprovalRequestId.Should().Be(idRejected);
-        mine[1].ApprovalRequestId.Should().Be(idApproved);
+        decisions.Select(r => r.ApprovalRequestId).Should().Equal(idRejected, idApproved);
     }
 
     private static GovernanceApprovalRequest NewApproval(string approvalId, string runId, DateTime requestedUtc)

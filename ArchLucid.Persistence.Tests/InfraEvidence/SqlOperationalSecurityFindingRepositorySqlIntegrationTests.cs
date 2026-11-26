@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Common;
+using ArchLucid.Persistence.Tests.Support;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
@@ -12,10 +13,12 @@ namespace ArchLucid.Persistence.Tests.InfraEvidence;
 [Trait("Category", "SqlServerContainer")]
 public sealed class SqlOperationalSecurityFindingRepositorySqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    private static readonly Guid TenantA = Guid.Parse("f1f1f1f1-f1f1-f1f1-f1f1-f1f1f1f1f1f1");
-    private static readonly Guid TenantB = Guid.Parse("f2f2f2f2-f2f2-f2f2-f2f2-f2f2f2f2f2f2");
-    private static readonly Guid WorkspaceId = Guid.Parse("f3f3f3f3-f3f3-f3f3-f3f3-f3f3f3f3f3f3");
-    private static readonly Guid ProjectId = Guid.Parse("f4f4f4f4-f4f4-f4f4-f4f4-f4f4f4f4f4f4");
+    private readonly ScopeContext _testScope = IsolatedPersistenceTestScope.New();
+    private readonly Guid _foreignTenantId = Guid.NewGuid();
+    private Guid TenantA => _testScope.TenantId;
+    private Guid TenantB => _foreignTenantId;
+    private Guid WorkspaceId => _testScope.WorkspaceId;
+    private Guid ProjectId => _testScope.ProjectId;
 
     [SkippableFact]
     public async Task Duplicate_natural_key_throws_and_foreign_tenant_lookup_returns_null()
@@ -195,7 +198,7 @@ public sealed class SqlOperationalSecurityFindingRepositorySqlIntegrationTests(S
         (await repository.ListObservationsByFindingInScopeAsync(scope, findingId)).Should().ContainSingle();
     }
 
-    private static OperationalSecurityFindingRecord CreateFinding(
+    private OperationalSecurityFindingRecord CreateFinding(
         Guid findingId,
         Guid tenantId,
         CloudProvider provider,

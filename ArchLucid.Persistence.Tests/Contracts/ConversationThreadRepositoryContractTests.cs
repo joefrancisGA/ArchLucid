@@ -1,4 +1,6 @@
 using ArchLucid.Core.Conversation;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Tests.Support;
 using ArchLucid.Persistence.Conversation;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -11,9 +13,10 @@ public abstract class ConversationThreadRepositoryContractTests
 {
     private const int SeededThreadsForPagedScopeContract = 3;
 
-    private static readonly Guid TenantId = Guid.Parse("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1");
-    private static readonly Guid WorkspaceId = Guid.Parse("c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2");
-    private static readonly Guid ProjectId = Guid.Parse("c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3");
+    private readonly ScopeContext _testScope = IsolatedPersistenceTestScope.New();
+    private Guid TenantId => _testScope.TenantId;
+    private Guid WorkspaceId => _testScope.WorkspaceId;
+    private Guid ProjectId => _testScope.ProjectId;
 
     /// <summary>
     ///     <see cref="IConversationThreadRepository.ArchiveThreadsLastUpdatedBeforeAsync" /> touches all rows in SQL; shared
@@ -27,7 +30,7 @@ public abstract class ConversationThreadRepositoryContractTests
     {
     }
 
-    private static ConversationThread NewThread(
+    private ConversationThread NewThread(
         DateTime? lastUpdatedUtc = null,
         Guid? projectId = null)
     {
@@ -115,9 +118,7 @@ public abstract class ConversationThreadRepositoryContractTests
             10,
             CancellationToken.None);
 
-        int i1 = list.ToList().FindIndex(t => t.ThreadId == first.ThreadId);
-        int i2 = list.ToList().FindIndex(t => t.ThreadId == second.ThreadId);
-        i1.Should().BeGreaterThan(i2);
+        list.Select(t => t.ThreadId).Should().Equal(second.ThreadId, first.ThreadId);
     }
 
     [SkippableFact]
@@ -139,7 +140,7 @@ public abstract class ConversationThreadRepositoryContractTests
             1,
             CancellationToken.None);
 
-        total.Should().BeGreaterThanOrEqualTo(SeededThreadsForPagedScopeContract);
+        total.Should().Be(SeededThreadsForPagedScopeContract);
         page.Should().HaveCount(1);
     }
 

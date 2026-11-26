@@ -32,7 +32,7 @@ public abstract class ArchitectureRunIdempotencyRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IArchitectureRunIdempotencyRepository repo = CreateRepository();
-        byte[] keyHash = [1, 2, 3, 4];
+        byte[] keyHash = Guid.NewGuid().ToByteArray();
         byte[] fingerprint = [5, 6, 7, 8];
         string runId = Guid.NewGuid().ToString("N");
 
@@ -66,7 +66,7 @@ public abstract class ArchitectureRunIdempotencyRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IArchitectureRunIdempotencyRepository repo = CreateRepository();
-        byte[] keyHash = "\t\t\t\t"u8.ToArray();
+        byte[] keyHash = Guid.NewGuid().ToByteArray();
         byte[] fp1 = [1];
         byte[] fp2 = [2];
         string runA = Guid.NewGuid().ToString("N");
