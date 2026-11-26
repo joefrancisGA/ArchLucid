@@ -1,5 +1,3 @@
-using System.IO.Compression;
-using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Application.Exports;
@@ -118,7 +116,7 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
 
         result.Should().NotBeNull();
 
-        string deltasJson = await ReadZipEntryTextAsync(result!.ZipBytes, "pilot-run-deltas.json");
+        string deltasJson = await ExportRoundTripTestReader.ReadEntryTextAsync(result!.ZipBytes, "pilot-run-deltas.json");
 
         using JsonDocument doc = JsonDocument.Parse(deltasJson);
         JsonElement root = doc.RootElement;
@@ -126,7 +124,17 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
         root.GetProperty("roiSourceFreshnessDisposition").GetString().Should().Be("HOLD");
         root.GetProperty("extractorCollectionTimestampUtc").GetDateTime().Should().Be(staleCollectionUtc);
 
-        string firstValueMarkdown = await ReadZipEntryTextAsync(result!.ZipBytes, "first-value-report.md");
+        BuyerProofPackCommitGuard.TryValidateDeltasJson(deltasJson, out bool demoWarning, out string? validationError)
+            .Should().BeTrue(validationError);
+        demoWarning.Should().BeFalse();
+
+        PilotRunDeltasResponse reopened = ExportRoundTripTestReader.Deserialize<PilotRunDeltasResponse>(deltasJson);
+        reopened.AuditRowCount.Should().Be(7);
+        reopened.LlmCallCount.Should().Be(4);
+        reopened.FindingsBySeverity.Select(row => (row.Severity, row.Count))
+            .Should().Equal(("Warning", 2), ("Error", 1));
+
+        string firstValueMarkdown = await ExportRoundTripTestReader.ReadEntryTextAsync(result!.ZipBytes, "first-value-report.md");
 
         firstValueMarkdown.Should().Contain("**Evidence freshness:** **Stale** (`stale`)");
         firstValueMarkdown.Should().Contain("**HOLD posture:**");
@@ -202,14 +210,14 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
         result.Should().NotBeNull();
         result!.DemoDataWarning.Should().BeTrue("sample runs must surface the same caution flag as demo tenants on pack metadata");
 
-        string manifestJson = await ReadZipEntryTextAsync(result.ZipBytes, "pack-manifest.json");
+        string manifestJson = await ExportRoundTripTestReader.ReadEntryTextAsync(result.ZipBytes, "pack-manifest.json");
 
         using (JsonDocument manifestDoc = JsonDocument.Parse(manifestJson))
         {
             manifestDoc.RootElement.GetProperty("demoDataWarning").GetBoolean().Should().BeTrue();
         }
 
-        string deltasJson = await ReadZipEntryTextAsync(result.ZipBytes, "pilot-run-deltas.json");
+        string deltasJson = await ExportRoundTripTestReader.ReadEntryTextAsync(result.ZipBytes, "pilot-run-deltas.json");
 
         using (JsonDocument deltasDoc = JsonDocument.Parse(deltasJson))
         {
@@ -425,14 +433,5 @@ public sealed class BuyerProofPackBuilderRoiFreshnessTests
         };
     }
 
-    private static async Task<string> ReadZipEntryTextAsync(byte[] zipBytes, string entryPath)
-    {
-        await using MemoryStream zipStream = new(zipBytes);
-        using ZipArchive zip = new(zipStream, ZipArchiveMode.Read);
-        ZipArchiveEntry entry = zip.GetEntry(entryPath)!;
-        await using Stream entryStream = entry.Open();
-        using StreamReader reader = new(entryStream, Encoding.UTF8);
 
-        return await reader.ReadToEndAsync();
-    }
 }
