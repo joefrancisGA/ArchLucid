@@ -163,6 +163,8 @@ internal static class RuntimeTelemetryRegistration
         services.AddScoped<RuntimeDeploymentLifecycleEvaluator>();
         services.AddScoped<IVerifiedRuntimeAdvisoryCatalogSource, ProvisionedRuntimeAdvisoryCatalogSource>();
         services.AddScoped<RuntimeAdvisoryFindingService>();
+        services.AddScoped<IVerifiedDependencyIdentityBindingSource, ProvisionedDependencyIdentityBindingSource>();
+        services.AddScoped<DependencyIdentityEvidenceService>();
         services.AddScoped<IRuntimeFindingJournal>(provider => new SqlRuntimeFindingJournal(
             provider.GetService<ArchLucid.Persistence.Connections.ISqlConnectionFactory>(),
             provider.GetRequiredService<IConfiguration>(),
