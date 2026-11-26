@@ -173,6 +173,7 @@ export function ExtractUploadSettingsEvidenceOrientationStrip(
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="extract-upload-settings"
+      sourcesTestId="extract-upload-settings-sources"
       sourcesTitle={EXTRACT_UPLOAD_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={sourcesIntro}
       sources={sources}
