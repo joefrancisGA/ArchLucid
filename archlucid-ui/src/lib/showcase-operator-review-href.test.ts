@@ -5,8 +5,13 @@ import {
   resolveShowcaseOperatorReviewHref,
 } from "@/lib/showcase-operator-review-href";
 
+// Shared setup may preload the desk helpers before this file's mocks are registered.
+vi.hoisted(() => vi.resetModules());
+
+const desk = vi.hoisted(() => ({ id: "architecture-showcase-001" as string | null }));
+
 vi.mock("@/lib/desk-continuity-preference", () => ({
-  readCachedLastOpenArchitectureId: () => "architecture-showcase-001",
+  readCachedLastOpenArchitectureId: () => desk.id,
 }));
 
 describe("resolveShowcaseOperatorReviewHref", () => {
@@ -16,7 +21,8 @@ describe("resolveShowcaseOperatorReviewHref", () => {
     );
   });
 
-  it("routes finding deep links through ask buyer open review", () => {
+  it("routes finding deep links through ask buyer open review when there is no cached desk", () => {
+    desk.id = null;
     const href = resolveShowcaseOperatorFindingHref(
       "customer-intake-modernization",
       "sensitive-data-minimization-risk",

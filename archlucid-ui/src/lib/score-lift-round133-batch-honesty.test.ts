@@ -9,6 +9,6 @@ describe("score-lift round133 batch honesty", () => {
     expect(DRIFT_WORKBENCH_EMPTY_DIFFS_NOT_FAILURE_LINE).toContain("not a failed");
     expect(PACKAGE_CHANGES_SINCE_FINALIZE_EMPTY_NOT_LOAD_FAILURE_LINE).toContain("not a failed");
     expect(DECISION_REGISTER_EMPTY_NOT_LOAD_FAILURE_LINE).toContain("failed register read");
-    expect(GOVERNANCE_APPROVAL_STATUS_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE).toContain("not a failed");
+    expect(GOVERNANCE_APPROVAL_STATUS_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE).toContain("Approval requests loaded, but this status filter matches none");
   });
 });

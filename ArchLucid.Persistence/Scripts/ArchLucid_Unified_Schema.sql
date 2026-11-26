@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 431_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 433_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -11686,4 +11686,22 @@ BEGIN
     ALTER TABLE dbo.SentEmails
         ADD CONSTRAINT PK_SentEmails_TenantId_IdempotencyKey
             PRIMARY KEY NONCLUSTERED (TenantId, IdempotencyKey);
+END;
+
+GO
+
+/* Scope and actor bindings for server-issued standalone Architecture Intelligence runs. */
+IF OBJECT_ID(N'dbo.ArchitectureIntelligenceStandaloneRuns', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ArchitectureIntelligenceStandaloneRuns
+    (
+        RunId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
+        ActorKeyHash BINARY(32) NOT NULL,
+        CreatedUtc DATETIME2 NOT NULL
+            CONSTRAINT DF_ArchitectureIntelligenceStandaloneRuns_CreatedUtc DEFAULT (SYSUTCDATETIME()),
+        CONSTRAINT PK_ArchitectureIntelligenceStandaloneRuns PRIMARY KEY (RunId)
+    );
 END;

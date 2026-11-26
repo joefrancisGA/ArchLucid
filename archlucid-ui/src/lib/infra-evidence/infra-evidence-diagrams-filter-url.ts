@@ -293,7 +293,17 @@ export function infraDiagramsFilterHrefFromSearch(
   pathname: string = GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
 ): string {
   const params = new URLSearchParams(currentSearch);
+  const currentSeed = params.get(INFRA_DIAGRAMS_SEED_NODE_ID_PARAM);
+  const changesSnapshot = patch.snapshotId !== undefined
+    && patch.snapshotId.trim() !== (params.get(INFRA_DIAGRAMS_SNAPSHOT_ID_PARAM) ?? "").trim();
+  const changesRun = patch.runId !== undefined
+    && patch.runId.trim() !== (params.get(RESOURCE_HUB_RUN_ID_PARAM) ?? "").trim();
   applyOperatorUrlSelectionSwitch(params, { kind: "infra-resource-hub-run-scope" });
+
+  // The diagrams workbench owns this key as a snapshot-scoped neighborhood seed.
+  if (currentSeed !== null && patch.seedNodeId === undefined && !changesSnapshot && !changesRun) {
+    params.set(INFRA_DIAGRAMS_SEED_NODE_ID_PARAM, currentSeed);
+  }
 
   if (patch.snapshotId !== undefined) {
     const trimmed = patch.snapshotId.trim();

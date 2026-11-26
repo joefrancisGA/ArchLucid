@@ -97,9 +97,3 @@ internal sealed class CliHttpProbeSession : IDisposable
             Http.Dispose();
     }
 }
-
-internal readonly record struct CliPilotRunDeltasFetchResult(
-    int StatusCode,
-    bool NotFound,
-    bool Success,
-    string Body);

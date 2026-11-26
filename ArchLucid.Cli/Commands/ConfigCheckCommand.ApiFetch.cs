@@ -13,12 +13,14 @@ internal static partial class ConfigCheckCommand
         CancellationToken cancellationToken)
     {
         string baseUrl = ArchLucidApiClient.ResolveBaseUrl(config);
+
         if (ArchLucidApiClient.GetInvalidApiBaseUrlReason(baseUrl) is { } err)
         {
             return (null, "API: (skip) " + err);
         }
 
         string? k = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");
+
         if (string.IsNullOrWhiteSpace(k))
         {
             return (null, "API: (skip) set ARCHLUCID_API_KEY (Admin) to merge GET /v1/admin/config-summary presence.");
@@ -38,6 +40,7 @@ internal static partial class ConfigCheckCommand
             using HttpResponseMessage r = await c
                 .GetAsync("v1/admin/config-summary", cancellationToken)
                 .ConfigureAwait(false);
+
             if (r.StatusCode == HttpStatusCode.Unauthorized)
             {
                 return (null, "API: 401 (Admin).");
@@ -53,6 +56,7 @@ internal static partial class ConfigCheckCommand
             AdminConfigSummaryResponse? d = JsonSerializer.Deserialize<AdminConfigSummaryResponse>(
                 body,
                 ContractJson.CamelCaseDeserializeCaseInsensitive);
+
             if (d?.Keys is not { } rows || rows.Count == 0)
                 return (null, "API: (skip) empty body");
 

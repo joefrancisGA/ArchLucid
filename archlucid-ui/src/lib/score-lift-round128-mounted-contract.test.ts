@@ -22,7 +22,7 @@ describe("score-lift round128 mounted contract", () => {
     const loadSlice = terraform.slice(unscopedAt, loadErrorAt);
     expect(loadSlice).not.toContain('data-testid="infra-terraform-load-error"');
     const compare = readUiSource("app/(operator)/insights/compare-two-reviews/_sections/CompareGovernanceDiffPanel.tsx");
-    const loadingAt = compare.indexOf('data-testid="compare-governance-diff-loading"');
+    const loadingAt = compare.indexOf('testId="compare-governance-diff-loading"');
     const emptyAt = compare.indexOf('data-testid="compare-governance-diff-empty-not-load-failure"');
     const loadingBranch = compare.indexOf("if (loading)");
     expect(loadingBranch).toBeGreaterThan(-1);
