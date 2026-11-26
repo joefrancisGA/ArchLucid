@@ -112,7 +112,7 @@ export function WhySecureNowDraftView(): React.JSX.Element {
             {WHY_SECURENOW_CONVERSATION_LABEL}
           </Link>
         </p>
-        <p className={cn("m-0", MARKETING_TYPOGRAPHY.helper)} data-testid="why-securenow-sources">
+        <p className={cn("m-0", MARKETING_TYPOGRAPHY.meta)} data-testid="why-securenow-sources">
           <span className="font-medium text-al-text-primary">Sources:</span> Public draft positioning — not a countersigned
           order, CPA attestation, or live tenant evidence.
         </p>
