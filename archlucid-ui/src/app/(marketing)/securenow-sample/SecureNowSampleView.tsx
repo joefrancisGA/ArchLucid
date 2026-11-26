@@ -151,7 +151,7 @@ export function SecureNowSampleView(): React.JSX.Element {
             {WHY_SECURENOW_CONVERSATION_LABEL}
           </Link>
         </p>
-        <p className={cn("m-0", MARKETING_TYPOGRAPHY.helper)} data-testid="securenow-sample-sources">
+        <p className={cn("m-0", MARKETING_TYPOGRAPHY.meta)} data-testid="securenow-sample-sources">
           <span className="font-medium text-al-text-primary">Sources:</span> Synthetic fixture beats only — not customer
           capture, verified remediation, or commerce authorization.
         </p>
