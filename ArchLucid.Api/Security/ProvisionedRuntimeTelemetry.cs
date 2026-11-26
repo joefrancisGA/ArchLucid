@@ -152,6 +152,11 @@ internal static class RuntimeTelemetryRegistration
         services.AddScoped<RuntimeDeploymentLifecycleEvaluator>();
         services.AddScoped<IVerifiedRuntimeAdvisoryCatalogSource, ProvisionedRuntimeAdvisoryCatalogSource>();
         services.AddScoped<RuntimeAdvisoryFindingService>();
+        services.AddScoped<IRuntimeFindingJournal>(provider => new SqlRuntimeFindingJournal(
+            provider.GetService<ArchLucid.Persistence.Connections.ISqlConnectionFactory>(),
+            provider.GetRequiredService<IConfiguration>(),
+            provider.GetRequiredService<IRuntimeAttestationPublicationAuthority>()));
+        services.AddScoped<RuntimeFindingPersistenceService>();
         services.AddScoped<IRuntimeAttestationPublicationAuthority, ProvisionedRuntimePublicationAuthority>();
         services.AddScoped<IRuntimeAttestationPublicationStore, AtomicRuntimeAttestationPublicationStore>();
         services.AddHttpClient("SecureNowRuntimeKeyVault", client => client.Timeout = TimeSpan.FromSeconds(15))
