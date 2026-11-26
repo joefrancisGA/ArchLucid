@@ -17,6 +17,7 @@ internal static class FindingsSnapshotMetadataMerger
         // JSON `"engineFailures": null` / `"checklistCoverage": null` must not wipe list defaults —
         // buyer-summary coverage projection and commit classifier throw on null EngineFailures.
         snapshot.EngineFailures = header.EngineFailures ?? [];
+        snapshot.RequirementComparisonRecovery = header.RequirementComparisonRecovery;
         snapshot.EvaluationConfidenceEnrichmentSkipped = header.EvaluationConfidenceEnrichmentSkipped;
         snapshot.GenerationStatus = header.GenerationStatus;
         snapshot.ChecklistCoverage = header.ChecklistCoverage ?? [];

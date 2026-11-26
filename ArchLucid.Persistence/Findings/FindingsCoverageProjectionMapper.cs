@@ -26,6 +26,7 @@ internal static class FindingsCoverageProjectionMapper
             SchemaVersion = header.SchemaVersion,
             GenerationStatus = FindingsSnapshotGenerationStatusParser.Parse(header.GenerationStatus),
             EngineFailures = TryDeserializeEngineFailures(header.EngineFailuresJson),
+            RequirementComparisonRecovery = header.RequirementComparisonRecovery,
             EvaluationConfidenceEnrichmentSkipped = header.EvaluationConfidenceEnrichmentSkipped ?? false,
             Findings = findingRows.Select(MapFinding).ToList(),
         };

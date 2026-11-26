@@ -65,6 +65,7 @@ export type GoldenManifestExportMenuProps = {
   trustEvidenceCard?: RunTrustEvidenceCard | null;
   /** Distinct engines that produced findings on this package snapshot (PC-01 / PC-13). */
   enginesSucceeded?: number | null;
+  findingEngineRecoveryNote?: string | null;
   progressSummary?: RunSummary | null;
   graphSnapshot?: unknown;
   findingsSnapshot?: unknown;
@@ -223,6 +224,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
       manifestSummaryFallback: manifestSummary,
       trustEvidenceCard: trustEvidenceCard ?? null,
       enginesSucceeded: props.enginesSucceeded ?? null,
+      findingEngineRecoveryNote: props.findingEngineRecoveryNote,
       careerExportHonesty: {
         progressSummary: props.progressSummary ?? null,
         graphSnapshot: props.graphSnapshot ?? null,

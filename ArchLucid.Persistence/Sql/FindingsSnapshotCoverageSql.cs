@@ -6,12 +6,13 @@ namespace ArchLucid.Persistence.Sql;
 internal static class FindingsSnapshotCoverageSql
 {
     /// <summary>
-    ///     Snapshot header scalars + <c>JSON_QUERY</c> for engine failures only (not the full LOB to the app as a column).
+    ///     Snapshot header scalars and projected engine metadata (not the full JSON LOB).
     /// </summary>
     public const string SelectHeaderColumns = """
                                               FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
                                               SchemaVersion, GenerationStatus,
                                               JSON_QUERY(FindingsJson, '$.engineFailures') AS EngineFailuresJson,
+                                              JSON_VALUE(FindingsJson, '$.requirementComparisonRecovery') AS RequirementComparisonRecovery,
                                               TRY_CAST(JSON_VALUE(FindingsJson, '$.evaluationConfidenceEnrichmentSkipped') AS bit) AS EvaluationConfidenceEnrichmentSkipped
                                               """;
 

@@ -46,6 +46,9 @@ public sealed class RunFindingCoverageSummary
         init;
     }
 
+    /// <summary>Sanitized requirement comparison completion or retry result from the saved snapshot.</summary>
+    public string? FindingEngineRecoveryNote { get; init; }
+
     /// <summary>Sanitized engine identifiers for operator UI (engine type + category, no exception text).</summary>
     private IReadOnlyList<string> failedEngineLabels = [];
 

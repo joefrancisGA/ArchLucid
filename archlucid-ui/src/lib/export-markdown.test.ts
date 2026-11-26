@@ -671,3 +671,11 @@ describe("buildGoldenManifestMarkdownFilename", () => {
     expect(buildGoldenManifestMarkdownFilename("run/a#b", "m1")).toBe("golden-manifest-run-a-b.md");
   });
 });
+it.each([
+  "Requirement comparison completed with no findings.",
+  "Requirement comparison exhausted its retry budget. Coverage remains incomplete.",
+  "Requirement comparison recovered after a retry and returned no findings.",
+])("keeps the engine outcome in a separate Markdown coverage section (%s)", (note) => {
+  const markdown = formatGoldenManifestMarkdown({ metadata: {} }, { findingEngineRecoveryNote: note });
+  expect(markdown).toContain(`## Finding engine coverage\n\n${note}`);
+});
