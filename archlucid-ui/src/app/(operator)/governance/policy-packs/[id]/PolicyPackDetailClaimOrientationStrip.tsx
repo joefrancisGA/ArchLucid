@@ -18,6 +18,7 @@ export function PolicyPackDetailClaimOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="policy-pack-detail"
+      sourcesTestId="policy-pack-detail-sources"
       sourcesTitle={POLICY_PACK_DETAIL_FOLLOW_UPS_TITLE}
       sourcesIntro={POLICY_PACK_DETAIL_SOURCES_INTRO}
       sources={sources}

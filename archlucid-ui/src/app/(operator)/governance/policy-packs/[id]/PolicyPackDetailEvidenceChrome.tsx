@@ -41,8 +41,9 @@ export function PolicyPackDetailEvidenceChrome(
         <LayerHeader pageKey="policy-packs" density="compact" className="mb-3 px-4" />
       ) : null}
 
-      <div
+      <main
         id={POLICY_PACK_DETAIL_PRIMARY_CONTENT_ID}
+        tabIndex={-1}
         className="scroll-mt-24"
         data-testid="policy-pack-detail-primary-content"
       >
@@ -67,7 +68,7 @@ export function PolicyPackDetailEvidenceChrome(
         ) : null}
         {props.children}
         {buyerPolishedShell ? <PolicyPackDetailBuyerChrome /> : <PolicyPackDetailClaimOrientationStrip />}
-      </div>
+      </main>
     </div>
   );
 }

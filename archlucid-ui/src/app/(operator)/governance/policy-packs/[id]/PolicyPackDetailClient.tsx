@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useMemo, type ReactElement } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
+
 import { usePolicyPackDetailPageQuery } from "@/hooks/use-policy-pack-detail-page-query";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -17,6 +18,7 @@ import {
   findingsPathForProductLine,
   policyPacksHubPathFromPathname,
 } from "@/lib/product-line/securenow-compliance-routes";
+import { SECURENOW_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { resolvePolicyPackDetailKind } from "@/lib/policy/policy-pack-detail-resolver";
 import { cn } from "@/lib/utils";
 import type { PolicyPack, PolicyPackContentDocument, PolicyPackWorkspaceSelectionItem } from "@/types/policy-packs";
@@ -42,7 +44,8 @@ type PolicyPackDetailChromeProps = {
 };
 
 function PolicyPackDetailScopedChrome(props: PolicyPackDetailChromeProps): ReactElement {
-  const hubPath = policyPacksHubPathFromPathname(usePathname());
+  const pathname = usePathname() ?? "";
+  const hubPath = policyPacksHubPathFromPathname(pathname);
   const scopedReviewId = props.scopedReviewId.trim();
   const scopedReviewFilterActive = scopedReviewId.length > 0;
   const clearScopeHref = policyPackDetailHref(props.policyPackId, null, hubPath);
@@ -79,6 +82,17 @@ function PolicyPackDetailScopedChrome(props: PolicyPackDetailChromeProps): React
       <div className="space-y-4 px-4 pb-4">
         <PolicyPackDetailNextPackFooterClient policyPackId={props.policyPackId} reviewId={scopedReviewId} />
         {scopedReviewFilterActive ? <PolicyPacksNextReviewFooterClient runId={scopedReviewId} /> : null}
+        {pathname.startsWith("/compliance") ? (
+          <p className={OPERATOR_TYPOGRAPHY.body} data-testid="compliance-policy-pack-detail-wayfinding">
+            <Link className={OPERATOR_LINK.inline} href={SECURENOW_POLICY_PACKS_PATH}>
+              Policy packs hub
+            </Link>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href="/">
+              Home
+            </Link>
+          </p>
+        ) : null}
       </div>
     </PolicyPackDetailEvidenceChrome>
   );
