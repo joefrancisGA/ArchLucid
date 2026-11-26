@@ -8,8 +8,8 @@ import uuid
 
 from fnd010_sql_journal_verify import sql
 
-MIGRATION = Path("ArchLucid.Persistence/Migrations/433_RuntimeAttestationWatermarks.sql")
-ROLLBACK = Path("sql/rollbacks/433_rollback.sql")
+MIGRATION = Path("ArchLucid.Persistence/Migrations/434_RuntimeAttestationWatermarks.sql")
+ROLLBACK = Path("ArchLucid.Persistence/Migrations/Rollback/R434_RuntimeAttestationWatermarks.sql")
 
 
 def apply(path):
