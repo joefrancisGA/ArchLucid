@@ -49,8 +49,9 @@ export function BaselineSettingsClient() {
         {BASELINE_SETTINGS_SKIP_LINK_LABEL}
       </a>
 
-      <div
+      <main
         id={BASELINE_SETTINGS_PRIMARY_CONTENT_ID}
+        tabIndex={-1}
         data-testid={BASELINE_SETTINGS_PRIMARY_CONTENT_ID}
         className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
       >
@@ -103,7 +104,7 @@ export function BaselineSettingsClient() {
         <div data-testid="baseline-settings-orientation-bottom">
           <BaselineSettingsEvidenceOrientationStrip />
         </div>
-      </div>
+      </main>
     </OperatorPageContainer>
   );
 }
