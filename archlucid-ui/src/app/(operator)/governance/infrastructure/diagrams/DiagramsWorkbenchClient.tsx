@@ -10,7 +10,6 @@ import { DiagramsWorkbenchSecureNowQuestionBarFallback } from "@/app/(operator)/
 import { type ArchitectureDiagramConnectorSelection } from "@/components/architecture/ArchitectureDiagramViewer";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
-import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { InfraDiagramsExportHonestyStrip } from "@/components/infra-evidence/InfraDiagramsExportHonestyStrip";
 import { PageShortcutsDisclosure } from "@/components/usability/PageShortcutsDisclosure";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
@@ -573,21 +572,6 @@ export function DiagramsWorkbenchClient() {
   }, [urlEvidenceFamily]);
 
   useEffect(() => {
-    setSeedNodeDraft(urlSeedNodeId);
-
-    if (urlMermaidMode !== "dependencyNeighborhood") {
-      setAppliedSeedNodeId("");
-      return;
-    }
-
-    const trimmedUrlSeed = urlSeedNodeId.trim();
-
-    if (trimmedUrlSeed.length > 0) {
-      setAppliedSeedNodeId(trimmedUrlSeed);
-    }
-  }, [urlMermaidMode, urlSeedNodeId]);
-
-  useEffect(() => {
     setShowPrivateEndpoints(urlIncludePrivateEndpoints);
   }, [urlIncludePrivateEndpoints]);
 
@@ -615,6 +599,9 @@ export function DiagramsWorkbenchClient() {
     setSelectedSubscriptionFilter(urlSubscriptionFilter);
   }, [urlSubscriptionFilter]);
 
+  const previousUrlSeedScope = useRef({ snapshotId: urlSnapshotId, seed: urlSeedNodeId });
+  const staleUrlSeed = useRef<{ snapshotId: string; seed: string } | null>(null);
+
   const syncUrl = useCallback(
     (patch: {
       snapshotId?: string;
@@ -629,16 +616,52 @@ export function DiagramsWorkbenchClient() {
       includeAvdAssets?: boolean;
       evidenceFamily?: string;
     }) => {
-      router.replace(infraDiagramsFilterHrefFromSearch(searchParams.toString(), patch, pathname), {
+      const stale = staleUrlSeed.current;
+      const clearsStaleSeed = stale?.snapshotId === urlSnapshotId && stale.seed === urlSeedNodeId
+        && patch.seedNodeId === undefined;
+      const scopedPatch = clearsStaleSeed ? { ...patch, seedNodeId: "" } : patch;
+      router.replace(infraDiagramsFilterHrefFromSearch(searchParams.toString(), scopedPatch, pathname), {
         scroll: false,
       });
     },
-    [pathname, router, searchParams],
+    [pathname, router, searchParams, urlSeedNodeId, urlSnapshotId],
   );
 
   const syncUrlRef = useRef(syncUrl);
 
   syncUrlRef.current = syncUrl;
+
+  useEffect(() => {
+    const previous = previousUrlSeedScope.current;
+    const current = { snapshotId: urlSnapshotId, seed: urlSeedNodeId };
+    previousUrlSeedScope.current = current;
+
+    const snapshotChanged = previous.snapshotId !== urlSnapshotId;
+    const carriedSeed = snapshotChanged && urlSeedNodeId.length > 0 && previous.seed === urlSeedNodeId;
+    if (carriedSeed) {
+      staleUrlSeed.current = current;
+      syncUrlRef.current({ seedNodeId: "" });
+    }
+
+    const stale = staleUrlSeed.current;
+    if (stale != null && (stale.snapshotId !== urlSnapshotId || stale.seed !== urlSeedNodeId)) {
+      staleUrlSeed.current = null;
+    }
+
+    if (urlMermaidMode !== "dependencyNeighborhood" || staleUrlSeed.current != null) {
+      setSeedNodeDraft("");
+      setAppliedSeedNodeId("");
+      return;
+    }
+
+    if (urlSeedNodeId.length > 0) {
+      setSeedNodeDraft(urlSeedNodeId);
+      setAppliedSeedNodeId(urlSeedNodeId);
+    } else if (snapshotChanged) {
+      setSeedNodeDraft("");
+      setAppliedSeedNodeId("");
+    }
+  }, [urlMermaidMode, urlSeedNodeId, urlSnapshotId]);
 
   const activeModePreview = useMemo(
     () => modePreviews.find((preview) => preview.mode === selectedMode) ?? null,
@@ -1898,9 +1921,11 @@ export function DiagramsWorkbenchClient() {
   const handleSnapshotChange = useCallback(
     (nextSnapshotId: string) => {
       setSelectedSnapshotId(nextSnapshotId);
+      setSeedNodeDraft("");
+      setAppliedSeedNodeId("");
       setSelectedViewKey("");
       setRenderResult(null);
-      syncUrl({ snapshotId: nextSnapshotId, mermaidView: "" });
+      syncUrl({ snapshotId: nextSnapshotId, mermaidView: "", seedNodeId: "" });
     },
     [syncUrl],
   );
@@ -2808,7 +2833,7 @@ export function DiagramsWorkbenchClient() {
         </div>
       ) : null}
 
-      {densityCoachPresentation != null ? (
+      {densityCoachPresentation != null && renderResult?.status !== "Failed" && loadError == null ? (
         <section
           className={cn("grid gap-3", cnCard)}
           aria-label="Diagram density coach"
@@ -2849,7 +2874,6 @@ export function DiagramsWorkbenchClient() {
 
       <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram export actions" data-testid="infra-diagrams-export">
         <InfraDiagramsExportHonestyStrip />
-        <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="infra-diagrams-export" />
         <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-diagrams-build-provenance-limitation" />
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-2">

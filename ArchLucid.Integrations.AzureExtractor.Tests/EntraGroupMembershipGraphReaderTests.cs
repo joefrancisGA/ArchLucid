@@ -43,7 +43,7 @@ public sealed class EntraGroupMembershipGraphReaderTests
             "missing-value" => JsonResponse("{}"),
             "invalid-row" => JsonResponse("""{"value":[null]}"""),
             "http" => new HttpResponseMessage(HttpStatusCode.ServiceUnavailable),
-            "cycle" => JsonResponse($"""{"value":[],"@odata.nextLink":"{{request.RequestUri!.AbsoluteUri}}"}"""),
+            "cycle" => JsonResponse($$"""{"value":[],"@odata.nextLink":"{{request.RequestUri!.AbsoluteUri}}"}"""),
             "empty" => JsonResponse("""{"value":[]}"""),
             _ => throw new InvalidOperationException("Unknown test fixture"),
         });

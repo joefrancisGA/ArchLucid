@@ -10,7 +10,7 @@ function readUiSource(relativePath: string): string {
 describe("score-lift round127 mounted contract", () => {
   it("attack path unevaluated and digest empty gates", () => {
     const attack = readUiSource("app/(operator)/governance/remediation-factory/RemediationFactoryAttackPathReportSection.tsx");
-    expect(attack).toContain('data-testid="attack-path-report-unevaluated-empty-not-load-failure"');
+    expect(attack).toContain('notLoadFailureTestId="attack-path-report-unevaluated-empty-not-load-failure"');
     const errorStart = attack.indexOf("reportQuery.isError");
     const successStart = attack.indexOf("reportQuery.isSuccess");
     const loadFailureAt = attack.indexOf('data-testid="attack-path-report-load-failure"');

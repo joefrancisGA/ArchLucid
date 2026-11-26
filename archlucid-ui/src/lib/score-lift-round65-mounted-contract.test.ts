@@ -24,7 +24,7 @@ describe("score-lift round65 mounted contract", () => {
     ).toContain("attack-path-report-unevaluated-only-partial");
     expect(readUiSource("components/SponsorWorkspaceHealthKpiBlocks.tsx")).toContain("sponsor-drift-partial-window");
     expect(readUiSource("app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchClient.tsx")).toContain(
-      "infra-diagrams-partial-capture",
+      "<InfraEvidenceCompletenessWarningsBanner",
     );
     expect(readUiSource("app/(operator)/governance/infrastructure/terraform/TerraformWorkbenchClient.tsx")).toContain(
       "infra-terraform-partial-capture",

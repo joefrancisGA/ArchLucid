@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor, within } from "@testing-librar
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
-import { SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH, SECURENOW_INFRASTRUCTURE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DENSITY_COACH_EMPTY_IDENTITY_TITLE,
@@ -1980,6 +1980,15 @@ describe("DiagramsWorkbenchClient", () => {
       return buildPreview(snapshotId, snapshotId === snapshotA ? [warningA] : []);
     });
 
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (snapshotId: string, query) => ({
+      snapshotId,
+      mode: query.mode ?? "executive",
+      status: "Succeeded",
+      mermaid: "flowchart LR\n  A-->B",
+      fallbackArtifacts: [],
+      ...(snapshotId === snapshotA ? { completenessWarnings: [warningA] } : {}),
+    }));
+
     searchParams = new URLSearchParams(`snapshotId=${snapshotA}&mermaidMode=executive`);
     const { rerender } = render(<DiagramsWorkbenchClient />);
 
@@ -2297,14 +2306,13 @@ describe("DiagramsWorkbenchClient", () => {
     });
   });
 
-  it("links the SecureNow breadcrumb parent to the infrastructure overview", async () => {
+  it("omits the redundant breadcrumb in the SecureNow workbench", async () => {
     pathname = SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH;
     searchParams = new URLSearchParams();
     render(<DiagramsWorkbenchClient />);
 
-    const breadcrumbLink = (await screen.findByTestId("infra-diagrams-breadcrumb")).querySelector("a");
-
-    expect(breadcrumbLink).toHaveAttribute("href", SECURENOW_INFRASTRUCTURE_PATH);
+    expect(await screen.findByTestId("infra-diagrams-page-title")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-breadcrumb")).not.toBeInTheDocument();
   });
 
   it("passes the active render query to PNG export", async () => {

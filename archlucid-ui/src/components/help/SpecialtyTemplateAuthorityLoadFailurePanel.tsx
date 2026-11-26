@@ -17,7 +17,7 @@ export function SpecialtyTemplateAuthorityLoadFailurePanel(
 ): React.JSX.Element {
   return (
     <div
-      className={cn(OPERATOR_TYPOGRAPHY.helper, "max-w-3xl space-y-2 rounded-md border border-amber-200 bg-amber-50/80 p-3 dark:border-amber-900 dark:bg-amber-950/30")}
+      className={cn(OPERATOR_TYPOGRAPHY.helper, "max-w-3xl space-y-2 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950")}
       data-testid="specialty-template-authority-load-failure"
       role="alert"
     >
