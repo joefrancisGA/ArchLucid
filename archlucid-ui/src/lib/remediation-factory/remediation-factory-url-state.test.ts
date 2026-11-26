@@ -1381,6 +1381,17 @@ describe("remediation-factory-url-state", () => {
 
 
 
+  it("treats ON metrics disclosure token with halfwidth ideographic semicolon inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF69n`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with white rectangle inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25ADue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
   it("treats ON metrics disclosure token with halfwidth ideographic exclamation mark inside the word as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF68n`).metricsSummaryOpen,
@@ -2448,7 +2459,14 @@ describe("remediation-factory-url-state", () => {
     expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBeNull();
   });
 
-  it("uses the first metrics disclosure token when on precedes off in the query string", () => {
+
+  it("uses the first metrics disclosure token when OFF precedes false in the query string", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=OFF&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=false`,
+      ).metricsSummaryOpen,
+    ).toBe(false);
+  });  it("uses the first metrics disclosure token when on precedes off in the query string", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(
         `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=on&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=off`,
