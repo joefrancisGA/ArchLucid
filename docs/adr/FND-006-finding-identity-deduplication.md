@@ -26,3 +26,9 @@ Code:
 
 ## Before runtime integration
 Build adapters for actual source DTOs, reconcile policy rule normalization, add cross-run/tenant/collision tests, and establish an authoritative lifecycle transition store. This PR only defines the additive schema and isolated validation.
+
+## FND-062 compatibility baseline
+
+Both existing key producers delegate to `ArchLucid.Core/Findings/FindingCorrelationKeyV1.cs`. V1 shares token normalization and hashing but deliberately keeps both historical policy rule casing profiles and the unhashed snapshot fallback. “V1” labels the implementation contract, not a new wire prefix. Neither producer changes emitted keys, matching behavior, stored finding IDs, or evidence and governance provenance.
+
+The shared code only formats input. It does not authenticate tenant, workspace or asset scope, and its legacy pipe-delimited input is not an unambiguous identity encoding. Before enabling a canonical format, validate scope and collision cases, define how mixed-version comparisons are read, and keep the historical formats available for compatibility. Do not use a fuzzy match as an authoritative identity or rewrite existing records.
