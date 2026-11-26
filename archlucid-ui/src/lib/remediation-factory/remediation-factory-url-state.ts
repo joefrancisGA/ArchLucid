@@ -106,10 +106,10 @@ const REMEDIATION_FACTORY_DISCLOSURE_ENCLOSED_ONE_CODEPOINTS = new Set<number>([
 ]);
 
 function remediationFactoryDisclosureTrimFormatChars(value: string): string {
-  // Strip control/format/separator scalars and Hangul filler letters, ideographic half-fill space, the Oriya vowel sign O, and the braille patterns block that trim() leaves inside copied query tokens.
+  // Strip control/format/separator scalars and Hangul filler letters, ideographic half-fill space, the Oriya vowel sign O, and interior middle dots, the CJK symbols block U+3030–U+303F, and the braille patterns block that trim() leaves inside copied query tokens.
   return value
     .replace(/[\p{Cc}\p{Cf}\p{Zl}\p{Zp}\p{Zs}]/gu, "")
-    .replace(/[\u115F\u3164\uFFA0\u2800-\u28FF\u303F\u0B0A]/gu, "")
+    .replace(/[\u115F\u3164\uFFA0\u2800-\u28FF\u3030-\u303F\u0B0A\u00B7\u30FB]/gu, "")
     .trim();
 }
 

@@ -878,6 +878,68 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+  it("treats yes metrics disclosure token with middle dot inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=y\u00B7es`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats ON metrics disclosure token with katakana middle dot inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\u30FBn`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats yes metrics disclosure token with Devanagari vowel sign inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=y\u093Fes`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats ON metrics disclosure token with medium mathematical space inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\u205Fn`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("drops padded true metrics disclosure token from base search when writing closed state", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: false,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}= true `,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBeNull();
+  });
+
+  it("uses the first metrics disclosure token when YES precedes no in the query string", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=YES&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=no`,
+      ).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("clears stale finding selection when writing closed metrics state", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: false,
+      },
+      `${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_SELECTED_FINDING_PARAM)).toBeNull();
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBeNull();
+  });
   it("treats ON metrics disclosure token with Oriya vowel sign inside the word as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\u0B0An`).metricsSummaryOpen,
