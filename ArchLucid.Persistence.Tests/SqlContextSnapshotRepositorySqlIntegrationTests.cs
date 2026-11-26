@@ -485,7 +485,8 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         Guid snapshotId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
         DateTime created = new(2026, 12, 10, 9, 0, 0, DateTimeKind.Utc);
-        const string projectId = "proj-get-latest-rel";
+        // The latest lookup is by project. Do not tie with a snapshot from an earlier test execution.
+        string projectId = $"proj-get-latest-rel-{runId:N}";
 
         ContextSnapshot snapshot = new()
         {
