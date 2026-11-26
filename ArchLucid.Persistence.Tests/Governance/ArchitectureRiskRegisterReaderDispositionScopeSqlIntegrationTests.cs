@@ -28,6 +28,8 @@ public sealed class ArchitectureRiskRegisterReaderDispositionScopeSqlIntegration
         Guid foreignWorkspaceId = Guid.NewGuid();
         Guid projectId = Guid.NewGuid();
         const string sharedFindingId = "finding-shared-ticket-id";
+        string foreignTicket = $"FOREIGN-{tenantId:N}";
+        string inScopeTicket = $"IN-SCOPE-{tenantId:N}";
 
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
@@ -48,6 +50,9 @@ public sealed class ArchitectureRiskRegisterReaderDispositionScopeSqlIntegration
 
         await connection.ExecuteAsync(
             """
+            INSERT INTO dbo.Tenants (Id, Name, Slug, Tier)
+            VALUES (@TenantId, N'Risk register ticket scope test', @TenantSlug, N'Standard');
+
             INSERT INTO dbo.FindingsSnapshots (
                 FindingsSnapshotId, TenantId, WorkspaceId, ProjectId, RunId,
                 ContextSnapshotId, GraphSnapshotId, CreatedUtc, SchemaVersion,
@@ -69,17 +74,19 @@ public sealed class ArchitectureRiskRegisterReaderDispositionScopeSqlIntegration
             INSERT INTO dbo.ItsmFindingCorrelations (
                 TenantId, WorkspaceId, ProjectId, FindingId, Provider, ExternalKey)
             VALUES
-                (@TenantId, @ForeignWorkspaceId, @ProjectId, @SharedFindingId, N'Jira', N'FOREIGN-1');
+                (@TenantId, @ForeignWorkspaceId, @ProjectId, @SharedFindingId, N'Jira', @ForeignTicket);
             """,
             new
             {
                 TenantId = tenantId,
+                TenantSlug = $"risk-register-{tenantId:N}",
                 WorkspaceId = workspaceId,
                 ForeignWorkspaceId = foreignWorkspaceId,
                 ProjectId = projectId,
                 SnapshotId = snapshotId,
                 FindingRecordId = findingRecordId,
                 SharedFindingId = sharedFindingId,
+                ForeignTicket = foreignTicket,
                 RunId = runId,
                 ContextSnapshotId = contextSnapshotId,
                 GraphSnapshotId = graphSnapshotId,
@@ -87,16 +94,29 @@ public sealed class ArchitectureRiskRegisterReaderDispositionScopeSqlIntegration
 
         ArchitectureRiskRegisterReader registerReader = new(factory);
 
-        IReadOnlyList<ArchitectureRiskRegisterEntry> rows = await registerReader.ListAsync(
-            tenantId,
-            workspaceId,
-            projectId,
-            maxRows: 10,
-            cancellationToken: CancellationToken.None);
+        async Task<ArchitectureRiskRegisterEntry> ReadFindingAsync()
+        {
+            IReadOnlyList<ArchitectureRiskRegisterEntry> rows = await registerReader.ListAsync(
+                tenantId, workspaceId, projectId, maxRows: 10, cancellationToken: CancellationToken.None);
 
-        ArchitectureRiskRegisterEntry row = rows.Should().ContainSingle(e => e.FindingId == sharedFindingId).Subject;
-        row.ItsmLinkedTicketsSummary.Should().BeNull(
+            return rows.Should().ContainSingle(e => e.FindingId == sharedFindingId).Subject;
+        }
+
+        (await ReadFindingAsync()).ItsmLinkedTicketsSummary.Should().BeNull(
             "register rows must not inherit a sibling-workspace ticket for the same finding id");
+
+        await connection.ExecuteAsync(new CommandDefinition(
+            """
+            INSERT INTO dbo.ItsmFindingCorrelations (
+                TenantId, WorkspaceId, ProjectId, FindingId, Provider, ExternalKey)
+            VALUES
+                (@TenantId, @WorkspaceId, @ProjectId, @FindingId, N'Jira', @Ticket);
+            """,
+            new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, FindingId = sharedFindingId, Ticket = inScopeTicket },
+            cancellationToken: CancellationToken.None));
+
+        (await ReadFindingAsync()).ItsmLinkedTicketsSummary.Should().Be($"Jira:{inScopeTicket}",
+            "only the in-scope ticket may link to the register row");
     }
 
     [SkippableFact]
