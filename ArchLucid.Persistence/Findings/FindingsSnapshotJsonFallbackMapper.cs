@@ -22,6 +22,7 @@ internal static class FindingsSnapshotJsonFallbackMapper
         FindingsSnapshotListNormalizer.CoerceNullLists(fromJson);
         FindingsSnapshotMigrator.Apply(fromJson);
         FindingPayloadJsonCodec.HydrateJsonElementPayloads(fromJson.Findings);
+        FindingPayloadJsonCodec.HydrateJsonElementPayloads(fromJson.ChecklistCoverage);
         return fromJson;
     }
 
@@ -32,7 +33,7 @@ internal static class FindingsSnapshotJsonFallbackMapper
             RunId = row.RunId,
             ContextSnapshotId = row.ContextSnapshotId,
             GraphSnapshotId = row.GraphSnapshotId,
-            CreatedUtc = row.CreatedUtc,
+            CreatedUtc = DateTime.SpecifyKind(row.CreatedUtc, DateTimeKind.Utc),
             SchemaVersion = row.SchemaVersion,
             GenerationStatus = FindingsSnapshotGenerationStatusParser.Parse(row.GenerationStatus),
             Findings = []
@@ -44,7 +45,7 @@ internal static class FindingsSnapshotJsonFallbackMapper
         snapshot.RunId = row.RunId;
         snapshot.ContextSnapshotId = row.ContextSnapshotId;
         snapshot.GraphSnapshotId = row.GraphSnapshotId;
-        snapshot.CreatedUtc = row.CreatedUtc;
+        snapshot.CreatedUtc = DateTime.SpecifyKind(row.CreatedUtc, DateTimeKind.Utc);
         snapshot.SchemaVersion = row.SchemaVersion;
         snapshot.GenerationStatus = FindingsSnapshotGenerationStatusParser.Parse(row.GenerationStatus);
     }

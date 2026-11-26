@@ -44,7 +44,8 @@ internal static class AuthorityPipelineStagesExecutorTestFactory
         Mock<IDecisionEngine> Decision,
         Mock<IAuditService> Audit,
         Mock<IContextIngestionService> Ingest,
-        Mock<IKnowledgeGraphService> KnowledgeGraph);
+        Mock<IKnowledgeGraphService> KnowledgeGraph,
+        Mock<IGoldenManifestRepository> Manifests);
 
     internal static ExecutorFixture CreateExecutor(
         Mock<IContextIngestionService>? ingestMock = null,
@@ -150,7 +151,11 @@ internal static class AuthorityPipelineStagesExecutorTestFactory
             ManifestHash = "h",
             RuleSetId = "r",
             RuleSetVersion = "1",
-            RuleSetHash = "rh"
+            RuleSetHash = "rh",
+            FeasibilityVerdict = new ArchLucid.Contracts.Architecture.FeasibilityVerdict
+            {
+                Kind = ArchLucid.Contracts.Architecture.FeasibilityVerdictKind.Feasible
+            }
         };
 
         DecisionTraceDto trace = RuleAuditTraceDto.From(
@@ -341,7 +346,6 @@ internal static class AuthorityPipelineStagesExecutorTestFactory
             new AuthorityPipelineDecisioningStage(
                 decision.Object,
                 stagePersistence,
-                audit.Object,
                 Mock.Of<ArchLucid.Application.ArchitectureIntelligence.IAuthorityClosedLoopStrengtheningPass>(),
                 CreatePassThroughClosedLoopScoreSync(),
                 SealedManifestHashTestSupport.CreateManifestHashService(),
@@ -352,13 +356,15 @@ internal static class AuthorityPipelineStagesExecutorTestFactory
                 synth.Object,
                 stagePersistence,
                 audit.Object,
+                new ArchLucid.Decisioning.Manifest.AuthorityCommitProjectionBuilder(),
+                SealedManifestHashTestSupport.CreateManifestHashService(),
                 NullLogger<AuthorityPipelineArtifactsStage>.Instance),
             hydrator,
             Mock.Of<ArchLucid.Application.Runs.IRunGovernanceScopePinService>(),
             stageOutcomes.Object,
             NullLogger<AuthorityPipelineStagesExecutor>.Instance);
 
-        return new ExecutorFixture(executor, decision, audit, ingest, kg);
+        return new ExecutorFixture(executor, decision, audit, ingest, kg, manifestRepo);
     }
 
     internal static AuthorityPipelineContext CreateContext(Activity? runActivity = null, Guid? runId = null)

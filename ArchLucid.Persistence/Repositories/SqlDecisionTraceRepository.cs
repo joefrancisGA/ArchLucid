@@ -30,7 +30,8 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
         RuleAuditTracePayload audit = DecisionTraceRepositoryCore.RequireRuleAudit(trace);
         PersistenceTenantScope.RequireEntityTenant(audit.TenantId);
 
-        object args = DecisionTraceRepositoryCore.CreateInsertArgs(audit);
+        DynamicParameters args = new(DecisionTraceRepositoryCore.CreateInsertArgs(audit));
+        args.Add(nameof(audit.CreatedUtc), audit.CreatedUtc, DbType.DateTime2, scale: 7);
 
         if (connection is not null)
         {

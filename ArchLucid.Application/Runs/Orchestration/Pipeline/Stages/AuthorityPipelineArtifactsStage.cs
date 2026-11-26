@@ -1,18 +1,23 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.DecisionTraces;
 using ArchLucid.Decisioning.Manifest;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
+
+using Cm = ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Runs.Orchestration.Pipeline.Stages;
 
@@ -22,6 +27,8 @@ public sealed class AuthorityPipelineArtifactsStage(
     IArtifactSynthesisService artifactSynthesisService,
     IAuthorityPipelineStagePersistence stagePersistence,
     IAuditService auditService,
+    IAuthorityCommitProjectionBuilder projectionBuilder,
+    IManifestHashService manifestHashService,
     ILogger<AuthorityPipelineArtifactsStage> logger,
     IArchitectureIdentityRepository? architectureIdentityRepository = null) : IAuthorityPipelineArtifactsStage
 {
@@ -36,6 +43,12 @@ public sealed class AuthorityPipelineArtifactsStage(
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IAuthorityCommitProjectionBuilder _projectionBuilder =
+        projectionBuilder ?? throw new ArgumentNullException(nameof(projectionBuilder));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly ILogger<AuthorityPipelineArtifactsStage> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -73,6 +86,36 @@ public sealed class AuthorityPipelineArtifactsStage(
 
             throw;
         }
+
+        if (context.Trace is not RuleAuditTraceDto ruleAuditTrace)
+            throw new InvalidOperationException("Expected a RuleAudit trace (authority pipeline).");
+
+        ManifestDocument manifest = context.Manifest!;
+        string manifestVersion = AuthorityCommitManifestVersionRules.ResolveContractManifestVersion(manifest);
+        Cm.GoldenManifest contract = await _projectionBuilder.BuildAsync(
+            manifest, new AuthorityCommitProjectionInput { SystemName = context.Request.ProjectId }, cancellationToken);
+        DecisionTraceDto canonicalTrace = DecisionTraceRecordMapper.ToDto(DecisionTraceRecordMapper.ToDomain(ruleAuditTrace));
+        ManifestCommittedArtifactInventoryMaterial inventory = ManifestCommittedArtifactInventoryMaterialFactory.Build(
+            contract, context.FindingsSnapshot!, canonicalTrace, artifactBundle);
+        ManifestCommittedArtifactInventoryCapturer.EnsureDecisionTraceInventoryMaterialOrThrow(inventory, run.RunId.ToString("N"));
+        ManifestCommittedArtifactInventoryCapturer.ApplyToManifest(
+            manifest, inventory, DateTime.SpecifyKind(run.CreatedUtc, DateTimeKind.Utc), nameof(AuthorityPipelineArtifactsStage));
+        ManifestDecisionReceiptHashCapturer.ApplyToManifest(manifest, run.RunId, manifestVersion, _manifestHashService);
+        manifest.ManifestHash = _manifestHashService.ComputeHash(manifest);
+
+        // Save the complete seal before the bundle FK and before publishing any run anchor.
+        await _stagePersistence.SaveManifestAsync(manifest, context.UnitOfWork, cancellationToken);
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.ManifestGenerated,
+                RunId = run.RunId,
+                ManifestId = manifest.ManifestId,
+                DataJson = JsonSerializer.Serialize(
+                    new { manifest.ManifestHash, manifest.RuleSetId }, AuditJsonSerializationOptions.Instance)
+            },
+            context.UnitOfWork,
+            cancellationToken);
 
         if (artifactBundle.Status == ArtifactBundleStatus.Partial)
         {
@@ -124,13 +167,10 @@ public sealed class AuthorityPipelineArtifactsStage(
 
         context.ArtifactBundle = artifactBundle;
 
-        if (context.Trace is not RuleAuditTraceDto ruleAuditTrace)
-            throw new InvalidOperationException("Expected a RuleAudit trace (authority pipeline).");
-
         run.DecisionTraceId = ruleAuditTrace.RuleAudit.DecisionTraceId;
         run.GoldenManifestId = context.Manifest!.ManifestId;
         run.ArtifactBundleId = artifactBundle.BundleId;
-        run.CurrentManifestVersion = AuthorityCommitManifestVersionRules.ResolveContractManifestVersion(context.Manifest!);
+        run.CurrentManifestVersion = manifestVersion;
         await _stagePersistence.UpdateRunAsync(run, context.UnitOfWork, cancellationToken);
         await TryUpdateArchitectureLatestSealedManifestAsync(run, context.Manifest!.ManifestId, scope, cancellationToken);
     }
@@ -194,7 +234,6 @@ public sealed class AuthorityPipelineArtifactsStage(
                     TenantId = scope.TenantId,
                     WorkspaceId = scope.WorkspaceId,
                     ProjectId = scope.ProjectId,
-                    ManifestId = context.Manifest!.ManifestId,
                     DataJson = JsonSerializer.Serialize(
                         new { reason = synthesisException.GetType().Name },
                         AuditJsonSerializationOptions.Instance),

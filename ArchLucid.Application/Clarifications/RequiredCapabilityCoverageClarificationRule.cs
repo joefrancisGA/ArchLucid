@@ -1,7 +1,7 @@
 using ArchLucid.Contracts.Clarifications;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Decisioning.Findings.Factories;
-using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Application.Clarifications;
 

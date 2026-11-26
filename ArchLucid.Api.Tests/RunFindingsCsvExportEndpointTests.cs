@@ -9,7 +9,6 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
-[Trait(HarnessGoldenPathGuardConstants.DemoBaselineTraitCategory, HarnessGoldenPathGuardConstants.DemoBaselineTraitValue)]
 public sealed class RunFindingsCsvExportEndpointTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [SkippableFact]
@@ -24,10 +23,8 @@ public sealed class RunFindingsCsvExportEndpointTests(ArchLucidApiFactory factor
     [Fact]
     public async Task ExportRunFindingsCsv_includes_external_tracking_header_columns()
     {
-        await HarnessDemoBaselineSupport.EnsureSeededAsync(Factory.Services);
-
-        using HttpResponseMessage res = await Client.GetReviewFindingsExportCsvHttpAsync(
-            HarnessDemoBaselineSupport.AuthorityRunId);
+        FinalizedRun review = await ArrangeFinalizedAsync();
+        using HttpResponseMessage res = await review.GetFindingsExportCsvHttpAsync(Client);
 
         res.StatusCode.Should().Be(HttpStatusCode.OK);
         using StringReader csv = new(await res.Content.ReadAsStringAsync());

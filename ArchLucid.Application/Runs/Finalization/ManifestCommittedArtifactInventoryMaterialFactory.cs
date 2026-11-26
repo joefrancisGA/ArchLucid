@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Persistence.Artifacts;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Findings.Serialization;
 using ArchLucid.Decisioning.DecisionTraces;
 using ArchLucid.Decisioning.Interfaces;
@@ -27,34 +28,36 @@ internal static class ManifestCommittedArtifactInventoryMaterialFactory
                 "Finalization blocked: findings snapshot bytes are required to seal committed artifact inventory.");
         }
 
-        byte[] goldenManifestUtf8 = Encoding.UTF8.GetBytes(
-            JsonSerializer.Serialize(request.Contract, ContractJson.Default));
-
-        byte[] findingsSnapshotUtf8 = Encoding.UTF8.GetBytes(
-            FindingsSerialization.SerializeSnapshot(request.PreloadedFindingsSnapshot));
-
-        byte[] decisionTraceUtf8 = Encoding.UTF8.GetBytes(
-            JsonSerializer.Serialize(DecisionTraceRecordMapper.ToDto(request.Trace), ContractJson.Default));
-
-        byte[]? artifactBundleUtf8 = null;
-
+        ArtifactBundle? bundle = null;
         if (request.ExpectedArtifactBundleId is Guid bundleId)
         {
-            if (request.PreloadedArtifactBundle is null)
-            {
-                throw new ConflictException(
+            bundle = request.PreloadedArtifactBundle
+                ?? throw new ConflictException(
                     "Finalization blocked: artifact bundle bytes are required to seal committed artifact inventory.");
-            }
 
-            if (request.PreloadedArtifactBundle.BundleId != bundleId)
+            if (bundle.BundleId != bundleId)
             {
                 throw new ConflictException(
                     "Finalization blocked: preloaded artifact bundle id does not match the expected bundle id.");
             }
-
-            artifactBundleUtf8 = ManifestCommittedArtifactInventoryBundleMaterialSerializer.SerializeCanonicalUtf8(
-                request.PreloadedArtifactBundle);
         }
+
+        return Build(
+            request.Contract, request.PreloadedFindingsSnapshot, DecisionTraceRecordMapper.ToDto(request.Trace), bundle);
+    }
+
+    internal static ManifestCommittedArtifactInventoryMaterial Build(
+        GoldenManifest contract,
+        FindingsSnapshot findingsSnapshot,
+        DecisionTraceDto trace,
+        ArtifactBundle? bundle)
+    {
+        byte[] goldenManifestUtf8 = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(contract, ContractJson.Default));
+        byte[] findingsSnapshotUtf8 = Encoding.UTF8.GetBytes(FindingsSerialization.SerializeSnapshot(findingsSnapshot));
+        byte[] decisionTraceUtf8 = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(trace, ContractJson.Default));
+        byte[]? artifactBundleUtf8 = bundle is null
+            ? null
+            : ManifestCommittedArtifactInventoryBundleMaterialSerializer.SerializeCanonicalUtf8(bundle);
 
         return new ManifestCommittedArtifactInventoryMaterial
         {

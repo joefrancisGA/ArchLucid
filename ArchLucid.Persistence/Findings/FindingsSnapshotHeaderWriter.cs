@@ -25,7 +25,7 @@ internal static class FindingsSnapshotHeaderWriter
         ArgumentNullException.ThrowIfNull(connection);
         ArgumentNullException.ThrowIfNull(scope);
 
-        object args = new
+        DynamicParameters args = new(new
         {
             snapshot.FindingsSnapshotId,
             snapshot.RunId,
@@ -34,14 +34,14 @@ internal static class FindingsSnapshotHeaderWriter
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
-            snapshot.CreatedUtc,
             snapshot.SchemaVersion,
             GenerationStatus = snapshot.GenerationStatus.ToString(),
             FindingsJson = JsonEntitySerializer.Serialize(snapshot),
             ChecklistCoverageJson = ChecklistCoverageJsonCodec.Serialize(snapshot.ChecklistCoverage),
             InsightDensityDemotedCount = snapshot.InsightDensityCuration?.DemotedToChecklistCount,
             InsightDensityRetainedCount = snapshot.InsightDensityCuration?.RetainedFindingCount,
-        };
+        });
+        args.Add(nameof(snapshot.CreatedUtc), snapshot.CreatedUtc, DbType.DateTime2, scale: 7);
 
         await connection.ExecuteAsync(
             new CommandDefinition(FindingsSnapshotWriteSql.InsertHeader, args, transaction, cancellationToken: ct));

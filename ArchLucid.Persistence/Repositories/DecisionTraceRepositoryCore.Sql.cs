@@ -46,7 +46,6 @@ public static partial class DecisionTraceRepositoryCore
             audit.ProjectId,
             audit.DecisionTraceId,
             audit.RunId,
-            audit.CreatedUtc,
             audit.RuleSetId,
             audit.RuleSetVersion,
             audit.RuleSetHash,

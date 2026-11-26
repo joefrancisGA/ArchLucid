@@ -46,7 +46,6 @@ internal static class GoldenManifestInsertParameters
             manifest.GraphSnapshotId,
             manifest.FindingsSnapshotId,
             manifest.DecisionTraceId,
-            manifest.CreatedUtc,
             manifest.ManifestHash,
             manifest.RuleSetId,
             manifest.RuleSetVersion,

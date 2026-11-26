@@ -1,15 +1,11 @@
-using System.Text.Json;
-
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
-using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
-using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -20,7 +16,6 @@ namespace ArchLucid.Application.Runs.Orchestration.Pipeline.Stages;
 public sealed class AuthorityPipelineDecisioningStage(
     IDecisionEngine decisionEngine,
     IAuthorityPipelineStagePersistence stagePersistence,
-    IAuditService auditService,
     IAuthorityClosedLoopStrengtheningPass closedLoopStrengtheningPass,
     IClosedLoopStrengtheningScoreSyncService closedLoopScoreSyncService,
     IManifestHashService manifestHashService,
@@ -32,9 +27,6 @@ public sealed class AuthorityPipelineDecisioningStage(
 
     private readonly IAuthorityPipelineStagePersistence _stagePersistence =
         stagePersistence ?? throw new ArgumentNullException(nameof(stagePersistence));
-
-    private readonly IAuditService _auditService =
-        auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly IAuthorityClosedLoopStrengtheningPass _closedLoopStrengtheningPass =
         closedLoopStrengtheningPass ?? throw new ArgumentNullException(nameof(closedLoopStrengtheningPass));
@@ -119,26 +111,8 @@ public sealed class AuthorityPipelineDecisioningStage(
             }
         }
 
+        // Artifact generators can use the draft hash. Persist only the final sealed manifest.
         manifest.ManifestHash = _manifestHashService.ComputeHash(manifest);
-
-        await _stagePersistence.SaveManifestAsync(manifest, context.UnitOfWork, cancellationToken);
-
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.ManifestGenerated,
-                RunId = run.RunId,
-                ManifestId = manifest.ManifestId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        manifest.ManifestHash,
-                        manifest.RuleSetId
-                    },
-                    AuditJsonSerializationOptions.Instance)
-            },
-            context.UnitOfWork,
-            cancellationToken);
 
         context.Manifest = manifest;
         context.Trace = trace;

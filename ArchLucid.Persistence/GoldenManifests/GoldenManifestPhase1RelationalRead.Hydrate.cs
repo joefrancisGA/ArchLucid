@@ -56,7 +56,7 @@ internal static partial class GoldenManifestPhase1RelationalRead
             GraphSnapshotId = row.GraphSnapshotId,
             FindingsSnapshotId = row.FindingsSnapshotId,
             DecisionTraceId = row.DecisionTraceId,
-            CreatedUtc = row.CreatedUtc,
+            CreatedUtc = DateTime.SpecifyKind(row.CreatedUtc, DateTimeKind.Utc),
             ManifestHash = row.ManifestHash,
             RuleSetId = row.RuleSetId,
             RuleSetVersion = row.RuleSetVersion,

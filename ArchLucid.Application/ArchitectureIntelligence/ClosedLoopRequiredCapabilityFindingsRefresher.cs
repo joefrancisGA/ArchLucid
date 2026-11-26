@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Models;
