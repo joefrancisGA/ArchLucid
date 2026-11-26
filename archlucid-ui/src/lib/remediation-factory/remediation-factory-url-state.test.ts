@@ -1379,6 +1379,18 @@ describe("remediation-factory-url-state", () => {
   });
 
 
+
+  it("treats ON metrics disclosure token with fullwidth left curly bracket inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF5Bn`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with white square containing black medium square inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25F1ue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
   it("treats ON metrics disclosure token with fullwidth grave accent inside the word as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF40n`).metricsSummaryOpen,
@@ -1389,7 +1401,9 @@ describe("remediation-factory-url-state", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25F0ue`).metricsSummaryOpen,
     ).toBe(true);
-  });  it("uses the first metrics disclosure token when false precedes one in the query string for duplicate params", () => {
+  });
+
+  it("uses the first metrics disclosure token when false precedes one in the query string for duplicate params", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(
         `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=false&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1`,
