@@ -94,8 +94,8 @@ internal sealed class SignedRuntimeObservationSource(
 
             string digest = Convert.ToHexString(SHA256.HashData(payload));
             cancellationToken.ThrowIfCancellationRequested();
-            if (!replayGuard.TryAccept(request, attestation.IssuedAt, batch.EnumeratedAt,
-                    attestation.ExpiresAt, digest, now)) return null;
+            if (!await replayGuard.TryAcceptAsync(request, attestation.IssuedAt, batch.EnumeratedAt,
+                    attestation.ExpiresAt, digest, now, cancellationToken)) return null;
 
             // Cite the verified bytes, not a caller-provided URL or unverifiable claim.
             return batch with
