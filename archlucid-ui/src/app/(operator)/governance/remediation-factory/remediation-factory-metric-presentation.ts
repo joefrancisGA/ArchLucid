@@ -67,6 +67,13 @@ export function remediationFactoryCountMetricPresentation(input: {
     };
   }
 
+  if (!Number.isInteger(normalized)) {
+    return {
+      displayValue: REVIEW_SCORECARD_EMPTY_VALUE,
+      scopeNote: REVIEW_SCORECARD_NOT_MEASURED_LABEL,
+      state: "notMeasured",
+    };
+  }
   if (input.signedCount !== true && normalized < 0) {
     return {
       displayValue: REVIEW_SCORECARD_EMPTY_VALUE,
@@ -149,6 +156,17 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
     plainScopeNote: true,
   });
 
+  const criticalExposurePresentation = remediationFactoryCountMetricPresentation({
+    value: metrics?.criticalExposureCount,
+    scopeNote: REMEDIATION_FACTORY_CRITICAL_EXPOSURE_HELPER,
+    href: buildGovernanceFindingsQueueHref({ filter: "critical-error" }),
+  });
+
+  const exceptionsActivePresentation = remediationFactoryCountMetricPresentation({
+    value: metrics?.exceptionsActive,
+    scopeNote: REMEDIATION_FACTORY_EXCEPTIONS_HELPER,
+  });
+
   const openFindingsPresentation = remediationFactoryCountMetricPresentation({
     value: metrics?.openFindings,
     scopeNote: REMEDIATION_FACTORY_OPEN_FINDINGS_HELPER,
@@ -172,20 +190,11 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
     {
       key: "critical-exposure",
       label: "Critical exposure",
-      presentation: remediationFactoryCountMetricPresentation({
-        value: metrics?.criticalExposureCount,
-        scopeNote: REMEDIATION_FACTORY_CRITICAL_EXPOSURE_HELPER,
-        href: buildGovernanceFindingsQueueHref({ filter: "critical-error" }),
-      }),
-      hint: (() => {
-        const count = parseNonNegativeFiniteNumber(metrics?.criticalExposureCount);
-
-        if (count === 0) {
-          return "No critical-or-error findings in this metric for the current scope.";
-        }
-
-        return undefined;
-      })(),
+      presentation: criticalExposurePresentation,
+      hint:
+        criticalExposurePresentation.state === "measuredZero"
+          ? "No critical-or-error findings in this metric for the current scope."
+          : undefined,
     },
     {
       key: "recurrence",
@@ -225,18 +234,15 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
     {
       key: "exceptions-active",
       label: "Exceptions active",
-      presentation: remediationFactoryCountMetricPresentation({
-        value: metrics?.exceptionsActive,
-        scopeNote: REMEDIATION_FACTORY_EXCEPTIONS_HELPER,
-      }),
+      presentation: exceptionsActivePresentation,
       hint: (() => {
-        if (metrics == null) {
+        if (metrics == null || exceptionsActivePresentation.state === "notMeasured") {
           return undefined;
         }
 
         const expiringSoon = parseNonNegativeFiniteNumber(metrics.exceptionsExpiringSoon);
 
-        if (expiringSoon === null) {
+        if (expiringSoon === null || !Number.isInteger(expiringSoon)) {
           return undefined;
         }
 
@@ -269,7 +275,7 @@ export function architectOutcomeDeltaScopeNote(input: {
 }): string {
   const normalizedDenominator = parseNonNegativeFiniteNumber(input.denominator);
 
-  if (normalizedDenominator === null) {
+  if (normalizedDenominator === null || !Number.isInteger(normalizedDenominator) || normalizedDenominator === 0) {
     return REVIEW_SCORECARD_NOT_MEASURED_LABEL;
   }
 
