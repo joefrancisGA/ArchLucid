@@ -120,10 +120,8 @@ public sealed class RunExportBlobPushOutboxProcessor(
         if (!CommittedRunEvidenceBinding.HasExplicitScope(scopeContext) ||
             !CommittedRunEvidenceBinding.MatchesDrainScope(scopeContext, AmbientScopeContext.CurrentOverride))
         {
-            await RecordDirectDeadLetterAsync(outbox, auditService, entry,
-                "Run export scope does not match the active drain scope.",
-                () => Logger.LogWarning("Run export scope rejected for outbox {OutboxId}.", entry.OutboxId),
-                cancellationToken).ConfigureAwait(false);
+            // A foreign drain must not mutate another scope's outbox row.
+            Logger.LogWarning("Run export scope rejected for outbox {OutboxId}.", entry.OutboxId);
             return;
         }
 
