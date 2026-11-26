@@ -124,6 +124,7 @@ internal static class RuntimeTelemetryRegistration
         services.AddScoped<IRuntimeTelemetryEnvelopeStore, ProvisionedRuntimeTelemetryEnvelopeStore>();
         services.AddScoped<IRuntimeTelemetryTrustRegistry, ProvisionedRuntimeTelemetryTrustRegistry>();
         services.AddScoped<IScopedRuntimeTelemetryReader, ScopedRuntimeTelemetryReader>();
+        services.AddSingleton<IRuntimeAttestationReplayGuard, ProcessRuntimeAttestationReplayGuard>();
         services.AddScoped<IAuthorizedRuntimeObservationSource, SignedRuntimeObservationSource>();
         services.AddScoped<RuntimeObservationAdapter>();
         return services;
