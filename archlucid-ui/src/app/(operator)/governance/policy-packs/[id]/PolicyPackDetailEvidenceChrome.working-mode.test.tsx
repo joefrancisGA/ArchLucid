@@ -38,6 +38,7 @@ describe("PolicyPackDetailEvidenceChrome working mode", () => {
       "id",
       POLICY_PACK_DETAIL_PRIMARY_CONTENT_ID,
     );
+    expect(screen.getByTestId("policy-pack-detail-primary-content")).toHaveAttribute("tabIndex", "-1");
     expect(screen.getByTestId("policy-pack-detail-sources")).toBeInTheDocument();
     expect(screen.queryByTestId("governance-policy-pack-detail-first-viewport")).not.toBeInTheDocument();
   });
