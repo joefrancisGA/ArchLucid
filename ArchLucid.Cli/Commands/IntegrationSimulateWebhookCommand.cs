@@ -15,7 +15,7 @@ namespace ArchLucid.Cli.Commands;
 internal static class IntegrationSimulateWebhookCommand
 {
     private static readonly JsonSerializerOptions JsonCamel = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-    private static readonly HttpClient Http = new();
+    private static readonly HttpClient Http = CliHttpClientFactory.Create();
 
     internal static async Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
     {
