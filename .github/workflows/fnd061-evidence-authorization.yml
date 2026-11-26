@@ -2,9 +2,11 @@ name: FND-061 Evidence Authorization
 
 on:
   pull_request:
-    branches: [master, main, RC49, fnd061/retrieval-indexing-authorization]
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [master, main, RC49, RC50, fnd061/retrieval-indexing-authorization]
   merge_group:
-    branches: [master, main, RC49]
+    types: [checks_requested]
+    branches: [master, main, RC49, RC50]
 
 permissions:
   contents: read

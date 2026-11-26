@@ -14,7 +14,7 @@ import { formatFeasibilityVerdictMarkdownSection } from "@/lib/feasibility/forma
 import { formatInsightDensityMeasurementFloorPresentation } from "@/lib/quality/insight-density-measurement-floor";
 import { pushPolicyAtCommitMarkdownLines } from "./export-markdown-policy-section";
 import { formatSandboxStyleGoldenManifest } from "./export-markdown-sandbox-manifest";
-import { isRecord } from "./export-markdown-text";
+import { isRecord, normalizeInlineText } from "./export-markdown-text";
 import {
   formatSendableExportCoverMarkdown,
   resolveSendableExportCoverFindings,
@@ -36,6 +36,7 @@ export type GoldenManifestMarkdownOptions = {
   trustEvidenceCard?: RunTrustEvidenceCard | null;
   /** Distinct engines that produced findings on this package snapshot (PC-01). */
   enginesSucceeded?: number | null;
+  findingEngineRecoveryNote?: string | null;
   /** Optional inputs for the shared career export honesty block (PC-13). */
   careerExportHonesty?: Omit<CareerExportCoverageHonestyInput, "runId" | "manifestSummary"> & {
     readonly manifestSummary?: ManifestSummary | null;
@@ -358,7 +359,11 @@ export function formatGoldenManifestMarkdown(
       findingsSnapshot: options?.careerExportHonesty?.findingsSnapshot ?? null,
     }),
   });
-  const withCover = `${coverMarkdown}\n${withHonesty}`;
+  const note = normalizeInlineText(options?.findingEngineRecoveryNote);
+  const withCoverage = note
+    ? `${withHonesty.trimEnd()}\n\n## Finding engine coverage\n\n${note}\n`
+    : withHonesty;
+  const withCover = `${coverMarkdown}\n${withCoverage}`;
 
   return appendTrustEvidenceMarkdownSection(withCover, options?.trustEvidenceCard);
 }

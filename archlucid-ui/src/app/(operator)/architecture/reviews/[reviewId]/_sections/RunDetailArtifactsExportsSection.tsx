@@ -99,6 +99,7 @@ export type RunDetailArtifactsExportsSectionProps = {
   /** When manifest summaries omit a verdict, use this pre-finalize payload verdict (RS-03). */
   readonly feasibilityVerdict?: ManifestFeasibilityVerdict | null;
   readonly enginesSucceeded?: number | null;
+  readonly findingEngineRecoveryNote?: string | null;
   readonly progressSummary?: RunSummary | null;
   readonly graphSnapshot?: unknown;
   readonly findingsSnapshot?: unknown;
@@ -676,6 +677,7 @@ export function RunDetailArtifactsExportsSection(
                   trustEvidenceCard={trustEvidenceCard ?? null}
                   buyerMarkdownAsPrimaryButton
                   enginesSucceeded={props.enginesSucceeded ?? null}
+                  findingEngineRecoveryNote={props.findingEngineRecoveryNote}
                   progressSummary={props.progressSummary ?? null}
                   graphSnapshot={props.graphSnapshot ?? null}
                   findingsSnapshot={props.findingsSnapshot ?? null}
@@ -692,6 +694,7 @@ export function RunDetailArtifactsExportsSection(
                   manifestSummary={manifestSummaryForUi ?? manifestSummary}
                   trustEvidenceCard={trustEvidenceCard ?? null}
                   enginesSucceeded={props.enginesSucceeded ?? null}
+                  findingEngineRecoveryNote={props.findingEngineRecoveryNote}
                   progressSummary={props.progressSummary ?? null}
                   graphSnapshot={props.graphSnapshot ?? null}
                   findingsSnapshot={props.findingsSnapshot ?? null}

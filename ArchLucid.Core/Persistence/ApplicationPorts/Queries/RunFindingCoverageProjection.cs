@@ -74,11 +74,23 @@ public static class RunFindingCoverageProjection
             EnginesFailed = failed,
             IsDegraded = degraded,
             HasCommitBlockingFailures = blocking,
+            FindingEngineRecoveryNote = BuildRecoveryNote(findingsSnapshot.RequirementComparisonRecovery),
             FailedEngineLabels = failedLabels,
             GenerationStatus = findingsSnapshot.GenerationStatus,
             DispositionCoverage = dispositionCoverage,
         };
     }
+
+    private static string? BuildRecoveryNote(string? state) => state switch
+    {
+        RequirementComparisonRecoveryCodes.NoFindings => "Requirement comparison completed with no findings.",
+        RequirementComparisonRecoveryCodes.WithFindings => "Requirement comparison completed and returned findings.",
+        RequirementComparisonRecoveryCodes.RecoveredNoFindings => "Requirement comparison recovered after a retry and returned no findings.",
+        RequirementComparisonRecoveryCodes.RecoveredWithFindings => "Requirement comparison recovered after a retry and returned findings.",
+        RequirementComparisonRecoveryCodes.RetryExhausted => "Requirement comparison exhausted its retry budget. Coverage remains incomplete.",
+        RequirementComparisonRecoveryCodes.RetryStopped => "Requirement comparison stopped on a non-retryable error after retrying. Coverage remains incomplete.",
+        _ => null,
+    };
 
     private static string EngineKey(string? engineType, string? category) => $"{engineType}|{category}";
 }

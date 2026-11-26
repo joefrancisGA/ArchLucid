@@ -55,6 +55,8 @@ internal sealed class FindingsCoverageHeaderRow
         init;
     }
 
+    public string? RequirementComparisonRecovery { get; init; }
+
     public bool? EvaluationConfidenceEnrichmentSkipped
     {
         get;
