@@ -125,4 +125,32 @@ describe("audit-evidence-lineage-presentation", () => {
     expect(presentation.detail).toContain("downstream attestation");
     expect(presentation.detail).not.toContain("positive checkbox");
   });
+
+  it("distinguishes no observed failures from incomplete inventory coverage", () => {
+    const formula = "passCount=1; applicableCount=1; failingResources=0";
+    const complete = formatAuditLineageEvaluationContext({
+      evaluation: { outcome: "TechnicallySupported", formula },
+    });
+    expect(complete).toContain("Technically supported");
+    expect(complete).not.toContain("Full control coverage is unverified");
+
+    const partial = formatAuditLineageEvaluationContext({
+      evaluation: {
+        outcome: "InsufficientEvidence",
+        formula: "no collected evidence candidates; inventoryCaptureComplete=false",
+      },
+    });
+    expect(partial).toContain("Insufficient evidence");
+    expect(partial).toContain("Inventory capture is incomplete. Full control coverage is unverified.");
+    expect(partial).not.toContain("Technically supported");
+
+    const observedFailure = formatAuditLineageEvaluationContext({
+      evaluation: {
+        outcome: "TechnicallyNotSupported",
+        formula: "passCount=0; applicableCount=1; failingResources=1; inventoryCaptureComplete=false",
+      },
+    });
+    expect(observedFailure).toContain("Technically not supported");
+    expect(observedFailure).toContain("Full control coverage is unverified");
+  });
 });

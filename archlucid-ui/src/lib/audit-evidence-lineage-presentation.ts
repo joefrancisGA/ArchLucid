@@ -156,8 +156,15 @@ export function formatAuditLineageEvaluationContext(lineage: AuditEvidenceLineag
   const latestLabel = latestUtc
     ? formatIsoUtcForDisplay(latestUtc)
     : "no collected evidence timestamps in this snapshot";
+  // The existing API formula carries this exact builder term even when there are no candidates.
+  const incompleteCapture = lineage.evaluation?.formula
+    ?.split(";")
+    .some((term) => term.trim() === "inventoryCaptureComplete=false");
+  const coverageLabel = incompleteCapture
+    ? " · Inventory capture is incomplete. Full control coverage is unverified."
+    : "";
 
-  return `${outcomeLabel} · Latest evidence collected ${latestLabel}`;
+  return `${outcomeLabel}${coverageLabel} · Latest evidence collected ${latestLabel}`;
 }
 
 export function countAuditEvidenceLineageSummary(lineage: AuditEvidenceLineageRecord): {

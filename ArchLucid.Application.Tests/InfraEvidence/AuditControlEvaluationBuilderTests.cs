@@ -55,6 +55,29 @@ public sealed class AuditControlEvaluationBuilderTests
         result.Evaluation.HumanDisposition.Should().BeNull();
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Build_empty_capture_preserves_whether_inventory_was_incomplete(bool inventoryCaptureComplete)
+    {
+        AuditControlEvaluationBuildResult result = AuditControlEvaluationBuilder.Build(
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),
+            [], [], [], DateTime.UtcNow, inventoryCaptureComplete);
+
+        result.Evaluation.Outcome.Should().Be(AuditEvaluationOutcome.InsufficientEvidence);
+        result.EvidenceItems.Should().BeEmpty();
+        if (inventoryCaptureComplete)
+        {
+            result.Evaluation.Formula.Should().NotContain("inventoryCaptureComplete=false");
+            result.Evaluation.EvaluationText.Should().Be(AuditControlEvaluationBuilder.InsufficientEvidenceLabel);
+        }
+        else
+        {
+            result.Evaluation.Formula.Should().Contain("inventoryCaptureComplete=false");
+            result.Evaluation.EvaluationText.Should().Contain("inventory capture is incomplete");
+        }
+    }
+
     [Fact]
     public void Build_failing_resource_with_approved_exception_mentions_exception_in_text()
     {

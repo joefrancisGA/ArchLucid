@@ -422,7 +422,14 @@ public static class AuditEvidencePackageProjectionBuilder
         }
 
         builder.AppendLine($"Outcome: **{evaluation.Outcome}**");
-        builder.AppendLine($"Confidence: {evaluation.Confidence:P0}");
+        if (AuditControlEvaluationBuilder.HasIncompleteInventoryCapture(evaluation.Formula))
+        {
+            builder.AppendLine("Inventory capture is incomplete. Full control coverage is unverified.");
+        }
+        else
+        {
+            builder.AppendLine($"Confidence: {evaluation.Confidence:P0}");
+        }
         builder.AppendLine();
         builder.AppendLine(evaluation.EvaluationText);
 

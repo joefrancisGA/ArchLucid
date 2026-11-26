@@ -7,6 +7,10 @@ namespace ArchLucid.Application.InfraEvidence.AuditEvidence;
 public static class AuditControlEvaluationBuilder
 {
     public const string InsufficientEvidenceLabel = "INSUFFICIENT EVIDENCE";
+    private const string IncompleteInventoryFormulaTerm = "inventoryCaptureComplete=false";
+
+    internal static bool HasIncompleteInventoryCapture(string? formula) =>
+        formula?.Split(';', StringSplitOptions.TrimEntries).Contains(IncompleteInventoryFormulaTerm) == true;
 
     public static AuditControlEvaluationBuildResult Build(
         Guid controlId,
@@ -43,7 +47,9 @@ public static class AuditControlEvaluationBuilder
                 tenantId,
                 requirementIds,
                 approvedExceptionIds,
-                createdUtc);
+                createdUtc,
+                hasBlockingGap,
+                inventoryCaptureComplete);
         }
 
         int applicableCount = candidates.Count;
@@ -77,7 +83,7 @@ public static class AuditControlEvaluationBuilder
             : BuildEvaluationText(passCount, applicableCount, approvedExceptionIds, failingAzureResourceIds);
         string formula = $"passCount={passCount}; applicableCount={applicableCount}; failingResources={failingCount}";
         if (!inventoryCaptureComplete)
-            formula += "; inventoryCaptureComplete=false";
+            formula += $"; {IncompleteInventoryFormulaTerm}";
 
         AuditControlEvaluationRecord evaluation = new()
         {
@@ -131,8 +137,14 @@ public static class AuditControlEvaluationBuilder
         Guid tenantId,
         IReadOnlyList<Guid> requirementIds,
         IReadOnlyList<string> approvedExceptionIds,
-        DateTime createdUtc)
+        DateTime createdUtc,
+        bool hasBlockingGap,
+        bool inventoryCaptureComplete)
     {
+        string formula = hasBlockingGap ? "required evidence gap" : "no collected evidence candidates";
+        if (!inventoryCaptureComplete)
+            formula += $"; {IncompleteInventoryFormulaTerm}";
+
         AuditControlEvaluationRecord evaluation = new()
         {
             EvaluationId = Guid.NewGuid(),
@@ -144,8 +156,10 @@ public static class AuditControlEvaluationBuilder
             PassCount = 0,
             ApplicableCount = 0,
             Confidence = 0m,
-            EvaluationText = InsufficientEvidenceLabel,
-            Formula = "no collected evidence candidates",
+            EvaluationText = inventoryCaptureComplete
+                ? InsufficientEvidenceLabel
+                : $"{InsufficientEvidenceLabel}: inventory capture is incomplete; full control coverage is unverified.",
+            Formula = formula,
             RequirementIds = requirementIds,
             ExceptionIds = approvedExceptionIds.ToList(),
             ProvenanceKind = ProvenanceKind.DeterministicInference,
