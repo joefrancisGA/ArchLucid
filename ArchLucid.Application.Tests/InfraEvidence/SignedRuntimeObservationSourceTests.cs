@@ -93,8 +93,39 @@ public sealed class SignedRuntimeObservationSourceTests
         Assert.Null(await Read(new Reader(null, null, forbidden: true)));
     }
 
+    [Fact]
+    public async Task Verified_newer_attestation_rejects_older_and_conflicting_payloads()
+    {
+        using ECDsa key = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        var guard = new ProcessRuntimeAttestationReplayGuard();
+        var original = Attestation();
+        var newer = original with { IssuedAt = Now };
+        Task<RuntimeObservationBatch?> Verify(RuntimeObservationAttestation attestation) =>
+            new SignedRuntimeObservationSource(
+                new Reader(Sign(key, attestation), key.ExportSubjectPublicKeyInfo()),
+                new FixedClock(), guard).ReadAsync(Request, CancellationToken.None);
+        Assert.NotNull(await Verify(newer));
+        Assert.NotNull(await Verify(newer));
+        Assert.Null(await Verify(original));
+        Assert.Null(await Verify(newer with { Batch = newer.Batch with { Complete = false } }));
+    }
+
+    [Fact]
+    public async Task Invalid_signature_cannot_advance_replay_watermark()
+    {
+        using ECDsa key = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        var guard = new ProcessRuntimeAttestationReplayGuard();
+        var original = Attestation();
+        var invalid = Sign(key, original with { IssuedAt = Now }) with { Signature = new byte[64] };
+        var publicKey = key.ExportSubjectPublicKeyInfo();
+        Assert.Null(await new SignedRuntimeObservationSource(new Reader(invalid, publicKey),
+            new FixedClock(), guard).ReadAsync(Request, CancellationToken.None));
+        Assert.NotNull(await new SignedRuntimeObservationSource(new Reader(Sign(key, original), publicKey),
+            new FixedClock(), guard).ReadAsync(Request, CancellationToken.None));
+    }
+
     private static Task<RuntimeObservationBatch?> Read(Reader reader) =>
-        new SignedRuntimeObservationSource(reader, new FixedClock()).ReadAsync(Request, CancellationToken.None);
+        new SignedRuntimeObservationSource(reader, new FixedClock(), new ProcessRuntimeAttestationReplayGuard()).ReadAsync(Request, CancellationToken.None);
 
     private sealed class FixedClock : TimeProvider
     {
