@@ -56,8 +56,8 @@ public sealed class JiraOutboundIssueClient(HttpClient http, ILogger<JiraOutboun
                 _logger.LogWarning(ex, "Jira outbound create failed: transport error.");
 
             string detail = ex is OperationCanceledException
-                ? "Jira request timed out."
-                : "Jira request could not be completed (network error).";
+                ? "Jira request timed out. Check for an existing Jira issue before retrying."
+                : "Jira request could not be completed (network error). Check for an existing Jira issue before retrying.";
 
             return new JiraOutboundIssueHttpResult(false, null, null, HttpStatusCode.ServiceUnavailable, detail);
         }

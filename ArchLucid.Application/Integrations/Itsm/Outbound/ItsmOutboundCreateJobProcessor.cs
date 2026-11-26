@@ -49,10 +49,19 @@ public static class ItsmOutboundCreateJobProcessor
         return new BackgroundJobFile("itsm-outbound-create-result.json", "application/json", bytes);
     }
 
-    /// <summary>When <see langword="true" />, the worker throws so <see cref="ArchLucid.Host.Core.Jobs.IBackgroundJobQueue" /> can retry/DLQ.</summary>
-    public static bool ShouldRetryWorker(ItsmOutboundIssueCreationResult result)
+    /// <summary>Limits queue re-execution to providers still using the existing job retry policy.</summary>
+    public static int GetMaxRetries(ItsmOutboundIssueProvider provider, int configuredMaxRetries) =>
+        UsesJobRetryPolicy(provider) ? Math.Clamp(configuredMaxRetries, 0, 10) : 0;
+
+    /// <summary>When <see langword="true" />, the worker throws so the queue can retry or dead-letter the job.</summary>
+    public static bool ShouldRetryWorker(ItsmOutboundIssueProvider provider, ItsmOutboundIssueCreationResult result)
     {
         ArgumentNullException.ThrowIfNull(result);
+
+        // The provider can commit the create before a network error or local correlation save failure.
+        // Carry the result (and any known external key) to the operator without resubmitting the write.
+        if (!UsesJobRetryPolicy(provider))
+            return false;
 
         if (result.Kind is ItsmOutboundCreateTerminalKind.CorrelationPersistenceFailed)
             return true;
@@ -73,4 +82,7 @@ public static class ItsmOutboundCreateJobProcessor
 
     public static InvalidOperationException BuildRetryException(ItsmOutboundCreateJobResult result) =>
         new(result.UserMessage ?? "ITSM outbound create failed; retry scheduled.");
+
+    private static bool UsesJobRetryPolicy(ItsmOutboundIssueProvider provider) =>
+        provider is ItsmOutboundIssueProvider.AzureBoards;
 }

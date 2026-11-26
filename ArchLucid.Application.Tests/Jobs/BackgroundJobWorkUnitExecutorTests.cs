@@ -237,8 +237,13 @@ public sealed class BackgroundJobWorkUnitExecutorTests
             Times.Once);
     }
 
-    [Fact]
-    public async Task ExecuteAsync_ItsmOutboundCreateVendor503_ThrowsForRetry()
+    [Theory]
+    [InlineData(ItsmOutboundIssueProvider.Jira, false)]
+    [InlineData(ItsmOutboundIssueProvider.ServiceNow, false)]
+    [InlineData(ItsmOutboundIssueProvider.AzureBoards, true)]
+    public async Task ExecuteAsync_ItsmOutboundCreateVendor503_OnlyExistingAzureBoardsPolicyThrowsForRetry(
+        ItsmOutboundIssueProvider provider,
+        bool retries)
     {
         Mock<IRunDetailQueryService> runDetail = new();
         Mock<IArchitectureAnalysisService> analysis = new();
@@ -250,7 +255,7 @@ public sealed class BackgroundJobWorkUnitExecutorTests
 
         itsmOutbound
             .Setup(s => s.TryCreateForFindingAsync(
-                It.IsAny<ItsmOutboundIssueProvider>(),
+                provider,
                 It.IsAny<ArchLucid.Core.Scoping.ScopeContext>(),
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
@@ -283,12 +288,23 @@ public sealed class BackgroundJobWorkUnitExecutorTests
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 "finding-x",
-                ItsmOutboundIssueProvider.Jira,
+                provider,
                 null));
 
-        Func<Task> act = async () => _ = await sut.ExecuteAsync(unit, CancellationToken.None);
-
-        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*upstream unavailable*");
+        if (retries)
+        {
+            Func<Task> act = async () => _ = await sut.ExecuteAsync(unit, CancellationToken.None);
+            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*upstream unavailable*");
+        }
+        else
+        {
+            BackgroundJobFile file = await sut.ExecuteAsync(unit, CancellationToken.None);
+            JsonSerializerOptions options = new() { PropertyNameCaseInsensitive = true };
+            ItsmOutboundCreateJobResult? result = JsonSerializer.Deserialize<ItsmOutboundCreateJobResult>(file.Bytes, options);
+            result.Should().NotBeNull();
+            result!.Kind.Should().Be(ItsmOutboundCreateTerminalKind.VendorError);
+            result.VendorStatusCode.Should().Be(503);
+        }
     }
 
     [Fact]

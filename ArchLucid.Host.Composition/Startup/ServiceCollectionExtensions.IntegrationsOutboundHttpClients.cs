@@ -17,16 +17,7 @@ public static partial class ServiceCollectionExtensions
 {
     private static void RegisterIntegrationsOutboundHttpClients(IServiceCollection services)
     {
-        services.AddHttpClient<JiraOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
-            .ConfigureArchLucidOutboundSocketsHandler(
-                OutboundHttpSocketsHandlerProfile.ExternalIntegration,
-                rejectPrivateNetworkConnectEndpoints: true)
-            .AddOutboundExternalHttpResilience();
-        services.AddHttpClient<ServiceNowOutboundIncidentClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
-            .ConfigureArchLucidOutboundSocketsHandler(
-                OutboundHttpSocketsHandlerProfile.ExternalIntegration,
-                rejectPrivateNetworkConnectEndpoints: true)
-            .AddOutboundExternalHttpResilience();
+        RegisterJiraAndServiceNowOutboundHttpClients(services);
         services.AddHttpClient<AzureBoardsOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
             .ConfigureArchLucidOutboundSocketsHandler(
                 OutboundHttpSocketsHandlerProfile.ExternalIntegration,

@@ -7,16 +7,64 @@ namespace ArchLucid.Application.Tests.Integrations.Itsm.Outbound;
 [Trait("Category", "Unit")]
 public sealed class ItsmOutboundCreateJobProcessorTests
 {
-    [Fact]
-    public void ShouldRetryWorker_correlation_persistence_failed_returns_true()
+    [Theory]
+    [InlineData(ItsmOutboundIssueProvider.Jira)]
+    [InlineData(ItsmOutboundIssueProvider.ServiceNow)]
+    public void Creates_for_providers_without_duplicate_protection_have_no_queue_retries(ItsmOutboundIssueProvider provider)
     {
-        ItsmOutboundIssueCreationResult result = new() { Kind = ItsmOutboundCreateTerminalKind.CorrelationPersistenceFailed };
+        Assert.Equal(0, ItsmOutboundCreateJobProcessor.GetMaxRetries(provider, 5));
+    }
 
-        ItsmOutboundCreateJobProcessor.ShouldRetryWorker(result).Should().BeTrue();
+    [Theory]
+    [InlineData(ItsmOutboundIssueProvider.Jira, 503)]
+    [InlineData(ItsmOutboundIssueProvider.Jira, 429)]
+    [InlineData(ItsmOutboundIssueProvider.ServiceNow, 503)]
+    [InlineData(ItsmOutboundIssueProvider.ServiceNow, 429)]
+    public void ShouldRetryWorker_does_not_resubmit_jira_or_servicenow_vendor_failures(ItsmOutboundIssueProvider provider, int statusCode)
+    {
+        ItsmOutboundIssueCreationResult result = new()
+        {
+            Kind = ItsmOutboundCreateTerminalKind.VendorError,
+            VendorStatusCode = statusCode,
+        };
+
+        Assert.False(ItsmOutboundCreateJobProcessor.ShouldRetryWorker(provider, result));
+    }
+
+    [Theory]
+    [InlineData(ItsmOutboundIssueProvider.Jira)]
+    [InlineData(ItsmOutboundIssueProvider.ServiceNow)]
+    public void Correlation_save_failure_keeps_external_key_without_recreating_ticket(ItsmOutboundIssueProvider provider)
+    {
+        ItsmOutboundIssueCreationResult result = new()
+        {
+            Kind = ItsmOutboundCreateTerminalKind.CorrelationPersistenceFailed,
+            ExternalKey = "TEST-42",
+        };
+
+        Assert.False(ItsmOutboundCreateJobProcessor.ShouldRetryWorker(provider, result));
+        Assert.Equal("TEST-42", ItsmOutboundCreateJobProcessor.ToJobResult(result, provider).ExternalKey);
+    }
+
+    [Theory]
+    [InlineData(-1, 0)]
+    [InlineData(3, 3)]
+    [InlineData(11, 10)]
+    public void GetMaxRetries_preserves_existing_azure_boards_configuration(int configuredMaxRetries, int expected)
+    {
+        Assert.Equal(expected, ItsmOutboundCreateJobProcessor.GetMaxRetries(ItsmOutboundIssueProvider.AzureBoards, configuredMaxRetries));
     }
 
     [Fact]
-    public void ShouldRetryWorker_vendor_503_returns_true()
+    public void ShouldRetryWorker_azure_boards_correlation_persistence_failed_returns_true()
+    {
+        ItsmOutboundIssueCreationResult result = new() { Kind = ItsmOutboundCreateTerminalKind.CorrelationPersistenceFailed };
+
+        ItsmOutboundCreateJobProcessor.ShouldRetryWorker(ItsmOutboundIssueProvider.AzureBoards, result).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ShouldRetryWorker_azure_boards_vendor_503_returns_true()
     {
         ItsmOutboundIssueCreationResult result = new()
         {
@@ -24,7 +72,7 @@ public sealed class ItsmOutboundCreateJobProcessorTests
             VendorStatusCode = 503
         };
 
-        ItsmOutboundCreateJobProcessor.ShouldRetryWorker(result).Should().BeTrue();
+        ItsmOutboundCreateJobProcessor.ShouldRetryWorker(ItsmOutboundIssueProvider.AzureBoards, result).Should().BeTrue();
     }
 
     [Fact]
@@ -36,7 +84,7 @@ public sealed class ItsmOutboundCreateJobProcessorTests
             VendorStatusCode = 400
         };
 
-        ItsmOutboundCreateJobProcessor.ShouldRetryWorker(result).Should().BeFalse();
+        ItsmOutboundCreateJobProcessor.ShouldRetryWorker(ItsmOutboundIssueProvider.AzureBoards, result).Should().BeFalse();
     }
 
     [Fact]
@@ -44,6 +92,6 @@ public sealed class ItsmOutboundCreateJobProcessorTests
     {
         ItsmOutboundIssueCreationResult result = new() { Kind = ItsmOutboundCreateTerminalKind.Skipped };
 
-        ItsmOutboundCreateJobProcessor.ShouldRetryWorker(result).Should().BeFalse();
+        ItsmOutboundCreateJobProcessor.ShouldRetryWorker(ItsmOutboundIssueProvider.AzureBoards, result).Should().BeFalse();
     }
 }

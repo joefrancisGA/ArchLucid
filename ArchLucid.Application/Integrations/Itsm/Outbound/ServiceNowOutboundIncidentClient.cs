@@ -101,8 +101,8 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
                 _logger.LogWarning(ex, "ServiceNow incident create failed: transport error.");
 
             string detail = ex is OperationCanceledException
-                ? "ServiceNow request timed out."
-                : "ServiceNow request could not be completed (network error).";
+                ? "ServiceNow request timed out. Check for an existing ServiceNow incident before retrying."
+                : "ServiceNow request could not be completed (network error). Check for an existing ServiceNow incident before retrying.";
 
             return new ServiceNowIncidentHttpResult(false, null, null, HttpStatusCode.ServiceUnavailable, detail);
         }

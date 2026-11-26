@@ -110,7 +110,7 @@ public sealed class ItsmOutboundIssuesController(
                 correlationId);
 
             IntegrationsItsmOutboundOptions options = _outboundOptions.CurrentValue;
-            int maxRetries = Math.Clamp(options.AsyncCreateMaxRetries, 0, 10);
+            int maxRetries = ItsmOutboundCreateJobProcessor.GetMaxRetries(provider, options.AsyncCreateMaxRetries);
 
             string jobId = await _jobs
                 .EnqueueAsync(new ItsmOutboundCreateWorkUnit(payload), maxRetries, ct)

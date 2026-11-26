@@ -107,7 +107,7 @@ public sealed class BackgroundJobWorkUnitExecutor(
 
         ItsmOutboundCreateJobResult jobResult = ItsmOutboundCreateJobProcessor.ToJobResult(result, payload.Provider);
 
-        if (ItsmOutboundCreateJobProcessor.ShouldRetryWorker(result))
+        if (ItsmOutboundCreateJobProcessor.ShouldRetryWorker(payload.Provider, result))
             throw ItsmOutboundCreateJobProcessor.BuildRetryException(jobResult);
 
         return ItsmOutboundCreateJobProcessor.ToResultFile(jobResult);

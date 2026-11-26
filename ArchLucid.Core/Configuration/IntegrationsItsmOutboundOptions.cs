@@ -27,7 +27,7 @@ public sealed class IntegrationsItsmOutboundOptions
         set;
     } = true;
 
-    /// <summary>Worker-level retries after the outbound HTTP Polly pipeline is exhausted (0–10).</summary>
+    /// <summary>Worker-level retries after outbound HTTP attempts are exhausted (0–10). Jira and ServiceNow creates are not retried.</summary>
     public int AsyncCreateMaxRetries
     {
         get;
