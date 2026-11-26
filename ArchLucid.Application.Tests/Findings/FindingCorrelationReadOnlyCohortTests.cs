@@ -72,6 +72,7 @@ public sealed class FindingCorrelationReadOnlyCohortTests(ITestOutputHelper outp
 
         Assert.NotNull(originalFinding.V2);
         int v1Matches = 0, v2Matches = 0, v2Distinct = 0, unavailable = 0, separated = 0;
+
         foreach (var pair in pairs)
         {
             bool v1Match = string.Equals(originalFinding.V1, pair.Candidate.V1, StringComparison.Ordinal);
@@ -135,16 +136,19 @@ public sealed class FindingCorrelationReadOnlyCohortTests(ITestOutputHelper outp
 
         ProjectScopeKey project = ProjectScopeKey.From(scope);
         string? assetKey = null;
+
         if (cloudResourceId is Guid id && finding.RelatedNodeIds is [string nodeId])
         {
             string? linkedSourceId = Assert.Single(graph.Nodes, node => node.NodeId == nodeId).SourceId;
 
             // This fixture treats the selected graph SourceId, engine citation, and the exact-scope
             // directory row as independent evidence. Labels, prose, and tenant-only reads are excluded.
+
             if (linkedSourceId is not null && finding.EvidenceRefs.Contains(linkedSourceId, StringComparer.Ordinal))
             {
                 CloudResourceIdentityRecord? row =
                     await directory.TryGetByCloudResourceIdInScopeAsync(scope, id);
+
                 if (row?.ExternalResourceIdNormalized == ArmResourceIdNormalizer.Normalize(linkedSourceId))
                     assetKey = FindingCorrelationAssetKey.TryFromCloudResource(project, row);
             }

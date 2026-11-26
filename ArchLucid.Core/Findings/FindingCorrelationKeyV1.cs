@@ -35,6 +35,7 @@ public static class FindingCorrelationKeyV1
             return null;
 
         string ruleId = policyRuleId.Trim();
+
         if (lowerCaseRuleId)
             ruleId = ruleId.ToLowerInvariant();
 

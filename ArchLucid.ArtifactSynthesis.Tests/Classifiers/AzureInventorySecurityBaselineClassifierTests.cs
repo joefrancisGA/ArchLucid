@@ -35,8 +35,8 @@ public sealed class AzureInventorySecurityBaselineClassifierTests
     public void ClassifyFromResourcesJson_respects_event_grid_applicability(
         string segment, string value, string? expectedMessage)
     {
-        string json = $"""
-            [{"resourceType":"Microsoft.EventGrid/{{segment}}","resourceId":"resource1","properties":{"disableLocalAuth":{{value}}} }]
+        string json = $$"""
+            [{"resourceType":"Microsoft.EventGrid/{{segment}}","resourceId":"resource1","properties":{"disableLocalAuth":{{value}} } }]
             """;
         var findings = AzureInventorySecurityBaselineClassifier.ClassifyFromResourcesJson(json);
 

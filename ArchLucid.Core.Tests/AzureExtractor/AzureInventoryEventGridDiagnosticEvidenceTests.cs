@@ -17,6 +17,8 @@ public sealed class AzureInventoryEventGridDiagnosticEvidenceTests
     [InlineData("""[{"categoryGroup":"allLogs","enabled":false}]""", false)]
     [InlineData("""[{"category":"PublishFailures","enabled":true}]""", false)]
     [InlineData("""[{"category":"DeliveryFailures","enabled":"true"}]""", false)]
+    [InlineData("""[{"category":"DeliveryFailures","enabled":1}]""", false)]
+    [InlineData("""[{"category":"DeliveryFailures"}]""", false)]
     [InlineData("null", false)]
     [InlineData("[]", false)]
     public void Routed_category_requires_explicit_enabled_evidence(string logs, bool expected)

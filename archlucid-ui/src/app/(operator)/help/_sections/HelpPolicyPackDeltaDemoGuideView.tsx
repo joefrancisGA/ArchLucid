@@ -143,6 +143,7 @@ export function HelpPolicyPackDeltaDemoGuideView(
       <div className={contentGridClass}>
         <div
           id={POLICY_PACK_DELTA_DEMO_HELP_PRIMARY_CONTENT_ID}
+          tabIndex={-1}
           className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
         >
           <div id={POLICY_PACK_DELTA_DEMO_HELP_SKIP_TARGET_ID} className="space-y-4">

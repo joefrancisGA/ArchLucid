@@ -18,7 +18,8 @@ public static class AzureInventoryArmTolerantScalarReader
             or JsonValueKind.True
             or JsonValueKind.False;
 
-    public static bool TryReadBoolean(JsonElement element, out bool value)
+    /// <summary>Reads only a native JSON boolean for evidence that does not allow scalar coercion.</summary>
+    internal static bool TryReadBooleanLiteral(JsonElement element, out bool value)
     {
         value = default;
 
@@ -35,6 +36,14 @@ public static class AzureInventoryArmTolerantScalarReader
 
             return true;
         }
+
+        return false;
+    }
+
+    public static bool TryReadBoolean(JsonElement element, out bool value)
+    {
+        if (TryReadBooleanLiteral(element, out value))
+            return true;
 
         if (element.ValueKind is JsonValueKind.String)
         {

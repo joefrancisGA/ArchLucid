@@ -120,6 +120,7 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
         lock (_sync)
         {
             Stored? row = _rows.Find(x => x.OutboxId == outboxId);
+
             if (row is null || row.ProcessedUtc is not null)
                 return Task.CompletedTask;
 
@@ -214,6 +215,7 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
     private IEnumerable<Stored> EligibleRows(DateTime nowUtc)
     {
         ScopeContext? drain = AmbientScopeContext.CurrentOverride;
+
         foreach (Stored row in _rows)
 
             if (row.ProcessedUtc is null

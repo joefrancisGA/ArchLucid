@@ -1,3 +1,5 @@
+> **Scope:** Contributors implementing scoped finding correlation and legacy-key compatibility. This ADR does not activate V2 matching or change governance dispositions.
+
 # ADR FND-006 — Cross-product finding identity and deduplication
 
 Status: Proposed additive contract, 2026-11-22. No production deduplication behavior changed.
