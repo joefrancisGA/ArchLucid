@@ -1164,6 +1164,46 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+  it("treats ON metrics disclosure token with fullwidth percent sign inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF05n`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with circle upper right quadrant arc inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25DBue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("uses the first metrics disclosure token when yes precedes one in the query string", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=yes&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1`,
+      ).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats ON metrics disclosure token with fullwidth digit zero inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF10n`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with upper right quadrant circular arc inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25DCue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("uses the first metrics disclosure token when ON precedes off in the query string", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=ON&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=off`,
+      ).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
   it("uses the first metrics disclosure token when OFF precedes one in the query string", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(
