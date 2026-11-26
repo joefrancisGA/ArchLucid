@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Data.Repositories;
@@ -54,6 +55,64 @@ public sealed class ComparisonAuditServiceTests
         nested.LeftExportRecordId.Should().Be("left-anchor");
         nested.RightExportRecordId.Should().Be("right-anchor");
         nested.RequestDiff.LeftRequest!.CompareManifestVersion.Should().Be("v-left");
+    }
+
+    [Fact]
+    public async Task Written_comparison_and_replay_restore_direction_and_request_version()
+    {
+        List<ComparisonRecord> records = [];
+        Mock<IComparisonRecordRepository> repository = new();
+        repository.Setup(r => r.CreateAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<ComparisonRecord, CancellationToken>((record, _) => records.Add(record))
+            .Returns(Task.CompletedTask);
+        ComparisonAuditService writer = new(repository.Object, Mock.Of<IAuditService>());
+
+        await writer.RecordEndToEndAsync(new EndToEndReplayComparisonReport
+        {
+            LeftRunId = "11111111-2222-3333-4444-555555555555",
+            RightRunId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+            ManifestDiff = new ManifestDiffResult
+            {
+                AddedRelationships =
+                [
+                    new RelationshipDiffItem { SourceId = "orders-api", TargetId = "ledger", RelationshipType = "writes" },
+                ],
+            },
+            ExportDiffs =
+            [
+                new ExportRecordDiffResult
+                {
+                    LeftExportRecordId = "baseline-export",
+                    RightExportRecordId = "candidate-export",
+                    RequestDiff = new ExportRecordRequestDiff
+                    {
+                        RightRequest = new PersistedAnalysisExportRequest { CompareManifestVersion = "v17" },
+                    },
+                },
+            ],
+        }, "# Summary");
+        await writer.RecordReplayOfAsync(records.Should().ContainSingle().Subject);
+
+        records.Should().HaveCount(2);
+        foreach (ComparisonRecord record in records)
+        {
+            // Verify the wire anchors before rehydration can implement column fallbacks.
+            using JsonDocument payload = JsonDocument.Parse(record.PayloadJson);
+            payload.RootElement.GetProperty("leftRunId").GetString().Should().Be("11111111222233334444555555555555");
+            payload.RootElement.GetProperty("rightRunId").GetString().Should().Be("aaaaaaaabbbbccccddddeeeeeeeeeeee");
+
+            EndToEndReplayComparisonReport restored = ComparisonRecordPayloadRehydrator.RehydrateEndToEnd(record)!;
+            restored.Should().NotBeNull();
+            restored.LeftRunId.Should().Be("11111111222233334444555555555555");
+            restored.RightRunId.Should().Be("aaaaaaaabbbbccccddddeeeeeeeeeeee");
+
+            RelationshipDiffItem link = restored.ManifestDiff!.AddedRelationships.Should().ContainSingle().Subject;
+            (link.SourceId, link.TargetId, link.RelationshipType).Should().Be(("orders-api", "ledger", "writes"));
+            ExportRecordDiffResult export = restored.ExportDiffs.Should().ContainSingle().Subject;
+            export.LeftExportRecordId.Should().Be("baseline-export");
+            export.RightExportRecordId.Should().Be("candidate-export");
+            export.RequestDiff.RightRequest!.CompareManifestVersion.Should().Be("v17");
+        }
     }
 
     [Fact]
