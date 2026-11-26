@@ -24,11 +24,7 @@ internal sealed class CliHttpProbeSession : IDisposable
         ArgumentException.ThrowIfNullOrWhiteSpace(baseUrl);
 
         string normalized = baseUrl.Trim().TrimEnd('/');
-        HttpClient http = new()
-        {
-            Timeout = timeout ?? TimeSpan.FromMinutes(2),
-            BaseAddress = new Uri(normalized + "/"),
-        };
+        HttpClient http = CliHttpClientFactory.Create(timeout: timeout ?? TimeSpan.FromMinutes(2), baseAddress: new Uri(normalized + "/"));
 
         string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");
 
@@ -54,10 +50,7 @@ internal sealed class CliHttpProbeSession : IDisposable
             PooledConnectionLifetime = TimeSpan.FromMinutes(2),
         };
 
-        return new HttpClient(handler)
-        {
-            Timeout = timeout,
-        };
+        return CliHttpClientFactory.Create(handler, timeout: timeout);
     }
 
     public void SetAcceptJson()
