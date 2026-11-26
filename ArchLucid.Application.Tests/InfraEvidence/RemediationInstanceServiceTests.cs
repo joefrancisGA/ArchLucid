@@ -141,7 +141,7 @@ public sealed class RemediationInstanceServiceTests
         findings.Setup(r => r.TryGetByIdInScopeAsync(scope.ToProjectScopeKey(), FindingId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new OperationalSecurityFindingRecord { FindingId = FindingId, AssessmentId = assessmentId });
         Mock<IAuditManualEvidenceRepository> links = new(MockBehavior.Strict);
-        links.Setup(r => r.ListArchitectureLinksByAssessmentAsync(TenantId, assessmentId, It.IsAny<CancellationToken>()))
+        links.Setup(r => r.ListArchitectureLinksByAssessmentInScopeAsync(scope.ToProjectScopeKey(), assessmentId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([new AuditArchitectureEvidenceLinkRecord { RunId = findingRun }]);
         Mock<IArchitectureDiagramReconciliationRepository> reconciliation = new(MockBehavior.Strict);
         reconciliation.Setup(r => r.ListRunIdsBySnapshotAsync(TenantId, SnapshotA, It.IsAny<CancellationToken>()))

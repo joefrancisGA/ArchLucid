@@ -37,6 +37,7 @@ public sealed class NoOpAuditManualEvidenceScopeTests
         (await repository.ListByControlInScopeAsync(scope, assessment, control)).Should().BeEmpty();
         (await repository.TryGetByIdInScopeAsync(scope, submission.SubmissionId)).Should().BeNull();
         (await repository.ListArchitectureLinksByAssessmentInScopeAsync(scope, assessment)).Should().BeEmpty();
+        (await repository.ListArchitectureLinksByAssessmentIdsInScopeAsync(scope, [assessment])).Should().BeEmpty();
         (await repository.ListArchitectureLinksByControlInScopeAsync(scope, assessment, control)).Should().BeEmpty();
     }
 }
