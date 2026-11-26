@@ -123,11 +123,7 @@ internal static partial class CostEstimateCommand
     {
         ILogger logger = NullLoggerFactory.Instance.CreateLogger("ArchLucid.Cli.AzureRetail");
         AzureRetailPricesCliRetryHandler retry = new(logger) { InnerHandler = new HttpClientHandler() };
-        return new HttpClient(retry)
-        {
-            BaseAddress = ArchLucidAzurePublicHttpClients.RetailPricesAuthority,
-            Timeout = TimeSpan.FromSeconds(40),
-        };
+        return CliHttpClientFactory.Create(retry, timeout: TimeSpan.FromSeconds(40), baseAddress: ArchLucidAzurePublicHttpClients.RetailPricesAuthority);
     }
 
     /// <remarks>

@@ -20,7 +20,7 @@ internal static class WebhooksTestCommand
     internal const string WebhookSignaturePrefix = "sha256=";
 
     private static readonly JsonSerializerOptions JsonCamel = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-    private static readonly HttpClient Http = new();
+    private static readonly HttpClient Http = CliHttpClientFactory.Create();
 
     public static async Task<int> RunAsync(string[] args)
     {
