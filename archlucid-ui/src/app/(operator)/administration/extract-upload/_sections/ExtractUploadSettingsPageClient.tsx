@@ -204,7 +204,9 @@ function ExtractUploadSettingsPageClientInner() {
 
       <div
         id={EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID}
-        data-testid="extract-upload-settings-primary-content"`r`n        tabIndex={-1}`r`n        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+        data-testid="extract-upload-settings-primary-content"
+        tabIndex={-1}
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
       >
         <ExtractUploadSettingsPageHeader
           baselineLoading={baselineLoading}
