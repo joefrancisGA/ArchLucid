@@ -1366,6 +1366,17 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+  it("treats ON metrics disclosure token with fullwidth right square bracket inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF3Dn`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with black vertical rectangle inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25EBue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
   it("treats ON metrics disclosure token with fullwidth left square bracket inside the word as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF3Bn`).metricsSummaryOpen,
@@ -2760,6 +2771,18 @@ describe("remediation-factory-url-state", () => {
     expect(params.get("foreign")).toBe("keep");
   });
 
+  it("remediationFactoryHrefFromSearch preserves fromSnapshot and toSnapshot on pathname-only href when clearing finding", () => {
+    const fromId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+    const toId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+    const findingId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const href = remediationFactoryHrefFromSearch(
+      "/governance/remediation-factory",
+      `${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=${findingId}&${REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM}=${fromId}&${REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM}=${toId}`,
+    );
+
+    expect(href).toContain(`${REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM}=${fromId}`);
+    expect(href).toContain(`${REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM}=${toId}`);
+  });
   it("remediationFactoryHrefFromSearch preserves a fromSnapshot query param", () => {
     const fromId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
     const href = remediationFactoryHrefFromSearch(
