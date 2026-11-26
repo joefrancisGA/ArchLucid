@@ -29,6 +29,8 @@ jobs:
         run: python3 -m scripts.ci.fnd010_standalone_run_scope_verify
       - name: Verify atomic hash-chain migration and concurrent appends
         run: python3 scripts/ci/fnd010_hash_chain_verify.py
+      - name: Verify durable runtime attestation replay watermarks
+        run: python3 scripts/ci/runtime_attestation_watermark_verify.py
       - name: Install checkpoint crypto dependency
         run: python3 -m pip install 'cryptography>=44,<47'
       - name: Run signed checkpoint negative tests
