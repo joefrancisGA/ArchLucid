@@ -165,7 +165,8 @@ def test_repo_ledger_has_no_open_invariant_violations() -> None:
     violations, retired, baselined = lint_ledger.lint_ledger(ledger)
 
     assert violations == []
-    assert {zone.zone_id for zone in retired} == set(lint_ledger.RETIRED_COUNTER_ALLOWLIST)
+    # Retired zones without excess are intentionally absent after a picker reset.
+    assert {zone.zone_id for zone in retired} <= set(lint_ledger.RETIRED_COUNTER_ALLOWLIST)
     assert {zone.zone_id for zone in baselined} <= set(lint_ledger.HISTORICAL_EXCESS_BASELINE)
 
 

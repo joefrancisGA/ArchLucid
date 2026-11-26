@@ -333,13 +333,15 @@ ledger for `/al-bug3` (UI and CLI). Edit this file only from that command. Sync 
 - **aliases:** UI API client; fetch boundaries
 - **paths:** archlucid-ui/src/lib/api/
 - **test-filter:** lib/api
-- **hunts:** 10
-- **bugs-found:** 12
+- **hunts:** 9
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+Picker counters reconciled to distinct recorded outcomes after the 2026-11-22 Set 3 reset. Archived run logs and diary entries are unchanged. Displaced counter metadata (not active): hunts: 10, bugs-found: 12, last-hunt: 2026-11-24, last-bug: 2026-11-24.
 
 ## Zone: ui-lib-infra-evidence
 
@@ -1512,13 +1514,15 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 24
-- **bugs-found:** 12
+- **hunts:** 0
+- **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-24
-- **last-bug:** 2026-11-24
+- **last-hunt:** never
+- **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+Picker counters reconciled to distinct recorded outcomes after the 2026-11-22 Set 3 reset. Archived run logs and diary entries are unchanged. Displaced counter metadata (not active): hunts: 24, bugs-found: 12, last-hunt: 2026-11-24, last-bug: 2026-11-24.
 
 TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs/library/UI_DESIGN_SYSTEM.md` and `.cursor/rules/UI-Form-Validation-Affordances.mdc` (disable primary until hard client validation passes; field errors on the form; `showError` toasts only for system/async failures).
 
@@ -1658,7 +1662,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `signupFormSchema` — `adminDisplayName` / `organizationName` padded with interior double spaces kept after `.trim()` on submit — **cheap-disproof 2026-10-07 thorough hunt:** intentional zod trim semantics; regression `signupFormSchema keeps interior double spaces in required name fields after trim`.
 - [x] (invalid) `SignupForm` verify redirect — `encodeURIComponent` on email after zod trim when local-part contains `=` sign — **cheap-disproof 2026-10-07 thorough hunt:** zod `.email()` rejects `a=b@c.com` before submit; regressions `signupFormSchema rejects email local-part containing equals sign` and `keeps submit disabled for email local-part containing equals sign`.
 
----
+## Zone: cli-tenant-isolation
 
 2026-11-24 thorough hunt (hit): no rotation (`shouldRotate: false`; default picker `cli-tenant-isolation`). Promoted monitor `TenantIsolationNegativeTestLiveRunner.ResolveAlternateScope`: non-GUID `--alternate-tenant-id` values were applied as scope headers without validation. `TenantIsolationNegativeTestOptions.Parse` now requires GUIDs for explicit alternate scope flags. Regression `Parse_RejectsNonGuidAlternateTenantId`. TenantIsolationNegativeTestRunnerTests **69/69**. Private beta: when an invited operator runs the tenant-isolation check with a bad alternate tenant id, the CLI reports a usage error before any cross-tenant HTTP probes.
 
@@ -1891,13 +1895,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 11
-- **bugs-found:** 12
+- **hunts:** 9
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-23
-- **last-bug:** 2026-11-23
+- **last-hunt:** 2026-11-24
+- **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+Picker counters reconciled to distinct recorded outcomes after the 2026-11-22 Set 3 reset. Archived run logs and diary entries are unchanged. Displaced counter metadata (not active): hunts: 11, bugs-found: 12, last-hunt: 2026-11-23, last-bug: 2026-11-23.
 
 2026-10-03 seed hunt (seed-only): re-read the CLI tenant-isolation command/runner report and offline/live isolation boundaries; no new reachable mechanism-backed candidate emerged; 45 scoped TenantIsolationNegativeTestRunner tests passed.
 
@@ -4646,13 +4652,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host gate; split site host
 - **paths:** archlucid-ui/src/lib/host-gate.ts
 - **test-filter:** host-gate
-- **hunts:** 25
-- **bugs-found:** 12
+- **hunts:** 2
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+Picker counters reconciled to distinct recorded outcomes after the 2026-11-22 Set 3 reset. Archived run logs and diary entries are unchanged. Displaced counter metadata (not active): hunts: 25, bugs-found: 12, last-hunt: 2026-11-24, last-bug: 2026-11-24.
 
 2026-10-21 seed hunt (seed→hit, lane C): re-read `host-gate.ts` vs `canonicalizeLegacyOperatorRoutePath`; proved six legacy bookmarks canonicalized on the app host were absent from `LEGACY_OPERATOR_PATH_PREFIXES`, so split-site marketing requests stayed `next` and served marketing 404 chrome; aligned prefixes via exported legacy path constants; regressions `host-gate.test.ts` (15); scoped host-gate vitest passed.
 ### Hypotheses
@@ -4668,7 +4676,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-09 seed hunt #1483 (seed-only): reseeded ui-host-gate; cheap-disproved `/settings` legacy bookmark candidate; 10 scoped host-gate tests passed.
 
----
+## Zone: ui-architecture-intelligence
 
 2026-11-25 thorough hunt (hit): no rotation (`shouldRotate: false`). **proven** `runGoldenTest` — prior reasoning `runState` stayed mounted while golden-test POST was in flight (no `setRunState(null)` at start unlike `runReasoningWithOptions`); stale findings/publish chrome could remain visible until the golden response landed. Regression `clears prior reasoning output before a golden test POST`. **valid-no-repro** golden mutation preflight pair (`shouldRequestGoldenFixtureForGoldenTest` + fixture flag), **valid-no-repro** continue honors `publishToProduct`, **valid-no-repro** invalid tier URL strip + `reviewTier` effect, **invalid** pass-56 duplicate golden-preflight row (wrong locus). Pass-57 reseed below. Scoped vitest **18/18**. Private beta: invited architects running a golden test no longer see stale reasoning output or publish affordances while the golden harness request is in flight.
 
@@ -4822,11 +4830,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
 - **hunts:** 8
-- **bugs-found:** 6`r`n- **consecutive-dry-hunts:** 0
+- **bugs-found:** 6
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-25
 - **last-bug:** 2026-11-25
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+Picker counters reconciled to distinct recorded outcomes after the 2026-11-22 Set 3 reset. Archived run logs and diary entries are unchanged. Displaced counter metadata (not active): hunts: 8, bugs-found: 6, last-hunt: 2026-11-25, last-bug: 2026-11-25.
 
 2026-10-03 thorough hunt (dry): cheap-disproof found no raw URL parsing or whitespace-producing run-id path in the picked component; `activeRunId` is supplied by the page hook, so the malformed-run candidates were not reachable from this zone file. The golden-result checklist candidate was intentional because the checklist's Analyze step represents reasoning analysis, not the separate golden harness. The two scoped page-client suites passed 52/52.
 
@@ -11231,12 +11242,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
 - **hunts:** 11
-- **last-hunt:** 2026-11-23
-- **bugs-found:** 12
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-23
 - **last-bug:** 2026-11-23
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+Picker counters reconciled to distinct recorded outcomes after the 2026-11-22 Set 3 reset. Archived run logs and diary entries are unchanged. Displaced counter metadata (not active): hunts: 11, last-hunt: 2026-11-23, bugs-found: 12, last-bug: 2026-11-23.
 
 2026-09-13 seed hunt #2305 (seed-only): reseeded ui-operator-routes; no new hunt-ready rows.
 
@@ -14133,11 +14146,18 @@ ABQ-09 churn hotspot; review detail route tree.
 - **id:** ui-review-intake-wizards
 - **status:** open
 - **impact:** high
+- **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
+- **hunts:** 10
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
+- **related-pd-tb:** none
 - **code-changed-since:** yes
+
+Picker counters reconciled to distinct recorded outcomes after the 2026-11-22 Set 3 reset. Archived run logs and diary entries are unchanged. Displaced counter metadata (not active): last-bug: 2026-11-24; hunts: 9, bugs-found: 12, last-hunt: 2026-11-23, last-bug: 2026-11-23.
 
 **Hunts:** 81 · **Bugs found:** 51 · **Consecutive dry hunts:** 0
 
@@ -14268,19 +14288,6 @@ ABQ-09 churn hotspot; review detail route tree.
 
 2026-10-07 seed hunt (seed-only): re-read reviews/new submit, prefill, track, and guided-intake inference hooks; no hunt-ready row promoted; seeded five `(candidate)` rows; 20 focused vitest tests passed.
 
-- **id:** ui-review-intake-wizards
-- **status:** open
-- **impact:** high
-- **aliases:** review intake; new review wizard
-- **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
-- **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 9
-- **bugs-found:** 12
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-23
-- **last-bug:** 2026-11-23
-- **related-pd-tb:** none
-- **code-changed-since:** yes
 
 2026-10-03 seed hunt (seed-only): re-read the selected reviews/new wizard hooks and path switcher; no hunt-ready row was promoted; seeded whitespace source-architecture fallback, step URL clamping, and query-prefill retry candidates; the scoped run reported 111 passed and 71 pre-existing failures across 182 tests.
 
