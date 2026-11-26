@@ -108,6 +108,7 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(IAuditEvidenceSnapshotRepository), typeof(SqlAuditEvidenceSnapshotRepository), "InsertBaselineInScopeAsync"];
         yield return [typeof(IAuditManualEvidenceRepository), typeof(SqlAuditManualEvidenceRepository), "InsertArchitectureLinkInScopeAsync"];
         yield return [typeof(IAuditManualEvidenceRepository), typeof(SqlAuditManualEvidenceRepository), "ListArchitectureLinksByAssessmentInScopeAsync"];
+        yield return [typeof(IAuditManualEvidenceRepository), typeof(SqlAuditManualEvidenceRepository), "ListArchitectureLinksByAssessmentIdsInScopeAsync"];
         yield return [typeof(IAuditManualEvidenceRepository), typeof(SqlAuditManualEvidenceRepository), "ListArchitectureLinksByControlInScopeAsync"];
         yield return [typeof(IAuditControlEvaluationRepository), typeof(SqlAuditControlEvaluationRepository), "InsertInScopeAsync"];
         yield return [typeof(IAuditControlEvaluationRepository), typeof(SqlAuditControlEvaluationRepository), "TryGetLatestByControlInScopeAsync"];

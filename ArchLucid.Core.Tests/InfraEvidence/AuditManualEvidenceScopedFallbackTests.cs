@@ -10,7 +10,7 @@ namespace ArchLucid.Core.Tests.InfraEvidence;
 [Trait("Category", "Unit")]
 public sealed class AuditManualEvidenceScopedFallbackTests
 {
-    // Six scope permutations x seven scoped operations = 42 fail-closed assertions.
+    // Six scope permutations x eight scoped operations = 48 fail-closed assertions.
     // A legacy implementation exposes tenant-only methods that could return private data;
     // none of those methods may be called through the project-scoped interface defaults.
     [Fact]
@@ -59,6 +59,7 @@ public sealed class AuditManualEvidenceScopedFallbackTests
                 () => _ = scoped.TryGetByIdInScopeAsync(scope, submission),
                 () => _ = scoped.InsertArchitectureLinkInScopeAsync(scope, link),
                 () => _ = scoped.ListArchitectureLinksByAssessmentInScopeAsync(scope, assessment),
+                () => _ = scoped.ListArchitectureLinksByAssessmentIdsInScopeAsync(scope, [assessment]),
                 () => _ = scoped.ListArchitectureLinksByControlInScopeAsync(scope, assessment, control),
             ];
             foreach (Action call in calls)
