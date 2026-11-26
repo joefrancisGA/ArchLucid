@@ -43,6 +43,37 @@ public sealed class CentralAuthorizationAuditWorkerTests
     }
 
     [Fact]
+    public async Task Entitlement_outage_records_scoped_denial_before_returning()
+    {
+        Guid tenant = Guid.NewGuid(), workspace = Guid.NewGuid(),
+            project = Guid.NewGuid(), resource = Guid.NewGuid();
+        Mock<IScopeContextProvider> scopes = new();
+        scopes.Setup(x => x.GetCurrentScope()).Returns(new ScopeContext
+            { TenantId = tenant, WorkspaceId = workspace, ProjectId = project });
+        Mock<IEvidenceEntitlementAuthority> entitlements = new();
+        entitlements.Setup(x => x.HasCurrentReadEntitlementAsync(
+            It.IsAny<ClaimsPrincipal>(), It.IsAny<EvidenceReadResource>(),
+            It.IsAny<CancellationToken>())).ThrowsAsync(new InvalidOperationException("SQL unavailable"));
+        Mock<IAuthorizationService> policies = new(MockBehavior.Strict);
+        Mock<ICentralAuthorizationAudit> audit = new(MockBehavior.Strict);
+        audit.Setup(x => x.WriteAsync(It.Is<CentralAuthorizationAuditRecord>(record =>
+            record.DecisionId != Guid.Empty && record.Action == "evidence.read" &&
+            record.TenantId == tenant && record.WorkspaceId == workspace &&
+            record.ProjectId == project && record.ResourceId == resource &&
+            !record.Allowed && record.Reason == "authorization_unavailable"),
+            It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        CentralAuthorizationDecisions service = new(scopes.Object, entitlements.Object,
+            policies.Object, audit.Object, TimeProvider.System, new DenyUnconfiguredRemediationApproval());
+        ClaimsPrincipal principal = new(new ClaimsIdentity(
+            [new Claim(ClaimTypes.NameIdentifier, "operator")], "test"));
+        CentralAuthorizationDecision result = await service.DecideAsync(principal,
+            new CentralAuthorizationRequest("evidence.read", tenant, workspace, project, resource));
+        result.Allowed.Should().BeFalse();
+        audit.VerifyAll();
+        policies.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task Worker_without_trusted_identity_is_denied_before_policy()
     {
         Mock<ICentralAuthorizationDecisions> decisions = new();
