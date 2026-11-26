@@ -79,6 +79,7 @@ internal static class SponsorReviewPacketDemoFixture
         {
             RunId = DemoRunId,
             RequestId = "req-claims-intake-demo",
+            StructuralExecutionMode = StructuralExecutionMode.Simulator,
             Status = ArchitectureRunStatus.Committed,
             CurrentManifestVersion = "claims-intake-v3-demo",
             CreatedUtc = new DateTime(2026, 5, 15, 12, 0, 0, DateTimeKind.Utc),

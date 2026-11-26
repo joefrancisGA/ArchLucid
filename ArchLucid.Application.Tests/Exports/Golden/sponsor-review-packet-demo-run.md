@@ -34,6 +34,8 @@ Findings snapshot id was not stored.
 
 ## Agent findings (advisory)
 
+> **AI notice:** Advisory agent findings and sponsor report prose may be generated with AI assistance. Review all claims against stored evidence before sharing.
+
 
 > **Simulator mode — not live AI output** This result was produced by rule-based analysis in simulator mode. Treat findings and rewrites as rehearsal only until you switch to Real mode.
 

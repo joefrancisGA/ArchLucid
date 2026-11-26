@@ -133,18 +133,22 @@ public sealed class AuditContinuousReadinessService(
                             [],
                             cancellationToken);
 
-                    if (!evaluationResult.Succeeded)
+                    AuditControlEvaluationRecord? evaluation = evaluationResult.Evaluation;
+                    AuditControlTechnicalTimelineState? nextState = evaluation?.Outcome switch
+                    {
+                        AuditEvaluationOutcome.TechnicallySupported => AuditControlTechnicalTimelineState.TechnicallySupported,
+                        AuditEvaluationOutcome.TechnicallyNotSupported => AuditControlTechnicalTimelineState.DriftDetected,
+                        AuditEvaluationOutcome.InsufficientEvidence => AuditControlTechnicalTimelineState.InsufficientEvidence,
+                        _ => null,
+                    };
+
+                    if (!evaluationResult.Succeeded || evaluation is null || nextState is null)
                     {
                         evaluationError ??= evaluationResult.ErrorMessage ?? "Audit control re-evaluation failed.";
                         continue;
                     }
 
                     reEvaluatedControlIds.Add(controlId);
-
-                    AuditControlTechnicalTimelineState nextState =
-                        evaluationResult.Evaluation?.Outcome == AuditEvaluationOutcome.TechnicallySupported
-                            ? AuditControlTechnicalTimelineState.TechnicallySupported
-                            : AuditControlTechnicalTimelineState.DriftDetected;
 
                     await timelineRepository.UpsertAsync(
                         new AuditControlTechnicalTimelineRecord
@@ -153,14 +157,13 @@ public sealed class AuditContinuousReadinessService(
                             TenantId = scope.TenantId,
                             AssessmentId = assessment.AssessmentId,
                             ControlId = controlId,
-                            State = nextState,
+                            State = nextState.Value,
                             InventoryDiffId = summary.DiffId,
                             UpdatedUtc = TimeProvider.System.UtcNowDateTime(),
                         },
                         cancellationToken);
 
-                    if (evaluationResult.Evaluation?.Outcome == AuditEvaluationOutcome.TechnicallyNotSupported
-                        || evaluationResult.Evaluation?.Outcome == AuditEvaluationOutcome.InsufficientEvidence)
+                    if (evaluation.Outcome == AuditEvaluationOutcome.TechnicallyNotSupported)
                     {
                         bool handedOff = await findingHandoffService.TryHandoffAsync(
                             new AuditEvaluationFindingHandoffRequest
@@ -170,7 +173,7 @@ public sealed class AuditContinuousReadinessService(
                                 ControlId = controlId,
                                 InventoryDiffId = summary.DiffId,
                                 AuditEvidenceSnapshotId = latestAuditSnapshot.AuditEvidenceSnapshotId,
-                                Summary = evaluationResult.Evaluation.EvaluationText,
+                                Summary = evaluation.EvaluationText,
                             },
                             cancellationToken);
 

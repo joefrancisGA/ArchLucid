@@ -143,10 +143,17 @@ public sealed class RemediationInstanceQueryServiceTests
             Times.Never);
     }
 
-    [Fact]
-    public async Task ListInstancesAsync_batches_finding_reads_for_shared_findings()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ListInstancesAsync_batches_scoped_audit_link_reads_and_still_checks_local_seals(bool hasScopedLink)
     {
         Guid sharedFindingId = Guid.Parse("77777777-7777-7777-7777-777777777777");
+        Guid assessmentId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        ProjectScopeKey projectScope = Scope.ToProjectScopeKey();
+        using CancellationTokenSource cancellation = new();
+        CancellationToken token = cancellation.Token;
         Mock<IRemediationInstanceRepository> repository = new();
         repository
             .Setup(repo => repo.ListByScopeAsync(It.IsAny<ProjectScopeKey>(), It.IsAny<CancellationToken>()))
@@ -156,31 +163,57 @@ public sealed class RemediationInstanceQueryServiceTests
                 CreateInstance(Guid.Parse("22222222-2222-2222-2222-222222222222"), CloudResourceId, sharedFindingId),
             ]);
 
-        Mock<IOperationalSecurityFindingRepository> findingRepository = new();
+        Mock<IOperationalSecurityFindingRepository> findingRepository = new(MockBehavior.Strict);
         findingRepository
             .Setup(repo => repo.ListByIdsInScopeAsync(
-                It.IsAny<ProjectScopeKey>(),
+                projectScope,
                 It.Is<IReadOnlyList<Guid>>(ids => ids.Count == 1 && ids[0] == sharedFindingId),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+                token))
+            .ReturnsAsync([new OperationalSecurityFindingRecord { FindingId = sharedFindingId, AssessmentId = assessmentId }]);
+        Mock<IAuditManualEvidenceRepository> links = new(MockBehavior.Strict);
+        links.Setup(repo => repo.ListArchitectureLinksByAssessmentIdsInScopeAsync(
+                projectScope, It.Is<IReadOnlyList<Guid>>(ids => ids.Count == 1 && ids[0] == assessmentId), token))
+            .ReturnsAsync(hasScopedLink
+                ? [new AuditArchitectureEvidenceLinkRecord { AssessmentId = assessmentId, RunId = runId }]
+                : []);
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        if (hasScopedLink)
+        {
+            authority.Setup(service => service.ListRunManifestCompareSlicesAsync(
+                    Scope, It.Is<IReadOnlyList<Guid>>(ids => ids.Count == 1 && ids[0] == runId), token))
+                .ReturnsAsync([])
+                .Verifiable();
+        }
 
         RemediationInstanceQueryService service = CreateService(
             repository.Object,
-            findingRepository: findingRepository.Object);
+            findingRepository: findingRepository.Object,
+            links: links.Object,
+            authority: authority.Object);
 
-        IReadOnlyList<RemediationInstanceSummary> instances =
-            await service.ListInstancesAsync(Scope, cloudResourceId: null, findingId: null, CancellationToken.None);
+        if (hasScopedLink)
+        {
+            Func<Task> list = () => service.ListInstancesAsync(Scope, cloudResourceId: null, findingId: null, token);
+            await list.Should().ThrowAsync<ConflictException>().WithMessage("*committed golden manifest is missing*");
+        }
+        else
+        {
+            (await service.ListInstancesAsync(Scope, cloudResourceId: null, findingId: null, token))
+                .Should().HaveCount(2);
+        }
 
-        instances.Should().HaveCount(2);
-        findingRepository.Verify(
-            repo => repo.TryGetByIdInScopeAsync(It.IsAny<ProjectScopeKey>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
-            Times.Never);
+        authority.Verify();
+        authority.VerifyNoOtherCalls();
+        links.Verify(repo => repo.ListArchitectureLinksByAssessmentIdsInScopeAsync(
+            projectScope, It.IsAny<IReadOnlyList<Guid>>(), token), Times.Once);
+        links.VerifyNoOtherCalls();
         findingRepository.Verify(
             repo => repo.ListByIdsInScopeAsync(
-                It.IsAny<ProjectScopeKey>(),
+                projectScope,
                 It.IsAny<IReadOnlyList<Guid>>(),
-                It.IsAny<CancellationToken>()),
+                token),
             Times.Once);
+        findingRepository.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -203,7 +236,9 @@ public sealed class RemediationInstanceQueryServiceTests
     private static RemediationInstanceQueryService CreateService(
         IRemediationInstanceRepository repository,
         IVerifiedRemediationControlAssociationRepository? associationRepository = null,
-        IOperationalSecurityFindingRepository? findingRepository = null)
+        IOperationalSecurityFindingRepository? findingRepository = null,
+        IAuditManualEvidenceRepository? links = null,
+        IAuthorityQueryService? authority = null)
     {
         Mock<IOperationalSecurityFindingRepository> findingRepositoryMock = new();
         findingRepositoryMock
@@ -218,8 +253,8 @@ public sealed class RemediationInstanceQueryServiceTests
             new ProjectScopedOperationalSecurityFindingRepositoryAdapter(
                 findingRepository ?? findingRepositoryMock.Object),
             new Mock<IRemediationPatternMatchRepository>().Object,
-            new Mock<IAuditManualEvidenceRepository>().Object,
-            new Mock<IAuthorityQueryService>().Object,
+            links ?? new Mock<IAuditManualEvidenceRepository>().Object,
+            authority ?? new Mock<IAuthorityQueryService>().Object,
             new Mock<IManifestHashService>().Object,
             associationRepository ?? new InMemoryVerifiedRemediationControlAssociationRepository());
     }

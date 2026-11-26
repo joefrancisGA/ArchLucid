@@ -30,7 +30,8 @@ public sealed class EndToEndReplayComparisonExportServiceTests
 
         string md = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Short);
 
-        md.Should().Contain("left-run");
+        string[] header = md.Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        header.Should().ContainInOrder("- Left Run ID: left-run", "- Right Run ID: right-run");
         md.Should().Contain("## Stub summary only");
         md.Should().NotContain("\n---\n");
         md.Should().NotContain("Interpretation Notes");

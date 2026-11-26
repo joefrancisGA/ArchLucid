@@ -91,6 +91,12 @@ public interface IAuditManualEvidenceRepository
         CancellationToken cancellationToken = default) =>
         throw new NotSupportedException("Project-scoped audit evidence reads require an explicit scoped repository implementation.");
 
+    Task<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>> ListArchitectureLinksByAssessmentIdsInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyList<Guid> assessmentIds,
+        CancellationToken cancellationToken = default) =>
+        throw new NotSupportedException("Project-scoped audit evidence reads require an explicit scoped repository implementation.");
+
     Task<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>> ListArchitectureLinksByControlAsync(
         Guid tenantId,
         Guid assessmentId,

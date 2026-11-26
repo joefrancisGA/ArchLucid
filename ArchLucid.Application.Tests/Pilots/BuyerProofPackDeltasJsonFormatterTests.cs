@@ -29,8 +29,13 @@ public sealed class BuyerProofPackDeltasJsonFormatterTests
         bool ok = BuyerProofPackCommitGuard.TryValidateDeltasJson(json, out _, out string? error);
 
         ok.Should().BeTrue(error);
-        json.Should().Contain("\"proofPackageCompleteness\"");
-        json.Should().NotContain("\"ProofPackageCompleteness\"");
+        using JsonDocument document = JsonDocument.Parse(json);
+        JsonElement payload = document.RootElement;
+        payload.GetProperty("proofPackageCompleteness").ValueKind.Should().Be(JsonValueKind.Object);
+        payload.TryGetProperty("ProofPackageCompleteness", out _).Should().BeFalse();
+        payload.GetProperty("runCreatedUtc").GetDateTime().Should().Be(UtcNow.AddDays(-10));
+        payload.GetProperty("manifestCommittedUtc").GetDateTime().Should().Be(UtcNow.AddDays(-9));
+        payload.GetProperty("extractorCollectionTimestampUtc").GetDateTime().Should().Be(UtcNow.AddDays(-1));
     }
 
     [Fact]

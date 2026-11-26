@@ -70,6 +70,7 @@ public sealed class RuntimePatchEvidenceEvaluatorTests
         RuntimeVersionEvidence[] invalid =
         [
             Observation() with { ObservedAt = Now.AddHours(-2) },
+            Observation() with { ObservedAt = Now.AddMinutes(-1) },
             Observation() with { ObservedAt = Now.AddMinutes(1) },
             Observation() with { TenantId = "other" },
             Observation() with { ResourceId = "/app/slots/green" },
@@ -88,6 +89,8 @@ public sealed class RuntimePatchEvidenceEvaluatorTests
     [InlineData("17")]
     [InlineData("17.0.21-ea")]
     [InlineData("21.0.13.1")]
+    [InlineData("17.1.0")]
+    [InlineData("17.2.99")]
     [InlineData("invalid")]
     public void Unsupported_version_or_release_line_is_unknown(string version)
     {

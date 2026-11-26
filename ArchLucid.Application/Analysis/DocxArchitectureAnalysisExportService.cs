@@ -164,7 +164,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             else if (string.IsNullOrWhiteSpace(report.Manifest.Metadata.ParentManifestVersion))
             {
                 builder.AddParagraph(
-                    $"Parent Manifest Version: {ArchitectureManifestMarkdownSummaryExport.ParentManifestVersionNotStored}");
+                    $"Parent Manifest Version: {ArchitectureManifestMarkdownSummaryExport.ParentManifestVersionStoredEmpty}");
             }
             else
             {

@@ -125,6 +125,15 @@ public sealed class NoOpAuditManualEvidenceRepository : IAuditManualEvidenceRepo
         return Task.FromResult<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>>([]);
     }
 
+    public Task<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>> ListArchitectureLinksByAssessmentIdsInScopeAsync(
+        ProjectScopeKey scope, IReadOnlyList<Guid> assessmentIds, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(assessmentIds);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>>([]);
+    }
+
     public Task<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>> ListArchitectureLinksByControlInScopeAsync(
         ProjectScopeKey scope, Guid assessmentId, Guid controlId, CancellationToken cancellationToken = default)
     {

@@ -279,14 +279,23 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
                         TargetId = "db",
                         RelationshipType = "reads"
                     }
+                ],
+                RemovedRelationships =
+                [
+                    new RelationshipDiffItem
+                    {
+                        SourceId = "worker",
+                        TargetId = "old-db",
+                        RelationshipType = "writes"
+                    }
                 ]
             }
         };
 
         string markdown = _sut.GenerateMarkdown(report);
 
-        markdown.Should().Contain("#### Added Relationships");
-        markdown.Should().Contain("api -> db (reads)");
+        ExportFieldAssertions.MarkdownSection(markdown, "#### Added Relationships", "- api -> db (reads). Relationship description was not stored.");
+        ExportFieldAssertions.MarkdownSection(markdown, "#### Removed Relationships", "- worker -> old-db (writes). Relationship description was not stored.");
     }
 
     [Fact]

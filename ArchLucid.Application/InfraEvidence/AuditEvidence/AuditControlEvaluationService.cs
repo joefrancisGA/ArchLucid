@@ -115,10 +115,10 @@ public sealed class AuditControlEvaluationService(
 
             return await TryEvaluateCurrentAssessmentControlCoreAsync(
                 scope,
-                auditSnapshotHeader.InventorySnapshotIds[0],
-                auditEvidenceSnapshotId,
+                auditSnapshotHeader,
                 frameworkId,
                 controlId,
+                requirements,
                 approvedExceptionIds,
                 failingAzureResourceIds,
                 cancellationToken);
@@ -141,51 +141,49 @@ public sealed class AuditControlEvaluationService(
 
     private async Task<AuditControlEvaluationResult> TryEvaluateCurrentAssessmentControlCoreAsync(
         ScopeContext scope,
-        Guid inventorySnapshotId,
-        Guid auditEvidenceSnapshotId,
+        AuditEvidenceSnapshotHeaderRecord auditSnapshotHeader,
         Guid frameworkId,
         Guid controlId,
+        IReadOnlyList<AuditEvidenceRequirementRecord> requirements,
         IReadOnlyList<string> approvedExceptionIds,
         IReadOnlyList<string> failingAzureResourceIds,
         CancellationToken cancellationToken)
     {
-        AzureInventorySnapshotDetailReadModel? snapshot =
-            await snapshotRepository.TryGetSnapshotDetailAsync(scope, inventorySnapshotId, cancellationToken);
-
-        if (snapshot is null)
-        {
-            return new AuditControlEvaluationResult
-            {
-                Succeeded = false,
-                ErrorMessage = "Inventory snapshot was not found in the current scope.",
-            };
-        }
-
-        IReadOnlyList<AuditEvidenceRequirementRecord> requirements =
-            await requirementRepository.ListByControlIdAsync(scope.TenantId, controlId, cancellationToken);
-
-        if (requirements.Count == 0)
-        {
-            return new AuditControlEvaluationResult
-            {
-                Succeeded = false,
-                ErrorMessage = "Control has no evidence requirements in the imported catalog.",
-            };
-        }
-
         List<AuditEvidenceRequirementSelectionRecord> selections = [];
-        foreach (AuditEvidenceRequirementRecord requirement in requirements)
+        bool inventoryCaptureComplete = auditSnapshotHeader.Failures.Count == 0;
+        int unavailableInventorySnapshotCount = 0;
+        foreach (Guid inventorySnapshotId in auditSnapshotHeader.InventorySnapshotIds.Distinct())
         {
-            if (!selectorRegistry.TryGetSelector(requirement.EvidenceType, out IAuditEvidenceSelector? selector)
-                || selector is null)
+            cancellationToken.ThrowIfCancellationRequested();
+
+            try
             {
-                selections.Add(AuditEvidenceSelectorSupport.Unsupported(
-                    requirement,
-                    $"No snapshot selector is registered for evidence type '{requirement.EvidenceType}'."));
-                continue;
+                AzureInventorySnapshotDetailReadModel? snapshot = inventorySnapshotId == Guid.Empty
+                    ? null
+                    : await snapshotRepository.TryGetSnapshotDetailAsync(scope, inventorySnapshotId, cancellationToken);
+
+                if (snapshot is not null && snapshot.Header.SnapshotId == inventorySnapshotId)
+                {
+                    inventoryCaptureComplete &= IsRequiredEvidenceComplete(snapshot, requirements);
+                    selections.AddRange(SelectEvidence(snapshot, requirements));
+                    continue;
+                }
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                logger.LogWarning(ex,
+                    "A linked inventory snapshot could not be evaluated for audit snapshot {AuditEvidenceSnapshotId}.",
+                    auditSnapshotHeader.AuditEvidenceSnapshotId);
             }
 
-            selections.Add(selector.Select(snapshot, requirement));
+            unavailableInventorySnapshotCount++;
+        }
+
+        // Keep requirement identities even when all the linked sources are unavailable.
+        if (selections.Count == 0)
+        {
+            selections.AddRange(requirements.Select(requirement =>
+                AuditEvidenceSelectorSupport.Insufficient(requirement, "Linked inventory evidence was unavailable.")));
         }
 
         DateTime createdUtc = TimeProvider.System.UtcNowDateTime();
@@ -193,13 +191,14 @@ public sealed class AuditControlEvaluationService(
         AuditControlEvaluationBuildResult build = AuditControlEvaluationBuilder.Build(
             controlId,
             frameworkId,
-            auditEvidenceSnapshotId,
+            auditSnapshotHeader.AuditEvidenceSnapshotId,
             scope.TenantId,
             selections,
             approvedExceptionIds,
             failingAzureResourceIds,
             createdUtc,
-            inventoryCaptureComplete: IsRequiredEvidenceComplete(snapshot, requirements));
+            inventoryCaptureComplete: inventoryCaptureComplete && unavailableInventorySnapshotCount == 0,
+            unavailableInventorySnapshotCount: unavailableInventorySnapshotCount);
 
         await evaluationRepository.InsertInScopeAsync(
             scope.ToProjectScopeKey(),
@@ -216,6 +215,23 @@ public sealed class AuditControlEvaluationService(
             Evaluation = build.Evaluation,
             EvidenceItems = build.EvidenceItems,
         };
+    }
+
+    private List<AuditEvidenceRequirementSelectionRecord> SelectEvidence(
+        AzureInventorySnapshotDetailReadModel snapshot,
+        IReadOnlyList<AuditEvidenceRequirementRecord> requirements)
+    {
+        List<AuditEvidenceRequirementSelectionRecord> selections = [];
+        foreach (AuditEvidenceRequirementRecord requirement in requirements)
+        {
+            selections.Add(selectorRegistry.TryGetSelector(requirement.EvidenceType, out IAuditEvidenceSelector? selector)
+                && selector is not null
+                ? selector.Select(snapshot, requirement)
+                : AuditEvidenceSelectorSupport.Unsupported(
+                    requirement, $"No snapshot selector is registered for evidence type '{requirement.EvidenceType}'."));
+        }
+
+        return selections;
     }
 
     private static bool IsRequiredEvidenceComplete(
@@ -293,21 +309,7 @@ public sealed class AuditControlEvaluationService(
                 };
             }
 
-            List<AuditEvidenceRequirementSelectionRecord> selections = [];
-
-            foreach (AuditEvidenceRequirementRecord requirement in requirements)
-            {
-                if (!selectorRegistry.TryGetSelector(requirement.EvidenceType, out IAuditEvidenceSelector? selector)
-                    || selector is null)
-                {
-                    selections.Add(AuditEvidenceSelectorSupport.Unsupported(
-                        requirement,
-                        $"No snapshot selector is registered for evidence type '{requirement.EvidenceType}'."));
-                    continue;
-                }
-
-                selections.Add(selector.Select(snapshot, requirement));
-            }
+            List<AuditEvidenceRequirementSelectionRecord> selections = SelectEvidence(snapshot, requirements);
 
             DateTime createdUtc = TimeProvider.System.UtcNowDateTime();
 

@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
@@ -425,6 +427,47 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         IEnumerable<ArchitectureLinkRow> rows = await conn.QueryAsync<ArchitectureLinkRow>(
             new CommandDefinition(sql, new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, AssessmentId = assessmentId }, cancellationToken: cancellationToken));
+        return rows.Select(MapArchitectureLink).ToList();
+    }
+
+    public async Task<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>> ListArchitectureLinksByAssessmentIdsInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyList<Guid> assessmentIds,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(assessmentIds);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        List<Guid> distinctAssessmentIds = assessmentIds.Where(id => id != Guid.Empty).Distinct().ToList();
+        if (distinctAssessmentIds.Count == 0)
+            return [];
+
+        const string sql = """
+                           SELECT l.LinkId, l.TenantId, l.AssessmentId, l.ControlId, l.RequirementId, l.RunId,
+                                  l.GoldenManifestId, l.LinkedBy, l.LinkedUtc
+                           FROM dbo.AuditArchitectureEvidenceLinks l
+                           INNER JOIN dbo.AuditAssessments a
+                               ON a.TenantId = l.TenantId AND a.AssessmentId = l.AssessmentId
+                           WHERE l.TenantId = @TenantId
+                             AND a.WorkspaceId = @WorkspaceId
+                             AND a.ProjectId = @ProjectId
+                             AND l.AssessmentId IN (
+                                 SELECT Id FROM OPENJSON(@AssessmentIdsJson) WITH (Id uniqueidentifier '$'))
+                           ORDER BY l.AssessmentId, l.LinkedUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<ArchitectureLinkRow> rows = await conn.QueryAsync<ArchitectureLinkRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    AssessmentIdsJson = JsonSerializer.Serialize(distinctAssessmentIds),
+                },
+                cancellationToken: cancellationToken));
         return rows.Select(MapArchitectureLink).ToList();
     }
 

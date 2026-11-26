@@ -42,9 +42,13 @@ public sealed class CompareQualityDeltaExportTests
 
         string markdown = sut.GenerateMarkdown(report, profile: null);
 
-        markdown.Should().Contain("## Compare Quality Delta");
-        markdown.Should().Contain("Unsupported assumptions");
-        markdown.Should().Contain("| 2 | 1 |");
+        ExportFieldAssertions.MarkdownSection(markdown, "## Compare Quality Delta",
+            "| Metric | Before | After |",
+            "| --- | --- | --- |",
+            "| Unsupported assumptions | 2 | 1 |",
+            "| High-severity findings | 3 | 2 |",
+            "| Uncovered mandatory requirements | 4 | 3 |",
+            "| Evidence-backed decisions | 5 | 6 |");
     }
 
     [SkippableFact]
@@ -61,8 +65,10 @@ public sealed class CompareQualityDeltaExportTests
         string html = sut.GenerateHtml(report, profile: null);
 
         html.Should().Contain("<h2>Compare Quality Delta</h2>");
-        html.Should().Contain("Unsupported assumptions");
-        html.Should().Contain("before 2, after 1");
+        html.Should().Contain("<li>Unsupported assumptions: before 2, after 1</li>");
+        html.Should().Contain("<li>High-severity findings: before 3, after 2</li>");
+        html.Should().Contain("<li>Uncovered mandatory requirements: before 4, after 3</li>");
+        html.Should().Contain("<li>Evidence-backed decisions: before 5, after 6</li>");
         html.Should().NotContain("<p>| Metric | Before | After |</p>");
     }
 
@@ -79,9 +85,13 @@ public sealed class CompareQualityDeltaExportTests
 
         string markdown = sut.FormatMarkdown(report);
 
-        markdown.Should().Contain("## Compare Quality Delta");
-        markdown.Should().Contain("Evidence-backed decisions");
-        markdown.Should().Contain("| 5 | 6 |");
+        ExportFieldAssertions.MarkdownSection(markdown, "## Compare Quality Delta",
+            "| Metric | Before | After |",
+            "| --- | --- | --- |",
+            "| Unsupported assumptions | 2 | 1 |",
+            "| High-severity findings | 3 | 2 |",
+            "| Uncovered mandatory requirements | 4 | 3 |",
+            "| Evidence-backed decisions | 5 | 6 |");
     }
 
     [Fact]
@@ -567,6 +577,9 @@ public sealed class CompareQualityDeltaExportTests
 
         text.Should().Contain("Compare Quality Delta");
         text.Should().Contain("Unsupported assumptions: before 2, after 1");
+        text.Should().Contain("High-severity findings: before 3, after 2");
+        text.Should().Contain("Uncovered mandatory requirements: before 4, after 3");
+        text.Should().Contain("Evidence-backed decisions: before 5, after 6");
     }
 
     private static string ExtractPdfText(byte[] pdfBytes)
