@@ -98,6 +98,46 @@ public sealed class EvidenceReadAuthorizationGateTests
         auth.VerifyNoOtherCalls();
     }
 
+    [Theory]
+    [InlineData("workspace")]
+    [InlineData("project")]
+    public async Task Foreign_scope_is_denied_before_entitlement_lookup(string dimension)
+    {
+        var (gate, auth, entitlements) = CreateGate();
+        EvidenceReadDecision result = await gate.AuthorizeAsync(Principal(), Tenant,
+            dimension == "workspace" ? Guid.NewGuid() : Workspace,
+            dimension == "project" ? Guid.NewGuid() : Project, Evidence);
+        result.Allowed.Should().BeFalse();
+        entitlements.VerifyNoOtherCalls();
+        auth.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Entitlement_lookup_failure_is_fail_closed_before_policy()
+    {
+        var (gate, auth, entitlements) = CreateGate();
+        entitlements.Setup(e => e.HasCurrentReadEntitlementAsync(
+            It.IsAny<ClaimsPrincipal>(), It.IsAny<EvidenceReadResource>(),
+            It.IsAny<CancellationToken>())).ThrowsAsync(new InvalidOperationException("SQL unavailable"));
+        EvidenceReadDecision result = await gate.AuthorizeAsync(Principal(), Tenant, Workspace, Project, Evidence);
+        result.Allowed.Should().BeFalse();
+        result.Reason.Should().Be("authorization_unavailable");
+        auth.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Entitlement_revocation_is_observed_on_next_read()
+    {
+        var (gate, auth, entitlements) = CreateGate();
+        entitlements.SetupSequence(e => e.HasCurrentReadEntitlementAsync(
+            It.IsAny<ClaimsPrincipal>(), It.IsAny<EvidenceReadResource>(),
+            It.IsAny<CancellationToken>())).ReturnsAsync(true).ReturnsAsync(false);
+        (await gate.AuthorizeAsync(Principal(), Tenant, Workspace, Project, Evidence)).Allowed.Should().BeTrue();
+        (await gate.AuthorizeAsync(Principal(), Tenant, Workspace, Project, Evidence)).Allowed.Should().BeFalse();
+        auth.Verify(a => a.AuthorizeAsync(It.IsAny<ClaimsPrincipal>(),
+            It.IsAny<object>(), ArchLucidPolicies.ReadAuthority), Times.Once);
+    }
+
     [Fact]
     public async Task Empty_evidence_identifier_is_denied()
     {
