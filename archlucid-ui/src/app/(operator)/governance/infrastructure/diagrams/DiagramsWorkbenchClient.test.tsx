@@ -1,4 +1,5 @@
-import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { renderDiagramsWorkbenchTest as render } from "@/testing/render-diagrams-workbench-test";
+import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
@@ -3419,6 +3420,7 @@ describe("DiagramsWorkbenchClient", () => {
     );
     render(<DiagramsWorkbenchClient />);
 
+    await screen.findByTestId("securenow-diagram-path-focus-match-basis");
     await openDiagramOutlineNodes();
     const nodesPanel = await screen.findByTestId("infra-diagrams-outline-nodes-panel");
 
@@ -3532,6 +3534,22 @@ describe("DiagramsWorkbenchClient", () => {
     expect(await screen.findByTestId("securenow-diagram-path-focus-match-basis")).toHaveTextContent(
       "hop labels",
     );
+  });
+
+  it("does not focus another snapshot's path and prefers the canonical path parameter", async () => {
+    fetchSecurityEvidencePathDetailMock.mockResolvedValue({
+      pathId: "canonical-path",
+      snapshotId: "22222222-2222-2222-2222-222222222222",
+      hops: [],
+    });
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive&pathId=legacy-path&securityEvidencePathId=canonical-path",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByText("No matching stored path hops are available for this snapshot. The subscription graph is not filtered.")).toBeInTheDocument();
+    expect(fetchSecurityEvidencePathDetailMock).toHaveBeenCalledExactlyOnceWith("canonical-path");
+    expect(screen.queryByTestId("securenow-diagram-show-subscription")).not.toBeInTheDocument();
   });
 
   it("hides the subscription expansion control when pathId is absent", async () => {

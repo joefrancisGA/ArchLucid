@@ -8,6 +8,18 @@ import { Loader2 } from "lucide-react";
 import { DiagramsWorkbenchSecureNowAwareDiagramViewer } from "@/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchSecureNowAwareDiagramViewer";
 import { DiagramsWorkbenchSecureNowQuestionBarFallback } from "@/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchSecureNowQuestionBarFallback";
 import { type ArchitectureDiagramConnectorSelection } from "@/components/architecture/ArchitectureDiagramViewer";
+import { useSecurityEvidencePathDetailQuery } from "@/hooks/use-security-evidence-path-detail-query";
+import { filterInfraEvidenceDiagramOutlineByPathHopsWithBasis } from "@/lib/infra-evidence/filter-infra-evidence-diagram-outline-by-path-hops";
+import { secureNowPathInspectHref } from "@/lib/product-line/securenow-stickiness";
+import { secureNowDiagramPathFocusHiddenNodesLine } from "@/lib/product-line/securenow-diagram-path-focus-hidden-count-copy";
+import {
+  SECURENOW_DIAGRAM_PATH_FOCUS_ACTIVE_BODY,
+  SECURENOW_DIAGRAM_PATH_FOCUS_FULL_SUBSCRIPTION_BODY,
+  SECURENOW_DIAGRAM_PATH_FOCUS_MATCH_BASIS_CLOUD_RESOURCE_ID,
+  SECURENOW_DIAGRAM_PATH_FOCUS_MATCH_BASIS_HOP_LABELS,
+  SECURENOW_DIAGRAM_PATH_FOCUS_NO_NODES_BODY,
+  SECURENOW_DIAGRAM_PATH_FOCUS_NO_NODES_NEXT,
+} from "@/lib/product-line/securenow-diagram-path-focus-copy";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { InfraDiagramsExportHonestyStrip } from "@/components/infra-evidence/InfraDiagramsExportHonestyStrip";
@@ -205,6 +217,7 @@ import {
   OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_FORM_FIELD_LABEL_CLASS,
   DESIGN_TOKENS,
+  OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
@@ -450,6 +463,12 @@ export function DiagramsWorkbenchClient() {
     searchParams.get(INFRA_DIAGRAMS_CLOUD_RESOURCE_ID_PARAM),
   );
   const urlSecurityEvidencePathId = (searchParams.get(RESOURCE_HUB_SECURITY_EVIDENCE_PATH_ID_PARAM) ?? "").trim();
+  // Keep saved Path inspect links working alongside the canonical Ask handoff parameter.
+  const pathFocusId = productLine === "security"
+    ? urlSecurityEvidencePathId || (searchParams.get("pathId") ?? "").trim()
+    : "";
+  const pathDetailQuery = useSecurityEvidencePathDetailQuery(pathFocusId || null);
+  const [expandedPathScope, setExpandedPathScope] = useState<string | null>(null);
   const urlMermaidMode = parseInfraDiagramsMermaidModeFromSearch(searchParams.get(INFRA_DIAGRAMS_MERMAID_MODE_PARAM));
   const urlMermaidView = parseInfraDiagramsMermaidViewFromSearch(searchParams.get(INFRA_DIAGRAMS_MERMAID_VIEW_PARAM));
   const urlSeedNodeId = parseInfraDiagramsSeedNodeIdFromSearch(searchParams.get(INFRA_DIAGRAMS_SEED_NODE_ID_PARAM));
@@ -1092,6 +1111,31 @@ export function DiagramsWorkbenchClient() {
     return filterInfraEvidenceMermaidOutline(mermaidOutline, includeNeverShow);
   }, [includeNeverShow, mermaidOutline]);
 
+  const pathScope = JSON.stringify([selectedSnapshotId, pathFocusId]);
+  const showFullSubscription = expandedPathScope === pathScope;
+  useEffect(() => setExpandedPathScope(null), [pathScope]);
+  const storedPath = pathDetailQuery.data;
+  const pathMatchesSnapshot = selectedSnapshotId.length > 0
+    && storedPath?.pathId === pathFocusId
+    && storedPath.snapshotId.toLowerCase() === selectedSnapshotId.toLowerCase();
+  const focusedPath = useMemo(
+    () => !showFullSubscription && pathMatchesSnapshot && storedPath
+      ? filterInfraEvidenceDiagramOutlineByPathHopsWithBasis(visibleMermaidOutline, storedPath.hops)
+      : null,
+    [pathMatchesSnapshot, showFullSubscription, storedPath, visibleMermaidOutline],
+  );
+  const pathScopedOutline = focusedPath?.outline ?? visibleMermaidOutline;
+  const pathHasNoMatches = visibleMermaidOutline != null && visibleMermaidOutline.nodes.length > 0
+    && focusedPath?.matchBasis === "none";
+  const pathMatchBasis = focusedPath?.matchBasis === "cloudResourceId"
+    ? SECURENOW_DIAGRAM_PATH_FOCUS_MATCH_BASIS_CLOUD_RESOURCE_ID
+    : focusedPath?.matchBasis === "hopLabels"
+      ? SECURENOW_DIAGRAM_PATH_FOCUS_MATCH_BASIS_HOP_LABELS
+      : null;
+  const pathHiddenNodesLine = pathMatchBasis != null && visibleMermaidOutline != null && pathScopedOutline != null
+    ? secureNowDiagramPathFocusHiddenNodesLine(visibleMermaidOutline.nodes.length - pathScopedOutline.nodes.length)
+    : null;
+
   const evidenceFamilyFilterEnabled = EVIDENCE_FAMILY_FILTER_MODES.has(selectedMode);
   const availableEvidenceFamilies = useMemo(
     () => INFRA_EVIDENCE_DIAGRAM_FAMILIES.filter(
@@ -1118,21 +1162,28 @@ export function DiagramsWorkbenchClient() {
   const familyFilteredOutline = useMemo(
     () => evidenceFamilyFilterEnabled
       ? filterInfraEvidenceDiagramOutlineByFamily(
-          visibleMermaidOutline ?? { nodes: [], edges: [] },
+          pathScopedOutline ?? { nodes: [], edges: [] },
           effectiveEvidenceFamily,
         )
-      : visibleMermaidOutline,
-    [effectiveEvidenceFamily, evidenceFamilyFilterEnabled, visibleMermaidOutline],
+      : pathScopedOutline,
+    [effectiveEvidenceFamily, evidenceFamilyFilterEnabled, pathScopedOutline],
   );
   const visibleFamilyConnectors = useMemo(
-    () => evidenceFamilyFilterEnabled && effectiveEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
+    () => pathMatchBasis != null || pathHasNoMatches || (evidenceFamilyFilterEnabled && effectiveEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL)
       ? familyFilteredOutline?.edges.map((edge) => ({
           from: edge.from,
           to: edge.to,
           label: edge.label,
         })) ?? []
       : null,
-    [effectiveEvidenceFamily, evidenceFamilyFilterEnabled, familyFilteredOutline],
+    [effectiveEvidenceFamily, evidenceFamilyFilterEnabled, familyFilteredOutline, pathHasNoMatches, pathMatchBasis],
+  );
+
+  const visiblePathNodeIds = useMemo(
+    () => pathMatchBasis != null || pathHasNoMatches
+      ? familyFilteredOutline?.nodes.map((node) => node.id) ?? []
+      : null,
+    [familyFilteredOutline, pathHasNoMatches, pathMatchBasis],
   );
 
   const handleEvidenceFamilyChange = useCallback(
@@ -2183,6 +2234,38 @@ export function DiagramsWorkbenchClient() {
         />
       ) : null}
 
+      {pathFocusId.length > 0 && snapshotResolvedForWorkbench ? (
+        <section aria-label="SecureNow path focus" className={cn("space-y-2", cnCard)}>
+          <p className={OPERATOR_TYPOGRAPHY.helper}>
+            {showFullSubscription
+              ? SECURENOW_DIAGRAM_PATH_FOCUS_FULL_SUBSCRIPTION_BODY
+              : pathHasNoMatches
+                ? SECURENOW_DIAGRAM_PATH_FOCUS_NO_NODES_BODY
+                : pathMatchBasis != null
+                  ? SECURENOW_DIAGRAM_PATH_FOCUS_ACTIVE_BODY
+                  : pathDetailQuery.isPending
+                    ? "Loading stored path hops. The subscription graph is not filtered yet."
+                    : "No matching stored path hops are available for this snapshot. The subscription graph is not filtered."}
+          </p>
+          {pathMatchBasis != null ? (
+            <p data-testid="securenow-diagram-path-focus-match-basis">{pathMatchBasis}</p>
+          ) : null}
+          {pathHiddenNodesLine != null ? <p>{pathHiddenNodesLine}</p> : null}
+          {pathHasNoMatches ? (
+            <p data-testid="securenow-diagram-path-focus-no-nodes-next">{SECURENOW_DIAGRAM_PATH_FOCUS_NO_NODES_NEXT}</p>
+          ) : null}
+          <div className="flex flex-wrap items-center gap-3">
+            <Link href={secureNowPathInspectHref(pathFocusId)} className={OPERATOR_LINK.inline}>Open Path inspect</Link>
+            {!showFullSubscription && (pathMatchBasis != null || pathHasNoMatches) ? (
+              <Button type="button" variant="outline" size="sm" data-testid="securenow-diagram-show-subscription"
+                onClick={() => setExpandedPathScope(pathScope)}>
+                Show the rest of the subscription
+              </Button>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
+
       {urlSecurityEvidencePathId.length > 0 && snapshotResolvedForWorkbench && selectedSnapshotId.length > 0 ? (
         <RemediationFactoryRankedPathAskHandoff
           testId="infra-diagrams-ranked-path-ask-handoff"
@@ -3182,6 +3265,7 @@ export function DiagramsWorkbenchClient() {
             outline={familyFilteredOutline}
             selectedConnector={selectedConnector}
             visibleConnectors={visibleFamilyConnectors}
+            visiblePathNodeIds={visiblePathNodeIds}
             onSelectConnector={handleConnectorSelect}
             onRenderFailure={handleRenderFailure}
             onRetry={handleRenderRetry}
