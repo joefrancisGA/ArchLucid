@@ -31,7 +31,10 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
         CROSS APPLY (VALUES (JSON_QUERY(CASE WHEN ISJSON(EvidenceJson) = 1 THEN EvidenceJson END,
             '$.{RunBindingMember}'))) AS binding(Value)
         WHERE EvidenceBundleId = @EvidenceBundleId
-          AND JSON_VALUE(CASE WHEN ISJSON(EvidenceJson) = 1 THEN EvidenceJson END, '$.evidenceBundleId') = @EvidenceBundleId
+          AND EvidenceBundleId COLLATE Latin1_General_100_BIN2 = @EvidenceBundleId COLLATE Latin1_General_100_BIN2
+          AND DATALENGTH(EvidenceBundleId) = DATALENGTH(@EvidenceBundleId)
+          AND JSON_VALUE(CASE WHEN ISJSON(EvidenceJson) = 1 THEN EvidenceJson END, '$.evidenceBundleId') COLLATE Latin1_General_100_BIN2 = @EvidenceBundleId COLLATE Latin1_General_100_BIN2
+          AND DATALENGTH(JSON_VALUE(CASE WHEN ISJSON(EvidenceJson) = 1 THEN EvidenceJson END, '$.evidenceBundleId')) = DATALENGTH(@EvidenceBundleId)
           AND TRY_CONVERT(uniqueidentifier, JSON_VALUE(binding.Value, '$.tenantId')) = @TenantId
           AND TRY_CONVERT(uniqueidentifier, JSON_VALUE(binding.Value, '$.workspaceId')) = @WorkspaceId
           AND TRY_CONVERT(uniqueidentifier, JSON_VALUE(binding.Value, '$.projectId')) = @ProjectId
