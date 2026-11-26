@@ -6,4 +6,5 @@ public enum SecurityEvidencePathSearchLimitKind
     MaxPaths = 0,
     MaxDepth = 1,
     MaxFanOut = 2,
+    IncompleteIdentityEvidence = 3,
 }

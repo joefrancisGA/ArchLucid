@@ -4,6 +4,8 @@ namespace ArchLucid.Integrations.AzureExtractor;
 
 internal sealed class EntraAddCredentialGraphPageReadResult
 {
+    public bool PartialCollection { get; init; }
+
     public bool Forbidden
     {
         get;

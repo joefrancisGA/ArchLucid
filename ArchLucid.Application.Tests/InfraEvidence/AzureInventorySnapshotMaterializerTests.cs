@@ -552,11 +552,39 @@ public sealed class AzureInventorySnapshotMaterializerTests
         captured.SubscriptionName.Should().Be("Contoso Production");
     }
 
+    [Theory]
+    [InlineData(SecurityEvidenceAddCredentialAdapterWarnings.GraphIncomplete)]
+    [InlineData(SecurityEvidenceAddCredentialAdapterWarnings.GraphForbidden)]
+    [InlineData(SecurityEvidenceEntraGroupAdapterWarnings.GraphIncomplete)]
+    [InlineData(SecurityEvidenceEntraGroupAdapterWarnings.GraphForbidden)]
+    public async Task TryMaterializePackageAsync_preserves_Entra_collection_completeness(string warning)
+    {
+        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        Guid snapshotId = Guid.NewGuid();
+        AzureInventorySnapshotMaterializeWriteRequest? captured = null;
+        var snapshotRepository = CreateSnapshotRepository(scope, snapshotId, request => captured = request);
+        var identityDirectory = CreateIdentityDirectory(scope, snapshotId);
+        var sut = new AzureInventorySnapshotMaterializer(snapshotRepository.Object, identityDirectory.Object,
+            CreateNoOpPostMaterializeCoordinator(), NullLogger<AzureInventorySnapshotMaterializer>.Instance);
+        byte[] zip = BuildZip(
+            """
+            [{"resourceId":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1","resourceType":"Microsoft.Storage/storageAccounts","name":"sa1","location":"eastus","properties":{}}]
+            """, collectionWarnings: [warning]);
+        var result = await sut.TryMaterializePackageAsync(scope, snapshotId, Guid.NewGuid(), zip,
+            AzureInventoryCaptureMethod.CustomerScript, "0.4.0", CancellationToken.None);
+        result.Succeeded.Should().BeTrue();
+        captured.Should().NotBeNull();
+        captured!.CaptureStatus.Should().Be(AzureInventoryCaptureStatus.Partial);
+        captured.CompletenessScore.Should().Be(0m);
+        AzureInventorySnapshotCompletenessWarningsJson.Deserialize(captured.CompletenessWarningsJson).Should().Contain(warning);
+    }
+
     private static byte[] BuildZip(
         string resourcesJson,
         string subscriptionId = "sub",
         string? subscriptionName = null,
-        string? networkAssociationsJson = null)
+        string? networkAssociationsJson = null,
+        string[]? collectionWarnings = null)
     {
         using MemoryStream ms = new();
 
@@ -573,6 +601,7 @@ public sealed class AzureInventorySnapshotMaterializerTests
                       "collectionTimestamp": "2026-01-01T00:00:00Z",
                       "subscriptionId": "{{subscriptionId}}",
                       "subscriptionName": {{(subscriptionName is null ? "null" : $"\"{subscriptionName}\"")}},
+                      "collectionWarnings": {{JsonSerializer.Serialize(collectionWarnings ?? [])}},
                       "scope": "/subscriptions/{{subscriptionId}}"
                     }
                     """);

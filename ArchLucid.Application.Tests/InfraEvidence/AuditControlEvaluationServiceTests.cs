@@ -84,6 +84,64 @@ public sealed class AuditControlEvaluationServiceTests
         evaluationRepository.LastRequest!.Evaluation.HumanDisposition.Should().BeNull();
     }
 
+    [Theory]
+    [InlineData(AuditEvidenceTypeNames.Network, false, false, true)]
+    [InlineData(AuditEvidenceTypeNames.Identity, false, false, false)]
+    [InlineData(AuditEvidenceTypeNames.Rbac, false, false, false)]
+    [InlineData(AuditEvidenceTypeNames.Network, true, false, false)]
+    [InlineData(AuditEvidenceTypeNames.Network, false, true, false)]
+    public async Task TryEvaluateControlAsync_scopes_only_explicit_Entra_partial_capture(
+        string evidenceType, bool unknownWarning, bool omitMarker, bool expectedSupported)
+    {
+        Guid snapshotId = Guid.NewGuid();
+        Guid frameworkId = Guid.NewGuid();
+        Guid controlId = Guid.NewGuid();
+        ScopeContext scope = new();
+        List<string> warnings = [SecurityEvidenceAddCredentialAdapterWarnings.GraphIncomplete];
+        if (!omitMarker)
+            warnings.Add(SecurityEvidenceAddCredentialAdapterWarnings.EntraOnlyCapturePartial);
+        if (unknownWarning)
+            warnings.Add("unknown-collection-gap");
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = snapshotId,
+                CaptureStatus = AzureInventoryCaptureStatus.Partial,
+                ResourceCount = 2,
+                WarningCount = warnings.Count,
+                CompletenessWarningsJson = AzureInventorySnapshotCompletenessWarningsJson.Serialize(warnings),
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord { AzureResourceId = "/network", ResourceType = "Microsoft.Network/virtualNetworks" },
+                new AzureInventoryResourceRecord { AzureResourceId = "/identity", ResourceType = "Microsoft.ManagedIdentity/userAssignedIdentities" },
+            ],
+            RoleAssignments = [new AzureInventoryRoleAssignmentReadModel { Scope = "/network", RoleDefinitionId = "reader" }],
+        };
+        Mock<IAzureInventorySnapshotRepository> snapshots = new();
+        snapshots.Setup(r => r.TryGetSnapshotDetailAsync(scope, snapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(snapshot);
+        Mock<IAuditEvidenceRequirementRepository> requirements = new();
+        requirements.Setup(r => r.ListByControlIdAsync(scope.TenantId, controlId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new AuditEvidenceRequirementRecord
+            {
+                RequirementId = Guid.NewGuid(), ControlId = controlId, FrameworkId = frameworkId,
+                EvidenceType = evidenceType,
+            }]);
+        AuditControlEvaluationService service = new(
+            snapshots.Object, requirements.Object, BuildRegistry(), new CapturingEvaluationRepository(),
+            Mock.Of<IAuditEvidenceSnapshotRepository>(), NullLogger<AuditControlEvaluationService>.Instance);
+
+        AuditControlEvaluationResult result = await service.TryEvaluateControlAsync(
+            scope, snapshotId, frameworkId, controlId, [], []);
+        result.Succeeded.Should().BeTrue();
+        result.Evaluation!.Outcome.Should().Be(expectedSupported
+            ? AuditEvaluationOutcome.TechnicallySupported
+            : AuditEvaluationOutcome.InsufficientEvidence);
+    }
+
     private static AuditEvidenceSelectorRegistry BuildRegistry() =>
         new(
             new InventoryAuditEvidenceSelector(),

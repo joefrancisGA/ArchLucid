@@ -10,4 +10,7 @@ public sealed record AzureExtractorNormalizedManifest(
     string ScopeDescriptor,
     IReadOnlyList<string> SwitchesUsed,
     string AzModuleVersion,
-    string RawJson);
+    string RawJson)
+{
+    public IReadOnlyList<string> CollectionWarnings { get; init; } = [];
+}

@@ -1381,6 +1381,16 @@
           "hypothesis": {
             "type": "string"
           },
+          "inventoryProbe": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/InventoryFalsificationProbe"
+              }
+            ]
+          },
           "lane": {
             "$ref": "#/components/schemas/AdversarialLane"
           },
@@ -20090,6 +20100,41 @@
         },
         "type": "object"
       },
+      "InventoryFalsificationOutcome": {
+        "enum": [
+          "Untestable",
+          "Refuted",
+          "SurvivedWithinTestedScope",
+          "HumanReviewRequired"
+        ],
+        "type": "string"
+      },
+      "InventoryFalsificationProbe": {
+        "properties": {
+          "coverage": {
+            "type": "string"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/InventoryFalsificationOutcome"
+          },
+          "verification": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicNetworkAccessVerification"
+              }
+            ]
+          }
+        },
+        "required": [
+          "coverage",
+          "outcome",
+          "verification"
+        ],
+        "type": "object"
+      },
       "InvitationValidationResponse": {
         "properties": {
           "allowEmailCode": {
@@ -29116,6 +29161,9 @@
             ]
           }
         },
+        "required": [
+          "decision"
+        ],
         "type": "object"
       },
       "RegisterItsmCorrelationRequest": {
