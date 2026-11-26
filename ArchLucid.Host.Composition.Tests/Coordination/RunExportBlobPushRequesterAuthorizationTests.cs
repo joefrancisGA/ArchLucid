@@ -33,6 +33,10 @@ public sealed class RunExportBlobPushRequesterAuthorizationTests
     [InlineData("role")]
     [InlineData("share")]
     [InlineData("foreign-run")]
+    [InlineData("foreign-tenant")]
+    [InlineData("foreign-workspace")]
+    [InlineData("removed")]
+    [InlineData("sql-failure")]
     [InlineData("none")]
     public async Task Worker_reads_evidence_only_when_current_requester_access_matches_enqueue(string change)
     {
@@ -50,9 +54,10 @@ public sealed class RunExportBlobPushRequesterAuthorizationTests
 
         Mock<IScimUserRepository> users = new(MockBehavior.Strict);
         users.Setup(u => u.GetByExternalIdForAuthorizationAsync(scope.TenantId, directoryObjectId, ct))
-            .ReturnsAsync(() => new ScimUserRecord
+            .ReturnsAsync(() => changed && change == "sql-failure" ? throw new InvalidOperationException("SQL unavailable") : new ScimUserRecord
             {
                 TenantId = scope.TenantId, ExternalId = directoryObjectId,
+                DirectoryRemovedUtc = changed && change == "removed" ? DateTime.UtcNow : null,
                 Id = changed && change == "replaced" ? Guid.NewGuid() : requesterId,
                 Active = !changed || change != "inactive"
             });
@@ -63,7 +68,8 @@ public sealed class RunExportBlobPushRequesterAuthorizationTests
         runs.Setup(r => r.GetByIdIncludingArchivedAsync(It.Is<ScopeContext>(s => SameScope(s, scope)), runId, ct))
             .ReturnsAsync(() => new RunRecord
             {
-                TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId,
+                TenantId = changed && change == "foreign-tenant" ? Guid.NewGuid() : scope.TenantId,
+                WorkspaceId = changed && change == "foreign-workspace" ? Guid.NewGuid() : scope.WorkspaceId,
                 ScopeProjectId = changed && change == "foreign-run" ? Guid.NewGuid() : scope.ProjectId,
                 RunId = runId, ArchitectureId = architectureId
             });
@@ -107,8 +113,8 @@ public sealed class RunExportBlobPushRequesterAuthorizationTests
 
         (await processor.ProcessPendingBatchAsync(ct)).Should().Be(1);
 
-        (await outbox.CountDeadLetteredAsync(ct)).Should().Be(change == "none" ? 0 : 1);
-        (await outbox.CountPendingAsync(ct)).Should().Be(0);
+        (await outbox.CountDeadLetteredAsync(ct)).Should().Be(change is "none" or "sql-failure" ? 0 : 1);
+        (await outbox.CountPendingAsync(ct)).Should().Be(change == "sql-failure" ? 1 : 0);
         users.Verify(u => u.GetByExternalIdForAuthorizationAsync(scope.TenantId, directoryObjectId, ct), Times.Exactly(2));
         evidence.Verify(e => e.GetRunDetailForManifestCompareAsync(
                 It.Is<ScopeContext>(s => SameScope(s, scope)), runId, ct),

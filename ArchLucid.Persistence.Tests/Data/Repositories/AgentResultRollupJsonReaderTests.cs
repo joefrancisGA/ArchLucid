@@ -1,6 +1,9 @@
+using System.Text.Json;
+
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Serialization;
 
 using FluentAssertions;
 
@@ -28,11 +31,40 @@ public sealed class AgentResultRollupJsonReaderTests
     }
 
     [Fact]
-    public void ReadClaims_throws_with_the_run_id_when_the_fragment_is_corrupt()
+    public void ReadClaims_keeps_string_and_structured_legacy_claims_in_order()
     {
-        Action act = () => AgentResultRollupJsonReader.ReadClaims("[not json", "run1");
+        const string claims = """
+                              [
+                                "first",
+                                {"Detail":"  queue exposed  ","statement":"validate permissions","evidenceRefs":["ref1"]},
+                                {"evidenceRefs":["ref2"]},
+                                "last"
+                              ]
+                              """;
 
-        act.Should().Throw<InvalidOperationException>().WithMessage("*run1*");
+        AgentResultRollupJsonReader.ReadClaims(claims, "run1")
+            .Should().Equal("first", "queue exposed validate permissions", "last");
+    }
+
+    [Theory]
+    [InlineData("[not json")]
+    [InlineData("{\"detail\":\"not an array\"}")]
+    [InlineData("[42]")]
+    public void ReadClaims_throws_with_the_run_id_when_the_fragment_is_corrupt(string fragment)
+    {
+        Action act = () => AgentResultRollupJsonReader.ReadClaims(fragment, "run1");
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*claims*run1*")
+            .WithInnerException<JsonException>();
+    }
+
+    [Fact]
+    public void DeserializeAgentResult_still_requires_agent_type_on_a_full_result()
+    {
+        Action act = () => JsonSerializer.Deserialize<AgentResult>(
+            """{"claims":["first"]}""", AgentResultJsonSerialization.DeserializeOptions);
+
+        act.Should().Throw<JsonException>().WithMessage("*agentType*");
     }
 
     [Fact]
