@@ -43,8 +43,9 @@ export function BrandingSettingsPageClient() {
         actions={<PageContextualHelpButton />}
       />
 
-      <div
+      <main
         id="branding-settings-first-viewport"
+        tabIndex={-1}
         data-testid="branding-settings-first-viewport"
         className={cn("scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800", OPERATOR_LAYOUT.sectionStack)}
       >
@@ -73,7 +74,7 @@ export function BrandingSettingsPageClient() {
       ) : null}
 
         <BrandingSettingsEvidenceOrientationStrip />
-      </div>
+      </main>
     </OperatorPageContainer>
   );
 }

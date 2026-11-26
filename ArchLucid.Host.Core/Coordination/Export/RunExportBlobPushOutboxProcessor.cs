@@ -4,6 +4,7 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Security;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Configuration;
@@ -116,6 +117,14 @@ public sealed class RunExportBlobPushOutboxProcessor(
         ActivityScopeTags.ApplyTenantWorkspace(activity, scopeContext);
 
         using IDisposable _ = LogContext.PushProperty("CorrelationId", correlationId);
+        if (!CommittedRunEvidenceBinding.HasExplicitScope(scopeContext) ||
+            !CommittedRunEvidenceBinding.MatchesDrainScope(scopeContext, AmbientScopeContext.CurrentOverride))
+        {
+            // A foreign drain must not mutate another scope's outbox row.
+            Logger.LogWarning("Run export scope rejected for outbox {OutboxId}.", entry.OutboxId);
+            return;
+        }
+
         using IDisposable ambientScope = AmbientScopeContext.Push(scopeContext);
 
         IRunExportBlobPushAuthorization authorization =
@@ -183,6 +192,10 @@ public sealed class RunExportBlobPushOutboxProcessor(
 
             return;
         }
+
+        if (!await EnsureRequesterAuthorizedAsync(
+                authorization, scopeContext, outbox, auditService, entry, cancellationToken).ConfigureAwait(false))
+            return;
 
         IRunExportPackageBuilder packageBuilder =
             scope.ServiceProvider.GetRequiredService<IRunExportPackageBuilder>();

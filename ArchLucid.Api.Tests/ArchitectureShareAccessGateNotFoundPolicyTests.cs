@@ -176,6 +176,35 @@ public sealed class ArchitectureShareAccessGateNotFoundPolicyTests
     }
 
     [Theory]
+    [InlineData("api-user")]
+    [InlineData("API-USER")]
+    [InlineData(" ")]
+    public async Task Ask_adapter_denies_unidentified_actor_even_after_a_successful_read(string unidentifiedActor)
+    {
+        _runRepository.Setup(r => r.GetByIdAsync(Scope, RunId, CancellationToken.None))
+            .ReturnsAsync(new RunRecord { RunId = RunId });
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim(ClaimTypes.Role, "Operator")], "test")),
+        };
+        AskEvidenceAccess adapter = new(BuildSut(), new HttpContextAccessor { HttpContext = http }, _actorContext.Object);
+
+        adapter.GetAuthorizedActorId().Should().Be("jwt:tenant:unshared");
+        (await adapter.CanReadRunAsync(Scope, RunId, CancellationToken.None)).Should().BeTrue();
+        _runRepository.Invocations.Clear();
+
+        _actorContext.Setup(c => c.GetActorId()).Returns(unidentifiedActor);
+
+        adapter.GetAuthorizedActorId().Should().BeNull();
+        adapter.GetAuthorizedDraftActorId().Should().BeNull();
+        (await adapter.CanReadRunAsync(Scope, RunId, CancellationToken.None)).Should().BeFalse();
+        (await adapter.CanDecideArchitectureAsync(Scope, ArchitectureId, CancellationToken.None)).Should().BeFalse();
+        _runRepository.VerifyNoOtherCalls();
+        _shareAccessService.VerifyNoOtherCalls();
+    }
+
+    [Theory]
     [InlineData("Reader", true, true, false)]
     [InlineData("Operator", true, false, false)]
     [InlineData("Operator", false, true, false)]
@@ -197,6 +226,7 @@ public sealed class ArchitectureShareAccessGateNotFoundPolicyTests
         AskEvidenceAccess adapter = new(BuildSut(), new HttpContextAccessor { HttpContext = http }, _actorContext.Object);
 
         (await adapter.CanDecideArchitectureAsync(Scope, ArchitectureId, CancellationToken.None)).Should().Be(expected);
+
         if (role == "Reader")
         {
             adapter.GetAuthorizedDraftActorId().Should().BeNull();

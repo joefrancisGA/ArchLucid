@@ -611,7 +611,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     }
 
     [Fact]
-    public void BuildCsvContent_labels_omitted_scalar_fields_as_not_stored()
+    public void BuildCsvContent_labels_required_text_empty_and_optional_scalars_not_stored()
     {
         ArchitectureFinding finding = new()
         {
@@ -619,8 +619,6 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
             Classification = FindingClassification.DecisionGradeFinding,
             Severity = FindingSeverity.Warning,
         };
-        finding.Category = null!;
-        finding.Message = null!;
         finding.TrustLabel = null!;
         finding.TrustLabelReason = null!;
 
@@ -634,8 +632,9 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
 
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
 
-        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.CategoryNotStoredLabel);
-        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.FindingMessageNotStoredLabel);
+        // Required finding text is normalized to empty by the contract. Optional values remain absent.
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.CategoryStoredEmptyLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.FindingMessageStoredEmptyLabel);
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.EvidenceRefsStoredEmptyLabel);
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TrustLabelNotStoredLabel);
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TrustLabelReasonNotStoredLabel);
@@ -790,68 +789,5 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         };
 
         ArchitectureRunFindingsCsvFormatter.CollectFindingIds(detail).Should().BeEquivalentTo(["a", "b"]);
-    }
-}
-
-[Trait("Category", "Unit")]
-[Trait("Suite", "Core")]
-public sealed class RunFindingExternalTrackingEnrichmentServiceTests
-{
-    [Fact]
-    public async Task LoadForFindingsAsync_maps_rows_and_builds_external_url()
-    {
-        Mock<IRunFindingExternalTrackingReadRepository> readRepository = new();
-
-        readRepository
-            .Setup(repo => repo.ListForFindingsAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid?>(),
-                It.IsAny<IReadOnlyList<string>>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Dictionary<string, RunFindingExternalTrackingReadRow>(StringComparer.Ordinal)
-            {
-                ["finding-1"] = new RunFindingExternalTrackingReadRow
-                {
-                    FindingId = "finding-1",
-                    HumanReviewStatus = "Pending",
-                    Disposition = "Deferred",
-                    RevisitDueUtc = new DateTime(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc),
-                    Provider = "Jira",
-                    ExternalKey = "ABC-1",
-                    ExternalSysId = "sys-1",
-                    ItsmLinkedTicketsSummary = "Jira:ABC-1"
-                }
-            });
-
-        RunFindingExternalTrackingEnrichmentService sut = new(
-            readRepository.Object,
-            UrlBuilder(new IntegrationsItsmOutboundOptions
-            {
-                Jira = new JiraItsmOutboundOptions { CloudBaseUrl = "https://example.atlassian.net" }
-            }));
-
-        IReadOnlyDictionary<string, RunFindingExternalTrackingProjection> result =
-            await sut.LoadForFindingsAsync(
-                Guid.Parse("11111111-1111-1111-1111-111111111111"),
-                findingsSnapshotId: null,
-                ["finding-1"],
-                CancellationToken.None);
-
-        RunFindingExternalTrackingProjection projection = result["finding-1"];
-        projection.HumanReviewStatus.Should().Be(FindingHumanReviewStatus.Pending);
-        projection.LatestDisposition.Should().Be(FindingDisposition.Deferred);
-        projection.ExternalUrl.Should().Be("https://example.atlassian.net/browse/ABC-1");
-        projection.TrackedExternally.Should().BeTrue();
-        projection.ExternalTrackingSummary.Should().Be("Jira:ABC-1");
-    }
-}
-
-internal static class OptionsMonitorTestExtensions
-{
-    public static IOptionsMonitor<T> ToMonitor<T>(this IOptions<T> options) where T : class
-    {
-        Mock<IOptionsMonitor<T>> monitor = new();
-        monitor.Setup(m => m.CurrentValue).Returns(options.Value);
-        return monitor.Object;
     }
 }

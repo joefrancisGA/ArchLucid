@@ -229,6 +229,7 @@ export function HelpFirstLoginWorkspaceGuideView(
       <div className={contentGridClass}>
         <div
           id={FIRST_LOGIN_WORKSPACE_HELP_PRIMARY_CONTENT_ID}
+          tabIndex={-1}
           className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
         >
           <div

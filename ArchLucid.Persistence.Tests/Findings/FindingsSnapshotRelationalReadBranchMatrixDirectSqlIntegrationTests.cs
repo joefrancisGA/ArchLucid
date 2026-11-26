@@ -87,15 +87,16 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
         Guid contextId,
         Guid graphId,
         DateTime createdUtc,
-        string findingsJson)
+        string findingsJson,
+        FindingsSnapshotGenerationStatus status = FindingsSnapshotGenerationStatus.Complete)
     {
         await connection.ExecuteAsync(
             new CommandDefinition(
                 """
                 INSERT INTO dbo.FindingsSnapshots
                 (FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, TenantId, WorkspaceId, ProjectId,
-                 CreatedUtc, SchemaVersion, FindingsJson)
-                VALUES (@F, @R, @C, @G, @T, @W, @P, @Created, 1, @Fj);
+                 CreatedUtc, SchemaVersion, GenerationStatus, FindingsJson)
+                VALUES (@F, @R, @C, @G, @T, @W, @P, @Created, 1, @GenerationStatus, @Fj);
                 """,
                 new
                 {
@@ -107,6 +108,7 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                     W = WorkspaceId,
                     P = ScopeProjectId,
                     Created = createdUtc,
+                    GenerationStatus = status.ToString(),
                     Fj = findingsJson
                 },
                 cancellationToken: CancellationToken.None));
@@ -167,13 +169,16 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                 await InsertFindingsHeaderAsync(connection, findingsId, runId, contextId, graphId, createdUtc,
                     JsonEntitySerializer.Serialize(legacy));
 
-                FindingsSnapshotStorageRow row = await RowAsync(connection, findingsId);
+                FindingsSnapshotStorageRow row = await FindingsSnapshotSqlTestHeader.ReadAsync(
+                    connection, findingsId, CancellationToken.None);
                 FindingsSnapshot snap =
                     await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(
                         connection,
                         row,
                         new ScopeContext(),
                         CancellationToken.None);
+
+                snap.GenerationStatus.Should().Be(FindingsSnapshotGenerationStatus.Complete);
 
                 if (branch == 0)
                 {
@@ -200,7 +205,8 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                     GraphSnapshotId = graphId,
                     CreatedUtc = createdUtc,
                     Findings = []
-                }));
+                }),
+                status: FindingsSnapshotGenerationStatus.PartiallyComplete);
 
             string severity = branch switch
             {
@@ -426,13 +432,15 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                         cancellationToken: CancellationToken.None));
             }
 
-            FindingsSnapshotStorageRow row2 = await RowAsync(connection, findingsId);
+            FindingsSnapshotStorageRow row2 = await FindingsSnapshotSqlTestHeader.ReadAsync(
+                connection, findingsId, CancellationToken.None);
             FindingsSnapshot snap2 =
                 await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(
                     connection,
                     row2,
                     new ScopeContext(),
                     CancellationToken.None);
+            snap2.GenerationStatus.Should().Be(FindingsSnapshotGenerationStatus.PartiallyComplete);
             Finding f = snap2.Findings.Should().ContainSingle().Subject;
 
             if (branch is >= 2 and <= 6)
@@ -507,20 +515,5 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                 return;
             }
         }
-    }
-
-    private static async Task<FindingsSnapshotStorageRow> RowAsync(SqlConnection connection, Guid findingsId)
-    {
-        return await connection.QuerySingleAsync<FindingsSnapshotStorageRow>(
-            new CommandDefinition(
-                """
-                SELECT FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc, SchemaVersion, FindingsJson
-                FROM dbo.FindingsSnapshots WHERE FindingsSnapshotId = @Id;
-                """,
-                new
-                {
-                    Id = findingsId
-                },
-                cancellationToken: CancellationToken.None));
     }
 }

@@ -102,12 +102,20 @@ public sealed class SqlAuditEvidenceProjectIsolationTests(SqlServerPersistenceFi
         Guid snapshotB = await SeedSnapshotAsync(scopeB, assessmentB, created.AddMinutes(1));
         (await snapshots.ListLineageContextsByCloudResourceIdInScopeAsync(scopeA, cloudResource, 1, null, null, null))
             .Should().ContainSingle().Which.AuditEvidenceSnapshotId.Should().Be(snapshotA);
+        (await snapshots.ListLineageContextsByCloudResourceIdInScopeAsync(scopeB, cloudResource, 1, null, null, null))
+            .Should().ContainSingle().Which.AuditEvidenceSnapshotId.Should().Be(snapshotB);
         (await snapshots.ListLineageContextsByCloudResourceIdInScopeAsync(scopeB, cloudResource, 25, assessmentB, snapshotB, controlId))
             .Should().ContainSingle().Which.AssessmentId.Should().Be(assessmentB);
         (await snapshots.ListLineageContextsByCloudResourceIdInScopeAsync(scopeA, cloudResource, 25, assessmentB, snapshotB, controlId))
             .Should().BeEmpty();
         (await snapshots.ListLineageContextsByCloudResourceIdInScopeAsync(scopeA, cloudResource, 25, assessmentA, snapshotB, controlId))
             .Should().BeEmpty();
+        (await snapshots.ListLineageContextsByCloudResourceIdInScopeAsync(scopeA, cloudResource, 25, assessmentB, null, null))
+            .Should().BeEmpty();
+        (await snapshots.ListLineageContextsByCloudResourceIdInScopeAsync(scopeA, cloudResource, 25, null, snapshotB, null))
+            .Should().BeEmpty();
+        (await snapshots.ListLineageContextsByCloudResourceIdInScopeAsync(scopeA, cloudResource, 25, null, null, controlId))
+            .Should().ContainSingle().Which.AuditEvidenceSnapshotId.Should().Be(snapshotA);
         (await snapshots.ListLineageContextsByCloudResourceIdInScopeAsync(scopeA, Guid.NewGuid(), 25, assessmentA, snapshotA, controlId))
             .Should().BeEmpty();
         (await snapshots.ListLineageContextsByCloudResourceIdInScopeAsync(
@@ -326,6 +334,7 @@ public sealed class SqlAuditEvidenceProjectIsolationTests(SqlServerPersistenceFi
             new { Name = "B/wrong-project", Scope = scopeA,
                   AssessmentId = assessmentB, SubmissionId = projectBSubmission.SubmissionId },
         };
+
         foreach (var denied in deniedReadCases)
         {
             (await evidence.ListArchitectureLinksByAssessmentInScopeAsync(denied.Scope, denied.AssessmentId))

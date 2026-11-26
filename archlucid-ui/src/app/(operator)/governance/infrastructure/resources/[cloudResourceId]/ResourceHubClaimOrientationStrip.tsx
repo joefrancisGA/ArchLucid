@@ -11,6 +11,7 @@ export function ResourceHubClaimOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="governance-infrastructure-resource-hub"
+      sourcesTestId="infra-resource-hub-sources"
       sourcesIntro={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_SOURCES_INTRO}
       sources={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_SOURCES}
     />

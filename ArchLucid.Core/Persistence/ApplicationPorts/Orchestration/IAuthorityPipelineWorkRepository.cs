@@ -5,6 +5,7 @@ using ArchLucid.Core.Persistence.ApplicationPorts.Coordination;
 namespace ArchLucid.Persistence.Orchestration;
 
 /// <summary>Transactional-style queue for deferred authority pipeline continuation after the run header commits.</summary>
+/// <remarks>Claims and actionable counts honor any explicit coordinates on the ambient drain scope.</remarks>
 public interface IAuthorityPipelineWorkRepository : IRecoverableOutboxRepository<AuthorityPipelineWorkOutboxEntry>
 {
     Task EnqueueAsync(

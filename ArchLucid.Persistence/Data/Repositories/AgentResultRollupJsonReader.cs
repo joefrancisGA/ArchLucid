@@ -12,25 +12,10 @@ namespace ArchLucid.Persistence.Data.Repositories;
 /// </summary>
 internal static class AgentResultRollupJsonReader
 {
-    public static List<string> ReadClaims(string? claimsJson, string runId)
-    {
-        if (string.IsNullOrWhiteSpace(claimsJson))
-            return [];
-
-        try
-        {
-            // Route through AgentResult so AgentResultClaimListJsonConverter accepts legacy claim shapes.
-            AgentResult? shell = JsonSerializer.Deserialize<AgentResult>(
-                $"{{\"claims\":{claimsJson}}}",
-                AgentResultJsonSerialization.DeserializeOptions);
-
-            return shell?.Claims ?? [];
-        }
-        catch (JsonException ex)
-        {
-            throw new InvalidOperationException($"Failed to deserialize rollup claims for run '{runId}'.", ex);
-        }
-    }
+    // The shared options register the claim-list converter for legacy entries. Read just the array, without
+    // passing it through the AgentResult converter, which correctly requires agentType on a full result.
+    public static List<string> ReadClaims(string? claimsJson, string runId) =>
+        ReadStringList(claimsJson, runId, "claims");
 
     public static List<string> ReadStringList(string? json, string runId, string fieldName)
     {

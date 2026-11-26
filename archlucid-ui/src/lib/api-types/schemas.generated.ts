@@ -4880,6 +4880,7 @@ export interface components {
             /** Format: uuid */
             graphSnapshotId?: string;
             insightDensityCuration?: null | components["schemas"]["InsightDensityCurationSummary"];
+            requirementComparisonRecovery?: null | string;
             /** Format: uuid */
             runId?: string;
             /** Format: int32 */
@@ -9649,6 +9650,7 @@ export interface components {
             /** Format: int32 */
             enginesSucceeded?: number;
             failedEngineLabels?: string[];
+            findingEngineRecoveryNote?: null | string;
             generationStatus?: components["schemas"]["FindingsSnapshotGenerationStatus"];
             hasCommitBlockingFailures?: boolean;
             isDegraded?: boolean;

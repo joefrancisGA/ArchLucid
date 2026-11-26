@@ -306,6 +306,14 @@ The follow-up reuses the same materialized observation for explorer type, resour
 
 The disposable SQL fixture now uses contrasting values in two foreign scopes and checks scoped payload fields plus both the page and total for local and foreign filters. App tests cover the explicit snapshot type and display name fallback.
 
+### FND-061 Explorer and Evidence Hub scope reconciliation
+
+Reviewed the two Cloud Resource actions against master `bbec19302ed9e366fd0fb0d9dd0224ca3396f036` and this change. The Explorer uses the authorized project scope for observations, work counts, queue filters, and totals. The Hub checks the owning identity and selected/default snapshot before snapshot enrichment. Snapshot citations validate manifests only for runs the current caller can read. Audit lineage joins the owning assessment before applying optional selectors and ordering; selector IDs never establish access. Existing browser cache partitioning by subject and full scope is unchanged; explicit run reads are not served from that cache.
+
+The HTTP and Ask entry points already authorize explicit runs. The shared Hub service now independently consumes the current run-share decision before any identity, manifest, or other evidence read, and denies explicit requests without an authorization adapter. No new permission, schema, identity ownership rule, or ingestion behavior was added.
+
+The scoped source census records both actions as conformant in the reviewed boundary. Runtime acceptance requires the focused Application and HTTP suites plus the exact Explorer work-count, project-observation, and audit-lineage cases to execute and pass on disposable SQL. The existing SecureNow workflow now fails if any of those three cases is missing, skipped, or not passing. This does not close FND-061 or certify the remaining HTTP/worker inventory.
+
 ### FND-061 conversation history proof before message bodies
 
 On baseline `e7dc429155b605ced0785c7a791221d29a12099c`, both direct conversation actions verified thread/run access before reading a bounded message window, but later checked per-turn actor and evidence proof. This slice moves the existing completed-turn proof evaluation ahead of body access. The list action uses only proof metadata and verified completion timestamps. The message action fetches only the approved IDs in the exact tenant/workspace/project/thread, then rechecks the question digest before projecting public fields. SQL and the in-memory implementation have separate metadata and exact-ID ports.
@@ -340,6 +348,22 @@ SQL migration 433 only adds nullable columns. It does not backfill or update his
 
 Rollout uses the normal migration path. Stop existing blob-export processors before enabling the updated enqueue and worker paths together, so an old processor cannot consume a newly bound row without rechecking it. Do not run the rollback script with the updated processor active. No production migration or rollout is performed by this change. Other worker classes and the required check setting remain separate closure work.
 
+### FND-061 deferred authority pipeline worker binding
+
+Reviewed master `bbec19302ed9e366fd0fb0d9dd0224ca3396f036`. The authority pipeline queue carries phases for already-admitted work; its producer persists the outbox row with the run header. This is distinct from a user-delegated export that must recheck the requester's current grant. The deferred worker previously accepted any non-null result from the cache-backed run lookup and replaced the ambient scope with the row's scope. That let the queue dispatch without proving the current run still matched its exact scope. The claim query also returned unfiltered payloads when a drain was scoped within a shared catalog.
+
+SQL and in-memory claims now filter by every explicitly supplied drain coordinate before locking rows or returning payload JSON. Global drains keep round-robin behavior. The processor does not consume a row outside a constrained drain if an adapter returns one anyway. Before dispatching and before materialization or dead-letter mutation, the worker requires an uncached, non-archived run with the exact queued tenant, workspace, project, and run ID. A malformed owned row keeps the existing skip-without-dispatch behavior. No schema, queue lease, caller identity, or release-branch change.
+
+Focused tests cover cross-scope claims and actionable counts, cache bypass, malformed and archived runs, and no protected request/bundle read or run update when binding fails. The SQL job requires the exact scoped claim test to execute without skipping. This does not prove transactional archive/write fencing or certify the remaining recurring and background jobs.
+
+### FND-061 deferred evidence-bundle binding
+
+The deferred-create producer binds the bundle to its authoritative tenant, workspace, project and run when it persists the bundle. SQL stores the server-owned binding separately from public bundle fields inside the existing JSON record. Updates to bundle content retain the stored binding. The in-memory repository applies the same rules. No database migration or public contract change is needed.
+
+Before dispatch the worker checks the stored binding without projecting bundle content. Materialization and extractor work use a scoped read that checks the same stored tuple before returning evidence. There is no fallback to the ID-only reader. Detached create can enqueue before bundle persistence commits, so an absent binding goes through the existing bounded retry and dead-letter path instead of treating the job as successful. A payload ID alone never establishes ownership.
+
+Existing unbound bundles are not backfilled from queued IDs. Drain pending jobs on the current worker version before rolling over producers and workers together. If a legacy queued job remains, use the supported re-create path rather than copying or guessing a binding. No production queue action was taken. The focused SQL check must execute the exact binding contract, including preservation on content update.
+
 ### FND-061 merge gate and current-source reconciliation
 
 The focused check is now [required on master](https://github.com/joefrancisGA/ArchLucid/settings/rules/28115714), with GitHub Actions as the source. The [combined authorization run for #8202](https://github.com/joefrancisGA/ArchLucid/actions/runs/45711191816) passed. The check is a regression gate for the tested paths, not a whole-repository control-flow proof.
@@ -349,3 +373,11 @@ On master `c7da6821b2ccb0b87bf65c303ff63f58654fe484`, 49 of the 51 inventory rec
 The draft reasoning service had an open ordering gap on that master revision. It loaded a cacheable draft body before checking the linked architecture or legacy owner and run anchors. The follow-up uses the existing metadata-only read, consumes the draft access decision, and reads the payload at exactly the authorized revision. SQL returns only the revision written by the conditional conversation-thread bind, rather than re-reading an unconstrained later revision. The focused check adds the draft reasoning and question decision tests. No historical data or schema changes.
 
 The finding insight signal read and append actions now consume the scoped run-read share decision before resolving the finding, hydrating the seal, or calling the signal repository. Existing execute authority still applies to both actions. The required check includes no-read tests for a missing scoped run and for a restricted run with no grant.
+
+### FND-061 proof-first HTTP cohort reconciliation
+
+Reconciled the 12 drifted records against master `1c7fac96c5e3b6953f806e3e3e28cad1293fe788` and this change's Ask adapter. Regular and streamed Ask, finding Ask, and direct conversation reads use proof metadata before loading any message bodies. The thread list does not hydrate message bodies. Draft question reads, answers, skips, and reasoning authorize metadata before the exact draft revision is hydrated. The three MCP retrieval rows retain their reviewed corpus and project/run constraints.
+
+The shared Ask HTTP adapter previously treated the audit fallback `api-user` as an evidence caller. It now rejects that placeholder before run lookup, share evaluation, retrieval, or draft decisions. The focused required check includes the adapter regression, proof-first HTTP and MCP suites, run and snapshot Evidence Hub checks, and the existing warm graph-cache scope cases.
+
+The pinned 51-action cohort now has 48 conformant actions, one partial, one unverified, and one exempt, with no stale pins or ordering sentinels. This is a source-order assessment, not repository-wide runtime verification. The cloud-resource explorer and full Evidence Hub mode census, identity compatibility outside the reviewed boundary, and the wider worker/read inventory remain open. Legacy history without a proof marker still fails closed. No historical data was changed.

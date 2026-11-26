@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "baselineCommit": "c7da6821b2ccb0b87bf65c303ff63f58654fe484",
+  "baselineCommit": "1c7fac96c5e3b6953f806e3e3e28cad1293fe788",
   "scope": "Source-reviewed HTTP action-method cohort. Multiple route attributes on one method count once; distinct methods count separately. Resource-specific share/entitlement before evidence/cache/model access; identity-only discovery allowed. Partial = known adoption with unresolved pre-hydration/mode limitations. No mandatory-audit or runtime claim for share-gate paths.",
   "registryPath": "scripts/ci/data/route_tier_policy_nav_registry.json",
   "registryBlob": "a45a41f449fba38a2386355898d52c6713943c90",
   "controllerRegistryFiles": 255,
-  "controllerFolderCsFiles": 591,
+  "controllerFolderCsFiles": 592,
   "actions": [
     {
       "id": "AskController.GetTemplates",
@@ -27,8 +27,8 @@
       "controllerFile": "Planning/AskController.cs",
       "action": "Ask",
       "source": "ArchLucid.Api/Controllers/Planning/AskController.cs",
-      "status": "partial",
-      "reason": "Authenticated request and stored run anchors checked before structured evidence and model use; project prefilter and same-actor proof filter active. Bounded raw conversation window is internally read before per-turn proof verification; not strict FND-061 pre-hydration conformance.",
+      "status": "conformant",
+      "reason": "Authenticated actor and explicit and stored run anchors precede protected reads; current project/share decisions constrain retrieval. Proof-only history selects exact allowed message IDs before reading bodies and revalidates hydrated turns.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Planning/AskController.cs",
@@ -40,15 +40,15 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
-          "blob": "52290538e55f5709d77aa9b7a906fe2832ce253a"
+          "blob": "96b973c6d50928a93c57aba0ca3ede0b79cdf8f7"
         },
         {
           "path": "ArchLucid.Host.Core/Services/Ask/AskHistoryEvidenceScope.cs",
-          "blob": "9eb8d38300737731c37c02b42aa69dcd73de30c4"
+          "blob": "01ac717bd9d45e04cdc176acee434bdd6eb10e42"
         },
         {
           "path": "ArchLucid.Application/Architecture/AuthorizedEvidenceRunResolver.cs",
@@ -56,11 +56,11 @@
         },
         {
           "path": "ArchLucid.Host.Core/Services/Ask/AskContextPreparer.cs",
-          "blob": "f5e7ead1620bad7625389dee1e51369aff794882"
+          "blob": "3ae2ff23060d23204f530b853f773f3ab7ddff2a"
         },
         {
           "path": "ArchLucid.Host.Core/Services/Ask/AskService.cs",
-          "blob": "4340bf0967283eadd515863b19b4eae30d3c72de"
+          "blob": "92575411032175a738b1bc3762d9617bd08eaca9"
         },
         {
           "path": "ArchLucid.Retrieval/Indexing/AzureSearchTenantScopeFilterBuilder.cs",
@@ -77,6 +77,26 @@
         {
           "path": "ArchLucid.Retrieval/Agentic/IterativeRetrievalLoop.cs",
           "blob": "481f6f272ce89614caa94db6f036106abf862ec5"
+        },
+        {
+          "path": "ArchLucid.Host.Core/Auth/Services/HttpActorContext.cs",
+          "blob": "c47dd81d74d9590c3dddb50eb8af82b960731731"
+        },
+        {
+          "path": "ArchLucid.Host.Core/Ask/ConversationService.cs",
+          "blob": "855aca585f0f71abca090f08c513d6a51a88aa9b"
+        },
+        {
+          "path": "ArchLucid.Host.Core/Services/Ask/ConversationHistoryReader.cs",
+          "blob": "2782dfe3a584cf834215db8e11e56e77d1836ed7"
+        },
+        {
+          "path": "ArchLucid.Persistence/Conversation/DapperConversationMessageRepository.cs",
+          "blob": "17ad245c9cf88ddc0280c371a7d556531d4e9969"
+        },
+        {
+          "path": "ArchLucid.Persistence/Conversation/InMemoryConversationMessageRepository.cs",
+          "blob": "aecce7fbe7ffa479e86484eb7fdf55b8760b5a1d"
         }
       ],
       "orderChecks": [
@@ -88,9 +108,33 @@
             "GetOrCreateThreadAsync(",
             "await RequireReadAsync(scope, thread.RunId",
             "AuthorizedEvidenceRunResolver.ResolveProjectAsync(",
-            "GetHistoryAsync(",
-            "AskHistoryEvidenceScope.SelectVerifiedTurns(",
+            "GetVerifiedAskHistoryAsync(",
             "AppendUserMessageAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
+          "start": "public string? GetAuthorizedActorId()",
+          "tokens": [
+            "IsAuthenticated",
+            "HasReadAuthority(user)",
+            "actor.GetActorId()",
+            "string.Equals(actorId, \"api-user\"",
+            "? null",
+            ": actorId;"
+          ]
+        },
+        {
+          "path": "ArchLucid.Host.Core/Services/Ask/ConversationHistoryReader.cs",
+          "start": "private static async Task<IReadOnlyList<ConversationMessage>> ReadAsync(",
+          "tokens": [
+            "GetRecentProofsAsync(",
+            "SelectVerifiedDraftTurnReferences(",
+            "SelectVerifiedTurnReferences(",
+            "if (pairs.Count == 0)",
+            "GetAuthorizedMessagesAsync(",
+            "SelectVerifiedDraftTurns(",
+            "SelectVerifiedTurns("
           ]
         }
       ]
@@ -100,8 +144,8 @@
       "controllerFile": "Planning/AskController.cs",
       "action": "AskStream",
       "source": "ArchLucid.Api/Controllers/Planning/AskController.cs",
-      "status": "partial",
-      "reason": "Authenticated request and stored run anchors checked before structured evidence and model use; project prefilter and same-actor proof filter active. Bounded raw conversation window is internally read before per-turn proof verification; not strict FND-061 pre-hydration conformance.",
+      "status": "conformant",
+      "reason": "Streaming uses the same context preparation and share checks as regular Ask. Current run authorization and proof-only history selection precede evidence and exact message-body reads.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Planning/AskController.cs",
@@ -113,15 +157,15 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
-          "blob": "52290538e55f5709d77aa9b7a906fe2832ce253a"
+          "blob": "96b973c6d50928a93c57aba0ca3ede0b79cdf8f7"
         },
         {
           "path": "ArchLucid.Host.Core/Services/Ask/AskHistoryEvidenceScope.cs",
-          "blob": "9eb8d38300737731c37c02b42aa69dcd73de30c4"
+          "blob": "01ac717bd9d45e04cdc176acee434bdd6eb10e42"
         },
         {
           "path": "ArchLucid.Application/Architecture/AuthorizedEvidenceRunResolver.cs",
@@ -129,11 +173,11 @@
         },
         {
           "path": "ArchLucid.Host.Core/Services/Ask/AskContextPreparer.cs",
-          "blob": "f5e7ead1620bad7625389dee1e51369aff794882"
+          "blob": "3ae2ff23060d23204f530b853f773f3ab7ddff2a"
         },
         {
           "path": "ArchLucid.Host.Core/Services/Ask/AskService.cs",
-          "blob": "4340bf0967283eadd515863b19b4eae30d3c72de"
+          "blob": "92575411032175a738b1bc3762d9617bd08eaca9"
         },
         {
           "path": "ArchLucid.Retrieval/Indexing/AzureSearchTenantScopeFilterBuilder.cs",
@@ -150,6 +194,26 @@
         {
           "path": "ArchLucid.Retrieval/Agentic/IterativeRetrievalLoop.cs",
           "blob": "481f6f272ce89614caa94db6f036106abf862ec5"
+        },
+        {
+          "path": "ArchLucid.Host.Core/Auth/Services/HttpActorContext.cs",
+          "blob": "c47dd81d74d9590c3dddb50eb8af82b960731731"
+        },
+        {
+          "path": "ArchLucid.Host.Core/Ask/ConversationService.cs",
+          "blob": "855aca585f0f71abca090f08c513d6a51a88aa9b"
+        },
+        {
+          "path": "ArchLucid.Host.Core/Services/Ask/ConversationHistoryReader.cs",
+          "blob": "2782dfe3a584cf834215db8e11e56e77d1836ed7"
+        },
+        {
+          "path": "ArchLucid.Persistence/Conversation/DapperConversationMessageRepository.cs",
+          "blob": "17ad245c9cf88ddc0280c371a7d556531d4e9969"
+        },
+        {
+          "path": "ArchLucid.Persistence/Conversation/InMemoryConversationMessageRepository.cs",
+          "blob": "aecce7fbe7ffa479e86484eb7fdf55b8760b5a1d"
         }
       ],
       "orderChecks": [
@@ -161,9 +225,33 @@
             "GetOrCreateThreadAsync(",
             "await RequireReadAsync(scope, thread.RunId",
             "AuthorizedEvidenceRunResolver.ResolveProjectAsync(",
-            "GetHistoryAsync(",
-            "AskHistoryEvidenceScope.SelectVerifiedTurns(",
+            "GetVerifiedAskHistoryAsync(",
             "AppendUserMessageAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
+          "start": "public string? GetAuthorizedActorId()",
+          "tokens": [
+            "IsAuthenticated",
+            "HasReadAuthority(user)",
+            "actor.GetActorId()",
+            "string.Equals(actorId, \"api-user\"",
+            "? null",
+            ": actorId;"
+          ]
+        },
+        {
+          "path": "ArchLucid.Host.Core/Services/Ask/ConversationHistoryReader.cs",
+          "start": "private static async Task<IReadOnlyList<ConversationMessage>> ReadAsync(",
+          "tokens": [
+            "GetRecentProofsAsync(",
+            "SelectVerifiedDraftTurnReferences(",
+            "SelectVerifiedTurnReferences(",
+            "if (pairs.Count == 0)",
+            "GetAuthorizedMessagesAsync(",
+            "SelectVerifiedDraftTurns(",
+            "SelectVerifiedTurns("
           ]
         }
       ]
@@ -173,12 +261,12 @@
       "controllerFile": "Planning/ConversationController.cs",
       "action": "ListThreads",
       "source": "ArchLucid.Api/Controllers/Planning/ConversationController.cs",
-      "status": "partial",
-      "reason": "Scope, stored anchors and current run permissions verified; only proven same-actor turns returned; counts after filtering. Raw bounded messages are hydrated before actor/evidence proof; full strict pre-hydration guarantee remains open.",
+      "status": "conformant",
+      "reason": "Scope and current run shares constrain candidate threads. An actor-bound proof projection determines visibility, count and timestamps; thread listing does not hydrate message bodies.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Planning/ConversationController.cs",
-          "blob": "db49bd8fe327d563371ad687a0e7639c3f949e1e"
+          "blob": "065705889e70189d0ed85dc9c64682f2bcdf9d91"
         },
         {
           "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
@@ -186,34 +274,71 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
-          "blob": "52290538e55f5709d77aa9b7a906fe2832ce253a"
+          "blob": "96b973c6d50928a93c57aba0ca3ede0b79cdf8f7"
         },
         {
           "path": "ArchLucid.Host.Core/Services/Ask/AskHistoryEvidenceScope.cs",
-          "blob": "9eb8d38300737731c37c02b42aa69dcd73de30c4"
+          "blob": "01ac717bd9d45e04cdc176acee434bdd6eb10e42"
         },
         {
           "path": "ArchLucid.Application/Architecture/AuthorizedEvidenceRunResolver.cs",
           "blob": "5ef10d999d0bd95dcd68f6c49144a1a5f69d0266"
+        },
+        {
+          "path": "ArchLucid.Host.Core/Auth/Services/HttpActorContext.cs",
+          "blob": "c47dd81d74d9590c3dddb50eb8af82b960731731"
+        },
+        {
+          "path": "ArchLucid.Persistence/Conversation/DapperConversationMessageRepository.cs",
+          "blob": "17ad245c9cf88ddc0280c371a7d556531d4e9969"
+        },
+        {
+          "path": "ArchLucid.Persistence/Conversation/InMemoryConversationMessageRepository.cs",
+          "blob": "aecce7fbe7ffa479e86484eb7fdf55b8760b5a1d"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
+          "start": "public string? GetAuthorizedActorId()",
+          "tokens": [
+            "IsAuthenticated",
+            "HasReadAuthority(user)",
+            "actor.GetActorId()",
+            "string.Equals(actorId, \"api-user\"",
+            "? null",
+            ": actorId;"
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Planning/ConversationController.cs",
+          "start": "public async Task<IActionResult> ListThreads(",
+          "tokens": [
+            "ResolveThreadAnchorsAsync(",
+            "AuthorizedEvidenceRunResolver.ResolveProjectAsync(",
+            "GetRecentProofsAsync(",
+            "SelectVerifiedTurnReferences(",
+            "if (verified.Count == 0)",
+            "visible.Add("
+          ]
+        }
+      ]
     },
     {
       "id": "ConversationController.GetMessages",
       "controllerFile": "Planning/ConversationController.cs",
       "action": "GetMessages",
       "source": "ArchLucid.Api/Controllers/Planning/ConversationController.cs",
-      "status": "partial",
-      "reason": "Scope, stored anchors and current run permissions verified; only proven same-actor turns returned; counts after filtering. Raw bounded messages are hydrated before actor/evidence proof; full strict pre-hydration guarantee remains open.",
+      "status": "conformant",
+      "reason": "Exact-scope thread anchors and current run shares are checked before proof-only history. Message bodies are fetched only by the authorized IDs in the exact thread and scope and then revalidated.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Planning/ConversationController.cs",
-          "blob": "db49bd8fe327d563371ad687a0e7639c3f949e1e"
+          "blob": "065705889e70189d0ed85dc9c64682f2bcdf9d91"
         },
         {
           "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
@@ -221,22 +346,73 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
-          "blob": "52290538e55f5709d77aa9b7a906fe2832ce253a"
+          "blob": "96b973c6d50928a93c57aba0ca3ede0b79cdf8f7"
         },
         {
           "path": "ArchLucid.Host.Core/Services/Ask/AskHistoryEvidenceScope.cs",
-          "blob": "9eb8d38300737731c37c02b42aa69dcd73de30c4"
+          "blob": "01ac717bd9d45e04cdc176acee434bdd6eb10e42"
         },
         {
           "path": "ArchLucid.Application/Architecture/AuthorizedEvidenceRunResolver.cs",
           "blob": "5ef10d999d0bd95dcd68f6c49144a1a5f69d0266"
+        },
+        {
+          "path": "ArchLucid.Host.Core/Auth/Services/HttpActorContext.cs",
+          "blob": "c47dd81d74d9590c3dddb50eb8af82b960731731"
+        },
+        {
+          "path": "ArchLucid.Host.Core/Services/Ask/ConversationHistoryReader.cs",
+          "blob": "2782dfe3a584cf834215db8e11e56e77d1836ed7"
+        },
+        {
+          "path": "ArchLucid.Persistence/Conversation/DapperConversationMessageRepository.cs",
+          "blob": "17ad245c9cf88ddc0280c371a7d556531d4e9969"
+        },
+        {
+          "path": "ArchLucid.Persistence/Conversation/InMemoryConversationMessageRepository.cs",
+          "blob": "aecce7fbe7ffa479e86484eb7fdf55b8760b5a1d"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
+          "start": "public string? GetAuthorizedActorId()",
+          "tokens": [
+            "IsAuthenticated",
+            "HasReadAuthority(user)",
+            "actor.GetActorId()",
+            "string.Equals(actorId, \"api-user\"",
+            "? null",
+            ": actorId;"
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Planning/ConversationController.cs",
+          "start": "public async Task<IActionResult> GetMessages(",
+          "tokens": [
+            "ResolveThreadAnchorsAsync(",
+            "AuthorizedEvidenceRunResolver.ResolveProjectAsync(",
+            "ConversationHistoryReader.ReadAskAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Host.Core/Services/Ask/ConversationHistoryReader.cs",
+          "start": "private static async Task<IReadOnlyList<ConversationMessage>> ReadAsync(",
+          "tokens": [
+            "GetRecentProofsAsync(",
+            "SelectVerifiedDraftTurnReferences(",
+            "SelectVerifiedTurnReferences(",
+            "if (pairs.Count == 0)",
+            "GetAuthorizedMessagesAsync(",
+            "SelectVerifiedDraftTurns(",
+            "SelectVerifiedTurns("
+          ]
+        }
+      ]
     },
     {
       "id": "RetrievalController.Search",
@@ -315,15 +491,15 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
-          "blob": "52290538e55f5709d77aa9b7a906fe2832ce253a"
+          "blob": "96b973c6d50928a93c57aba0ca3ede0b79cdf8f7"
         },
         {
           "path": "ArchLucid.Host.Core/Services/Ask/AskHistoryEvidenceScope.cs",
-          "blob": "9eb8d38300737731c37c02b42aa69dcd73de30c4"
+          "blob": "01ac717bd9d45e04cdc176acee434bdd6eb10e42"
         },
         {
           "path": "ArchLucid.Application/Architecture/AuthorizedEvidenceRunResolver.cs",
@@ -348,9 +524,26 @@
         {
           "path": "ArchLucid.Retrieval/Agentic/IterativeRetrievalLoop.cs",
           "blob": "481f6f272ce89614caa94db6f036106abf862ec5"
+        },
+        {
+          "path": "ArchLucid.Host.Core/Auth/Services/HttpActorContext.cs",
+          "blob": "c47dd81d74d9590c3dddb50eb8af82b960731731"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
+          "start": "public string? GetAuthorizedActorId()",
+          "tokens": [
+            "IsAuthenticated",
+            "HasReadAuthority(user)",
+            "actor.GetActorId()",
+            "string.Equals(actorId, \"api-user\"",
+            "? null",
+            ": actorId;"
+          ]
+        }
+      ]
     },
     {
       "id": "McpRetrievalToolsController.PriceRowLookupAsync",
@@ -370,15 +563,15 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
-          "blob": "52290538e55f5709d77aa9b7a906fe2832ce253a"
+          "blob": "96b973c6d50928a93c57aba0ca3ede0b79cdf8f7"
         },
         {
           "path": "ArchLucid.Host.Core/Services/Ask/AskHistoryEvidenceScope.cs",
-          "blob": "9eb8d38300737731c37c02b42aa69dcd73de30c4"
+          "blob": "01ac717bd9d45e04cdc176acee434bdd6eb10e42"
         },
         {
           "path": "ArchLucid.Application/Architecture/AuthorizedEvidenceRunResolver.cs",
@@ -403,9 +596,26 @@
         {
           "path": "ArchLucid.Retrieval/Agentic/IterativeRetrievalLoop.cs",
           "blob": "481f6f272ce89614caa94db6f036106abf862ec5"
+        },
+        {
+          "path": "ArchLucid.Host.Core/Auth/Services/HttpActorContext.cs",
+          "blob": "c47dd81d74d9590c3dddb50eb8af82b960731731"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
+          "start": "public string? GetAuthorizedActorId()",
+          "tokens": [
+            "IsAuthenticated",
+            "HasReadAuthority(user)",
+            "actor.GetActorId()",
+            "string.Equals(actorId, \"api-user\"",
+            "? null",
+            ": actorId;"
+          ]
+        }
+      ]
     },
     {
       "id": "McpRetrievalToolsController.PriorDecisionSearchAsync",
@@ -425,15 +635,15 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
-          "blob": "52290538e55f5709d77aa9b7a906fe2832ce253a"
+          "blob": "96b973c6d50928a93c57aba0ca3ede0b79cdf8f7"
         },
         {
           "path": "ArchLucid.Host.Core/Services/Ask/AskHistoryEvidenceScope.cs",
-          "blob": "9eb8d38300737731c37c02b42aa69dcd73de30c4"
+          "blob": "01ac717bd9d45e04cdc176acee434bdd6eb10e42"
         },
         {
           "path": "ArchLucid.Application/Architecture/AuthorizedEvidenceRunResolver.cs",
@@ -458,6 +668,10 @@
         {
           "path": "ArchLucid.Retrieval/Agentic/IterativeRetrievalLoop.cs",
           "blob": "481f6f272ce89614caa94db6f036106abf862ec5"
+        },
+        {
+          "path": "ArchLucid.Host.Core/Auth/Services/HttpActorContext.cs",
+          "blob": "c47dd81d74d9590c3dddb50eb8af82b960731731"
         }
       ],
       "orderChecks": [
@@ -469,6 +683,18 @@
             "if (allowed is null)",
             "return null",
             "_retrievalTools.PriorDecisionSearchAsync(request, allowed, ct)"
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
+          "start": "public string? GetAuthorizedActorId()",
+          "tokens": [
+            "IsAuthenticated",
+            "HasReadAuthority(user)",
+            "actor.GetActorId()",
+            "string.Equals(actorId, \"api-user\"",
+            "? null",
+            ": actorId;"
           ]
         }
       ]
@@ -535,8 +761,8 @@
       "controllerFile": "Findings/ArchitectureFindingAskController.cs",
       "action": "AskAboutFinding",
       "source": "ArchLucid.Api/Controllers/Findings/ArchitectureFindingAskController.cs",
-      "status": "partial",
-      "reason": "Scoped finding identity and sharing checked before exact-owner hydration; stored history filtered to current actor and evidence before model use, but raw history still hydrated before turn proof.",
+      "status": "conformant",
+      "reason": "Resolve finding owner metadata and consume the owner-run share decision before an exact-owner payload read. Conversation proof precedes exact message-body reads.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Findings/ArchitectureFindingAskController.cs",
@@ -548,15 +774,15 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
-          "blob": "52290538e55f5709d77aa9b7a906fe2832ce253a"
+          "blob": "96b973c6d50928a93c57aba0ca3ede0b79cdf8f7"
         },
         {
           "path": "ArchLucid.Host.Core/Services/Ask/AskHistoryEvidenceScope.cs",
-          "blob": "9eb8d38300737731c37c02b42aa69dcd73de30c4"
+          "blob": "01ac717bd9d45e04cdc176acee434bdd6eb10e42"
         },
         {
           "path": "ArchLucid.Application/Architecture/AuthorizedEvidenceRunResolver.cs",
@@ -564,11 +790,31 @@
         },
         {
           "path": "ArchLucid.Host.Core/Services/Ask/AskService.cs",
-          "blob": "4340bf0967283eadd515863b19b4eae30d3c72de"
+          "blob": "92575411032175a738b1bc3762d9617bd08eaca9"
         },
         {
           "path": "ArchLucid.Persistence/Sql/FindingInspectReadSql.cs",
           "blob": "00d3af152d8953cd53d2a6ada52f55d2dd84f0e1"
+        },
+        {
+          "path": "ArchLucid.Host.Core/Auth/Services/HttpActorContext.cs",
+          "blob": "c47dd81d74d9590c3dddb50eb8af82b960731731"
+        },
+        {
+          "path": "ArchLucid.Host.Core/Ask/ConversationService.cs",
+          "blob": "855aca585f0f71abca090f08c513d6a51a88aa9b"
+        },
+        {
+          "path": "ArchLucid.Host.Core/Services/Ask/ConversationHistoryReader.cs",
+          "blob": "2782dfe3a584cf834215db8e11e56e77d1836ed7"
+        },
+        {
+          "path": "ArchLucid.Persistence/Conversation/DapperConversationMessageRepository.cs",
+          "blob": "17ad245c9cf88ddc0280c371a7d556531d4e9969"
+        },
+        {
+          "path": "ArchLucid.Persistence/Conversation/InMemoryConversationMessageRepository.cs",
+          "blob": "aecce7fbe7ffa479e86484eb7fdf55b8760b5a1d"
         }
       ],
       "orderChecks": [
@@ -580,7 +826,31 @@
             "CanReadRunAsync(",
             "GetInspectAsync(",
             "ExpectedRunId = runId",
-            "GetHistoryAsync(",
+            "GetVerifiedAskHistoryAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
+          "start": "public string? GetAuthorizedActorId()",
+          "tokens": [
+            "IsAuthenticated",
+            "HasReadAuthority(user)",
+            "actor.GetActorId()",
+            "string.Equals(actorId, \"api-user\"",
+            "? null",
+            ": actorId;"
+          ]
+        },
+        {
+          "path": "ArchLucid.Host.Core/Services/Ask/ConversationHistoryReader.cs",
+          "start": "private static async Task<IReadOnlyList<ConversationMessage>> ReadAsync(",
+          "tokens": [
+            "GetRecentProofsAsync(",
+            "SelectVerifiedDraftTurnReferences(",
+            "SelectVerifiedTurnReferences(",
+            "if (pairs.Count == 0)",
+            "GetAuthorizedMessagesAsync(",
+            "SelectVerifiedDraftTurns(",
             "SelectVerifiedTurns("
           ]
         }
@@ -1470,23 +1740,69 @@
       "controllerFile": "InfraEvidence/CloudResourceEvidenceHubController.cs",
       "action": "ListCloudResources",
       "source": "ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController.cs",
-      "status": "unverified",
-      "reason": "Scoped resource explorer delegate observed; downstream resource visibility and cache authority not traced.",
+      "status": "conformant",
+      "reason": "ReadAuthority and resolved project scope precede the Explorer query. Materialized observations, work counts, queue membership and paging totals stay within tenant/workspace/project in SQL; the in-memory directory restricts the owner project.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController.cs",
           "blob": "014d2b45438ee39d7217f701b4b2fae0e8dd03f2"
+        },
+        {
+          "path": "ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs",
+          "blob": "225828663719fc07b26b5399d75069149a2dd8b0"
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/SqlCloudResourceIdentityDirectory.cs",
+          "blob": "bff6269b4a7d4cb6b375174746073319621c23f0"
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/InMemoryCloudResourceIdentityDirectory.cs",
+          "blob": "48b9fb650bb1c79cea7d71d37a1ac32655180223"
+        },
+        {
+          "path": "ArchLucid.Application/InfraEvidence/CloudResourceExplorerQueryService.cs",
+          "blob": "44060c663077da14aa6ac8516e35b5190c82275b"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController.cs",
+          "start": "public async Task<IActionResult> ListCloudResources(",
+          "tokens": [
+            "GetCurrentScope()",
+            "ListCloudResourcesAsync(",
+            "scope,"
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/InfraEvidence/CloudResourceExplorerQueryService.cs",
+          "start": "public async Task<PagedResponse<CloudResourceSummary>> ListCloudResourcesAsync(",
+          "tokens": [
+            "identityDirectory.ListForExplorerAsync(",
+            "scope,",
+            "PagedResponseBuilder.FromDatabasePage("
+          ]
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/SqlCloudResourceIdentityDirectory.cs",
+          "start": "public async Task<(IReadOnlyList<CloudResourceExplorerListItem> Items, int TotalCount)> ListForExplorerAsync(",
+          "tokens": [
+            "WHERE TenantId = @TenantId",
+            "AND WorkspaceId = @WorkspaceId",
+            "AND ProjectId = @ProjectId",
+            "SELECT COUNT(1) {scopedRowsSql}",
+            "OFFSET @Skip ROWS"
+          ]
+        }
+      ]
     },
     {
       "id": "CloudResourceEvidenceHubController.GetHub",
       "controllerFile": "InfraEvidence/CloudResourceEvidenceHubController.cs",
       "action": "GetHub",
       "source": "ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController.cs",
-      "status": "partial",
-      "reason": "Explicit nonempty run mode checks gate before service. Snapshot/assessment/default modes not established equivalent; do not infer a bypass or compliance for those modes.",
+      "status": "conformant",
+      "reason": "HTTP and shared Hub boundaries check explicit run sharing before run evidence. Exact-scope resource identity and snapshot headers precede snapshot enrichment; cited-run manifests require current sharing. Audit lineage resolves only matching scoped assessment rows; selectors only narrow the lookup.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController.cs",
@@ -1503,21 +1819,131 @@
         {
           "path": "ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController.SealedManifestGuard.cs",
           "blob": "704cbb3eeab679d7214665d4eaf2020726f6c69d"
+        },
+        {
+          "path": "ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs",
+          "blob": "225828663719fc07b26b5399d75069149a2dd8b0"
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/SqlCloudResourceIdentityDirectory.cs",
+          "blob": "bff6269b4a7d4cb6b375174746073319621c23f0"
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/InMemoryCloudResourceIdentityDirectory.cs",
+          "blob": "48b9fb650bb1c79cea7d71d37a1ac32655180223"
+        },
+        {
+          "path": "ArchLucid.Application/InfraEvidence/CloudResourceEvidenceHubService.cs",
+          "blob": "504f228ee1310139fbee0b6b418cd43cef499816"
+        },
+        {
+          "path": "ArchLucid.Application/InfraEvidence/CloudResourceAuditLineageResolver.cs",
+          "blob": "5d2e0e35eae963a1fc7646b406ca6d2e11808466"
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/SqlAuditEvidenceSnapshotRepository.cs",
+          "blob": "57233d21b4b23e294f3daa0c739ecb55a9a29302"
+        },
+        {
+          "path": "ArchLucid.Application/InfraEvidence/IInfraEvidenceRunReadAccess.cs",
+          "blob": "056803567c057a1cdcc1ca2a729c9ca77b2bba72"
+        },
+        {
+          "path": "ArchLucid.Application/InfraEvidence/Mermaid/InfraEvidenceSnapshotSealedManifestHashGuard.cs",
+          "blob": "4dd43b94a000388a98606ab2f7184014eabbdf66"
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/SqlAzureInventorySnapshotRepository.cs",
+          "blob": "b6a801c7a940002dedd17800feefddd7bc8b0529"
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/SqlAzureInventorySnapshotRepository.ListResourcesPaged.cs",
+          "blob": "ebd5d9f24e912863fc68397dabb4620a2d7468e9"
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/SqlAzureInventorySnapshotRepository.ResourceHubSlice.cs",
+          "blob": "56c1eeeeb2932652658b6bbf6bde2163cf00b09a"
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/SqlAdvisoryTerraformRepresentationRepository.cs",
+          "blob": "e1b7995599217540bda379b570d90c59a5f22dea"
         }
       ],
-      "orderChecks": []
+      "orderChecks": [
+        {
+          "path": "ArchLucid.Api/Controllers/InfraEvidence/CloudResourceEvidenceHubController.cs",
+          "start": "public async Task<IActionResult> GetHub(",
+          "tokens": [
+            "EnsureRunReadAllowedAsync(",
+            "if (denied is not null)",
+            "EnsureHubRunSealedManifestAllowedAsync(",
+            "hubService.TryGetHubAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/InfraEvidence/CloudResourceEvidenceHubService.cs",
+          "start": "public async Task<CloudResourceEvidenceHubQueryResult> TryGetHubAsync(",
+          "tokens": [
+            "runReadAccess.CanReadRunAsync(",
+            "Succeeded = false",
+            "TryGetByCloudResourceIdInScopeAsync(",
+            "EnsureRunSealedOrThrowAsync(",
+            "TryGetBySnapshotIdAsync(",
+            "snapshot.ProjectId != scope.ProjectId",
+            "EnsureRunCitedSnapshotSealedOrThrowAsync(",
+            "LoadResourceHubSliceAsync(",
+            "auditLineageResolver.ResolveAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/InfraEvidence/Mermaid/InfraEvidenceSnapshotSealedManifestHashGuard.cs",
+          "start": "private static async Task EnsureCoreAsync(",
+          "tokens": [
+            "ListRunIdsBySnapshotAsync(",
+            "if (canReadRunAsync is not null && !await canReadRunAsync(",
+            "continue;",
+            "EnsureRunSealedManifestHashOrThrowAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/InfraEvidence/CloudResourceAuditLineageResolver.cs",
+          "start": "public async Task<CloudResourceAuditLineageLink> ResolveAsync(",
+          "tokens": [
+            "ListLineageContextsByCloudResourceIdInScopeAsync(",
+            "scope.ToProjectScopeKey()",
+            "NonEmpty(query.AssessmentId)",
+            "NonEmpty(query.AuditEvidenceSnapshotId)",
+            "NonEmpty(query.ControlId)",
+            "if (contexts.Count == 0)"
+          ]
+        },
+        {
+          "path": "ArchLucid.Persistence/InfraEvidence/SqlAuditEvidenceSnapshotRepository.cs",
+          "start": "public async Task<IReadOnlyList<AuditEvidenceSnapshotLineageContextRecord>> ListLineageContextsByCloudResourceIdInScopeAsync(",
+          "tokens": [
+            "INNER JOIN dbo.AuditAssessments",
+            "WHERE i.TenantId = @TenantId",
+            "a.WorkspaceId = @WorkspaceId AND a.ProjectId = @ProjectId",
+            "AND i.CloudResourceId = @CloudResourceId",
+            "AND (@AssessmentId IS NULL",
+            "AND (@SnapshotId IS NULL",
+            "AND (@ControlId IS NULL",
+            "ORDER BY"
+          ]
+        }
+      ]
     },
     {
       "id": "DraftRequestsController.ReasonDraft",
       "controllerFile": "Architecture/DraftRequestsController.cs",
       "action": "ReasonDraft",
       "source": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
-      "status": "partial",
-      "reason": "Merged intake preflight authorizes readable committed runs before manifest hydration. The downstream reasoning path verifies draft, run and completed-turn proof before model use. Raw draft and history pre-reads remain separately reviewable.",
+      "status": "conformant",
+      "reason": "Run-share decisions precede the intake seal read. Draft metadata authorizes the linked architecture or legacy owner and anchored runs before an exact-revision body read; draft-bound history proof precedes message-body reads.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
-          "blob": "7101698d13728a41726deb26c4a4a93e162191e7"
+          "blob": "9a44deb909eb05664d5ff3870dbc0da5d1d23028"
         },
         {
           "path": "ArchLucid.Api/Support/ArchitectureShareAccessGate.cs",
@@ -1525,15 +1951,15 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
-          "blob": "52290538e55f5709d77aa9b7a906fe2832ce253a"
+          "blob": "96b973c6d50928a93c57aba0ca3ede0b79cdf8f7"
         },
         {
           "path": "ArchLucid.Host.Core/Services/Ask/AskHistoryEvidenceScope.cs",
-          "blob": "9eb8d38300737731c37c02b42aa69dcd73de30c4"
+          "blob": "01ac717bd9d45e04cdc176acee434bdd6eb10e42"
         },
         {
           "path": "ArchLucid.Application/Architecture/AuthorizedEvidenceRunResolver.cs",
@@ -1541,7 +1967,7 @@
         },
         {
           "path": "ArchLucid.Host.Core/Services/Ask/DraftIntakeReasoningService.cs",
-          "blob": "3eba785792cf46a5381d56b50ffb828d4d7755b3"
+          "blob": "5a9eb3e592f85ae2b2d70ea9bba779e93f8898ed"
         },
         {
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.SealedManifestGuard.cs",
@@ -1566,6 +1992,46 @@
         {
           "path": "ArchLucid.Application/RunDetailQueryService.ListSummaries.cs",
           "blob": "fc1587cb140c0a520267a900d1e7a919aa2a6869"
+        },
+        {
+          "path": "ArchLucid.Host.Core/Auth/Services/HttpActorContext.cs",
+          "blob": "c47dd81d74d9590c3dddb50eb8af82b960731731"
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/DraftResourceAccessPolicy.cs",
+          "blob": "8da4d774d740b929fbe88feff22c496f86898556"
+        },
+        {
+          "path": "ArchLucid.Persistence/Data/Repositories/DapperDraftRequestRepository.Query.cs",
+          "blob": "5880b26f3a3428a9a607a5f3d2a0018f61d996da"
+        },
+        {
+          "path": "ArchLucid.Persistence/Data/Repositories/InMemoryDraftRequestRepository.cs",
+          "blob": "9911f1282e87b6030930b596b9a5b5dbb2032406"
+        },
+        {
+          "path": "ArchLucid.Persistence/Repositories/CachingDraftRequestRepository.cs",
+          "blob": "94037c0cd6189e91c7c813f4ac05967bf46def91"
+        },
+        {
+          "path": "ArchLucid.Host.Core/Ask/ConversationService.cs",
+          "blob": "855aca585f0f71abca090f08c513d6a51a88aa9b"
+        },
+        {
+          "path": "ArchLucid.Host.Core/Services/Ask/ConversationHistoryReader.cs",
+          "blob": "2782dfe3a584cf834215db8e11e56e77d1836ed7"
+        },
+        {
+          "path": "ArchLucid.Persistence/Conversation/DapperConversationMessageRepository.cs",
+          "blob": "17ad245c9cf88ddc0280c371a7d556531d4e9969"
+        },
+        {
+          "path": "ArchLucid.Persistence/Conversation/InMemoryConversationMessageRepository.cs",
+          "blob": "aecce7fbe7ffa479e86484eb7fdf55b8760b5a1d"
+        },
+        {
+          "path": "ArchLucid.Persistence/Data/Repositories/DapperDraftRequestRepository.cs",
+          "blob": "e41a5a843c100e607315b38dd18ec00063491651"
         }
       ],
       "orderChecks": [
@@ -1619,6 +2085,42 @@
           "tokens": [
             "GetRunDetailForManifestCompareAsync(scope, runId, cancellationToken)"
           ]
+        },
+        {
+          "path": "ArchLucid.Api/Support/AskEvidenceAccess.cs",
+          "start": "public string? GetAuthorizedActorId()",
+          "tokens": [
+            "IsAuthenticated",
+            "HasReadAuthority(user)",
+            "actor.GetActorId()",
+            "string.Equals(actorId, \"api-user\"",
+            "? null",
+            ": actorId;"
+          ]
+        },
+        {
+          "path": "ArchLucid.Host.Core/Services/Ask/DraftIntakeReasoningService.cs",
+          "start": "public async Task<DraftIntakeReasonResponse?> ReasonAsync(",
+          "tokens": [
+            "GetAccessMetadataAsync(",
+            "AuthorizeDraftAsync(",
+            "if (authorizedRuns is null)",
+            "GetAtAccessRevisionAsync(",
+            "GetVerifiedDraftHistoryAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Host.Core/Services/Ask/ConversationHistoryReader.cs",
+          "start": "private static async Task<IReadOnlyList<ConversationMessage>> ReadAsync(",
+          "tokens": [
+            "GetRecentProofsAsync(",
+            "SelectVerifiedDraftTurnReferences(",
+            "SelectVerifiedTurnReferences(",
+            "if (pairs.Count == 0)",
+            "GetAuthorizedMessagesAsync(",
+            "SelectVerifiedDraftTurns(",
+            "SelectVerifiedTurns("
+          ]
         }
       ]
     },
@@ -1627,12 +2129,12 @@
       "controllerFile": "Architecture/DraftRequestsController.cs",
       "action": "GetDraftQuestions",
       "source": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
-      "status": "partial",
-      "reason": "Merged intake preflight authorizes readable committed runs before manifest hydration. The downstream question selector loads the target draft through a scope-only repository lookup, without a draft-specific decision on this path.",
+      "status": "conformant",
+      "reason": "Draft access metadata, linked-architecture share or legacy ownership and current run anchors authorize the exact draft revision before question selection; denied requests do not enter the intake preflight or payload path.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
-          "blob": "7101698d13728a41726deb26c4a4a93e162191e7"
+          "blob": "9a44deb909eb05664d5ff3870dbc0da5d1d23028"
         },
         {
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.SealedManifestGuard.cs",
@@ -1664,19 +2166,39 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Application/Drafts/DraftRequestService.cs",
-          "blob": "e768390e3f1af71924b53ea41b575da30c2113de"
+          "blob": "ebae6437be6028504639bc0a2ac85c7395e04126"
         },
         {
           "path": "ArchLucid.Application/Drafts/DraftRequestCrudService.cs",
-          "blob": "8f400bbf8e9a4ccae0949949edfd54cd1936861f"
+          "blob": "b935d9e7c28378432cbf1071e600655dd09e2cb3"
         },
         {
           "path": "ArchLucid.Application/Drafts/DraftAdmissionService.Questions.cs",
-          "blob": "a1e0bcc0c59078bc02eed76bf53c711453ccd5f1"
+          "blob": "d12a7d96cf309ef8f1323ba594e2eddd6b06523c"
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/DraftResourceAccessPolicy.cs",
+          "blob": "8da4d774d740b929fbe88feff22c496f86898556"
+        },
+        {
+          "path": "ArchLucid.Persistence/Data/Repositories/DapperDraftRequestRepository.Query.cs",
+          "blob": "5880b26f3a3428a9a607a5f3d2a0018f61d996da"
+        },
+        {
+          "path": "ArchLucid.Persistence/Data/Repositories/InMemoryDraftRequestRepository.cs",
+          "blob": "9911f1282e87b6030930b596b9a5b5dbb2032406"
+        },
+        {
+          "path": "ArchLucid.Persistence/Repositories/CachingDraftRequestRepository.cs",
+          "blob": "94037c0cd6189e91c7c813f4ac05967bf46def91"
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.QuestionAccess.cs",
+          "blob": "933c2748dea077745fe35453901ad5a43a5c3fc0"
         }
       ],
       "orderChecks": [
@@ -1684,8 +2206,12 @@
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
           "start": "public async Task<IActionResult> GetDraftQuestions(",
           "tokens": [
+            "AuthorizeDraftQuestionAsync(",
+            "if (access is null)",
+            "return this.NotFoundProblem(",
             "EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken)",
-            "_draftRequestService.GetQuestionsAsync("
+            "_draftRequestService.GetQuestionsAsync(",
+            "access.UpdatedUtc"
           ]
         },
         {
@@ -1729,6 +2255,27 @@
           "start": "public static async Task EnsureRunSealedManifestHashOrThrowAsync(",
           "tokens": [
             "GetRunDetailForManifestCompareAsync(scope, runId, cancellationToken)"
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.QuestionAccess.cs",
+          "start": "private async Task<DraftRequestAccessMetadata?> AuthorizeDraftQuestionAsync(",
+          "tokens": [
+            "GetAccessMetadataAsync(",
+            "DraftResourceAccessPolicy.AuthorizeAsync(",
+            "EvaluateArchitectureAsync(",
+            "EvaluateRunReadAsync(",
+            "return allowed is null ? null : facts;"
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/DraftAdmissionService.Questions.cs",
+          "start": "public async Task<DraftQuestionsResponse?> GetQuestionsAsync(",
+          "tokens": [
+            "authorizedUpdatedUtc is DateTime revision",
+            "GetAtAccessRevisionAsync(",
+            "if (existing is null)",
+            "_questionSelectionEngine.SelectAsync("
           ]
         }
       ]
@@ -1738,12 +2285,12 @@
       "controllerFile": "Architecture/DraftRequestsController.cs",
       "action": "AnswerQuestion",
       "source": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
-      "status": "partial",
-      "reason": "Merged intake preflight authorizes readable committed runs before manifest hydration. The downstream mutation stage loads and updates the target draft using scope and draft ID. A draft-specific decision before the payload read is absent from this path.",
+      "status": "conformant",
+      "reason": "Draft metadata and decide access authorize the exact draft revision before payload hydration; stale revisions do not yield to a cache fallback and conditional writes require the authorized revision.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
-          "blob": "7101698d13728a41726deb26c4a4a93e162191e7"
+          "blob": "9a44deb909eb05664d5ff3870dbc0da5d1d23028"
         },
         {
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.SealedManifestGuard.cs",
@@ -1775,19 +2322,39 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Application/Drafts/DraftRequestService.cs",
-          "blob": "e768390e3f1af71924b53ea41b575da30c2113de"
+          "blob": "ebae6437be6028504639bc0a2ac85c7395e04126"
         },
         {
           "path": "ArchLucid.Application/Drafts/DraftRequestCrudService.cs",
-          "blob": "8f400bbf8e9a4ccae0949949edfd54cd1936861f"
+          "blob": "b935d9e7c28378432cbf1071e600655dd09e2cb3"
         },
         {
           "path": "ArchLucid.Application/Drafts/Stages/DraftRequestMutateStage.cs",
-          "blob": "2731ba34a3a92316c1ec9feaadec40f72631b658"
+          "blob": "66096135126ec14b61f2f829bac31ea174e4e59a"
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/DraftResourceAccessPolicy.cs",
+          "blob": "8da4d774d740b929fbe88feff22c496f86898556"
+        },
+        {
+          "path": "ArchLucid.Persistence/Data/Repositories/DapperDraftRequestRepository.Query.cs",
+          "blob": "5880b26f3a3428a9a607a5f3d2a0018f61d996da"
+        },
+        {
+          "path": "ArchLucid.Persistence/Data/Repositories/InMemoryDraftRequestRepository.cs",
+          "blob": "9911f1282e87b6030930b596b9a5b5dbb2032406"
+        },
+        {
+          "path": "ArchLucid.Persistence/Repositories/CachingDraftRequestRepository.cs",
+          "blob": "94037c0cd6189e91c7c813f4ac05967bf46def91"
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.QuestionAccess.cs",
+          "blob": "933c2748dea077745fe35453901ad5a43a5c3fc0"
         }
       ],
       "orderChecks": [
@@ -1795,8 +2362,12 @@
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
           "start": "public async Task<IActionResult> AnswerQuestion(",
           "tokens": [
+            "AuthorizeDraftQuestionAsync(",
+            "if (access is null)",
+            "return this.NotFoundProblem(",
             "EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken)",
-            "_draftRequestService.AnswerQuestionAsync("
+            "_draftRequestService.AnswerQuestionAsync(",
+            "access.UpdatedUtc"
           ]
         },
         {
@@ -1840,6 +2411,35 @@
           "start": "public static async Task EnsureRunSealedManifestHashOrThrowAsync(",
           "tokens": [
             "GetRunDetailForManifestCompareAsync(scope, runId, cancellationToken)"
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.QuestionAccess.cs",
+          "start": "private async Task<DraftRequestAccessMetadata?> AuthorizeDraftQuestionAsync(",
+          "tokens": [
+            "GetAccessMetadataAsync(",
+            "DraftResourceAccessPolicy.AuthorizeAsync(",
+            "EvaluateArchitectureAsync(",
+            "EvaluateRunReadAsync(",
+            "return allowed is null ? null : facts;"
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/Stages/DraftRequestMutateStage.cs",
+          "start": "public async Task<DraftRequestResponse?> AnswerQuestionAsync(",
+          "tokens": [
+            "authorizedUpdatedUtc is DateTime revision",
+            "GetAtAccessRevisionAsync(",
+            "if (existing is null)",
+            "UpdateQuestionAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/Stages/DraftRequestMutateStage.cs",
+          "start": "private Task<DraftRequestResponse?> UpdateQuestionAsync(",
+          "tokens": [
+            "authorizedUpdatedUtc.HasValue",
+            "_draftRepository.UpdateAtAccessRevisionAsync("
           ]
         }
       ]
@@ -1849,12 +2449,12 @@
       "controllerFile": "Architecture/DraftRequestsController.cs",
       "action": "SkipQuestion",
       "source": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
-      "status": "partial",
-      "reason": "Merged intake preflight authorizes readable committed runs before manifest hydration. The downstream mutation stage loads and updates the target draft using scope and draft ID. A draft-specific decision before the payload read is absent from this path.",
+      "status": "conformant",
+      "reason": "Draft metadata and decide access authorize the exact draft revision before payload hydration and question selection; conditional writes require the authorized revision.",
       "evidence": [
         {
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
-          "blob": "7101698d13728a41726deb26c4a4a93e162191e7"
+          "blob": "9a44deb909eb05664d5ff3870dbc0da5d1d23028"
         },
         {
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.SealedManifestGuard.cs",
@@ -1886,19 +2486,39 @@
         },
         {
           "path": "ArchLucid.Api/Configuration/ApiWebLayerServiceCollectionExtensions.cs",
-          "blob": "1eb0e55f1e5f874f582b27a6816dd68075688c19"
+          "blob": "da797e3aa8af14fd215bf406dce4ed6a75a58f0c"
         },
         {
           "path": "ArchLucid.Application/Drafts/DraftRequestService.cs",
-          "blob": "e768390e3f1af71924b53ea41b575da30c2113de"
+          "blob": "ebae6437be6028504639bc0a2ac85c7395e04126"
         },
         {
           "path": "ArchLucid.Application/Drafts/DraftRequestCrudService.cs",
-          "blob": "8f400bbf8e9a4ccae0949949edfd54cd1936861f"
+          "blob": "b935d9e7c28378432cbf1071e600655dd09e2cb3"
         },
         {
           "path": "ArchLucid.Application/Drafts/Stages/DraftRequestMutateStage.cs",
-          "blob": "2731ba34a3a92316c1ec9feaadec40f72631b658"
+          "blob": "66096135126ec14b61f2f829bac31ea174e4e59a"
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/DraftResourceAccessPolicy.cs",
+          "blob": "8da4d774d740b929fbe88feff22c496f86898556"
+        },
+        {
+          "path": "ArchLucid.Persistence/Data/Repositories/DapperDraftRequestRepository.Query.cs",
+          "blob": "5880b26f3a3428a9a607a5f3d2a0018f61d996da"
+        },
+        {
+          "path": "ArchLucid.Persistence/Data/Repositories/InMemoryDraftRequestRepository.cs",
+          "blob": "9911f1282e87b6030930b596b9a5b5dbb2032406"
+        },
+        {
+          "path": "ArchLucid.Persistence/Repositories/CachingDraftRequestRepository.cs",
+          "blob": "94037c0cd6189e91c7c813f4ac05967bf46def91"
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.QuestionAccess.cs",
+          "blob": "933c2748dea077745fe35453901ad5a43a5c3fc0"
         }
       ],
       "orderChecks": [
@@ -1906,8 +2526,12 @@
           "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.Questions.cs",
           "start": "public async Task<IActionResult> SkipQuestion(",
           "tokens": [
+            "AuthorizeDraftQuestionAsync(",
+            "if (access is null)",
+            "return this.NotFoundProblem(",
             "EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken)",
-            "_draftRequestService.SkipQuestionAsync("
+            "_draftRequestService.SkipQuestionAsync(",
+            "access.UpdatedUtc"
           ]
         },
         {
@@ -1951,6 +2575,35 @@
           "start": "public static async Task EnsureRunSealedManifestHashOrThrowAsync(",
           "tokens": [
             "GetRunDetailForManifestCompareAsync(scope, runId, cancellationToken)"
+          ]
+        },
+        {
+          "path": "ArchLucid.Api/Controllers/Architecture/DraftRequestsController.QuestionAccess.cs",
+          "start": "private async Task<DraftRequestAccessMetadata?> AuthorizeDraftQuestionAsync(",
+          "tokens": [
+            "GetAccessMetadataAsync(",
+            "DraftResourceAccessPolicy.AuthorizeAsync(",
+            "EvaluateArchitectureAsync(",
+            "EvaluateRunReadAsync(",
+            "return allowed is null ? null : facts;"
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/Stages/DraftRequestMutateStage.cs",
+          "start": "public async Task<DraftRequestResponse?> SkipQuestionAsync(",
+          "tokens": [
+            "authorizedUpdatedUtc is DateTime revision",
+            "GetAtAccessRevisionAsync(",
+            "if (existing is null)",
+            "UpdateQuestionAsync("
+          ]
+        },
+        {
+          "path": "ArchLucid.Application/Drafts/Stages/DraftRequestMutateStage.cs",
+          "start": "private Task<DraftRequestResponse?> UpdateQuestionAsync(",
+          "tokens": [
+            "authorizedUpdatedUtc.HasValue",
+            "_draftRepository.UpdateAtAccessRevisionAsync("
           ]
         }
       ]

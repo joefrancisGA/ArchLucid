@@ -130,8 +130,7 @@ public sealed class AzureOpenAiCompletionStalledTransportTests
             try
             {
                 // Simulate an HTTP connection whose peer never sends response headers.
-                await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken)
-                    .ConfigureAwait(false);
+                await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
                 throw new InvalidOperationException("Stalled transport unexpectedly returned.");
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

@@ -21,6 +21,7 @@ public sealed partial class FindingsSnapshotEmitStage(ILogger<FindingsSnapshotEm
 
         FindingsSnapshot snapshot = context.Snapshot;
 
+        snapshot.RequirementComparisonRecovery = context.RequirementComparisonRecovery;
         ApplyHeldCheckLedger(context, snapshot);
         ApplyProseAssumptionRegister(context, snapshot);
         ApplyProseAssumptionHeldCheckAsks(context, snapshot);

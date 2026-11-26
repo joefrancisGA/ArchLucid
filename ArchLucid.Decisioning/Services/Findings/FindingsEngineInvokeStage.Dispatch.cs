@@ -1,6 +1,8 @@
 using System.Diagnostics;
+using System.Data.Common;
 
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Findings;
@@ -17,6 +19,12 @@ partial class FindingsEngineInvokeStage
         if (outcome.Exception is not null)
         {
             Exception ex = outcome.Exception;
+            if (IsRequirementComparison(engine) && outcome.Attempts > 1)
+            {
+                context.RequirementComparisonRecovery = IsTransientReadError(ex)
+                    ? RequirementComparisonRecoveryCodes.RetryExhausted
+                    : RequirementComparisonRecoveryCodes.RetryStopped;
+            }
             LogEngineFailed(ex, context.RunId, engine.EngineType, engine.Category, outcome.DurationMs);
             ArchLucidInstrumentation.RecordFindingEngineFailure(engine.EngineType, engine.Category);
             context.EngineExceptions.Add(ex);
@@ -40,6 +48,8 @@ partial class FindingsEngineInvokeStage
         context.SuccessfulEngineTypes.Add(engine.EngineType);
         LogEngineCompleted(context.RunId, engine.EngineType, engine.Category, outcome.DurationMs, findings.Count);
 
+        int acceptedBefore = context.AllFindings.Count;
+        int failuresBefore = context.EngineFailures.Count;
         foreach (Finding finding in findings)
         {
             if (string.IsNullOrWhiteSpace(finding.Category))
@@ -72,6 +82,18 @@ partial class FindingsEngineInvokeStage
 
             context.AllFindings.Add(finding);
         }
+
+        if (IsRequirementComparison(engine) && failuresBefore == context.EngineFailures.Count)
+        {
+            bool accepted = context.AllFindings.Count > acceptedBefore;
+            context.RequirementComparisonRecovery = (outcome.Attempts > 1, accepted) switch
+            {
+                (true, true) => RequirementComparisonRecoveryCodes.RecoveredWithFindings,
+                (true, false) => RequirementComparisonRecoveryCodes.RecoveredNoFindings,
+                (false, true) => RequirementComparisonRecoveryCodes.WithFindings,
+                _ => RequirementComparisonRecoveryCodes.NoFindings,
+            };
+        }
     }
 
     private static async Task<EngineInvocationOutcome[]> AwaitEngineInvocationsAsync(
@@ -99,32 +121,45 @@ partial class FindingsEngineInvokeStage
         CancellationToken ct)
     {
         Stopwatch sw = Stopwatch.StartNew();
-
-        try
+        int maxAttempts = IsRequirementComparison(engine) ? 2 : 1;
+        for (int attempt = 1; ; attempt++)
         {
-            IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graphSnapshot, analysisContext, ct);
-            sw.Stop();
-
-            return new EngineInvocationOutcome(engine, findings, null, sw.ElapsedMilliseconds);
-        }
-        catch (OperationCanceledException)
-        {
-            sw.Stop();
-            throw;
-        }
-        catch (Exception ex)
-        {
-            sw.Stop();
-
-            return new EngineInvocationOutcome(engine, null, ex, sw.ElapsedMilliseconds);
+            try
+            {
+                ct.ThrowIfCancellationRequested();
+                IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graphSnapshot, analysisContext, ct);
+                ct.ThrowIfCancellationRequested();
+                return new EngineInvocationOutcome(engine, findings, null, sw.ElapsedMilliseconds, attempt);
+            }
+            catch (Exception ex) when (attempt < maxAttempts && IsTransientReadError(ex))
+            {
+                LogRequirementComparisonRetrying(contextRunId: graphSnapshot.RunId);
+                await Task.Delay(TimeSpan.FromMilliseconds(100), _clock, ct);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                return new EngineInvocationOutcome(engine, null, ex, sw.ElapsedMilliseconds, attempt);
+            }
         }
     }
+
+    private static bool IsRequirementComparison(EngineAdapter engine) =>
+        string.Equals(engine.EngineType, RequirementComparisonRecoveryCodes.EngineType, StringComparison.OrdinalIgnoreCase)
+        && string.Equals(engine.Category, "Requirement", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsTransientReadError(Exception error) =>
+        error is TimeoutException or DbException { IsTransient: true };
 
     private sealed record EngineInvocationOutcome(
         EngineAdapter Engine,
         IReadOnlyList<Finding>? Findings,
         Exception? Exception,
-        long DurationMs);
+        long DurationMs,
+        int Attempts);
+
+    [LoggerMessage(EventId = 6, Level = LogLevel.Information,
+        Message = "Requirement comparison retrying a transient read in run {ContextRunId}.")]
+    private partial void LogRequirementComparisonRetrying(Guid contextRunId);
 
     [LoggerMessage(
         EventId = 5,

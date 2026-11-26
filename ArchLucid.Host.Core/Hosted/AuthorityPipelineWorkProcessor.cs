@@ -6,6 +6,7 @@ using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
@@ -57,22 +58,21 @@ public sealed class AuthorityPipelineWorkProcessor(
         AuthorityPipelineWorkProcessorOptions opts,
         CancellationToken cancellationToken)
     {
-        ScopeContext jobScope = new()
+        ScopeContext jobScope = AuthorityPipelineWorkHandlerCore.CreateJobScope(entry);
+
+        if (CommittedRunEvidenceBinding.HasExplicitScope(jobScope) && entry.RunId != Guid.Empty &&
+            CommittedRunEvidenceBinding.MatchesDrainScope(jobScope, AmbientScopeContext.CurrentOverride))
         {
-            TenantId = entry.TenantId,
-            WorkspaceId = entry.WorkspaceId,
-            ProjectId = entry.ProjectId,
-        };
-
-        IRunRepository runRepository = scope.ServiceProvider.GetRequiredService<IRunRepository>();
-
-        await AuthorityPipelineDeadLetterRunMarker.TryMarkRunDeadLetteredAsync(
-            runRepository,
-            jobScope,
-            entry.RunId,
-            summary,
-            TimeProvider.UtcNowDateTime(),
-            cancellationToken).ConfigureAwait(false);
+            using IDisposable ambient = AuthorityPipelineWorkHandlerCore.PushJobScope(jobScope);
+            IRunRepository runRepository = scope.ServiceProvider.GetRequiredService<IRunRepository>();
+            await AuthorityPipelineDeadLetterRunMarker.TryMarkRunDeadLetteredAsync(
+                runRepository,
+                jobScope,
+                entry.RunId,
+                summary,
+                TimeProvider.UtcNowDateTime(),
+                cancellationToken).ConfigureAwait(false);
+        }
 
         if (Logger.IsEnabled(LogLevel.Error))
         {
@@ -92,6 +92,24 @@ public sealed class AuthorityPipelineWorkProcessor(
         AuthorityPipelineWorkProcessorOptions opts,
         CancellationToken cancellationToken)
     {
+        ScopeContext jobScope = AuthorityPipelineWorkHandlerCore.CreateJobScope(entry);
+
+        if (!CommittedRunEvidenceBinding.MatchesDrainScope(jobScope, AmbientScopeContext.CurrentOverride))
+        {
+            // Do not consume or retry a different scope's work. Its existing claim can expire.
+            Logger.LogWarning("Authority pipeline outbox {OutboxId} is outside the active drain scope; skipping this claim.",
+                entry.OutboxId);
+            return;
+        }
+
+        if (!CommittedRunEvidenceBinding.HasExplicitScope(jobScope) || entry.RunId == Guid.Empty)
+        {
+            Logger.LogError("Authority pipeline outbox {OutboxId} has an incomplete scope or run ID; marking processed.",
+                entry.OutboxId);
+            await workOutbox.MarkProcessedAsync(entry.OutboxId, cancellationToken).ConfigureAwait(false);
+            return;
+        }
+
         if (!AuthorityPipelineWorkPayloadJson.TryDeserialize(entry.PayloadJson, out AuthorityPipelineWorkPayload? payload) ||
             payload is null ||
             !payload.IsValidForProcessing())
@@ -104,28 +122,32 @@ public sealed class AuthorityPipelineWorkProcessor(
             return;
         }
 
-        ScopeContext jobScope = new()
-        {
-            TenantId = entry.TenantId,
-            WorkspaceId = entry.WorkspaceId,
-            ProjectId = entry.ProjectId,
-        };
-
-        using IDisposable _ = AmbientScopeContext.Push(jobScope);
+        using IDisposable ambient = AuthorityPipelineWorkHandlerCore.PushJobScope(jobScope);
 
         IRunRepository runRepository = scope.ServiceProvider.GetRequiredService<IRunRepository>();
-        RunRecord? persistedRun = await runRepository.GetByIdAsync(jobScope, entry.RunId, cancellationToken)
+        RunRecord? persistedRun = await AuthorityPipelineWorkHandlerCore
+            .FindBoundActiveRunAsync(runRepository, jobScope, entry.RunId, cancellationToken)
             .ConfigureAwait(false);
 
         if (persistedRun is null)
         {
             Logger.LogError(
-                "Authority pipeline work outbox {OutboxId} references missing run {RunId}; marking processed.",
+                "Authority pipeline work outbox {OutboxId} has no matching active run {RunId}; marking processed.",
                 LogSanitizer.Sanitize(entry.OutboxId.ToString()),
                 LogSanitizer.Sanitize(entry.RunId.ToString("N")));
             await workOutbox.MarkProcessedAsync(entry.OutboxId, cancellationToken).ConfigureAwait(false);
 
             return;
+        }
+
+        IEvidenceBundleRepository bundles = scope.ServiceProvider.GetRequiredService<IEvidenceBundleRepository>();
+
+        if (!await bundles.IsBoundToRunAsync(jobScope, entry.RunId, payload.EvidenceBundleId.Trim(), cancellationToken)
+                .ConfigureAwait(false))
+        {
+            // Detached create can commit the queue row before the bundle is persisted. Use the
+            // existing bounded retry path instead of consuming potentially recoverable work.
+            throw new InvalidOperationException("Deferred authority evidence bundle is not bound to this run.");
         }
 
         IAuthorityPipelineWorkHandler handler = ResolveHandler(scope, payload);

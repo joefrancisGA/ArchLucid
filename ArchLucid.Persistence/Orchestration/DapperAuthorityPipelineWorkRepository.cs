@@ -1,6 +1,8 @@
 using System.Data;
-using ArchLucid.Core.Tenancy;
 using System.Diagnostics.CodeAnalysis;
+
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 
 using ArchLucid.Persistence.Connections;
 
@@ -16,6 +18,12 @@ namespace ArchLucid.Persistence.Orchestration;
 public sealed class DapperAuthorityPipelineWorkRepository(ISqlConnectionFactory connectionFactory)
     : IAuthorityPipelineWorkRepository
 {
+    private const string ActiveDrainPredicate = """
+        AND (@DrainTenantId IS NULL OR o.TenantId = @DrainTenantId)
+        AND (@DrainWorkspaceId IS NULL OR o.WorkspaceId = @DrainWorkspaceId)
+        AND (@DrainProjectId IS NULL OR o.ProjectId = @DrainProjectId)
+        """;
+
     /// <inheritdoc />
     public async Task EnqueueAsync(
         Guid runId,
@@ -80,7 +88,7 @@ public sealed class DapperAuthorityPipelineWorkRepository(ISqlConnectionFactory 
         int lease = AuthorityPipelineWorkRepositoryCore.ClampLeaseDurationSeconds(leaseDurationSeconds);
 
         // Fair dequeue: ROW_NUMBER per TenantId (FIFO within tenant); global sort takes round k from each tenant before any k+1.
-        const string sql = """
+        string sql = $"""
                            ;WITH numbered AS (
                                SELECT
                                    o.OutboxId,
@@ -93,7 +101,8 @@ public sealed class DapperAuthorityPipelineWorkRepository(ISqlConnectionFactory 
                                WHERE o.ProcessedUtc IS NULL
                                  AND o.DeadLetteredUtc IS NULL
                                  AND (o.NextAttemptUtc IS NULL OR o.NextAttemptUtc <= SYSUTCDATETIME())
-                                 AND (o.LockedUntilUtc IS NULL OR o.LockedUntilUtc <= SYSUTCDATETIME())),
+                                 AND (o.LockedUntilUtc IS NULL OR o.LockedUntilUtc <= SYSUTCDATETIME())
+                                 {ActiveDrainPredicate}),
                            cte AS (
                                SELECT TOP (@Take)
                                    n.OutboxId
@@ -117,12 +126,13 @@ public sealed class DapperAuthorityPipelineWorkRepository(ISqlConnectionFactory 
                                INNER JOIN cte ON cte.OutboxId = o.OutboxId;
                            """;
 
+        DynamicParameters parameters = new(GetActiveDrainParameters());
+        parameters.Add("Take", take);
+        parameters.Add("LeaseSeconds", lease);
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         IEnumerable<AuthorityPipelineWorkOutboxEntry> rows =
             await connection.QueryAsync<AuthorityPipelineWorkOutboxEntry>(
-                new CommandDefinition(sql,
-                    new { Take = take, LeaseSeconds = lease },
-                    cancellationToken: cancellationToken));
+                new CommandDefinition(sql, parameters, cancellationToken: cancellationToken));
 
         return rows.ToList();
     }
@@ -201,15 +211,16 @@ public sealed class DapperAuthorityPipelineWorkRepository(ISqlConnectionFactory 
 
     /// <inheritdoc />
     public Task<long> CountActionablePendingAsync(CancellationToken cancellationToken = default) =>
-        CountWhereAsync("""
+        CountWhereAsync($"""
                          SELECT COUNT_BIG(1)
-                         FROM dbo.AuthorityPipelineWorkOutbox
-                         WHERE ProcessedUtc IS NULL
-                           AND DeadLetteredUtc IS NULL
-                           AND (NextAttemptUtc IS NULL OR NextAttemptUtc <= SYSUTCDATETIME())
-                           AND (LockedUntilUtc IS NULL OR LockedUntilUtc <= SYSUTCDATETIME());
+                         FROM dbo.AuthorityPipelineWorkOutbox AS o
+                         WHERE o.ProcessedUtc IS NULL
+                           AND o.DeadLetteredUtc IS NULL
+                           AND (o.NextAttemptUtc IS NULL OR o.NextAttemptUtc <= SYSUTCDATETIME())
+                           AND (o.LockedUntilUtc IS NULL OR o.LockedUntilUtc <= SYSUTCDATETIME())
+                           {ActiveDrainPredicate};
                          """,
-            cancellationToken);
+            cancellationToken, GetActiveDrainParameters());
 
     /// <inheritdoc />
     public Task<long> CountDeadLetteredAsync(CancellationToken cancellationToken = default) =>
@@ -221,10 +232,22 @@ public sealed class DapperAuthorityPipelineWorkRepository(ISqlConnectionFactory 
                          """,
             cancellationToken);
 
-    private async Task<long> CountWhereAsync(string sql, CancellationToken cancellationToken)
+    private static object GetActiveDrainParameters()
+    {
+        ScopeContext? activeDrain = AmbientScopeContext.CurrentOverride;
+        static Guid? NonEmpty(Guid? value) => value == Guid.Empty ? null : value;
+        return new
+        {
+            DrainTenantId = NonEmpty(activeDrain?.TenantId),
+            DrainWorkspaceId = NonEmpty(activeDrain?.WorkspaceId),
+            DrainProjectId = NonEmpty(activeDrain?.ProjectId),
+        };
+    }
+
+    private async Task<long> CountWhereAsync(string sql, CancellationToken cancellationToken, object? parameters = null)
     {
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        return await connection.ExecuteScalarAsync<long>(new CommandDefinition(sql, cancellationToken: cancellationToken));
+        return await connection.ExecuteScalarAsync<long>(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken));
     }
 
     private static async Task EnqueueCoreAsync(

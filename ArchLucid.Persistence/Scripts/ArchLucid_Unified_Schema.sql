@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 433_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 434_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -11716,3 +11716,24 @@ GO
 
 IF COL_LENGTH(N'dbo.RunExportBlobPushOutbox', N'RequestedByDirectoryUserId') IS NULL
     ALTER TABLE dbo.RunExportBlobPushOutbox ADD RequestedByDirectoryUserId UNIQUEIDENTIFIER NULL;
+
+GO
+
+IF OBJECT_ID(N'dbo.RuntimeAttestationWatermarks', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.RuntimeAttestationWatermarks
+    (
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
+        ScopeHash BINARY(32) NOT NULL,
+        IssuedAt DATETIMEOFFSET(7) NOT NULL,
+        EnumeratedAt DATETIMEOFFSET(7) NOT NULL,
+        ExpiresAt DATETIMEOFFSET(7) NOT NULL,
+        PayloadDigest BINARY(32) NOT NULL,
+        CONSTRAINT PK_RuntimeAttestationWatermarks PRIMARY KEY
+            (TenantId, WorkspaceId, ProjectId, ScopeHash),
+        CONSTRAINT CK_RuntimeAttestationWatermarks_Times
+            CHECK (EnumeratedAt <= IssuedAt AND IssuedAt < ExpiresAt)
+    );
+END;

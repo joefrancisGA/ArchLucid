@@ -24,6 +24,10 @@ on:
       - 'ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController*.cs'
       - '.github/workflows/fnd061-resource-hub-cited-runs.yml'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
@@ -33,6 +37,11 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+      - uses: actions/cache@v5
+        with:
+          path: ~/.nuget/packages
+          key: nuget-authorization-${{ runner.os }}-${{ hashFiles('global.json', 'Directory.Packages.props', '**/*.csproj', '**/packages.lock.json') }}
+          restore-keys: nuget-authorization-${{ runner.os }}-
       - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
@@ -42,5 +51,5 @@ jobs:
           --logger 'console;verbosity=normal'
       - run: >-
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~InfraEvidenceDriftWorkbenchQueryServiceTests|FullyQualifiedName~InfraEvidenceAskGroundingServiceTests'
+          --filter 'FullyQualifiedName~InfraEvidenceDriftWorkbenchQueryServiceTests|FullyQualifiedName~InfraEvidenceAskGroundingServiceTests|FullyQualifiedName~CloudResourceEvidenceHubServiceTests|FullyQualifiedName~CloudResourceExplorerQueryServiceTests|FullyQualifiedName~CloudResourceAuditLineageResolverTests'
           --logger 'console;verbosity=normal'

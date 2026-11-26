@@ -90,6 +90,7 @@ public sealed class FindingsSnapshotRelationalReadDirectSqlIntegrationTests(SqlS
             GraphSnapshotId = graphId,
             CreatedUtc = createdUtc,
             SchemaVersion = 1,
+            GenerationStatus = FindingsSnapshotGenerationStatus.Complete,
             Findings =
             [
                 new Finding
@@ -112,13 +113,13 @@ public sealed class FindingsSnapshotRelationalReadDirectSqlIntegrationTests(SqlS
                                       (
                                           FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId,
                                           TenantId, WorkspaceId, ProjectId,
-                                          CreatedUtc, SchemaVersion, FindingsJson
+                                          CreatedUtc, SchemaVersion, GenerationStatus, FindingsJson
                                       )
                                       VALUES
                                       (
                                           @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId,
                                           @TenantId, @WorkspaceId, @ProjectId,
-                                          @CreatedUtc, @SchemaVersion, @FindingsJson
+                                          @CreatedUtc, @SchemaVersion, @GenerationStatus, @FindingsJson
                                       );
                                       """;
 
@@ -136,20 +137,13 @@ public sealed class FindingsSnapshotRelationalReadDirectSqlIntegrationTests(SqlS
                     ProjectId = scopeProjectId,
                     CreatedUtc = createdUtc,
                     SchemaVersion = 1,
+                    GenerationStatus = nameof(FindingsSnapshotGenerationStatus.PartiallyComplete),
                     FindingsJson = findingsJson
                 },
                 cancellationToken: CancellationToken.None));
 
-        FindingsSnapshotStorageRow row = new()
-        {
-            FindingsSnapshotId = findingsId,
-            RunId = runId,
-            ContextSnapshotId = contextId,
-            GraphSnapshotId = graphId,
-            CreatedUtc = createdUtc,
-            SchemaVersion = 1,
-            FindingsJson = findingsJson
-        };
+        FindingsSnapshotStorageRow row = await FindingsSnapshotSqlTestHeader.ReadAsync(
+            connection, findingsId, CancellationToken.None);
 
         FindingsSnapshot loaded =
             await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(
@@ -163,6 +157,8 @@ public sealed class FindingsSnapshotRelationalReadDirectSqlIntegrationTests(SqlS
         loaded.Findings.Should().ContainSingle();
         loaded.Findings[0].FindingId.Should().Be("legacy-direct");
         loaded.Findings[0].Title.Should().Be("from-json");
+        loaded.GenerationStatus.Should().Be(FindingsSnapshotGenerationStatus.PartiallyComplete,
+            "the SQL header is authoritative even when the legacy JSON says Complete");
     }
 
     [SkippableFact]
@@ -194,17 +190,8 @@ public sealed class FindingsSnapshotRelationalReadDirectSqlIntegrationTests(SqlS
             "proj-findings-rel-full",
             CancellationToken.None);
 
-        const string selectHeader = """
-                                    SELECT FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc, SchemaVersion, FindingsJson
-                                    FROM dbo.FindingsSnapshots
-                                    WHERE FindingsSnapshotId = @FindingsSnapshotId;
-                                    """;
-
-        FindingsSnapshotStorageRow? headerRow = await connection.QuerySingleOrDefaultAsync<FindingsSnapshotStorageRow>(
-            new CommandDefinition(selectHeader, new { FindingsSnapshotId = findingsId },
-                cancellationToken: CancellationToken.None));
-
-        headerRow.Should().NotBeNull();
+        FindingsSnapshotStorageRow headerRow = await FindingsSnapshotSqlTestHeader.ReadAsync(
+            connection, findingsId, CancellationToken.None);
 
         string insertRecord = RelationalScopeChildInsertSql.FindingRecordFromSnapshot;
 
