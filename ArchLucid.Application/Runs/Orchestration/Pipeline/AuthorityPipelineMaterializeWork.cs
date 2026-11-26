@@ -52,10 +52,8 @@ public static class AuthorityPipelineMaterializeWork
         IAgentTaskRepository taskRepository = scope.ServiceProvider.GetRequiredService<IAgentTaskRepository>();
 
         string runIdN = LogSanitizer.Sanitize(entry.RunId.ToString("N"));
-        RunRecord authorityHeader = await runRepository.GetByIdAsync(jobScope, entry.RunId, cancellationToken)
-            .ConfigureAwait(false)
-            ?? throw new InvalidOperationException(
-                $"dbo.Runs row missing immediately after authority pipeline continuation for run '{entry.RunId:N}'.");
+        RunRecord authorityHeader = await AuthorityPipelineWorkHandlerCore
+            .LoadPersistedRunAsync(scope, jobScope, entry, cancellationToken).ConfigureAwait(false);
 
         if (string.IsNullOrWhiteSpace(authorityHeader.ArchitectureRequestId))
         {
@@ -80,15 +78,13 @@ public static class AuthorityPipelineMaterializeWork
         await MergeInventoryPackagesAsync(scope, evidenceBundle, architectureRequest, jobScope, entry, cancellationToken)
             .ConfigureAwait(false);
 
-        ScopeContext materializedScope = AmbientScopeContext.CurrentOverride ?? jobScope;
-
         await SeedTechnologyLedgerAsync(scope, runIdN, architectureRequest, cancellationToken).ConfigureAwait(false);
 
         string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runIdN);
         IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
             await AnalysisRunIdCanonicalization.LoadTechnologyLedgerEntriesByRunIdAsync(
                 scope.ServiceProvider.GetRequiredService<ITechnologyLedgerRepository>(),
-                materializedScope,
+                jobScope,
                 canonicalRunId,
                 cancellationToken).ConfigureAwait(false);
 
@@ -118,7 +114,7 @@ public static class AuthorityPipelineMaterializeWork
         IReadOnlyList<AgentTask> existingTasks =
             await AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync(
                 taskRepository,
-                materializedScope,
+                jobScope,
                 canonicalRunId,
                 cancellationToken).ConfigureAwait(false);
 
@@ -157,16 +153,13 @@ public static class AuthorityPipelineMaterializeWork
         ArgumentNullException.ThrowIfNull(payload);
         ArgumentNullException.ThrowIfNull(jobScope);
 
-        IRunRepository runRepository = scope.ServiceProvider.GetRequiredService<IRunRepository>();
         IArchitectureRequestRepository requestRepository =
             scope.ServiceProvider.GetRequiredService<IArchitectureRequestRepository>();
         IEvidenceBundleRepository evidenceBundleRepository =
             scope.ServiceProvider.GetRequiredService<IEvidenceBundleRepository>();
 
-        RunRecord authorityHeader = await runRepository.GetByIdAsync(jobScope, entry.RunId, cancellationToken)
-            .ConfigureAwait(false)
-            ?? throw new InvalidOperationException(
-                $"dbo.Runs row missing for extractor-phase authority pipeline run '{entry.RunId:N}'.");
+        RunRecord authorityHeader = await AuthorityPipelineWorkHandlerCore
+            .LoadPersistedRunAsync(scope, jobScope, entry, cancellationToken).ConfigureAwait(false);
 
         if (string.IsNullOrWhiteSpace(authorityHeader.ArchitectureRequestId))
         {
@@ -253,7 +246,8 @@ public static class AuthorityPipelineMaterializeWork
         ILogger logger,
         CancellationToken cancellationToken)
     {
-        RunRecord? statusPatch = await runRepository.GetByIdAsync(jobScope, entry.RunId, cancellationToken)
+        RunRecord? statusPatch = await AuthorityPipelineWorkHandlerCore
+            .FindBoundActiveRunAsync(runRepository, jobScope, entry.RunId, cancellationToken)
             .ConfigureAwait(false);
 
         string nextAfterMaterialize;

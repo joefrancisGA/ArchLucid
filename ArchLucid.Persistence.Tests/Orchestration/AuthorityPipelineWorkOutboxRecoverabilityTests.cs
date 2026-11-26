@@ -1,6 +1,7 @@
 using System.Threading;
 
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Tests.Orchestration;
 
@@ -51,6 +52,29 @@ public sealed class InMemoryAuthorityPipelineWorkRepositoryLeaseAndRetryTests
             },
             EvidenceBundleId = "eb-1",
         });
+
+    [Fact]
+    public async Task Scoped_drain_counts_and_claims_only_its_work_without_leasing_other_scopes()
+    {
+        InMemoryAuthorityPipelineWorkRepository sut = new();
+        Guid tenant = Guid.NewGuid(), workspace = Guid.NewGuid(), project = Guid.NewGuid(), localRun = Guid.NewGuid();
+        Guid otherTenant = Guid.NewGuid(), otherWorkspace = Guid.NewGuid(), otherProject = Guid.NewGuid();
+        await sut.EnqueueAsync(localRun, tenant, workspace, project, ValidPayload(localRun));
+        await sut.EnqueueAsync(otherTenant, Guid.NewGuid(), workspace, project, ValidPayload(otherTenant));
+        await sut.EnqueueAsync(otherWorkspace, tenant, Guid.NewGuid(), project, ValidPayload(otherWorkspace));
+        await sut.EnqueueAsync(otherProject, tenant, workspace, Guid.NewGuid(), ValidPayload(otherProject));
+
+        using (AmbientScopeContext.Push(new ScopeContext { TenantId = tenant, WorkspaceId = workspace, ProjectId = project }))
+        {
+            (await sut.CountActionablePendingAsync()).Should().Be(1);
+            (await sut.DequeuePendingAsync(10, 300)).Should().ContainSingle().Which.RunId.Should().Be(localRun);
+            (await sut.CountActionablePendingAsync()).Should().Be(0);
+        }
+
+        (await sut.CountActionablePendingAsync()).Should().Be(3);
+        IReadOnlyList<AuthorityPipelineWorkOutboxEntry> remaining = await sut.DequeuePendingAsync(10, 300);
+        remaining.Select(row => row.RunId).Should().BeEquivalentTo(new[] { otherTenant, otherWorkspace, otherProject });
+    }
 
     [Fact]
     public async Task DequeuePendingAsync_sets_exclusive_lease_blocking_second_worker_scan()

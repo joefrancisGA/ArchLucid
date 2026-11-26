@@ -1,6 +1,7 @@
 namespace ArchLucid.Persistence.Orchestration;
 
 using System.Data;
+using ArchLucid.Core.Scoping;
 
 /// <summary>In-memory outbox for tests and <c>StorageProvider=InMemory</c>.</summary>
 public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipelineWorkRepository
@@ -212,12 +213,17 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
 
     private IEnumerable<Stored> EligibleRows(DateTime nowUtc)
     {
+        ScopeContext? drain = AmbientScopeContext.CurrentOverride;
         foreach (Stored row in _rows)
 
             if (row.ProcessedUtc is null
                 && row.DeadLetteredUtc is null
                 && (row.NextAttemptUtc is null || row.NextAttemptUtc <= nowUtc)
-                && (row.LockedUntilUtc is null || row.LockedUntilUtc <= nowUtc))
+                && (row.LockedUntilUtc is null || row.LockedUntilUtc <= nowUtc)
+                && (drain is null ||
+                    ((drain.TenantId == Guid.Empty || drain.TenantId == row.TenantId) &&
+                     (drain.WorkspaceId == Guid.Empty || drain.WorkspaceId == row.WorkspaceId) &&
+                     (drain.ProjectId == Guid.Empty || drain.ProjectId == row.ProjectId))))
                 yield return row;
     }
 

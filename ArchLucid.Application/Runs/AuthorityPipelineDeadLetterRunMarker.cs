@@ -1,3 +1,4 @@
+using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Scoping;
@@ -25,7 +26,8 @@ public static class AuthorityPipelineDeadLetterRunMarker
         ArgumentNullException.ThrowIfNull(runRepository);
         ArgumentNullException.ThrowIfNull(scope);
 
-        RunRecord? run = await runRepository.GetByIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+        RunRecord? run = await AuthorityPipelineWorkHandlerCore
+            .FindBoundActiveRunAsync(runRepository, scope, runId, cancellationToken).ConfigureAwait(false);
 
         if (run is null)
             return;

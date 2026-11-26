@@ -340,6 +340,14 @@ SQL migration 433 only adds nullable columns. It does not backfill or update his
 
 Rollout uses the normal migration path. Stop existing blob-export processors before enabling the updated enqueue and worker paths together, so an old processor cannot consume a newly bound row without rechecking it. Do not run the rollback script with the updated processor active. No production migration or rollout is performed by this change. Other worker classes and the required check setting remain separate closure work.
 
+### FND-061 deferred authority pipeline worker binding
+
+Reviewed master `bbec19302ed9e366fd0fb0d9dd0224ca3396f036`. The authority pipeline queue carries phases for already-admitted work; its producer persists the outbox row with the run header. This is distinct from a user-delegated export that must recheck the requester's current grant. The deferred worker previously accepted any non-null result from the cache-backed run lookup and replaced the ambient scope with the row's scope. That let the queue dispatch without proving the current run still matched its exact scope. The claim query also returned unfiltered payloads when a drain was scoped within a shared catalog.
+
+SQL and in-memory claims now filter by every explicitly supplied drain coordinate before locking rows or returning payload JSON. Global drains keep round-robin behavior. The processor does not consume a row outside a constrained drain if an adapter returns one anyway. Before dispatching and before materialization or dead-letter mutation, the worker requires an uncached, non-archived run with the exact queued tenant, workspace, project, and run ID. A malformed owned row keeps the existing skip-without-dispatch behavior. No schema, queue lease, caller identity, or release-branch change.
+
+Focused tests cover cross-scope claims and actionable counts, cache bypass, malformed and archived runs, and no protected request/bundle read or run update when binding fails. The SQL job requires the exact scoped claim test to execute without skipping. This does not independently bind the evidence bundle ID carried in the payload to a persisted run anchor, prove transactional archive/write fencing, or certify the remaining recurring and background jobs.
+
 ### FND-061 merge gate and current-source reconciliation
 
 The focused check is now [required on master](https://github.com/joefrancisGA/ArchLucid/settings/rules/28115714), with GitHub Actions as the source. The [combined authorization run for #8202](https://github.com/joefrancisGA/ArchLucid/actions/runs/45711191816) passed. The check is a regression gate for the tested paths, not a whole-repository control-flow proof.

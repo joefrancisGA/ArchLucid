@@ -6,6 +6,7 @@ on:
     paths:
       - 'ArchLucid.Persistence/Migrations/*RunExportBlobPush*.sql'
       - 'ArchLucid.Persistence/Coordination/Export/*RunExportBlobPush*.cs'
+      - 'ArchLucid.Persistence/Orchestration/DapperAuthorityPipelineWorkRepository.cs'
       - 'ArchLucid.Persistence.Tests/Coordination/SqlQueueClaimsSnapshotIsolationTests.cs'
       - '.github/workflows/fnd061-blob-export-worker-sql.yml'
   workflow_dispatch:
@@ -22,7 +23,7 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
-      - name: Verify forward requester bindings on an isolated SQL Server
+      - name: Verify worker requester bindings and scoped authority claims on isolated SQL Server
         shell: bash
         run: |
           set -euo pipefail
@@ -47,4 +48,25 @@ jobs:
           fi
           export ARCHLUCID_SQL_TEST="Server=127.0.0.1,1433;Database=ArchLucidFnd061WorkerTests;User ID=sa;Password=$pw;Encrypt=True;TrustServerCertificate=True"
           dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release \
-            --filter 'FullyQualifiedName~Blob_export_claim_preserves_new_requester_binding_and_skips_legacy_rows'
+            --filter 'FullyQualifiedName~Blob_export_claim_preserves_new_requester_binding_and_skips_legacy_rows|FullyQualifiedName~Authority_pipeline_claim_does_not_return_or_lease_foreign_payloads' \
+            --logger 'trx;LogFileName=fnd061-worker-sql.trx'
+          python3 - <<'PY'
+          import xml.etree.ElementTree as ET
+
+          expected = {
+              "SqlQueueClaimsSnapshotIsolationTests.Blob_export_claim_preserves_new_requester_binding_and_skips_legacy_rows",
+              "SqlQueueClaimsSnapshotIsolationTests.Authority_pipeline_claim_does_not_return_or_lease_foreign_payloads",
+          }
+          trx = ET.parse("ArchLucid.Persistence.Tests/TestResults/fnd061-worker-sql.trx")
+          definitions = {}
+          for unit in trx.findall(".//{*}UnitTest"):
+              method = unit.find("{*}TestMethod")
+              if method is not None:
+                  cls = method.attrib["className"].split(",", 1)[0].rsplit(".", 1)[-1]
+                  definitions[unit.attrib["id"]] = f"{cls}.{method.attrib['name']}"
+          for name in sorted(expected):
+              outcomes = [row.get("outcome") for row in trx.findall(".//{*}UnitTestResult")
+                          if definitions.get(row.get("testId")) == name]
+              if outcomes != ["Passed"]:
+                  raise SystemExit(f"Expected one passed SQL execution for {name}; found {outcomes}")
+          PY
