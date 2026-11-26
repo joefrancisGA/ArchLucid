@@ -736,7 +736,9 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves metrics, finding, and path together — **cheap-disproof 2026-11-26 thorough hunt (hit):** regression `remediationFactoryHrefFromSearch preserves metrics, selectedFinding, and selectedPath on pathname-only href`.
 
 - [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — fullwidth semicolon inside `on` token — locus: Ff strip; input: `o` + U+FF1B + `n`; pass-84 reseed.
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — small black circle inside true — locus: So strip; input: `tr` + U+25CF + `ue`; - [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open over padded `off` base — locus: writer; input: open over ` off ` base; pass-84 reseed.
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — circle upper-right quadrant inside true — locus: So strip; input: `tr` + U+25D1 + `ue`; pass-84 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open over padded `off` base — locus: writer; input: open over ` off ` base; pass-84 reseed.
+
 - [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `TRUE` then `FALSE` — locus: first-wins; input: repeated param; pass-84 reseed.
 - [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — preserves open metrics when clearing path only — locus: writer; input: clear path with metrics open; pass-84 reseed.
 
