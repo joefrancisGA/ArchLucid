@@ -184,7 +184,7 @@ Treat every proposed remediation as a graph transformation in an isolated, pinne
 
 **Invariant:** Computational budget exhaustion must never convert an unresolved security exposure into an apparently secure condition.
 
-**Backlog:** Related foundations FND-043/069–074/077/079/083–086/103–105/115–116/154 and TB-2411 (adaptive analysis depth/compute budgets), TB-2414 (information-gain investigation order). Dedicated value-of-information requirements and implementation coverage have not yet been checked for this question; no new backlog items are claimed.
+**Backlog:** FND-157–162, [PR #8259](https://github.com/joefrancisGA/ArchLucid/pull/8259), added as Critical QA/stabilization. FND-157 defines evidence-acquisition candidate and marginal information-value contracts; FND-158 covers dynamic scheduling and staged depth; FND-159 governs multi-resource admission, reservations and critical-risk capacity; FND-160 preserves unresolved exposure and budget-exhaustion honesty; FND-161 defines bounded approximation and stopping rules; FND-162 provides independent scheduling, budget and safety regression assurance. Reuse FND-043/072/074–077/083–086/154, TB-2411/TB-2414, existing SemanticVerificationBudget and INV-004 reserve/settle infrastructure. The existing semantic budget reserves capacity for High/Critical findings, but comprehensive multi-resource value-based scheduling remains unverified. Backlog requirements only, not implementation or test results.
 
 ## Earlier architecture exam topics — reconstructed appendix
 
