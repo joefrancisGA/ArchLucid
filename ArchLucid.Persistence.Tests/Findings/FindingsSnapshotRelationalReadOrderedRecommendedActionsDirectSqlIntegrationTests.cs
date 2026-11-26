@@ -49,17 +49,8 @@ public sealed class FindingsSnapshotRelationalReadOrderedRecommendedActionsDirec
             "proj-findings-action-order",
             CancellationToken.None);
 
-        const string selectHeader = """
-                                    SELECT FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc, SchemaVersion, FindingsJson
-                                    FROM dbo.FindingsSnapshots
-                                    WHERE FindingsSnapshotId = @FindingsSnapshotId;
-                                    """;
-
-        FindingsSnapshotStorageRow? headerRow = await connection.QuerySingleOrDefaultAsync<FindingsSnapshotStorageRow>(
-            new CommandDefinition(selectHeader, new { FindingsSnapshotId = findingsId },
-                cancellationToken: CancellationToken.None));
-
-        headerRow.Should().NotBeNull();
+        FindingsSnapshotStorageRow headerRow = await FindingsSnapshotSqlTestHeader.ReadAsync(
+            connection, findingsId, CancellationToken.None);
 
         string insertRecord = RelationalScopeChildInsertSql.FindingRecordFromSnapshot;
 

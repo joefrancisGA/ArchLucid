@@ -135,16 +135,8 @@ public sealed class FindingsSnapshotRelationalReadLegacyJsonFallbackMatrixDirect
                 },
                 cancellationToken: CancellationToken.None));
 
-        FindingsSnapshotStorageRow row = new()
-        {
-            FindingsSnapshotId = findingsId,
-            RunId = runId,
-            ContextSnapshotId = contextId,
-            GraphSnapshotId = graphId,
-            CreatedUtc = createdUtc,
-            SchemaVersion = 1,
-            FindingsJson = findingsJson
-        };
+        FindingsSnapshotStorageRow row = await FindingsSnapshotSqlTestHeader.ReadAsync(
+            connection, findingsId, CancellationToken.None);
 
         FindingsSnapshot loaded =
             await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(
