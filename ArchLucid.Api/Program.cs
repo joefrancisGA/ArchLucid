@@ -126,6 +126,7 @@ public partial class Program
         builder.Services.AddScoped<WorkerAuthorizationAdapter>();
         builder.Services.AddScoped<IRemediationApprovalAuthority, DenyUnconfiguredRemediationApproval>();
         builder.Services.AddScoped<ICentralAuthorizationDecisions, CentralAuthorizationDecisions>();
+        builder.Services.AddProvisionedRuntimeTelemetry();
         builder.Services.AddScoped<EvidenceReadAuthorizationGate>();
 
         builder.Services.AddArchLucidOpenTelemetry(

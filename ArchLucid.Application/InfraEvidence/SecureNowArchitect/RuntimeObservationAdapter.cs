@@ -7,7 +7,13 @@ internal sealed record RuntimeObservationRequest(
     Guid TenantId, Guid WorkspaceId, Guid ProjectId, string ResourceId,
     string DeploymentGeneration, string RuntimeFamily);
 
-internal sealed record RuntimeObservedInstance(string InstanceId, string Version, DateTimeOffset ObservedAt);
+internal sealed record RuntimeObservedInstance(string InstanceId, string Version, DateTimeOffset ObservedAt)
+{
+    // Optional signed process provenance. Legacy observations remain version-only.
+    public string? Vendor { get; init; }
+    public string? Distribution { get; init; }
+    public IReadOnlyDictionary<string, RuntimePrerequisiteState>? Prerequisites { get; init; }
+}
 
 /// <summary>
 /// Result of an authenticated, authorized runtime collector, not a serialized inventory claim.
