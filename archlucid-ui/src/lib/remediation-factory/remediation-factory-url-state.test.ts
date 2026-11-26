@@ -965,6 +965,53 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+
+  it("treats ON metrics disclosure token with fullwidth solidus inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF0Fn`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with shadowed white circle inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25CDue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("canonicalizes metrics open to 1 when writing open state from a padded true base", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: true,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}= true `,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
+  });
+
+  it("uses the first metrics disclosure token when no precedes yes in the query string", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=no&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=yes`,
+      ).metricsSummaryOpen,
+    ).toBe(false);
+  });
+
+  it("remediationFactoryHrefFromSearch preserves metrics and selectedPath on pathname-only href", () => {
+    const pathId = "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee";
+    const href = remediationFactoryHrefFromSearch(
+      "/governance/remediation-factory",
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1&${REMEDIATION_FACTORY_SELECTED_PATH_PARAM}=${pathId}`,
+    );
+
+    expect(href).toBe(
+      `/governance/remediation-factory?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1&${REMEDIATION_FACTORY_SELECTED_PATH_PARAM}=${pathId}`,
+    );
+  });
   it("remediationFactoryHrefFromSearch preserves metrics and selectedFinding on pathname-only href", () => {
     const findingId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
     const href = remediationFactoryHrefFromSearch(
