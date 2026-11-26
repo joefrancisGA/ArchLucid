@@ -157,12 +157,27 @@ export function formatAuditLineageEvaluationContext(lineage: AuditEvidenceLineag
     ? formatIsoUtcForDisplay(latestUtc)
     : "no collected evidence timestamps in this snapshot";
   // The existing API formula carries this exact builder term even when there are no candidates.
-  const incompleteCapture = lineage.evaluation?.formula
-    ?.split(";")
-    .some((term) => term.trim() === "inventoryCaptureComplete=false");
-  const coverageLabel = incompleteCapture
-    ? " · Inventory capture is incomplete. Full control coverage is unverified."
-    : "";
+  const terms = lineage.evaluation?.formula?.split(";").map((term) => term.trim()) ?? [];
+  const limitations = [];
+  if (terms.includes("inventoryCaptureComplete=false")) {
+    limitations.push("Inventory capture is incomplete.");
+  }
+  if (terms.includes("requiredEvidenceGap=true")) {
+    limitations.push("Required evidence is missing.");
+  }
+  if (terms.includes("freshness gate blocked current assessment")) {
+    limitations.push("Evidence is stale or expired.");
+  }
+  if (limitations.length > 0) {
+    limitations.push("Full control coverage is unverified.");
+  }
+  const unavailableCount = terms
+    .map((term) => /^unavailableInventorySnapshotCount=([1-9][0-9]*)$/.exec(term)?.[1])
+    .find((count) => count !== undefined);
+  if (unavailableCount) {
+    limitations.push(`Unavailable linked inventory snapshots: ${unavailableCount}.`);
+  }
+  const coverageLabel = limitations.length > 0 ? ` · ${limitations.join(" ")}` : "";
 
   return `${outcomeLabel}${coverageLabel} · Latest evidence collected ${latestLabel}`;
 }

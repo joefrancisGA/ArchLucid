@@ -74,4 +74,44 @@ public sealed class RunFindingCoverageProjectionTests
         summary!.EnginesFailed.Should().Be(0);
         summary.HasCommitBlockingFailures.Should().BeFalse();
     }
+
+    [Fact]
+    public void Build_does_not_count_partial_findings_or_repeated_failures_as_extra_engine_successes()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            FindingsSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            GenerationStatus = FindingsSnapshotGenerationStatus.PartiallyComplete,
+            EngineFailures =
+            [
+                new() { EngineType = "cost", Category = "Cost", ErrorMessage = "Timed out", ExceptionType = "TimeoutException" },
+                new() { EngineType = "Cost", Category = "cost", ErrorMessage = "Retry failed", ExceptionType = "TimeoutException" },
+            ],
+            Findings =
+            [
+                new()
+                {
+                    FindingType = "CostFinding", EngineType = "COST", Category = "Cost",
+                    Title = "Partial cost result", Rationale = "Observed before timeout.", Severity = FindingSeverity.Info,
+                },
+                new()
+                {
+                    FindingType = "RequirementFinding", EngineType = "requirement", Category = "Requirement",
+                    Title = "Requirement result", Rationale = "Reported independently.", Severity = FindingSeverity.Info,
+                },
+            ],
+        };
+
+        (bool degraded, RunFindingCoverageSummary? summary) = RunFindingCoverageProjection.Build(snapshot);
+
+        degraded.Should().BeTrue();
+        summary!.EnginesAttempted.Should().Be(2);
+        summary.EnginesSucceeded.Should().Be(1);
+        summary.EnginesFailed.Should().Be(1);
+        summary.FailedEngineLabels.Should().ContainSingle();
+        snapshot.Findings.Should().HaveCount(2);
+    }
 }

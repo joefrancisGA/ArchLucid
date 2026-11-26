@@ -59,11 +59,12 @@ public sealed class AuditEvidencePackageExportTests
     }
 
     [Theory]
-    [InlineData(true, true, AuditEvaluationOutcome.TechnicallySupported)]
-    [InlineData(false, true, AuditEvaluationOutcome.InsufficientEvidence)]
-    [InlineData(false, false, AuditEvaluationOutcome.InsufficientEvidence)]
+    [InlineData(true, true, 0, AuditEvaluationOutcome.TechnicallySupported)]
+    [InlineData(true, true, 2, AuditEvaluationOutcome.InsufficientEvidence)]
+    [InlineData(false, true, 0, AuditEvaluationOutcome.InsufficientEvidence)]
+    [InlineData(false, false, 0, AuditEvaluationOutcome.InsufficientEvidence)]
     public void BuildZip_distinguishes_incomplete_inventory_from_no_observed_failures(
-        bool complete, bool withCandidate, AuditEvaluationOutcome expected)
+        bool complete, bool withCandidate, int unavailableSources, AuditEvaluationOutcome expected)
     {
         AuditEvidencePackageProjectionContext fixture = CreateFixtureContext(includeCollectedEvidence: withCandidate);
         AuditEvidenceRequirementRecord requirement = fixture.Requirements.Single();
@@ -77,7 +78,7 @@ public sealed class AuditEvidencePackageExportTests
         };
         AuditControlEvaluationRecord evaluation = AuditControlEvaluationBuilder.Build(
             FixedControlId, FixedFrameworkId, FixedSnapshotId, fixture.Assessment.TenantId,
-            [selection], [], [], CreateManifest().ExportedUtc, complete).Evaluation;
+            [selection], [], [], CreateManifest().ExportedUtc, complete, unavailableSources).Evaluation;
         AuditEvidencePackageProjectionContext context = CreateFixtureContext(
             includeCollectedEvidence: withCandidate, evaluation: evaluation);
         (byte[] zip, _) = AuditEvidencePackageZipBuilder.BuildZip(
@@ -90,7 +91,7 @@ public sealed class AuditEvidencePackageExportTests
         string text = reader.ReadToEnd();
 
         text.Should().Contain($"Outcome: **{expected}**");
-        if (complete)
+        if (complete && unavailableSources == 0)
         {
             text.Should().Contain("Confidence:").And.NotContain("Full control coverage is unverified");
         }
@@ -99,6 +100,8 @@ public sealed class AuditEvidencePackageExportTests
             text.Should().Contain("Inventory capture is incomplete. Full control coverage is unverified.")
                 .And.NotContain("Confidence:").And.NotContain("**TechnicallySupported**");
         }
+        if (unavailableSources > 0)
+            text.Should().Contain($"Unavailable linked inventory snapshots: {unavailableSources}.");
     }
 
     [Fact]

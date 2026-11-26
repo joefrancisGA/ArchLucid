@@ -42,10 +42,18 @@ public static class RunFindingCoverageProjection
         IReadOnlyList<FindingEngineFailure> engineFailures = findingsSnapshot.EngineFailures ?? [];
         IReadOnlyList<Finding> findings = findingsSnapshot.Findings ?? [];
 
-        int failed = engineFailures.Count;
+        HashSet<string> failedEngineKeys = engineFailures
+            .Select(failure => EngineKey(failure.EngineType, failure.Category))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        int failed = failedEngineKeys.Count;
+        int observedSuccesses = findings
+            .Select(finding => EngineKey(finding.EngineType, finding.Category))
+            .Where(key => !failedEngineKeys.Contains(key))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Count();
         int succeeded = failed == 0 && findingsSnapshot.GenerationStatus == FindingsSnapshotGenerationStatus.Complete
-            ? Math.Max(1, EstimateSucceededEngines(findings, engineFailures))
-            : Math.Max(0, EstimateSucceededEngines(findings, engineFailures));
+            ? Math.Max(1, observedSuccesses)
+            : observedSuccesses;
 
         int attempted = failed + succeeded;
         bool blocking = FindingEngineFailureCommitClassifier.HasCommitBlockingFailures(engineFailures);
@@ -72,22 +80,5 @@ public static class RunFindingCoverageProjection
         };
     }
 
-    private static int EstimateSucceededEngines(
-        IReadOnlyList<Finding> findings,
-        IReadOnlyList<FindingEngineFailure> engineFailures)
-    {
-        if (findings.Count == 0 && engineFailures.Count == 0)
-            return 0;
-
-        HashSet<string> engineKeys = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (Finding finding in findings)
-        {
-            string key = $"{finding.EngineType}|{finding.Category}";
-
-            engineKeys.Add(key);
-        }
-
-        return engineKeys.Count;
-    }
+    private static string EngineKey(string? engineType, string? category) => $"{engineType}|{category}";
 }

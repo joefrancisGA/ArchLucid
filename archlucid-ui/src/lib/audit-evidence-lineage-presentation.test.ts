@@ -152,5 +152,23 @@ describe("audit-evidence-lineage-presentation", () => {
     });
     expect(observedFailure).toContain("Technically not supported");
     expect(observedFailure).toContain("Full control coverage is unverified");
+
+    const missingSources = formatAuditLineageEvaluationContext({
+      evaluation: {
+        outcome: "InsufficientEvidence",
+        formula: "inventoryCaptureComplete=false; requiredEvidenceGap=true; unavailableInventorySnapshotCount=2",
+      },
+    });
+    expect(missingSources).toContain("Required evidence is missing.");
+    expect(missingSources).toContain("Unavailable linked inventory snapshots: 2.");
+
+    const stale = formatAuditLineageEvaluationContext({
+      evaluation: {
+        outcome: "InsufficientEvidence",
+        formula: "freshness gate blocked current assessment",
+      },
+    });
+    expect(stale).toContain("Evidence is stale or expired.");
+    expect(stale).not.toContain("Technically supported");
   });
 });

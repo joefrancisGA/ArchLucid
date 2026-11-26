@@ -426,7 +426,11 @@ public static class AuditEvidencePackageProjectionBuilder
         {
             builder.AppendLine("Inventory capture is incomplete. Full control coverage is unverified.");
         }
-        else
+        else if (AuditControlEvaluationBuilder.HasRequiredEvidenceGap(evaluation.Formula))
+        {
+            builder.AppendLine("Required evidence is missing. Full control coverage is unverified.");
+        }
+        else if (evaluation.Outcome != AuditEvaluationOutcome.InsufficientEvidence)
         {
             builder.AppendLine($"Confidence: {evaluation.Confidence:P0}");
         }
