@@ -1381,6 +1381,17 @@ describe("remediation-factory-url-state", () => {
 
 
 
+  it("treats ON metrics disclosure token with fullwidth right corner bracket inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF63n`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with white medium square inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25FDue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
   it("treats ON metrics disclosure token with fullwidth left corner bracket inside the word as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF62n`).metricsSummaryOpen,
