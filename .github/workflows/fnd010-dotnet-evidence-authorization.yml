@@ -1,8 +1,14 @@
 name: FND-010 .NET Evidence Authorization
+# Ordinary master/main PRs are covered by the combined FND-061 authorization gate.
+# Retain standalone manual and specialist branch validation.
 on:
   pull_request:
-    branches: [master, main, audit/fnd010-shared-exact-manifest-seal-20261124, audit/fnd010-manifest-id-run-share-seal-20261124, architecture/fnd010-scim-acl-authority, architecture/fnd010-run-ownership-guard, architecture/fnd010-central-decision-service, architecture/fnd010-decision-audit-worker, architecture/fnd010-remediation-policy-boundary]
+    branches: [audit/fnd010-shared-exact-manifest-seal-20261124, audit/fnd010-manifest-id-run-share-seal-20261124, architecture/fnd010-scim-acl-authority, architecture/fnd010-run-ownership-guard, architecture/fnd010-central-decision-service, architecture/fnd010-decision-audit-worker, architecture/fnd010-remediation-policy-boundary]
   workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 jobs:
@@ -11,10 +17,26 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+      - name: Determine whether authorization compilation is needed
+        id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: python3 scripts/ci/authorization_ci_scope.py
+      - uses: actions/cache@v5
+        if: steps.scope.outputs.run_tests == 'true'
+        with:
+          path: ~/.nuget/packages
+          key: nuget-authorization-${{ runner.os }}-${{ hashFiles('global.json', 'Directory.Packages.props', '**/*.csproj', '**/packages.lock.json') }}
+          restore-keys: nuget-authorization-${{ runner.os }}-
       - uses: actions/setup-dotnet@v6
+        if: steps.scope.outputs.run_tests == 'true'
         with:
           dotnet-version: '10.0.x'
       - name: Run targeted FND-010 .NET authorization suites
+        if: steps.scope.outputs.run_tests == 'true'
         run: >-
           dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj
           --filter "FullyQualifiedName~DurableAuthorizationAuditTests|FullyQualifiedName~RemediationCentralAuthorizationTests|FullyQualifiedName~CentralAuthorizationAuditWorkerTests|FullyQualifiedName~CentralAuthorizationDecisionsTests|FullyQualifiedName~EvidenceReadAuthorizationGateTests|FullyQualifiedName~ScimProjectEvidenceEntitlementAuthorityTests|FullyQualifiedName~ArchLucid.Api.Tests.GraphControllerTests|FullyQualifiedName~SecureNowSnapshotHttpBoundaryTests|FullyQualifiedName~SecureNowSnapshotExchangeContractTests|FullyQualifiedName~AuthorityManifestSummaryShareAccessTests|FullyQualifiedName~RunDetailPageBundleShareAccessTests|FullyQualifiedName~AuthorityQueryControllerDispositionTests|FullyQualifiedName~AuthorityReadsControllerShareAccessTests|FullyQualifiedName~AuthorityRunEventsControllerShareAccessTests|FullyQualifiedName~AuthorityRunInventoryShareAccessTests|FullyQualifiedName~DraftRequestsControllerTests|FullyQualifiedName~DraftRequestsControllerWorkLeaseTests|FullyQualifiedName~DraftIntakeSealedManifestRuntimeConflictTests|FullyQualifiedName~WizardIntakeDraftsControllerTests|FullyQualifiedName~ArchLucid.Api.Tests.RunsControllerTests|FullyQualifiedName~RunQueryControllerTests|FullyQualifiedName~RunGraphQueryServiceTests|FullyQualifiedName~ExportsControllerShareAccessTests|FullyQualifiedName~ExportsControllerScopeTests|FullyQualifiedName~ExportsControllerReplayExportAuditTests|FullyQualifiedName~ExportsControllerCompareSummaryAuditTests|FullyQualifiedName~RunsExportControllerTests|FullyQualifiedName~ProvenanceControllerTests|FullyQualifiedName~ArtifactExportSealedManifestRuntimeConflictTests|FullyQualifiedName~ArtifactExportControllerRunExportTests|FullyQualifiedName~DocxExportSealedManifestRuntimeConflictTests|FullyQualifiedName~DocxExportControllerAuditTests|FullyQualifiedName~DocxExportControllerCareerHonestyTests|FullyQualifiedName~ComparisonControllerShareAccessTests|FullyQualifiedName~RunComparisonControllerShareAccessTests|FullyQualifiedName~RunPairQueryValidatorTests|FullyQualifiedName~ArchitectureIntelligenceControllerTests|FullyQualifiedName~ArchitectureIntelligenceRunAuthorizationTests|FullyQualifiedName~DatabaseMigrationScriptTests"

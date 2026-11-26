@@ -63,6 +63,7 @@ public sealed class KnowledgeModelGraphReprojector(
         // Inline create may materialize findings and seal the manifest before its post-create
         // knowledge-model backfill. Once findings reference the graph, do not project
         // or save a replacement through this operator-side path.
+
         if (run is not { ContextSnapshotId: Guid contextSnapshotId, FindingsSnapshotId: null, GoldenManifestId: null })
             return;
 

@@ -14,6 +14,10 @@ on:
       - 'ArchLucid.Application/Governance/GovernanceDispositionSealedManifestGuard.cs'
       - 'ArchLucid.Api/Support/AskEvidenceAccess.cs'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
@@ -23,6 +27,11 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+      - uses: actions/cache@v5
+        with:
+          path: ~/.nuget/packages
+          key: nuget-authorization-${{ runner.os }}-${{ hashFiles('global.json', 'Directory.Packages.props', '**/*.csproj', '**/packages.lock.json') }}
+          restore-keys: nuget-authorization-${{ runner.os }}-
       - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json

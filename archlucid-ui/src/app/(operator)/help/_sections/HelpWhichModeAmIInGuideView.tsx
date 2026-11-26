@@ -165,6 +165,7 @@ export function HelpWhichModeAmIInGuideView(props: HelpWhichModeAmIInGuideViewPr
       <div className={contentGridClass}>
         <div
           id={MODE_GRAVITY_HELP_WHICH_MODE_PRIMARY_CONTENT_ID}
+          tabIndex={-1}
           className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
         >
           <div

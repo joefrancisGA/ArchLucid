@@ -180,6 +180,7 @@ export function HelpProxyTimeoutRealExecuteGuideView(
       <div className={contentGridClass}>
         <div
           id={DAYTIME_WAIT_HELP_PROXY_TIMEOUT_PRIMARY_CONTENT_ID}
+          tabIndex={-1}
           className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
         >
           <div id={DAYTIME_WAIT_HELP_PROXY_TIMEOUT_SKIP_TARGET_ID} className="space-y-4">

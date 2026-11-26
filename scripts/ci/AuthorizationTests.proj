@@ -1,0 +1,17 @@
+<Project>
+  <!-- One MSBuild graph for the six authorization test assemblies. -->
+  <ItemGroup>
+    <AuthorizationProject Include="$(MSBuildThisFileDirectory)../../ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj" />
+    <AuthorizationProject Include="$(MSBuildThisFileDirectory)../../ArchLucid.Host.Core.Tests/ArchLucid.Host.Core.Tests.csproj" />
+    <AuthorizationProject Include="$(MSBuildThisFileDirectory)../../ArchLucid.Host.Composition.Tests/ArchLucid.Host.Composition.Tests.csproj" />
+    <AuthorizationProject Include="$(MSBuildThisFileDirectory)../../ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj" />
+    <AuthorizationProject Include="$(MSBuildThisFileDirectory)../../ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj" />
+    <AuthorizationProject Include="$(MSBuildThisFileDirectory)../../ArchLucid.KnowledgeGraph.Tests/ArchLucid.KnowledgeGraph.Tests.csproj" />
+  </ItemGroup>
+  <Target Name="Restore">
+    <MSBuild Projects="@(AuthorizationProject)" Targets="Restore" BuildInParallel="false" />
+  </Target>
+  <Target Name="Build">
+    <MSBuild Projects="@(AuthorizationProject)" Targets="Build" BuildInParallel="false" />
+  </Target>
+</Project>
