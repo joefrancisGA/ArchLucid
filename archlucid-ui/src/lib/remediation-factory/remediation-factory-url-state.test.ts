@@ -1366,6 +1366,25 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+  it("treats ON metrics disclosure token with fullwidth left square bracket inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF3Bn`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with white small square inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25EAue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("uses the first metrics disclosure token when false precedes on in the query string", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=false&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=on`,
+      ).metricsSummaryOpen,
+    ).toBe(false);
+  });
   it("treats ON metrics disclosure token with fullwidth commercial at inside the word as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF20n`).metricsSummaryOpen,
@@ -2339,6 +2358,17 @@ describe("remediation-factory-url-state", () => {
     expect(state.toSnapshotId).toBe(first);
   });
 
+  it("remediationFactoryHrefFromSearch preserves metrics and selectedFinding on pathname-only href when clearing path", () => {
+    const findingId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+    const pathId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    const href = remediationFactoryHrefFromSearch(
+      "/governance/remediation-factory",
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1&${REMEDIATION_FACTORY_SELECTED_PATH_PARAM}=${pathId}&${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=${findingId}`,
+    );
+
+    expect(href).toContain(`${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1`);
+    expect(href).toContain(`${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=${findingId}`);
+  });
   it("remediationFactoryHrefFromSearch preserves selectedFinding on pathname-only href when clearing path", () => {
     const findingId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
     const pathId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
