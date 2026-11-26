@@ -37,7 +37,6 @@ public sealed class BulkEvidenceUploadServiceLegacyRunIdTests
             TenantId = Guid.NewGuid(),
             WorkspaceId = Guid.NewGuid(),
             ProjectId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
         };
 
         Mock<IScopeContextProvider> scopeProvider = new();
