@@ -60,6 +60,6 @@ public sealed class AnalysisReportJsonStateMatrixTests
 
     private static JsonDocument SerializeAnalysisResponse(string? parent, StoredTraces traceState) =>
         JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(
-            new ArchitectureAnalysisReportResponse { Report = ReportEvidenceStateMatrixTests.Report(parent, traceState) },
+            new ArchLucid.Api.Models.ArchitectureAnalysisReportResponse { Report = ReportEvidenceStateMatrixTests.Report(parent, traceState) },
             ArchLucidApiJsonSerializerOptions.Web));
 }
