@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify precision and standalone-run rollbacks on the disposable FND-010 SQL container.
+"""Verify remediation permission, precision and standalone-run rollbacks on the disposable FND-010 SQL container.
 
 Uses the existing SQL test harness, not a configured production connection.
 """
@@ -99,7 +99,112 @@ def standalone() -> None:
     """)
 
 
+def permissions() -> None:
+    """Exercise actual permission migrations on synthetic tables in disposable SQL."""
+    forwards = [
+        "426_RemediationRoleWritePermissions.sql",
+        "427_RemediationProcedureOnlyUpdates.sql",
+        "428_RemediationProcedureOnlyInserts.sql",
+    ]
+    rollbacks = ["Rollback/R" + name for name in forwards]
+    sql("""
+        IF DB_NAME() <> N'master'
+            THROW 50001, N'Unexpected disposable SQL harness catalog.', 1;
+        IF OBJECT_ID(N'dbo.RemediationInstances') IS NOT NULL
+            OR OBJECT_ID(N'dbo.RemediationEvidence') IS NOT NULL
+            OR OBJECT_ID(N'dbo.RemediationRollbackUnrelated') IS NOT NULL
+            THROW 50001, N'Rollback fixture already exists; refusing to overwrite.', 1;
+        CREATE TABLE dbo.RemediationInstances (InstanceId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY);
+        CREATE TABLE dbo.RemediationEvidence (EvidenceId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY);
+        CREATE TABLE dbo.RemediationRollbackUnrelated (Id INT NOT NULL);
+        IF DATABASE_PRINCIPAL_ID(N'ArchLucidApp') IS NULL CREATE ROLE [ArchLucidApp];
+        GRANT SELECT ON OBJECT::dbo.RemediationInstances TO [ArchLucidApp];
+        DENY DELETE ON OBJECT::dbo.RemediationRollbackUnrelated TO [ArchLucidApp];
+        INSERT dbo.RemediationInstances VALUES (NEWID());
+        INSERT dbo.RemediationEvidence VALUES (NEWID());
+    """)
+    # SQL Server validates column references on existing tables at CREATE
+    # PROCEDURE time. Include the columns referenced by the actual procedures.
+    # Add all referenced fields to the disposable fixture before applying SQL.
+    sql("""
+        ALTER TABLE dbo.RemediationInstances ADD
+            TenantId UNIQUEIDENTIFIER NULL, WorkspaceId UNIQUEIDENTIFIER NULL,
+            ProjectId UNIQUEIDENTIFIER NULL, FindingId UNIQUEIDENTIFIER NULL,
+            PatternId UNIQUEIDENTIFIER NULL, PatternVersionId UNIQUEIDENTIFIER NULL,
+            PatternKey NVARCHAR(256) NULL, FrozenPatternVersion NVARCHAR(64) NULL,
+            AutomationLevel INT NULL, Status INT NULL, CloudResourceId UNIQUEIDENTIFIER NULL,
+            PathId UNIQUEIDENTIFIER NULL, PathNarrativeJson NVARCHAR(MAX) NULL,
+            AssessmentId UNIQUEIDENTIFIER NULL, ControlId UNIQUEIDENTIFIER NULL,
+            PreflightSnapshotId UNIQUEIDENTIFIER NULL, ExecutionSnapshotId UNIQUEIDENTIFIER NULL,
+            VerificationSnapshotId UNIQUEIDENTIFIER NULL, WaveId UNIQUEIDENTIFIER NULL,
+            PreflightResultJson NVARCHAR(MAX) NULL, VerificationResultJson NVARCHAR(MAX) NULL,
+            CreatedByActorKey NVARCHAR(256) NULL, ApprovedByActorKey NVARCHAR(256) NULL,
+            CreatedUtc DATETIME2 NULL, UpdatedUtc DATETIME2 NULL, ApprovedUtc DATETIME2 NULL,
+            ExecutedUtc DATETIME2 NULL, ChangeImplementedUtc DATETIME2 NULL,
+            VerifiedUtc DATETIME2 NULL, ClosedUtc DATETIME2 NULL, RowVersion ROWVERSION;
+        ALTER TABLE dbo.RemediationEvidence ADD
+            InstanceId UNIQUEIDENTIFIER NULL, TenantId UNIQUEIDENTIFIER NULL, Phase INT NULL,
+            PayloadJson NVARCHAR(MAX) NULL, ActorKey NVARCHAR(256) NULL,
+            CorrelationId NVARCHAR(128) NULL, CreatedUtc DATETIME2 NULL;
+    """)
+
+    def check(expected_denies: int, expected_procedures: int) -> None:
+        sql(f"""
+            IF (SELECT COUNT(*) FROM sys.database_permissions
+                WHERE grantee_principal_id=DATABASE_PRINCIPAL_ID(N'ArchLucidApp')
+                  AND class=1 AND minor_id=0 AND state='D'
+                  AND major_id IN (OBJECT_ID(N'dbo.RemediationInstances'),
+                                   OBJECT_ID(N'dbo.RemediationEvidence'))) <> {expected_denies}
+                THROW 50001, N'Unexpected remediation DENY count.', 1;
+            IF (SELECT COUNT(*) FROM sys.procedures
+                WHERE schema_id=SCHEMA_ID(N'dbo') AND name IN
+                    (N'uspRemediationUpdateScoped',N'uspRemediationCommitApproval',
+                     N'uspRemediationCommitVerification',N'uspRemediationCreateScoped',
+                     N'uspRemediationAppendEvidenceScoped')) <> {expected_procedures}
+                THROW 50001, N'Unexpected guarded procedure count.', 1;
+            IF (SELECT COUNT(*) FROM sys.database_permissions
+                WHERE grantee_principal_id=DATABASE_PRINCIPAL_ID(N'ArchLucidApp')
+                  AND class=1 AND minor_id=0 AND permission_name=N'EXECUTE' AND state='G'
+                  AND major_id IN (OBJECT_ID(N'dbo.uspRemediationUpdateScoped'),
+                    OBJECT_ID(N'dbo.uspRemediationCommitApproval'),
+                    OBJECT_ID(N'dbo.uspRemediationCommitVerification'),
+                    OBJECT_ID(N'dbo.uspRemediationCreateScoped'),
+                    OBJECT_ID(N'dbo.uspRemediationAppendEvidenceScoped'))) <> {expected_procedures}
+                THROW 50001, N'Unexpected guarded procedure EXECUTE grants.', 1;
+            IF NOT EXISTS (SELECT 1 FROM sys.database_permissions
+                WHERE grantee_principal_id=DATABASE_PRINCIPAL_ID(N'ArchLucidApp')
+                  AND major_id=OBJECT_ID(N'dbo.RemediationRollbackUnrelated')
+                  AND permission_name=N'DELETE' AND state='D')
+                THROW 50001, N'Unrelated DENY changed.', 1;
+            IF NOT EXISTS (SELECT 1 FROM sys.database_permissions
+                WHERE grantee_principal_id=DATABASE_PRINCIPAL_ID(N'ArchLucidApp')
+                  AND major_id=OBJECT_ID(N'dbo.RemediationInstances')
+                  AND permission_name=N'SELECT' AND state='G')
+                THROW 50001, N'Existing SELECT grant changed.', 1;
+            IF (SELECT COUNT(*) FROM dbo.RemediationInstances) <> 1
+                OR (SELECT COUNT(*) FROM dbo.RemediationEvidence) <> 1
+                THROW 50001, N'Rollback modified fixture evidence.', 1;
+        """)
+
+    for forward in forwards:
+        apply(forward)
+    check(6, 5)
+    apply(rollbacks[0], expected_error=51426)
+    apply(rollbacks[1], expected_error=51427)
+    check(6, 5)
+    for rollback, counts in zip(reversed(rollbacks), [(4, 3), (3, 0), (0, 0)]):
+        apply(rollback)
+        check(*counts)
+        apply(rollback)
+        check(*counts)
+    for forward in forwards:
+        apply(forward)
+    check(6, 5)
+    print("PASS: rollback 426/427/428 ordering, permission isolation, retention and forward reapplication")
+
+
 if __name__ == "__main__":
     precision()
     standalone()
+    permissions()
     print("PASS: rollback 430/432 rejection, retention, reversal, idempotency and forward reapplication")
