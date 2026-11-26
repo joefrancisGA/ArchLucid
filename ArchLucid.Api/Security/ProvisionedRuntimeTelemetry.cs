@@ -149,6 +149,8 @@ internal static class RuntimeTelemetryRegistration
         services.AddScoped<IAuthorizedRuntimeObservationSource, SignedRuntimeObservationSource>();
         services.AddScoped<RuntimeObservationAdapter>();
         services.AddScoped<RuntimeDeploymentAdvisoryEvaluator>();
+        services.AddScoped<IVerifiedRuntimeAdvisoryCatalogSource, ProvisionedRuntimeAdvisoryCatalogSource>();
+        services.AddScoped<RuntimeAdvisoryFindingService>();
         services.AddScoped<IRuntimeAttestationPublicationAuthority, ProvisionedRuntimePublicationAuthority>();
         services.AddScoped<IRuntimeAttestationPublicationStore, AtomicRuntimeAttestationPublicationStore>();
         services.AddHttpClient("SecureNowRuntimeKeyVault", client => client.Timeout = TimeSpan.FromSeconds(15))
