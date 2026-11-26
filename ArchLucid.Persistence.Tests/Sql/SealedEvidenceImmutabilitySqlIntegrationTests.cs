@@ -61,6 +61,7 @@ public sealed class SealedEvidenceImmutabilitySqlIntegrationTests(SqlServerPersi
         string resultId = "sealed-evidence-test-" + Guid.NewGuid().ToString("N");
         string runId = Guid.NewGuid().ToString("N");
         string requestId = "sealed-evidence-req-" + Guid.NewGuid().ToString("N");
+        string taskId = Support.ArchitectureCommitTestSeed.RunScopedRowId(runId, "sealed-evidence-task");
 
         await using (SqlConnection setup = new(fixture.ConnectionString))
         {
@@ -72,7 +73,7 @@ public sealed class SealedEvidenceImmutabilitySqlIntegrationTests(SqlServerPersi
             await Support.ArchitectureCommitTestSeed.InsertRequestAndRunAsync(setup, requestId, runId, CancellationToken.None);
             await Support.ArchitectureCommitTestSeed.InsertAgentTaskAsync(
                 setup,
-                new ArchLucid.Contracts.Agents.AgentTask { TaskId = "sealed-evidence-task", RunId = runId },
+                new ArchLucid.Contracts.Agents.AgentTask { TaskId = taskId, RunId = runId },
                 CancellationToken.None);
 
             const string insertSql = """
@@ -82,7 +83,7 @@ public sealed class SealedEvidenceImmutabilitySqlIntegrationTests(SqlServerPersi
 
             await setup.ExecuteAsync(
                 insertSql,
-                new { ResultId = resultId, TaskId = "sealed-evidence-task", RunId = Guid.Parse(runId) });
+                new { ResultId = resultId, TaskId = taskId, RunId = Guid.Parse(runId) });
         }
 
         await using SqlConnection connection = new(fixture.ConnectionString);
@@ -114,6 +115,7 @@ public sealed class SealedEvidenceImmutabilitySqlIntegrationTests(SqlServerPersi
         string resultId = "enrichment-test-" + Guid.NewGuid().ToString("N");
         string runId = Guid.NewGuid().ToString("N");
         string requestId = "enrichment-req-" + Guid.NewGuid().ToString("N");
+        string taskId = Support.ArchitectureCommitTestSeed.RunScopedRowId(runId, "enrichment-task");
 
         TestSqlDbConnectionFactory connectionFactory = new(fixture.ConnectionString);
         AgentResultEnrichmentRepository enrichmentRepository = new(connectionFactory);
@@ -124,7 +126,7 @@ public sealed class SealedEvidenceImmutabilitySqlIntegrationTests(SqlServerPersi
             await Support.ArchitectureCommitTestSeed.InsertRequestAndRunAsync(setup, requestId, runId, CancellationToken.None);
             await Support.ArchitectureCommitTestSeed.InsertAgentTaskAsync(
                 setup,
-                new ArchLucid.Contracts.Agents.AgentTask { TaskId = "enrichment-task", RunId = runId },
+                new ArchLucid.Contracts.Agents.AgentTask { TaskId = taskId, RunId = runId },
                 CancellationToken.None);
 
             const string insertSql = """
@@ -134,7 +136,7 @@ public sealed class SealedEvidenceImmutabilitySqlIntegrationTests(SqlServerPersi
 
             await setup.ExecuteAsync(
                 insertSql,
-                new { ResultId = resultId, TaskId = "enrichment-task", RunId = Guid.Parse(runId) });
+                new { ResultId = resultId, TaskId = taskId, RunId = Guid.Parse(runId) });
         }
 
         await enrichmentRepository.UpsertCalibratedConfidenceAsync(resultId, 0.42, CancellationToken.None);

@@ -48,18 +48,16 @@ public sealed class DapperAgentResultRepositoryContractTests(SqlServerPersistenc
         await PrepareRunTaskChainAsync(requestId, runId, conflictingTask, CancellationToken.None);
 
         DateTime createdUtc = TimeProvider.System.UtcNowDateTime();
-        await repository.CreateAsync(
-            NewResult(runId, replacedTask.TaskId, "original-result", createdUtc),
-            CancellationToken.None);
-        await repository.CreateAsync(
-            NewResult(runId, conflictingTask.TaskId, "conflicting-result-id", createdUtc),
-            CancellationToken.None);
+        AgentResult original = NewResult(runId, replacedTask.TaskId, "original-result", createdUtc);
+        AgentResult conflicting = NewResult(runId, conflictingTask.TaskId, "conflicting-result", createdUtc);
+        await repository.CreateAsync(original, CancellationToken.None);
+        await repository.CreateAsync(conflicting, CancellationToken.None);
 
         Func<Task> replace = () => repository.ReplaceForRunTaskAsync(
-            NewResult(runId, replacedTask.TaskId, "conflicting-result-id", createdUtc.AddSeconds(1)),
+            NewResult(runId, replacedTask.TaskId, "conflicting-result", createdUtc.AddSeconds(1)),
             CancellationToken.None);
 
-        await replace.Should().ThrowAsync<SqlException>();
+        (await replace.Should().ThrowAsync<SqlException>()).Which.Number.Should().BeOneOf(2601, 2627);
 
         IReadOnlyList<AgentResult> loaded = await repository.GetByRunIdAsync(
             ArchitectureCommitTestSeed.AsScopeContext(),
@@ -68,6 +66,6 @@ public sealed class DapperAgentResultRepositoryContractTests(SqlServerPersistenc
 
         loaded.Select(static result => result.ResultId)
             .Should()
-            .BeEquivalentTo(["original-result", "conflicting-result-id"]);
+            .BeEquivalentTo([original.ResultId, conflicting.ResultId]);
     }
 }

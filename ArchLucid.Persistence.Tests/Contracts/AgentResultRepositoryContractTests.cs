@@ -52,7 +52,7 @@ public abstract class AgentResultRepositoryContractTests
 
         loaded.Should().ContainSingle();
         loaded[0].TaskId.Should().Be(task.TaskId);
-        loaded[0].ResultId.Should().Be("r1");
+        loaded[0].ResultId.Should().Be(result.ResultId);
     }
 
     [SkippableFact]
@@ -81,7 +81,9 @@ public abstract class AgentResultRepositoryContractTests
             await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
 
         loaded.Should().HaveCount(2);
-        loaded.Select(static r => r.ResultId).Should().BeEquivalentTo(["r-a", "r-b"]);
+        loaded.Select(static r => r.ResultId).Should().BeEquivalentTo([
+            ArchitectureCommitTestSeed.RunScopedRowId(runId, "r-a"),
+            ArchitectureCommitTestSeed.RunScopedRowId(runId, "r-b")]);
     }
 
     [SkippableFact]
@@ -113,7 +115,7 @@ public abstract class AgentResultRepositoryContractTests
         IReadOnlyList<AgentResult> loaded =
             await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
 
-        loaded.Select(static result => result.ResultId).Should().Equal("old");
+        loaded.Select(static result => result.ResultId).Should().Equal(ArchitectureCommitTestSeed.RunScopedRowId(runId, "old"));
     }
 
     [SkippableFact]
@@ -158,13 +160,13 @@ public abstract class AgentResultRepositoryContractTests
 
         afterDelete.Should().BeEmpty();
 
-        await repo.CreateAsync(NewResult(runId, task.TaskId, "recreated", TimeProvider.System.UtcNowDateTime()),
-            CancellationToken.None);
+        AgentResult recreated = NewResult(runId, task.TaskId, "recreated", TimeProvider.System.UtcNowDateTime());
+        await repo.CreateAsync(recreated, CancellationToken.None);
 
         IReadOnlyList<AgentResult> afterCreate =
             await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
 
-        afterCreate.Should().ContainSingle(r => r.ResultId == "recreated");
+        afterCreate.Should().ContainSingle(r => r.ResultId == recreated.ResultId);
     }
 
     [SkippableFact]
@@ -188,7 +190,7 @@ public abstract class AgentResultRepositoryContractTests
                 CancellationToken.None);
 
         markers.Should().ContainSingle();
-        markers[0].ResultId.Should().Be("marker-r1");
+        markers[0].ResultId.Should().Be(ArchitectureCommitTestSeed.RunScopedRowId(runId, "marker-r1"));
         markers[0].RunId.Should().Be(runId);
         markers[0].AgentType.Should().Be(AgentType.Topology);
     }
@@ -235,7 +237,7 @@ public abstract class AgentResultRepositoryContractTests
                 CancellationToken.None);
 
         projected.Should().ContainSingle();
-        projected[0].ResultId.Should().Be("rollup-r1");
+        projected[0].ResultId.Should().Be(seeded.ResultId);
         projected[0].Claims.Should().ContainSingle("claim-one");
         projected[0].EvidenceRefs.Should().ContainSingle("ev-one");
         projected[0].Findings.Should().ContainSingle(f => f.Message == "finding-one");
@@ -248,11 +250,40 @@ public abstract class AgentResultRepositoryContractTests
         projected[0].Findings[0].IacStub.Should().BeNull();
     }
 
-    protected static AgentTask NewTaskRow(string runId, string taskId)
+    [SkippableFact]
+    [Trait("Suite", "Core")]
+    public async Task Same_result_and_task_labels_are_isolated_across_runs()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentResultRepository repo = CreateRepository();
+        string requestId = "arr-isolation-" + Guid.NewGuid().ToString("N");
+        string firstRun = Guid.NewGuid().ToString("N");
+        string secondRun = Guid.NewGuid().ToString("N");
+        AgentTask firstTask = NewTaskRow(firstRun, "task");
+        AgentTask secondTask = NewTaskRow(secondRun, "task");
+        await PrepareRunTaskChainAsync(requestId, firstRun, firstTask, CancellationToken.None);
+        await PrepareRunTaskChainAsync(requestId, secondRun, secondTask, CancellationToken.None);
+
+        DateTime createdUtc = new(2026, 5, 1, 10, 0, 0, DateTimeKind.Utc);
+        AgentResult first = NewResult(firstRun, firstTask.TaskId, "result", createdUtc);
+        AgentResult second = NewResult(secondRun, secondTask.TaskId, "result", createdUtc);
+        await repo.CreateAsync(first, CancellationToken.None);
+        await repo.CreateAsync(second, CancellationToken.None);
+
+        ScopeContext scope = ArchitectureCommitTestSeed.AsScopeContext();
+        AgentResult firstRow = (await repo.GetByRunIdAsync(scope, firstRun, CancellationToken.None)).Should().ContainSingle().Subject;
+        AgentResult secondRow = (await repo.GetByRunIdAsync(scope, secondRun, CancellationToken.None)).Should().ContainSingle().Subject;
+        firstRow.ResultId.Should().Be(first.ResultId).And.NotBe(secondRow.ResultId);
+        secondRow.ResultId.Should().Be(second.ResultId);
+        firstRow.TaskId.Should().Be(firstTask.TaskId).And.NotBe(secondRow.TaskId);
+        secondRow.TaskId.Should().Be(secondTask.TaskId);
+    }
+
+    protected static AgentTask NewTaskRow(string runId, string label)
     {
         return new AgentTask
         {
-            TaskId = taskId,
+            TaskId = ArchitectureCommitTestSeed.RunScopedRowId(runId, label),
             RunId = runId,
             AgentType = AgentType.Topology,
             Objective = "o",
@@ -262,11 +293,11 @@ public abstract class AgentResultRepositoryContractTests
         };
     }
 
-    protected static AgentResult NewResult(string runId, string taskId, string resultId, DateTime createdUtc)
+    protected static AgentResult NewResult(string runId, string taskId, string label, DateTime createdUtc)
     {
         return new AgentResult
         {
-            ResultId = resultId,
+            ResultId = ArchitectureCommitTestSeed.RunScopedRowId(runId, label),
             TaskId = taskId,
             RunId = runId,
             AgentType = AgentType.Topology,
