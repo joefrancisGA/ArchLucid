@@ -29,7 +29,10 @@ import {
   deriveAuditLineageCheckboxPresentation,
   formatAuditLineageEvaluationContext,
 } from "@/lib/audit-evidence-lineage-presentation";
-import { auditEvidenceLineageLookupPathFromPathname } from "@/lib/audit-evidence-lineage-route";
+import {
+  SECURENOW_AUDIT_EVIDENCE_PATH,
+  auditEvidenceLineageLookupPathFromPathname,
+} from "@/lib/audit-evidence-lineage-route";
 import { auditEvidenceLineageBlockedReason } from "@/lib/governance/audit-evidence-lineage-blocked-reason";
 import { auditEvidencePackageBlockedReason } from "@/lib/governance/audit-evidence-package-blocked-reason";
 import { downloadAuditEvidencePackageZip } from "@/lib/governance/audit-evidence-package-api";
@@ -379,8 +382,9 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
         {packageDownloadAnnouncement}
       </div>
 
-      <div
+      <main
         id={AUDIT_EVIDENCE_CONTROL_LINEAGE_PRIMARY_CONTENT_ID}
+        tabIndex={-1}
         className={cn("min-w-0 space-y-4 scroll-mt-24")}
         data-testid="audit-evidence-control-lineage-primary-content"
       >
@@ -481,7 +485,18 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
         ) : null}
 
         <AuditEvidenceControlLineageClaimOrientationStrip />
-      </div>
+        {pathname.startsWith("/compliance") ? (
+          <p className={OPERATOR_TYPOGRAPHY.body} data-testid="compliance-control-lineage-wayfinding">
+            <Link className={OPERATOR_LINK.inline} href={SECURENOW_AUDIT_EVIDENCE_PATH}>
+              Audit evidence lookup
+            </Link>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href="/">
+              Home
+            </Link>
+          </p>
+        ) : null}
+      </main>
     </OperatorPageContainer>
   );
 }

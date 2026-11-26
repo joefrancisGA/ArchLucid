@@ -17,6 +17,7 @@ export function AuditEvidenceControlLineageClaimOrientationStrip(): React.JSX.El
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="audit-evidence-control-lineage"
+      sourcesTestId="audit-evidence-control-lineage-sources"
       sourcesIntro={AUDIT_EVIDENCE_CONTROL_LINEAGE_SOURCES_INTRO}
       sources={sources}
     />
