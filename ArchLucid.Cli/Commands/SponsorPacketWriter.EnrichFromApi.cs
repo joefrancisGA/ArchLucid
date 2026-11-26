@@ -15,7 +15,7 @@ internal static partial class SponsorPacketWriter
         string normalized = apiBaseUrl.Trim().TrimEnd('/');
         string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");
 
-        using HttpClient http = new();
+        using HttpClient http = CliHttpClientFactory.Create();
         http.Timeout = TimeSpan.FromMinutes(3);
         http.BaseAddress = new Uri(normalized + "/");
 
