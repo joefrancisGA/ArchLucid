@@ -26,6 +26,7 @@ import {
 } from "@/lib/design-tokens";
 import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CANONICAL_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TOPIC_LABEL,
 } from "@/lib/governance/governance-infrastructure-drift-help-evidence-copy";
 import {
