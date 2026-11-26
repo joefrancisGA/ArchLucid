@@ -903,6 +903,28 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+
+  it("treats ON metrics disclosure token with fullwidth tilde inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF5En`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with large circle inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25EFue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("remediationFactoryHrefFromSearch preserves selectedPath on pathname-only href", () => {
+    const pathId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+    const href = remediationFactoryHrefFromSearch(
+      "/governance/remediation-factory",
+      `${REMEDIATION_FACTORY_SELECTED_PATH_PARAM}=${pathId}`,
+    );
+
+    expect(href).toBe(`/governance/remediation-factory?${REMEDIATION_FACTORY_SELECTED_PATH_PARAM}=${pathId}`);
+  });
   it("preserves open metrics when writing a path-only selection change", () => {
     const priorPath = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
     const nextPath = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
