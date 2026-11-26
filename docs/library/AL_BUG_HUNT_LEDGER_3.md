@@ -379,6 +379,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **code-changed-since:** yes
 
 
+2026-11-26 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with fullwidth digit three (U+FF13) and upper-left-quadrant-circular-arc padding (U+25DF) inside words (e.g. `o` + U+FF13 + `n`, `tr` + U+25DF + `ue`) stayed closed because those Ff/So scalars were not stripped; strip U+FF13 and U+25DF with existing invisible scalar hygiene. **valid-no-repro** pass-99 monitors (metrics close drops padded `ON` base, duplicate `0`/`off` first-wins, writer preserves path id when clearing finding with open metrics). Pass-100 reseed below. Scoped vitest **487/487**. Private beta: Invited operators who deep-link with fullwidth-digit-three or upper-left-quadrant-circular-arc padding inside `remediationFactoryMetricsOpen` on/true tokens open the executive metrics summary instead of landing with the panel closed.
 2026-11-26 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with fullwidth digit two (U+FF12) and lower-right-quadrant-circular-arc padding (U+25DE) inside words (e.g. `o` + U+FF12 + `n`, `tr` + U+25DE + `ue`) stayed closed because those Ff/So scalars were not stripped; strip U+FF12 and U+25DE with existing invisible scalar hygiene. **valid-no-repro** pass-98 monitors (metrics open canonicalizes over padded `TRUE` base, duplicate `off`/`on` first-wins, pathname-only href preserves finding without path). Pass-99 reseed below. Scoped vitest **483/483**. Private beta: Invited operators who deep-link with fullwidth-digit-two or lower-right-quadrant-circular-arc padding inside `remediationFactoryMetricsOpen` on/true tokens open the executive metrics summary instead of landing with the panel closed.
 2026-11-26 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with fullwidth digit one (U+FF11) and lower-left-quadrant-circular-arc padding (U+25DD) inside words (e.g. `o` + U+FF11 + `n`, `tr` + U+25DD + `ue`) stayed closed because those Ff/So scalars were not stripped; strip U+FF11 and U+25DD with existing invisible scalar hygiene. **valid-no-repro** pass-97 monitors (metrics close drops padded `TRUE` base, duplicate `no`/`on` first-wins, writer preserves finding id when clearing path with open metrics). Pass-98 reseed below. Scoped vitest **480/480**. Private beta: Invited operators who deep-link with fullwidth-digit-one or lower-left-quadrant-circular-arc padding inside `remediationFactoryMetricsOpen` on/true tokens open the executive metrics summary instead of landing with the panel closed.
 2026-11-26 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with fullwidth digit zero (U+FF10) and upper-right-quadrant-circular-arc padding (U+25DC) inside words (e.g. `o` + U+FF10 + `n`, `tr` + U+25DC + `ue`) stayed closed because those Ff/So scalars were not stripped; strip U+FF10 and U+25DC with existing invisible scalar hygiene. **valid-no-repro** pass-96 monitors (metrics close drops padded `FALSE` base, duplicate `ON`/`off` first-wins, pathname-only href preserves fromSnapshot). Pass-97 reseed below. Scoped vitest **477/477**. Private beta: Invited operators who deep-link with fullwidth-digit-zero or upper-right-quadrant-circular-arc padding inside `remediationFactoryMetricsOpen` on/true tokens open the executive metrics summary instead of landing with the panel closed.
@@ -865,11 +866,18 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `off` then `on` — **cheap-disproof 2026-11-26 thorough hunt (hit):** regression `uses the first metrics disclosure token when off precedes on in the query string`.
 - [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves finding id on pathname-only href when clearing path — **cheap-disproof 2026-11-26 thorough hunt (hit):** regression `remediationFactoryHrefFromSearch preserves metrics and selectedFinding on pathname-only href`.
 
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — fullwidth digit three inside `on` token — locus: Ff strip; input: `o` + U+FF13 + `n`; pass-99 reseed.
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — upper left quadrant circular arc inside true — locus: So strip; input: `tr` + U+25DF + `ue`; pass-99 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded `ON` base — locus: writer; input: close over ` ON ` base; pass-99 reseed.
-- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `0` then `off` — locus: first-wins; input: repeated param; pass-99 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — preserves path id when clearing finding with open metrics — locus: writer; input: clear finding only; pass-99 reseed.
+- [x] (superseded) pass-99 `(candidate)` queue — **superseded 2026-11-26 thorough hunt (hit):** pass-100 reseed.
+- [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — fullwidth digit three inside `on` token — **proven 2026-11-26 thorough hunt (hit):** regression `treats ON metrics disclosure token with fullwidth digit three inside the word as open on read`.
+- [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — upper left quadrant circular arc inside true — **proven 2026-11-26 thorough hunt (hit):** regression `treats true metrics disclosure token with upper left quadrant circular arc inside the word as open on read`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded `ON` base — **cheap-disproof 2026-11-26 thorough hunt (hit):** regression `drops padded ON metrics disclosure token from base search when writing closed state`.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `0` then `off` — **cheap-disproof 2026-11-26 thorough hunt (hit):** regression `uses the first metrics disclosure token when zero precedes off in the query string`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — preserves path id when clearing finding with open metrics — **cheap-disproof 2026-11-26 thorough hunt (hit):** regression `preserves path id when clearing finding selection with open metrics`.
+
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — fullwidth digit four inside `on` token — locus: Ff strip; input: `o` + U+FF14 + `n`; pass-100 reseed.
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — upper half circular arc inside true — locus: So strip; input: `tr` + U+25E0 + `ue`; pass-100 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open over padded `ON` base replaces with canonical `1` — locus: writer; input: open over ` ON ` base; pass-100 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `1` then `off` — locus: first-wins; input: repeated param; pass-100 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves path id on pathname-only href when clearing finding — locus: href; input: metrics open + path; pass-100 reseed.
 
 - [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — horizontal tab inside yes token — locus: Cc strip; input: `y` + U+0009 + `es`; pass-68 reseed.
 - [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — treats NUL-only metrics disclosure token as closed — locus: empty after Cc strip; input: U+0000 only; pass-68 reseed.
@@ -1341,8 +1349,8 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 119
-- **bugs-found:** 106
+- **hunts:** 120
+- **bugs-found:** 107
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-26
 - **last-bug:** 2026-11-26
