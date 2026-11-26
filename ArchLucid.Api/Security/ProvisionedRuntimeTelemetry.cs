@@ -1,6 +1,8 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.InfraEvidence;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +24,8 @@ internal static class RuntimeTelemetryProvisioning
 }
 
 internal sealed class ProvisionedRuntimeTelemetryAuthority(
-    IConfiguration config, IHttpContextAccessor http, ICentralAuthorizationDecisions decisions)
+    IConfiguration config, IHttpContextAccessor http, ICentralAuthorizationDecisions decisions,
+    IAzureInventorySnapshotRepository inventory, TimeProvider clock)
     : IRuntimeTelemetryReadAuthority
 {
     public async Task<bool> CanReadAsync(RuntimeObservationRequest request, CancellationToken cancellationToken)
@@ -31,14 +34,30 @@ internal sealed class ProvisionedRuntimeTelemetryAuthority(
         var principal = http.HttpContext?.User;
         if (!RuntimeTelemetryProvisioning.Enabled(config) || principal?.Identity?.IsAuthenticated != true ||
             !Guid.TryParse(RuntimeTelemetryProvisioning.Scope(config, request)["EvidenceRunId"], out var runId) ||
-            runId == Guid.Empty)
+            runId == Guid.Empty ||
+            !Guid.TryParse(RuntimeTelemetryProvisioning.Scope(config, request)["InventorySnapshotId"], out var snapshotId) ||
+            snapshotId == Guid.Empty)
             return false;
         var decision = await decisions.DecideAsync(principal,
             new("evidence.read", request.TenantId, request.WorkspaceId, request.ProjectId, runId),
             cancellationToken);
-        return decision.Allowed && RuntimeTelemetryProvisioning.Enabled(config) &&
+        if (!decision.Allowed) return false;
+        var scope = new ScopeContext { TenantId = request.TenantId, WorkspaceId = request.WorkspaceId, ProjectId = request.ProjectId };
+        var detail = await inventory.TryGetCanonicalSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+        if (detail is null || detail.Header is not { } header ||
+            header.SnapshotId != snapshotId || header.TenantId != request.TenantId ||
+            header.WorkspaceId != request.WorkspaceId || header.ProjectId != request.ProjectId ||
+            header.CapturedUtc is not DateTime captured || captured.Kind != DateTimeKind.Utc ||
+            captured > clock.GetUtcNow().UtcDateTime || clock.GetUtcNow().UtcDateTime - captured > TimeSpan.FromHours(24) ||
+            detail.Resources.Count(row => row.TenantId == request.TenantId && row.SnapshotId == snapshotId &&
+                string.Equals(row.AzureResourceId, request.ResourceId, StringComparison.OrdinalIgnoreCase)) != 1)
+            return false;
+        cancellationToken.ThrowIfCancellationRequested();
+        return RuntimeTelemetryProvisioning.Enabled(config) &&
             Guid.TryParse(RuntimeTelemetryProvisioning.Scope(config, request)["EvidenceRunId"], out var current)
-            && current == runId;
+            && current == runId &&
+            Guid.TryParse(RuntimeTelemetryProvisioning.Scope(config, request)["InventorySnapshotId"], out var currentSnapshot)
+            && currentSnapshot == snapshotId;
     }
 }
 
