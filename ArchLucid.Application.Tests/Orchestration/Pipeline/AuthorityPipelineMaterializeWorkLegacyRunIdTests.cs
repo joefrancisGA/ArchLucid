@@ -33,6 +33,73 @@ namespace ArchLucid.Application.Tests.Orchestration.Pipeline;
 public sealed class AuthorityPipelineMaterializeWorkLegacyRunIdTests
 {
     [Fact]
+    public async Task Extractor_does_not_load_request_or_bundle_for_an_unbound_current_run()
+    {
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        Guid runId = Guid.NewGuid();
+        AuthorityPipelineWorkOutboxEntry entry = new()
+        {
+            OutboxId = Guid.NewGuid(), RunId = runId,
+            TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId,
+        };
+        Mock<IRunRepository> runs = new(MockBehavior.Strict);
+        runs.Setup(r => r.GetByIdIncludingArchivedAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runId, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = Guid.NewGuid(), ArchitectureRequestId = "fixture-request",
+            });
+        Mock<IArchitectureRequestRepository> requests = new(MockBehavior.Strict);
+        Mock<IEvidenceBundleRepository> bundles = new(MockBehavior.Strict);
+        await using ServiceProvider provider = new ServiceCollection()
+            .AddSingleton(runs.Object).AddSingleton(requests.Object).AddSingleton(bundles.Object).BuildServiceProvider();
+        await using AsyncServiceScope serviceScope = provider.CreateAsyncScope();
+
+        Func<Task> materialize = () => AuthorityPipelineMaterializeWork.MergeInventoryPackagesOnlyAsync(
+            serviceScope, entry, new AuthorityPipelineWorkPayload { EvidenceBundleId = "fixture-bundle" },
+            scope, CancellationToken.None);
+
+        await materialize.Should().ThrowAsync<InvalidOperationException>().WithMessage("No matching active run*");
+        requests.VerifyNoOtherCalls();
+        bundles.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Extractor_does_not_use_unscoped_bundle_load_or_read_request_when_binding_is_missing()
+    {
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        Guid runId = Guid.NewGuid();
+        AuthorityPipelineWorkOutboxEntry entry = new()
+        {
+            OutboxId = Guid.NewGuid(), RunId = runId,
+            TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId,
+        };
+        Mock<IRunRepository> runs = new(MockBehavior.Strict);
+        runs.Setup(r => r.GetByIdIncludingArchivedAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runId, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId, ArchitectureRequestId = "fixture-request",
+            });
+        Mock<IArchitectureRequestRepository> requests = new(MockBehavior.Strict);
+        Mock<IEvidenceBundleRepository> bundles = new(MockBehavior.Strict);
+        bundles.Setup(r => r.GetForRunAsync(scope, runId, "other-run-bundle", CancellationToken.None))
+            .ReturnsAsync((EvidenceBundle?)null);
+        await using ServiceProvider provider = new ServiceCollection()
+            .AddSingleton(runs.Object).AddSingleton(requests.Object).AddSingleton(bundles.Object).BuildServiceProvider();
+        await using AsyncServiceScope serviceScope = provider.CreateAsyncScope();
+
+        Func<Task> materialize = () => AuthorityPipelineMaterializeWork.MergeInventoryPackagesOnlyAsync(
+            serviceScope, entry, new AuthorityPipelineWorkPayload { EvidenceBundleId = "other-run-bundle" },
+            scope, CancellationToken.None);
+
+        await materialize.Should().ThrowAsync<InvalidOperationException>().WithMessage("*not bound to this run*");
+        bundles.Verify(r => r.GetForRunAsync(scope, runId, "other-run-bundle", CancellationToken.None), Times.Once);
+        bundles.VerifyNoOtherCalls();
+        requests.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task CompareQuality_MaterializeAgentTasksAsync_merges_technology_ledger_when_stored_under_legacy_run_id_key()
     {
         Guid runGuid = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
@@ -88,7 +155,7 @@ public sealed class AuthorityPipelineMaterializeWorkLegacyRunIdTests
 
         Mock<IRunRepository> runRepository = new();
         runRepository
-            .Setup(r => r.GetByIdAsync(scope, runGuid, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByIdIncludingArchivedAsync(scope, runGuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync(runRecord);
         runRepository
             .Setup(r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>()))
@@ -101,7 +168,7 @@ public sealed class AuthorityPipelineMaterializeWorkLegacyRunIdTests
 
         Mock<IEvidenceBundleRepository> evidenceRepository = new();
         evidenceRepository
-            .Setup(r => r.GetByIdAsync(evidenceBundle.EvidenceBundleId, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetForRunAsync(scope, runGuid, evidenceBundle.EvidenceBundleId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(evidenceBundle);
 
         List<AgentTask>? capturedTasks = null;
@@ -147,6 +214,9 @@ public sealed class AuthorityPipelineMaterializeWorkLegacyRunIdTests
         {
             OutboxId = Guid.NewGuid(),
             RunId = runGuid,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
         };
 
         AuthorityPipelineWorkPayload payload = new()
@@ -215,7 +285,7 @@ public sealed class AuthorityPipelineMaterializeWorkLegacyRunIdTests
 
         Mock<IRunRepository> runRepository = new();
         runRepository
-            .Setup(r => r.GetByIdAsync(scope, runGuid, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByIdIncludingArchivedAsync(scope, runGuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync(runRecord);
         runRepository
             .Setup(r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>()))
@@ -228,7 +298,7 @@ public sealed class AuthorityPipelineMaterializeWorkLegacyRunIdTests
 
         Mock<IEvidenceBundleRepository> evidenceRepository = new();
         evidenceRepository
-            .Setup(r => r.GetByIdAsync(evidenceBundle.EvidenceBundleId, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetForRunAsync(scope, runGuid, evidenceBundle.EvidenceBundleId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(evidenceBundle);
 
         IModelExecutionProfileResolver profileResolver = new ModelExecutionProfileResolver(
@@ -257,7 +327,11 @@ public sealed class AuthorityPipelineMaterializeWorkLegacyRunIdTests
 
         await AuthorityPipelineMaterializeWork.MaterializeAgentTasksAsync(
             serviceScope,
-            new AuthorityPipelineWorkOutboxEntry { OutboxId = Guid.NewGuid(), RunId = runGuid },
+            new AuthorityPipelineWorkOutboxEntry
+            {
+                OutboxId = Guid.NewGuid(), RunId = runGuid,
+                TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId,
+            },
             new AuthorityPipelineWorkPayload { EvidenceBundleId = evidenceBundle.EvidenceBundleId },
             scope,
             NullLogger<AuthorityPipelineExecuteWorkHandler>.Instance,

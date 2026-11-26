@@ -83,7 +83,8 @@ public sealed class ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTest
             .Setup(r => r.CreateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
         evidenceRepo
-            .Setup(r => r.CreateAsync(It.IsAny<EvidenceBundle>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.CreateForRunAsync(It.IsAny<EvidenceBundle>(), It.IsAny<ScopeContext>(),
+                Guid.Parse(runId), It.IsAny<CancellationToken>(), null, null))
             .Returns(Task.CompletedTask);
         taskRepo
             .Setup(r => r.CreateManyAsync(It.IsAny<IEnumerable<AgentTask>>(), It.IsAny<CancellationToken>()))

@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Coordination.Export;
 using ArchLucid.Persistence.Coordination.Projection;
@@ -14,6 +15,56 @@ namespace ArchLucid.Persistence.Tests.Coordination;
 [Trait("Category", "SqlServerContainer")]
 public sealed class SqlQueueClaimsSnapshotIsolationTests(SqlServerPersistenceFixture fixture)
 {
+    [SkippableFact]
+    public async Task Authority_pipeline_claim_does_not_return_or_lease_foreign_payloads()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        DapperAuthorityPipelineWorkRepository repository = new(factory);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+        Guid tenant = Guid.NewGuid(), workspace = Guid.NewGuid(), project = Guid.NewGuid(), localRun = Guid.NewGuid();
+        Guid[] foreignRuns = [Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()];
+        Guid[] allRuns = [localRun, .. foreignRuns];
+        Guid foreignTenant = Guid.NewGuid(), foreignWorkspace = Guid.NewGuid(), foreignProject = Guid.NewGuid();
+
+        try
+        {
+            // The outbox has a real FK to the persisted review; seed all four distinct scopes.
+            await connection.ExecuteAsync("""
+                INSERT INTO dbo.Runs (RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, CreatedUtc)
+                VALUES (@localRun, @tenant, @workspace, @project, N'fixture', SYSUTCDATETIME()),
+                       (@foreignRun0, @foreignTenant, @workspace, @project, N'fixture', SYSUTCDATETIME()),
+                       (@foreignRun1, @tenant, @foreignWorkspace, @project, N'fixture', SYSUTCDATETIME()),
+                       (@foreignRun2, @tenant, @workspace, @foreignProject, N'fixture', SYSUTCDATETIME());
+                """, new { localRun, tenant, workspace, project, foreignTenant, foreignWorkspace, foreignProject,
+                    foreignRun0 = foreignRuns[0], foreignRun1 = foreignRuns[1], foreignRun2 = foreignRuns[2] });
+            await repository.EnqueueAsync(localRun, tenant, workspace, project, "{}");
+            await repository.EnqueueAsync(foreignRuns[0], foreignTenant, workspace, project, "{}");
+            await repository.EnqueueAsync(foreignRuns[1], tenant, foreignWorkspace, project, "{}");
+            await repository.EnqueueAsync(foreignRuns[2], tenant, workspace, foreignProject, "{}");
+
+            using IDisposable drain = AmbientScopeContext.Push(new ScopeContext
+            {
+                TenantId = tenant, WorkspaceId = workspace, ProjectId = project,
+            });
+            (await repository.CountActionablePendingAsync()).Should().Be(1);
+            (await repository.DequeuePendingAsync(10, 60)).Should().ContainSingle().Which.RunId.Should().Be(localRun);
+            (await repository.CountActionablePendingAsync()).Should().Be(0);
+
+            int untouched = await connection.ExecuteScalarAsync<int>("""
+                SELECT COUNT(*) FROM dbo.AuthorityPipelineWorkOutbox
+                WHERE RunId IN @foreignRuns AND LockedUntilUtc IS NULL AND ProcessedUtc IS NULL AND AttemptCount = 0;
+                """, new { foreignRuns });
+            untouched.Should().Be(3);
+        }
+        finally
+        {
+            await connection.ExecuteAsync("DELETE FROM dbo.AuthorityPipelineWorkOutbox WHERE RunId IN @allRuns;", new { allRuns });
+            await connection.ExecuteAsync("DELETE FROM dbo.Runs WHERE RunId IN @allRuns;", new { allRuns });
+        }
+    }
+
     [SkippableFact]
     public async Task Blob_export_claim_preserves_new_requester_binding_and_skips_legacy_rows()
     {

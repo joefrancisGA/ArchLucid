@@ -55,12 +55,14 @@ public sealed class ArchitectureRunCreateOrchestratorAsyncCompleteTests
                 It.IsAny<CancellationToken>(),
                 It.IsAny<IArchLucidUnitOfWork?>(),
                 It.IsAny<Guid?>()))
-            .ReturnsAsync(BuildSuccessfulCoordination("req-async-complete", runIdText));
+            .ReturnsAsync(BuildSuccessfulCoordination("req-async-complete", runIdText, deferred: true));
 
         Mock<IEvidenceBundleRepository> evidence = new();
         evidence
-            .Setup(e => e.CreateAsync(
+            .Setup(e => e.CreateForRunAsync(
                 It.IsAny<EvidenceBundle>(),
+                AuthorityTestScope,
+                runId,
                 It.IsAny<CancellationToken>(),
                 null,
                 null))
@@ -90,6 +92,10 @@ public sealed class ArchitectureRunCreateOrchestratorAsyncCompleteTests
             request,
             idempotency: null,
             CancellationToken.None);
+
+        evidence.Verify(e => e.CreateForRunAsync(
+            It.Is<EvidenceBundle>(b => b.EvidenceBundleId == "eb-req-async-complete"), AuthorityTestScope,
+            runId, It.IsAny<CancellationToken>(), null, null), Times.Once);
 
         coordination.Verify(
             c => c.CreateRunAsync(
@@ -239,7 +245,7 @@ public sealed class ArchitectureRunCreateOrchestratorAsyncCompleteTests
             Times.Never);
     }
 
-    private static CoordinationResult BuildSuccessfulCoordination(string requestId, string runId)
+    private static CoordinationResult BuildSuccessfulCoordination(string requestId, string runId, bool deferred = false)
     {
         return new CoordinationResult
         {
@@ -247,7 +253,7 @@ public sealed class ArchitectureRunCreateOrchestratorAsyncCompleteTests
             {
                 RunId = runId,
                 RequestId = requestId,
-                Status = ArchitectureRunStatus.TasksGenerated,
+                Status = deferred ? ArchitectureRunStatus.Created : ArchitectureRunStatus.TasksGenerated,
                 CreatedUtc = TimeProvider.System.UtcNowDateTime()
             },
             EvidenceBundle = new EvidenceBundle { EvidenceBundleId = "eb-" + requestId },
