@@ -7,6 +7,8 @@ on:
       - 'ArchLucid.Persistence/Migrations/*RunExportBlobPush*.sql'
       - 'ArchLucid.Persistence/Coordination/Export/*RunExportBlobPush*.cs'
       - 'ArchLucid.Persistence/Orchestration/DapperAuthorityPipelineWorkRepository.cs'
+      - 'ArchLucid.Persistence/Data/Repositories/EvidenceBundleRepository.cs'
+      - 'ArchLucid.Persistence.Tests/Contracts/*EvidenceBundleRepositoryContractTests.cs'
       - 'ArchLucid.Persistence.Tests/Coordination/SqlQueueClaimsSnapshotIsolationTests.cs'
       - '.github/workflows/fnd061-blob-export-worker-sql.yml'
   workflow_dispatch:
@@ -48,7 +50,7 @@ jobs:
           fi
           export ARCHLUCID_SQL_TEST="Server=127.0.0.1,1433;Database=ArchLucidFnd061WorkerTests;User ID=sa;Password=$pw;Encrypt=True;TrustServerCertificate=True"
           dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release \
-            --filter 'FullyQualifiedName~Blob_export_claim_preserves_new_requester_binding_and_skips_legacy_rows|FullyQualifiedName~Authority_pipeline_claim_does_not_return_or_lease_foreign_payloads' \
+            --filter 'FullyQualifiedName~Blob_export_claim_preserves_new_requester_binding_and_skips_legacy_rows|FullyQualifiedName~Authority_pipeline_claim_does_not_return_or_lease_foreign_payloads|FullyQualifiedName~DapperEvidenceBundleRepositoryContractTests.Deferred_bundle_binding_rejects_foreign_run_and_scope_and_survives_content_updates' \
             --logger 'trx;LogFileName=fnd061-worker-sql.trx'
           python3 - <<'PY'
           import xml.etree.ElementTree as ET
@@ -56,6 +58,7 @@ jobs:
           expected = {
               "SqlQueueClaimsSnapshotIsolationTests.Blob_export_claim_preserves_new_requester_binding_and_skips_legacy_rows",
               "SqlQueueClaimsSnapshotIsolationTests.Authority_pipeline_claim_does_not_return_or_lease_foreign_payloads",
+              "DapperEvidenceBundleRepositoryContractTests.Deferred_bundle_binding_rejects_foreign_run_and_scope_and_survives_content_updates",
           }
           trx = ET.parse("ArchLucid.Persistence.Tests/TestResults/fnd061-worker-sql.trx")
           definitions = {}
@@ -66,7 +69,7 @@ jobs:
                   definitions[unit.attrib["id"]] = f"{cls}.{method.attrib['name']}"
           for name in sorted(expected):
               outcomes = [row.get("outcome") for row in trx.findall(".//{*}UnitTestResult")
-                          if definitions.get(row.get("testId")) == name]
+                          if definitions.get(row.get("testId")) == name or (row.get("testName") or "").endswith("." + name)]
               if outcomes != ["Passed"]:
                   raise SystemExit(f"Expected one passed SQL execution for {name}; found {outcomes}")
           PY

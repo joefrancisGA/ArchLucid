@@ -8,6 +8,7 @@ using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosted;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
@@ -212,6 +213,40 @@ public sealed class AuthorityPipelineWorkProcessorTests
         runs.Verify(r => r.GetByIdIncludingArchivedAsync(It.IsAny<ScopeContext>(), entry.RunId, It.IsAny<CancellationToken>()), Times.Once);
         runs.VerifyNoOtherCalls();
         orchestrator.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_waits_for_a_bound_bundle_before_dispatch_without_loading_its_body()
+    {
+        AuthorityPipelineWorkOutboxEntry entry = CreateEntryWithValidPayload();
+        Mock<IAuthorityPipelineWorkRepository> outbox = new();
+        Mock<IAuthorityRunOrchestrator> orchestrator = new();
+        Mock<IRunRepository> runs = new();
+        Mock<IEvidenceBundleRepository> bundles = new(MockBehavior.Strict);
+        outbox.Setup(r => r.DequeuePendingAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([entry]);
+        runs.Setup(r => r.GetByIdIncludingArchivedAsync(It.IsAny<ScopeContext>(), entry.RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateBoundRun(entry));
+        bundles.SetupSequence(r => r.IsBoundToRunAsync(It.Is<ScopeContext>(s =>
+                s.TenantId == entry.TenantId && s.WorkspaceId == entry.WorkspaceId && s.ProjectId == entry.ProjectId),
+                entry.RunId, "bundle-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false).ReturnsAsync(true);
+        FaultCompleteQueuedOrchestrator(orchestrator);
+
+        AuthorityPipelineWorkProcessor sut = CreateProcessor(outbox, orchestrator, runs, bundles: bundles);
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(r => r.RecordBackoffAfterProcessingFailureAsync(entry.OutboxId,
+            It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+        orchestrator.VerifyNoOtherCalls();
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        orchestrator.Verify(o => o.CompleteQueuedAuthorityPipelineAsync(It.IsAny<ContextIngestionRequest>(),
+            It.IsAny<CancellationToken>()), Times.Once);
+        bundles.Verify(r => r.IsBoundToRunAsync(It.IsAny<ScopeContext>(), entry.RunId, "bundle-1",
+            It.IsAny<CancellationToken>()), Times.Exactly(2));
+        bundles.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -590,20 +625,28 @@ public sealed class AuthorityPipelineWorkProcessorTests
 
     private static AuthorityPipelineWorkProcessor CreateProcessor(
         Mock<IAuthorityPipelineWorkRepository> outbox, Mock<IAuthorityRunOrchestrator> orchestrator,
-        Mock<IRunRepository> runs, int maxAttempts = 3) =>
-        new(CreateScopeFactory(BuildProvider(outbox, orchestrator, runs)).Object,
+        Mock<IRunRepository> runs, int maxAttempts = 3, Mock<IEvidenceBundleRepository>? bundles = null) =>
+        new(CreateScopeFactory(BuildProvider(outbox, orchestrator, runs, bundles)).Object,
             Options.Create(new AuthorityPipelineWorkProcessorOptions { MaxAttemptsBeforeDeadLetter = maxAttempts }),
             TimeProvider.System, NullLogger<AuthorityPipelineWorkProcessor>.Instance);
 
     private static IServiceProvider BuildProvider(
         Mock<IAuthorityPipelineWorkRepository> outbox,
         Mock<IAuthorityRunOrchestrator> orchestrator,
-        Mock<IRunRepository>? runRepository = null)
+        Mock<IRunRepository>? runRepository = null,
+        Mock<IEvidenceBundleRepository>? bundles = null)
     {
         ServiceCollection services = new();
         services.AddSingleton(outbox.Object);
         services.AddSingleton(orchestrator.Object);
         services.AddSingleton(runRepository?.Object ?? new Mock<IRunRepository>().Object);
+        if (bundles is null)
+        {
+            bundles = new Mock<IEvidenceBundleRepository>();
+            bundles.Setup(r => r.IsBoundToRunAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(),
+                It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        }
+        services.AddSingleton(bundles.Object);
         services.AddSingleton<IRunStateTransitionService, RunStateTransitionService>();
         services.AddLogging();
         services.AddSingleton<AuthorityPipelineExecuteWorkHandler>();

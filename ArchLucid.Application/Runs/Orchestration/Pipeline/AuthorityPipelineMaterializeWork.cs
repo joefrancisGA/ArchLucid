@@ -61,18 +61,19 @@ public static class AuthorityPipelineMaterializeWork
                 $"dbo.Runs.ArchitectureRequestId unset after deferred authority pipeline for run '{entry.RunId:N}'.");
         }
 
+        EvidenceBundle? evidenceBundle =
+            await evidenceBundleRepository.GetForRunAsync(jobScope, entry.RunId, payload.EvidenceBundleId.Trim(), cancellationToken)
+                .ConfigureAwait(false);
+        if (evidenceBundle is null)
+            throw new InvalidOperationException("Deferred authority evidence bundle is not bound to this run.");
+
         ArchitectureRequest? architectureRequest =
             await requestRepository.GetByIdAsync(authorityHeader.ArchitectureRequestId, cancellationToken)
                 .ConfigureAwait(false);
-
-        EvidenceBundle? evidenceBundle =
-            await evidenceBundleRepository.GetByIdAsync(payload.EvidenceBundleId.Trim(), cancellationToken)
-                .ConfigureAwait(false);
-
-        if (architectureRequest is null || evidenceBundle is null)
+        if (architectureRequest is null)
         {
             throw new InvalidOperationException(
-                $"Evidence bundle / architecture request not available after deferred authority pipeline for run '{entry.RunId:N}'.");
+                $"Architecture request not available after deferred authority pipeline for run '{entry.RunId:N}'.");
         }
 
         await MergeInventoryPackagesAsync(scope, evidenceBundle, architectureRequest, jobScope, entry, cancellationToken)
@@ -167,18 +168,19 @@ public static class AuthorityPipelineMaterializeWork
                 $"dbo.Runs.ArchitectureRequestId unset for extractor-phase authority pipeline run '{entry.RunId:N}'.");
         }
 
+        EvidenceBundle? evidenceBundle =
+            await evidenceBundleRepository.GetForRunAsync(jobScope, entry.RunId, payload.EvidenceBundleId.Trim(), cancellationToken)
+                .ConfigureAwait(false);
+        if (evidenceBundle is null)
+            throw new InvalidOperationException("Deferred authority evidence bundle is not bound to this run.");
+
         ArchitectureRequest? architectureRequest =
             await requestRepository.GetByIdAsync(authorityHeader.ArchitectureRequestId, cancellationToken)
                 .ConfigureAwait(false);
-
-        EvidenceBundle? evidenceBundle =
-            await evidenceBundleRepository.GetByIdAsync(payload.EvidenceBundleId.Trim(), cancellationToken)
-                .ConfigureAwait(false);
-
-        if (architectureRequest is null || evidenceBundle is null)
+        if (architectureRequest is null)
         {
             throw new InvalidOperationException(
-                $"Evidence bundle / architecture request not available for extractor-phase authority pipeline run '{entry.RunId:N}'.");
+                $"Architecture request not available for extractor-phase authority pipeline run '{entry.RunId:N}'.");
         }
 
         await MergeInventoryPackagesAsync(scope, evidenceBundle, architectureRequest, jobScope, entry, cancellationToken)

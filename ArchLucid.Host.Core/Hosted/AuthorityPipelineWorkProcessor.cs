@@ -6,6 +6,7 @@ using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
@@ -135,6 +136,15 @@ public sealed class AuthorityPipelineWorkProcessor(
             await workOutbox.MarkProcessedAsync(entry.OutboxId, cancellationToken).ConfigureAwait(false);
 
             return;
+        }
+
+        IEvidenceBundleRepository bundles = scope.ServiceProvider.GetRequiredService<IEvidenceBundleRepository>();
+        if (!await bundles.IsBoundToRunAsync(jobScope, entry.RunId, payload.EvidenceBundleId.Trim(), cancellationToken)
+                .ConfigureAwait(false))
+        {
+            // Detached create can commit the queue row before the bundle is persisted. Use the
+            // existing bounded retry path instead of consuming potentially recoverable work.
+            throw new InvalidOperationException("Deferred authority evidence bundle is not bound to this run.");
         }
 
         IAuthorityPipelineWorkHandler handler = ResolveHandler(scope, payload);

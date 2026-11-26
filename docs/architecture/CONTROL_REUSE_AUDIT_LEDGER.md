@@ -346,7 +346,15 @@ Reviewed master `bbec19302ed9e366fd0fb0d9dd0224ca3396f036`. The authority pipeli
 
 SQL and in-memory claims now filter by every explicitly supplied drain coordinate before locking rows or returning payload JSON. Global drains keep round-robin behavior. The processor does not consume a row outside a constrained drain if an adapter returns one anyway. Before dispatching and before materialization or dead-letter mutation, the worker requires an uncached, non-archived run with the exact queued tenant, workspace, project, and run ID. A malformed owned row keeps the existing skip-without-dispatch behavior. No schema, queue lease, caller identity, or release-branch change.
 
-Focused tests cover cross-scope claims and actionable counts, cache bypass, malformed and archived runs, and no protected request/bundle read or run update when binding fails. The SQL job requires the exact scoped claim test to execute without skipping. This does not independently bind the evidence bundle ID carried in the payload to a persisted run anchor, prove transactional archive/write fencing, or certify the remaining recurring and background jobs.
+Focused tests cover cross-scope claims and actionable counts, cache bypass, malformed and archived runs, and no protected request/bundle read or run update when binding fails. The SQL job requires the exact scoped claim test to execute without skipping. This does not prove transactional archive/write fencing or certify the remaining recurring and background jobs.
+
+### FND-061 deferred evidence-bundle binding
+
+The deferred-create producer binds the bundle to its authoritative tenant, workspace, project and run when it persists the bundle. SQL stores the server-owned binding separately from public bundle fields inside the existing JSON record. Updates to bundle content retain the stored binding. The in-memory repository applies the same rules. No database migration or public contract change is needed.
+
+Before dispatch the worker checks the stored binding without projecting bundle content. Materialization and extractor work use a scoped read that checks the same stored tuple before returning evidence. There is no fallback to the ID-only reader. Detached create can enqueue before bundle persistence commits, so an absent binding goes through the existing bounded retry and dead-letter path instead of treating the job as successful. A payload ID alone never establishes ownership.
+
+Existing unbound bundles are not backfilled from queued IDs. Drain pending jobs on the current worker version before rolling over producers and workers together. If a legacy queued job remains, use the supported re-create path rather than copying or guessing a binding. No production queue action was taken. The focused SQL check must execute the exact binding contract, including preservation on content update.
 
 ### FND-061 merge gate and current-source reconciliation
 

@@ -34,7 +34,7 @@ jobs:
       - name: Verify projection producer and downstream consumers
         run: >-
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~PostCommitProjectionEnqueuerTests|FullyQualifiedName~FindingPriorityRerankerTests|FullyQualifiedName~FindingIacStubGenerator|FullyQualifiedName~DecisionEngineV2NodeMaterializerTests|FullyQualifiedName~AuthorityPipelineMaterializeWorkLegacyRunIdTests'
+          --filter 'FullyQualifiedName~PostCommitProjectionEnqueuerTests|FullyQualifiedName~FindingPriorityRerankerTests|FullyQualifiedName~FindingIacStubGenerator|FullyQualifiedName~DecisionEngineV2NodeMaterializerTests|FullyQualifiedName~AuthorityPipelineMaterializeWorkLegacyRunIdTests|FullyQualifiedName~ArchitectureRunCreateOrchestratorAsyncCompleteTests|FullyQualifiedName~ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTests|FullyQualifiedName~ArchitectureRunCreateOrchestratorInformationalAuditBestEffortTests'
       - name: Verify projection adapters consume only bound evidence
         run: >-
           dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release
@@ -47,10 +47,10 @@ jobs:
         run: >-
           dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release --no-build
           --filter 'FullyQualifiedName~AuthorityPipelineWorkProcessorTests'
-      - name: Verify in-memory authority claims honor active drain scope
+      - name: Verify in-memory authority claims and bundle bindings honor scope
         run: >-
           dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release --no-build
-          --filter 'FullyQualifiedName~InMemoryAuthorityPipelineWorkRepositoryLeaseAndRetryTests'
+          --filter 'FullyQualifiedName~InMemoryAuthorityPipelineWorkRepositoryLeaseAndRetryTests|FullyQualifiedName~InMemoryEvidenceBundleRepositoryContractTests'
       - name: Verify queued blob exports honor current requester access
         run: >-
           dotnet test ArchLucid.Host.Composition.Tests/ArchLucid.Host.Composition.Tests.csproj -c Release

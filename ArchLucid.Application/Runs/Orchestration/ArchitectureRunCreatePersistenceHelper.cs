@@ -81,7 +81,7 @@ public sealed class ArchitectureRunCreatePersistenceHelper(
             if (persistArchitectureRequest)
                 await _requestRepository.CreateAsync(request, cancellationToken, uow.Connection, uow.Transaction);
 
-            await _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken, uow.Connection, uow.Transaction);
+            await PersistEvidenceBundleAsync(coordination, uow, cancellationToken);
 
             if (coordination.Tasks.Count > 0)
                 await _taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken, uow.Connection, uow.Transaction);
@@ -91,7 +91,7 @@ public sealed class ArchitectureRunCreatePersistenceHelper(
             if (persistArchitectureRequest)
                 await _requestRepository.CreateAsync(request, cancellationToken);
 
-            await _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken);
+            await PersistEvidenceBundleAsync(coordination, uow, cancellationToken);
 
             if (coordination.Tasks.Count > 0)
                 await _taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken);
@@ -131,6 +131,21 @@ public sealed class ArchitectureRunCreatePersistenceHelper(
         }
 
         return inserted;
+    }
+
+    private Task PersistEvidenceBundleAsync(CoordinationResult coordination, IArchLucidUnitOfWork uow,
+        CancellationToken cancellationToken)
+    {
+        var connection = uow.SupportsExternalTransaction ? uow.Connection : null;
+        var transaction = uow.SupportsExternalTransaction ? uow.Transaction : null;
+        if (coordination.Run.Status != ArchitectureRunStatus.Created)
+            return _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken, connection, transaction);
+
+        if (!TryParseCoordinationRunGuid(coordination.Run.RunId, out Guid runId) || runId == Guid.Empty)
+            throw new InvalidOperationException("Deferred create cannot persist evidence without a valid run ID.");
+
+        return _evidenceBundleRepository.CreateForRunAsync(coordination.EvidenceBundle,
+            _scopeContextProvider.GetCurrentScope(), runId, cancellationToken, connection, transaction);
     }
 
     public async Task PatchRunHeaderInTransactionAsync(
