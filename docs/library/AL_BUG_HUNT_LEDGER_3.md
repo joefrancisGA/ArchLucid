@@ -12570,8 +12570,9 @@ Picker counters reconciled to distinct recorded outcomes after the 2026-11-22 Se
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 5
-- **bugs-found:** 6`r`n- **consecutive-dry-hunts:** 0
+- **hunts:** 6
+- **bugs-found:** 6
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-24
 - **last-bug:** 2026-11-24
 - **related-pd-tb:** none
