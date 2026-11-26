@@ -17,7 +17,6 @@ using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
 
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
@@ -30,9 +29,10 @@ namespace ArchLucid.Persistence.Tests.InfraEvidence;
 /// Tests a positive privilege path and downstream persisted ranks and cut-point reads.
 /// This does not authorize using the test fixture against customer or production SQL.
 /// </summary>
-[Collection(nameof(SqlServerPersistenceCollection))]
+[Collection(nameof(SqlServerDisposablePersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
-public sealed class SecureNowFullCoordinatorSqlReplayTests(SqlServerPersistenceFixture fixture)
+[Trait("Category", SqlServerDisposablePersistenceFixture.Category)]
+public sealed class SecureNowFullCoordinatorSqlReplayTests(SqlServerDisposablePersistenceFixture fixture)
 {
     private const string RoleId =
         "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c";
@@ -44,10 +44,6 @@ public sealed class SecureNowFullCoordinatorSqlReplayTests(SqlServerPersistenceF
         Skip.IfNot(
             fixture.IsSqlServerAvailable,
             SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-
-        SqlConnectionStringBuilder connection = new(fixture.ConnectionString);
-        connection.InitialCatalog.Should().Contain(
-            "Test", "the SQL fixture must target a disposable test catalog");
 
         string subscriptionId = Guid.NewGuid().ToString("D");
         string storageArmId = $"/subscriptions/{subscriptionId}/resourceGroups/rg-lab/" +

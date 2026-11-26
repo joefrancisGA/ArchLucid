@@ -14,10 +14,11 @@ namespace ArchLucid.Persistence.Tests.InfraEvidence;
 /// Disposable SQL-catalog exercise of the real atomic approval/evidence
 /// transaction. This does NOT approve FND-015 plans or execute cloud changes.
 /// </summary>
-[Collection(nameof(SqlServerPersistenceCollection))]
+[Collection(nameof(SqlServerDisposablePersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
+[Trait("Category", SqlServerDisposablePersistenceFixture.Category)]
 [Trait("Category", "Integration")]
-public sealed class SqlRemediationInstanceApprovalProvenanceTests(SqlServerPersistenceFixture fixture)
+public sealed class SqlRemediationInstanceApprovalProvenanceTests(SqlServerDisposablePersistenceFixture fixture)
 {
     [SkippableFact]
     public async Task Advisory_close_requires_revision_bound_verified_proof_and_current_project()
@@ -103,9 +104,6 @@ public sealed class SqlRemediationInstanceApprovalProvenanceTests(SqlServerPersi
         Skip.IfNot(fixture.IsSqlServerAvailable,
             SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
-        SqlConnectionStringBuilder builder = new(fixture.ConnectionString);
-        builder.InitialCatalog.Should().Contain("Test",
-            "only disposable SQL test catalogs are permitted");
         ProjectScopeKey scope = ProjectScopeKey.Create(
             Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
         SqlRemediationInstanceRepository repository =
@@ -346,10 +344,6 @@ public sealed class SqlRemediationInstanceApprovalProvenanceTests(SqlServerPersi
     {
         Skip.IfNot(fixture.IsSqlServerAvailable,
             SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-
-        SqlConnectionStringBuilder builder = new(fixture.ConnectionString);
-        builder.InitialCatalog.Should().Contain("Test",
-            "the verification rollback test must never modify a production catalog");
 
         ProjectScopeKey scope = ProjectScopeKey.Create(
             Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());

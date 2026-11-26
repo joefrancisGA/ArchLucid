@@ -164,6 +164,20 @@ Shared resolution lives in **`ArchLucid.TestSupport`** (`SqlServerIntegrationTes
 1. Set **`ARCHLUCID_SQL_TEST`** to a full ADO.NET connection string (including **`Initial Catalog`**), **or**
 2. On **Windows**, omit it and the fixture tries **`localhost`** with integrated security first (same implicit default as API integration tests), then **LocalDB** (`(localdb)\mssqllocaldb`, catalog **`ArchLucidPersistenceTests`**).
 
+For tests that change database-wide state, use `SqlServerDisposablePersistenceCollection` and `Category=SqlServerDisposableCatalog` alongside `Category=SqlServerContainer`. Its fixture uses `ARCHLUCID_SQL_TEST` for server and authentication only, creates and verifies a unique migrated catalog, and drops only the catalog it created. Run this group against a dedicated test server with catalog create/drop access. A configured server that cannot provision the catalog produces a fixture setup error, not a skipped test or a product assertion failure.
+
+Use the category filters to run the SQL profiles separately:
+
+| Profile | Filter within `Category=SqlServerContainer` |
+| --- | --- |
+| Ordinary repository tests | `Category!=SqlServerDisposableCatalog&Category!=SqlServerFreshSchema&Category!=SqlServerTenantTopology&Category!=FaultInjection&Category!=Benchmark` |
+| Database-wide mutations | `Category=SqlServerDisposableCatalog` |
+| Fresh schema bootstrap | `Category=SqlServerFreshSchema` |
+| Multi-catalog tenant topology | `Category=SqlServerTenantTopology` |
+| Dependency recovery drill | `Category=FaultInjection` (still opt-in) |
+
+For example, run `dotnet test ArchLucid.Persistence.Tests -c Release --filter 'Category=SqlServerContainer&Category=SqlServerDisposableCatalog'` for the database-wide group. The unfiltered SQL category still includes every profile.
+
 **CI:** The **`dotnet-full-regression`** job in **`.github/workflows/ci.yml`** sets **`ARCHLUCID_SQL_TEST`** against the **SQL Server 2022** service container (corset build/test shards do not start SQL). **`guards-pre-corset`** runs text/Python guards in parallel with Tier **0.x** Terraform/OpenAPI; **`dotnet-fast-core-build`** **`needs`** that job plus Terraform validate so invalid IaC or policy drift fails before corset **restore/build** and parallel **fast-core test** shards.
 
 ### Terraform posture tier (`posture_tier`, TB-903)

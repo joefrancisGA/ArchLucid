@@ -14,10 +14,11 @@ namespace ArchLucid.Persistence.Tests.Sql;
 /// even when that principal also has db_datawriter rights. It proves a guarded
 /// owner-context update succeeds, and a repeated stale CAS does not.
 /// </summary>
-[Collection(nameof(SqlServerPersistenceCollection))]
+[Collection(nameof(SqlServerDisposablePersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
+[Trait("Category", SqlServerDisposablePersistenceFixture.Category)]
 [Trait("Category", "Integration")]
-public sealed class RemediationSqlRolePrivilegesTests(SqlServerPersistenceFixture fixture)
+public sealed class RemediationSqlRolePrivilegesTests(SqlServerDisposablePersistenceFixture fixture)
 {
     private const string RoleName = "ArchLucidApp";
 
@@ -26,10 +27,6 @@ public sealed class RemediationSqlRolePrivilegesTests(SqlServerPersistenceFixtur
     {
         Skip.IfNot(fixture.IsSqlServerAvailable,
             SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-
-        SqlConnectionStringBuilder builder = new(fixture.ConnectionString);
-        builder.InitialCatalog.Should().Contain("Test",
-            "this test creates roles and must never target a customer catalog");
 
         await using SqlConnection connection = new(fixture.ConnectionString);
         await connection.OpenAsync();

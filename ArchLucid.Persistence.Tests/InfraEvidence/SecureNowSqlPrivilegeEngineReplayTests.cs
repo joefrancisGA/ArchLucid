@@ -26,9 +26,10 @@ namespace ArchLucid.Persistence.Tests.InfraEvidence;
 /// repositories for snapshots, paths and operational findings. No Azure/HTTP/LLM calls.
 /// A full multi-engine coordinator run is NOT claimed by this single-slice test.
 /// </summary>
-[Collection(nameof(SqlServerPersistenceCollection))]
+[Collection(nameof(SqlServerDisposablePersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
-public sealed class SecureNowSqlPrivilegeEngineReplayTests(SqlServerPersistenceFixture fixture)
+[Trait("Category", SqlServerDisposablePersistenceFixture.Category)]
+public sealed class SecureNowSqlPrivilegeEngineReplayTests(SqlServerDisposablePersistenceFixture fixture)
 {
     private const string ContributorRoleDefinitionId =
         "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c";
@@ -40,12 +41,6 @@ public sealed class SecureNowSqlPrivilegeEngineReplayTests(SqlServerPersistenceF
         Skip.IfNot(
             fixture.IsSqlServerAvailable,
             SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-
-        // This test intentionally uses the existing DbUp-migrated SQL integration
-        // test catalog. Never allow the test to target a production catalog.
-        Microsoft.Data.SqlClient.SqlConnectionStringBuilder connection = new(fixture.ConnectionString);
-        connection.InitialCatalog.Should().Contain(
-            "Test", "offline replay writes must remain in an isolated test catalog");
 
         string subscriptionId = Guid.NewGuid().ToString("D");
         string storageArmId =

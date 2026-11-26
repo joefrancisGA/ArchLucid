@@ -20,6 +20,7 @@ namespace ArchLucid.Persistence.Tests;
 ///     Validates system vs tenant DbUp planes and <see cref="ScopedRoutingSqlConnectionFactory" /> routing against real SQL.
 /// </summary>
 [Trait("Category", "SqlServerContainer")]
+[Trait("Category", "SqlServerTenantTopology")]
 public sealed class SqlTopologyPlaneIsolationSqlIntegrationTests
 {
     [SkippableFact]

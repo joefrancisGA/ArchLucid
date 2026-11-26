@@ -14,19 +14,17 @@ namespace ArchLucid.Persistence.Tests.InfraEvidence;
 /// a retired, foreign-tenant or previously approved pattern version.
 /// A pattern is NOT a FND-015 deployment plan or signing authorization.
 /// </summary>
-[Collection(nameof(SqlServerPersistenceCollection))]
+[Collection(nameof(SqlServerDisposablePersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
+[Trait("Category", SqlServerDisposablePersistenceFixture.Category)]
 [Trait("Category", "Integration")]
 [Trait("Suite", "Persistence")]
-public sealed class SqlRemediationPatternCurrentApprovedReadTests(SqlServerPersistenceFixture fixture)
+public sealed class SqlRemediationPatternCurrentApprovedReadTests(SqlServerDisposablePersistenceFixture fixture)
 {
     [SkippableFact]
     public async Task Current_approved_pattern_read_rechecks_tenant_pointer_and_status()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-
-        SqlConnectionStringBuilder connection = new(fixture.ConnectionString);
-        connection.InitialCatalog.Should().Contain("Test", "never mutate customer or production catalogs");
 
         SqlRemediationPatternRepository repository =
             new(new SqlConnectionFactory(fixture.ConnectionString));
