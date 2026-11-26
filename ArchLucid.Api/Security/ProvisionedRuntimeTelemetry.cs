@@ -187,6 +187,7 @@ internal static class RuntimeTelemetryRegistration
             IRuntimeProcessEvidenceCollector, SignedWorkloadProcessEvidenceCollector>(services);
         services.AddScoped<IAuthorizedRuntimeAttestationProducer, AuthorizedRuntimeAttestationProducer>();
         services.AddScoped<RuntimeAttestationPublisher>();
+        services.AddScoped<RuntimeSecurityExecutionService>();
         return services;
     }
 }
