@@ -1378,7 +1378,18 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
-  it("uses the first metrics disclosure token when false precedes one in the query string for duplicate params", () => {
+
+  it("treats ON metrics disclosure token with fullwidth grave accent inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF40n`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with white square containing black small square inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25F0ue`).metricsSummaryOpen,
+    ).toBe(true);
+  });  it("uses the first metrics disclosure token when false precedes one in the query string for duplicate params", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(
         `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=false&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1`,
