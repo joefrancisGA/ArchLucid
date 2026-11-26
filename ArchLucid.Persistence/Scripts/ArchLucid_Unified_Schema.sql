@@ -33,9 +33,6 @@ SET ANSI_NULLS ON;
 SET QUOTED_IDENTIFIER ON;
 GO
 
-
-GO
-
 /* ---- Core ---- */
 
 IF OBJECT_ID(N'dbo.ArchitectureRequests', N'U') IS NULL
