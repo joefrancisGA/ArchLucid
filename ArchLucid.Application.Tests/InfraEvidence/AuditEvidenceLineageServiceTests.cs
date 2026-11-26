@@ -25,8 +25,11 @@ public sealed class AuditEvidenceLineageServiceTests
             ProjectId = Guid.NewGuid(),
         };
 
-    [Fact]
-    public async Task TryGetControlLineageAsync_two_resources_and_one_exception_returns_all_ids()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task TryGetControlLineageAsync_preserves_evidence_and_only_marks_complete_support_ready(
+        bool inventoryCaptureComplete)
     {
         ScopeContext scope = CreateScopeContext();
         Guid assessmentId = Guid.NewGuid();
@@ -97,24 +100,29 @@ public sealed class AuditEvidenceLineageServiceTests
         });
 
         InMemoryAuditControlEvaluationRepository evaluationRepository = new();
-        evaluationRepository.Evaluation = new AuditControlEvaluationRecord
+        AuditControlEvaluationRecord storedEvaluation = new()
         {
             EvaluationId = evaluationId,
             ControlId = controlId,
             FrameworkId = frameworkId,
             SnapshotId = auditEvidenceSnapshotId,
             TenantId = scope.TenantId,
-            Outcome = AuditEvaluationOutcome.TechnicallySupported,
+            Outcome = inventoryCaptureComplete
+                ? AuditEvaluationOutcome.TechnicallySupported
+                : AuditEvaluationOutcome.InsufficientEvidence,
             PassCount = 2,
             ApplicableCount = 2,
-            Confidence = 1.0m,
+            Confidence = inventoryCaptureComplete ? 1.0m : 0m,
             EvaluationText = "Supported.",
-            Formula = "2/2 pass",
+            Formula = inventoryCaptureComplete
+                ? "passCount=2; applicableCount=2; failingResources=0"
+                : "passCount=2; applicableCount=2; failingResources=0; inventoryCaptureComplete=false",
             RequirementIds = [requirementId],
             ExceptionIds = [exceptionId],
             ProvenanceKind = ProvenanceKind.DeterministicInference,
             CreatedUtc = DateTime.UtcNow,
         };
+        evaluationRepository.Evaluation = storedEvaluation;
 
         evaluationRepository.EvidenceItems =
         [
@@ -180,6 +188,8 @@ public sealed class AuditEvidenceLineageServiceTests
         result.Lineage.ControlId.Should().Be(controlId);
         result.Lineage.Evaluation.Should().NotBeNull();
         result.Lineage.Evaluation!.EvaluationId.Should().Be(evaluationId);
+        result.Lineage.Evaluation.Outcome.Should().Be(storedEvaluation.Outcome);
+        result.Lineage.Evaluation.Formula.Should().Be(storedEvaluation.Formula);
         result.Lineage.Evaluation.ExceptionIds.Should().ContainSingle().Which.Should().Be(exceptionId);
         result.Lineage.RequirementChains.Should().ContainSingle();
         result.Lineage.RequirementChains[0].RequirementId.Should().Be(requirementId);
@@ -189,7 +199,7 @@ public sealed class AuditEvidenceLineageServiceTests
         result.Lineage.RequirementChains[0].Evidence.Select(evidence => evidence.EvaluationEvidenceItemId)
             .Should().BeEquivalentTo([evidenceItemOneId, evidenceItemTwoId]);
         result.Lineage.ChainComplete.Should().BeTrue();
-        result.Lineage.ReadyForPositiveCheckbox.Should().BeTrue();
+        result.Lineage.ReadyForPositiveCheckbox.Should().Be(inventoryCaptureComplete);
         result.Lineage.VerifiedRemediationAssociations.Should().BeEmpty();
     }
 

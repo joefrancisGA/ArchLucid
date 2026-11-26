@@ -8,4 +8,5 @@ public enum AuditControlTechnicalTimelineState
     AtRisk = 2,
     RemediationInProgress = 3,
     Verified = 4,
+    InsufficientEvidence = 5,
 }

@@ -422,7 +422,18 @@ public static class AuditEvidencePackageProjectionBuilder
         }
 
         builder.AppendLine($"Outcome: **{evaluation.Outcome}**");
-        builder.AppendLine($"Confidence: {evaluation.Confidence:P0}");
+        if (AuditControlEvaluationBuilder.HasIncompleteInventoryCapture(evaluation.Formula))
+        {
+            builder.AppendLine("Inventory capture is incomplete. Full control coverage is unverified.");
+        }
+        else if (AuditControlEvaluationBuilder.HasRequiredEvidenceGap(evaluation.Formula))
+        {
+            builder.AppendLine("Required evidence is missing. Full control coverage is unverified.");
+        }
+        else if (evaluation.Outcome != AuditEvaluationOutcome.InsufficientEvidence)
+        {
+            builder.AppendLine($"Confidence: {evaluation.Confidence:P0}");
+        }
         builder.AppendLine();
         builder.AppendLine(evaluation.EvaluationText);
 

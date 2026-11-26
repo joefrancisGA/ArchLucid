@@ -50,9 +50,62 @@ public sealed class AuditControlEvaluationBuilderTests
             DateTime.UtcNow);
 
         result.Evaluation.Outcome.Should().Be(AuditEvaluationOutcome.InsufficientEvidence);
-        result.Evaluation.EvaluationText.Should().Be(AuditControlEvaluationBuilder.InsufficientEvidenceLabel);
+        result.Evaluation.EvaluationText.Should().Contain("Required evidence is missing");
+        result.Evaluation.Formula.Should().Contain("requiredEvidenceGap=true");
         result.Evaluation.PassCount.Should().Be(0);
         result.Evaluation.HumanDisposition.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData(false, AuditEvaluationOutcome.InsufficientEvidence)]
+    [InlineData(true, AuditEvaluationOutcome.TechnicallyNotSupported)]
+    public void Build_required_gap_preserves_other_evidence_without_claiming_full_coverage(
+        bool observedFailure, AuditEvaluationOutcome expected)
+    {
+        AuditEvidenceRequirementRecord requirement = new() { RequirementId = Guid.NewGuid() };
+        const string resource = "/resource/observed";
+        AuditControlEvaluationBuildResult result = AuditControlEvaluationBuilder.Build(
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),
+            [
+                new() { Requirement = requirement, CollectionStatus = AuditEvidenceCollectionStatus.Insufficient },
+                new()
+                {
+                    Requirement = requirement,
+                    CollectionStatus = AuditEvidenceCollectionStatus.Collected,
+                    Candidates = [new() { RequirementId = requirement.RequirementId, AzureResourceId = resource }],
+                },
+            ],
+            [], observedFailure ? [resource] : [], DateTime.UtcNow);
+
+        result.Evaluation.Outcome.Should().Be(expected);
+        result.Evaluation.Confidence.Should().Be(0m);
+        result.Evaluation.RequirementIds.Should().Equal(requirement.RequirementId);
+        result.Evaluation.Formula.Should().Contain("requiredEvidenceGap=true");
+        result.Evaluation.EvaluationText.Should().Contain("Full control coverage is unverified");
+        result.EvidenceItems.Should().ContainSingle().Which.AzureResourceId.Should().Be(resource);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Build_empty_capture_preserves_whether_inventory_was_incomplete(bool inventoryCaptureComplete)
+    {
+        AuditControlEvaluationBuildResult result = AuditControlEvaluationBuilder.Build(
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),
+            [], [], [], DateTime.UtcNow, inventoryCaptureComplete);
+
+        result.Evaluation.Outcome.Should().Be(AuditEvaluationOutcome.InsufficientEvidence);
+        result.EvidenceItems.Should().BeEmpty();
+        if (inventoryCaptureComplete)
+        {
+            result.Evaluation.Formula.Should().NotContain("inventoryCaptureComplete=false");
+            result.Evaluation.EvaluationText.Should().Be(AuditControlEvaluationBuilder.InsufficientEvidenceLabel);
+        }
+        else
+        {
+            result.Evaluation.Formula.Should().Contain("inventoryCaptureComplete=false");
+            result.Evaluation.EvaluationText.Should().Contain("inventory capture is incomplete");
+        }
     }
 
     [Fact]

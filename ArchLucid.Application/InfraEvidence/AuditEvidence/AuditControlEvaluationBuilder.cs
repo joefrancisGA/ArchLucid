@@ -7,6 +7,14 @@ namespace ArchLucid.Application.InfraEvidence.AuditEvidence;
 public static class AuditControlEvaluationBuilder
 {
     public const string InsufficientEvidenceLabel = "INSUFFICIENT EVIDENCE";
+    private const string IncompleteInventoryFormulaTerm = "inventoryCaptureComplete=false";
+    private const string RequiredEvidenceGapFormulaTerm = "requiredEvidenceGap=true";
+
+    internal static bool HasIncompleteInventoryCapture(string? formula) =>
+        formula?.Split(';', StringSplitOptions.TrimEntries).Contains(IncompleteInventoryFormulaTerm) == true;
+
+    internal static bool HasRequiredEvidenceGap(string? formula) =>
+        formula?.Split(';', StringSplitOptions.TrimEntries).Contains(RequiredEvidenceGapFormulaTerm) == true;
 
     public static AuditControlEvaluationBuildResult Build(
         Guid controlId,
@@ -17,13 +25,14 @@ public static class AuditControlEvaluationBuilder
         IReadOnlyList<string> approvedExceptionIds,
         IReadOnlyList<string> failingAzureResourceIds,
         DateTime createdUtc,
-        bool inventoryCaptureComplete = true)
+        bool inventoryCaptureComplete = true,
+        int unavailableInventorySnapshotCount = 0)
     {
         ArgumentNullException.ThrowIfNull(selections);
         ArgumentNullException.ThrowIfNull(approvedExceptionIds);
         ArgumentNullException.ThrowIfNull(failingAzureResourceIds);
 
-        List<Guid> requirementIds = selections.Select(selection => selection.Requirement.RequirementId).ToList();
+        List<Guid> requirementIds = selections.Select(selection => selection.Requirement.RequirementId).Distinct().ToList();
 
         bool hasBlockingGap = selections.Any(selection =>
             selection.CollectionStatus is AuditEvidenceCollectionStatus.Insufficient
@@ -33,18 +42,6 @@ public static class AuditControlEvaluationBuilder
         List<AuditEvidenceCandidateRecord> candidates = selections
             .SelectMany(selection => selection.Candidates)
             .ToList();
-
-        if (hasBlockingGap || candidates.Count == 0)
-        {
-            return BuildInsufficient(
-                controlId,
-                frameworkId,
-                snapshotId,
-                tenantId,
-                requirementIds,
-                approvedExceptionIds,
-                createdUtc);
-        }
 
         int applicableCount = candidates.Count;
         HashSet<string> failingResources = failingAzureResourceIds
@@ -56,28 +53,29 @@ public static class AuditControlEvaluationBuilder
             && failingResources.Contains(candidate.AzureResourceId));
 
         int passCount = Math.Max(0, applicableCount - failingCount);
-        decimal confidence = applicableCount == 0 ? 0m : Math.Round((decimal)passCount / applicableCount, 4);
+        inventoryCaptureComplete &= unavailableInventorySnapshotCount == 0;
+        bool coverageUnverified = !inventoryCaptureComplete || hasBlockingGap || applicableCount == 0;
+        // A gap prevents a pass without erasing observed failures or their evidence.
+        AuditEvaluationOutcome outcome = failingCount > 0 && approvedExceptionIds.Count == 0
+            ? AuditEvaluationOutcome.TechnicallyNotSupported
+            : coverageUnverified
+                ? AuditEvaluationOutcome.InsufficientEvidence
+                : AuditEvaluationOutcome.TechnicallySupported;
 
-        AuditEvaluationOutcome outcome = passCount == applicableCount
-            ? AuditEvaluationOutcome.TechnicallySupported
-            : approvedExceptionIds.Count > 0
-                ? AuditEvaluationOutcome.TechnicallySupported
-                : AuditEvaluationOutcome.TechnicallyNotSupported;
-
-        // Observed failures remain actionable, but a partial capture cannot establish
-        // that all applicable resources satisfy a control (including exception-based passes).
-        if (!inventoryCaptureComplete && outcome == AuditEvaluationOutcome.TechnicallySupported)
-        {
-            outcome = AuditEvaluationOutcome.InsufficientEvidence;
-            confidence = 0m;
-        }
-
-        string evaluationText = !inventoryCaptureComplete
-            ? $"{InsufficientEvidenceLabel}: inventory capture is incomplete; {failingCount} observed failing resource(s) among {applicableCount} collected candidates. Full control coverage is unverified."
+        decimal confidence = coverageUnverified ? 0m : Math.Round((decimal)passCount / applicableCount, 4);
+        string evaluationText = coverageUnverified
+            ? BuildCoverageLimitationText(inventoryCaptureComplete, hasBlockingGap, applicableCount, failingCount,
+                unavailableInventorySnapshotCount)
             : BuildEvaluationText(passCount, applicableCount, approvedExceptionIds, failingAzureResourceIds);
-        string formula = $"passCount={passCount}; applicableCount={applicableCount}; failingResources={failingCount}";
+        string formula = applicableCount == 0
+            ? "no collected evidence candidates"
+            : $"passCount={passCount}; applicableCount={applicableCount}; failingResources={failingCount}";
         if (!inventoryCaptureComplete)
-            formula += "; inventoryCaptureComplete=false";
+            formula += $"; {IncompleteInventoryFormulaTerm}";
+        if (hasBlockingGap)
+            formula += $"; {RequiredEvidenceGapFormulaTerm}";
+        if (unavailableInventorySnapshotCount > 0)
+            formula += $"; unavailableInventorySnapshotCount={unavailableInventorySnapshotCount}";
 
         AuditControlEvaluationRecord evaluation = new()
         {
@@ -124,41 +122,26 @@ public static class AuditControlEvaluationBuilder
         };
     }
 
-    private static AuditControlEvaluationBuildResult BuildInsufficient(
-        Guid controlId,
-        Guid frameworkId,
-        Guid snapshotId,
-        Guid tenantId,
-        IReadOnlyList<Guid> requirementIds,
-        IReadOnlyList<string> approvedExceptionIds,
-        DateTime createdUtc)
+    private static string BuildCoverageLimitationText(
+        bool inventoryCaptureComplete,
+        bool hasBlockingGap,
+        int applicableCount,
+        int failingCount,
+        int unavailableInventorySnapshotCount)
     {
-        AuditControlEvaluationRecord evaluation = new()
-        {
-            EvaluationId = Guid.NewGuid(),
-            ControlId = controlId,
-            FrameworkId = frameworkId,
-            SnapshotId = snapshotId,
-            TenantId = tenantId,
-            Outcome = AuditEvaluationOutcome.InsufficientEvidence,
-            PassCount = 0,
-            ApplicableCount = 0,
-            Confidence = 0m,
-            EvaluationText = InsufficientEvidenceLabel,
-            Formula = "no collected evidence candidates",
-            RequirementIds = requirementIds,
-            ExceptionIds = approvedExceptionIds.ToList(),
-            ProvenanceKind = ProvenanceKind.DeterministicInference,
-            HumanDisposition = null,
-            Notes = null,
-            CreatedUtc = createdUtc,
-        };
+        List<string> details = [];
+        if (!inventoryCaptureComplete)
+            details.Add($"{InsufficientEvidenceLabel}: inventory capture is incomplete.");
+        if (hasBlockingGap)
+            details.Add("Required evidence is missing.");
+        if (unavailableInventorySnapshotCount > 0)
+            details.Add($"Unavailable linked inventory snapshots: {unavailableInventorySnapshotCount}.");
+        if (applicableCount > 0)
+            details.Add($"Observed failing candidates: {failingCount} of {applicableCount} collected.");
 
-        return new AuditControlEvaluationBuildResult
-        {
-            Evaluation = evaluation,
-            EvidenceItems = [],
-        };
+        return details.Count == 0
+            ? InsufficientEvidenceLabel
+            : string.Join(" ", details) + " Full control coverage is unverified.";
     }
 
     private static string BuildEvaluationText(
@@ -168,7 +151,7 @@ public static class AuditControlEvaluationBuilder
         IReadOnlyList<string> failingAzureResourceIds)
     {
         string baseText =
-            $"{passCount}/{applicableCount} applicable resources satisfy the technical requirement.";
+            $"{passCount}/{applicableCount} applicable evidence candidates satisfy the technical requirement.";
 
         if (approvedExceptionIds.Count == 0)
             return baseText;

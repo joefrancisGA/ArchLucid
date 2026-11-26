@@ -88,6 +88,9 @@ describe("AuditEvidenceControlLineageClient", () => {
     expect(screen.getByTestId("audit-evidence-lineage-evaluation-context")).toHaveTextContent(
       "Technically supported",
     );
+    expect(screen.getByTestId("audit-evidence-lineage-evaluation-context")).not.toHaveTextContent(
+      "Full control coverage is unverified",
+    );
     expect(screen.getByTestId("audit-evidence-lineage-hash-summary")).toHaveTextContent(
       "1/1 evidence hashes verified",
     );
@@ -141,6 +144,35 @@ describe("AuditEvidenceControlLineageClient", () => {
 
     expect(screen.getByTestId("audit-evidence-broken-link-reasons")).toHaveTextContent("Snapshot hash unverified");
     expect(screen.getByTestId("audit-evidence-missing-links-ev-2")).toHaveTextContent("Raw API blob");
+  });
+
+  it("shows incomplete capture as insufficient even when no failures were observed", () => {
+    useAuditEvidenceLineageQueryMock.mockReturnValue({
+      data: {
+        controlNumber: "AC-3",
+        controlTitle: "Inventory coverage",
+        readyForPositiveCheckbox: false,
+        snapshotHashVerified: true,
+        evaluation: {
+          outcome: "InsufficientEvidence",
+          formula: "no collected evidence candidates; inventoryCaptureComplete=false",
+        },
+        requirementChains: [],
+      },
+      isError: false,
+      isPending: false,
+      refetch: refetchMock,
+    });
+
+    render(<AuditEvidenceControlLineageClient {...ids} />);
+
+    expect(screen.getByTestId("audit-evidence-lineage-status-tag")).toHaveTextContent("Insufficient evidence");
+    expect(screen.getByTestId("audit-evidence-lineage-evaluation-context")).toHaveTextContent(
+      "Inventory capture is incomplete. Full control coverage is unverified.",
+    );
+    expect(screen.getByTestId("audit-evidence-lineage-evaluation-context")).not.toHaveTextContent(
+      "Technically supported",
+    );
   });
 
   it("announces successful evidence bundle download", async () => {
