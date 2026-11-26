@@ -8,6 +8,11 @@ on:
     types: [checks_requested]
     branches: [master, main, RC49, RC50]
 
+# Cancel obsolete PR revisions, never an active merge-queue validation.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
@@ -18,42 +23,51 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+      - name: Determine whether authorization compilation is needed
+        id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: python3 scripts/ci/authorization_ci_scope.py
+      - uses: actions/cache@v5
+        if: steps.scope.outputs.run_tests == 'true'
+        with:
+          path: ~/.nuget/packages
+          key: nuget-authorization-${{ runner.os }}-${{ hashFiles('global.json', 'Directory.Packages.props', '**/*.csproj', '**/packages.lock.json') }}
+          restore-keys: nuget-authorization-${{ runner.os }}-
       - uses: actions/setup-dotnet@v6
+        if: steps.scope.outputs.run_tests == 'true'
         with:
           global-json-file: global.json
-      - name: Verify scoped authorization precedes protected evidence reads
+      - name: Verify authorization in ArchLucid.Api.Tests
+        if: steps.scope.outputs.run_tests == 'true'
         run: >-
           dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~EvidenceReadAuthorizationGateTests|FullyQualifiedName~SecureNowSnapshotHttpBoundaryTests|FullyQualifiedName~TerraformAdvisoryCitedRunHttpTests|FullyQualifiedName~AuthorityRunEventsControllerShareAccessTests|FullyQualifiedName~OutboundExportShareDenial|FullyQualifiedName~BlobExportRequesterBinding|FullyQualifiedName~DraftRequestsControllerTests|FullyQualifiedName~FindingInsightSignalShareAccessTests|FullyQualifiedName~ArchitectureShareAccessGateNotFoundPolicyTests|FullyQualifiedName~ConversationProofFirstHttpTests|FullyQualifiedName~ConversationControllerShareAccessTests|FullyQualifiedName~McpRetrievalToolsControllerTests|FullyQualifiedName~RunScopedEvidenceHubHttpTests'
-      - name: Verify Ask and draft reasoning authorize before reading history or draft bodies
+          --filter 'FullyQualifiedName~EvidenceReadAuthorizationGateTests|FullyQualifiedName~SecureNowSnapshotHttpBoundaryTests|FullyQualifiedName~TerraformAdvisoryCitedRunHttpTests|FullyQualifiedName~AuthorityRunEventsControllerShareAccessTests|FullyQualifiedName~OutboundExportShareDenial|FullyQualifiedName~BlobExportRequesterBinding|FullyQualifiedName~DraftRequestsControllerTests|FullyQualifiedName~FindingInsightSignalShareAccessTests|FullyQualifiedName~ArchitectureShareAccessGateNotFoundPolicyTests|FullyQualifiedName~ConversationProofFirstHttpTests|FullyQualifiedName~ConversationControllerShareAccessTests|FullyQualifiedName~McpRetrievalToolsControllerTests|FullyQualifiedName~RunScopedEvidenceHubHttpTests|FullyQualifiedName~AuthorityPipelineWorkProcessorTests'
+      - name: Verify authorization in ArchLucid.Host.Core.Tests
+        if: steps.scope.outputs.run_tests == 'true'
         run: >-
           dotnet test ArchLucid.Host.Core.Tests/ArchLucid.Host.Core.Tests.csproj -c Release
           --filter 'FullyQualifiedName~DraftIntakeReasoningShareAccessTests|FullyQualifiedName~DraftIntakeReasoningServiceTests|FullyQualifiedName~AskServiceShareAccessTests'
-      - name: Verify indexing, replication, and projection jobs check committed scope and seal
+      - name: Verify authorization in ArchLucid.Host.Composition.Tests
+        if: steps.scope.outputs.run_tests == 'true'
         run: >-
           dotnet test ArchLucid.Host.Composition.Tests/ArchLucid.Host.Composition.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~RetrievalIndexingOutboxAuthorizationTests|FullyQualifiedName~RetrievalIndexingOutboxProcessorCorrelationTests|FullyQualifiedName~RetrievalIndexingOutboxProcessorReplayIdempotencyTests|FullyQualifiedName~CosmosGraphSnapshotOutboxAuthorizationTests|FullyQualifiedName~CosmosGraphSnapshotOutboxProcessorTests|FullyQualifiedName~PostCommitProjectionOutboxAuthorizationTests|FullyQualifiedName~PostCommitProjectionOutboxProcessorTests'
-      - name: Verify projection producer and downstream consumers
+          --filter 'FullyQualifiedName~RetrievalIndexingOutboxAuthorizationTests|FullyQualifiedName~RetrievalIndexingOutboxProcessorCorrelationTests|FullyQualifiedName~RetrievalIndexingOutboxProcessorReplayIdempotencyTests|FullyQualifiedName~CosmosGraphSnapshotOutboxAuthorizationTests|FullyQualifiedName~CosmosGraphSnapshotOutboxProcessorTests|FullyQualifiedName~PostCommitProjectionOutboxAuthorizationTests|FullyQualifiedName~PostCommitProjectionOutboxProcessorTests|FullyQualifiedName~RunExportBlobPushRequesterAuthorizationTests'
+      - name: Verify authorization in ArchLucid.Application.Tests
+        if: steps.scope.outputs.run_tests == 'true'
         run: >-
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
           --filter 'FullyQualifiedName~PostCommitProjectionEnqueuerTests|FullyQualifiedName~FindingPriorityRerankerTests|FullyQualifiedName~FindingIacStubGenerator|FullyQualifiedName~DecisionEngineV2NodeMaterializerTests|FullyQualifiedName~AuthorityPipelineMaterializeWorkLegacyRunIdTests|FullyQualifiedName~ArchitectureRunCreateOrchestratorAsyncCompleteTests|FullyQualifiedName~ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTests|FullyQualifiedName~ArchitectureRunCreateOrchestratorInformationalAuditBestEffortTests'
-      - name: Verify projection adapters consume only bound evidence
+      - name: Verify authorization in ArchLucid.Persistence.Tests
+        if: steps.scope.outputs.run_tests == 'true'
         run: >-
           dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~GetRunDetailForCommittedProjectionAsync_reads_only_bound_evidence'
-      - name: Verify warm graph projections cannot cross scope
+          --filter 'FullyQualifiedName~GetRunDetailForCommittedProjectionAsync_reads_only_bound_evidence|FullyQualifiedName~InMemoryAuthorityPipelineWorkRepositoryLeaseAndRetryTests|FullyQualifiedName~InMemoryEvidenceBundleRepositoryContractTests'
+      - name: Verify authorization in ArchLucid.KnowledgeGraph.Tests
+        if: steps.scope.outputs.run_tests == 'true'
         run: >-
           dotnet test ArchLucid.KnowledgeGraph.Tests/ArchLucid.KnowledgeGraph.Tests.csproj -c Release
           --filter 'FullyQualifiedName~Warm_projection_is_not_reused_across_a_scope_boundary'
-      - name: Verify deferred authority work binds the current run and drain scope
-        run: >-
-          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release --no-build
-          --filter 'FullyQualifiedName~AuthorityPipelineWorkProcessorTests'
-      - name: Verify in-memory authority claims and bundle bindings honor scope
-        run: >-
-          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release --no-build
-          --filter 'FullyQualifiedName~InMemoryAuthorityPipelineWorkRepositoryLeaseAndRetryTests|FullyQualifiedName~InMemoryEvidenceBundleRepositoryContractTests'
-      - name: Verify queued blob exports honor current requester access
-        run: >-
-          dotnet test ArchLucid.Host.Composition.Tests/ArchLucid.Host.Composition.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~RunExportBlobPushRequesterAuthorizationTests'
