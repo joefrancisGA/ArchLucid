@@ -86,6 +86,7 @@ internal static class RuntimePatchEvidenceEvaluator
                 && string.Equals(item.ResourceId, scope.ResourceId, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(item.InstanceId, instanceId, StringComparison.Ordinal)
                 && string.Equals(item.RuntimeFamily, scope.RuntimeFamily, StringComparison.OrdinalIgnoreCase)
+                && item.ObservedAt >= scope.ObservedAt
                 && IsCurrent(item.ObservedAt, now, maximumAge)).ToArray();
 
             if (observations.Length == 0)
@@ -101,6 +102,7 @@ internal static class RuntimePatchEvidenceEvaluator
             {
                 if (!TryParseVersion(item.Version, out Version parsed)
                     || parsed.Major != minimum.Major
+                    || parsed.Minor != minimum.Minor
                     || (observed is not null && observed != parsed))
                 {
                     ambiguous = true;
