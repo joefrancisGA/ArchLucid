@@ -16,7 +16,7 @@ public sealed class SecureNowSnapshotAuthorizationOrderAnalyzer : DiagnosticAnal
     public const string DiagnosticId = "FND017002";
     private static readonly DiagnosticDescriptor Rule = new(
         DiagnosticId, "SecureNow snapshot authorization ordering",
-        "SecureNow snapshot read '{0}' lacks a preceding evidence authorization gate",
+        "Evidence read '{0}' lacks a recognized authorization or scoped binding boundary",
         "Architecture", DiagnosticSeverity.Info, isEnabledByDefault: true);
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
@@ -32,8 +32,20 @@ public sealed class SecureNowSnapshotAuthorizationOrderAnalyzer : DiagnosticAnal
     private static void AnalyzeMethod(SyntaxNodeAnalysisContext context)
     {
         if (context.Node is not MethodDeclarationSyntax method ||
-            method.Identifier.ValueText != "GetArchitectureGraphTemporalSnapshot" ||
-            method.Body is null ||
+            method.Body is null)
+            return;
+
+        if (context.Compilation.AssemblyName == "ArchLucid.Application")
+        {
+            foreach (var invocation in method.Body.DescendantNodes().OfType<InvocationExpressionSyntax>())
+            {
+                if (IsMethod(context.SemanticModel, invocation, "GetByIdAsync", "IEvidenceBundleRepository"))
+                    context.ReportDiagnostic(Diagnostic.Create(Rule, invocation.GetLocation(), invocation.Expression.ToString()));
+            }
+            return;
+        }
+
+        if (method.Identifier.ValueText != "GetArchitectureGraphTemporalSnapshot" ||
             context.Compilation.AssemblyName != "ArchLucid.Api")
             return;
 
