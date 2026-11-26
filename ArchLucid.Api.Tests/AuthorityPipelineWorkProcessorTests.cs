@@ -250,6 +250,30 @@ public sealed class AuthorityPipelineWorkProcessorTests
     }
 
     [Fact]
+    public async Task ProcessPendingBatchAsync_bundle_binding_outage_never_dispatches()
+    {
+        AuthorityPipelineWorkOutboxEntry entry = CreateEntryWithValidPayload();
+        Mock<IAuthorityPipelineWorkRepository> outbox = new();
+        Mock<IAuthorityRunOrchestrator> orchestrator = new(MockBehavior.Strict);
+        Mock<IRunRepository> runs = new();
+        Mock<IEvidenceBundleRepository> bundles = new(MockBehavior.Strict);
+        outbox.Setup(r => r.DequeuePendingAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([entry]);
+        runs.Setup(r => r.GetByIdIncludingArchivedAsync(It.IsAny<ScopeContext>(), entry.RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateBoundRun(entry));
+        bundles.Setup(r => r.IsBoundToRunAsync(It.IsAny<ScopeContext>(), entry.RunId,
+            "bundle-1", It.IsAny<CancellationToken>())).ThrowsAsync(new InvalidOperationException("SQL unavailable"));
+
+        await CreateProcessor(outbox, orchestrator, runs, bundles: bundles).ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(r => r.RecordBackoffAfterProcessingFailureAsync(entry.OutboxId,
+            It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+        bundles.VerifyAll();
+        bundles.VerifyNoOtherCalls();
+        orchestrator.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task ProcessPendingBatchAsync_dead_letter_does_not_update_a_run_that_lost_its_binding()
     {
         AuthorityPipelineWorkOutboxEntry entry = CreateEntryWithValidPayload();
