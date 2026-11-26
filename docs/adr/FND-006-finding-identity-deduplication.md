@@ -44,3 +44,19 @@ For cloud resources, `FindingCorrelationAssetKey` maps the durable directory ID 
 Both producers can rebuild the canonical key for legacy policy material when the authorized original source row reproduces that producer's exact V1 key. This is a read-time projection, not a mapping from an opaque historical hash. A fuzzy key, unrelated legacy key, or a key without trusted scope is not upgraded. Compare the two independently rebuilt V2 keys, not the legacy strings. No legacy finding IDs, dispositions, evidence, or exports are rewritten.
 
 Production comparison and snapshot merging continue to use V1. The current finding DTOs do not supply a verified stable asset binding for every entry, and changing the merge path can change which records are withheld or kept. Switch only after a read-only comparison on a cohort with verified bindings measures missing bindings, disagreements, and collisions. Leave unmatched or ambiguous findings distinct. Neither key format makes a fuzzy match authoritative.
+
+### Read-only cohort result
+
+`FindingCorrelationReadOnlyCohortTests` runs the production declaration security finding engine on local Azure storage graphs and reads the seeded in-memory identity directory through its exact-scope API. For a V2 candidate it requires one related graph node, the engine's concrete citation for that node's source resource, and a directory row for the same resource in the exact project. No display-name, prose, or tenant-only lookup is used. It also checks that the review and snapshot adapters agree and leave the source finding ID and V1 key unchanged.
+
+| Result on the 11 fixture pairs | Count |
+| --- | ---: |
+| Equal V1 keys | 9 |
+| Equal V2 keys (same asset across observations) | 1 |
+| Different V2 keys | 5 |
+| V2 unavailable | 5 |
+| Equal V1 keys with different V2 keys (subset of the 5 differences) | 4 |
+
+The four separated pairs differ by asset, project, workspace, or tenant. The remaining difference is a change to the finding text on the same asset. The five unavailable pairs lack an in-scope directory binding, have ambiguous or inconsistent evidence, or have no policy key. Neither an unavailable key nor different text proves that a finding is new or resolved. V1 counts describe equality of key strings on deliberately paired fixtures, not cross-scope matching in the live product.
+
+Reproduce with `dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release --filter FullyQualifiedName~FindingCorrelationReadOnlyCohortTests`. This is a fixture-based comparison using real engine and directory code. It is not a measurement of deployed data or production binding coverage. The next rollout gate is a read-only run on an authorized representative cohort with stable asset evidence. V1 remains active pending that run.
