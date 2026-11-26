@@ -378,6 +378,8 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-11-26 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with fullwidth full stop (U+FF0E) and fisheye padding (U+25C9) inside words (e.g. `o` + U+FF0E + `n`, `tr` + U+25C9 + `ue`) stayed closed because those Ff/So scalars were not stripped; strip U+FF0E and U+25C9 with existing invisible scalar hygiene. **valid-no-repro** pass-80 monitors (metrics open over padded `on` base, duplicate `off`/`on` first-wins, href carries metrics with finding param). Pass-81 reseed below. Scoped vitest **400/400**. Private beta: Invited operators who deep-link with fullwidth-full-stop or fisheye padding inside `remediationFactoryMetricsOpen` on/true tokens open the executive metrics summary instead of landing with the panel closed.
+
 2026-11-26 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with fullwidth tilde (U+FF5E) and large-circle padding (U+25EF) inside words (e.g. `o` + U+FF5E + `n`, `tr` + U+25EF + `ue`) stayed closed because those Ff/So scalars were not stripped; strip U+FF5E and U+25EF with existing invisible scalar hygiene. **valid-no-repro** pass-79 monitors (metrics open over padded `yes` base, duplicate `on`/`off` first-wins, pathname-only href preserves `selectedPath`). Pass-80 reseed below. Scoped vitest **396/396**. Private beta: Invited operators who deep-link with fullwidth-tilde or large-circle padding inside `remediationFactoryMetricsOpen` on/true tokens open the executive metrics summary instead of landing with the panel closed.
 
 2026-11-26 thorough hunt (hit): no rotation (shouldRotate: false; hint override). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with fullwidth question (U+FF1F) and white-circle padding (U+25CB) inside words (e.g. `o` + U+FF1F + `n`, `tr` + U+25CB + `ue`) stayed closed because those Ff/So scalars were not stripped; strip U+FF1F and U+25CB with existing invisible scalar hygiene. **valid-no-repro** pass-78 monitors (metrics close drops padded `1` base, duplicate metrics `1`/`0` first-wins, path-only writer preserves open metrics). Pass-79 reseed below. Scoped vitest **393/393**. Private beta: Invited operators who deep-link with fullwidth-question or white-circle padding inside `remediationFactoryMetricsOpen` on/true tokens open the executive metrics summary instead of landing with the panel closed.
@@ -702,11 +704,18 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `on` then `off` — **cheap-disproof 2026-11-26 thorough hunt (hit):** regression `uses the first metrics disclosure token when on precedes off in the query string`.
 - [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves selectedPath param on pathname-only href — **cheap-disproof 2026-11-26 thorough hunt (hit):** regression `remediationFactoryHrefFromSearch preserves selectedPath on pathname-only href`.
 
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — fullwidth full stop inside `on` token — locus: Ff strip; input: `o` + U+FF0E + `n`; pass-80 reseed.
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — fisheye inside true — locus: So strip; input: `tr` + U+25C9 + `ue`; pass-80 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open over padded `on` base — locus: writer; input: open over ` on ` base; pass-80 reseed.
-- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `off` then `on` — locus: first-wins; input: repeated param; pass-80 reseed.
-- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves metrics open when toggling finding only — locus: href; input: finding change with metrics `1`; pass-80 reseed.
+- [x] (superseded) pass-80 `(candidate)` queue — **superseded 2026-11-26 thorough hunt (hit):** pass-81 reseed.
+- [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — fullwidth full stop inside `on` token — **proven 2026-11-26 thorough hunt (hit):** regression `treats ON metrics disclosure token with fullwidth full stop inside the word as open on read`.
+- [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — fisheye inside true — **proven 2026-11-26 thorough hunt (hit):** regression `treats true metrics disclosure token with fisheye inside the word as open on read`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open over padded `on` base — **cheap-disproof 2026-11-26 thorough hunt (hit):** regression `canonicalizes metrics open to 1 when writing open state from a padded on base`.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `off` then `on` — **cheap-disproof 2026-11-26 thorough hunt (hit):** regression `uses the first metrics disclosure token when off precedes on in the query string`.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves metrics open when toggling finding only — **cheap-disproof 2026-11-26 thorough hunt (hit):** regression `preserves open metrics when writing a finding-only selection change`.
+
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — fullwidth comma inside `on` token — locus: Ff strip; input: `o` + U+FF0C + `n`; pass-81 reseed.
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — medium black circle inside true — locus: So strip; input: `tr` + U+25CF + `ue`; pass-81 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded `false` base — locus: writer; input: close over ` false ` base; pass-81 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `yes` then `no` — locus: first-wins; input: repeated param; pass-81 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves metrics and finding on pathname-only href — locus: href; input: metrics `1` + finding; pass-81 reseed.
 
 - [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — horizontal tab inside yes token — locus: Cc strip; input: `y` + U+0009 + `es`; pass-68 reseed.
 - [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — treats NUL-only metrics disclosure token as closed — locus: empty after Cc strip; input: U+0000 only; pass-68 reseed.
@@ -1178,8 +1187,8 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 100
-- **bugs-found:** 87
+- **hunts:** 101
+- **bugs-found:** 88
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-26
 - **last-bug:** 2026-11-26

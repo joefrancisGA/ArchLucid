@@ -916,6 +916,51 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+
+  it("treats ON metrics disclosure token with fullwidth full stop inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF0En`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with fisheye inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25C9ue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("canonicalizes metrics open to 1 when writing open state from a padded on base", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: true,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}= on `,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
+  });
+
+  it("preserves open metrics when writing a finding-only selection change", () => {
+    const priorFinding = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const nextFinding = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: nextFinding,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: true,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1&${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=${priorFinding}`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
+    expect(params.get(REMEDIATION_FACTORY_SELECTED_FINDING_PARAM)).toBe(nextFinding);
+  });
   it("remediationFactoryHrefFromSearch preserves selectedPath on pathname-only href", () => {
     const pathId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
     const href = remediationFactoryHrefFromSearch(
