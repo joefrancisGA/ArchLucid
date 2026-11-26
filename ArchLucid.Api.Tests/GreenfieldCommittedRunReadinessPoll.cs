@@ -36,31 +36,7 @@ internal static class GreenfieldCommittedRunReadinessPoll
     }
 
     /// <summary>
-    ///     Returns <see langword="true" /> when the run is already committed with a readable manifest version (idempotent
-    ///     success after a 409 manifest-load race or duplicate commit attempt).
-    /// </summary>
-    internal static async Task<bool> TryReturnIfRunAlreadyCommittedAsync(
-        HttpClient client,
-        string runId,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
-
-        using HttpResponseMessage response = await client.GetRunHttpAsync(runId, cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-            return false;
-
-        GetRunResponseDto detail =
-            await response.ReadJsonForTestAsync<GetRunResponseDto>(JsonOptions, cancellationToken);
-
-        return detail?.Run is { Status: "Committed", CurrentManifestVersion: { Length: > 0 } };
-    }
-
-    /// <summary>
-    ///     Polls until execute has promoted the run to <c>ReadyForCommit</c> with agent results visible on
-    ///     <c>GET /v1/architecture/review/{runId}</c>. Prevents POST /commit racing snapshot/materialization under CI SQL load.
-    ///     Note: <c>CurrentManifestVersion</c> is populated only after commit, not at ReadyForCommit.
+    ///     Waits for staged agent results or an already committed authority run that can be verified by finalize.
     /// </summary>
     internal static Task WaitUntilRunManifestReadableForCommitAsync(
         HttpClient client,
@@ -81,12 +57,10 @@ internal static class GreenfieldCommittedRunReadinessPoll
                 if (detail?.Run is null)
                     return false;
 
-                if (!string.Equals(detail.Run.Status, "ReadyForCommit", StringComparison.Ordinal))
-                    return false;
-
-                return detail.Results is { Count: > 0 };
+                return detail.Run is { Status: "Committed", CurrentManifestVersion: { Length: > 0 } }
+                    || (detail.Run.Status == "ReadyForCommit" && detail.Results is { Count: > 0 });
             },
-            "GET /v1/architecture/review/{runId} did not show ReadyForCommit with agent results before commit.",
+            "GET /v1/architecture/review/{runId} showed neither ReadyForCommit with agent results nor Committed with a manifest version.",
             cancellationToken,
             maxAttempts: 30,
             maxDelayMs: 4000);
