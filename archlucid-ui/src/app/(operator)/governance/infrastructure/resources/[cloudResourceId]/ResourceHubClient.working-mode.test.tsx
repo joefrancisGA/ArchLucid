@@ -124,7 +124,8 @@ describe("ResourceHubClient working mode", () => {
       "id",
       GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PRIMARY_CONTENT_ID,
     );
-    expect(screen.getByTestId("governance-infrastructure-resource-hub-sources")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-resource-hub-primary-content")).toHaveAttribute("tabIndex", "-1");
+    expect(screen.getByTestId("infra-resource-hub-sources")).toBeInTheDocument();
     expect(screen.getByTestId("infra-resource-hub-page-title")).toBeInTheDocument();
   });
 
