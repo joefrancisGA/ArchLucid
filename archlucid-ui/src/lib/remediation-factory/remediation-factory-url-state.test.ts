@@ -1381,6 +1381,17 @@ describe("remediation-factory-url-state", () => {
 
 
 
+  it("treats ON metrics disclosure token with halfwidth ideographic colon inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF66n`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with black small square inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25AAue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
   it("treats ON metrics disclosure token with halfwidth ideographic full stop inside the word as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF65n`).metricsSummaryOpen,
@@ -2046,7 +2057,14 @@ describe("remediation-factory-url-state", () => {
     expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
     expect(params.get(REMEDIATION_FACTORY_SELECTED_PATH_PARAM)).toBeNull();
   });
-  it("uses the first metrics disclosure token when false precedes true in the query string", () => {
+
+  it("uses the first metrics disclosure token when true precedes false in the query string", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=true&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=false`,
+      ).metricsSummaryOpen,
+    ).toBe(true);
+  });  it("uses the first metrics disclosure token when false precedes true in the query string", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(
         `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=false&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=true`,
