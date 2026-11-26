@@ -1381,6 +1381,17 @@ describe("remediation-factory-url-state", () => {
 
 
 
+  it("treats ON metrics disclosure token with halfwidth katakana letter o inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF75n`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with white curved lower-left quadrant inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25BEue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
   it("treats ON metrics disclosure token with halfwidth katakana letter e inside the word as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF74n`).metricsSummaryOpen,
@@ -1756,7 +1767,14 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
-  it("uses the first metrics disclosure token when TRUE precedes off in the query string", () => {
+
+  it("uses the first metrics disclosure token when TRUE precedes 0 in the query string", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=TRUE&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=0`,
+      ).metricsSummaryOpen,
+    ).toBe(true);
+  });  it("uses the first metrics disclosure token when TRUE precedes off in the query string", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(
         `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=TRUE&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=off`,
@@ -2260,7 +2278,35 @@ describe("remediation-factory-url-state", () => {
     expect(params.get(REMEDIATION_FACTORY_SELECTED_PATH_PARAM)).toBeNull();
   });
 
-  it("preserves open metrics when clearing snapshot selection only", () => {
+
+  it("preserves open metrics when clearing from and to snapshots only", () => {
+    const findingId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const pathId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    const fromId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+    const toId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: findingId,
+        selectedPathId: pathId,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: true,
+      },
+      [
+        `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1`,
+        `${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=${findingId}`,
+        `${REMEDIATION_FACTORY_SELECTED_PATH_PARAM}=${pathId}`,
+        `${REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM}=${fromId}`,
+        `${REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM}=${toId}`,
+      ].join("&"),
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
+    expect(params.get(REMEDIATION_FACTORY_SELECTED_FINDING_PARAM)).toBe(findingId);
+    expect(params.get(REMEDIATION_FACTORY_SELECTED_PATH_PARAM)).toBe(pathId);
+    expect(params.get(REMEDIATION_FACTORY_FROM_SNAPSHOT_PARAM)).toBeNull();
+    expect(params.get(REMEDIATION_FACTORY_TO_SNAPSHOT_PARAM)).toBeNull();
+  });  it("preserves open metrics when clearing snapshot selection only", () => {
     const fromId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
     const toId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
     const params = remediationFactoryUrlStateToSearchParams(
