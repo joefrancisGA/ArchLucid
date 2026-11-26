@@ -1366,6 +1366,25 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+  it("treats ON metrics disclosure token with ideographic full stop inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF1En`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with black medium small square inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25E8ue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("uses the first metrics disclosure token when yes precedes on in the query string", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=yes&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=on`,
+      ).metricsSummaryOpen,
+    ).toBe(true);
+  });
   it("treats ON metrics disclosure token with fullwidth greater-than sign inside the word as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF1Dn`).metricsSummaryOpen,
@@ -2301,6 +2320,16 @@ describe("remediation-factory-url-state", () => {
     expect(state.toSnapshotId).toBe(first);
   });
 
+  it("remediationFactoryHrefFromSearch preserves selectedFinding on pathname-only href when clearing path", () => {
+    const findingId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+    const pathId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    const href = remediationFactoryHrefFromSearch(
+      "/governance/remediation-factory",
+      `${REMEDIATION_FACTORY_SELECTED_PATH_PARAM}=${pathId}&${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=${findingId}`,
+    );
+
+    expect(href).toContain(`${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=${findingId}`);
+  });
   it("remediationFactoryHrefFromSearch preserves selectedFinding on pathname-only href", () => {
     const findingId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
     const href = remediationFactoryHrefFromSearch(
