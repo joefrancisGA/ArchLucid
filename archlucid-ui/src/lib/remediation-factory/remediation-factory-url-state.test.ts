@@ -1366,6 +1366,25 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+  it("treats ON metrics disclosure token with fullwidth low line inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF3Fn`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with white large square inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25EEue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("uses the first metrics disclosure token when false precedes one in the query string for duplicate params", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=false&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1`,
+      ).metricsSummaryOpen,
+    ).toBe(false);
+  });
   it("treats ON metrics disclosure token with fullwidth circumflex accent inside the word as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF3En`).metricsSummaryOpen,
