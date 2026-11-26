@@ -978,6 +978,54 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+
+  it("treats ON metrics disclosure token with fullwidth colon inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF1An`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with bullseye inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25CEue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("drops padded yes metrics disclosure token from base search when writing closed state", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: false,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}= yes `,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBeNull();
+  });
+
+  it("uses the first metrics disclosure token when false precedes true in the query string", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=false&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=true`,
+      ).metricsSummaryOpen,
+    ).toBe(false);
+  });
+
+  it("remediationFactoryHrefFromSearch preserves metrics, selectedFinding, and selectedPath on pathname-only href", () => {
+    const findingId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const pathId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    const href = remediationFactoryHrefFromSearch(
+      "/governance/remediation-factory",
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1&${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=${findingId}&${REMEDIATION_FACTORY_SELECTED_PATH_PARAM}=${pathId}`,
+    );
+
+    expect(href).toBe(
+      `/governance/remediation-factory?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1&${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=${findingId}&${REMEDIATION_FACTORY_SELECTED_PATH_PARAM}=${pathId}`,
+    );
+  });
   it("canonicalizes metrics open to 1 when writing open state from a padded true base", () => {
     const params = remediationFactoryUrlStateToSearchParams(
       {
