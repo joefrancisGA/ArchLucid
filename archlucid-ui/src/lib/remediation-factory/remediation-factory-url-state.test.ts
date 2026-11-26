@@ -878,6 +878,52 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+  it("treats true metrics disclosure token with ideographic half-fill space inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u303Fue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats ON metrics disclosure token with soft hyphen inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\u00ADn`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats yes metrics disclosure token with word joiner inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=y\u2060es`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats ON metrics disclosure token with en quad space inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\u2000n`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("drops padded OFF metrics disclosure token from base search when writing closed state", () => {
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: null,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: false,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}= OFF `,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBeNull();
+  });
+
+  it("uses the first metrics disclosure token when on precedes off in the query string", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=on&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=off`,
+      ).metricsSummaryOpen,
+    ).toBe(true);
+  });
   it("canonicalizes metrics open to 1 when writing open state from a padded OFF base", () => {
     const params = remediationFactoryUrlStateToSearchParams(
       {
