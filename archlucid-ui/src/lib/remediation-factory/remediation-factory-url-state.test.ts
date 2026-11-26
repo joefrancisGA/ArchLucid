@@ -890,6 +890,37 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+
+  it("treats ON metrics disclosure token with fullwidth question inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF1Fn`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with white circle inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25CBue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("preserves open metrics when writing a path-only selection change", () => {
+    const priorPath = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const nextPath = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: nextPath,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: true,
+      },
+      `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1&${REMEDIATION_FACTORY_SELECTED_PATH_PARAM}=${priorPath}`,
+    );
+
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
+    expect(params.get(REMEDIATION_FACTORY_SELECTED_PATH_PARAM)).toBe(nextPath);
+  });
+
   it("drops padded zero metrics disclosure token from base search when writing closed state", () => {
     const params = remediationFactoryUrlStateToSearchParams(
       {
