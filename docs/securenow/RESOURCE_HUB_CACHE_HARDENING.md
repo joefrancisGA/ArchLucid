@@ -1,3 +1,5 @@
+> **Scope:** Contributor guidance for the SecureNow resource evidence hub's freshness and browser cache behavior, not an authorization or collection policy.
+
 # SecureNow resource-hub cache hardening (CACHE-01 through CACHE-03)
 
 Applies to `archlucid-ui/src/lib/infra-evidence/infra-evidence-resource-hub-cache.ts`, the browser-only read-through cache for the resource evidence hub.
