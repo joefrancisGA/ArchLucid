@@ -107,6 +107,9 @@ BACKFILL_SCORES: dict[str, tuple[int, int]] = {
     # Evidence-only backfill
     "HEE": (78, 87),
     "GON": (80, 87),
+    # SecureNow infrastructure polish (Nov 2026 al-ui-rate)
+    "INM": (76, 77),
+    "INN": (76, 77),
 }
 
 
