@@ -17085,6 +17085,12 @@
               }
             ]
           },
+          "requirementComparisonRecovery": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "runId": {
             "format": "uuid",
             "type": "string"
@@ -33187,6 +33193,12 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "findingEngineRecoveryNote": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "generationStatus": {
             "$ref": "#/components/schemas/FindingsSnapshotGenerationStatus"

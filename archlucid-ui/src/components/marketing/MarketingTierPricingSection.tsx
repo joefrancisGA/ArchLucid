@@ -2,6 +2,7 @@
 import { cn } from "@/lib/utils";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
@@ -61,18 +62,47 @@ export type MarketingTierPricingSectionProps = {
 
 /** Renders tier cards from server-supplied pricing, falling back to a client `/pricing.json` fetch. */
 export function MarketingTierPricingSection(props: MarketingTierPricingSectionProps): React.JSX.Element {
-  return <MarketingTierPricingSectionInner {...props} />;
+  if (props.initialPricing != null) {
+    return <MarketingTierPricingContent {...props} pricing={props.initialPricing} />;
+  }
+
+  return <MarketingTierPricingClientFallback {...props} />;
 }
 
-function MarketingTierPricingSectionInner(props: MarketingTierPricingSectionProps): React.JSX.Element {
+function MarketingTierPricingClientFallback(props: MarketingTierPricingSectionProps): React.JSX.Element {
+  // Public pricing must not use the operator's persisted query cache.
+  const [queryClient] = useState(() => new QueryClient());
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <MarketingTierPricingClientQuery {...props} />
+    </QueryClientProvider>
+  );
+}
+
+function MarketingTierPricingClientQuery(props: MarketingTierPricingSectionProps): React.JSX.Element {
+  const pricingQuery = useMarketingPublicPricingQuery();
+
+  return (
+    <MarketingTierPricingContent
+      {...props}
+      pricing={pricingQuery.data ?? null}
+      pricingError={pricingQuery.isError}
+      pricingLoading={pricingQuery.isPending}
+    />
+  );
+}
+
+function MarketingTierPricingContent(
+  props: MarketingTierPricingSectionProps & {
+    pricing: PricingDoc | null;
+    pricingError?: boolean;
+    pricingLoading?: boolean;
+  },
+): React.JSX.Element {
+  const { pricing, pricingError = false, pricingLoading = false } = props;
   const quoteSectionDomId = props.quoteSectionDomId ?? "pricing-quote-request";
   const [quotePanelOnPage, setQuotePanelOnPage] = useState(false);
-  const initialPricing = props.initialPricing ?? null;
-  const shouldFetch = initialPricing === null;
-  const pricingQuery = useMarketingPublicPricingQuery({ enabled: shouldFetch });
-  const pricing = initialPricing ?? pricingQuery.data ?? null;
-  const pricingError = shouldFetch && pricingQuery.isError;
-  const pricingLoading = shouldFetch && pricingQuery.isPending;
   const selfServeCheckoutEnabled = isPublicStripeTeamCheckoutEnabled();
 
   const focusQuotePanel = useCallback(() => {

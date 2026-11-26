@@ -7,6 +7,7 @@ import { ReviewChainOfCustodySection } from "@/components/reviews/ReviewChainOfC
 import { ReviewCliReproduceSection } from "@/components/reviews/ReviewCliReproduceSection";
 import { RunAgentForensicsSection } from "@/components/runs/RunAgentForensicsSection";
 import { RunAgentQualityWarningsSection } from "@/components/runs/RunAgentQualityWarningsSection";
+import { readFindingEngineRecoveryNote } from "@/lib/finding-engine-recovery-note";
 
 import { RunDetailAdvancedAnalysisSection } from "./RunDetailAdvancedAnalysisSection";
 import { RunDetailManifestSummaryAlerts } from "./RunDetailManifestSummaryAlerts";
@@ -237,6 +238,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
           usedStaticDemoRun={m.usedStaticDemoRun}
           requestId={m.resolvedDetail.run.architectureRequestId ?? (m.resolvedDetail.run as { requestId?: string }).requestId}
           enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
+          findingEngineRecoveryNote={readFindingEngineRecoveryNote(findingCoverageSummary)}
           progressSummary={m.resolvedDetail.run}
           graphSnapshot={m.resolvedDetail.graphSnapshot}
           findingsSnapshot={m.resolvedDetail.findingsSnapshot}

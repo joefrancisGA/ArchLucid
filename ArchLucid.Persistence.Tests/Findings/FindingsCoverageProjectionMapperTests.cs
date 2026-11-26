@@ -40,6 +40,26 @@ public sealed class FindingsCoverageProjectionMapperTests
         snapshot.Findings[0].Rationale.Should().BeEmpty();
     }
 
+    [Theory]
+    [InlineData(RequirementComparisonRecoveryCodes.RetryExhausted, "exhausted its retry budget")]
+    [InlineData(RequirementComparisonRecoveryCodes.RecoveredNoFindings, "recovered after a retry")]
+    [InlineData("Private provider diagnostic", null)]
+    [InlineData(null, null)]
+    public void Map_and_project_preserve_only_known_recovery_outcomes(string? code, string? expected)
+    {
+        FindingsSnapshot snapshot = FindingsCoverageProjectionMapper.Map(new FindingsCoverageHeaderRow
+        {
+            GenerationStatus = nameof(FindingsSnapshotGenerationStatus.PartiallyComplete),
+            RequirementComparisonRecovery = code,
+        }, []);
+
+        var summary = ArchLucid.Persistence.Queries.RunFindingCoverageProjection.Build(snapshot).Summary!;
+        if (expected is null)
+            summary.FindingEngineRecoveryNote.Should().BeNull();
+        else
+            summary.FindingEngineRecoveryNote.Should().Contain(expected);
+    }
+
     [Fact]
     public void Map_preserves_is_muted_from_coverage_projection()
     {

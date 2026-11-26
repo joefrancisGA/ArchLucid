@@ -59,6 +59,9 @@ public class FindingsSnapshot
         set => engineFailures = ContractCollectionDefaults.Coalesce(value);
     }
 
+    /// <summary>Persisted terminal outcome for the bounded requirement comparison retry, if it ran.</summary>
+    public string? RequirementComparisonRecovery { get; set; }
+
     /// <summary>
     ///     Set when the host uses a no-op evaluation-confidence enricher so operators can distinguish "not run" from "computed zero".
     /// </summary>

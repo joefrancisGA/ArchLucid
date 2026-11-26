@@ -15,34 +15,32 @@ const routes = founderAcceptanceRoutes({
   includeAuthenticated: shouldIncludeFounderAuthenticatedRoutes(),
 });
 
-
 test.describe(
   "founder console + network guards",
   { tag: ["@founder", "@critical"] },
   () => {
-    test("founder routes stay free of unexpected pageerrors, console errors, failed XHR, and HTTP 5xx", async ({
-      page,
-    }) => {
-      test.setTimeout(Math.max(120_000, routes.length * 45_000));
+    for (const route of routes) {
+      test(`${route.path} has no unexpected console or network errors`, async ({ page }) => {
+        test.setTimeout(120_000);
+        const capture = attachFounderPageGuards(page);
+        const response = await page.goto(route.path, { waitUntil: "domcontentloaded" });
 
-      const capture = attachFounderPageGuards(page);
+        // Soft navigation readiness — a single 404 does not fail the generic guard.
+        if (response && response.status() >= 500) {
+          expect(response.status(), `${route.path} returned HTTP ${response.status()}`).toBeLessThan(500);
+        }
 
-      for (const route of routes) {
-        await test.step(route.name, async () => {
-          const response = await page.goto(route.path, { waitUntil: "domcontentloaded" });
+        await expect(page.locator("body")).toBeVisible({ timeout: 60_000 });
+        if (route.path === "/welcome" || route.path === "/pricing") {
+          expect(response?.ok()).toBe(true);
+          await expect(page.getByTestId("pricing-tier-architect")).toBeVisible({ timeout: 60_000 });
+          await expect(page.getByTestId("pricing-tier-team")).toBeVisible();
+        }
 
-          // Soft navigation readiness — do not fail the whole suite on a single 404 marketing slug.
-          if (response && response.status() >= 500) {
-            expect(response.status(), `${route.path} returned HTTP ${response.status()}`).toBeLessThan(500);
-          }
-
-          await expect(page.locator("body")).toBeVisible({ timeout: 60_000 });
-          // Let in-flight XHR settle so requestfailed / 5xx listeners observe late errors.
-          await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => undefined);
-        });
-      }
-
-      assertFounderPageGuardsClean(capture);
-    });
+        // Give listeners a chance to observe late failures after rendering.
+        await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => undefined);
+        assertFounderPageGuardsClean(capture);
+      });
+    }
   },
 );

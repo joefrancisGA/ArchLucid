@@ -40,6 +40,7 @@ public sealed class FindingsSnapshotMetadataMergerTests
         FindingsSnapshot header = new()
         {
             GenerationStatus = FindingsSnapshotGenerationStatus.PartiallyComplete,
+            RequirementComparisonRecovery = RequirementComparisonRecoveryCodes.RetryExhausted,
             EvaluationConfidenceEnrichmentSkipped = true,
             EngineFailures =
             [
@@ -65,6 +66,7 @@ public sealed class FindingsSnapshotMetadataMergerTests
         FindingsSnapshotMetadataMerger.MergeFromFindingsJson(snapshot, json);
 
         snapshot.GenerationStatus.Should().Be(FindingsSnapshotGenerationStatus.PartiallyComplete);
+        snapshot.RequirementComparisonRecovery.Should().Be(RequirementComparisonRecoveryCodes.RetryExhausted);
         snapshot.EvaluationConfidenceEnrichmentSkipped.Should().BeTrue();
         snapshot.EngineFailures.Should().ContainSingle(f => f.EngineType == "Cost");
         snapshot.ChecklistCoverage.Should().ContainSingle(f => f.FindingType == "Tagging");

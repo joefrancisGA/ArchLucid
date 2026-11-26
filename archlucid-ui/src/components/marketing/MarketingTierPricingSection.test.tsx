@@ -1,7 +1,5 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react/pure";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-
-import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 
 import { MarketingTierPricingSection } from "./MarketingTierPricingSection";
 
@@ -56,7 +54,6 @@ const mockPricingDoc = {
 
 describe("MarketingTierPricingSection", () => {
   beforeEach(() => {
-    resetOperatorQueryClientForTests();
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -67,7 +64,6 @@ describe("MarketingTierPricingSection", () => {
   });
 
   afterEach(() => {
-    resetOperatorQueryClientForTests();
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
   });
@@ -92,7 +88,7 @@ describe("MarketingTierPricingSection", () => {
     expect(screen.queryByTestId("pricing-early-adopter-framing")).toHaveTextContent(/Early adopter pricing/i);
   });
 
-  it("renders server-supplied pricing synchronously without the loading skeleton or a client fetch", () => {
+  it("renders server-supplied pricing without a query provider, loading skeleton, or client fetch", () => {
     render(
       <MarketingTierPricingSection
         sectionHeadingId="pricing-heading"
@@ -105,6 +101,24 @@ describe("MarketingTierPricingSection", () => {
     expect(screen.getByRole("heading", { name: "Architect" })).toBeInTheDocument();
     expect(screen.queryAllByTestId("pricing-tier-skeleton")).toHaveLength(0);
     expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
+
+  it("loads client pricing without the operator provider and surfaces a fetch failure", async () => {
+    vi.mocked(globalThis.fetch).mockResolvedValueOnce(new Response(null, { status: 503 }));
+
+    render(
+      <MarketingTierPricingSection
+        sectionHeadingId="pricing-heading"
+        sectionTitle="Pricing"
+        signupHref="/signup"
+        initialPricing={null}
+      />,
+    );
+
+    expect(screen.getAllByTestId("pricing-tier-skeleton")).toHaveLength(4);
+    expect(await screen.findByRole("alert")).toHaveTextContent("Pricing data is temporarily unavailable.");
+    expect(screen.queryByTestId("pricing-tier-skeleton")).not.toBeInTheDocument();
+    expect(globalThis.fetch).toHaveBeenCalledExactlyOnceWith("/pricing.json", { cache: "no-store" });
   });
 
   it("routes Team primary CTA to in-app billing when self-serve checkout is enabled", async () => {

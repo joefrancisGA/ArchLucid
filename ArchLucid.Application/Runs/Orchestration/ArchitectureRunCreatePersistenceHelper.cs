@@ -138,6 +138,7 @@ public sealed class ArchitectureRunCreatePersistenceHelper(
     {
         var connection = uow.SupportsExternalTransaction ? uow.Connection : null;
         var transaction = uow.SupportsExternalTransaction ? uow.Transaction : null;
+
         if (!TryParseCoordinationRunGuid(coordination.Run.RunId, out Guid runId) || runId == Guid.Empty)
             throw new InvalidOperationException("Run create cannot persist evidence without a valid run ID.");
 

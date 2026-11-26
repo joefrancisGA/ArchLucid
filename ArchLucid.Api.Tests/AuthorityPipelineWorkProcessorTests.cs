@@ -189,10 +189,15 @@ public sealed class AuthorityPipelineWorkProcessorTests
     {
         AuthorityPipelineWorkOutboxEntry entry = CreateEntryWithValidPayload();
         RunRecord header = CreateBoundRun(entry);
+
         if (mismatch == "tenant") header.TenantId = Guid.NewGuid();
+
         if (mismatch == "workspace") header.WorkspaceId = Guid.NewGuid();
+
         if (mismatch == "project") header.ScopeProjectId = Guid.NewGuid();
+
         if (mismatch == "run") header.RunId = Guid.NewGuid();
+
         if (mismatch == "archived") header.ArchivedUtc = DateTime.UtcNow;
 
         Mock<IAuthorityPipelineWorkRepository> outbox = new();
@@ -247,6 +252,30 @@ public sealed class AuthorityPipelineWorkProcessorTests
         bundles.Verify(r => r.IsBoundToRunAsync(It.IsAny<ScopeContext>(), entry.RunId, "bundle-1",
             It.IsAny<CancellationToken>()), Times.Exactly(2));
         bundles.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_bundle_binding_outage_never_dispatches()
+    {
+        AuthorityPipelineWorkOutboxEntry entry = CreateEntryWithValidPayload();
+        Mock<IAuthorityPipelineWorkRepository> outbox = new();
+        Mock<IAuthorityRunOrchestrator> orchestrator = new(MockBehavior.Strict);
+        Mock<IRunRepository> runs = new();
+        Mock<IEvidenceBundleRepository> bundles = new(MockBehavior.Strict);
+        outbox.Setup(r => r.DequeuePendingAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([entry]);
+        runs.Setup(r => r.GetByIdIncludingArchivedAsync(It.IsAny<ScopeContext>(), entry.RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateBoundRun(entry));
+        bundles.Setup(r => r.IsBoundToRunAsync(It.IsAny<ScopeContext>(), entry.RunId,
+            "bundle-1", It.IsAny<CancellationToken>())).ThrowsAsync(new InvalidOperationException("SQL unavailable"));
+
+        await CreateProcessor(outbox, orchestrator, runs, bundles: bundles).ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(r => r.RecordBackoffAfterProcessingFailureAsync(entry.OutboxId,
+            It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+        bundles.VerifyAll();
+        bundles.VerifyNoOtherCalls();
+        orchestrator.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -640,6 +669,7 @@ public sealed class AuthorityPipelineWorkProcessorTests
         services.AddSingleton(outbox.Object);
         services.AddSingleton(orchestrator.Object);
         services.AddSingleton(runRepository?.Object ?? new Mock<IRunRepository>().Object);
+
         if (bundles is null)
         {
             bundles = new Mock<IEvidenceBundleRepository>();

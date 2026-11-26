@@ -32,6 +32,7 @@ public sealed class InMemoryEvidenceBundleRepository : IEvidenceBundleRepository
         CancellationToken cancellationToken = default, IDbConnection? connection = null, IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(evidenceBundle);
+
         if (CreateBinding(scope, runId, evidenceBundle.EvidenceBundleId) is not RunBinding binding)
             throw new ArgumentException("A complete scope, run and bundle ID are required for deferred evidence binding.");
 

@@ -48,6 +48,14 @@ public abstract class EvidenceBundleRepositoryContractTests
             (await repo.GetForRunAsync(scope, requestedRun, bound.EvidenceBundleId)).Should().BeNull();
         }
 
+        // SQL's default case-insensitive, trailing-space-insensitive comparisons must
+        // not authorize aliases that the ordinal in-memory repository rejects.
+        foreach (string alias in new[] { bound.EvidenceBundleId.ToUpperInvariant(), bound.EvidenceBundleId + " " })
+        {
+            (await repo.IsBoundToRunAsync(owner, run, alias)).Should().BeFalse();
+            (await repo.GetForRunAsync(owner, run, alias)).Should().BeNull();
+        }
+
         EvidenceBundle updated = new() { EvidenceBundleId = bound.EvidenceBundleId, RequestDescription = "after" };
         await repo.UpdateAsync(updated);
         (await repo.IsBoundToRunAsync(owner, run, bound.EvidenceBundleId)).Should().BeTrue();

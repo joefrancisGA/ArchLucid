@@ -1,7 +1,5 @@
-using System.Security.Cryptography;
-using System.Text;
-
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Findings;
 
 namespace ArchLucid.Application.Findings;
 
@@ -18,12 +16,7 @@ public static class NormalizedFindingFingerprintNormalizer
     {
         ArgumentNullException.ThrowIfNull(finding);
 
-        if (string.IsNullOrWhiteSpace(finding.PolicyRuleId))
-            return null;
-
-        string fingerprint = NormalizeFingerprint(finding);
-
-        return $"{finding.PolicyRuleId.Trim()}:{fingerprint}";
+        return FindingCorrelationKeyV1.TryBuildCrossReviewPolicyKey(finding.PolicyRuleId, finding.Category, finding.Message);
     }
 
     /// <summary>Normalized category+message fingerprint used for fuzzy and policy-rule correlation.</summary>
@@ -31,13 +24,7 @@ public static class NormalizedFindingFingerprintNormalizer
     {
         ArgumentNullException.ThrowIfNull(finding);
 
-        string category = NormalizeToken(finding.Category);
-        string message = NormalizeToken(finding.Message);
-        string composite = $"{category}|{message}";
-
-        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(composite));
-
-        return Convert.ToHexString(hash).ToLowerInvariant();
+        return FindingCorrelationKeyV1.NormalizeFingerprint(finding.Category, finding.Message);
     }
 
     /// <summary>Normalized category+message key for fuzzy-only matching.</summary>
@@ -45,35 +32,6 @@ public static class NormalizedFindingFingerprintNormalizer
     {
         ArgumentNullException.ThrowIfNull(finding);
 
-        return $"{NormalizeToken(finding.Category)}|{NormalizeToken(finding.Message)}";
-    }
-
-    private static string NormalizeToken(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return string.Empty;
-
-        string trimmed = value.Trim().ToLowerInvariant();
-        StringBuilder builder = new(trimmed.Length);
-        bool previousWasSpace = false;
-
-        foreach (char character in trimmed)
-        {
-            if (char.IsWhiteSpace(character))
-            {
-                if (!previousWasSpace)
-                {
-                    builder.Append(' ');
-                    previousWasSpace = true;
-                }
-
-                continue;
-            }
-
-            builder.Append(character);
-            previousWasSpace = false;
-        }
-
-        return builder.ToString();
+        return FindingCorrelationKeyV1.NormalizeFuzzyKey(finding.Category, finding.Message);
     }
 }

@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
+import { readFindingEngineRecoveryNote } from "@/lib/finding-engine-recovery-note";
 import type { components } from "@/lib/openapi-schemas";
 
 type FindingCoverageSummary = components["schemas"]["RunFindingCoverageSummary"];
@@ -70,6 +71,12 @@ export function RunDetailFindingCoverageDispositionPanel({
   readonly summary: NonNullable<FindingCoverageSummary>;
 }) {
   const disposition = summary.dispositionCoverage;
+  const recoveryNote = readFindingEngineRecoveryNote(summary);
+  const recoveryDetail = recoveryNote ? (
+    <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)} data-testid="finding-engine-recovery-note">
+      {recoveryNote}
+    </p>
+  ) : null;
 
   if (disposition === null || disposition === undefined) {
     return (
@@ -85,6 +92,7 @@ export function RunDetailFindingCoverageDispositionPanel({
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
           Finding disposition counts were not stored.
         </p>
+        {recoveryDetail}
       </section>
     );
   }
@@ -125,6 +133,7 @@ export function RunDetailFindingCoverageDispositionPanel({
           {formatEngineCoverageSummaryLine(summary)}
         </p>
       </div>
+      {recoveryDetail}
       {summary.hasCommitBlockingFailures === true ? (
         <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}>
           Finalization should remain blocked until the coverage gap is resolved or explicitly regenerated.

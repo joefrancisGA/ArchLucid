@@ -4,6 +4,16 @@ import { describe, expect, it } from "vitest";
 import { RunDetailFindingCoverageDispositionPanel } from "@/components/runs/RunDetailFindingCoverageDispositionPanel";
 
 describe("RunDetailFindingCoverageDispositionPanel (P-02 / P-03)", () => {
+  it.each([
+    "Requirement comparison completed with no findings.",
+    "Requirement comparison exhausted its retry budget. Coverage remains incomplete.",
+    "Requirement comparison recovered after a retry and returned no findings.",
+  ])("renders the stored engine outcome even without disposition counts (%s)", (note) => {
+    const summary = { findingEngineRecoveryNote: note, hasCommitBlockingFailures: false };
+    render(<RunDetailFindingCoverageDispositionPanel summary={summary} />);
+    expect(screen.getByTestId("finding-engine-recovery-note")).toHaveTextContent(note);
+  });
+
   it("shows Not returned for omitted disposition counts and engine fields", () => {
     render(
       <RunDetailFindingCoverageDispositionPanel

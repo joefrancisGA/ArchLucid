@@ -29,6 +29,7 @@ import {
 import {
   OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_LAYOUT,
+  OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { formatGovernanceResolutionWorkingResultsLabel } from "@/lib/governance/governance-resolution-collection-count-display";
@@ -88,6 +89,7 @@ type Props = {
 export function GovernanceResolutionPageView(props: Props) {
   const m = props.model;
   const rows = useGovernanceResolutionRows(m);
+  const pathname = usePathname() ?? "";
   const { productLine } = useProductLine();
   const standardsPath = usePathname() ?? GOVERNANCE_STANDARDS_AND_RULES_PATH;
   const loadRecovery = errorRecoveryContractForScenario("api-problem", {
@@ -420,8 +422,9 @@ export function GovernanceResolutionPageView(props: Props) {
         }
       />
 
-      <div
+      <main
         id={GOVERNANCE_STANDARDS_RULES_PRIMARY_CONTENT_ID}
+        tabIndex={-1}
         className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
         data-testid="governance-standards-rules-primary-content"
       >
@@ -489,7 +492,18 @@ export function GovernanceResolutionPageView(props: Props) {
         {rows.scopedRunFilterActive ? (
           <GovernanceStandardsRulesNextReviewFooterClient runId={rows.scopedRunId} />
         ) : null}
-      </div>
+        {pathname.startsWith("/compliance") ? (
+          <p className={OPERATOR_TYPOGRAPHY.body} data-testid="compliance-standards-rules-wayfinding">
+            <Link className={OPERATOR_LINK.inline} href={SECURENOW_STANDARDS_AND_RULES_PATH}>
+              Standards and rules
+            </Link>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href="/">
+              Home
+            </Link>
+          </p>
+        ) : null}
+      </main>
     </OperatorPageContainer>
   );
 }

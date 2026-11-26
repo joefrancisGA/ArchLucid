@@ -13,6 +13,7 @@ export type FounderAcceptanceRoute = {
 /** Public / marketing surfaces that work without operator storageState. */
 export const FOUNDER_PUBLIC_ROUTES: readonly FounderAcceptanceRoute[] = [
   { name: "Welcome", path: "/welcome" },
+  { name: "Pricing", path: "/pricing" },
   { name: "Why ArchLucid", path: "/why" },
   { name: "Trust Center", path: "/trust" },
   { name: "Signup", path: "/signup" },

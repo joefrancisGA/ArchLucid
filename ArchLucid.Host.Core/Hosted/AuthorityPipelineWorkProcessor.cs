@@ -59,6 +59,7 @@ public sealed class AuthorityPipelineWorkProcessor(
         CancellationToken cancellationToken)
     {
         ScopeContext jobScope = AuthorityPipelineWorkHandlerCore.CreateJobScope(entry);
+
         if (CommittedRunEvidenceBinding.HasExplicitScope(jobScope) && entry.RunId != Guid.Empty &&
             CommittedRunEvidenceBinding.MatchesDrainScope(jobScope, AmbientScopeContext.CurrentOverride))
         {
@@ -92,6 +93,7 @@ public sealed class AuthorityPipelineWorkProcessor(
         CancellationToken cancellationToken)
     {
         ScopeContext jobScope = AuthorityPipelineWorkHandlerCore.CreateJobScope(entry);
+
         if (!CommittedRunEvidenceBinding.MatchesDrainScope(jobScope, AmbientScopeContext.CurrentOverride))
         {
             // Do not consume or retry a different scope's work. Its existing claim can expire.
@@ -139,6 +141,7 @@ public sealed class AuthorityPipelineWorkProcessor(
         }
 
         IEvidenceBundleRepository bundles = scope.ServiceProvider.GetRequiredService<IEvidenceBundleRepository>();
+
         if (!await bundles.IsBoundToRunAsync(jobScope, entry.RunId, payload.EvidenceBundleId.Trim(), cancellationToken)
                 .ConfigureAwait(false))
         {

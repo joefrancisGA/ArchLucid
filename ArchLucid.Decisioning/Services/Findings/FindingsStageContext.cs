@@ -26,6 +26,8 @@ public sealed class FindingsStageContext
 
     public int SuccessfulEngineInvocations { get; set; }
 
+    public string? RequirementComparisonRecovery { get; set; }
+
     public HashSet<string> SuccessfulEngineTypes { get; } = new(StringComparer.OrdinalIgnoreCase);
 
     public FindingsSnapshot? Snapshot { get; set; }
