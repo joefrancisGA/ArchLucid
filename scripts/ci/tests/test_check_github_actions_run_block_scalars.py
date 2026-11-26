@@ -56,6 +56,40 @@ class TestCheckGithubActionsRunBlockScalars(unittest.TestCase):
 
         self.assertEqual(sut.find_folded_run_steps(text), [])
 
+    def test_run_defaults_do_not_hide_invalid_job_steps(self) -> None:
+        text = (
+            "defaults:\n"
+            "  run:\n"
+            "    shell: bash\n"
+            "jobs:\n"
+            "  smoke:\n"
+            "    defaults:\n"
+            "      run:\n"
+            "        working-directory: web\n"
+            "    steps:\n"
+            "      - run: # malformed command follows\n"
+            "          # comments do not end the command\n"
+            "          npm ci\n"
+            "          npm test\n"
+            "      - name: valid\n"
+            "        run: |\n"
+            "          npm ci\n"
+            "          npm test\n"
+        )
+
+        self.assertEqual(sut.find_folded_run_steps(text), [10])
+
+    def test_run_defaults_with_anchor_and_comments_are_valid(self) -> None:
+        self.assertEqual(
+            sut.find_folded_run_steps(
+                '    "defaults": &shell_defaults # job settings\n'
+                '      # set the default runner shell\n'
+                '      "run":\n'
+                '        shell: bash\n'
+            ),
+            [],
+        )
+
     def test_scan_workflow_dir_reports_relative_path_and_line(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workflows = Path(tmp) / "workflows"

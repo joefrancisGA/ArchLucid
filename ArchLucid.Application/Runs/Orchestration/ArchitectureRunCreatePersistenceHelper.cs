@@ -138,6 +138,7 @@ public sealed class ArchitectureRunCreatePersistenceHelper(
     {
         var connection = uow.SupportsExternalTransaction ? uow.Connection : null;
         var transaction = uow.SupportsExternalTransaction ? uow.Transaction : null;
+
         if (coordination.Run.Status != ArchitectureRunStatus.Created)
             return _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken, connection, transaction);
 

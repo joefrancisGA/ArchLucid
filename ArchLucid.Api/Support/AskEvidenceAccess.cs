@@ -16,6 +16,7 @@ public sealed class AskEvidenceAccess(
     public string? GetAuthorizedActorId()
     {
         ClaimsPrincipal? user = context.HttpContext?.User;
+
         if (user?.Identity?.IsAuthenticated != true ||
             !ArchitectureShareAuthorityProbe.HasReadAuthority(user))
             return null;
