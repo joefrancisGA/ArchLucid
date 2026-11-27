@@ -15,6 +15,7 @@ import { ValidateCompareVocabularyRail } from "@/components/ValidateCompareVocab
 import { ImpactPreviewCompareVocabularyRail } from "@/components/ImpactPreviewCompareVocabularyRail";
 import { CompareContinueLastComparisonRow } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareContinueLastComparisonRow";
 import { OperatorHomeWorkingOpenGateStrip } from "@/components/operator-home/OperatorHomeWorkingOpenGateStrip";
+import { CompareFinalizeDecisionNextStrip } from "@/components/reviews/CompareFinalizeDecisionNextStrip";
 import { CompareNextReviewFooterClient } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareNextReviewFooterClient";
 import { CompareEmptyResultsPlaceholder } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareEmptyResultsPlaceholder";
 import { CompareHowComparisonWorksSection } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareHowComparisonWorksSection";
@@ -169,7 +170,9 @@ export function CompareForm(props: CompareFormProps = {}) {
           finalizedCount={finalizedCount}
           onLoadSampleComparison={loadBuyerSampleComparison}
         />
-      ) : null}
+      ) : (
+        <CompareFinalizeDecisionNextStrip finalizedCount={finalizedCount} loading={loading} />
+      )}
       {evalChrome && isStaticDemoPayloadFallbackEnabled() ? (
         <CompareDemoQuickPick onPickClaimsIntake={pickClaimsIntakePair} />
       ) : null}

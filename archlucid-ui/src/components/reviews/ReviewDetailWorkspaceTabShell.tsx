@@ -16,6 +16,7 @@ import {
   WorkbenchSelectionCoordinator,
 } from "@/components/reviews/WorkbenchSelectionCoordinator";
 import { WorkbenchFindingSelectionSync } from "@/components/reviews/WorkbenchFindingSelectionSync";
+import { ReviewWorkspaceTabCognitiveNextStep } from "@/components/reviews/ReviewWorkspaceTabCognitiveNextStep";
 import { ReviewWorkspaceTabStrip } from "@/components/reviews/ReviewWorkspaceTabStrip";
 
 import type { ReviewDetailWorkspaceProps } from "@/components/reviews/ReviewDetailWorkspace";
@@ -119,6 +120,12 @@ export function ReviewDetailWorkspaceTabShell({
         }}
         isTabNewSinceLastVisit={isTabNewSinceLastVisit}
         onTabChange={navigateTab}
+      />
+
+      <ReviewWorkspaceTabCognitiveNextStep
+        lifecycle={lifecycle}
+        activeTab={activeTab}
+        runId={props.runId}
       />
 
       {props.tabSectionNav ?? null}

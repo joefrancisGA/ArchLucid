@@ -13,6 +13,8 @@ import {
   PRODUCT_LINE_PLAYGROUND_TITLE,
 } from "@/lib/product-line/product-line-copy";
 import { PRODUCT_LINE_ROUTE_GATE_HOME_PATH } from "@/lib/product-line/product-line-route-gate";
+import { SecureNowCommercialUpgradeCtaStrip } from "@/components/product-line/SecureNowCommercialUpgradeCtaStrip";
+import { resolveProductLineRouteBlockedEntitlementEmptyLine } from "@/lib/product-line/product-line-route-blocked-entitlement-copy";
 import { resolveProductLineRouteBlockedPresentation } from "@/lib/product-line/product-line-route-blocked";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
@@ -49,6 +51,13 @@ export function ProductLineRouteBlockedView(props: ProductLineRouteBlockedViewPr
         <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="product-line-route-gate-blocked-reason">
           {presentation.reasonSentence} You are signed in to the {presentation.activeProductLabel} shell.
         </p>
+        <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="product-line-route-gate-entitlement-empty">
+          {resolveProductLineRouteBlockedEntitlementEmptyLine({
+            activeProductLine: presentation.activeProductLine,
+            switchToProductLine: presentation.switchToProductLine,
+          })}
+        </p>
+        {presentation.switchToProductLine === "security" ? <SecureNowCommercialUpgradeCtaStrip /> : null}
       </header>
 
       <div className="flex flex-wrap gap-2">

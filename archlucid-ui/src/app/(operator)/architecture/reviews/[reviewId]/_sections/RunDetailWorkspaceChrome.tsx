@@ -29,7 +29,10 @@ import {
   ReviewJourneyStrip,
   ReviewObjectSentence,
 } from "@/components/reviews/ReviewJourneyStrip";
+import { ReviewWorkspaceLifecycleProgressStepper } from "@/components/reviews/ReviewWorkspaceLifecycleProgressStepper";
+import { ReviewWorkspaceUnifiedSearchHonestyStrip } from "@/components/reviews/ReviewWorkspaceUnifiedSearchHonestyStrip";
 import { ReviewVocabularyRail } from "@/components/reviews/ReviewVocabularyRail";
+import { resolveReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-lifecycle";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -375,6 +378,12 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
           currentStep={resolveReviewJourneyStep(props.workspaceStatus)}
           isSealed={reviewIsSealed}
         />
+        <ReviewWorkspaceLifecycleProgressStepper
+          lifecycle={resolveReviewWorkspaceLifecycle({
+            manifestId: props.signedReviewRecordId,
+          })}
+        />
+        <ReviewWorkspaceUnifiedSearchHonestyStrip />
         <ReviewVocabularyRail />
         {!reviewPipelineIncomplete ? <ArchitectureObjectMapStrip focus="review" /> : null}
         <dl
