@@ -41,6 +41,8 @@ import { ReviewsHubEmptyPartialCaptureHonesty } from "./ReviewsHubEmptyPartialCa
 import { ReviewsHubInventoryTable } from "./ReviewsHubInventoryTable";
 import { ReviewsHubInFlightAnalysisDesk } from "./ReviewsHubInFlightAnalysisDesk";
 import { ReviewsHubActiveFiltersStrip } from "./ReviewsHubActiveFiltersStrip";
+import { ReviewsHubDecisionBlockerQueueStrip } from "@/components/reviews/ReviewsHubDecisionBlockerQueueStrip";
+import { collectReviewsHubDecisionBlockers } from "@/lib/reviews/reviews-hub-decision-blocker-queue";
 import { ReviewsHubSummaryRow } from "./ReviewsHubSummaryRow";
 import {
   REVIEWS_HUB_PAGE_TITLE,
@@ -309,6 +311,11 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     ? buildReviewsHubWorkspaceScopeEmptyTeaching(scopeRecord)
     : null;
 
+  const decisionBlockers = useMemo(
+    () => collectReviewsHubDecisionBlockers(mergedRuns),
+    [mergedRuns],
+  );
+
   return (
     <section data-testid="reviews-hub-recent-packages">
       {rows.length === 0 ? (
@@ -375,6 +382,8 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
           />
 
           <ReviewsHubSummaryRow summary={props.summary} />
+
+          <ReviewsHubDecisionBlockerQueueStrip blockers={decisionBlockers} />
 
           <InventoryShowingCountBand
             loaded={props.runs.length}
