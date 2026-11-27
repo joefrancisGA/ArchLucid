@@ -16,7 +16,7 @@ ChatGPT conversations using a repository connector must explicitly retrieve the 
 2. **Identify invariants and architectural reuse.** Read relevant invariant IDs and accepted decisions; locate existing extension points, interfaces, implementations and tests before creating new infrastructure. Preserve tenant and product isolation, authorization, audit/evidence integrity, cost controls, production safety, and architectural boundaries. No silent weakening of an invariant, accepted decision or enforcement mechanism.
 3. **Perform shared-component impact analysis.** For common implementations, cross-layer contracts, common configuration and infrastructure, trace direct and transitive consumers to the affected behavior boundary. Inspect DI, interfaces, dynamic consumers, generated clients, persistence, deployment and test dependencies where relevant. Record known impacts, searched scope, unknowns, preserved behavioral/security contracts and a risk-adjusted verification plan before implementation. If the dependency boundary cannot be established, investigate, narrow the change or disclose the blocker; unknown impact is not zero impact. Reuse existing investigation evidence and avoid needless paperwork.
 4. **Implement the smallest sound change.** Stay within authorized files, behavior and branch scope. Reuse canonical implementations rather than duplicate services, schemas or enforcement mechanisms. Maintain API, serialization, data compatibility, error semantics, concurrency and legitimate consumer behavior unless a contract change is explicitly authorized and governed. Protect existing user edits and isolate unrelated changes.
-5. **Verify affected behavior.** Select tests by risk, contracts and consumer impact. Preserve test assertions, analyzers, test discovery, filters and CI gates. Never remove, weaken, skip or suppress them merely to produce green results. Add regression and negative-control coverage as appropriate; use independent deterministic evidence for consequential claims. Independently review material shared/security changes when a genuinely separate reviewer is available and authorized. Otherwise perform a clearly labeled self-review and disclose missing independent review; do not pretend a second agent was used.
+5. **Verify affected behavior.** Select tests by risk, contracts and consumer impact. Preserve test assertions, analyzers, test discovery, filters and CI gates. Never remove, weaken, skip or suppress them merely to produce green results. Apply [the test-integrity review procedure](#23-mandatory-test-integrity-and-regression-preservation) before changing what a test proves or whether it runs. Add regression and negative-control coverage as appropriate; use independent deterministic evidence for consequential claims. Independently review material shared/security changes when a genuinely separate reviewer is available and authorized. Otherwise perform a clearly labeled self-review and disclose missing independent review; do not pretend a second agent was used.
 6. **Report actual evidence and unresolved work.** Reconcile the final diff with the impact assessment, applicable invariants and requested scope. Distinguish implemented, verified, failed, not run, blocked and deferred. Record source revision, changed paths, commands, observed results, test counts when available, remaining limitations, and PR status. A timeout, zero discovered tests, skipped check, mock-only result or absence of errors does not establish full behavioral correctness.
 
 ## 2.1. Mandatory parallel-agent architectural coordination
@@ -75,6 +75,54 @@ This is a mandatory coordination procedure, not an atomic locking service or aut
 - If systemic remediation is deferred, blocked or only partially delivered, locate and update the existing [active technical backlog](../ACTIVE_TECHNICAL_BACKLOG.md) item or propose a deduplicated linked entry using the existing process. Record evidence and affected scope, residual risk, priority, proposed owner, dependencies, acceptance criteria, and a review trigger or target milestone when agreed. Link the tactical PR and systemic follow-up. Do not silently drop unresolved work or create competing entries. If backlog write access or authorization is unavailable, report the concrete proposed entry and blocker.
 - Report local symptom resolution separately from verified systemic cause correction and recurrence prevention. Include causal evidence, applicable invariant IDs, searched/affected scope, correction choice, tests actually run, unresolved risks and actual backlog/PR status. Do not close a systemic defect merely because the initial regression passes or a temporary mitigation was merged.
 - Keep verification risk-adjusted and within authorized resource and release-branch limits. A broad investigation does not authorize comprehensive master CI, automatic merges, production deployment or customer mutation. This is mandatory procedural agent guidance, not a claim of universal executable enforcement.
+
+## 2.3. Mandatory test integrity and regression preservation
+
+This procedure applies to ChatGPT, Codex, Cursor, and delegated agents. Preserve the intended contract and the ability to detect regressions. A green result, a generated snapshot, or the implementation's current output does not establish the intended behavior.
+
+### Identify material changes before editing
+
+A test change is material if it changes what behavior passes or fails, what is exercised, or how a result is counted. Review changed or removed assertions, expected values, snapshots and golden files, broadened tolerances, mocks or fixture substitutions, negative controls, skips or quarantines, filters, discovery, exclusions, and any test or CI settings that remove or narrow verification. A move, rename, or helper extraction is not material only if the effective assertions, exercised dependencies, and discovery are preserved. Verify that equivalence with the affected tests.
+
+Identify the intended contract and the test's original purpose before proposing a material change. Preserve the original assertion or an equivalent negative control while diagnosing the mismatch. Do not preserve an expectation independently shown to be wrong, or treat a newly failing test as authority to change the contract.
+
+### Classify the mismatch
+
+| Finding | Required response |
+| --- | --- |
+| Product defect | Keep the intended assertion and correct the product at the proven cause. Add or retain a regression that would detect the defect. |
+| Erroneous test | Cite the contract independently of the implementation. Correct the wrong expectation or fixture and use a negative control to show that behavior outside the intended contract still fails. Do not classify the erroneous expectation as a product defect. |
+| Authorized contract evolution | Cite the accepted requirement, ADR, or explicit owner decision. Update only the affected expectations, explain before/after behavior, and verify affected consumers and compatibility. Without authorization, leave the changed expectation as a proposal. |
+| Environment failure or flake | Diagnose the setup, dependency, timing, isolation, or runner problem without weakening the oracle. Report the first failure and any retry separately. A proposed temporary quarantine needs an explicit owner-approved scope, rationale, revisit condition, and disclosed coverage loss or replacement verification. It does not turn the original run into a pass. |
+
+If the cause is not known, report it as unresolved. Keep testing the competing explanations instead of choosing the one that makes the suite green.
+
+### Record evidence and obtain review
+
+- Before accepting a material edit, record the source of intended behavior, what the old and proposed tests prove, affected consumers, and any coverage lost or replaced. Cite the relevant requirement, ADR, invariant, or independently justified expected outcome. Actual behavior or regenerated output alone is not a source of intent.
+- In the PR or existing review record, show the evidence, the proposed disposition, and any test-scope changes. Before integrating a material change, obtain explicit review of the intended behavior and coverage impact and record the reviewer and disposition. If the required review is unavailable, disclose that and leave it pending. Self-review is not approval.
+- For a reproducible defect, execute the **same regression** against the defective and corrected states. It must fail for the expected defect-specific reason before correction and pass afterward. If the new test is not present in the baseline, carry the same test into an isolated baseline fixture. Reuse the [automatic regression policy and FND-166 evidence](../assurance/AUTOMATIC_REGRESSION_POLICY.md#critical-defect-intake-and-ci) for confirmed defects in its scope.
+- When a faithful replay is infeasible, explain why and supply an independently justified structural check, reference comparison, or property test. State what that alternative detects and what it does not prove. A missing or inconclusive alternative remains unverified.
+- Record actual revisions, commands or test identities, executed counts, observed outcomes, and any available evidence artifact. Distinguish missing, skipped, timed out, zero-test, infrastructure-only, and unrelated failures from verified coverage. Do not claim verification for anything that did not run or did not demonstrate the stated behavior.
+
+### Test-integrity review examples
+
+These examples are review exercises, not executable PR policy.
+
+| Case | Proposed change or observation | Review outcome | Why |
+| --- | --- | --- | --- |
+| TI-01 | Move an exact equality assertion into a helper, retain its negative control, and check that the same tests are discovered and pass. | Accept scoped refactor | Effective behavior and coverage are unchanged. |
+| TI-02 | A test expects a null collection, but an accepted contract requires an empty collection. Correct the expectation and show null still fails. | Review erroneous test correction | The contract, not today's implementation, supplies the expected result. |
+| TI-03 | An approved versioned contract changes ordering. Update the ordering assertion and run the affected consumer cases. | Review authorized contract change | Explicit approval and compatibility evidence support the narrow change. |
+| TI-04 | A sorting regression puts equal keys in the wrong order. Keep the required order and show the same test fails for that discrepancy before the product fix and passes after. | Review product correction | Defect-specific red/green evidence preserves the intended assertion. |
+| TI-05 | Replace an exact three-item assertion with a non-null assertion to clear a failure. | Reject weakened assertion | Incorrect counts would now pass. |
+| TI-06 | Regenerate every golden snapshot after mismatches without citing intended changes or reviewing the material diff. | Reject rubber-stamped snapshot | Observed output does not establish correctness. |
+| TI-07 | Skip an intermittently failing case without a diagnosis, approved scope, or revisit condition. | Reject unexplained skip | A green suite would conceal lost verification. |
+| TI-08 | Replace the real persistence component in an integration check with a mock returning the expected value. | Reject coverage-reducing mock | The test no longer exercises the behavior it claims to verify. |
+| TI-09 | Dependency restore fails before tests execute. Retry only after isolating the environment issue and retain both outcomes. | Diagnose without changing the oracle | Restore failure is not a failing assertion, even if a later run passes. |
+| TI-10 | The old runtime cannot be replayed. Run a property test derived from the accepted ordering rule, with an independently specified counterexample and a stated scope limit. | Review independent alternative | The property can demonstrate the intended behavior without claiming a historical replay. |
+
+This procedure provides a review standard. It does not add automated diff enforcement (FND-165) or the broader requirements-to-test traceability work (FND-171).
 
 ## 3. Risk-adjusted verification and cost
 
