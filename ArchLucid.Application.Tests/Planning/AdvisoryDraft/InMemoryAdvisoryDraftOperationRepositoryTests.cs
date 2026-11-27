@@ -1,9 +1,13 @@
+using Xunit;
+
 using ArchLucid.Contracts.Operations;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Planning;
 
 namespace ArchLucid.Application.Tests.Planning.AdvisoryDraft;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class InMemoryAdvisoryDraftOperationRepositoryTests
 {
     [Fact]

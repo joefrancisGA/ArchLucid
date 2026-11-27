@@ -9,17 +9,14 @@ describe("SecureNow accessibility page", () => {
 
     expect(screen.getByTestId("securenow-accessibility-page")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Accessibility" })).toBeInTheDocument();
-    expect(screen.getByText(/WCAG 2\.2 Level AA/)).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "Operator notes pages are in the same WCAG 2.2 AA target. That target is not a certification.",
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-accessibility-lead")).toHaveTextContent(/WCAG 2\.2 Level AA/);
+    expect(screen.getByTestId("securenow-accessibility-claim-discipline")).toHaveTextContent(
+      "This page does not record assistive-technology user testing.",
+    );
     expect(screen.getByRole("link", { name: "Report an accessibility barrier" })).toHaveAttribute(
       "href",
       "mailto:accessibility@archlucid.net",
     );
-    expect(screen.getByText("This page does not record assistive-technology user testing.")).toBeInTheDocument();
   });
 
   it("does not make certification or VPAT claims", () => {

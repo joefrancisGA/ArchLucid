@@ -4,6 +4,8 @@ import {
   CLAIM_DISCIPLINE_BAND_OMIT_SLUGS,
   expectsVisibleClaimDisciplineBand,
   resolveClaimDisciplineForStrip,
+  resolvePageHeaderClaimDisciplineForStrip,
+  resolvePageHeaderClaimDisciplineTestIdForStrip,
   resolveGuideHeadingsForStrip,
   shouldOmitClaimDisciplineBand,
 } from "@/lib/claim-discipline-policy";
@@ -107,6 +109,30 @@ describe("claim-discipline-policy", () => {
     expect(expectsVisibleClaimDisciplineBand("help-review-guide")).toBe(false);
   });
 
+
+  it("resolvePageHeaderClaimDisciplineForStrip folds claim into the header only when the strip omits the band", () => {
+    expect(
+      resolvePageHeaderClaimDisciplineForStrip(
+        "help-governance-infrastructure-drift",
+        GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CLAIM_DISCIPLINE,
+      ),
+    ).toBeUndefined();
+    expect(
+      resolvePageHeaderClaimDisciplineForStrip("help-hub", GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CLAIM_DISCIPLINE),
+    ).toBe(GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CLAIM_DISCIPLINE);
+    expect(
+      resolvePageHeaderClaimDisciplineTestIdForStrip(
+        "help-governance-infrastructure-drift",
+        "help-governance-infrastructure-drift-claim-discipline",
+      ),
+    ).toBeUndefined();
+    expect(
+      resolvePageHeaderClaimDisciplineTestIdForStrip(
+        "help-hub",
+        "help-hub-claim-discipline",
+      ),
+    ).toBe("help-hub-claim-discipline");
+  });
   it("has no duplicate omit slugs", () => {
     expect(CLAIM_DISCIPLINE_BAND_OMIT_SLUGS.size).toBe([...CLAIM_DISCIPLINE_BAND_OMIT_SLUGS].length);
   });

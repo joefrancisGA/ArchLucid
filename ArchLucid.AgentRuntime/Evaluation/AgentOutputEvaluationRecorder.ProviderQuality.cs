@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Quality;
+using ArchLucid.Core.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;

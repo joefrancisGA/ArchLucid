@@ -1,5 +1,7 @@
 using System.Runtime.CompilerServices;
 
+using ArchLucid.Core.Agents;
+
 namespace ArchLucid.AgentRuntime.Quality;
 
 public sealed class ProviderQualityQuarantinedException(

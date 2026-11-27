@@ -1,5 +1,7 @@
 using System.Runtime.CompilerServices;
 
+using ArchLucid.Core.Agents;
+
 namespace ArchLucid.AgentRuntime.Quality;
 
 /// <summary>Correlates one live hosted provider response to a trace without marking caches or serializing a lease token.</summary>

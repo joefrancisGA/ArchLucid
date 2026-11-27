@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 using ArchLucid.AgentRuntime.Quality;
+using ArchLucid.Core.Agents;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 
