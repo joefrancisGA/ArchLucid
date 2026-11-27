@@ -26,6 +26,11 @@ INVENTORY_HTTP_STATUS_EXPECTED = {"initial-status": "2xx", "control-repeat-statu
 FINAL_OUTCOMES = ("passed", "failed", "skipped", "interrupted")
 FIXTURE_PHASES = ("setup", "cleanup")
 FIXTURE_CLEANUP_OUTCOMES = ("already-absent", "still-present", "unverified")
+FIXTURE_SETUP_FAILURES = (
+    "image-pull-failed", "image-inspect-failed", "image-digest-mismatch", "fixture-initialization-failed",
+    "container-start-failed", "readiness-check-failed", "server-exited", "readiness-exhausted",
+    "sql-configuration-failed", "port-lookup-failed", "invalid-port-binding",
+)
 
 
 class Cancellation:
@@ -65,22 +70,24 @@ def inventory_failure(result):
 
 
 def read_result(trx, name, code, timed_out):
-    if timed_out or not trx.is_file():
-        return "interrupted", None
+    if timed_out:
+        return "interrupted", None, "watchdog-timeout"
     try:
         results = et.parse(trx).findall(".//{*}UnitTestResult")
-    except (et.ParseError, OSError):
-        return "interrupted", None
+    except FileNotFoundError:
+        return "interrupted", None, "missing-result"
+    except (et.ParseError, LookupError, OSError, ValueError):
+        return "interrupted", None, "invalid-result"
     if len(results) != 1 or results[0].get("testName") != name:
-        return "interrupted", None
+        return "interrupted", None, "invalid-result"
     recorded = results[0].get("outcome")
-    if recorded == "Passed":
-        return ("passed" if code == 0 else "interrupted"), None
+    if recorded == "Passed" and code == 0:
+        return "passed", None, None
     if recorded in ("NotExecuted", "Skipped"):
-        return "skipped", None
+        return "skipped", None, None
     if recorded == "Failed":
-        return "failed", inventory_failure(results[0]) if name == INVENTORY_CASE else None
-    return "interrupted", None
+        return "failed", inventory_failure(results[0]) if name == INVENTORY_CASE else None, None
+    return "interrupted", None, "invalid-result"
 
 
 def stop_test_tree(child):
@@ -131,10 +138,13 @@ def run_case(name, output, timeout, cancellation):
         cancelled = cancellation.signum is not None
         if timed_out or cancelled:
             stop_test_tree(child)
-    outcome, failure = read_result(trx, name, child.returncode, timed_out or cancelled)
-    result.update(outcome=outcome, exit_code=child.returncode)
     if cancelled:
-        result["interruption"] = "cancelled"
+        outcome, failure, interruption = "interrupted", None, "cancelled"
+    else:
+        outcome, failure, interruption = read_result(trx, name, child.returncode, timed_out)
+    result.update(outcome=outcome, exit_code=child.returncode)
+    if interruption is not None:
+        result["interruption"] = interruption
     if failure is not None:
         result["failure"] = failure
     return result
@@ -179,9 +189,9 @@ def record_fixture_timeout(path, revision, phase):
         checkpoint(path, summary)
 
 
-def record_fixture_cleanup(path, revision, outcome):
+def record_fixture_field(path, revision, field, outcome):
     summary = read_fixture_summary(path, revision)
-    summary["fixture_cleanup"] = outcome
+    summary[field] = outcome
     checkpoint(path, summary)
 
 
@@ -197,6 +207,8 @@ def main(argv=None, cancellation=None):
     mode.add_argument("--record-fixture-timeout", choices=FIXTURE_PHASES, help="Add a fixture timeout without changing test outcomes")
     mode.add_argument("--record-fixture-cleanup", choices=FIXTURE_CLEANUP_OUTCOMES,
                       help="Record cleanup verification without changing test outcomes")
+    mode.add_argument("--record-fixture-setup-failure", choices=FIXTURE_SETUP_FAILURES,
+                      help="Record a bounded setup error without changing test outcomes")
     args = parser.parse_args(argv)
     if args.timeout_seconds < 20:
         parser.error("the case timeout must be at least 20 seconds")
@@ -204,12 +216,14 @@ def main(argv=None, cancellation=None):
     output = args.results_dir.resolve()
     summary_path = output / "summary.json"
     revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
-    if args.record_fixture_timeout or args.record_fixture_cleanup:
+    if args.record_fixture_timeout or args.record_fixture_cleanup or args.record_fixture_setup_failure:
         try:
             if args.record_fixture_timeout:
                 record_fixture_timeout(summary_path, revision, args.record_fixture_timeout)
+            elif args.record_fixture_cleanup:
+                record_fixture_field(summary_path, revision, "fixture_cleanup", args.record_fixture_cleanup)
             else:
-                record_fixture_cleanup(summary_path, revision, args.record_fixture_cleanup)
+                record_fixture_field(summary_path, revision, "fixture_setup_failure", args.record_fixture_setup_failure)
         except (OSError, ValueError):
             parser.error("cannot annotate the existing focused SQL summary")
         return cancellation.exit_code or 0
@@ -246,7 +260,8 @@ def main(argv=None, cancellation=None):
         result = run_case(name, output / row["artifact_dir"], args.timeout_seconds, cancellation)
         reports[index - 1] = result
         checkpoint(summary_path, summarize(revision, reports))
-        print(f"  {result['outcome']}", flush=True)
+        reason = f" ({result['interruption']})" if "interruption" in result else ""
+        print(f"  {result['outcome']}{reason}", flush=True)
         if "failure" in result:
             print(f"  {json.dumps(result['failure'], sort_keys=True)}", flush=True)
         if result.get("interruption") == "launch-failed":

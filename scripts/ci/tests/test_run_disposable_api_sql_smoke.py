@@ -53,7 +53,7 @@ else:
 
 class DisposableApiSqlSmokeTests(unittest.TestCase):
     def invoke(self, test_exit=0, server_exit=False, port="127.0.0.1:49155", image_id=SQL_PIN,
-               repo_digest="", extra_args=(), cancel_signal=None, stall="", cleanup_check=""):
+               repo_digest="", extra_args=(), cancel_signal=None, stall="", cleanup_check="", setup_error=""):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / "docker").write_text(
@@ -62,6 +62,11 @@ set -eu
 printf '%s\n' "$*" >> "$FAKE_DOCKER_LOG"
 if [[ "$1" = "$FAKE_DOCKER_STALL" ]]; then
   exec sleep 30
+fi
+if [[ "$1" = "$FAKE_SETUP_ERROR" || ( "$FAKE_SETUP_ERROR" = configure && "$1" = exec && "${!#}" = 'ALTER DATABASE '* ) ]]; then
+  echo 'unpublished-fixture-output'
+  echo 'unpublished-fixture-error' >&2
+  exit 42
 fi
 case "$1" in
   pull) test "$2" = 'mcr.microsoft.com/mssql/server:2022-CU22-ubuntu-22.04' ;;
@@ -104,7 +109,7 @@ if [[ "$1" = '-c' ]]; then
 elif [[ "${!#}" = --prepare-only ]]; then
   test ! -e "$FAKE_DOCKER_LOG"
   exec "$REAL_PYTHON" "$@"
-elif [[ "${!#}" = --record-fixture-timeout=* || "${!#}" = --record-fixture-cleanup=* ]]; then
+elif [[ "${!#}" = --record-fixture-timeout=* || "${!#}" = --record-fixture-cleanup=* || "${!#}" = --record-fixture-setup-failure=* ]]; then
   exec "$REAL_PYTHON" "$@"
 else
   [[ "${!#}" = --use-prepared ]]
@@ -133,6 +138,7 @@ fi
                 "REAL_PYTHON": sys.executable,
                 "FAKE_DOCKER_LOG": str(root / "docker.log"),
                 "FAKE_DOCKER_STALL": stall,
+                "FAKE_SETUP_ERROR": setup_error,
                 "FAKE_CLEANUP_CHECK": cleanup_check,
                 "FAKE_RUNNER_LOG": str(root / "runner.log"),
                 "FAKE_TEST_EXIT": str(test_exit),
@@ -260,6 +266,7 @@ fi
         self.assertFalse(argv)
         self.assertEqual(plan["unreported"], 3)
         self.assertEqual([row["outcome"] for row in plan["cases"]], ["not-started"] * 3)
+        self.assertEqual(plan["fixture_setup_failure"], "server-exited")
         self.assertEqual(docker[-1], "rm -f fake-container")
 
     def test_pull_timeout_preserves_the_full_unstarted_selection(self):
@@ -347,18 +354,35 @@ fi
         self.assertEqual(report["fixture_cleanup"], "already-absent")
 
     def test_non_loopback_binding_is_rejected(self):
-        completed, docker, argv, _ = self.invoke(port="0.0.0.0:49155")
+        completed, docker, argv, report = self.invoke(port="0.0.0.0:49155")
         self.assertNotEqual(completed.returncode, 0)
         self.assertIn("did not publish a loopback port", completed.stderr)
         self.assertFalse(argv)
+        self.assertEqual(report["fixture_setup_failure"], "invalid-port-binding")
+        self.assertEqual([row["outcome"] for row in report["cases"]], ["not-started"] * 3)
         self.assertEqual(docker[-1], "rm -f fake-container")
 
     def test_changed_image_digest_is_rejected_before_the_fixture_starts(self):
-        completed, docker, argv, _ = self.invoke(image_id="sha256:" + "0" * 64)
+        completed, docker, argv, report = self.invoke(image_id="sha256:" + "0" * 64)
         self.assertNotEqual(completed.returncode, 0)
         self.assertIn("did not match the published digest", completed.stderr)
         self.assertFalse(argv)
+        self.assertEqual(report["fixture_setup_failure"], "image-digest-mismatch")
+        self.assertEqual([row["outcome"] for row in report["cases"]], ["not-started"] * 3)
         self.assertFalse(any(command.startswith("run ") for command in docker))
+
+    def test_setup_command_errors_keep_the_exit_code_and_do_not_publish_command_output(self):
+        for stage, reason in (("pull", "image-pull-failed"), ("configure", "sql-configuration-failed")):
+            with self.subTest(stage=stage):
+                completed, docker, argv, report = self.invoke(setup_error=stage)
+                self.assertEqual(completed.returncode, 42, completed.stderr)
+                self.assertFalse(argv)
+                self.assertEqual(report["fixture_setup_failure"], reason)
+                self.assertEqual(report["unreported"], 3)
+                self.assertEqual([row["outcome"] for row in report["cases"]], ["not-started"] * 3)
+                self.assertNotIn("unpublished-fixture-", completed.stdout + completed.stderr + json.dumps(report))
+                if stage == "configure":
+                    self.assertEqual(docker[-1], "rm -f fake-container")
 
     def test_registry_manifest_pin_can_verify_an_image_with_a_distinct_id(self):
         image_id = "sha256:" + "a" * 64
