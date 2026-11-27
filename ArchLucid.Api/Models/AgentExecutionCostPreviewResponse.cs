@@ -28,8 +28,8 @@ public sealed class AgentExecutionCostPreviewResponse
     }
 
     /// <summary>
-    ///     USD lower bound: one completion with a small assumed prompt (8192 input tokens) at the host output cap, for
-    ///     comparison only. Null when estimation is disabled or mode is Simulator.
+    ///     USD lower bound: one completion at the host output cap with the smaller of 8192 input tokens and the
+    ///     configured high-case input allowance, for comparison only. Null when estimation is disabled or mode is Simulator.
     /// </summary>
     public double? EstimatedCostUsdLow
     {
