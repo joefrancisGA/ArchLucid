@@ -29,6 +29,8 @@ public sealed class SecureNowPublicIpAssessmentController(
     IProductLineRequestAccessor productLine,
     IOptionsSnapshot<SecureNowFreePublicIpAssessmentOptions> options) : ControllerBase
 {
+    private const string NotFoundDetail = "The public IP assessment was not found.";
+
     [HttpGet("{snapshotId:guid}")]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     [ProducesResponseType(typeof(PublicIpAssessmentResponse), StatusCodes.Status200OK)]
@@ -42,8 +44,9 @@ public sealed class SecureNowPublicIpAssessmentController(
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
         if (productLine.GetEffectiveProductLine() != EffectiveProductLineKind.Security || !options.Value.Allows(scope))
-            return NotFound();
+            return this.NotFoundProblem(NotFoundDetail, ProblemTypes.ResourceNotFound);
 
         if (snapshotId == Guid.Empty || page < 1 || pageSize is < 1 or > PaginationDefaults.MaxPageSize)
             return this.BadRequestProblem("A snapshot ID and valid pagination are required.", ProblemTypes.ValidationFailed);
@@ -51,7 +54,9 @@ public sealed class SecureNowPublicIpAssessmentController(
         try
         {
             PublicIpAssessmentResponse? result = await assessment.TryGetAsync(scope, snapshotId, page, pageSize, cancellationToken);
-            return result is not null ? Ok(result) : NotFound();
+            return result is not null
+                ? Ok(result)
+                : this.NotFoundProblem(NotFoundDetail, ProblemTypes.ResourceNotFound);
         }
         catch (ConflictException)
         {
