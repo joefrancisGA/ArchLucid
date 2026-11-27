@@ -1,5 +1,6 @@
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Analysis;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Configuration;
@@ -132,9 +133,9 @@ public sealed class AuthorityPipelineDecisioningStage(
             throw new InvalidOperationException(
                 $"Findings snapshot generation failed for all engines (RunId={runId:D}); aborting authority decisioning.");
 
-        if (snapshot.GenerationStatus == FindingsSnapshotGenerationStatus.PartiallyComplete)
+        if (AuthorityAnalysisCoverage.IsPartiallyComplete(snapshot))
         {
-            bool blocking = FindingEngineFailureCommitClassifier.HasCommitBlockingFailures(snapshot.EngineFailures);
+            bool blocking = AuthorityAnalysisCoverage.HasCommitBlockingFailures(snapshot);
 
             if (blocking || opts.HaltOnPartialFindings)
             {

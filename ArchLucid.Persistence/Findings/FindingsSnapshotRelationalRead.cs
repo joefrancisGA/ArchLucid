@@ -40,7 +40,7 @@ internal static class FindingsSnapshotRelationalRead
 
         if (records.Count == 0)
         {
-            List<Finding> legacyFindings = FindingsSnapshotLegacyJsonReader.DeserializeFindings(row.FindingsJson);
+            List<Finding> legacyFindings = FindingsSnapshotLegacyJsonReader.DeserializeFindings(row.FindingsJson, out bool hasRecordedOutput);
 
             return ApplyChecklistHeaderFields(new FindingsSnapshot
             {
@@ -51,6 +51,7 @@ internal static class FindingsSnapshotRelationalRead
                 CreatedUtc = DateTime.SpecifyKind(row.CreatedUtc, DateTimeKind.Utc),
                 SchemaVersion = row.SchemaVersion,
                 GenerationStatus = FindingsSnapshotGenerationStatusParser.Parse(row.GenerationStatus),
+                CoverageOutputUnavailable = !hasRecordedOutput,
                 Findings = legacyFindings
             }, row);
         }

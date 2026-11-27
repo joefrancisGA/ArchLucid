@@ -1,7 +1,12 @@
+using ArchLucid.Contracts.Analysis;
 using ArchLucid.Contracts.InfraEvidence;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
+
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.InfraEvidence;
 
@@ -10,7 +15,12 @@ public sealed class SecurityEvidencePathReportQueryService(
     ISecurityEvidencePathRepository pathRepository,
     ISecurityEvidencePathRankRepository rankRepository,
     ISecurityEvidencePathSearchCoverageRepository searchCoverageRepository,
-    ISecurityEvidencePathExplanationRepository explanationRepository) : ISecurityEvidencePathReportQueryService
+    ISecurityEvidencePathExplanationRepository explanationRepository,
+    ISecureNowAnalysisRecoveryJobs? recoveryJobs = null,
+    IAnalysisRecoveryRepository? checkpoints = null,
+    SecureNowDependencyInputs? dependencyInputs = null,
+    IOptionsMonitor<AnalysisStageExecutionOptions>? executionOptions = null,
+    TimeProvider? clock = null) : ISecurityEvidencePathReportQueryService
 {
     public async Task<SecurityEvidencePathReportResponse?> TryGetReportAsync(
         ScopeContext scope,
@@ -54,16 +64,17 @@ public sealed class SecurityEvidencePathReportQueryService(
             ranks,
             searchCoverage);
 
+        AnalysisCoverageSummary coverage = await ReadCoverageAsync(scope, snapshot, report, searchCoverage.Count > 0,
+            cancellationToken);
         Guid[] pathIds = report.VulnerableAttackPaths.Select(path => path.PathId).Distinct().ToArray();
-        if (pathIds.Length == 0)
-            return report;
-
-        IReadOnlyList<SecurityEvidencePathVerificationRecord> observations =
-            await explanationRepository.ListLatestVerificationByPathsAsync(scope, snapshotId, pathIds, cancellationToken);
+        IReadOnlyList<SecurityEvidencePathVerificationRecord> observations = pathIds.Length == 0 ? []
+            : await explanationRepository.ListLatestVerificationByPathsAsync(scope, snapshotId, pathIds, cancellationToken);
         HashSet<Guid> allowedPathIds = [.. pathIds];
+
         return new SecurityEvidencePathReportResponse
         {
             SnapshotId = report.SnapshotId,
+            AnalysisCoverage = coverage,
             VulnerableAttackPaths = report.VulnerableAttackPaths,
             UnevaluatedGroups = report.UnevaluatedGroups,
             InventoryVerifications = observations
@@ -72,6 +83,33 @@ public sealed class SecurityEvidencePathReportQueryService(
                 .Select(row => new SecurityEvidencePathReportVerificationResponse(
                     row.PathId, row.ExplanationId, row.RecordedUtc, row.Verification)).ToList(),
         };
+    }
+
+    private async Task<AnalysisCoverageSummary> ReadCoverageAsync(ScopeContext scope, AzureInventorySnapshotRecord snapshot,
+        SecurityEvidencePathReportResponse report, bool hasSearchLimits, CancellationToken ct)
+    {
+        ProjectScopeKey project = ProjectScopeKey.From(scope);
+        SecureNowAnalysisRecoveryJob? job = recoveryJobs is null ? null
+            : await recoveryJobs.TryGetAsync(project, snapshot.SnapshotId, ct);
+        AnalysisRecoveryClaim? claim = job is null || checkpoints is null ? null
+            : await checkpoints.ReadAsync(new AnalysisRecoveryStageKey(project, "securenow", snapshot.SnapshotId, "job"), ct);
+
+        string? rejection = null;
+        bool verified = false;
+
+        if (job?.Outcome == "succeeded" && claim is { State: "succeeded", ResultReference: { } reference } &&
+            claim.InputVersion == job.InputVersion && reference.StartsWith('{') && dependencyInputs is not null)
+        {
+            rejection = await dependencyInputs.VerifyReportReceiptAsync(scope, snapshot, reference, ct);
+            verified = rejection is null;
+        }
+
+        bool unranked = report.UnevaluatedGroups.Any(group =>
+            group.ReasonCode == SecurityEvidencePathReportReasonCodes.VulnerablePathsUnranked);
+        return SecureNowPathAnalysisCoverage.Evaluate(snapshot, job, claim, rejection, verified, hasSearchLimits,
+            report.UnevaluatedGroups.Any(group => group.PathIds.Count > 0 &&
+                group.ReasonCode != SecurityEvidencePathReportReasonCodes.VulnerablePathsUnranked), unranked, (clock ?? TimeProvider.System).UtcNowDateTime(),
+            executionOptions?.CurrentValue.SecureNowReuseMaxAgeHours ?? 24);
     }
 
     private static bool BelongsToSnapshot(SecurityEvidencePathVerificationRecord row, ScopeContext scope, Guid snapshotId) =>

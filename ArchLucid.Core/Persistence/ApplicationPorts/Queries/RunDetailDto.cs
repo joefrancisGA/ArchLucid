@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Analysis;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Persistence.Artifacts;
@@ -8,6 +9,7 @@ using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Contracts.Runs;
 using ArchLucid.Contracts.Trust;
+using ArchLucid.Core.Analysis;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Persistence.Models;
 
@@ -78,6 +80,10 @@ public class RunDetailDto
         get;
         set;
     }
+
+    /// <summary>Coverage for this run, including before a findings snapshot exists.</summary>
+    public AnalysisCoverageSummary AnalysisCoverage => FindingCoverageSummary?.AnalysisCoverage
+        ?? AuthorityAnalysisCoverage.Evaluate(FindingsSnapshot, Run?.LegacyRunStatus);
 
     /// <summary>Context payload when <see cref="RunRecord.ContextSnapshotId" /> resolves.</summary>
     public ContextSnapshot? ContextSnapshot

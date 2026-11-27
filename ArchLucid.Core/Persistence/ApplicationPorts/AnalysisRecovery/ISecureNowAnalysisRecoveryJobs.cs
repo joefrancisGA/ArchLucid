@@ -10,5 +10,8 @@ public interface ISecureNowAnalysisRecoveryJobs
 
     Task<IReadOnlyList<SecureNowAnalysisRecoveryJob>> ListPendingAsync(Guid tenantId, CancellationToken cancellationToken);
 
+    Task<SecureNowAnalysisRecoveryJob?> TryGetAsync(
+        ProjectScopeKey scope, Guid snapshotId, CancellationToken cancellationToken);
+
     Task RecordOutcomeAsync(SecureNowAnalysisRecoveryJob job, string outcome, CancellationToken cancellationToken);
 }

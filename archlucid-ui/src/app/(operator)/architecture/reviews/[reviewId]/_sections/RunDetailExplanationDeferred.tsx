@@ -21,6 +21,8 @@ import { tryStaticDemoExplanationSummary } from "@/lib/operator/operator-static-
 import { tryLoadRequestAssumptionsForRun } from "@/lib/try-load-request-assumptions-for-run";
 import { RunDetailRunExplanationCollapsibleDeferred } from "./run-detail-page-view-deferred-chunks";
 
+import { readAnalysisCoverage } from "@/lib/analysis-coverage";
+
 type RunDetailExplanationDeferredProps = {
   readonly runId: string;
   readonly buyerPolishedArtifactTable: boolean;
@@ -124,6 +126,7 @@ export async function RunDetailExplanationDeferred(
     <RunDetailRunExplanationCollapsibleDeferred
       runId={runId}
       buyerPolishedArtifactTable={buyerPolishedArtifactTable}
+      analysisCoverage={readAnalysisCoverage(resolvedDetail) ?? readAnalysisCoverage(resolvedDetail.findingCoverageSummary)}
       quickDecisionFindings={quickDecisionFindings}
       quickDecisionFromExplanationFallback={quickDecisionFromExplanationFallback}
       buyerSummaryOmitsAgentFindings={findingStreams.buyerSummaryOmitsAgentFindings}

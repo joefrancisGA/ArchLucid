@@ -53,7 +53,10 @@ import {
   RunExplanationSectionDeferred,
   RunFindingExplainabilityTableDeferred} from "./run-detail-explanation-collapsible-deferred-chunks";
 
+import type { AnalysisCoverage } from "@/lib/analysis-coverage";
+
 type RunDetailRunExplanationCollapsibleProps = {
+  readonly analysisCoverage?: AnalysisCoverage | null;
   readonly runId: string;
   readonly buyerPolishedArtifactTable: boolean;
   readonly quickDecisionFindings: QuickDecisionFinding[];
@@ -338,6 +341,7 @@ export function RunDetailRunExplanationCollapsible(
         ) : null}
         <RunDetailFindingsWorkspaceDeferred
           runId={runId}
+          analysisCoverage={props.analysisCoverage ?? null}
           findings={quickDecisionFindings}
           buyerPolishedShell={buyerPolishedArtifactTable}
           headlineFindingCount={findingCountDisplay}

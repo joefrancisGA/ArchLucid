@@ -90,6 +90,29 @@ public sealed class SecureNowDependencyInputs(
         return witness is not null && witness == receipt.Paths ? null : "source_outputs_missing_or_changed";
     }
 
+    internal async Task<string?> VerifyReportReceiptAsync(ScopeContext scope, AzureInventorySnapshotRecord snapshot,
+        string reference, CancellationToken ct)
+    {
+        SecureNowDependencyReceipt? receipt;
+
+        try
+        {
+            receipt = JsonSerializer.Deserialize<SecureNowDependencyReceipt>(reference);
+        }
+        catch (JsonException)
+        {
+            return "dependency_receipt_invalid";
+        }
+
+        if (receipt is not { Schema: 2 } || receipt.SnapshotId != snapshot.SnapshotId ||
+            receipt.Evidence != Evidence(snapshot))
+            return "stale_inventory_binding";
+
+        string? witness = await PathWitnessAsync(scope, snapshot.SnapshotId, ct);
+
+        return witness is null || witness != receipt.Paths ? "stale_path_outputs" : null;
+    }
+
     internal async Task<SecureNowDependencyReceipt?> CreateReceiptAsync(ScopeContext scope,
         AzureInventorySnapshotRecord snapshot, string version, int maxAgeHours, bool complete, CancellationToken ct)
     {

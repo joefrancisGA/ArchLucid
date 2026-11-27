@@ -3407,6 +3407,69 @@
         },
         "type": "object"
       },
+      "AnalysisCoverageSummary": {
+        "properties": {
+          "advisoryOnlyDegradation": {
+            "type": "boolean"
+          },
+          "canAssertAbsence": {
+            "type": "boolean"
+          },
+          "evidenceAsOfUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "freshness": {
+            "type": "string"
+          },
+          "missingSources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "reasonCodes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "recovery": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/AnalysisStageCoverage"
+            },
+            "type": "array"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AnalysisStageCoverage": {
+        "properties": {
+          "stage": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "stage",
+          "state"
+        ],
+        "type": "object"
+      },
       "AnswerDraftQuestionRequest": {
         "properties": {
           "answer": {
@@ -7866,6 +7929,16 @@
               "$ref": "#/components/schemas/AgentExecutionOutcome"
             },
             "type": "array"
+          },
+          "analysisCoverage": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AnalysisCoverageSummary"
+              }
+            ]
           },
           "decisionExplainability": {
             "anyOf": [
@@ -32594,6 +32667,9 @@
             },
             "type": "array"
           },
+          "analysisCoverage": {
+            "$ref": "#/components/schemas/AnalysisCoverageSummary"
+          },
           "artifactBundle": {
             "anyOf": [
               {
@@ -33166,6 +33242,16 @@
       },
       "RunFindingCoverageSummary": {
         "properties": {
+          "analysisCoverage": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AnalysisCoverageSummary"
+              }
+            ]
+          },
           "dispositionCoverage": {
             "anyOf": [
               {
@@ -35976,6 +36062,16 @@
       },
       "SecurityEvidencePathReportResponse": {
         "properties": {
+          "analysisCoverage": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AnalysisCoverageSummary"
+              }
+            ]
+          },
           "inventoryVerifications": {
             "items": {
               "$ref": "#/components/schemas/SecurityEvidencePathReportVerificationResponse"

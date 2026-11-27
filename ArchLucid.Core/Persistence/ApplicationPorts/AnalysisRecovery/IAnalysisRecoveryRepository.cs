@@ -28,6 +28,10 @@ public interface IAnalysisRecoveryRepository
         AnalysisRecoveryStageKey key, Guid owner, long fence, string resultReference,
         IArchLucidUnitOfWork? unitOfWork, CancellationToken cancellationToken);
 
+    /// <summary>Releases a terminal lease with a sanitized dependency reason, not an output reference.</summary>
+    Task<bool> ReleaseWithCoverageReasonAsync(
+        AnalysisRecoveryStageKey key, Guid owner, long fence, string reason, CancellationToken cancellationToken);
+
     Task<bool> ReleaseAsync(
         AnalysisRecoveryStageKey key, Guid owner, long fence, bool retryable, CancellationToken cancellationToken);
 }

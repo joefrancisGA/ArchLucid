@@ -145,6 +145,7 @@ export type SecurityEvidencePathReportUnevaluatedGroup = {
 };
 
 export type SecurityEvidencePathAttackPathReport = {
+  analysisCoverage?: import("./analysis-coverage").AnalysisCoverage | null;
   snapshotId: string;
   vulnerableAttackPaths: ReadonlyArray<SecurityEvidencePathRankSummary>;
   unevaluatedGroups: ReadonlyArray<SecurityEvidencePathReportUnevaluatedGroup>;

@@ -84,6 +84,8 @@ import {
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { REVIEW_FINDINGS_LAST_VISIT_RESTORE_NOT_LOAD_FAILURE_LINE } from "@/lib/findings/review-findings-last-visit-restore-not-load-failure-copy";
+import { AnalysisCoverageNotice } from "@/components/ui/analysis-coverage-notice";
+import { canAssertScopedAbsence, type AnalysisCoverage } from "@/lib/analysis-coverage";
 import { REVIEW_UNCITED_BAND_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/findings/review-uncited-band-empty-not-load-failure-copy";
 import { GUIDED_REVIEW_FINDINGS_TOOLBAR_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE } from "@/lib/findings/guided-review-findings-toolbar-filter-empty-not-load-failure-copy";
 import { reviewFindingsLastVisitHasUrlParams } from "@/lib/findings/review-findings-last-visit-url";
@@ -105,6 +107,7 @@ export type RunDetailFindingsWorkspaceProps = {
     readonly architectureOverview: string;
     readonly ownerLabel: string | null;
   } | null;
+  readonly analysisCoverage?: AnalysisCoverage | null;
   readonly packageCommitted?: boolean;
   readonly manifestIdForExportGuard?: string | null;
   readonly analysisStagesComplete?: boolean;
@@ -403,7 +406,13 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       onShowAdvisoryChange: setShowAdvisory,
       managedExternally: true as const},
     structuralExecutionMode: props.structuralExecutionMode};
-  const findingsListEl = useDenseTable ? (
+  const scopeEmptyWithoutProof = props.findings.length === 0 && props.analysisStagesComplete !== false
+    && !canAssertScopedAbsence(props.analysisCoverage);
+  const findingsListEl = scopeEmptyWithoutProof ? (
+    <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="findings-empty-coverage-unverified">
+      No findings are available to display. This does not establish that the evaluated scope had no findings.
+    </p>
+  ) : useDenseTable ? (
     <RunDetailFindingsDenseTable
       runId={props.runId}
       architectureId={parentArchitectureId.length > 0 ? parentArchitectureId : null}
@@ -417,6 +426,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   const toolbarEl = (
     <div className="space-y-3" data-testid="run-detail-findings-toolbar-hero">
       <RunDetailFindingsHeaderPartialCaptureHonesty />
+      <AnalysisCoverageNotice coverage={props.analysisCoverage ?? null} />
       {architectWorkspaceChrome && showActorCountNotStored ? (
         <ActorDependentFindingsQuietEnginesHint show={true} hintKind="actor-count-not-stored" />
       ) : null}

@@ -987,6 +987,23 @@ export interface components {
             hasAlertRules?: boolean;
             hasReviews?: boolean;
         };
+        AnalysisCoverageSummary: {
+            advisoryOnlyDegradation?: boolean;
+            canAssertAbsence?: boolean;
+            /** Format: date-time */
+            evidenceAsOfUtc?: null | string;
+            freshness?: string;
+            missingSources?: string[];
+            reasonCodes?: string[];
+            recovery?: string;
+            scope?: string;
+            stages?: components["schemas"]["AnalysisStageCoverage"][];
+            state?: string;
+        };
+        AnalysisStageCoverage: {
+            stage: string;
+            state: string;
+        };
         AnswerDraftQuestionRequest: {
             answer?: string;
             presenterCapture?: boolean;
@@ -2319,6 +2336,7 @@ export interface components {
         BuyerRunDetailSummaryDto: {
             agentExecutionLlmCostEstimate?: null | components["schemas"]["RunAgentLlmCostEstimateDto"];
             agentExecutionOutcomes?: components["schemas"]["AgentExecutionOutcome"][];
+            analysisCoverage?: null | components["schemas"]["AnalysisCoverageSummary"];
             decisionExplainability?: null | components["schemas"]["RunDecisionExplainabilityDto"];
             degradedExecutionAgents?: string[];
             degradedFindingCoverage?: boolean;
@@ -9522,6 +9540,7 @@ export interface components {
         RunDetailDto: {
             agentExecutionLlmCostEstimate?: null | components["schemas"]["RunAgentLlmCostEstimateDto"];
             agentExecutionOutcomes?: components["schemas"]["AgentExecutionOutcome"][];
+            analysisCoverage?: components["schemas"]["AnalysisCoverageSummary"];
             artifactBundle?: null | components["schemas"]["ArtifactBundle"];
             contextSnapshot?: null | components["schemas"]["ContextSnapshot"];
             decisionExplainability?: null | components["schemas"]["RunDecisionExplainabilityDto"];
@@ -9642,6 +9661,7 @@ export interface components {
             record?: components["schemas"]["RunExportRecord"];
         };
         RunFindingCoverageSummary: {
+            analysisCoverage?: null | components["schemas"]["AnalysisCoverageSummary"];
             dispositionCoverage?: null | components["schemas"]["RunFindingDispositionCoverage"];
             /** Format: int32 */
             enginesAttempted?: number;
@@ -10505,6 +10525,7 @@ export interface components {
             totalCount?: number;
         };
         SecurityEvidencePathReportResponse: {
+            analysisCoverage?: null | components["schemas"]["AnalysisCoverageSummary"];
             inventoryVerifications?: components["schemas"]["SecurityEvidencePathReportVerificationResponse"][];
             /** Format: uuid */
             snapshotId?: string;

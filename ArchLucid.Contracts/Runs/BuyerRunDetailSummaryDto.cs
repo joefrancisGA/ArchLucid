@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Analysis;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Serialization;
 using ArchLucid.Contracts.Trust;
@@ -10,6 +11,9 @@ namespace ArchLucid.Contracts.Runs;
 /// </summary>
 public sealed class BuyerRunDetailSummaryDto
 {
+    /// <summary>Coverage for the reviewed scope. Older servers may omit it.</summary>
+    public AnalysisCoverageSummary? AnalysisCoverage { get; init; }
+
     private BuyerRunDetailRunDto run = new();
 
     public BuyerRunDetailRunDto Run

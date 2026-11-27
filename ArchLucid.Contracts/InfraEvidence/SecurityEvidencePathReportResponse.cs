@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Contracts.Analysis;
 using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.InfraEvidence;
@@ -10,6 +10,9 @@ public sealed class SecurityEvidencePathReportResponse
         get;
         init;
     }
+
+    /// <summary>Scope-bound path analysis coverage, separate from inventory capture.</summary>
+    public AnalysisCoverageSummary? AnalysisCoverage { get; init; }
 
     private IReadOnlyList<SecurityEvidencePathRankSummaryResponse> vulnerableAttackPaths = [];
 
@@ -36,7 +39,3 @@ public sealed class SecurityEvidencePathReportResponse
         init => inventoryVerifications = ContractCollectionDefaults.CoalesceReadOnly(value);
     }
 }
-
-/// <summary>A historical, property-scoped verification observation. It is not a path verdict.</summary>
-public sealed record SecurityEvidencePathReportVerificationResponse(
-    Guid PathId, Guid ExplanationId, DateTime RecordedUtc, InventoryFalsificationProbe Verification);

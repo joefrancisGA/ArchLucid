@@ -43,6 +43,7 @@ public static class RunDetailBuyerMapper
             DegradedExecutionAgents = source.DegradedExecutionAgents,
             DegradedFindingCoverage = source.DegradedFindingCoverage,
             FindingCoverageSummary = source.FindingCoverageSummary,
+            AnalysisCoverage = source.AnalysisCoverage,
             FindingSummaries = MapFindingSummaries(source.FindingsSnapshot),
             AgentExecutionLlmCostEstimate = source.AgentExecutionLlmCostEstimate,
             TrustEvidenceCard = source.TrustEvidenceCard,

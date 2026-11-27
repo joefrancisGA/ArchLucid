@@ -53,10 +53,17 @@ public sealed class SecureNowDependencyInputsTests
             SecureNowDependencyReceipt? receipt = await inputs.CreateReceiptAsync(
                 scope, source, "v1", 24, true, CancellationToken.None);
             Assert.NotNull(receipt);
+            string reference = JsonSerializer.Serialize(receipt);
+            Assert.Null(await inputs.VerifyReportReceiptAsync(scope, source, reference, CancellationToken.None));
+            Assert.Equal("stale_inventory_binding",
+                await inputs.VerifyReportReceiptAsync(scope, target, reference, CancellationToken.None));
+            Assert.Equal("stale_path_outputs",
+                await inputs.VerifyReportReceiptAsync(scope, source,
+                    JsonSerializer.Serialize(receipt with { Paths = "wrong-witness" }), CancellationToken.None));
             checkpoints.Setup(repo => repo.ReadAsync(
                     new AnalysisRecoveryStageKey(ProjectScopeKey.From(scope), "securenow", sourceId, "job"),
                     CancellationToken.None))
-                .ReturnsAsync(new AnalysisRecoveryClaim { State = "succeeded", ResultReference = JsonSerializer.Serialize(receipt) });
+                .ReturnsAsync(new AnalysisRecoveryClaim { State = "succeeded", ResultReference = reference });
         }
 
         string? reason = await inputs.CarryForwardRejectionAsync(

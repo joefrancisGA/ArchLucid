@@ -118,4 +118,42 @@ public sealed class SqlAnalysisRecoveryRepositoryTests(SqlServerPersistenceFixtu
         await jobs.RecordOutcomeAsync(job, "succeeded", ct);
         Assert.Empty(await jobs.ListPendingAsync(scope.TenantId, ct));
     }
+
+    [SkippableFact]
+    public async Task Scoped_admission_read_does_not_create_jobs_and_terminal_reasons_are_fenced()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        ISqlConnectionFactory factory = new SqlConnectionFactory(fixture.ConnectionString);
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        Mock<IScopeContextProvider> scopes = new();
+        scopes.Setup(p => p.GetCurrentScope()).Returns(scope);
+        SqlSecureNowAnalysisRecoveryJobs jobs = new(factory, scopes.Object);
+        SqlAnalysisRecoveryRepository stages = new(factory, scopes.Object);
+        ProjectScopeKey project = ProjectScopeKey.From(scope);
+        Guid snapshot = Guid.NewGuid();
+        DateTime now = TimeProvider.System.GetUtcNow().UtcDateTime;
+        CancellationToken ct = CancellationToken.None;
+        Assert.Null(await jobs.TryGetAsync(project, snapshot, ct));
+
+        SecureNowAnalysisRecoveryJob job = await jobs.AdmitAsync(project, snapshot, null, true, Version, now, now.AddMinutes(5), ct);
+        Assert.Equal(snapshot, (await jobs.TryGetAsync(project, snapshot, ct))?.SnapshotId);
+
+        AnalysisRecoveryStageKey key = new(project, "securenow", snapshot, "job");
+        Guid owner = Guid.NewGuid();
+        AnalysisRecoveryClaim current = await stages.ClaimAsync(key, Version, owner, 30, 3, ct);
+        Assert.False(await stages.ReleaseWithCoverageReasonAsync(key, Guid.NewGuid(), current.Fence, "incomplete_path_coverage", ct));
+        Assert.True(await stages.ReleaseWithCoverageReasonAsync(key, owner, current.Fence, "incomplete_path_coverage", ct));
+        await jobs.RecordOutcomeAsync(job, "failed", ct);
+
+        Assert.Equal("failed", (await jobs.TryGetAsync(project, snapshot, ct))?.Outcome);
+        AnalysisRecoveryClaim? closed = await stages.ReadAsync(key, ct);
+        Assert.Equal("failed", closed?.State);
+        Assert.Null(closed?.ResultReference);
+        Assert.Equal("incomplete_path_coverage", closed?.CoverageReason);
+        scopes.Setup(p => p.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = Guid.NewGuid(),
+        });
+        await Assert.ThrowsAsync<InvalidOperationException>(() => jobs.TryGetAsync(project, snapshot, ct));
+    }
 }

@@ -21,6 +21,8 @@ public static class SecurityEvidencePathReportReasonCatalog
                 "Subnet egress was not collected or not verified, so outbound reachability stays open.",
             SecurityEvidencePathReportReasonCodes.InsufficientEvidenceUnspecified =>
                 "This path is marked insufficient evidence and no more specific gap was recorded.",
+            SecurityEvidencePathReportReasonCodes.VulnerablePathsUnranked =>
+                "These paths met the vulnerable evidence threshold, but their rankings were not recorded.",
             SecurityEvidencePathReportReasonCodes.ControlPlaneOnlyNoObservedTraffic =>
                 "The control plane allows this path. Observed traffic was not collected, so the path is not listed as vulnerable.",
             SecurityEvidencePathReportReasonCodes.IncompleteIdentityEvidence =>
