@@ -23,6 +23,10 @@ On `SIGINT` or `SIGTERM`, the wrapper forwards the signal and waits for the runn
 
 For a launched test process, the report distinguishes `watchdog-timeout` (the runner hit its deadline), `missing-result` (the process exited without a TRX file), and `invalid-result` (the file could not be read or did not provide a valid result for exactly the selected case). These reasons can differ even when process exit codes match. A TRX pass paired with a nonzero process exit is invalid, and none of the three reasons turns an interruption into a pass.
 
+Each final case row includes integer `elapsed_ms` and `watchdog_budget_ms`. Elapsed time uses a monotonic clock and measures the whole case attempt, including launch, result collection, and test process cleanup, but excludes disposable SQL container setup and teardown. The budget applies only to waiting for the test process, so elapsed time can exceed it without a watchdog timeout. The budget is recorded even when a launch fails. `not-started` and `running` rows have neither field.
+
+On Linux, after a test host exits on its own, its owned process group is stopped and checked for live members, even if the case passed. If the group cannot be verified as stopped within two seconds, the runner records `process_cleanup: unverified`, preserves the original test outcome and any reason, and leaves later cases `not-started`. The batch exits nonzero even if the final case passed and only its process cleanup was unverified.
+
 ## Three-case PR check
 
 The **Focused API SQL cases** job builds the API test project and normally runs finalize and replay, the persisted-inventory negative case, and the same-catalog audit fixture. It runs on its own hosted runner, checks out the exact PR head, and uses a new container with the pinned image. It publishes only `summary.json` and does not replace any required CI checks. The inventory negative case reports a fixed stage name and, where available, a bounded expected and actual result. No raw test output or response bodies are published.

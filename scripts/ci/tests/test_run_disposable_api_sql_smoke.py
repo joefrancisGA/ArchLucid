@@ -215,6 +215,12 @@ fi
                 self.assertEqual([row["outcome"] for row in report["cases"]],
                                  ["passed", "interrupted", "not-started"])
                 self.assertEqual(report["cases"][1]["interruption"], "cancelled")
+                for row in report["cases"][:2]:
+                    self.assertIs(type(row["elapsed_ms"]), int)
+                    self.assertGreaterEqual(row["elapsed_ms"], 0)
+                    self.assertEqual(row["watchdog_budget_ms"], 180_000)
+                self.assertNotIn("elapsed_ms", report["cases"][2])
+                self.assertNotIn("watchdog_budget_ms", report["cases"][2])
                 self.assertEqual(report["unreported"], 1)
 
     def test_runs_exactly_three_named_cases_with_the_pinned_local_fixture(self):

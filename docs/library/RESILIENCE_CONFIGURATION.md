@@ -89,7 +89,15 @@ All three hosted public pricing clients (Azure Retail Prices, AWS Pricing, and G
 
 The pricing tests cover both header formats on all three named clients, elapsed-budget exhaustion, cancellation, the attempt limit, non-replayed writes, cross-provider failures, recovery, and independent capacity under simulated saturation. They do not measure real vendor latency or establish a distributed concurrency limit.
 
-This change expands adoption only for the hosted pricing clients. Azure Resource Manager, CLI/direct SDK clients, and non-pricing outbound integrations keep their own behavior. The shared external integration breaker already samples completed calls, Jira/ServiceNow health probes use independent clients, and the Jira, ServiceNow, and Azure Boards ticket paths do not automatically replay writes. Broader opt-in for read retry timing, concurrency limits beyond hosted pricing, and provider-specific idempotency verification for other mutation paths remain separate work. Do not adopt the pricing retry settings blindly for writes.
+The pricing breaker and concurrency settings apply only to the hosted pricing clients. The Azure Resource Manager read registrations below share the retry timing, not the pricing admission settings. CLI/direct SDK clients and other integrations follow their own policies. The shared external integration breaker already samples completed calls, Jira/ServiceNow health probes use independent clients, and the Jira, ServiceNow, and Azure Boards ticket paths do not automatically replay writes. Broader opt-in for read retry timing, concurrency limits beyond hosted pricing, and provider-specific idempotency verification for other mutation paths remain separate work. Do not adopt the pricing retry settings blindly for writes.
+
+### Azure Resource Manager reads (FND-065)
+
+The named `ArchLucid.AzureResourceManager` client and the hosted extractor's `IHostedAzureArmReadClient` use the same deadline-aware retry timing as public pricing for bodyless GET and HEAD requests. Each HTTP call keeps the existing five-minute timeout and four-attempt maximum. Exponential backoff includes up to 25% positive jitter. A valid `Retry-After` delta or HTTP date on 429 or 503 is a minimum wait. When that wait reaches or exceeds the remaining budget, the policy returns the last response unchanged. Caller cancellation stops a retry wait.
+
+This change does not alter other requests on the named client or the separate hosted management POST-read registration. It does not add a shared breaker or concurrency limit across authenticated ARM callers, change transport or authorization, or set a budget for a full paginated inventory. Fake-transport tests cover both production registrations and show that an ARM retry wait does not delay the independently registered pricing client. CLI/direct SDK and other provider integrations are not covered by this slice.
+
+[Azure Resource Manager throttling and Retry-After](https://learn.microsoft.com/azure/azure-resource-manager/management/request-limits-and-throttling)
 
 ### Webhook and Marketplace delivery (FND-065)
 

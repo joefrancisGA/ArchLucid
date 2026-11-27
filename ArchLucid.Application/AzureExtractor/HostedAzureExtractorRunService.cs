@@ -21,7 +21,8 @@ public sealed class HostedAzureExtractorRunService(
     ITenantHostedExtractorConfigurationRepository configurationRepository,
     IHostedAzureExtractorClient hostedClient,
     IAzureExtractorIngestService ingestService,
-    IOptionsMonitor<HostedAzureExtractorOptions> optionsMonitor) : IHostedAzureExtractorRunService
+    IOptionsMonitor<HostedAzureExtractorOptions> optionsMonitor,
+    TimeProvider? timeProvider = null) : IHostedAzureExtractorRunService
 {
     private readonly ITenantHostedExtractorConfigurationRepository _configurationRepository =
         configurationRepository ?? throw new ArgumentNullException(nameof(configurationRepository));
@@ -35,6 +36,8 @@ public sealed class HostedAzureExtractorRunService(
     private readonly IOptionsMonitor<HostedAzureExtractorOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
+    private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
+
     public async Task<HostedAzureExtractorRunResult> RunAsync(
         Guid tenantId,
         string subscriptionId,
@@ -43,7 +46,9 @@ public sealed class HostedAzureExtractorRunService(
         string? correlationId,
         CancellationToken cancellationToken)
     {
-        if (!_optionsMonitor.CurrentValue.Enabled)
+        HostedAzureExtractorOptions options = _optionsMonitor.CurrentValue;
+
+        if (!options.Enabled)
             return HostedAzureExtractorRunResult.CreateFeatureDisabled();
 
         TenantHostedExtractorConfigurationRecord? configuration = await _configurationRepository
@@ -53,32 +58,60 @@ public sealed class HostedAzureExtractorRunService(
         if (configuration is null)
             return HostedAzureExtractorRunResult.CreateNotConfigured();
 
+        cancellationToken.ThrowIfCancellationRequested();
+        TimeSpan budget = options.GetEffectiveCollectionTimeout();
+        long collectionStartedAt = _timeProvider.GetTimestamp();
         HostedAzureExtractorCollectionResult collection;
 
-        try
+        using (CancellationTokenSource deadline = new(budget, _timeProvider))
+        using (CancellationTokenSource collectionCancellation =
+            CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, deadline.Token))
         {
-            collection = await _hostedClient
-                .CollectZipAsync(
-                    new HostedAzureExtractorCollectionRequest
-                    {
-                        CustomerTenantId = configuration.CustomerTenantId,
-                        CustomerAppId = configuration.CustomerAppId,
-                        SubscriptionId = configuration.SubscriptionId,
-                        IncludeCost = configuration.IncludeCost,
-                        IncludeAppSettingsHosts = true,
-                    },
-                    cancellationToken)
-                .ConfigureAwait(false);
-        }
-        catch (Exception ex) when (HostedAzureExtractorHttpFailureClassifier.IsArmThrottled(ex))
-        {
-            return HostedAzureExtractorRunResult.CreateThrottled(
-                HostedAzureExtractorHttpFailureClassifier.Describe(ex));
-        }
-        catch (HttpRequestException ex)
-        {
-            return HostedAzureExtractorRunResult.CreateCollectionFailed(
-                HostedAzureExtractorHttpFailureClassifier.Describe(ex));
+            try
+            {
+                collection = await _hostedClient
+                    .CollectZipAsync(
+                        new HostedAzureExtractorCollectionRequest
+                        {
+                            CustomerTenantId = configuration.CustomerTenantId,
+                            CustomerAppId = configuration.CustomerAppId,
+                            SubscriptionId = configuration.SubscriptionId,
+                            IncludeCost = configuration.IncludeCost,
+                            IncludeAppSettingsHosts = true,
+                        },
+                        collectionCancellation.Token)
+                    .ConfigureAwait(false);
+
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (CollectionDeadlineExpired(deadline, collectionStartedAt, budget))
+                {
+                    // A collector that did not observe cancellation can still finish with a late package.
+                    return CollectionTimeout(budget);
+                }
+            }
+            catch (Exception ex) when (ex is OperationCanceledException or HttpRequestException
+                                       || HostedAzureExtractorHttpFailureClassifier.IsArmThrottled(ex))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (CollectionDeadlineExpired(deadline, collectionStartedAt, budget))
+                    return CollectionTimeout(budget);
+
+                if (HostedAzureExtractorHttpFailureClassifier.IsArmThrottled(ex))
+                {
+                    return HostedAzureExtractorRunResult.CreateThrottled(
+                        HostedAzureExtractorHttpFailureClassifier.Describe(ex));
+                }
+
+                if (ex is HttpRequestException)
+                {
+                    return HostedAzureExtractorRunResult.CreateCollectionFailed(
+                        HostedAzureExtractorHttpFailureClassifier.Describe(ex));
+                }
+
+                throw;
+            }
         }
 
         AzureExtractorIngestResult ingestResult = await _ingestService
@@ -101,4 +134,11 @@ public sealed class HostedAzureExtractorRunService(
             ingestResult.PackageId!.Value,
             collection.ResourceCount);
     }
+
+    private bool CollectionDeadlineExpired(CancellationTokenSource deadline, long startedAt, TimeSpan budget) =>
+        deadline.IsCancellationRequested || _timeProvider.GetElapsedTime(startedAt) >= budget;
+
+    private static HostedAzureExtractorRunResult CollectionTimeout(TimeSpan budget) =>
+        HostedAzureExtractorRunResult.CreateCollectionFailed(
+            $"Hosted Azure collection exceeded its {budget.TotalSeconds:0}-second deadline. No package was ingested.");
 }
