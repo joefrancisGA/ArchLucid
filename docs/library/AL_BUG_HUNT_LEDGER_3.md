@@ -918,7 +918,7 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — fullwidth percent sign inside `on` token — **proven 2026-11-26 thorough hunt (hit):** regression `treats ON metrics disclosure token with fullwidth percent sign inside the word as open on read`.
 - [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — circle with upper right quadrant arc inside true — **proven 2026-11-26 thorough hunt (hit):** regression `treats true metrics disclosure token with circle upper right quadrant arc inside the word as open on read`.
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open over padded `false` base replaces with canonical `1` — **cheap-disproof 2026-11-26 thorough hunt (hit):** regression `canonicalizes metrics open to 1 when writing open state from a padded false base`.
-- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `yes` then `1` — **cheap-disproof 2026-11-26 thorough hunt (hit):** regression `uses the first metrics disclosure token when yes precedes one in the query string`.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `NO` then `1` — **cheap-disproof 2026-11-26 thorough hunt (hit):** regression `uses the first metrics disclosure token when yes precedes one in the query string`.
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — preserves snapshot ids when clearing path with open metrics — **cheap-disproof 2026-11-26 thorough hunt (hit):** regression `preserves snapshot ids when clearing path selection with open metrics`.
 
 - [x] (superseded) pass-96 `(candidate)` queue — **superseded 2026-11-26 thorough hunt (hit):** pass-97 reseed.
@@ -1326,7 +1326,7 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — halfwidth katakana letter re inside `on` token — locus: Ff strip; input: `o` + U+FF98 + `n`; pass-174 reseed.
 - [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — lower right quadrant inside true — locus: So strip; input: `tr` + U+259B + `ue`; pass-174 reseed.
 - [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded `yes` base — locus: writer; input: close over padded yes base; pass-174 reseed.
-- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `yes` then `1` — locus: first-wins; input: repeated param; pass-174 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `NO` then `1` — locus: first-wins; input: repeated param; pass-174 reseed.
 - [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — preserves open metrics when clearing path selection only — locus: writer; input: clear path selection; pass-174 reseed.
 - [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — upper right quadrant inside true — locus: So strip; input: `tr` + U+2599 + `ue`; pass-172 reseed.
 - [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded `no` base — locus: writer; input: close over padded no base; pass-172 reseed.
