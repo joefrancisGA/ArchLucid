@@ -214,7 +214,9 @@ def scan_python(old: str, new: str, old_path: str | None, new_path: str | None) 
     previous = [replace(item, test=python_renames.get(item.test, item.test))
                 for item in python_additional(old) if item.test not in before or
                 item.test in after or item.test in python_renames]
-    return results + scan_anchors(previous, python_additional(new), old_path, new_path)
+    new_tests = set(after) - set(before) - set(python_renames.values())
+    return results + scan_anchors(previous, python_additional(new), old_path, new_path,
+                                  new_tests=new_tests)
 
 
 def python_additional(text: str) -> list[Anchor]:
@@ -276,11 +278,18 @@ def python_additional(text: str) -> list[Anchor]:
     return anchors
 
 
-def scan_anchors(before: list[Anchor], after: list[Anchor], old_path: str | None, new_path: str | None) -> list[dict]:
+def scan_anchors(before: list[Anchor], after: list[Anchor], old_path: str | None,
+                 new_path: str | None, *, new_tests: set[str] | None = None) -> list[dict]:
     results = []
     renamed = exact_renames(before, after)
     normalized = [replace(item, test=renamed.get(item.test, item.test)) for item in before]
     added = lost(after, normalized)
+    if new_tests is None:
+        previous_names = {item.test for item in normalized if item.family == "test-declaration"}
+        new_tests = {item.test for item in added if item.family == "test-declaration" and
+                     item.test is not None and item.test not in previous_names}
+    new_standalone_module = (old_path is None and bool(new_tests) and new_path is not None and
+                             PurePosixPath(new_path).name != "conftest.py")
     replacement_queues = defaultdict(deque)
     for index, item in enumerate(added):
         replacement_queues[item.family, item.test].append(index)
@@ -303,6 +312,10 @@ def scan_anchors(before: list[Anchor], after: list[Anchor], old_path: str | None
                                head_line=replacement.line if replacement else None, test=old.test,
                                evidence=json.dumps([old.key, replacement.key if replacement else None])))
     for index, current in enumerate(added):
+        if current.family == "mock-setup" and (new_standalone_module or current.test in new_tests):
+            # A newly introduced test is not evidence that an existing test swapped
+            # a real dependency for a mock. Keep shared fixture edits and skip signals.
+            continue
         if index not in paired and current.family in {"skip-or-exclusive", "mock-setup", "assertion-branch-guard"}:
             results.append(finding(current.family + "-added-or-changed", old_path, new_path,
                                    head_line=current.line, test=current.test, evidence=current.key))
