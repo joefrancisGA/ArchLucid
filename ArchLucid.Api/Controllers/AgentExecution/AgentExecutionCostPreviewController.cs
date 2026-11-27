@@ -75,6 +75,7 @@ public sealed class AgentExecutionCostPreviewController(
             _dailyTenantBudgetOptions.CurrentValue.AssumedMaxTotalTokensPerRequest,
             1,
             2_000_000);
+        int assumedLowInput = Math.Min(MinimalAssumedInputTokensPerCompletion, assumedMaxInput);
 
         LlmCostEstimationOptions costModel = _llmCostEstimationOptions.CurrentValue;
         LlmCostEstimationOptions shippedRateDefaults = new();
@@ -92,7 +93,7 @@ public sealed class AgentExecutionCostPreviewController(
 
         if (isReal && costModel.Enabled)
         {
-            decimal? low = _llmCostEstimator.EstimateUsd(MinimalAssumedInputTokensPerCompletion, maxOut);
+            decimal? low = _llmCostEstimator.EstimateUsd(assumedLowInput, maxOut);
             decimal? perAgent = _llmCostEstimator.EstimateUsd(assumedMaxInput, maxOut);
 
             if (low is not null)
@@ -111,7 +112,7 @@ public sealed class AgentExecutionCostPreviewController(
             EstimatedCostUsd = highUsd,
             EstimatedCostUsdLow = lowUsd,
             EstimatedCostUsdHigh = highUsd,
-            EstimatedCostBasis = BuildEstimatedCostBasis(assumedMaxInput, maxOut),
+            EstimatedCostBasis = BuildEstimatedCostBasis(assumedLowInput, assumedMaxInput, maxOut),
             PricingUsesIllustrativeUsdRates = illustrativeUsd,
             DeploymentName = deployment
         };
@@ -119,11 +120,14 @@ public sealed class AgentExecutionCostPreviewController(
         return Ok(body);
     }
 
-    private static string BuildEstimatedCostBasis(int assumedMaxInputTokens, int maxCompletionTokens)
+    private static string BuildEstimatedCostBasis(
+        int assumedLowInputTokens,
+        int assumedMaxInputTokens,
+        int maxCompletionTokens)
     {
         return
             $"Starter run = {StarterRunParallelAgentCount} parallel agents (Topology, Cost, Compliance, Critic). "
-            + $"Low = one completion at {MinimalAssumedInputTokensPerCompletion} assumed input tokens and "
+            + $"Low = one completion at {assumedLowInputTokens} assumed input tokens and "
             + $"{maxCompletionTokens} max output tokens. "
             + $"High = four completions each at up to LlmDailyTenantBudget:AssumedMaxTotalTokensPerRequest "
             + $"({assumedMaxInputTokens} assumed input tokens) and AzureOpenAI:MaxCompletionTokens ({maxCompletionTokens}). "

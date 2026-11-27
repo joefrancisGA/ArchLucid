@@ -177,6 +177,10 @@ public sealed partial class ProductLearningController
 
         if (string.IsNullOrWhiteSpace(trimmed)) return null;
 
-        return trimmed.Length <= maxLength ? trimmed : trimmed[..maxLength];
+        if (trimmed.Length <= maxLength) return trimmed;
+
+        // Keep the persisted UTF-16 length cap without splitting a supplementary character.
+        int end = char.IsSurrogatePair(trimmed, maxLength - 1) ? maxLength - 1 : maxLength;
+        return trimmed[..end];
     }
 }
