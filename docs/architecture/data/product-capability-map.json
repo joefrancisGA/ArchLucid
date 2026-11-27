@@ -1468,6 +1468,13 @@
       "ownerNote": null
     },
     {
+      "typeName": "ArchLucid.Api.Controllers.OperationalSecurity.SecureNowPublicIpAssessmentController",
+      "capability": "infra-evidence",
+      "productLine": "security",
+      "status": "assigned",
+      "ownerNote": "Independent SecureNow free-edition scope grants."
+    },
+    {
       "typeName": "ArchLucid.Api.Controllers.Operator.OperatorSavedViewsController",
       "capability": "platform",
       "productLine": "both",

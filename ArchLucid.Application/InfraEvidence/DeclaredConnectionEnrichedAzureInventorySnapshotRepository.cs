@@ -173,6 +173,12 @@ public sealed class DeclaredConnectionEnrichedAzureInventorySnapshotRepository(
         CancellationToken cancellationToken = default) =>
         inner.ListTagsByResourceRowIdsAsync(scope, snapshotId, resourceRowIds, cancellationToken);
 
+    public Task<AzureInventorySnapshotDetailReadModel?> TryGetPublicIpAssessmentInventoryAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default) =>
+        inner.TryGetPublicIpAssessmentInventoryAsync(scope, snapshotId, cancellationToken);
+
     public Task<AzureInventorySnapshotDetailReadModel?> TryGetAdvisoryTerraformVisibleSnapshotAsync(
         ScopeContext scope,
         Guid snapshotId,

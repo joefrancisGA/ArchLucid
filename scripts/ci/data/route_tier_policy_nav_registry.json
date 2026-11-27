@@ -2082,6 +2082,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "OperationalSecurity/SecureNowPublicIpAssessmentController.cs",
+      "class_name": "SecureNowPublicIpAssessmentController",
+      "route_template": "v{version:apiVersion}/securenow/free/public-ip-assessment",
+      "normalized_prefix": "/v1/securenow/free/public-ip-assessment",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Operator/OperatorSavedViewsController.cs",
       "class_name": "OperatorSavedViewsController",
       "route_template": "v{version:apiVersion}/operator/saved-views",

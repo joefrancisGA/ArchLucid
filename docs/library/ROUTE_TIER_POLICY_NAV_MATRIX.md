@@ -8,7 +8,7 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 
 | Signal | Current value |
 | --- | --- |
-| Registry rows | **255** controller route families (`route-tier-policy-nav-registry-count`) |
+| Registry rows | **256** controller route families (`route-tier-policy-nav-registry-count`) |
 | Executable registry | `scripts/ci/data/route_tier_policy_nav_registry.json` |
 | CI command | `python scripts/ci/assert_route_tier_policy_nav.py` |
 | Regenerate intentionally | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
@@ -68,7 +68,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:255 -->
+<!-- route-tier-policy-nav-registry-count:256 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -280,6 +280,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `OperationalSecurity/RemediationPatternsController.cs` | `/v1/operational-security/remediation-patterns` | standard | ReadAuthority |  |  |
 | `OperationalSecurity/RemediationPrioritizationController.cs` | `/v1/operational-security/remediation-prioritization` | standard | ReadAuthority |  |  |
 | `OperationalSecurity/RemediationWavesController.cs` | `/v1/operational-security/remediation-waves` | standard | ReadAuthority |  |  |
+| `OperationalSecurity/SecureNowPublicIpAssessmentController.cs` | `/v1/securenow/free/public-ip-assessment` | none | ReadAuthority |  |  |
 | `Operator/OperatorSavedViewsController.cs` | `/v1/operator/saved-views` | standard | AuthenticatedUserOnly |  |  |
 | `Operator/OperatorShellStatusController.cs` | `/v1/operator/shell-status` | standard | AuthenticatedUserOnly |  |  |
 | `Pilots/PilotsBoardPackController.cs` | `/v1/pilots` | standard | ExecuteAuthority | /insights/architecture-scorecard |  |
@@ -303,7 +304,6 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `SearchController.cs` | `/v1/search` | none | ReadAuthority |  |  |
 | `Support/SupportProblemReportsController.cs` | `/v1/support` | none | ExecuteAuthority |  |  |
 | `Tenancy/CorePilotTeamChecklistController.cs` | `/v1/tenant/core-pilot-checklist` | standard | Authorize | /architecture/first-review-guide |  |
-| `Tenancy/WorkOwnershipDeletePolicyController.cs` | `/v1/admin/settings` | none | ReadAuthority |  |  |
 | `Tenancy/TenantBaselineController.cs` | `/v1/tenant/baseline` | none | Authorize |  |  |
 | `Tenancy/TenantCatalogMigrationStatusController.cs` | `/v1/tenant` | none | Authorize |  |  |
 | `Tenancy/TenantCostSettingsController.cs` | `/v1/tenant/cost-settings` | none | Authorize |  |  |
@@ -321,6 +321,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Tenancy/TenantWeeklyDigestHealthController.cs` | `/v1/tenant/operate/weekly-digest-health` | standard | Authorize |  |  |
 | `Tenancy/TenantWorkspaceBaselineArtifactsController.cs` | `/v1/tenant/workspace-baseline-artifacts` | none | Authorize |  |  |
 | `Tenancy/TenantWorkspacesController.cs` | `/v1/tenant/workspaces` | none | Authorize |  |  |
+| `Tenancy/WorkOwnershipDeletePolicyController.cs` | `/v1/admin/settings` | none | ReadAuthority |  |  |
 | `User/UserAttentionSummaryController.cs` | `/v1/user/attention-summary` | standard | AuthenticatedUserOnly |  |  |
 | `User/UserPreferencesController.cs` | `/v1/user/preferences` | standard | AuthenticatedUserOnly |  |  |
 | `ValueReports/ValueReportController.cs` | `/v1/value-report` | standard | ExecuteAuthority | /insights/sponsor-report |  |
