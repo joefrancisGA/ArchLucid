@@ -2262,6 +2262,16 @@
       "nav_operator_href": "/architecture/sponsor-dashboard"
     },
     {
+      "controller_file": "RuntimeFindingHistoryController.cs",
+      "class_name": "RuntimeFindingHistoryController",
+      "route_template": "api/securenow/runtime-finding-history",
+      "normalized_prefix": "/api/securenow/runtime-finding-history",
+      "commercial_tier": "none",
+      "class_policy": "Authorize",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Scim/ScimDiscoveryController.cs",
       "class_name": "ScimDiscoveryController",
       "route_template": "scim/v2",

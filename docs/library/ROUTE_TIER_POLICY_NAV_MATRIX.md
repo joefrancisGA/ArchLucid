@@ -8,7 +8,7 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 
 | Signal | Current value |
 | --- | --- |
-| Registry rows | **256** controller route families (`route-tier-policy-nav-registry-count`) |
+| Registry rows | **257** controller route families (`route-tier-policy-nav-registry-count`) |
 | Executable registry | `scripts/ci/data/route_tier_policy_nav_registry.json` |
 | CI command | `python scripts/ci/assert_route_tier_policy_nav.py` |
 | Regenerate intentionally | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
@@ -68,7 +68,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:256 -->
+<!-- route-tier-policy-nav-registry-count:257 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -298,6 +298,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `RegistrationController.cs` | `/v1/register` | none | AllowAnonymous |  | registration_public_flow |
 | `Reports/SponsorSummaryController.cs` | `/v1/reports/sponsor-report` | none | ReadAuthority |  |  |
 | `Roi/RoiController.cs` | `/v1/roi` | none | ReadAuthority | /architecture/sponsor-dashboard |  |
+| `RuntimeFindingHistoryController.cs` | `/api/securenow/runtime-finding-history` | none | Authorize |  |  |
 | `Scim/ScimDiscoveryController.cs` | `/scim/v2` | none | ScimWrite |  | scim_idp_automation |
 | `Scim/ScimGroupsController.cs` | `/scim/v2/Groups` | none | ScimWrite |  | scim_idp_automation |
 | `Scim/ScimUsersController.cs` | `/scim/v2/Users` | none | ScimWrite |  | scim_idp_automation |
