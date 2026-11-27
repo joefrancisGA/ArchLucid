@@ -17,6 +17,9 @@ public sealed class SecureNowArchitectDiffConsumer(
         IReadOnlyList<AzureInventoryChangeRecord> changes,
         CancellationToken cancellationToken = default)
     {
+        if (SecureNowAnalysisRun.ExecutionBudget?.RecoverySession is { Versioned: true })
+            return; // The coordinator applies the pinned, verified reuse plan instead of legacy neighborhood carry-forward.
+
         if (SecureNowAnalysisRun.ExecutionBudget?.RecoverySession?.FullRecompute ?? options.Value.FullRecompute)
         {
             return;

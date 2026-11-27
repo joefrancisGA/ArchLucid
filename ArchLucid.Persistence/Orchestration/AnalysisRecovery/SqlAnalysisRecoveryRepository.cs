@@ -81,6 +81,89 @@ public sealed class SqlAnalysisRecoveryRepository(
         return answer;
     }
 
+    public async Task<AnalysisRecoveryClaim> ClaimForAuthorityInputsAsync(
+        AnalysisRecoveryStageKey key, string inputVersion, Guid owner, int leaseSeconds, int maxAttempts,
+        CancellationToken cancellationToken)
+    {
+        if (!string.Equals(key.Pipeline, "authority", StringComparison.Ordinal))
+            throw new ArgumentException("Only unsealed Authority stages can replace a checkpoint.", nameof(key));
+
+        DynamicParameters parameters = Bind(key);
+        parameters.Add("InputVersion", inputVersion);
+        parameters.Add("Owner", owner);
+        parameters.Add("LeaseSeconds", leaseSeconds);
+        parameters.Add("MaxAttempts", maxAttempts);
+        await using SqlConnection db = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await using SqlTransaction tx = (SqlTransaction)await db.BeginTransactionAsync(cancellationToken);
+        const string sql = $"""
+            DECLARE @Now DATETIME2(7) = SYSUTCDATETIME();
+            IF EXISTS (SELECT 1 FROM dbo.Runs WITH (UPDLOCK, HOLDLOCK)
+                WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND ScopeProjectId = @ProjectId
+                  AND RunId = @RunId AND GoldenManifestId IS NULL AND CompletedUtc IS NULL AND ArchivedUtc IS NULL)
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM dbo.AnalysisStageRecovery WITH (UPDLOCK, HOLDLOCK) WHERE {KeyPredicate})
+                BEGIN
+                    INSERT dbo.AnalysisStageRecovery
+                        (TenantId, WorkspaceId, ProjectId, Pipeline, RunId, Stage, InputVersion, State,
+                         Owner, Fence, Attempts, LeaseUntilUtc, UpdatedUtc)
+                    VALUES (@TenantId, @WorkspaceId, @ProjectId, @Pipeline, @RunId, @Stage, @InputVersion, N'running',
+                            @Owner, 1, 1, DATEADD(second, @LeaseSeconds, SYSUTCDATETIME()), SYSUTCDATETIME());
+                END
+                ELSE
+                BEGIN
+                    INSERT dbo.AnalysisStageRecoveryHistory
+                        (TenantId, WorkspaceId, ProjectId, Pipeline, RunId, Stage, InputVersion, State,
+                         Fence, Attempts, ResultReference, SupersededUtc)
+                    SELECT TenantId, WorkspaceId, ProjectId, Pipeline, RunId, Stage, InputVersion, State,
+                           Fence, Attempts, ResultReference, SYSUTCDATETIME()
+                    FROM dbo.AnalysisStageRecovery WITH (UPDLOCK, HOLDLOCK)
+                    WHERE {KeyPredicate} AND InputVersion <> @InputVersion AND Attempts < @MaxAttempts
+                      AND (Owner IS NULL OR LeaseUntilUtc <= @Now);
+
+                    UPDATE dbo.AnalysisStageRecovery
+                       SET InputVersion = @InputVersion,
+                           State = CASE WHEN Attempts < @MaxAttempts THEN N'running' ELSE N'failed' END,
+                           Owner = CASE WHEN Attempts < @MaxAttempts THEN @Owner END,
+                           Fence = Fence + 1,
+                           Attempts = CASE WHEN Attempts < @MaxAttempts THEN Attempts + 1 ELSE Attempts END,
+                           ResultReference = NULL,
+                           LeaseUntilUtc = CASE WHEN Attempts < @MaxAttempts
+                               THEN DATEADD(second, @LeaseSeconds, SYSUTCDATETIME()) END,
+                           UpdatedUtc = SYSUTCDATETIME()
+                     WHERE {KeyPredicate}
+                       AND (Owner IS NULL OR LeaseUntilUtc <= @Now)
+                       AND ((InputVersion <> @InputVersion AND Attempts < @MaxAttempts)
+                           OR (InputVersion = @InputVersion AND State IN (N'running', N'retry')));
+                END
+            END
+            {Read} WHERE {KeyPredicate};
+            """;
+        AnalysisRecoveryClaim? answer = await db.QuerySingleOrDefaultAsync<AnalysisRecoveryClaim>(
+            new CommandDefinition(sql, parameters, tx, cancellationToken: cancellationToken));
+        await tx.CommitAsync(cancellationToken);
+
+        return answer ?? throw new InvalidOperationException("An unsealed scoped Authority run is required.");
+    }
+
+    public async Task<bool> IsCurrentAsync(AnalysisRecoveryStageKey key, string inputVersion, string resultReference,
+        IArchLucidUnitOfWork unitOfWork, CancellationToken cancellationToken)
+    {
+        DynamicParameters parameters = Bind(key);
+        parameters.Add("InputVersion", inputVersion);
+        parameters.Add("ResultReference", resultReference);
+
+        if (!unitOfWork.SupportsExternalTransaction)
+            throw new InvalidOperationException("Dependency verification requires the publication transaction.");
+
+        const string sql = $"""
+            SELECT COUNT_BIG(1) FROM dbo.AnalysisStageRecovery WITH (UPDLOCK, HOLDLOCK)
+            WHERE {KeyPredicate} AND State = N'succeeded' AND InputVersion = @InputVersion
+                AND ResultReference = @ResultReference;
+            """;
+        return await unitOfWork.Connection.ExecuteScalarAsync<long>(new CommandDefinition(
+            sql, parameters, unitOfWork.Transaction, cancellationToken: cancellationToken)) == 1;
+    }
+
     public Task<bool> RenewAsync(
         AnalysisRecoveryStageKey key, Guid owner, long fence, int leaseSeconds, CancellationToken cancellationToken) =>
         WriteOwnedAsync(key, owner, fence,
