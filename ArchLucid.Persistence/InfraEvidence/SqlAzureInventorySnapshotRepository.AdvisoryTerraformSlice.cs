@@ -14,6 +14,18 @@ public sealed partial class SqlAzureInventorySnapshotRepository
         Guid snapshotId,
         CancellationToken cancellationToken = default)
     {
+        AzureInventorySnapshotDetailReadModel? snapshot = await TryGetInventoryGraphSliceAsync(
+            scope, snapshotId, cancellationToken);
+        return snapshot is null ? null : AzureInventoryVisibleSnapshotProjection.Apply(snapshot, retainIdentityDiagramArmTypes: false);
+    }
+
+    public Task<AzureInventorySnapshotDetailReadModel?> TryGetPublicIpAssessmentInventoryAsync(
+        ScopeContext scope, Guid snapshotId, CancellationToken cancellationToken = default) =>
+        TryGetInventoryGraphSliceAsync(scope, snapshotId, cancellationToken);
+
+    private async Task<AzureInventorySnapshotDetailReadModel?> TryGetInventoryGraphSliceAsync(
+        ScopeContext scope, Guid snapshotId, CancellationToken cancellationToken)
+    {
         ArgumentNullException.ThrowIfNull(scope);
 
         if (snapshotId == Guid.Empty)
@@ -76,14 +88,12 @@ public sealed partial class SqlAzureInventorySnapshotRepository
             })
             .ToList();
 
-        AzureInventorySnapshotDetailReadModel canonical = new()
+        return new AzureInventorySnapshotDetailReadModel()
         {
             Header = header,
             Resources = resources,
             Properties = properties,
             Relationships = relationships,
         };
-
-        return AzureInventoryVisibleSnapshotProjection.Apply(canonical, retainIdentityDiagramArmTypes: false);
     }
 }
