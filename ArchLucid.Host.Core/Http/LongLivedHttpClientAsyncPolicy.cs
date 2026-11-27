@@ -16,7 +16,11 @@ internal sealed class LongLivedHttpClientAsyncPolicy<T>(Func<IServiceProvider, I
         factory ?? throw new ArgumentNullException(nameof(factory));
 
     private IAsyncPolicy<T>? _policy;
+    private object? _initializationLock;
 
     public IAsyncPolicy<T> Get(IServiceProvider serviceProvider) =>
-        _policy ??= _factory(serviceProvider);
+        Volatile.Read(ref _policy) ?? Initialize(serviceProvider);
+
+    private IAsyncPolicy<T> Initialize(IServiceProvider serviceProvider) =>
+        LazyInitializer.EnsureInitialized(ref _policy, ref _initializationLock, () => _factory(serviceProvider));
 }

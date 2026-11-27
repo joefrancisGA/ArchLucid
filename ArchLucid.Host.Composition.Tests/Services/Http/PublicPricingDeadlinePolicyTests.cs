@@ -259,6 +259,78 @@ public sealed class PublicPricingDeadlinePolicyTests
         Assert.Equal(AzureRetailPricesHttpResiliencePolicy.CircuitBreakerFailureThreshold + 2, handler.SendCount);
     }
 
+    [Theory]
+    [InlineData(Azure)]
+    [InlineData(Aws)]
+    [InlineData(Gcp)]
+    public async Task Saturating_one_provider_does_not_delay_others_and_cancel_releases_capacity(string saturatedName)
+    {
+        const int maxCalls = AzureRetailPricesHttpResiliencePolicy.MaxConcurrentPricingCalls;
+        FakeTimeProvider clock = new();
+        BlockingHandler blocked = new();
+        ServiceCollection registrations = CreateRegistrations(clock);
+        registrations.AddHttpClient(saturatedName).ConfigurePrimaryHttpMessageHandler(() => blocked);
+
+        foreach (string otherName in ClientNames.Where(name => name != saturatedName))
+        {
+            registrations.AddHttpClient(otherName).ConfigurePrimaryHttpMessageHandler(
+                static () => new RecordingHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)));
+        }
+
+        await using ServiceProvider services = registrations.BuildServiceProvider();
+        using HttpClient saturated = CreateClient(services, saturatedName);
+        using CancellationTokenSource cts = new();
+        Task<HttpResponseMessage> cancelable = saturated.GetAsync(CatalogPath, cts.Token);
+        List<Task<HttpResponseMessage>> inFlight = Enumerable.Range(0, maxCalls - 1)
+            .Select(_ => saturated.GetAsync(CatalogPath)).ToList();
+
+        try
+        {
+            Assert.Equal(maxCalls, blocked.SendCount);
+
+            for (int rejected = 0; rejected < 6; rejected++)
+            {
+                using HttpResponseMessage overflow = await saturated.GetAsync(CatalogPath).WaitAsync(TestTimeout);
+                Assert.Equal(HttpStatusCode.ServiceUnavailable, overflow.StatusCode);
+                Assert.Equal("Local pricing client concurrency limit reached", overflow.ReasonPhrase);
+            }
+
+            Assert.Equal(maxCalls, blocked.SendCount);
+            Assert.All(inFlight, static request => Assert.False(request.IsCompleted));
+
+            foreach (string otherName in ClientNames.Where(name => name != saturatedName))
+            {
+                using HttpClient healthy = CreateClient(services, otherName);
+                using HttpResponseMessage response = await healthy.GetAsync(CatalogPath).WaitAsync(TestTimeout);
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            }
+
+            await cts.CancelAsync();
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => cancelable.WaitAsync(TestTimeout));
+            inFlight.Add(saturated.GetAsync(CatalogPath));
+            Assert.Equal(maxCalls + 1, blocked.SendCount);
+
+            blocked.Complete();
+            await Task.WhenAll(inFlight).WaitAsync(TestTimeout);
+            using HttpResponseMessage recovered = await saturated.GetAsync(CatalogPath).WaitAsync(TestTimeout);
+            Assert.Equal(HttpStatusCode.OK, recovered.StatusCode);
+        }
+        finally
+        {
+            blocked.Complete();
+
+            foreach (Task<HttpResponseMessage> pending in inFlight)
+            {
+                (await pending.WaitAsync(TestTimeout)).Dispose();
+            }
+
+            if (!cts.IsCancellationRequested)
+            {
+                (await cancelable.WaitAsync(TestTimeout)).Dispose();
+            }
+        }
+    }
+
     private static HttpResponseMessage Throttle(TimeSpan delay) =>
         new(HttpStatusCode.TooManyRequests) { Headers = { RetryAfter = new RetryConditionHeaderValue(delay) } };
 
@@ -291,6 +363,23 @@ public sealed class PublicPricingDeadlinePolicyTests
         {
             int sendCount = Interlocked.Increment(ref _sendCount);
             return Task.FromResult(sendCount == 1 || repeatResponse ? respond(request) : new HttpResponseMessage(HttpStatusCode.OK));
+        }
+    }
+
+    private sealed class BlockingHandler : HttpMessageHandler
+    {
+        private readonly TaskCompletionSource _complete = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private int _sendCount;
+
+        public int SendCount => Volatile.Read(ref _sendCount);
+
+        public void Complete() => _complete.TrySetResult();
+
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            Interlocked.Increment(ref _sendCount);
+            await _complete.Task.WaitAsync(cancellationToken);
+            return new HttpResponseMessage(HttpStatusCode.OK);
         }
     }
 
