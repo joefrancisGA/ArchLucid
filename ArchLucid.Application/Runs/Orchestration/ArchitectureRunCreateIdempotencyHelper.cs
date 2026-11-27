@@ -200,7 +200,9 @@ public sealed class ArchitectureRunCreateIdempotencyHelper(
         if (string.IsNullOrWhiteSpace(bundleRef))
             throw new InvalidOperationException($"Idempotent run '{runId}' is missing EvidenceBundleRef on the first task.");
 
-        EvidenceBundle bundle = await _evidenceBundleRepository.GetByIdAsync(bundleRef, cancellationToken)
+        if (!Guid.TryParse(runId, out Guid runGuid) || runGuid == Guid.Empty)
+            throw new InvalidOperationException("Idempotent replay requires a valid run identifier.");
+        EvidenceBundle bundle = await _evidenceBundleRepository.GetForRunAsync(rehydrateScope, runGuid, bundleRef, cancellationToken)
             ?? throw new InvalidOperationException($"Evidence bundle '{bundleRef}' for idempotent run was not found.");
 
         if (_logger.IsEnabled(LogLevel.Information))

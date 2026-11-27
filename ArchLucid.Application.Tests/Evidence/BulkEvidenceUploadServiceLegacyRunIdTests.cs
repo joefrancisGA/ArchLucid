@@ -60,14 +60,13 @@ public sealed class BulkEvidenceUploadServiceLegacyRunIdTests
 
         const string bundleId = "bundle-bulk-legacy";
         InMemoryEvidenceBundleRepository evidenceBundleRepository = new();
-        await evidenceBundleRepository.CreateAsync(
+        await evidenceBundleRepository.CreateForRunAsync(
             new EvidenceBundle
             {
                 EvidenceBundleId = bundleId,
                 RequestDescription = "desc",
                 Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
-            },
-            CancellationToken.None);
+            }, scope, runGuid);
 
         InMemoryAgentTaskRepository taskRepository = new();
         await taskRepository.CreateManyAsync(

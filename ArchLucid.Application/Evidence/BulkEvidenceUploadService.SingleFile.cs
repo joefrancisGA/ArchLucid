@@ -83,7 +83,7 @@ public sealed partial class BulkEvidenceUploadService
         if (string.IsNullOrWhiteSpace(bundleRef))
             return;
 
-        EvidenceBundle? bundle = await evidenceBundleRepository.GetByIdAsync(bundleRef, cancellationToken).ConfigureAwait(false);
+        EvidenceBundle? bundle = await evidenceBundleRepository.GetForRunAsync(scope, runId, bundleRef, cancellationToken).ConfigureAwait(false);
 
         if (bundle is null)
             return;

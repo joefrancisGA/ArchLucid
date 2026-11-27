@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Runs;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -30,9 +31,9 @@ public sealed class ExecuteEvidenceReadinessGate(
             throw new InvalidOperationException($"Run '{runId}' is not a valid identifier.");
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        RunRecord? run = await runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+        RunRecord? run = await runRepository.GetByIdIncludingArchivedAsync(scope, runGuid, cancellationToken);
 
-        if (run is null)
+        if (run is null || !CommittedRunEvidenceBinding.MatchesActiveRun(scope, runGuid, run))
             throw new global::ArchLucid.Application.RunNotFoundException(runId);
 
         if (string.IsNullOrWhiteSpace(run.ArchitectureRequestId))
@@ -55,7 +56,7 @@ public sealed class ExecuteEvidenceReadinessGate(
         string? bundleRef = tasks.FirstOrDefault()?.EvidenceBundleRef;
 
         if (!string.IsNullOrWhiteSpace(bundleRef))
-            bundle = await evidenceBundleRepository.GetByIdAsync(bundleRef, cancellationToken);
+            bundle = await evidenceBundleRepository.GetForRunAsync(scope, runGuid, bundleRef, cancellationToken);
 
         if (ExecuteEvidenceReadinessEvaluator.IsReadyForExecute(request, bundle))
             return;

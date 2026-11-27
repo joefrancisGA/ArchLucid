@@ -36,6 +36,22 @@ public sealed class SecureNowSnapshotAuthorizationOrderAnalyzerTests
             .GetAnalyzerDiagnosticsAsync();
     }
 
+    [Theory]
+    [InlineData("GetByIdAsync", true)]
+    [InlineData("GetForRunAsync", false)]
+    public async Task Application_bundle_reads_require_scoped_repository_method(string method, bool expected)
+    {
+        string source = "public interface IEvidenceBundleRepository { void GetByIdAsync(); void GetForRunAsync(); } " +
+            "public class Consumer { public void Read(IEvidenceBundleRepository repo) { repo." + method + "(); } }";
+        var compilation = CSharpCompilation.Create("ArchLucid.Application",
+            new[] { CSharpSyntaxTree.ParseText(source) },
+            new[] { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) },
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        var result = await compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(
+            new SecureNowSnapshotAuthorizationOrderAnalyzer())).GetAnalyzerDiagnosticsAsync();
+        Assert.Equal(expected, result.Any(x => x.Id == "FND017002"));
+    }
+
     [Fact]
     public async Task Missing_gate_before_anchor_read_is_reported()
     {

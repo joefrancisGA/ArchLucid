@@ -158,7 +158,7 @@ public sealed class AzureExtractorPreparedZipPersistStage(
             ct);
         string? bundleRef = tasks.Select(t => t.EvidenceBundleRef?.Trim()).FirstOrDefault(r => !string.IsNullOrWhiteSpace(r));
         if (string.IsNullOrWhiteSpace(bundleRef)) return;
-        EvidenceBundle? bundle = await _evidenceBundleRepository.GetByIdAsync(bundleRef, ct);
+        EvidenceBundle? bundle = await _evidenceBundleRepository.GetForRunAsync(attachScope, runGuid, bundleRef, ct);
         if (bundle is null) return;
         AzureExtractorEvidenceBundleMerger.Merge(bundle, AzureExtractorPackageProvenance.FromRecord(record));
         await _evidenceBundleRepository.UpdateAsync(bundle, ct);

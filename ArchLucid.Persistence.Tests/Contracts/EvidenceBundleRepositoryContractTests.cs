@@ -64,6 +64,23 @@ public abstract class EvidenceBundleRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task Existing_bundle_cannot_be_reassigned_by_duplicate_create()
+    {
+        SkipIfSqlServerUnavailable();
+        IEvidenceBundleRepository repo = CreateRepository();
+        ScopeContext owner = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        ScopeContext foreign = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        Guid run = Guid.NewGuid(), foreignRun = Guid.NewGuid();
+        EvidenceBundle bundle = new() { EvidenceBundleId = "immutable-" + Guid.NewGuid().ToString("N"), RequestDescription = "original" };
+        await repo.CreateForRunAsync(bundle, owner, run);
+        EvidenceBundle replacement = new() { EvidenceBundleId = bundle.EvidenceBundleId, RequestDescription = "replacement" };
+        Func<Task> reassign = () => repo.CreateForRunAsync(replacement, foreign, foreignRun);
+        await reassign.Should().ThrowAsync<Exception>();
+        (await repo.GetForRunAsync(foreign, foreignRun, bundle.EvidenceBundleId)).Should().BeNull();
+        (await repo.GetForRunAsync(owner, run, bundle.EvidenceBundleId))!.RequestDescription.Should().Be("original");
+    }
+
+    [SkippableFact]
     public async Task Create_then_GetById_round_trips()
     {
         SkipIfSqlServerUnavailable();

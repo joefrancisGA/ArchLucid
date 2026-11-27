@@ -87,7 +87,7 @@ public sealed class ArchitectureRunCreateRunIdempotencyTests
 
         Mock<IEvidenceBundleRepository> evidenceBundleRepository = new();
         evidenceBundleRepository
-            .Setup(x => x.GetByIdAsync("eb-contract", It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetForRunAsync(AuthorityTestScope, Guid.Parse(runId), "eb-contract", It.IsAny<CancellationToken>()))
             .ReturnsAsync(bundle);
 
         Mock<IActorContext> actorContext = new();

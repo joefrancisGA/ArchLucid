@@ -170,7 +170,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
 
         Mock<IEvidenceBundleRepository> evidenceBundleRepository = new();
         evidenceBundleRepository
-            .Setup(x => x.GetByIdAsync("eb-conc", It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetForRunAsync(TestScope, runGuid, "eb-conc", It.IsAny<CancellationToken>()))
             .ReturnsAsync(coordinationOutcome.EvidenceBundle);
 
         Mock<IActorContext> actor = new();

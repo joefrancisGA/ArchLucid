@@ -139,11 +139,8 @@ public sealed class ArchitectureRunCreatePersistenceHelper(
         var connection = uow.SupportsExternalTransaction ? uow.Connection : null;
         var transaction = uow.SupportsExternalTransaction ? uow.Transaction : null;
 
-        if (coordination.Run.Status != ArchitectureRunStatus.Created)
-            return _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken, connection, transaction);
-
         if (!TryParseCoordinationRunGuid(coordination.Run.RunId, out Guid runId) || runId == Guid.Empty)
-            throw new InvalidOperationException("Deferred create cannot persist evidence without a valid run ID.");
+            throw new InvalidOperationException("Run create cannot persist evidence without a valid run ID.");
 
         return _evidenceBundleRepository.CreateForRunAsync(coordination.EvidenceBundle,
             _scopeContextProvider.GetCurrentScope(), runId, cancellationToken, connection, transaction);
