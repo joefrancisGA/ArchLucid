@@ -23,6 +23,7 @@ internal static class InferredClarificationAnswerQualitySimulator
         return ActorsTableHeaderPattern.IsMatch(trimmed)
                || DiagramCaptionPattern.IsMatch(trimmed)
                || trimmed.EndsWith('—')
-               || trimmed.EndsWith('-');
+               || trimmed.EndsWith('-')
+               || trimmed.EndsWith('→');
     }
 }
