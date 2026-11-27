@@ -1929,7 +1929,7 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
 - **hunts:** 192
-- **bugs-found:** 1797
+- **bugs-found:** 179
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-27
 - **last-bug:** 2026-11-27
