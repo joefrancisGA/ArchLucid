@@ -67,6 +67,8 @@ jobs:
       - name: Create catalog + start API (Simulator)
         env:
           ARCHLUCID_K6_SKIP_WRITE_SMOKE: "true"
+          # Cold greenfield DbUp + schema bootstrap can exceed 30s before Kestrel listens; default fail-fast (5) flakes #5239.
+          ARCHLUCID_API_READY_UNREACHABLE_FAIL_AFTER: "60"
         run: bash scripts/ci/start_api_for_k6.sh ArchLucidK6PerTenantBurst "${RUNNER_TEMP}/k6-burst-api.log" "${RUNNER_TEMP}/k6-burst-api.pid"
 
       - name: Seed k6 per-tenant burst tenants
