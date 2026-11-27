@@ -1,92 +1,125 @@
-"use client";
-
 import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { SecureNowAcceleratorScenarioRelatedRail } from "@/components/product-line/SecureNowAcceleratorScenarioRelatedRail";
-import { SecureNowAdminSecondCapturePathDeltaStrip } from "@/components/product-line/SecureNowAdminSecondCapturePathDeltaStrip";
-import { SecureNowAdminSecondCapturePathDeltaStrip } from "@/components/product-line/SecureNowAdminSecondCapturePathDeltaStrip";
-import { SecureNowAcceleratorScenarioRelatedRail } from "@/components/product-line/SecureNowAcceleratorScenarioRelatedRail";
-import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
-import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
+import { SecureNowBetaSkuContentsSection } from "@/components/product-line/SecureNowBetaSkuContentsSection";
+import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
+import { SecureNowPilotSpineAcceleratorIndex } from "@/components/product-line/SecureNowPilotSpineAcceleratorIndex";
+import { SecureNowFirstHourCollectionSetupSection } from "@/components/product-line/SecureNowFirstHourCollectionSetupSection";
+import { SecureNowFirstHourMarketingSkuBand } from "@/components/product-line/SecureNowFirstHourMarketingSkuBand";
+import { SECURENOW_PILOT_SPINE_PATH } from "@/lib/product-line/securenow-pilot-spine-copy";
 import {
-  SECURENOW_SAMPLE_SECOND_FIXTURE_SECTION_ID,
-  SECURENOW_SAMPLE_THIRD_FIXTURE_SECTION_ID,
-} from "@/lib/marketing/securenow-sample-copy";
-import {
-  SECURENOW_SCENARIO_WALKS,
-  SECURENOW_SCENARIO_WALKS_GUARDRAIL,
-  SECURENOW_SCENARIO_WALKS_HEADING,
-  SECURENOW_SCENARIO_WALKS_LEAD,
-} from "@/lib/product-line/securenow-scenario-walks-copy";
+  SECURENOW_FIRST_HOUR_GUARDRAIL,
+  SECURENOW_FIRST_HOUR_HEADING,
+  SECURENOW_FIRST_HOUR_LEAD,
+  SECURENOW_FIRST_HOUR_STEPS,
+  SECURENOW_FIRST_HOUR_TERMS,
+  SECURENOW_FIRST_USEFUL_ANSWER_BODY,
+  SECURENOW_FIRST_USEFUL_ANSWER_DIAGRAMS_PATH,
+  SECURENOW_FIRST_USEFUL_ANSWER_HEADING,
+} from "@/lib/product-line/securenow-first-hour-copy";
 import { cn } from "@/lib/utils";
 
-export function SecureNowScenarioWalksPageView(): React.JSX.Element {
+export function SecureNowFirstHourPageView(): React.JSX.Element {
   return (
-    <OperatorPageContainer variant="full" data-testid="securenow-scenario-walks-page">
+    <OperatorPageContainer variant="full" data-testid="securenow-first-hour-page">
       <OperatorPageHeader
-        title={SECURENOW_SCENARIO_WALKS_HEADING}
-        subtitle={SECURENOW_SCENARIO_WALKS_LEAD}
-        claimDiscipline={SECURENOW_SCENARIO_WALKS_GUARDRAIL}
-        claimDisciplineTestId="securenow-scenario-walks-claim-discipline"
-        titleTestId="securenow-scenario-walks-heading"
-        subtitleTestId="securenow-scenario-walks-lead"
+        title={SECURENOW_FIRST_HOUR_HEADING}
+        subtitle={SECURENOW_FIRST_HOUR_LEAD}
+        claimDiscipline={SECURENOW_FIRST_HOUR_GUARDRAIL}
+        claimDisciplineTestId="securenow-first-hour-claim-discipline"
+        titleTestId="securenow-first-hour-heading"
+        subtitleTestId="securenow-first-hour-lead"
       />
 
-      <main id="main-content" tabIndex={-1} className="mt-6 max-w-4xl space-y-6">
+      <main id="main-content" tabIndex={-1} className="mt-6 max-w-3xl space-y-6">
         <SecureNowAdminPartialCaptureStrip
-          testId="securenow-scenario-walks-partial-capture"
-          cloudConnectionsTestId="securenow-scenario-walks-partial-capture-cloud-connections"
-          extractUploadTestId="securenow-scenario-walks-partial-capture-extract-upload"
+          testId="securenow-first-hour-partial-capture"
+          cloudConnectionsTestId="securenow-first-hour-partial-capture-cloud-connections"
+          extractUploadTestId="securenow-first-hour-partial-capture-extract-upload"
         />
+        <SecureNowFirstHourMarketingSkuBand />
+        <SecureNowFirstHourCollectionSetupSection />
 
-        <SecureNowAdminSecondCapturePathDeltaStrip testIdPrefix="securenow-scenario-walks" />
-
-        <section aria-labelledby="securenow-scenario-walks-list-heading" className="space-y-2">
-          <h2 id="securenow-scenario-walks-list-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-            Seven scenarios
+        <section aria-labelledby="securenow-first-hour-steps-heading" className="space-y-2">
+          <h2 id="securenow-first-hour-steps-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            Four steps
           </h2>
-          <ul className="space-y-4">
-            {SECURENOW_SCENARIO_WALKS.map((scenario) => (
+          <ol className="list-decimal space-y-3 pl-5">
+            {SECURENOW_FIRST_HOUR_STEPS.map((step) => (
               <li
-                key={scenario.id}
-                id={scenario.id}
-                className="rounded-md border border-neutral-200 p-4 dark:border-neutral-800"
+                key={step.title}
+                id={
+                  step.title === "3 — Advisory cut point"
+                    ? "path-inspect"
+                    : step.title === "4 — Stop"
+                      ? "stop"
+                      : undefined
+                }
+                className={OPERATOR_TYPOGRAPHY.body}
               >
-                <p className={OPERATOR_TYPOGRAPHY.body}>
-                  <span className="font-medium">{scenario.id}</span>
-                </p>
-                <p className={OPERATOR_TYPOGRAPHY.body}>{scenario.buyerJob}</p>
-                <p className={OPERATOR_TYPOGRAPHY.helper}>
-                  Honest label: {scenario.honestLabel}
-                </p>
-                {scenario.operatorHandoffHref !== null && scenario.operatorHandoffLabel !== null ? (
-                  <p className={OPERATOR_TYPOGRAPHY.body}>
-                    <Link
-                      className={OPERATOR_LINK.inline}
-                      href={scenario.operatorHandoffHref}
-                      data-testid={`securenow-scenario-walk-link-${scenario.id}`}
-                    >
-                      {scenario.operatorHandoffLabel}
+                <span className="font-medium">{step.title}</span>
+                <span> — {step.body}</span>
+                {step.href ? (
+                  <>
+                    {" "}
+                    <Link className={OPERATOR_LINK.inline} href={step.href}>
+                      Open in product
                     </Link>
-                  </p>
+                  </>
                 ) : null}
-                <SecureNowAcceleratorScenarioRelatedRail scenarioId={scenario.id} />
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section
+          id="first-useful-answer"
+          data-testid="securenow-first-useful-answer"
+          aria-labelledby="securenow-first-useful-answer-heading"
+          className="space-y-2"
+        >
+          <h2 id="securenow-first-useful-answer-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            {SECURENOW_FIRST_USEFUL_ANSWER_HEADING}
+          </h2>
+          <p className={OPERATOR_TYPOGRAPHY.body}>{SECURENOW_FIRST_USEFUL_ANSWER_BODY}</p>
+          <p className={OPERATOR_TYPOGRAPHY.body}>
+            <Link className={OPERATOR_LINK.inline} href={SECURENOW_FIRST_USEFUL_ANSWER_DIAGRAMS_PATH}>
+              Open question queue
+            </Link>
+          </p>
+        </section>
+
+        <section aria-labelledby="securenow-first-hour-terms-heading" className="space-y-2">
+          <h2 id="securenow-first-hour-terms-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            Terms in one place
+          </h2>
+          <ul className="list-disc space-y-2 pl-5">
+            {SECURENOW_FIRST_HOUR_TERMS.map((term) => (
+              <li key={term} className={OPERATOR_TYPOGRAPHY.body}>
+                {term}
               </li>
             ))}
           </ul>
         </section>
 
+        <SecureNowBetaSkuContentsSection />
         <SecureNowFixtureWorkspaceNotEntitlementLine />
 
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-scenario-walks-sources">
-          <span className="font-medium text-al-text-primary">Sources:</span> Facilitator scenario cards with honest
-          labels — synthetic rehearsal until tenant capture; not verified customer evidence.
+        <SecureNowPilotSpineAcceleratorIndex />
+
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-first-hour-sources">
+          <span className="font-medium text-al-text-primary">Sources:</span> Internal first-hour checklist and collection
+          recovery links — Reader capture still required; first useful answer is not a timed SLA.
         </p>
 
         <p className={OPERATOR_TYPOGRAPHY.body}>
+          <Link className={OPERATOR_LINK.inline} href={SECURENOW_PILOT_SPINE_PATH}>
+            Six-beat pilot walkthrough
+          </Link>
+          {" · "}
           <Link className={OPERATOR_LINK.inline} href="/administration">
             Administration hub
           </Link>
