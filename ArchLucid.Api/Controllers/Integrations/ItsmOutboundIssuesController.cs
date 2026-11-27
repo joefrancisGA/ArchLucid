@@ -109,11 +109,9 @@ public sealed class ItsmOutboundIssuesController(
                 provider,
                 correlationId);
 
-            IntegrationsItsmOutboundOptions options = _outboundOptions.CurrentValue;
-            int maxRetries = Math.Clamp(options.AsyncCreateMaxRetries, 0, 10);
-
+            // The provider may have accepted the write even if the job fails locally.
             string jobId = await _jobs
-                .EnqueueAsync(new ItsmOutboundCreateWorkUnit(payload), maxRetries, ct)
+                .EnqueueAsync(new ItsmOutboundCreateWorkUnit(payload), maxRetries: 0, cancellationToken: ct)
                 .ConfigureAwait(false);
 
             await _auditService.LogAsync(

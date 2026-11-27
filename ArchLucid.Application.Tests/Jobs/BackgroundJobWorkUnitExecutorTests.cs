@@ -237,9 +237,18 @@ public sealed class BackgroundJobWorkUnitExecutorTests
             Times.Once);
     }
 
-    [Fact]
-    public async Task ExecuteAsync_ItsmOutboundCreateVendor503_ThrowsForRetry()
+    [Theory]
+    [InlineData(ItsmOutboundIssueProvider.Jira, ItsmOutboundCreateTerminalKind.VendorError)]
+    [InlineData(ItsmOutboundIssueProvider.ServiceNow, ItsmOutboundCreateTerminalKind.VendorError)]
+    [InlineData(ItsmOutboundIssueProvider.AzureBoards, ItsmOutboundCreateTerminalKind.VendorError)]
+    [InlineData(ItsmOutboundIssueProvider.AzureBoards, ItsmOutboundCreateTerminalKind.CorrelationPersistenceFailed)]
+    public async Task ExecuteAsync_ItsmOutboundCreateFailure_ReturnsTerminalResultWithoutRequestingRetry(
+        ItsmOutboundIssueProvider provider,
+        ItsmOutboundCreateTerminalKind kind)
     {
+        int? statusCode = kind == ItsmOutboundCreateTerminalKind.VendorError ? 503 : null;
+        string? externalKey = kind == ItsmOutboundCreateTerminalKind.CorrelationPersistenceFailed ? "42" : null;
+
         Mock<IRunDetailQueryService> runDetail = new();
         Mock<IArchitectureAnalysisService> analysis = new();
         Mock<IArchitectureAnalysisDocxExportService> docx = new();
@@ -250,15 +259,16 @@ public sealed class BackgroundJobWorkUnitExecutorTests
 
         itsmOutbound
             .Setup(s => s.TryCreateForFindingAsync(
-                It.IsAny<ItsmOutboundIssueProvider>(),
+                provider,
                 It.IsAny<ArchLucid.Core.Scoping.ScopeContext>(),
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new ItsmOutboundIssueCreationResult
                 {
-                    Kind = ItsmOutboundCreateTerminalKind.VendorError,
-                    VendorStatusCode = 503,
+                    Kind = kind,
+                    VendorStatusCode = statusCode,
+                    ExternalKey = externalKey,
                     UserMessage = "upstream unavailable",
                     AuditEvents =
                     [
@@ -283,12 +293,16 @@ public sealed class BackgroundJobWorkUnitExecutorTests
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 "finding-x",
-                ItsmOutboundIssueProvider.Jira,
+                provider,
                 null));
 
-        Func<Task> act = async () => _ = await sut.ExecuteAsync(unit, CancellationToken.None);
-
-        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*upstream unavailable*");
+        BackgroundJobFile file = await sut.ExecuteAsync(unit, CancellationToken.None);
+        JsonSerializerOptions options = new() { PropertyNameCaseInsensitive = true };
+        ItsmOutboundCreateJobResult? result = JsonSerializer.Deserialize<ItsmOutboundCreateJobResult>(file.Bytes, options);
+        result.Should().NotBeNull();
+        result!.Kind.Should().Be(kind);
+        result.VendorStatusCode.Should().Be(statusCode);
+        result.ExternalKey.Should().Be(externalKey);
     }
 
     [Fact]

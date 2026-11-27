@@ -105,12 +105,8 @@ public sealed class BackgroundJobWorkUnitExecutor(
         foreach (AuditEvent auditEvent in result.AuditEvents)
             await _auditService.LogAsync(auditEvent, cancellationToken).ConfigureAwait(false);
 
-        ItsmOutboundCreateJobResult jobResult = ItsmOutboundCreateJobProcessor.ToJobResult(result, payload.Provider);
-
-        if (ItsmOutboundCreateJobProcessor.ShouldRetryWorker(result))
-            throw ItsmOutboundCreateJobProcessor.BuildRetryException(jobResult);
-
-        return ItsmOutboundCreateJobProcessor.ToResultFile(jobResult);
+        // Keep the terminal outcome and any known external key without asking the queue to replay the write.
+        return ItsmOutboundCreateJobProcessor.ToResultFile(ItsmOutboundCreateJobProcessor.ToJobResult(result, payload.Provider));
     }
 
     private async Task<BackgroundJobFile> ExecuteFindingVerificationAsync(
@@ -150,6 +146,7 @@ public sealed class BackgroundJobWorkUnitExecutor(
         ArgumentNullException.ThrowIfNull(unit.Payload);
         ArchitectureAnalysisRequest request = unit.Payload.ToAnalysisRequest();
         ArchitectureRunDetail? detail = await _runDetailQuery.GetRunDetailAsync(unit.Payload.RunId, cancellationToken);
+
         if (detail is null)
             throw new InvalidOperationException($"Run '{unit.Payload.RunId}' was not found.");
         request.PreloadedRunDetail = detail;
@@ -178,6 +175,7 @@ public sealed class BackgroundJobWorkUnitExecutor(
             CompareRunId = p.CompareRunId
         };
         ArchitectureRunDetail? detail = await _runDetailQuery.GetRunDetailAsync(p.RunId, cancellationToken);
+
         if (detail is null)
             throw new InvalidOperationException($"Run '{p.RunId}' was not found.");
         analysisRequest.PreloadedRunDetail = detail;

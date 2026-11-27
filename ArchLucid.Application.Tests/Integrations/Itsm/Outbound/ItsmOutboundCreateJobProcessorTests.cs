@@ -1,49 +1,35 @@
-using ArchLucid.Application.Integrations.Itsm.Outbound;
+using System.Text.Json;
 
-using FluentAssertions;
+using ArchLucid.Application.Integrations.Itsm.Outbound;
+using ArchLucid.Application.Jobs;
 
 namespace ArchLucid.Application.Tests.Integrations.Itsm.Outbound;
 
 [Trait("Category", "Unit")]
 public sealed class ItsmOutboundCreateJobProcessorTests
 {
-    [Fact]
-    public void ShouldRetryWorker_correlation_persistence_failed_returns_true()
-    {
-        ItsmOutboundIssueCreationResult result = new() { Kind = ItsmOutboundCreateTerminalKind.CorrelationPersistenceFailed };
-
-        ItsmOutboundCreateJobProcessor.ShouldRetryWorker(result).Should().BeTrue();
-    }
-
-    [Fact]
-    public void ShouldRetryWorker_vendor_503_returns_true()
+    [Theory]
+    [InlineData(ItsmOutboundIssueProvider.Jira, "Jira")]
+    [InlineData(ItsmOutboundIssueProvider.ServiceNow, "ServiceNow")]
+    [InlineData(ItsmOutboundIssueProvider.AzureBoards, "Azure Boards")]
+    public void Correlation_save_failure_preserves_the_provider_and_existing_ticket_key(
+        ItsmOutboundIssueProvider provider,
+        string providerLabel)
     {
         ItsmOutboundIssueCreationResult result = new()
         {
-            Kind = ItsmOutboundCreateTerminalKind.VendorError,
-            VendorStatusCode = 503
+            Kind = ItsmOutboundCreateTerminalKind.CorrelationPersistenceFailed,
+            ExternalKey = "TEST-42",
         };
 
-        ItsmOutboundCreateJobProcessor.ShouldRetryWorker(result).Should().BeTrue();
-    }
+        ItsmOutboundCreateJobResult jobResult = ItsmOutboundCreateJobProcessor.ToJobResult(result, provider);
+        BackgroundJobFile file = ItsmOutboundCreateJobProcessor.ToResultFile(jobResult);
+        JsonSerializerOptions options = new() { PropertyNameCaseInsensitive = true };
+        ItsmOutboundCreateJobResult? stored = JsonSerializer.Deserialize<ItsmOutboundCreateJobResult>(file.Bytes, options);
 
-    [Fact]
-    public void ShouldRetryWorker_vendor_400_returns_false()
-    {
-        ItsmOutboundIssueCreationResult result = new()
-        {
-            Kind = ItsmOutboundCreateTerminalKind.VendorError,
-            VendorStatusCode = 400
-        };
-
-        ItsmOutboundCreateJobProcessor.ShouldRetryWorker(result).Should().BeFalse();
-    }
-
-    [Fact]
-    public void ShouldRetryWorker_skipped_returns_false()
-    {
-        ItsmOutboundIssueCreationResult result = new() { Kind = ItsmOutboundCreateTerminalKind.Skipped };
-
-        ItsmOutboundCreateJobProcessor.ShouldRetryWorker(result).Should().BeFalse();
+        Assert.NotNull(stored);
+        Assert.Equal(ItsmOutboundCreateTerminalKind.CorrelationPersistenceFailed, stored.Kind);
+        Assert.Equal("TEST-42", stored.ExternalKey);
+        Assert.Equal(providerLabel, stored.Provider);
     }
 }

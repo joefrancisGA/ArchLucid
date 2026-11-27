@@ -24,6 +24,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         ArgumentNullException.ThrowIfNull(instanceRoot);
         ArgumentNullException.ThrowIfNull(authorization);
         ArgumentNullException.ThrowIfNull(systemName);
+
         if (string.IsNullOrWhiteSpace(systemName))
             return new ServiceNowCmdbCiResolveResult(false, null, null, null);
 
@@ -101,8 +102,8 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
                 _logger.LogWarning(ex, "ServiceNow incident create failed: transport error.");
 
             string detail = ex is OperationCanceledException
-                ? "ServiceNow request timed out."
-                : "ServiceNow request could not be completed (network error).";
+                ? "ServiceNow request timed out. Check for an existing ServiceNow incident before retrying."
+                : "ServiceNow request could not be completed (network error). Check for an existing ServiceNow incident before retrying.";
 
             return new ServiceNowIncidentHttpResult(false, null, null, HttpStatusCode.ServiceUnavailable, detail);
         }
@@ -110,6 +111,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         string raw = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
         // ReSharper disable once InvertIf
+
         if (response.IsSuccessStatusCode)
         {
             try
@@ -187,8 +189,10 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         try
         {
             using JsonDocument doc = JsonDocument.Parse(raw);
+
             if (!doc.RootElement.TryGetProperty("result", out JsonElement arr) || arr.ValueKind != JsonValueKind.Array)
                 return null;
+
             foreach (JsonElement row in arr.EnumerateArray())
             {
                 if (row.TryGetProperty("sys_id", out JsonElement sid))
@@ -299,7 +303,3 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         }
     }
 }
-
-public sealed record ServiceNowCmdbCiResolveResult(bool Fatal, string? SysId, HttpStatusCode? StatusCode, string? ErrorDetail);
-
-public sealed record ServiceNowIncidentHttpResult(bool Ok, string? SysId, string? Number, HttpStatusCode StatusCode, string? ErrorDetail);

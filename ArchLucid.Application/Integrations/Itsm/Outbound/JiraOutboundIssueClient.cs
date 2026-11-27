@@ -56,8 +56,8 @@ public sealed class JiraOutboundIssueClient(HttpClient http, ILogger<JiraOutboun
                 _logger.LogWarning(ex, "Jira outbound create failed: transport error.");
 
             string detail = ex is OperationCanceledException
-                ? "Jira request timed out."
-                : "Jira request could not be completed (network error).";
+                ? "Jira request timed out. Check for an existing Jira issue before retrying."
+                : "Jira request could not be completed (network error). Check for an existing Jira issue before retrying.";
 
             return new JiraOutboundIssueHttpResult(false, null, null, HttpStatusCode.ServiceUnavailable, detail);
         }
@@ -65,11 +65,13 @@ public sealed class JiraOutboundIssueClient(HttpClient http, ILogger<JiraOutboun
         string raw = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
         // ReSharper disable once InvertIf
+
         if (response.IsSuccessStatusCode)
         {
             try
             {
                 JiraCreateIssueResponse? parsed = JsonSerializer.Deserialize<JiraCreateIssueResponse>(raw, ContractJson.CamelCaseIgnoreNullCompact);
+
                 if (parsed is null || string.IsNullOrWhiteSpace(parsed.Key))
                     return new JiraOutboundIssueHttpResult(false, null, null, response.StatusCode, "Jira returned success but no issue key.");
                 return new JiraOutboundIssueHttpResult(true, parsed.Key.Trim(), parsed.Id, response.StatusCode, null);
@@ -93,5 +95,3 @@ public sealed class JiraOutboundIssueClient(HttpClient http, ILogger<JiraOutboun
 
     private sealed record JiraCreateIssueResponse(string? Id, string? Key);
 }
-
-public sealed record JiraOutboundIssueHttpResult(bool Ok, string? IssueKey, string? RemoteId, HttpStatusCode StatusCode, string? ErrorDetail);

@@ -1,5 +1,4 @@
 using ArchLucid.Application.Integrations;
-using ArchLucid.Application.Integrations.AzureBoards.Outbound;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Integrations.Itsm.OAuth;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
@@ -17,21 +16,7 @@ public static partial class ServiceCollectionExtensions
 {
     private static void RegisterIntegrationsOutboundHttpClients(IServiceCollection services)
     {
-        services.AddHttpClient<JiraOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
-            .ConfigureArchLucidOutboundSocketsHandler(
-                OutboundHttpSocketsHandlerProfile.ExternalIntegration,
-                rejectPrivateNetworkConnectEndpoints: true)
-            .AddOutboundExternalHttpResilience();
-        services.AddHttpClient<ServiceNowOutboundIncidentClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
-            .ConfigureArchLucidOutboundSocketsHandler(
-                OutboundHttpSocketsHandlerProfile.ExternalIntegration,
-                rejectPrivateNetworkConnectEndpoints: true)
-            .AddOutboundExternalHttpResilience();
-        services.AddHttpClient<AzureBoardsOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
-            .ConfigureArchLucidOutboundSocketsHandler(
-                OutboundHttpSocketsHandlerProfile.ExternalIntegration,
-                rejectPrivateNetworkConnectEndpoints: true)
-            .AddOutboundExternalHttpResilience();
+        RegisterItsmWriteHttpClients(services);
         services
             .RegisterItsmOutboundHealthHttpClients();
         services
