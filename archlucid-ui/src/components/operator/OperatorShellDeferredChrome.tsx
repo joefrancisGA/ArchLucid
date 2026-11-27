@@ -1,6 +1,6 @@
 "use client";
 
-import type { RefObject } from "react";
+import { useLayoutEffect, type RefObject } from "react";
 
 import {
   AppToasterDeferred,
@@ -23,6 +23,11 @@ export function OperatorShellDeferredChrome({ shellRootRef }: OperatorShellDefer
   const loadingTitle = operatorShellAccessGateLoadingTitle(pathname);
 
   useOperatorShellAccessRedirects();
+
+  // Belt-and-suspenders: parent AppShellClient sets this too; keep marker on the deferred root (TB-730 / #5842).
+  useLayoutEffect(() => {
+    shellRootRef.current?.setAttribute("data-app-ready", "true");
+  }, [shellRootRef, pathname]);
 
   return (
     <>
