@@ -1,0 +1,18 @@
+---
+description: Require evidence-based root-cause diagnosis, durable architectural correction and explicit tracking of unresolved systemic defects.
+alwaysApply: true
+---
+
+# Root-cause and systemic architectural remediation
+
+Follow the mandatory [common AI-assisted development governance protocol](../../docs/engineering/AI_ASSISTED_DEVELOPMENT_GOVERNANCE.md#22-mandatory-root-cause-and-systemic-architectural-remediation) across Cursor, ChatGPT, Codex and delegated coding agents.
+
+- Identify the intended behavior, symptom, evidence and causal mechanism before implementing a defect correction. Distinguish confirmed, candidate and unresolved causes.
+- Search for recurring failure mechanisms, sibling implementations, shared contracts, pending work and affected consumers; identify applicable invariants and existing enforcement. Report the searched scope and remaining unknowns.
+- Prefer the smallest sound durable correction at the highest justified causal layer. Reuse canonical implementations and prevention mechanisms; avoid repetitive symptom patches and speculative refactoring.
+- Obtain appropriate authorization before material scope expansion or architectural/contract changes. Coordinate affected agents and shared consumers. Propose missing invariants through existing ADR and backlog governance.
+- If urgent stabilization is justified, preserve mandatory invariants and required gates; explicitly track residual systemic risk and follow-up in the existing backlog. A mitigation is not closure of the systemic cause.
+- Verify the causal correction with independently justified regression and negative controls, including affected siblings and consumers as appropriate. Preserve test integrity and scoped verification budgets.
+- Report the confirmed cause, affected scope, correction, verification evidence and unresolved risks separately from symptom resolution. Never claim class-wide prevention without evidence.
+
+The canonical document defines the full procedure. This rule does not authorize new product/customer remediation actions, uncontrolled cross-component changes, comprehensive master CI or automatic merges. It is mandatory procedural guidance, not an executable enforcement mechanism.

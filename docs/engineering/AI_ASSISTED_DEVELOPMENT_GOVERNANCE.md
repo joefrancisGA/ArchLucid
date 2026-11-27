@@ -45,6 +45,37 @@ ChatGPT conversations using a repository connector must explicitly retrieve the 
 
 This is a mandatory coordination procedure, not an atomic locking service or automatically enforced global agent registry. Existing Git/PR, review, architecture test and CI mechanisms remain authoritative. Separate authorization is required to implement new automation or enforcement.
 
+## 2.2. Mandatory root-cause and systemic architectural remediation
+
+**Correct the cause, not merely the symptom; make the smallest sound durable correction within authorized scope.** This standing rule applies to defect investigation and remediation across ArchLucid and SecureNow, including Cursor, ChatGPT, Codex and delegated agents, in production code, tests, configuration, infrastructure and delivery tooling. It concerns engineering defects in these products, not authority to remediate a customer's environment.
+
+### Diagnose and establish the causal boundary
+
+- Before implementation, identify the intended behavior, observed symptom, relevant requirement or invariant, reproducible evidence where feasible, and the mechanism that permits the defect. Distinguish a confirmed cause, candidate cause and unresolved diagnosis; do not equate correlation, repeated symptoms or model agreement with proof.
+- Investigate whether the defect is isolated or represents a recurring architectural deficiency. Search by failure mechanism, responsibility and contract for sibling implementations, direct/transitive consumers, shared configuration, common abstractions, pending changes and known defects. Inspect applicable enforcement and independently sourced expected behavior. Record searched scope, known affected components and unknowns proportionally; do not claim repository-wide coverage from a narrow search.
+- Identify the highest verified causal layer at which a correction is safe and justified. Locate and reuse the existing canonical implementation, shared boundary or prevention mechanism. Check the current [architecture invariant catalog](../library/ARCHITECTURE_INVARIANTS.md) and applicable accepted ADRs; identify missing or ineffective enforcement. Propose a new or revised invariant only when a durable cross-cutting requirement is justified, through existing governance. Do not invent a new architectural invariant or change an accepted decision without authorization.
+
+### Select and authorize the correction
+
+| Situation | Required disposition |
+| --- | --- |
+| Isolated defect | Correct the proven mechanism locally and preserve intended behavior with focused regression evidence. |
+| Confirmed shared or recurring defect | Prefer a durable correction in the canonical shared implementation or enforcement boundary; check affected consumers and related instances. |
+| Broad architectural deficiency | Establish affected scope, alternatives, dependencies, compatibility, migration/rollback needs, risks, acceptance criteria and staged verification; obtain appropriate authorization before materially expanding implementation. |
+| Urgent stabilization or release blocker | Apply a safe, narrowly scoped containment only if warranted; preserve invariants and required gates, identify residual risk and record separately tracked systemic remediation before declaring the work complete. |
+| Uncertain root cause or insufficient authority | Continue bounded evidence gathering, narrow to an independently justified correction or report the blocker; do not launch speculative redesign or present an unverified hypothesis as established. |
+
+- Compare tactical correction, shared correction and structural prevention by causal evidence, recurrence risk, affected scope, disruption, compatibility and cost. A larger diff is not inherently a better root-cause fix; a smaller diff is not inherently adequate. Do not introduce repetitive local patches when a proven, authorized common correction is feasible.
+- Preserve the shared-component impact analysis and parallel-agent coordination procedures. Obtain explicit authorization for material scope expansion, incompatible contract changes or changes to accepted architecture. Coordinate shared ownership and dependent changes; avoid unrelated cleanup or speculative refactoring.
+- A temporary mitigation must not knowingly violate a mandatory invariant, weaken authorization, suppress tests or bypass required release gates. If safe containment is not possible, escalate the blocker rather than obscure it. A release deadline does not itself authorize an exception.
+
+### Durable prevention, tracking and closure
+
+- Reuse the [automatic regression policy](../assurance/AUTOMATIC_REGRESSION_POLICY.md), existing defect-prevention controls and [test execution model](../library/TEST_EXECUTION_MODEL.md). Verify the causal correction with independently justified regression/negative controls, preferably red before and green after; check affected sibling cases and direct/transitive consumers. Prefer structural prevention or focused analyzer/architecture-test enforcement when it can eliminate the defect class; do not introduce a duplicate guard or claim prevention without evidence.
+- If systemic remediation is deferred, blocked or only partially delivered, locate and update the existing [active technical backlog](../ACTIVE_TECHNICAL_BACKLOG.md) item or propose a deduplicated linked entry using the existing process. Record evidence and affected scope, residual risk, priority, proposed owner, dependencies, acceptance criteria, and a review trigger or target milestone when agreed. Link the tactical PR and systemic follow-up. Do not silently drop unresolved work or create competing entries. If backlog write access or authorization is unavailable, report the concrete proposed entry and blocker.
+- Report local symptom resolution separately from verified systemic cause correction and recurrence prevention. Include causal evidence, applicable invariant IDs, searched/affected scope, correction choice, tests actually run, unresolved risks and actual backlog/PR status. Do not close a systemic defect merely because the initial regression passes or a temporary mitigation was merged.
+- Keep verification risk-adjusted and within authorized resource and release-branch limits. A broad investigation does not authorize comprehensive master CI, automatic merges, production deployment or customer mutation. This is mandatory procedural agent guidance, not a claim of universal executable enforcement.
+
 ## 3. Risk-adjusted verification and cost
 
 Use the existing [test execution model](../library/TEST_EXECUTION_MODEL.md), [build guidance](BUILD.md) and [independent model review practice](../quality/INDEPENDENT_MODEL_CODE_REVIEW.md). The following is a minimum planning guide, not a substitute for applicable required checks:
