@@ -24,6 +24,8 @@ internal sealed class AnalysisExecutionBudget : IDisposable
         _runDeadline = runTimeout > TimeSpan.Zero ? new OutboundOperationDeadline(clock, runTimeout, caller) : null;
     }
 
+    internal SecureNowRecoverySession? RecoverySession { get; set; }
+
     public CancellationToken Token => _runDeadline?.Token ?? _caller;
 
     public bool IsExpired => _runDeadline?.IsExpired is true;
@@ -52,7 +54,26 @@ internal sealed class AnalysisExecutionBudget : IDisposable
             return true;
         }, upstream, observe: observe, stageActivity: stageActivity).ConfigureAwait(false);
 
-    public async Task<T> ExecuteAsync<T>(
+    public Task<T> ExecuteAsync<T>(
+        string stage,
+        Func<CancellationToken, Task<T>> work,
+        CancellationToken upstream,
+        Func<Exception, AnalysisReadRetrySignal?>? retrySafeRead = null,
+        Action<AnalysisStageObservation>? observe = null,
+        Func<T, bool>? succeeded = null,
+        Activity? stageActivity = null)
+    {
+        if (RecoverySession is { } recovery && SecureNowRecoverySession.CanCheckpoint(stage))
+        {
+            return recovery.ExecuteAsync(stage,
+                token => ExecuteStageCoreAsync(stage, work, token, retrySafeRead, observe, succeeded, stageActivity),
+                succeeded, upstream);
+        }
+
+        return ExecuteStageCoreAsync(stage, work, upstream, retrySafeRead, observe, succeeded, stageActivity);
+    }
+
+    private async Task<T> ExecuteStageCoreAsync<T>(
         string stage,
         Func<CancellationToken, Task<T>> work,
         CancellationToken upstream,

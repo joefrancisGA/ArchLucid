@@ -17,7 +17,7 @@ public sealed class SecureNowArchitectDiffConsumer(
         IReadOnlyList<AzureInventoryChangeRecord> changes,
         CancellationToken cancellationToken = default)
     {
-        if (options.Value.FullRecompute)
+        if (SecureNowAnalysisRun.ExecutionBudget?.RecoverySession?.FullRecompute ?? options.Value.FullRecompute)
         {
             return;
         }

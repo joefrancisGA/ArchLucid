@@ -1,3 +1,4 @@
+using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
@@ -62,13 +63,16 @@ public sealed class ToxicCombinationEngine(
             ToxicCombinationEgressDetector.DetectUnrestrictedEgressBySubnet(snapshot);
 
         HashSet<Guid>? affectedPathIds = null;
+
         if (runScope is { IsFullEstate: false })
         {
             IReadOnlyDictionary<string, Guid> resourceIds =
                 analysisSnapshot!.CloudResourceIdsByArmId;
             affectedPathIds = existingPaths.Where(item => SecureNowArchitectNeighborhoodFilter.PathTouchesSeeds(
                 item.Hops, runScope.SeedCloudResourceIds, resourceIds)).Select(item => item.Path.PathId).ToHashSet();
+
             foreach (ToxicCombinationPathSnapshot path in reachabilityPaths.Concat(privilegePaths))
+
                 if (path.TerminalCloudResourceId is Guid id && runScope.SeedCloudResourceIds.Contains(id))
                     affectedPathIds.Add(path.Path.PathId);
         }
@@ -214,7 +218,7 @@ public sealed class ToxicCombinationEngine(
 
         return new PrivilegePathEngineResult
         {
-            Succeeded = true,
+            Succeeded = AnalysisRecoveryFenceContext.Current?.ObservationUtc is null || ingestResult.FailedCount == 0,
             PathsDiscovered = candidates.Count,
             PathsPersisted = pathsPersisted,
             FindingsIngested = ingestResult.IngestedCount,

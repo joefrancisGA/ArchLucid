@@ -1,3 +1,4 @@
+using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 using System.Data;
 using System.Text.Json;
 
@@ -178,6 +179,29 @@ public sealed class AuthorityCommittedPipelineFinalizer(
         run.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
         run.CompletedUtc = completedUtc;
 
+        AuditEvent completionAudit = new()
+        {
+            EventType = AuditEventTypes.RunCompleted,
+            RunId = run.RunId,
+            ManifestId = run.GoldenManifestId,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            DataJson = JsonSerializer.Serialize(
+                new
+                {
+                    run.GoldenManifestId,
+                    run.ArtifactBundleId,
+                    run.DecisionTraceId
+                },
+                AuditJsonSerializationOptions.Instance)
+        };
+
+        bool durablePublication = AnalysisRecoveryFenceContext.Current?.Key.Pipeline == "authority";
+
+        if (durablePublication)
+            await _auditService.LogAsync(completionAudit, uow, ct);
+
         ct.ThrowIfCancellationRequested();
         await uow.CommitAsync(ct);
 
@@ -190,25 +214,8 @@ public sealed class AuthorityCommittedPipelineFinalizer(
         if (!enqueueInTransaction)
             await PublishCompletionAsync(null, null);
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.RunCompleted,
-                RunId = run.RunId,
-                ManifestId = run.GoldenManifestId,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        run.GoldenManifestId,
-                        run.ArtifactBundleId,
-                        run.DecisionTraceId
-                    },
-                    AuditJsonSerializationOptions.Instance)
-            },
-            ct);
+        if (!durablePublication)
+            await _auditService.LogAsync(completionAudit, ct);
 
         if (_logger.IsEnabled(LogLevel.Information))
 

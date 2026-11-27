@@ -1,3 +1,4 @@
+using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
@@ -217,6 +218,7 @@ public sealed partial class SqlSecurityEvidenceCutPointRepository(ISqlConnection
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         using System.Data.IDbTransaction tx = conn.BeginTransaction();
+        await SqlAnalysisRecoveryFence.DemandAsync(conn, tx, scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken);
 
         // Serialize same-snapshot replacements even before any cut-point rows exist.
         const string scopeExistsSql = """

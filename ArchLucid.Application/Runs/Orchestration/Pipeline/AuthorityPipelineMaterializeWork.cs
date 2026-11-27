@@ -15,6 +15,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -36,7 +37,8 @@ public static class AuthorityPipelineMaterializeWork
         AuthorityPipelineWorkPayload payload,
         ScopeContext jobScope,
         ILogger logger,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        IArchLucidUnitOfWork? handoffTransaction = null)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(entry);
@@ -122,7 +124,17 @@ public static class AuthorityPipelineMaterializeWork
                 cancellationToken).ConfigureAwait(false);
 
         if (existingTasks.Count == 0)
-            await taskRepository.CreateManyAsync(starterTasks, cancellationToken).ConfigureAwait(false);
+        {
+            if (handoffTransaction is { SupportsExternalTransaction: true })
+            {
+                await taskRepository.CreateManyAsync(starterTasks, cancellationToken,
+                    handoffTransaction.Connection, handoffTransaction.Transaction).ConfigureAwait(false);
+            }
+            else
+            {
+                await taskRepository.CreateManyAsync(starterTasks, cancellationToken).ConfigureAwait(false);
+            }
+        }
 
         IReadOnlyList<AgentTask> materializedTasksForLog =
             existingTasks.Count > 0 ? existingTasks : starterTasks;

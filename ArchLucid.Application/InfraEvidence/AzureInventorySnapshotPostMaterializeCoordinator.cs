@@ -5,6 +5,7 @@ using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 
 using Microsoft.Extensions.Options;
 
@@ -34,7 +35,8 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
     ICutPointAnalysisEngine cutPointAnalysisEngine,
     ISecurityEvidencePathRoutingSyncService pathRoutingSyncService,
     IOptionsMonitor<AnalysisStageExecutionOptions>? executionOptions = null,
-    TimeProvider? timeProvider = null) : IAzureInventorySnapshotPostMaterializeCoordinator
+    TimeProvider? timeProvider = null,
+    SecureNowAnalysisDurableRecovery? durableRecovery = null) : IAzureInventorySnapshotPostMaterializeCoordinator
 {
     public async Task OnSnapshotMaterializedAsync(
         ScopeContext scope,
@@ -44,8 +46,44 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
     {
         ArgumentNullException.ThrowIfNull(scope);
         AnalysisStageExecutionOptions options = executionOptions?.CurrentValue ?? new AnalysisStageExecutionOptions();
+
+        if (durableRecovery is not null && options.EnableDurableSecureNowRecovery)
+        {
+            SecureNowAnalysisRecoveryJob job = await durableRecovery.AdmitAsync(
+                scope, snapshotId, subscriptionId, neighborhoodOptions.Value.FullRecompute, cancellationToken);
+            await ResumeJobAsync(job, cancellationToken);
+
+            return;
+        }
+
         using AnalysisExecutionBudget budget = new(options, timeProvider ?? TimeProvider.System,
             options.GetSecureNowRunTimeout(), cancellationToken);
+        await ExecuteAsync(scope, snapshotId, subscriptionId, neighborhoodOptions.Value.FullRecompute, budget, cancellationToken);
+    }
+
+    public async Task ResumeJobAsync(SecureNowAnalysisRecoveryJob job, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(job);
+        ScopeContext scope = job.CreateScope();
+
+        if (durableRecovery is null)
+            throw new InvalidOperationException("SecureNow recovery requires SQL storage.");
+
+        await durableRecovery.ExecuteAsync(job, async (budget, token) =>
+        {
+            AzureInventorySnapshotRecord? snapshot = await snapshotRepository.TryGetBySnapshotIdAsync(scope, job.SnapshotId, token);
+
+            if (snapshot is null || !string.Equals(snapshot.SubscriptionId, job.SubscriptionId, StringComparison.Ordinal))
+                throw new AnalysisStageExecutionException("securenow.snapshot_binding", AnalysisStageOutcome.Failed);
+
+            await ExecuteAsync(scope, job.SnapshotId, job.SubscriptionId, job.FullRecompute, budget, token);
+        }, cancellationToken);
+    }
+
+    private async Task ExecuteAsync(
+        ScopeContext scope, Guid snapshotId, string? subscriptionId, bool fullRecomputeRequested,
+        AnalysisExecutionBudget budget, CancellationToken cancellationToken)
+    {
         using IDisposable analysisRun = SecureNowAnalysisRun.Begin(budget);
 
         Guid? priorSnapshotId = null;
@@ -73,7 +111,11 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
             }
         }
 
-        bool fullRecompute = neighborhoodOptions.Value.FullRecompute
+        if (budget.RecoverySession is not null &&
+            diffResult is ({ Succeeded: false } or { ConsumerFanOutSucceeded: false }))
+            throw new AnalysisStageExecutionException("securenow.diff", AnalysisStageOutcome.Failed);
+
+        bool fullRecompute = fullRecomputeRequested
             || priorSnapshotId is null
             || diffResult is { Succeeded: false }
             || diffResult is { ConsumerFanOutSucceeded: false };

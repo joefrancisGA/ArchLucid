@@ -1,3 +1,4 @@
+using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
@@ -511,6 +512,7 @@ public sealed partial class SqlOperationalSecurityFindingRepository(ISqlConnecti
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         using System.Data.IDbTransaction tx = conn.BeginTransaction();
+        await SqlAnalysisRecoveryFence.DemandAsync(conn, tx, finding.TenantId, finding.WorkspaceId, finding.ProjectId, cancellationToken);
 
         try
         {
@@ -573,6 +575,7 @@ public sealed partial class SqlOperationalSecurityFindingRepository(ISqlConnecti
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         using System.Data.IDbTransaction tx = conn.BeginTransaction();
+        await SqlAnalysisRecoveryFence.DemandAsync(conn, tx, scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken);
 
         try
         {

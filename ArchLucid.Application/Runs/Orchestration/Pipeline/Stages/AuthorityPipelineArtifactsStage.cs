@@ -172,7 +172,16 @@ public sealed class AuthorityPipelineArtifactsStage(
         run.ArtifactBundleId = artifactBundle.BundleId;
         run.CurrentManifestVersion = manifestVersion;
         await _stagePersistence.UpdateRunAsync(run, context.UnitOfWork, cancellationToken);
-        await TryUpdateArchitectureLatestSealedManifestAsync(run, context.Manifest!.ManifestId, scope, cancellationToken);
+
+        if (context.UsesDurableRecovery && _architectureIdentityRepository is not null && run.ArchitectureId is Guid architectureId)
+        {
+            await _architectureIdentityRepository.UpdateLatestSealedManifestInTransactionAsync(scope, architectureId,
+                context.Manifest!.ManifestId, context.UnitOfWork.Connection!, context.UnitOfWork.Transaction!, cancellationToken);
+        }
+        else
+        {
+            await TryUpdateArchitectureLatestSealedManifestAsync(run, context.Manifest!.ManifestId, scope, cancellationToken);
+        }
     }
 
     private async Task TryUpdateArchitectureLatestSealedManifestAsync(

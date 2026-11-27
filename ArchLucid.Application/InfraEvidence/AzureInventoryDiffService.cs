@@ -1,3 +1,4 @@
+using ArchLucid.Application.InfraEvidence.AuditEvidence;
 using ArchLucid.Application.Analysis;
 
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
@@ -143,7 +144,21 @@ public sealed class AzureInventoryDiffService(
         {
             try
             {
-                await consumer.OnDiffComputedAsync(summary, changes, cancellationToken);
+                if (SecureNowAnalysisRun.ExecutionBudget is { RecoverySession: not null } budget &&
+                    consumer is AuditContinuousReadinessDiffConsumer)
+                {
+                    await budget.ExecuteAsync("securenow.audit_readiness",
+                        token => consumer.OnDiffComputedAsync(summary, changes, token), cancellationToken);
+                }
+                else if (SecureNowAnalysisRun.ExecutionBudget?.RecoverySession is not null &&
+                         consumer is not SecureNowArchitectDiffConsumer)
+                {
+                    throw new AnalysisStageExecutionException("securenow.diff_consumer", AnalysisStageOutcome.Failed);
+                }
+                else
+                {
+                    await consumer.OnDiffComputedAsync(summary, changes, cancellationToken);
+                }
             }
             catch (Exception ex) when (ex is not AnalysisStageExecutionException &&
                                        (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested))

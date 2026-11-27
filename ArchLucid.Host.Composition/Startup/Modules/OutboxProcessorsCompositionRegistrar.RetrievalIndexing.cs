@@ -30,5 +30,6 @@ internal static partial class OutboxProcessorsCompositionRegistrar
 
         services.AddHostedService<RetrievalIndexingOutboxHostedService>();
         services.AddHostedService<AuthorityPipelineWorkHostedService>();
+        services.AddHostedService<SecureNowAnalysisRecoveryHostedService>();
     }
 }

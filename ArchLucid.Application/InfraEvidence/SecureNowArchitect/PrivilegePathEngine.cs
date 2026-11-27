@@ -1,3 +1,4 @@
+using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
@@ -138,6 +139,7 @@ public sealed class PrivilegePathEngine(
 
             string? publisherReview = EventGridPublisherPrivilegeReview.Evaluate(candidate);
             string description = PrivilegePathNarrative.BuildDescription(candidate);
+
             if (publisherReview is not null)
                 description += " " + EventGridPublisherPrivilegeReview.Describe(publisherReview);
 
@@ -178,7 +180,7 @@ public sealed class PrivilegePathEngine(
 
         return new PrivilegePathEngineResult
         {
-            Succeeded = true,
+            Succeeded = AnalysisRecoveryFenceContext.Current?.ObservationUtc is null || ingestResult.FailedCount == 0,
             PathsDiscovered = candidates.Count,
             IdentityEvidenceIncomplete = identityCoverageIncomplete,
             PathsPersisted = pathsPersisted,

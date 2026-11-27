@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
@@ -28,6 +30,13 @@ public interface IArchitectureIdentityRepository
         Guid architectureId,
         Guid manifestId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>Promotes a sealed manifest as part of the same Authority publication transaction.</summary>
+    Task UpdateLatestSealedManifestInTransactionAsync(
+        ScopeContext scope, Guid architectureId, Guid manifestId, IDbConnection connection,
+        IDbTransaction transaction, CancellationToken cancellationToken) =>
+        throw new NotSupportedException("Transactional manifest promotion requires SQL storage.");
+
 
     /// <summary>
     ///     Updates <see cref="ArchitectureIdentityRecord.DisplayName" /> only when it is still the DA-02 untitled default.
