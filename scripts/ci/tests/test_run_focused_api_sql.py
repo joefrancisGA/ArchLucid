@@ -6,6 +6,7 @@ from io import StringIO
 import json
 import os
 from pathlib import Path
+import signal
 import subprocess
 import sys
 from tempfile import TemporaryDirectory
@@ -57,12 +58,36 @@ class FocusedApiSqlLaunchTests(TestCase):
                 ])
                 self.assertFalse((output / "02").exists())
 
+    def test_same_process_exit_code_distinguishes_missing_result_from_watchdog(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            dotnet = root / "dotnet"
+            dotnet.write_text(
+                f"#!{sys.executable}\n"
+                "import os, signal, sys, time\n"
+                "if any(arg.endswith('.EarlyExit') for arg in sys.argv):\n"
+                "    os.kill(os.getpid(), signal.SIGKILL)\n"
+                "else:\n"
+                "    time.sleep(30)\n",
+                encoding="utf-8",
+            )
+            dotnet.chmod(0o700)
+            with patch.dict(os.environ, {"PATH": str(root)}):
+                early = RUNNER.run_case(CASE + ".EarlyExit", root / "01", 5, RUNNER.Cancellation())
+                watchdog = RUNNER.run_case(CASE + ".Watchdog", root / "02", 0.5, RUNNER.Cancellation())
+            for result, reason in [(early, "missing-result"), (watchdog, "watchdog-timeout")]:
+                self.assertEqual(result["exit_code"], -signal.SIGKILL)
+                self.assertEqual(result["outcome"], "interrupted")
+                self.assertEqual(result["interruption"], reason)
+
 
 class FocusedApiSqlResultTests(TestCase):
     def report(self, rows, exit_code, timed_out=False):
         with TemporaryDirectory() as directory:
             trx = Path(directory) / "case.trx"
-            if rows is not None:
+            if isinstance(rows, str):
+                trx.write_text(rows, encoding="utf-8")
+            elif rows is not None:
                 trx.write_text(
                     '<TestRun xmlns="urn:trx"><Results>' + "".join(
                         f'<UnitTestResult testName="{name}" outcome="{status}" />'
@@ -70,7 +95,7 @@ class FocusedApiSqlResultTests(TestCase):
                     ) + '</Results></TestRun>',
                     encoding="utf-8",
                 )
-            return RUNNER.read_result(trx, CASE, exit_code, timed_out)[0]
+            return RUNNER.read_result(trx, CASE, exit_code, timed_out)
 
     def inventory_report(self, output, outcome="Failed", name=RUNNER.INVENTORY_CASE, timed_out=False):
         with TemporaryDirectory() as directory:
@@ -95,36 +120,39 @@ class FocusedApiSqlResultTests(TestCase):
         ]:
             with self.subTest(event=event):
                 self.assertEqual(self.inventory_report(f"{marker}bootstrap\n  {marker}{event}\n"),
-                                 ("failed", expected))
+                                 ("failed", expected, None))
 
     def test_diagnostics_fail_closed_on_unrecognized_text(self):
         marker = RUNNER.INVENTORY_STAGE_MARKER
         output = (f"private-database-string\n{marker}untrusted-stage payload\n"
                   f"{marker}repeat-status 200 extra\n{marker}fixture-row-count 123456789\n"
                   f"{marker}control-repeat-status arbitrary-body\n")
-        self.assertEqual(self.inventory_report(output), ("failed", {"stage": "not-reported"}))
+        self.assertEqual(self.inventory_report(output), ("failed", {"stage": "not-reported"}, None))
 
     def test_nonfailures_and_unrelated_tests_do_not_emit_inventory_diagnostics(self):
         output = f"{RUNNER.INVENTORY_STAGE_MARKER}repeat-status 200"
-        self.assertEqual(self.inventory_report(output, outcome="Passed"), ("passed", None))
-        self.assertEqual(self.inventory_report(output, outcome="Skipped"), ("skipped", None))
-        self.assertEqual(self.inventory_report(output, name=CASE), ("failed", None))
-        self.assertEqual(self.inventory_report(output, timed_out=True), ("interrupted", None))
+        self.assertEqual(self.inventory_report(output, outcome="Passed"), ("passed", None, None))
+        self.assertEqual(self.inventory_report(output, outcome="Skipped"), ("skipped", None, None))
+        self.assertEqual(self.inventory_report(output, name=CASE), ("failed", None, None))
+        self.assertEqual(self.inventory_report(output, timed_out=True), ("interrupted", None, "watchdog-timeout"))
 
     def test_distinguishes_pass_fail_and_skip(self):
         for status, code, expected in [("Passed", 0, "passed"), ("Failed", 1, "failed"), ("NotExecuted", 0, "skipped")]:
             with self.subTest(status=status):
-                self.assertEqual(self.report([(CASE, status)], code), expected)
+                self.assertEqual(self.report([(CASE, status)], code), (expected, None, None))
 
     def test_timeout_or_nonzero_exit_cannot_turn_a_pass_into_success(self):
-        self.assertEqual(self.report([(CASE, "Passed")], 0, timed_out=True), "interrupted")
-        self.assertEqual(self.report([(CASE, "Passed")], 1), "interrupted")
+        self.assertEqual(self.report([(CASE, "Passed")], 0, timed_out=True), ("interrupted", None, "watchdog-timeout"))
+        self.assertEqual(self.report([(CASE, "Passed")], 1), ("interrupted", None, "invalid-result"))
 
-    def test_missing_wrong_and_duplicate_results_are_interruptions(self):
-        self.assertEqual(self.report(None, 1), "interrupted")
-        self.assertEqual(self.report([], 0), "interrupted")
-        self.assertEqual(self.report([(CASE + "Other", "Passed")], 0), "interrupted")
-        self.assertEqual(self.report([(CASE, "Passed")] * 2, 0), "interrupted")
+    def test_separates_missing_results_from_unusable_results(self):
+        self.assertEqual(self.report(None, 1), ("interrupted", None, "missing-result"))
+        for rows in ("<Malformed", '<?xml version="1.0" encoding="unknown-codec"?><TestRun/>',
+                     '<?xml version="1.0" encoding="utf-32"?><TestRun/>',
+                     [], [(CASE + "Other", "Passed")], [(CASE, "Passed")] * 2,
+                     [(CASE, "UnrecognizedOutcome")]):
+            with self.subTest(rows=rows):
+                self.assertEqual(self.report(rows, 0), ("interrupted", None, "invalid-result"))
 
 
 class FocusedApiSqlCheckpointTests(TestCase):

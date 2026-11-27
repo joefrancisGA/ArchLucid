@@ -65,22 +65,24 @@ def inventory_failure(result):
 
 
 def read_result(trx, name, code, timed_out):
-    if timed_out or not trx.is_file():
-        return "interrupted", None
+    if timed_out:
+        return "interrupted", None, "watchdog-timeout"
     try:
         results = et.parse(trx).findall(".//{*}UnitTestResult")
-    except (et.ParseError, OSError):
-        return "interrupted", None
+    except FileNotFoundError:
+        return "interrupted", None, "missing-result"
+    except (et.ParseError, LookupError, OSError, ValueError):
+        return "interrupted", None, "invalid-result"
     if len(results) != 1 or results[0].get("testName") != name:
-        return "interrupted", None
+        return "interrupted", None, "invalid-result"
     recorded = results[0].get("outcome")
-    if recorded == "Passed":
-        return ("passed" if code == 0 else "interrupted"), None
+    if recorded == "Passed" and code == 0:
+        return "passed", None, None
     if recorded in ("NotExecuted", "Skipped"):
-        return "skipped", None
+        return "skipped", None, None
     if recorded == "Failed":
-        return "failed", inventory_failure(results[0]) if name == INVENTORY_CASE else None
-    return "interrupted", None
+        return "failed", inventory_failure(results[0]) if name == INVENTORY_CASE else None, None
+    return "interrupted", None, "invalid-result"
 
 
 def stop_test_tree(child):
@@ -131,10 +133,13 @@ def run_case(name, output, timeout, cancellation):
         cancelled = cancellation.signum is not None
         if timed_out or cancelled:
             stop_test_tree(child)
-    outcome, failure = read_result(trx, name, child.returncode, timed_out or cancelled)
-    result.update(outcome=outcome, exit_code=child.returncode)
     if cancelled:
-        result["interruption"] = "cancelled"
+        outcome, failure, interruption = "interrupted", None, "cancelled"
+    else:
+        outcome, failure, interruption = read_result(trx, name, child.returncode, timed_out)
+    result.update(outcome=outcome, exit_code=child.returncode)
+    if interruption is not None:
+        result["interruption"] = interruption
     if failure is not None:
         result["failure"] = failure
     return result
@@ -246,7 +251,8 @@ def main(argv=None, cancellation=None):
         result = run_case(name, output / row["artifact_dir"], args.timeout_seconds, cancellation)
         reports[index - 1] = result
         checkpoint(summary_path, summarize(revision, reports))
-        print(f"  {result['outcome']}", flush=True)
+        reason = f" ({result['interruption']})" if "interruption" in result else ""
+        print(f"  {result['outcome']}{reason}", flush=True)
         if "failure" in result:
             print(f"  {json.dumps(result['failure'], sort_keys=True)}", flush=True)
         if result.get("interruption") == "launch-failed":
