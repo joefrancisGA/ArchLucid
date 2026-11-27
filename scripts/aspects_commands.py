@@ -17,7 +17,7 @@ from aspects_systematic_review import (
 from ci.stryker_pr_plan import FULL_MATRIX
 from ci.stryker_evidence import inventory, pinned_config, read_json, validate_run
 
-LANES = {'aspects': ('production', 35, 'aspects-review-ledger.jsonl'),
+LANES = {'aspects': ('production', 40, 'aspects-review-ledger.jsonl'),
          'test-aspects': ('test', 10, 'test-aspects-review-ledger.jsonl')}
 TEST_CATEGORIES = (
     'false-pass', 'mocked-subject', 'authorization-isolation', 'coupled-oracle',

@@ -72,7 +72,7 @@ python -m unittest discover -s scripts/tests -p 'test_aspects_systematic_review.
 
 ## Named review commands (Nov 24, 2026)
 
-The owner-approved commands are **Aspects** (35 production files), **Test Aspects**
+The owner-approved commands are **Aspects** (40 production files), **Test Aspects**
 (10 test files) and **Mutation Aspects** (one explicitly scoped critical kernel).
 See [ASPECTS_REVIEW_COMMANDS.md](ASPECTS_REVIEW_COMMANDS.md) for the executable
 entry points, evidence requirements, independent metrics and mutation cost controls.

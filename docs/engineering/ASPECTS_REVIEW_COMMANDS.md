@@ -1,12 +1,12 @@
 # Aspects review commands — production, test quality and mutation evidence
 
-Owner decision, 2026-11-24. The conversational commands map to the following
-repository workflow. They are independent review programs, not three names for
-one density series. A plan is not a completed review.
+The conversational commands map to the following independent review programs.
+A plan is not a completed review. The command split was approved on 2026-11-24,
+and the production default was raised to 40 files on 2026-11-27.
 
 | Command | Default | Purpose | Evidence |
 |---|---:|---|---|
-| Aspects | 35 production files | Oldest-first source review, correction and regression | Existing aspects-review-ledger.jsonl; historical production workbook stays separate |
+| Aspects | 40 production files | Oldest-first source review, correction and regression | Existing aspects-review-ledger.jsonl; historical production workbook stays separate |
 | Test Aspects | 10 test files | Assertion quality and failure-detection review | test-aspects-review-ledger.jsonl; independent CSV/JSON history |
 | Mutation Aspects | One scoped target, 30 minute budget | Assess whether meaningful seeded faults are detected | mutation-aspects-ledger.jsonl, original Stryker artifact |
 
@@ -22,7 +22,7 @@ HEAD_SHA="$(git rev-parse master)"
 python scripts/aspects_commands.py aspects plan --head "$HEAD_SHA"
 python scripts/aspects_commands.py test-aspects plan --head "$HEAD_SHA"
 # An explicit size overrides the default; it does not silently change it.
-python scripts/aspects_commands.py aspects plan --head "$HEAD_SHA" --limit 40
+python scripts/aspects_commands.py aspects plan --head "$HEAD_SHA" --limit 35
 ```
 
 Production and test candidates are filtered before the batch limit. The test
