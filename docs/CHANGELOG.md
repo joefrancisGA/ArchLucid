@@ -5,6 +5,14 @@
 
 # ArchLucid changelog
 
+## 2026-11-27 - Score lift round 152 (batch wave H3): SecureNow cutting-edge AI substrate
+
+**Outcome.** Ranked paths, path inspect, and attack-path report name stored SA-09 rank discipline, bounded Ask/explanation substrate (simulator or configured Azure OpenAI), and honest not-frontier copy — PathRankingEngine weights unchanged.
+
+**Surfaces.** Remediation factory ranked paths, security evidence path inspect panel, attack-path report section, drift guard and mounted-contract tests.
+
+
+
 ## 2026-11-27 - Score lift round 149 (batch wave H1): SecureNow time-to-value next step
 
 **Outcome.** Home, findings header, and snapshots drift name one collection or second-capture next step with a primary CTA and browser-local recovery links — not a timed SLA or usage score.
