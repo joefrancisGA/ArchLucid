@@ -77,14 +77,7 @@ public sealed class AuthorityPipelineStagesExecutor(
                 pipelineOptions?.CurrentValue.PipelineTimeout ?? new AuthorityPipelineOptions().PipelineTimeout, ct)
             : null;
         AnalysisExecutionBudget budget = ctx.ExecutionBudget ?? ownedBudget!;
-        (string Activity, string Name, Func<CancellationToken, Task> Work)[] stages =
-        [
-            ("authority.context_ingestion", AuthorityPipelineStageNames.ContextIngestion, token => _contextIngestionStage.ExecuteAsync(ctx, token)),
-            ("authority.graph", AuthorityPipelineStageNames.Graph, token => _graphStage.ExecuteAsync(ctx, token)),
-            ("authority.findings", AuthorityPipelineStageNames.Findings, token => _findingsStage.ExecuteAsync(ctx, token)),
-            ("authority.decisioning", AuthorityPipelineStageNames.Decisioning, token => _decisioningStage.ExecuteAsync(ctx, token)),
-            ("authority.artifacts", AuthorityPipelineStageNames.Artifacts, token => _artifactsStage.ExecuteAsync(ctx, token)),
-        ];
+        var stages = BuildStageSequence(ctx);
         int index = 0;
 
         try
@@ -105,6 +98,27 @@ public sealed class AuthorityPipelineStagesExecutor(
             throw;
         }
     }
+
+    internal IDisposable BeginRecoveryGovernanceScope(AuthorityPipelineContext ctx) =>
+        _runGovernanceScopePinService.BeginRestoredScope(ctx.Run);
+
+    internal Task<bool> HydrateRecoveryStageAsync(AuthorityPipelineContext ctx, string stage, CancellationToken ct) =>
+        _stageContextHydrator.TryHydrateAsync(ctx, stage, ct);
+
+    internal async Task ExecuteRecoveryStageAsync(AuthorityPipelineContext ctx, string stage, CancellationToken ct)
+    {
+        var selected = BuildStageSequence(ctx).Single(item => item.Name == stage);
+        await ExecuteStageAsync(ctx, selected.Activity, selected.Name, selected.Work, ctx.ExecutionBudget!, ct);
+    }
+
+    private (string Activity, string Name, Func<CancellationToken, Task> Work)[] BuildStageSequence(AuthorityPipelineContext ctx) =>
+        [
+            ("authority.context_ingestion", AuthorityPipelineStageNames.ContextIngestion, token => _contextIngestionStage.ExecuteAsync(ctx, token)),
+            ("authority.graph", AuthorityPipelineStageNames.Graph, token => _graphStage.ExecuteAsync(ctx, token)),
+            ("authority.findings", AuthorityPipelineStageNames.Findings, token => _findingsStage.ExecuteAsync(ctx, token)),
+            ("authority.decisioning", AuthorityPipelineStageNames.Decisioning, token => _decisioningStage.ExecuteAsync(ctx, token)),
+            ("authority.artifacts", AuthorityPipelineStageNames.Artifacts, token => _artifactsStage.ExecuteAsync(ctx, token)),
+        ];
 
     private async Task ExecuteStageAsync(
         AuthorityPipelineContext ctx,
@@ -159,7 +173,7 @@ public sealed class AuthorityPipelineStagesExecutor(
                         nextStage);
                 }
 
-                if (AuthorityPipelineStageCheckpoint.IsComplete(ctx.Run, stageName))
+                if (!ctx.UsesDurableRecovery && AuthorityPipelineStageCheckpoint.IsComplete(ctx.Run, stageName))
                 {
                     bool hydrated = await _stageContextHydrator.TryHydrateAsync(ctx, stageName, stageToken);
 

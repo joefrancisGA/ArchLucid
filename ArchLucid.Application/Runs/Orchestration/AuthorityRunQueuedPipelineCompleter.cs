@@ -40,9 +40,24 @@ public sealed partial class AuthorityRunOrchestrator
         try
         {
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
-            RunRecord existing = await ResolvePreAllocatedRunHeaderAsync(scope, request.RunId, cancellationToken);
+            bool recover = durableRecovery is not null && uow.SupportsExternalTransaction &&
+                           executionOptions?.CurrentValue.EnableDurableAuthorityRecovery == true;
 
-            if (_runStateTransitionService.ShouldSkipQueuedAuthorityPipelineCompletion(existing.ContextSnapshotId))
+            if (recover)
+                await _runRepository.EvictCachedRunAsync(scope, request.RunId, cancellationToken);
+
+            RunRecord existing = recover
+                ? await _runRepository.GetByIdAsync(scope, request.RunId, cancellationToken)
+                    ?? throw new ConflictException("Queued Authority run not found in the authorized project.")
+                : await ResolvePreAllocatedRunHeaderAsync(scope, request.RunId, cancellationToken);
+
+            if (recover && await durableRecovery!.IsPublishedAsync(scope, existing, cancellationToken))
+                return existing;
+
+            if (recover && existing.GoldenManifestId is not null && existing.ArtifactBundleId is not null && existing.CompletedUtc is not null)
+                return existing; // Completed legacy run. Do not backfill recovery claims from its header.
+
+            if (!recover && _runStateTransitionService.ShouldSkipQueuedAuthorityPipelineCompletion(existing.ContextSnapshotId))
             {
                 if (logger.IsEnabled(LogLevel.Information))
 
@@ -76,7 +91,8 @@ public sealed partial class AuthorityRunOrchestrator
 
             RunRecord run = existing;
 
-            await EnsureAdmittedRunCreateTimePinsIfMissingAsync(run, request, scope, uow, pipelineCt);
+            if (!recover)
+                await EnsureAdmittedRunCreateTimePinsIfMissingAsync(run, request, scope, uow, pipelineCt);
 
             LogAgentExecutionStateTransition(run.RunId, "queued_resume", "inline_authority_pipeline_stages", "(none)");
 
@@ -109,7 +125,8 @@ public sealed partial class AuthorityRunOrchestrator
                 UnitOfWork = uow,
                 Scope = scope,
                 RunActivity = runActivity,
-                ExecutionBudget = budget
+                ExecutionBudget = budget,
+                UsesDurableRecovery = recover
             };
 
             await auditService.LogAsync(
@@ -130,6 +147,18 @@ public sealed partial class AuthorityRunOrchestrator
                         AuditJsonSerializationOptions.Instance)
                 },
                 pipelineCt);
+
+            if (recover)
+            {
+                await uow.CommitAsync(pipelineCt);
+
+                return await durableRecovery!.ExecuteAsync(ctx, async (stageUow, token) =>
+                {
+                    await EnsureAdmittedRunCreateTimePinsIfMissingAsync(run, request, scope, stageUow, token);
+                    await PersistRunHeaderEvidenceAnchorsBeforePipelineStagesAsync(run, request, stageUow, token);
+                }, (stageUow, token) => _authorityCommittedPipelineFinalizer.FinalizeAsync(run, ctx.ContextSnapshot!,
+                    ctx.FindingsSnapshot!, ctx.Manifest!, ctx.Trace!, scope, stageUow, token), cancellationToken);
+            }
 
             if (_authorityPipelineStagesExecutionDriver.RequiresCommittedRunHeaderBeforeStages)
                 await CommitUnitOfWorkWithTransientRetryAsync(uow, pipelineCt);

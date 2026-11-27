@@ -1,3 +1,4 @@
+using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -46,11 +47,13 @@ public sealed partial class SqlSecurityEvidencePathRepository
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(paths);
+
         if (paths.Count == 0)
             return [];
 
         List<SecurityEvidencePathGuard.ValidatedPath> validated = paths
             .Select(path => SecurityEvidencePathGuard.ValidateAndMaterialize(path.Path, path.Hops)).ToList();
+
         foreach (SecurityEvidencePathGuard.ValidatedPath path in validated)
             if (path.Hops.Any(hop => hop.TenantId != path.Path.TenantId))
                 throw new InvalidOperationException("Path hops must belong to the path tenant.");
@@ -58,9 +61,16 @@ public sealed partial class SqlSecurityEvidencePathRepository
         // Deduplicate before staging so the INSERT cannot collide with itself.
         List<SecurityEvidencePathGuard.ValidatedPath> distinct = validated.DistinctBy(path => BatchKey(path.Path)).ToList();
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
         if (conn is not SqlConnection sqlConn)
             throw new InvalidOperationException("Path batch insert requires SqlConnection.");
         using SqlTransaction tx = sqlConn.BeginTransaction();
+
+        foreach (var coordinates in distinct.Select(item => (item.Path.TenantId, item.Path.WorkspaceId, item.Path.ProjectId)).Distinct())
+        {
+            await SqlAnalysisRecoveryFence.DemandAsync(sqlConn, tx,
+                coordinates.TenantId, coordinates.WorkspaceId, coordinates.ProjectId, cancellationToken);
+        }
         await CreatePathStagingTablesAsync(sqlConn, tx, cancellationToken);
         await SqlBufferedBulkCopy.WriteAsync(sqlConn, tx, "#PathHeaders", distinct.Select(item => new
         {
@@ -110,10 +120,12 @@ public sealed partial class SqlSecurityEvidencePathRepository
 
         HashSet<(Guid, Guid, string)> seen = [];
         List<SecurityEvidencePathInsertResult> result = [];
+
         foreach (SecurityEvidencePathGuard.ValidatedPath item in validated)
         {
             var key = BatchKey(item.Path);
             BatchInsertRow row = persisted[key];
+
             if (row.WorkspaceId != item.Path.WorkspaceId || row.ProjectId != item.Path.ProjectId)
                 throw new InvalidOperationException("Existing path does not belong to the requested project scope.");
             result.Add(new() { PathId = row.PathId, Created = seen.Add(key) && row.Created });

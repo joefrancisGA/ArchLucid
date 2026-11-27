@@ -1,3 +1,4 @@
+using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
@@ -150,6 +151,7 @@ public sealed class SqlSecurityEvidencePathRoutingRepository(ISqlConnectionFacto
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         using System.Data.IDbTransaction transaction = conn.BeginTransaction();
+        await SqlAnalysisRecoveryFence.DemandAsync(conn, transaction, scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken);
 
         // Serialize replacements on the parent even when the path has no routing rows yet.
         const string ensurePathSql = """

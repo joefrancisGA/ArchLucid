@@ -1,3 +1,4 @@
+using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
@@ -26,6 +27,7 @@ public sealed class SqlSecurityEvidencePathSearchCoverageRepository(ISqlConnecti
 
         using System.Data.IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         using System.Data.IDbTransaction transaction = connection.BeginTransaction();
+        await SqlAnalysisRecoveryFence.DemandAsync(connection, transaction, scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken);
 
         const string deleteSql = """
                                  DELETE FROM dbo.SecurityEvidencePathSearchCoverage

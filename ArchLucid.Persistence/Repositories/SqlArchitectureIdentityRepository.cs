@@ -147,10 +147,21 @@ public sealed partial class SqlArchitectureIdentityRepository(ISqlConnectionFact
     }
 
     public async Task UpdateLatestSealedManifestAsync(
-        ScopeContext scope,
-        Guid architectureId,
-        Guid manifestId,
-        CancellationToken cancellationToken = default)
+        ScopeContext scope, Guid architectureId, Guid manifestId, CancellationToken cancellationToken = default)
+    {
+        await using SqlConnection connection =
+            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        await UpdateLatestSealedManifestCoreAsync(scope, architectureId, manifestId, connection, null, cancellationToken);
+    }
+
+    public Task UpdateLatestSealedManifestInTransactionAsync(
+        ScopeContext scope, Guid architectureId, Guid manifestId, IDbConnection connection,
+        IDbTransaction transaction, CancellationToken cancellationToken) =>
+        UpdateLatestSealedManifestCoreAsync(scope, architectureId, manifestId, connection, transaction, cancellationToken);
+
+    private static async Task UpdateLatestSealedManifestCoreAsync(
+        ScopeContext scope, Guid architectureId, Guid manifestId, IDbConnection connection,
+        IDbTransaction? transaction, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -164,9 +175,6 @@ public sealed partial class SqlArchitectureIdentityRepository(ISqlConnectionFact
                              AND ScopeProjectId = @ScopeProjectId;
                            """;
 
-        await using SqlConnection connection =
-            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
@@ -179,6 +187,7 @@ public sealed partial class SqlArchitectureIdentityRepository(ISqlConnectionFact
                     LatestSealedManifestId = manifestId,
                     UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                 },
+                transaction: transaction,
                 cancellationToken: cancellationToken)).ConfigureAwait(false);
     }
 

@@ -9,8 +9,10 @@ using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.InfraEvidence;
 
@@ -18,7 +20,9 @@ public sealed class AzureInventorySnapshotMaterializer(
     IAzureInventorySnapshotRepository snapshotRepository,
     ICloudResourceIdentityDirectory cloudResourceIdentityDirectory,
     IAzureInventorySnapshotPostMaterializeCoordinator postMaterializeCoordinator,
-    ILogger<AzureInventorySnapshotMaterializer> logger) : IAzureInventorySnapshotMaterializer
+    ILogger<AzureInventorySnapshotMaterializer> logger,
+    SecureNowAnalysisDurableRecovery? durableRecovery = null,
+    IOptions<SecureNowArchitectNeighborhoodOptions>? neighborhoodOptions = null) : IAzureInventorySnapshotMaterializer
 {
     public async Task<AzureInventorySnapshotMaterializeResult> TryMaterializePackageAsync(
         ScopeContext scope,
@@ -326,11 +330,14 @@ public sealed class AzureInventorySnapshotMaterializer(
                     siblingSubscriptionName: null);
             }
 
+            SecureNowAnalysisRecoveryAdmission? recovery = durableRecovery?.PrepareAdmission(
+                neighborhoodOptions?.Value.FullRecompute == true);
             await snapshotRepository.MaterializeSnapshotAsync(
                 scope,
                 snapshotId,
                 new AzureInventorySnapshotMaterializeWriteRequest
                 {
+                    AnalysisRecovery = recovery,
                     CaptureStatus = status,
                     ResourceCount = resources.Count,
                     RelationshipCount = securityEdges.Relationships.Count,
@@ -368,33 +375,37 @@ public sealed class AzureInventorySnapshotMaterializer(
                 },
                 cancellationToken);
 
-            string analysisOutcome = AnalysisStageOutcome.NotStarted;
+            string analysisOutcome = recovery is null ? AnalysisStageOutcome.NotStarted : "pending";
 
-            try
+
+            if (recovery is null)
             {
-                AzureInventorySnapshotRecord? materializedHeader =
-                    await snapshotRepository.TryGetBySnapshotIdAsync(scope, snapshotId, cancellationToken);
-
-                if (materializedHeader is not null)
+                try
                 {
-                    await postMaterializeCoordinator.OnSnapshotMaterializedAsync(
-                        scope,
-                        snapshotId,
-                        materializedHeader.SubscriptionId,
-                        cancellationToken);
-                    analysisOutcome = AnalysisStageOutcome.Succeeded;
+                    AzureInventorySnapshotRecord? materializedHeader =
+                        await snapshotRepository.TryGetBySnapshotIdAsync(scope, snapshotId, cancellationToken);
+
+                    if (materializedHeader is not null)
+                    {
+                        await postMaterializeCoordinator.OnSnapshotMaterializedAsync(
+                            scope,
+                            snapshotId,
+                            materializedHeader.SubscriptionId,
+                            cancellationToken);
+                        analysisOutcome = AnalysisStageOutcome.Succeeded;
+                    }
                 }
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
-            {
-                analysisOutcome = ex is AnalysisStageExecutionException stageFailure
-                    ? stageFailure.Outcome
-                    : AnalysisStageOutcome.Failed;
-                logger.LogWarning(
-                    ex,
-                    "Azure inventory snapshot was committed but post-materialization analysis ended with {Outcome} for SnapshotId={SnapshotId}.",
-                    analysisOutcome,
-                    snapshotId);
+                catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
+                {
+                    analysisOutcome = ex is AnalysisStageExecutionException stageFailure
+                        ? stageFailure.Outcome
+                        : AnalysisStageOutcome.Failed;
+                    logger.LogWarning(
+                        ex,
+                        "Azure inventory snapshot was committed but post-materialization analysis ended with {Outcome} for SnapshotId={SnapshotId}.",
+                        analysisOutcome,
+                        snapshotId);
+                }
             }
 
             return new AzureInventorySnapshotMaterializeResult

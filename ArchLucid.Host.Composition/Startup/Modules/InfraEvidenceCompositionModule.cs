@@ -101,7 +101,9 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IRemediationFactoryWorkbenchQueryService, RemediationFactoryWorkbenchQueryService>();
         services.AddScoped<IAuditContinuousReadinessService, AuditContinuousReadinessService>();
         services.AddScoped<IAuditEvaluationFindingHandoffService, AuditEvaluationFindingHandoffService>();
-        services.AddScoped<IAzureInventorySnapshotPostMaterializeCoordinator, AzureInventorySnapshotPostMaterializeCoordinator>();
+        services.AddScoped<AzureInventorySnapshotPostMaterializeCoordinator>();
+        services.AddScoped<IAzureInventorySnapshotPostMaterializeCoordinator>(provider =>
+            provider.GetRequiredService<AzureInventorySnapshotPostMaterializeCoordinator>());
         services.AddScoped<IAuditEvidenceSelectorRegistry, AuditEvidenceSelectorRegistry>();
         services.AddScoped<InventoryAuditEvidenceSelector>();
         services.AddScoped<IdentityAuditEvidenceSelector>();

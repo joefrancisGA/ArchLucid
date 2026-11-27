@@ -28,11 +28,17 @@ public sealed class AuthorityPipelineContext
         set;
     }
 
+    private IArchLucidUnitOfWork _initialUnitOfWork = null!;
+
     public required IArchLucidUnitOfWork UnitOfWork
     {
-        get;
-        init;
+        get => RecoveryUnitOfWork ?? _initialUnitOfWork;
+        init => _initialUnitOfWork = value;
     }
+
+    internal IArchLucidUnitOfWork? RecoveryUnitOfWork { get; set; }
+
+    internal bool UsesDurableRecovery { get; init; }
 
     public required ScopeContext Scope
     {

@@ -1,3 +1,4 @@
+using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 using System.Data;
 
 using ArchLucid.Core.InfraEvidence;
@@ -114,6 +115,7 @@ public sealed partial class SqlAzureInventoryDiffRepository(ISqlConnectionFactor
             throw new InvalidOperationException("Diff persist requires SqlConnection.");
 
         using IDbTransaction tx = sqlConn.BeginTransaction();
+        await SqlAnalysisRecoveryFence.DemandAsync(sqlConn, tx, scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken);
 
         try
         {

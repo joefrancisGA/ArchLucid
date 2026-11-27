@@ -1,3 +1,4 @@
+using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
@@ -196,6 +197,7 @@ public sealed class SqlSecurityEvidencePathRankRepository(ISqlConnectionFactory 
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         using System.Data.IDbTransaction tx = conn.BeginTransaction();
+        await SqlAnalysisRecoveryFence.DemandAsync(conn, tx, scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken);
 
         // Serialize replacements even when the snapshot has no rank rows yet.
         const string lockSnapshotSql = """

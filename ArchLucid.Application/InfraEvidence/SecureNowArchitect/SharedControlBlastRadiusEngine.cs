@@ -1,3 +1,4 @@
+using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
@@ -147,7 +148,7 @@ public sealed class SharedControlBlastRadiusEngine(
 
         return new PrivilegePathEngineResult
         {
-            Succeeded = true,
+            Succeeded = AnalysisRecoveryFenceContext.Current?.ObservationUtc is null || ingestResult.FailedCount == 0,
             PathsDiscovered = candidates.Count,
             PathsPersisted = pathsPersisted,
             FindingsIngested = ingestResult.IngestedCount,

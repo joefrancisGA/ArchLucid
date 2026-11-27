@@ -1,9 +1,12 @@
+using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 using ArchLucid.Core.InfraEvidence;
 
 namespace ArchLucid.Persistence.InfraEvidence;
 
 public sealed class AzureInventorySnapshotMaterializeWriteRequest
 {
+    public SecureNowAnalysisRecoveryAdmission? AnalysisRecovery { get; init; }
+
     public AzureInventoryCaptureStatus CaptureStatus
     {
         get;

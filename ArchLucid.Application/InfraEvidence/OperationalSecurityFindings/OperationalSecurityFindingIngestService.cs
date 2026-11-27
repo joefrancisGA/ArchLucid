@@ -1,3 +1,4 @@
+using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 using System.Text.Json;
 
 using ArchLucid.Core.Audit;
@@ -145,6 +146,7 @@ public sealed class OperationalSecurityFindingIngestService(
         AdvisoryRemediationEvidence? advisory = advisoryEntries.Length == 1
             ? AdvisoryRemediationEvidence.Parse(advisoryEntries[0].Value)
             : null;
+
         if ((advisoryEntries.Length != 0 && (advisory is null
                 || !string.Equals(advisoryEntries[0].Key, AdvisoryRemediationEvidence.MetadataKey, StringComparison.Ordinal)))
             || !Enum.IsDefined(item.Status)
@@ -163,6 +165,7 @@ public sealed class OperationalSecurityFindingIngestService(
             .Where(entry => string.Equals(entry.Key.Trim(), AdvisoryAliasInput.MetadataKey, StringComparison.OrdinalIgnoreCase))
             .ToArray();
         AdvisoryAliasInput? alias = aliasEntries.Length == 1 ? AdvisoryAliasInput.Parse(aliasEntries[0].Value) : null;
+
         if (aliasEntries.Length != 0
             && (alias is null || advisory is null || item.ObservedUtc is not { Kind: DateTimeKind.Utc }
                 || item.CloudResourceId == Guid.Empty
@@ -176,13 +179,16 @@ public sealed class OperationalSecurityFindingIngestService(
 
         try
         {
-            DateTime observedUtc = item.ObservedUtc ?? TimeProvider.System.UtcNowDateTime();
+            DateTime? recoveryObservationUtc = AnalysisRecoveryFenceContext.Current?.ObservationUtc;
+            DateTime observedUtc = recoveryObservationUtc ?? item.ObservedUtc ?? TimeProvider.System.UtcNowDateTime();
             KeyValuePair<string, string?> provenance = default;
             string authority = item.SourceSystem.Trim().ToUpperInvariant();
+
             if (alias is not null && advisory is not null)
             {
                 provenance = alias.CreateProvenance(item, advisory, actorId);
                 string canonicalEvidence = alias.CanonicalEvidence(advisory);
+
                 if (provenance.Value is not { Length: <= 1024 } || canonicalEvidence.Length > 1024)
                     return Rejected(index, "Canonical advisory evidence or provenance exceeds the metadata size limit.");
 
@@ -214,6 +220,7 @@ public sealed class OperationalSecurityFindingIngestService(
 
             // Hash the effective revision. Omitted fields retain their stored values;
             // a canonical control mapping, by contrast, is replaced even when it resolves to null.
+
             if (alias is not null && existing is not null)
             {
                 item = item with
@@ -305,6 +312,7 @@ public sealed class OperationalSecurityFindingIngestService(
                     || (samePayload && (!mayRevise || observedUtc <= existing.LastObservedUtc))))
             {
                 // Provenance-only reports do not touch observation time, lifecycle status, or verification proof.
+
                 if (newSource)
                 {
                     await repository.AppendAdvisorySourceInScopeAsync(
@@ -333,6 +341,17 @@ public sealed class OperationalSecurityFindingIngestService(
                         : "A changed advisory revision must have a newer observation time.",
                 };
             }
+
+            if (samePayload && recoveryObservationUtc == existing.LastObservedUtc)
+            {
+                return new OperationalSecurityFindingIngestItemResult
+                {
+                    Index = index, Succeeded = true, WasDeduplicated = true, FindingId = existing.FindingId,
+                };
+            }
+
+            if (recoveryObservationUtc is not null && observedUtc == existing.LastObservedUtc)
+                return Rejected(index, "Recovery cannot replace a different observation at the pinned time.");
 
             if (samePayload)
             {

@@ -1,3 +1,4 @@
+using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Architecture;
@@ -253,7 +254,7 @@ public sealed class FourRealityDriftEngine(
 
         return new PrivilegePathEngineResult
         {
-            Succeeded = true,
+            Succeeded = AnalysisRecoveryFenceContext.Current?.ObservationUtc is null || ingestResult.FailedCount == 0,
             PathsDiscovered = candidates.Count,
             PathsPersisted = pathsPersisted,
             FindingsIngested = ingestResult.IngestedCount,
@@ -282,6 +283,7 @@ public sealed class FourRealityDriftEngine(
                 DiagramInfrastructureReconciliationResult? result = JsonSerializer.Deserialize<DiagramInfrastructureReconciliationResult>(
                     record.ResultJson,
                     DiagramJsonOptions);
+
                 if (result is not null)
                 {
                     return result;

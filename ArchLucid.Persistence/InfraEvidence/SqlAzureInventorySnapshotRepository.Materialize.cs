@@ -5,6 +5,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Sql;
+using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 
 using Dapper;
 
@@ -33,6 +34,14 @@ public sealed partial class SqlAzureInventorySnapshotRepository
 
         try
         {
+            if (writeRequest.AnalysisRecovery is not null && await IsRecoveryCaptureReplayAsync(
+                sqlConn, tx, scope, snapshotId, writeRequest.ContentHashSha256, cancellationToken))
+            {
+                tx.Commit();
+
+                return;
+            }
+
             DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
             const string updateHeader = """
@@ -440,6 +449,12 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                 }),
                 cancellationToken);
 
+            if (writeRequest.AnalysisRecovery is { } recovery)
+            {
+                await AdmitRecoveryWithCaptureAsync(sqlConn, tx, scope, snapshotId, recovery, cancellationToken);
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
             tx.Commit();
         }
         catch
@@ -447,5 +462,49 @@ public sealed partial class SqlAzureInventorySnapshotRepository
             tx.Rollback();
             throw;
         }
+    }
+
+    private static async Task<bool> IsRecoveryCaptureReplayAsync(
+        SqlConnection connection, SqlTransaction tx, ScopeContext scope, Guid snapshotId, byte[]? contentHash, CancellationToken ct)
+    {
+        const string sql = """
+            SELECT CASE WHEN s.ContentHashSha256 = @ContentHash THEN 1 ELSE 2 END
+            FROM dbo.SecureNowAnalysisRecoveryJobs j WITH (UPDLOCK, HOLDLOCK)
+            INNER JOIN dbo.AzureInventorySnapshots s ON s.SnapshotId = j.SnapshotId AND s.TenantId = j.TenantId
+                AND s.WorkspaceId = j.WorkspaceId AND s.ProjectId = j.ProjectId
+            WHERE j.TenantId = @TenantId AND j.WorkspaceId = @WorkspaceId AND j.ProjectId = @ProjectId
+              AND j.SnapshotId = @SnapshotId;
+            """;
+        int? replay = await connection.QuerySingleOrDefaultAsync<int?>(new CommandDefinition(sql, new
+        {
+            scope.TenantId, scope.WorkspaceId, scope.ProjectId, SnapshotId = snapshotId, ContentHash = contentHash
+        }, tx, cancellationToken: ct));
+
+        if (replay == 2)
+            throw new InvalidOperationException("A recoverable inventory capture cannot change its pinned content.");
+
+        return replay == 1;
+    }
+
+    private static Task AdmitRecoveryWithCaptureAsync(
+        SqlConnection connection, SqlTransaction tx, ScopeContext scope, Guid snapshotId,
+        SecureNowAnalysisRecoveryAdmission recovery, CancellationToken ct)
+    {
+        const string sql = """
+            INSERT dbo.SecureNowAnalysisRecoveryJobs
+                (TenantId, WorkspaceId, ProjectId, SnapshotId, SubscriptionId, FullRecompute,
+                 InputVersion, AdmittedUtc, DeadlineUtc)
+            SELECT TenantId, WorkspaceId, ProjectId, SnapshotId, SubscriptionId, @FullRecompute,
+                   @InputVersion, SYSUTCDATETIME(), DATEADD(second, @RunTimeoutSeconds, SYSUTCDATETIME())
+            FROM dbo.AzureInventorySnapshots
+            WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND ProjectId = @ProjectId
+                AND SnapshotId = @SnapshotId;
+            """;
+
+        return connection.ExecuteAsync(new CommandDefinition(sql, new
+        {
+            scope.TenantId, scope.WorkspaceId, scope.ProjectId, SnapshotId = snapshotId,
+            recovery.FullRecompute, recovery.InputVersion, recovery.RunTimeoutSeconds
+        }, tx, cancellationToken: ct));
     }
 }

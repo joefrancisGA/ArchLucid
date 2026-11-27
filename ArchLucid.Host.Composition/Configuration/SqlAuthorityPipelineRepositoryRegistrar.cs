@@ -1,3 +1,4 @@
+using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Core.Authority;
@@ -16,6 +17,7 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Orchestration.RunStageOutcomes;
+using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Transactions;
@@ -41,7 +43,12 @@ internal static class SqlAuthorityPipelineRepositoryRegistrar
         services.AddScoped<IAuthorityPipelineWorkRepository, DapperAuthorityPipelineWorkRepository>();
         services.AddScoped<IAsyncAuthorityPipelineModeResolver, FeatureManagementAuthorityPipelineModeResolver>();
         services.AddScoped<IRunStageOutcomesRepository, SqlRunStageOutcomesRepository>();
-        services.AddScoped<IAuthorityPipelineStagesExecutor, AuthorityPipelineStagesExecutor>();
+        services.AddScoped<AuthorityPipelineStagesExecutor>();
+        services.AddScoped<IAuthorityPipelineStagesExecutor>(provider => provider.GetRequiredService<AuthorityPipelineStagesExecutor>());
+        services.AddScoped<IAnalysisRecoveryRepository, SqlAnalysisRecoveryRepository>();
+        services.AddScoped<AuthorityRecoveryPipeline>();
+        services.AddScoped<ISecureNowAnalysisRecoveryJobs, SqlSecureNowAnalysisRecoveryJobs>();
+        services.AddScoped<SecureNowAnalysisDurableRecovery>();
         services.AddScoped<IAuthorityCommittedPipelineFinalizer, AuthorityCommittedPipelineFinalizer>();
         services.AddScoped<IAuthorityPipelineStagesExecutionDriver, InlineAuthorityPipelineStagesExecutionDriver>();
         services.AddScoped<SqlAuthorityPipelineTenantExecutionLeaseRepository>();

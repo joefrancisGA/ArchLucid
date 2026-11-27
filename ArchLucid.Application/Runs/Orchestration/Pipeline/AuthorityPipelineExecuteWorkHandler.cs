@@ -55,9 +55,11 @@ public sealed class AuthorityPipelineExecuteWorkHandler(
             "(none)",
             entry.OutboxId.ToString());
 
+        RunRecord completed;
+
         try
         {
-            await orchestrator.CompleteQueuedAuthorityPipelineAsync(request, cancellationToken).ConfigureAwait(false);
+            completed = await orchestrator.CompleteQueuedAuthorityPipelineAsync(request, cancellationToken).ConfigureAwait(false);
         }
         catch (AnalysisStageExecutionException ex)
         {
@@ -72,12 +74,25 @@ public sealed class AuthorityPipelineExecuteWorkHandler(
             "(none)",
             entry.OutboxId.ToString());
 
-        await AuthorityPipelineMaterializeWork.MaterializeAgentTasksAsync(
-            scope,
-            entry,
-            payload,
-            jobScope,
-            _logger,
-            cancellationToken).ConfigureAwait(false);
+        AuthorityRecoveryPipeline? recovery = scope.ServiceProvider.GetService<AuthorityRecoveryPipeline>();
+
+        try
+        {
+            if (recovery is not null)
+            {
+                await recovery.MaterializeHandoffAsync(jobScope, completed, (transaction, token) =>
+                    AuthorityPipelineMaterializeWork.MaterializeAgentTasksAsync(
+                        scope, entry, payload, jobScope, _logger, token, transaction), cancellationToken);
+            }
+            else
+            {
+                await AuthorityPipelineMaterializeWork.MaterializeAgentTasksAsync(
+                    scope, entry, payload, jobScope, _logger, cancellationToken).ConfigureAwait(false);
+            }
+        }
+        catch (AnalysisStageExecutionException ex)
+        {
+            throw new ConflictException(ex.Message, ex);
+        }
     }
 }

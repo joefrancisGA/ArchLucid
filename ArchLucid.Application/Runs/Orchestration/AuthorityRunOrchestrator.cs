@@ -46,7 +46,8 @@ public sealed partial class AuthorityRunOrchestrator(
     ILogger<AuthorityRunOrchestrator> logger,
     IOptionsMonitor<AnalysisStageExecutionOptions>? executionOptions = null,
     TimeProvider? timeProvider = null,
-    IRunStageOutcomesRepository? stageOutcomesRepository = null) : IAuthorityRunOrchestrator
+    IRunStageOutcomesRepository? stageOutcomesRepository = null,
+    AuthorityRecoveryPipeline? durableRecovery = null) : IAuthorityRunOrchestrator
 {
     private readonly TimeProvider _analysisClock = timeProvider ?? TimeProvider.System;
 
