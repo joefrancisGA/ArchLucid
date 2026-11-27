@@ -381,6 +381,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **code-changed-since:** yes
 
 
+2026-11-27 thorough hunt (hit): hint override `ui-lib-remediation-factory` (pass-142 queue). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with halfwidth katakana letter ku (U+FF78) and white-curved-lower-right-triangle padding (U+25BB) inside words (e.g. `o` + U+FF78 + `n`, `tr` + U+25BB + `ue`) stayed closed because those Ff/So scalars were not stripped; strip U+FF78 and U+25BB with existing invisible scalar hygiene. **valid-no-repro** pass-142 monitors (metrics close drops padded `false`, duplicate `YES`/`0` first-wins, pathname href preserves metrics when clearing snapshots). Pass-143 reseed below. Scoped vitest **622/622**. Private beta: Invited operators who deep-link with halfwidth-katakana-letter-ku or white-curved-lower-right-triangle padding inside `remediationFactoryMetricsOpen` on/true tokens open the executive metrics summary instead of landing with the panel closed.
 2026-11-27 thorough hunt (hit): hint override `ui-lib-remediation-factory` (pass-141 queue). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with halfwidth katakana letter ki (U+FF77) and black-curved-upper-right-quadrant padding (U+25BC) inside words (e.g. `o` + U+FF77 + `n`, `tr` + U+25BC + `ue`) stayed closed because those Ff/So scalars were not stripped; strip U+FF77 and U+25BC with existing invisible scalar hygiene. **valid-no-repro** pass-141 monitors (metrics open over padded `false`, duplicate `OFF`/`1` first-wins, writer preserves open metrics when clearing finding and path only). Pass-142 reseed below. Scoped vitest **618/618**. Private beta: Invited operators who deep-link with halfwidth-katakana-letter-ki or black-curved-upper-right-quadrant padding inside `remediationFactoryMetricsOpen` on/true tokens open the executive metrics summary instead of landing with the panel closed.
 2026-11-27 thorough hunt (hit): hint override `ui-lib-remediation-factory` (pass-140 queue). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with halfwidth katakana letter ka (U+FF76) and white-curved-lower-right-quadrant padding (U+25BD) inside words (e.g. `o` + U+FF76 + `n`, `tr` + U+25BD + `ue`) stayed closed because those Ff/So scalars were not stripped; strip U+FF76 and U+25BD with existing invisible scalar hygiene. **valid-no-repro** pass-140 monitors (metrics close drops padded `true`, duplicate `FALSE`/`1` first-wins, pathname href preserves snapshots when clearing finding and path). Pass-141 reseed below. Scoped vitest **614/614**. Private beta: Invited operators who deep-link with halfwidth-katakana-letter-ka or white-curved-lower-right-quadrant padding inside `remediationFactoryMetricsOpen` on/true tokens open the executive metrics summary instead of landing with the panel closed.
 2026-11-26 thorough hunt (hit): hint override `ui-lib-remediation-factory` (pass-139 queue). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with halfwidth katakana letter o (U+FF75) and white-curved-lower-left-quadrant padding (U+25BE) inside words (e.g. `o` + U+FF75 + `n`, `tr` + U+25BE + `ue`) stayed closed because those Ff/So scalars were not stripped; strip U+FF75 and U+25BE with existing invisible scalar hygiene. **valid-no-repro** pass-139 monitors (metrics open over padded `true`, duplicate `TRUE`/`0` first-wins, writer preserves open metrics when clearing from/to snapshots only). Pass-140 reseed below. Scoped vitest **610/610**. Private beta: Invited operators who deep-link with halfwidth-katakana-letter-o or white-curved-lower-left-quadrant padding inside `remediationFactoryMetricsOpen` on/true tokens open the executive metrics summary instead of landing with the panel closed.
@@ -1675,11 +1676,11 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 162
-- **bugs-found:** 149
+- **hunts:** 163
+- **bugs-found:** 150
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-11-26
-- **last-bug:** 2026-11-26
+- **last-hunt:** 2026-11-27
+- **last-bug:** 2026-11-27
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ## Zone: ui-hooks-shared
