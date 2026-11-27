@@ -53,11 +53,7 @@ partial class RunLifecycleOrchestrationCompositionRegistrar
         services.AddSingleton<IEvidencePackBuilder, EvidencePackBuilder>();
         services.AddSingleton<ISupportBundleAssembler, SupportBundleAssembler>();
         services.AddSingleton<IExecutionProvenanceFooterRenderer, ExecutionProvenanceFooterRenderer>();
-        services
-            .AddHttpClient<IPublisherConnector, ConfluenceCloudPublisherConnector>(
-                static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration))
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
-            .AddOutboundExternalHttpResilience();
+        RegisterConfluencePublishingHttpClient(services);
         services.AddScoped<IConfluencePublishingHttpAuthenticator, ConfluencePublishingHttpAuthenticator>();
         services.AddScoped<IOperatorNextBestActionService, OperatorNextBestActionService>();
         services.AddScoped<IConnectorOperationsSummaryReader, ConnectorOperationsSummaryReader>();
