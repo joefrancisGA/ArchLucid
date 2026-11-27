@@ -3631,6 +3631,18 @@ describe("remediation-factory-url-state", () => {
     ).toBe(true);
   });
 
+  it("treats true metrics disclosure token with rightwards two-headed arrow with vertical stroke inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u2900ue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with rightwards two-headed arrow with double vertical stroke inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u2901ue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
   it("treats ON metrics disclosure token with halfwidth katakana letter ki inside the word as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF77n`).metricsSummaryOpen,
