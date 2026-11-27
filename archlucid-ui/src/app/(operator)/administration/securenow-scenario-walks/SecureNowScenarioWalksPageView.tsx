@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { SecureNowAcceleratorScenarioRelatedRail } from "@/components/product-line/SecureNowAcceleratorScenarioRelatedRail";
 import { SecureNowAdminSecondCapturePathDeltaStrip } from "@/components/product-line/SecureNowAdminSecondCapturePathDeltaStrip";
 import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
 import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
@@ -70,28 +71,7 @@ export function SecureNowScenarioWalksPageView(): React.JSX.Element {
                     </Link>
                   </p>
                 ) : null}
-                {scenario.id === "fixture-path-02" ? (
-                  <p className={OPERATOR_TYPOGRAPHY.body}>
-                    <Link
-                      className={OPERATOR_LINK.inline}
-                      href={`/securenow-sample#${SECURENOW_SAMPLE_SECOND_FIXTURE_SECTION_ID}`}
-                      data-testid="securenow-scenario-walk-sample-fixture-path-02"
-                    >
-                      Open fixture-path-02 on the public sample
-                    </Link>
-                  </p>
-                ) : null}
-                {scenario.id === "fixture-path-03" ? (
-                  <p className={OPERATOR_TYPOGRAPHY.body}>
-                    <Link
-                      className={OPERATOR_LINK.inline}
-                      href={`/securenow-sample#${SECURENOW_SAMPLE_THIRD_FIXTURE_SECTION_ID}`}
-                      data-testid="securenow-scenario-walk-sample-fixture-path-03"
-                    >
-                      Open fixture-path-03 on the public sample
-                    </Link>
-                  </p>
-                ) : null}
+                <SecureNowAcceleratorScenarioRelatedRail scenarioId={scenario.id} />
               </li>
             ))}
           </ul>
