@@ -31,6 +31,7 @@ import { SecureNowPilotWalkthroughBanner } from "@/components/product-line/Secur
 import { SecureNowRemediationFactoryStepFocusBanner } from "@/components/product-line/SecureNowRemediationFactoryStepFocusBanner";
 import { SecureNowRemediationFactoryCollectionSetupBanner } from "@/components/product-line/SecureNowRemediationFactoryCollectionSetupBanner";
 import { SecureNowReaderScopeWorkbenchStrip } from "@/components/product-line/SecureNowReaderScopeWorkbenchStrip";
+import { SecureNowAgentReadinessSubstrateAuto } from "@/components/product-line/SecureNowAgentReadinessSubstrateAuto";
 import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
@@ -784,7 +785,10 @@ export function RemediationFactoryClient() {
       ) : null}
 
       {productLine === "security" ? (
-        <SecureNowReaderScopeWorkbenchStrip testId="remediation-factory-reader-scope-workbench" />
+        <>
+          <SecureNowAgentReadinessSubstrateAuto testId="remediation-factory-agent-readiness-substrate" />
+          <SecureNowReaderScopeWorkbenchStrip testId="remediation-factory-reader-scope-workbench" />
+        </>
       ) : null}
 
       <SecureNowPilotWalkthroughBanner productLine={productLine} />

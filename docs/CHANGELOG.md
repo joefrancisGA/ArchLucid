@@ -5,6 +5,14 @@
 
 # ArchLucid changelog
 
+## 2026-11-27 - Score lift round 151 (batch wave H4): SecureNow AI and agent readiness substrate
+
+**Outcome.** Remediation factory, infrastructure Ask, and attack-path report name simulator versus Real agent mode, deterministic rank discipline, and citation bounds — not an autonomous subscription agent.
+
+**Surfaces.** Remediation factory client, infrastructure Ask page, attack-path report section, drift guard and mounted-contract tests.
+
+
+
 ## 2026-11-27 - Score lift round 149 (batch wave H1): SecureNow time-to-value next step
 
 **Outcome.** Home, findings header, and snapshots drift name one collection or second-capture next step with a primary CTA and browser-local recovery links — not a timed SLA or usage score.
