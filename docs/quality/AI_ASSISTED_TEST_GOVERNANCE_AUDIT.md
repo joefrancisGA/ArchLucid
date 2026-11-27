@@ -19,7 +19,18 @@
 
 ## Additional requirements, in recommended order
 
-Identifiers TG-AUD-01 through TG-AUD-08 are audit finding labels only, not new active technical backlog IDs. Priorities are proposed. Implementation requires a separate authorized change, reuse assessment and regression evidence.
+Identifiers TG-AUD-01 through TG-AUD-08 are stable audit finding labels. The owner authorized their addition to the [active technical backlog](../ACTIVE_TECHNICAL_BACKLOG.md) as FND-163 through FND-170, retaining the four Critical and four High priorities. These are tracked requirements, not evidence of completed implementation. Implementation requires a separate authorized change, reuse assessment and regression evidence.
+
+| Audit finding | Active backlog ID | Priority |
+| --- | --- | --- |
+| TG-AUD-01 | FND-163 | Critical |
+| TG-AUD-02 | FND-164 | Critical |
+| TG-AUD-03 | FND-165 | Critical |
+| TG-AUD-04 | FND-166 | Critical |
+| TG-AUD-05 | FND-167 | High |
+| TG-AUD-06 | FND-168 | High |
+| TG-AUD-07 | FND-169 | High |
+| TG-AUD-08 | FND-170 | High |
 
 ### TG-AUD-01 — Critical: test integrity and regression preservation rule
 
