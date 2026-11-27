@@ -38,6 +38,7 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
 
         AzureDevOpsPullRequestDecorator sut = new(
             httpClient,
+            httpClient,
             Options.Create(opt),
             NullLogger<AzureDevOpsPullRequestDecorator>.Instance);
 
@@ -85,6 +86,7 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
         };
 
         AzureDevOpsPullRequestDecorator sut = new(
+            httpClient,
             httpClient,
             Options.Create(opt),
             NullLogger<AzureDevOpsPullRequestDecorator>.Instance);
@@ -138,6 +140,7 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
 
         AzureDevOpsPullRequestDecorator sut = new(
             httpClient,
+            httpClient,
             Options.Create(opt),
             NullLogger<AzureDevOpsPullRequestDecorator>.Instance);
 
@@ -180,6 +183,7 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
 
         AzureDevOpsPullRequestDecorator sut = new(
             httpClient,
+            httpClient,
             Options.Create(opt),
             NullLogger<AzureDevOpsPullRequestDecorator>.Instance);
 
@@ -202,6 +206,7 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
 
         AzureDevOpsPullRequestDecorator sut = new(
             httpClient,
+            httpClient,
             Options.Create(opt),
             NullLogger<AzureDevOpsPullRequestDecorator>.Instance);
 
@@ -223,6 +228,7 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
         AzureDevOpsIntegrationOptions opt = IntegrationOptions(withArchLucidCompare: false);
 
         AzureDevOpsPullRequestDecorator sut = new(
+            httpClient,
             httpClient,
             Options.Create(opt),
             NullLogger<AzureDevOpsPullRequestDecorator>.Instance);
@@ -247,6 +253,7 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
         using HttpClient httpClient = new(stub);
 
         AzureDevOpsPullRequestDecorator sut = new(
+            httpClient,
             httpClient,
             Options.Create(
                 IntegrationOptions(withArchLucidCompare: true, statusTargetUrl: "https://ops.example/")),
@@ -282,6 +289,7 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
 
         AzureDevOpsPullRequestDecorator sut = new(
             httpClient,
+            httpClient,
             Options.Create(
                 IntegrationOptions(withArchLucidCompare: true)),
             NullLogger<AzureDevOpsPullRequestDecorator>.Instance);
@@ -314,6 +322,7 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
 
         AzureDevOpsPullRequestDecorator sut = new(
             httpClient,
+            httpClient,
             Options.Create(
                 IntegrationOptions(withArchLucidCompare: true)),
             NullLogger<AzureDevOpsPullRequestDecorator>.Instance);
@@ -337,6 +346,7 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
         Guid baseRun = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaad");
 
         AzureDevOpsPullRequestDecorator sut = new(
+            httpClient,
             httpClient,
             Options.Create(
                 IntegrationOptions(withArchLucidCompare: true, statusTargetUrl: "https://status.example")),
@@ -378,6 +388,7 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
         };
 
         AzureDevOpsPullRequestDecorator sut = new(
+            httpClient,
             httpClient,
             Options.Create(opt),
             NullLogger<AzureDevOpsPullRequestDecorator>.Instance);

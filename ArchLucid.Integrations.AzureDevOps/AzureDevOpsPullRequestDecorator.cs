@@ -14,15 +14,22 @@ namespace ArchLucid.Integrations.AzureDevOps;
 /// <summary>REST 7.1 client: PR thread comment + optional PR status (best-effort).</summary>
 public sealed class AzureDevOpsPullRequestDecorator(
     HttpClient httpClient,
+    HttpClient threadHttpClient,
     IOptions<AzureDevOpsIntegrationOptions> options,
     ILogger<AzureDevOpsPullRequestDecorator> logger) : IAzureDevOpsPullRequestDecorator
 {
     /// <summary>Named <see cref="HttpClient" /> key registered in Host.Composition.</summary>
     public const string HttpClientName = nameof(AzureDevOpsPullRequestDecorator);
 
+    /// <summary>Named client for thread creation. Its policy must not replay the create POST.</summary>
+    public const string ThreadHttpClientName = nameof(AzureDevOpsPullRequestDecorator) + ".ThreadCreate";
+
     private static readonly JsonSerializerOptions CompareJsonOptions = new() { PropertyNameCaseInsensitive = true, };
 
     private readonly HttpClient _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+
+    private readonly HttpClient _threadHttpClient =
+        threadHttpClient ?? throw new ArgumentNullException(nameof(threadHttpClient));
 
     private readonly IOptions<AzureDevOpsIntegrationOptions> _options =
         options ?? throw new ArgumentNullException(nameof(options));
@@ -62,7 +69,8 @@ public sealed class AzureDevOpsPullRequestDecorator(
             .ConfigureAwait(false);
 
         await PostStatusAsync(pat, basePath, markdown, operatorRunDeepLink, cancellationToken).ConfigureAwait(false);
-        await PostThreadAsync(pat, basePath, markdown, cancellationToken).ConfigureAwait(false);
+        await PostThreadAsync(pat, basePath, markdown, request.RunId, target.PullRequestId, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     private async Task<string> BuildPrMarkdownAsync(
@@ -190,7 +198,7 @@ public sealed class AzureDevOpsPullRequestDecorator(
 
         try
         {
-            using HttpResponseMessage response = await SendPatPostAsync(pat, url, json, cancellationToken)
+            using HttpResponseMessage response = await SendPatPostAsync(_httpClient, pat, url, json, HttpCompletionOption.ResponseContentRead, cancellationToken)
                 .ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -213,40 +221,71 @@ public sealed class AzureDevOpsPullRequestDecorator(
         }
     }
 
-    private async Task PostThreadAsync(string pat, string pullRequestBasePath, string markdown, CancellationToken cancellationToken)
+    private async Task PostThreadAsync(
+        string pat,
+        string pullRequestBasePath,
+        string markdown,
+        Guid runId,
+        int pullRequestId,
+        CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         string url = $"{pullRequestBasePath}/threads?api-version=7.1";
         string json = AzureDevOpsPullRequestWireFormat.SerializeThreadCreate(markdown);
 
         try
         {
-            using HttpResponseMessage response = await SendPatPostAsync(pat, url, json, cancellationToken)
+            using HttpResponseMessage response = await SendPatPostAsync(
+                    _threadHttpClient, pat, url, json, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
                 .ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode && _logger.IsEnabled(LogLevel.Warning))
             {
-                string err = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-
-                if (_logger.IsEnabled(LogLevel.Warning))
-
+                int statusCode = (int)response.StatusCode;
+                if (statusCode >= 500 || response.StatusCode == HttpStatusCode.RequestTimeout)
+                {
                     _logger.LogWarning(
-                        "Azure DevOps PR thread POST failed: {StatusCode} {Body}",
-                        (int)response.StatusCode,
-                        err.Length > 512 ? err[..512] : err);
+                        "Azure DevOps PR thread create outcome unknown for RunId={RunId}, PullRequestId={PullRequestId} (HTTP {StatusCode}). Verify the PR before replay.",
+                        runId, pullRequestId, statusCode);
+                }
+                else
+                {
+                    _logger.LogWarning(
+                        "Azure DevOps PR thread POST failed for RunId={RunId}, PullRequestId={PullRequestId} (HTTP {StatusCode}).",
+                        runId, pullRequestId, statusCode);
+                }
             }
+        }
+        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    "Azure DevOps PR thread create outcome unknown for RunId={RunId}, PullRequestId={PullRequestId} ({FailureType}). Verify the PR before replay.",
+                    runId, pullRequestId, ex.GetType().Name);
+            }
+
+            if (cancellationToken.IsCancellationRequested)
+                throw;
         }
         catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-
-                _logger.LogWarning(ex, "Azure DevOps PR thread POST threw.");
+            {
+                _logger.LogWarning(ex,
+                    "Azure DevOps PR thread POST threw for RunId={RunId}, PullRequestId={PullRequestId}.",
+                    runId, pullRequestId);
+            }
         }
     }
 
-    private async Task<HttpResponseMessage> SendPatPostAsync(
+    private static async Task<HttpResponseMessage> SendPatPostAsync(
+        HttpClient httpClient,
         string pat,
         string requestUrl,
         string json,
+        HttpCompletionOption completionOption,
         CancellationToken cancellationToken)
     {
         using HttpRequestMessage request = new(HttpMethod.Post, new Uri(requestUrl, UriKind.Absolute));
@@ -255,6 +294,6 @@ public sealed class AzureDevOpsPullRequestDecorator(
             Convert.ToBase64String(Encoding.ASCII.GetBytes($":{pat}")));
         request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        return await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        return await httpClient.SendAsync(request, completionOption, cancellationToken).ConfigureAwait(false);
     }
 }

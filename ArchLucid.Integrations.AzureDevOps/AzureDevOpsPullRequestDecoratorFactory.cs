@@ -25,6 +25,9 @@ public sealed class AzureDevOpsPullRequestDecoratorFactory(
     {
         HttpClient httpClient = _httpClientFactory.CreateClient(AzureDevOpsPullRequestDecorator.HttpClientName);
 
-        return new AzureDevOpsPullRequestDecorator(httpClient, _options, _logger);
+        HttpClient threadHttpClient =
+            _httpClientFactory.CreateClient(AzureDevOpsPullRequestDecorator.ThreadHttpClientName);
+
+        return new AzureDevOpsPullRequestDecorator(httpClient, threadHttpClient, _options, _logger);
     }
 }

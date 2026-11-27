@@ -40,7 +40,7 @@ Inventory **who dedupes** after at-least-once Service Bus delivery or outbox rep
 |---------|------------|--------------------------|-------------------------|
 | `LoggingIntegrationEventHandler` (`*`) | All | Log-only | None (observability) |
 | `AuthorityRunCompletedChatOpsIntegrationEventHandler` | `authority.run.completed` | Best-effort notify; swallows handler faults | Duplicate ChatOps posts possible on SB redelivery |
-| `AuthorityRunCompletedAzureDevOpsIntegrationEventHandler` | `authority.run.completed` | PR decoration upsert via ADO API | Duplicate comments/checks if ADO path is create-always |
+| `AuthorityRunCompletedAzureDevOpsIntegrationEventHandler` | `authority.run.completed` | Status updates use a stable Azure DevOps context; thread POST creates a new comment and is not automatically retried or redirected at the HTTP layer | **Not replay-safe for threads.** Publish-then-mark replay or Service Bus redelivery (including lost settlement after creation) can still produce duplicate comments. Verify the target PR before operator replay. |
 | `TrialLifecycleEmailIntegrationEventHandler` | `notifications.trial-lifecycle-email.v1` | `ISentEmailLedger.TryRecordSentAsync` idempotency key before send | Low for email body; audit row still append-only |
 
 **Operator note:** duplicate ChatOps/email after the Service Bus duplicate-detection window is expected — treat as at-least-once unless the downstream documents stronger dedupe.
