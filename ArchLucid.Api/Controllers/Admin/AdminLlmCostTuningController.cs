@@ -28,6 +28,10 @@ public sealed class AdminLlmCostTuningController(
     IAuditService auditService,
     IRegisteredAgentHandlersInspector handlersInspector) : ControllerBase
 {
+    // Mirrors migration 162: both persisted rates are strictly positive DECIMAL(18,8).
+    private const int PersistedRateScale = 8;
+    private const decimal MaxPersistedRate = 9_999_999_999.99999999m;
+
     private readonly IActorContext _actorContext =
         actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
@@ -48,6 +52,13 @@ public sealed class AdminLlmCostTuningController(
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (!FitsPersistedRate(request.InputUsdPerMillionTokens) || !FitsPersistedRate(request.OutputUsdPerMillionTokens))
+        {
+            return this.BadRequestProblem(
+                "Input and output rates must round to between 0.00000001 and 9999999999.99999999 USD per million tokens.",
+                ProblemTypes.ValidationFailed);
+        }
 
         ILlmCostEstimationUsdRateOverrideRepository? repository =
             HttpContext.RequestServices.GetService<ILlmCostEstimationUsdRateOverrideRepository>();
@@ -99,6 +110,9 @@ public sealed class AdminLlmCostTuningController(
 
         return NoContent();
     }
+
+    private static bool FitsPersistedRate(decimal rate) =>
+        decimal.Round(rate, PersistedRateScale, MidpointRounding.AwayFromZero) is > 0m and <= MaxPersistedRate;
 
     /// <summary>Lists DI-registered <see cref="ArchLucid.Contracts.Abstractions.Agents.IAgentHandler" /> implementations (metadata only; SQL and InMemory hosts).</summary>
     [HttpGet("custom-handlers")]
