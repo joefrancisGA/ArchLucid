@@ -96,6 +96,7 @@ See [`docs/architecture/AZURE_CONNECTION_POINT_DISCOVERY.md`](../architecture/AZ
 | Trust | **Federated workload identity** — customer federated credential trusts ArchLucid's **user-assigned managed identity** (preferred over long-lived client secrets). |
 | ArchLucid storage | Persist only `{ customerTenantId, customerAppId, subscriptionId, includeCost }` in `dbo.TenantHostedExtractorConfigurations` — **never** customer client secrets. |
 | Token exchange | Worker uses **`ClientAssertionCredential`** with ArchLucid MI assertion → customer SP token (`WorkloadIdentityHostedAzureExtractorCredentialFactory`; scope default `api://AzureADTokenExchange/.default`). |
+| Hosted collection deadline | `HostedAzureExtractor:CollectionTimeoutSeconds` defaults to **1800** (30 minutes), clamped to **30–7200**. One budget covers collection, including pagination and ZIP assembly, for both manual and scheduled runs. Expiry requests cancellation and any late ZIP is discarded. A complete ZIP starts the separate ingest stage using the caller's cancellation token. |
 | Ingest path | Collected ZIP flows through **`HostedAzureExtractorClient`** into the existing upload/audit pipeline (same events as manual upload). |
 | Operations | Leader-elected loop gated by `AzureExtractor:AutoPull:Enabled` (default `false`) and `AzureExtractor:AutoPull:IntervalMinutes` (15–10080). |
 
