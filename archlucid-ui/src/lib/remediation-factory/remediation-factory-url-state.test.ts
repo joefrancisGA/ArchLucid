@@ -1428,6 +1428,18 @@ describe("remediation-factory-url-state", () => {
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25B8ue`).metricsSummaryOpen,
     ).toBe(true);
   });
+
+  it("treats ON metrics disclosure token with halfwidth katakana letter shi inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF7Cn`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with black right-pointing triangle inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25B6ue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
   it("treats ON metrics disclosure token with halfwidth katakana letter ki inside the word as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF77n`).metricsSummaryOpen,
@@ -2012,6 +2024,13 @@ describe("remediation-factory-url-state", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(
         `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=ON&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1`,
+      ).metricsSummaryOpen,
+    ).toBe(true);
+  });
+  it("uses the first metrics disclosure token when on precedes 0 in the query string", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(
+        `?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=on&${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=0`,
       ).metricsSummaryOpen,
     ).toBe(true);
   });  it("uses the first metrics disclosure token when off precedes 1 in the query string", () => {
