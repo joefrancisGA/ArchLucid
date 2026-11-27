@@ -1,4 +1,6 @@
-﻿"use client";
+"use client";
+
+import Link from "next/link";
 
 import { useCallback, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -34,7 +36,8 @@ import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-fi
 import {
   resolveScopedFindingLifecycleCompareHref,
 } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
-import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_FINDINGS_PATH, SECURENOW_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { governanceFindingsWorkspaceSavedViewHref, governanceFindingsRunScopedSavedViewHref } from "@/lib/governance/governance-findings-saved-view-helpers";
@@ -384,6 +387,17 @@ export default function GovernanceFindingsQueueClient({
         queueLastRefreshedAt={tenantLastRefreshedAt}
         queueRefreshing={tenantRefreshing}
       />
+      {pathname.startsWith("/compliance") ? (
+        <p className={OPERATOR_TYPOGRAPHY.body} data-testid="compliance-findings-wayfinding">
+          <Link className={OPERATOR_LINK.inline} href={SECURENOW_FINDINGS_PATH}>
+            Findings hub
+          </Link>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href="/">
+            Home
+          </Link>
+        </p>
+      ) : null}
     </OperatorPageContainer>
   );
 }

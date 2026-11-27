@@ -334,6 +334,7 @@ public sealed class SqlAuditEvidenceProjectIsolationTests(SqlServerPersistenceFi
             new { Name = "B/wrong-project", Scope = scopeA,
                   AssessmentId = assessmentB, SubmissionId = projectBSubmission.SubmissionId },
         };
+
         foreach (var denied in deniedReadCases)
         {
             (await evidence.ListArchitectureLinksByAssessmentInScopeAsync(denied.Scope, denied.AssessmentId))

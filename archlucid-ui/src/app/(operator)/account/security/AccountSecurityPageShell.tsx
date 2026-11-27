@@ -82,8 +82,9 @@ export function AccountSecurityPageShell(props: AccountSecurityPageShellProps) {
         {ACCOUNT_SECURITY_SKIP_LINK_LABEL}
       </a>
 
-      <div
+      <main
         id={ACCOUNT_SECURITY_PRIMARY_CONTENT_ID}
+        tabIndex={-1}
         data-testid={ACCOUNT_SECURITY_PRIMARY_CONTENT_ID}
         className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
       >
@@ -178,7 +179,7 @@ export function AccountSecurityPageShell(props: AccountSecurityPageShellProps) {
         <div data-testid="account-security-orientation-bottom">
           <AccountSecuritySettingsEvidenceOrientationStrip />
         </div>
-      </div>
+      </main>
 
       <AccountSecurityRemoveDialog
         method={methodToRemove}

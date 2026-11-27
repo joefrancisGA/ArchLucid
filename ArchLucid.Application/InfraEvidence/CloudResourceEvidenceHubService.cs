@@ -53,6 +53,7 @@ public sealed class CloudResourceEvidenceHubService(
         Guid? requestedRunId = query.RunId is Guid candidateRunId && candidateRunId != Guid.Empty
             ? candidateRunId
             : null;
+
         if (requestedRunId is Guid requestedRun &&
             (runReadAccess is null || !await runReadAccess.CanReadRunAsync(scope, requestedRun, cancellationToken)))
         {
@@ -93,6 +94,7 @@ public sealed class CloudResourceEvidenceHubService(
         {
             AzureInventorySnapshotRecord? snapshot =
                 await snapshotRepository.TryGetBySnapshotIdAsync(scope, snapshotId, cancellationToken);
+
             if (snapshot is null || snapshot.SnapshotId != snapshotId || snapshot.TenantId != scope.TenantId ||
                 snapshot.WorkspaceId != scope.WorkspaceId || snapshot.ProjectId != scope.ProjectId)
             {
@@ -504,10 +506,12 @@ public sealed class CloudResourceEvidenceHubService(
         for (int start = 0; start <= text.Length - resourceId.Length;)
         {
             int match = text.IndexOf(resourceId, start, StringComparison.OrdinalIgnoreCase);
+
             if (match < 0)
                 return false;
 
             int end = match + resourceId.Length;
+
             if ((match == 0 || !IsResourceIdCharacter(text[match - 1])) && IsResourceIdEnd(text, end))
                 return true;
 

@@ -64,12 +64,14 @@ public static class AuthorityPipelineMaterializeWork
         EvidenceBundle? evidenceBundle =
             await evidenceBundleRepository.GetForRunAsync(jobScope, entry.RunId, payload.EvidenceBundleId.Trim(), cancellationToken)
                 .ConfigureAwait(false);
+
         if (evidenceBundle is null)
             throw new InvalidOperationException("Deferred authority evidence bundle is not bound to this run.");
 
         ArchitectureRequest? architectureRequest =
             await requestRepository.GetByIdAsync(authorityHeader.ArchitectureRequestId, cancellationToken)
                 .ConfigureAwait(false);
+
         if (architectureRequest is null)
         {
             throw new InvalidOperationException(
@@ -171,12 +173,14 @@ public static class AuthorityPipelineMaterializeWork
         EvidenceBundle? evidenceBundle =
             await evidenceBundleRepository.GetForRunAsync(jobScope, entry.RunId, payload.EvidenceBundleId.Trim(), cancellationToken)
                 .ConfigureAwait(false);
+
         if (evidenceBundle is null)
             throw new InvalidOperationException("Deferred authority evidence bundle is not bound to this run.");
 
         ArchitectureRequest? architectureRequest =
             await requestRepository.GetByIdAsync(authorityHeader.ArchitectureRequestId, cancellationToken)
                 .ConfigureAwait(false);
+
         if (architectureRequest is null)
         {
             throw new InvalidOperationException(
