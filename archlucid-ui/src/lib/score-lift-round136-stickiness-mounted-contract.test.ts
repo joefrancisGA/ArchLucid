@@ -12,10 +12,10 @@ describe("score-lift round136 stickiness mounted contract", () => {
     const findingsHeader = readUiSource("app/(operator)/governance/findings/GovernanceFindingsQueueHeader.tsx");
     const drift = readUiSource("app/(operator)/governance/infrastructure/drift/DriftWorkbenchClient.tsx");
 
-    expect(findingsHeader).toContain("governance-findings-header-second-capture-path-delta");
-    expect(findingsHeader).toContain("SecureNowSecondCapturePathDeltaHonestyStrip");
+    expect(findingsHeader).toContain("governance-findings-time-to-value-next-step");
+    expect(findingsHeader).toContain("SecureNowTimeToValueNextStepAuto");
 
-    expect(drift).toContain("infra-drift-second-capture-path-delta");
-    expect(drift).toContain("infra-drift-diffs-empty-later-second-capture");
+    expect(drift).toContain("infra-drift-time-to-value-next-step");
+    expect(drift).toContain("SecureNowTimeToValueNextStepAuto");
   });
 });

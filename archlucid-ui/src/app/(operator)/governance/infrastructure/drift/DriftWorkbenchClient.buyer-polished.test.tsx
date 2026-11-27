@@ -101,6 +101,12 @@ vi.mock("@/hooks/use-securenow-collection-setup-input", () => ({
   }),
 }));
 
+vi.mock("@/hooks/use-securenow-successful-capture-count", () => ({
+  useSecureNowSuccessfulCaptureCount: () => 1,
+}));
+
+
+
 vi.mock("@/hooks/use-operator-scope-query-key", () => ({
   useOperatorScopeQueryKey: () => ({ tenantId: "t", workspaceId: "w", projectId: "p" }),
 }));
@@ -174,7 +180,7 @@ describe("DriftWorkbenchClient buyer-polished chrome", () => {
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
     expect(await screen.findByRole("table", { name: "Inventory snapshots" })).toBeInTheDocument();
     expect(await screen.findByTestId("infra-drift-export-terraform")).toBeInTheDocument();
-    expect(await screen.findByTestId("infra-drift-second-capture-path-delta")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-drift-time-to-value-next-step")).toBeInTheDocument();
     expect(await screen.findByTestId("securenow-drift-post-capture-next-step")).toBeInTheDocument();
   });
 
