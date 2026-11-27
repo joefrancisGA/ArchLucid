@@ -36,6 +36,7 @@ internal static class FindingsSnapshotJsonFallbackMapper
             CreatedUtc = DateTime.SpecifyKind(row.CreatedUtc, DateTimeKind.Utc),
             SchemaVersion = row.SchemaVersion,
             GenerationStatus = FindingsSnapshotGenerationStatusParser.Parse(row.GenerationStatus),
+            CoverageOutputUnavailable = true,
             Findings = []
         };
 

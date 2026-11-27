@@ -3,6 +3,7 @@ using System.Text;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
+using ArchLucid.Core.Analysis;
 using ArchLucid.Decisioning.Findings;
 
 namespace ArchLucid.Application.Exports;
@@ -85,7 +86,11 @@ public static class CareerExportCoverageHonestyComposer
         ArgumentNullException.ThrowIfNull(input);
 
         CareerExportCoverageHonesty honesty = Resolve(input);
-        List<string> sections = [FormatMeasurementFloorMarkdown(input).Trim()];
+        List<string> sections =
+        [
+            FormatMeasurementFloorMarkdown(input).Trim(),
+            "## Analysis coverage\n\n" + AnalysisCoverageCopy.Explain(AuthorityAnalysisCoverage.Evaluate(input.FindingsSnapshot)),
+        ];
 
         string classificationMarkdown = FormatClassificationBandMarkdown(input.ClassificationCounts).Trim();
 
@@ -144,7 +149,10 @@ public static class CareerExportCoverageHonestyComposer
 
         (string? corePlain, IReadOnlyList<string> sponsorLines) = BuildCareerExportPlainTextParts(input);
 
-        List<string> sections = [];
+        List<string> sections =
+        [
+            "Analysis coverage\n" + AnalysisCoverageCopy.Explain(AuthorityAnalysisCoverage.Evaluate(input.FindingsSnapshot)),
+        ];
 
         if (corePlain is not null)
         {

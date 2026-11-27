@@ -19,6 +19,8 @@ public static class SecurityEvidencePathReportReasonCodes
 
     public const string ControlPlaneOnlyNoObservedTraffic = "control-plane-only-no-observed-traffic";
 
+    public const string VulnerablePathsUnranked = "vulnerable-paths-unranked";
+
     public const string SearchStoppedMaxPaths = "search-stopped-max-paths";
 
     public const string SearchStoppedMaxDepth = "search-stopped-max-depth";

@@ -56,6 +56,7 @@ internal static class SecurityEvidencePathReportAssembler
         AppendInsufficientEvidenceGroups(unevaluated, attackPaths, edgeTypesByPathId);
         AppendControlPlaneOnlyGroup(unevaluated, attackPaths);
         AppendSearchStoppedGroups(unevaluated, searchCoverageRows);
+        AppendUnrankedVulnerablePaths(unevaluated, attackPaths, vulnerable);
 
         return new SecurityEvidencePathReportResponse
         {
@@ -63,6 +64,30 @@ internal static class SecurityEvidencePathReportAssembler
             VulnerableAttackPaths = vulnerable,
             UnevaluatedGroups = unevaluated,
         };
+    }
+
+    private static void AppendUnrankedVulnerablePaths(
+        List<SecurityEvidencePathReportUnevaluatedGroupResponse> groups,
+        Dictionary<Guid, SecurityEvidencePathRecord> attackPaths,
+        List<SecurityEvidencePathRankSummaryResponse> ranked)
+    {
+        HashSet<Guid> rankedIds = ranked.Select(path => path.PathId).ToHashSet();
+        Guid[] unranked = attackPaths.Values
+            .Where(path => IsVulnerableBand(path.PathConfidenceBand) && !rankedIds.Contains(path.PathId))
+            .Select(path => path.PathId)
+            .Order()
+            .ToArray();
+
+        if (unranked.Length == 0)
+            return;
+
+        groups.Add(new SecurityEvidencePathReportUnevaluatedGroupResponse
+        {
+            ReasonCode = SecurityEvidencePathReportReasonCodes.VulnerablePathsUnranked,
+            WhyText = SecurityEvidencePathReportReasonCatalog.GetWhyText(SecurityEvidencePathReportReasonCodes.VulnerablePathsUnranked),
+            PathIds = unranked,
+            PathCount = unranked.Length,
+        });
     }
 
     private static void AppendInsufficientEvidenceGroups(

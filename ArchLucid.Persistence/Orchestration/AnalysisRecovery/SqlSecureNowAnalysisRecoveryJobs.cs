@@ -68,6 +68,17 @@ public sealed class SqlSecureNowAnalysisRecoveryJobs(ISqlConnectionFactory facto
             new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: ct))).AsList();
     }
 
+    public async Task<SecureNowAnalysisRecoveryJob?> TryGetAsync(ProjectScopeKey scope, Guid snapshotId, CancellationToken ct)
+    {
+        DemandScope(scope);
+        await using SqlConnection db = await factory.CreateOpenConnectionAsync(ct);
+        const string sql = $"SELECT * FROM dbo.SecureNowAnalysisRecoveryJobs WHERE {Key};";
+
+        return await db.QuerySingleOrDefaultAsync<SecureNowAnalysisRecoveryJob>(
+            new CommandDefinition(sql, new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, SnapshotId = snapshotId },
+                cancellationToken: ct));
+    }
+
     public async Task RecordOutcomeAsync(SecureNowAnalysisRecoveryJob job, string outcome, CancellationToken ct)
     {
         ProjectScopeKey scope = ProjectScopeKey.Create(job.TenantId, job.WorkspaceId, job.ProjectId);

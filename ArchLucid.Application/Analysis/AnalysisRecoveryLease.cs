@@ -87,6 +87,14 @@ internal sealed class AnalysisRecoveryLease : IAsyncDisposable
             failure is not AnalysisStageExecutionException { Outcome: not AnalysisStageOutcome.Failed } &&
             SqlTransientDetector.IsTransient(failure));
 
+        if (!retryable && failure is AnalysisDependencyRejectionException { Reason: { } reason }
+            && AnalysisCoverageReasons.IsAllowed(reason))
+        {
+            await _repository.ReleaseWithCoverageReasonAsync(_key, _owner, Claim.Fence, reason, cleanup.Token);
+
+            return;
+        }
+
         await _repository.ReleaseAsync(_key, _owner, Claim.Fence, retryable, cleanup.Token);
     }
 

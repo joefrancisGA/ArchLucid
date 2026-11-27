@@ -180,6 +180,11 @@ public sealed class SqlAnalysisRecoveryRepository(
         WriteOwnedAsync(key, owner, fence, "release", 0, null,
             retryable ? "retry" : "failed", null, cancellationToken);
 
+    public Task<bool> ReleaseWithCoverageReasonAsync(
+        AnalysisRecoveryStageKey key, Guid owner, long fence, string reason, CancellationToken cancellationToken) =>
+        WriteOwnedAsync(key, owner, fence, "release", 0, AnalysisCoverageReasons.Encode(reason),
+            "failed", null, cancellationToken);
+
     private async Task<bool> WriteOwnedAsync(
         AnalysisRecoveryStageKey key, Guid owner, long fence, string operation, int leaseSeconds,
         string? resultReference, string? failureState, IArchLucidUnitOfWork? unitOfWork, CancellationToken cancellationToken)
@@ -197,7 +202,7 @@ public sealed class SqlAnalysisRecoveryRepository(
                    Owner = CASE WHEN @Operation = N'renew' THEN Owner END,
                    LeaseUntilUtc = CASE WHEN @Operation = N'renew'
                        THEN DATEADD(second, @LeaseSeconds, SYSUTCDATETIME()) END,
-                   ResultReference = CASE WHEN @Operation = N'complete' THEN @ResultReference END,
+                   ResultReference = CASE WHEN @Operation IN (N'complete', N'release') THEN @ResultReference END,
                    UpdatedUtc = SYSUTCDATETIME()
             WHERE {KeyPredicate} {Owned};
             """;

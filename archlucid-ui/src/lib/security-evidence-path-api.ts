@@ -20,6 +20,7 @@ import type {
   SecurityEvidencePathRoutingRow,
   SecurityEvidencePathWeakestHop,
 } from "@/lib/security-evidence-path-types";
+import { readAnalysisCoverage } from "@/lib/analysis-coverage";
 import { SECURITY_EVIDENCE_PATH_CUT_KIND_NOT_STORED } from "@/lib/security-evidence-path-cut-point-presentation";
 import {
   SECURITY_EVIDENCE_PATH_BLAST_RADIUS_PROSE_NOT_STORED,
@@ -372,6 +373,7 @@ export async function fetchSecurityEvidencePathAttackPathReport(
 
   return {
     snapshotId: mappedSnapshotId,
+    analysisCoverage: readAnalysisCoverage(raw),
     vulnerableAttackPaths: vulnerableRaw
       .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
       .map(mapRankSummary),

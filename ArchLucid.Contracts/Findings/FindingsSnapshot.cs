@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Findings;
@@ -47,8 +49,20 @@ public class FindingsSnapshot
     public FindingsSnapshotGenerationStatus GenerationStatus
     {
         get => generationStatus;
-        set => generationStatus = ContractCollectionDefaults.RequireDefinedEnum(value);
+        set
+        {
+            generationStatus = ContractCollectionDefaults.RequireDefinedEnum(value);
+            HasRecordedGenerationStatus = true;
+        }
     }
+
+    /// <summary>False for unsealed legacy JSON that relied on the default generation state.</summary>
+    [JsonIgnore]
+    public bool HasRecordedGenerationStatus { get; private set; }
+
+    /// <summary>Header-only reads must not be treated as proof of an empty result.</summary>
+    [JsonIgnore]
+    public bool CoverageOutputUnavailable { get; set; }
 
     /// <summary>Engines that threw during this snapshot build (empty when all engines succeeded).</summary>
     private List<FindingEngineFailure> engineFailures = [];

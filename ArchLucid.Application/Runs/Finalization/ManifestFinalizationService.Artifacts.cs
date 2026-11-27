@@ -4,6 +4,7 @@ using System.Text.Json;
 using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Analysis;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Manifest;
@@ -185,7 +186,8 @@ public sealed partial class ManifestFinalizationService
         if (snapshot is null)
             throw new InvalidOperationException($"Findings snapshot '{findingsSnapshotId:D}' was not found for finalization.");
 
-        if (snapshot.GenerationStatus is FindingsSnapshotGenerationStatus.Generating or FindingsSnapshotGenerationStatus.Failed)
+        if (AuthorityAnalysisCoverage.IsUnsealedOrFailed(snapshot) ||
+            AuthorityAnalysisCoverage.HasCommitBlockingFailures(snapshot))
             throw new InvalidOperationException(
                 $"Findings snapshot '{findingsSnapshotId:D}' is not eligible for finalization (GenerationStatus={snapshot.GenerationStatus}).");
     }

@@ -26,7 +26,6 @@ import {
   REMEDIATION_FACTORY_ATTACK_PATH_REPORT_TITLE,
   REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_EMPTY,
   REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_TITLE,
-  REMEDIATION_FACTORY_ATTACK_PATH_VULNERABLE_EMPTY,
   REMEDIATION_FACTORY_ATTACK_PATH_VULNERABLE_TITLE,
 } from "./remediation-factory-attack-path-report-copy";
 import { formatRemediationFactoryAttackPathOverflowLine } from "@/lib/remediation-factory/remediation-factory-attack-path-overflow-honesty-copy";
@@ -52,6 +51,9 @@ import {
   ATTACK_PATH_REPORT_NO_SNAPSHOT,
   ATTACK_PATH_REPORT_RANKED_SNAPSHOT_HINT,
 } from "./resolve-attack-path-report-snapshot-id";
+
+import { AnalysisCoverageNotice } from "@/components/ui/analysis-coverage-notice";
+import { canAssertScopedAbsence } from "@/lib/analysis-coverage";
 
 const MAX_PATH_LINKS = 5;
 
@@ -161,7 +163,8 @@ export function RemediationFactoryAttackPathReportSection(props: {
         </div>
         ) : props.reportQuery.isSuccess && props.reportQuery.data ? (
         <>
-                    {props.partialCapture === true ? (
+          <AnalysisCoverageNotice coverage={props.reportQuery.data.analysisCoverage ?? null} />
+          {props.partialCapture === true ? (
             <div className="space-y-1">
               <p
                 className={OPERATOR_TYPOGRAPHY.helper}
@@ -221,7 +224,9 @@ export function RemediationFactoryAttackPathReportSection(props: {
           <RemediationFactoryAttackPathReportSubsection
             title={REMEDIATION_FACTORY_ATTACK_PATH_VULNERABLE_TITLE}
             emptyTestId="attack-path-report-vulnerable-empty"
-            emptyCopy={REMEDIATION_FACTORY_ATTACK_PATH_VULNERABLE_EMPTY}
+            emptyCopy={props.partialCapture !== true && canAssertScopedAbsence(props.reportQuery.data.analysisCoverage)
+              ? "No vulnerable paths were found in the evaluated snapshot."
+              : "No vulnerable paths are available to display. This does not establish their absence."}
             notLoadFailureTestId="attack-path-report-vulnerable-empty-not-load-failure"
             notLoadFailureLine={ATTACK_PATH_REPORT_VULNERABLE_EMPTY_NOT_LOAD_FAILURE_LINE}
             isEmpty={props.reportQuery.data.vulnerableAttackPaths.length === 0}
@@ -241,7 +246,9 @@ export function RemediationFactoryAttackPathReportSection(props: {
           <RemediationFactoryAttackPathReportSubsection
             title={REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_TITLE}
             emptyTestId="attack-path-report-unevaluated-empty"
-            emptyCopy={REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_EMPTY}
+            emptyCopy={props.partialCapture !== true && canAssertScopedAbsence(props.reportQuery.data.analysisCoverage)
+              ? REMEDIATION_FACTORY_ATTACK_PATH_UNEVALUATED_EMPTY
+              : "No unevaluated groups were recorded. Coverage can still be incomplete."}
             notLoadFailureTestId="attack-path-report-unevaluated-empty-not-load-failure"
             notLoadFailureLine={ATTACK_PATH_REPORT_UNEVALUATED_EMPTY_NOT_LOAD_FAILURE_LINE}
             isEmpty={props.reportQuery.data.unevaluatedGroups.length === 0}

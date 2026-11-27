@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Analysis;
 using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Findings;
@@ -5,6 +6,9 @@ namespace ArchLucid.Contracts.Findings;
 /// <summary>First-class run outcome for finding-engine coverage (Batch A / TB-054 partial).</summary>
 public sealed class RunFindingCoverageSummary
 {
+    /// <summary>Bounded findings coverage. Absent on older servers.</summary>
+    public AnalysisCoverageSummary? AnalysisCoverage { get; init; }
+
     /// <summary>Total engines invoked during snapshot generation (success + failure).</summary>
     public int EnginesAttempted
     {

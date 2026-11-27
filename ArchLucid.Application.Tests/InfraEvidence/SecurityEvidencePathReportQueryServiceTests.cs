@@ -3,6 +3,7 @@ using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 
 using FluentAssertions;
 
@@ -66,18 +67,27 @@ public sealed class SecurityEvidencePathReportQueryServiceTests
                 },
             ]);
 
-        SecurityEvidencePathReportQueryService sut = new(snapshots.Object, paths.Object, ranks.Object, coverage.Object, explanations.Object);
+        Mock<ISecureNowAnalysisRecoveryJobs> jobs = new(MockBehavior.Strict);
+        jobs.Setup(repository => repository.TryGetAsync(scope.ToProjectScopeKey(), snapshotId, CancellationToken.None))
+            .ReturnsAsync((SecureNowAnalysisRecoveryJob?)null);
+        SecurityEvidencePathReportQueryService sut = new(snapshots.Object, paths.Object, ranks.Object, coverage.Object,
+            explanations.Object, jobs.Object);
         var report = await sut.TryGetReportAsync(scope, snapshotId);
+
         if (foreignSnapshot)
         {
             report.Should().BeNull();
             paths.VerifyNoOtherCalls();
             explanations.VerifyNoOtherCalls();
+            jobs.VerifyNoOtherCalls();
             return;
         }
 
         report.Should().NotBeNull();
-        report!.VulnerableAttackPaths.Select(p => p.PathId).Should().Equal(pathId, legacyPathId);
+        report!.AnalysisCoverage!.CanAssertAbsence.Should().BeFalse();
+        report.AnalysisCoverage.ReasonCodes.Should().Contain("path_ranking_missing");
+        jobs.VerifyAll();
+        report.VulnerableAttackPaths.Select(p => p.PathId).Should().Equal(pathId, legacyPathId);
         var actual = report.InventoryVerifications.Should().ContainSingle().Which;
         actual.PathId.Should().Be(pathId);
         actual.ExplanationId.Should().Be(recorded.ExplanationId);

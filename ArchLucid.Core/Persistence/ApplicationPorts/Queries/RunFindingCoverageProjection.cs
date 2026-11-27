@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Analysis;
 
 namespace ArchLucid.Persistence.Queries;
 
@@ -69,6 +70,7 @@ public static class RunFindingCoverageProjection
 
         return new RunFindingCoverageSummary
         {
+            AnalysisCoverage = AuthorityAnalysisCoverage.Evaluate(findingsSnapshot),
             EnginesAttempted = attempted,
             EnginesSucceeded = succeeded,
             EnginesFailed = failed,
