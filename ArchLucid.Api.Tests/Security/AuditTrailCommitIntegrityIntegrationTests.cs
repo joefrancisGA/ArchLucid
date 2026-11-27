@@ -41,7 +41,7 @@ public sealed class AuditTrailCommitIntegrityIntegrationTests
     [SkippableFact]
     public async Task Commit_path_audit_search_contains_run_lifecycle_events_sql_tb290()
     {
-        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), SqlExplicitUnavailable);
 
         GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
@@ -79,7 +79,7 @@ public sealed class AuditTrailCommitIntegrityIntegrationTests
     [SkippableFact]
     public async Task Tenant_b_audit_search_by_tenant_a_run_id_returns_empty_sql_tb290()
     {
-        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), SqlExplicitUnavailable);
 
         GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
@@ -114,29 +114,6 @@ public sealed class AuditTrailCommitIntegrityIntegrationTests
         await search.EnsureSuccessForTestAsync();
         string json = await search.Content.ReadAsStringAsync();
         json.Should().NotContain(runGuid.ToString("D"), because: "tenant B must not see tenant A audit events for that run id");
-    }
-
-    private static bool IsSqlServerReachableWithShortTimeout()
-    {
-        if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable))
-            && string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)))
-        {
-            return false;
-        }
-
-        try
-        {
-            string connectionString =
-                SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString("master");
-            SqlConnectionStringBuilder builder = new(connectionString) { ConnectTimeout = 4 };
-            using SqlConnection connection = new(builder.ConnectionString);
-            connection.Open();
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
     }
 
     private static void WireScope(HttpClient client, Guid tenantId, Guid workspaceId, Guid projectId)

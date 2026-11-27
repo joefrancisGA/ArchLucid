@@ -13,19 +13,15 @@ internal static class AuditTrailCommitIntegrityIntegrationTestsHelpers
             return false;
         }
 
-        try
+        // Once SQL is configured, a broken connection is a failed prerequisite, not a skip.
+        string connectionString = SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString("master");
+        Microsoft.Data.SqlClient.SqlConnectionStringBuilder builder = new(connectionString)
         {
-            string connectionString =
-                SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString("master");
-            Microsoft.Data.SqlClient.SqlConnectionStringBuilder builder = new(connectionString) { ConnectTimeout = 4 };
-            using Microsoft.Data.SqlClient.SqlConnection connection = new(builder.ConnectionString);
-            connection.Open();
-
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
+            ConnectTimeout = 4,
+            ConnectRetryCount = 0
+        };
+        using Microsoft.Data.SqlClient.SqlConnection connection = new(builder.ConnectionString);
+        connection.Open();
+        return true;
     }
 }

@@ -12,7 +12,7 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 internal static class GreenfieldIntegrationTenantScope
 {
-    internal const string SchemaNotReadySkipReason =
+    internal const string SchemaNotReadyMessage =
         "Required SQL schema for greenfield integration tests is not present.";
 
     internal sealed record Scope(Guid TenantId, Guid WorkspaceId, Guid ProjectId);
@@ -71,7 +71,8 @@ internal static class GreenfieldIntegrationTenantScope
             object? ready = await schemaCheck.ExecuteScalarAsync(cancellationToken);
             int schemaReady = Convert.ToInt32(ready, CultureInfo.InvariantCulture);
 
-            Skip.If(schemaReady != 1, SchemaNotReadySkipReason);
+            if (schemaReady != 1)
+                throw new InvalidOperationException(SchemaNotReadyMessage);
         }
 
         await using SqlCommand cmd = connection.CreateCommand();

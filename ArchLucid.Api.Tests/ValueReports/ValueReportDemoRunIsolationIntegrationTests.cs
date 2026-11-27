@@ -52,7 +52,7 @@ public sealed class ValueReportDemoRunIsolationIntegrationTests
 
         string markdown = await GreenfieldCommittedRunReadinessPoll.WaitUntilFirstValueReportMarkdownReadyAsync(client, realRunId);
 
-        markdown.Should().Contain(realRunId, because: "report must anchor on the committed integration run");
+        markdown.Should().Contain(Guid.Parse(realRunId).ToString("N"), because: "report must anchor on the committed integration run");
         HarnessDemoBaselineSupport.AssertTextExcludesShowcaseRunKeys(markdown);
         HarnessDemoBaselineSupport.AssertTextExcludesShowcaseAuthorityRunGuids(markdown);
     }

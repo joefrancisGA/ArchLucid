@@ -2,13 +2,18 @@ using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Tests.TestDtos;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scim;
+using ArchLucid.Core.Scim.Models;
 using ArchLucid.Core.Scoping;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Api.Tests.Security;
 
@@ -153,7 +158,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     [SkippableFact]
     public async Task Tenant_b_cannot_download_tenant_a_extractor_package_sql_tb274()
     {
-        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), SqlExplicitUnavailable);
         GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
         await using GreenfieldSqlApiFactory factory = new();
@@ -287,12 +292,12 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     [SkippableFact]
     public async Task Export_blob_push_with_internal_ip_returns_bad_request_before_queue_sql_tb296()
     {
-        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), SqlExplicitUnavailable);
         GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
-        SecurityCommittedRunSeed.Result seed = await SecurityCommittedRunSeed.SeedDefaultScopeCommittedRunAsync();
+        await using IdorGreenfieldSqlApiFactory factory = new();
+        SecurityCommittedRunSeed.Result seed = await SecurityCommittedRunSeed.WarmAndSeedAsync(factory);
 
-        await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
         WireScope(client, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
@@ -308,12 +313,12 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     [SkippableFact]
     public async Task Export_blob_push_with_non_blob_host_returns_bad_request_sql_tb296()
     {
-        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), SqlExplicitUnavailable);
         GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
-        SecurityCommittedRunSeed.Result seed = await SecurityCommittedRunSeed.SeedDefaultScopeCommittedRunAsync();
+        await using IdorGreenfieldSqlApiFactory factory = new();
+        SecurityCommittedRunSeed.Result seed = await SecurityCommittedRunSeed.WarmAndSeedAsync(factory);
 
-        await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
         WireScope(client, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
@@ -327,7 +332,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     [SkippableFact]
     public async Task Export_blob_push_with_azure_blob_host_returns_accepted_sql_tb296()
     {
-        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), SqlExplicitUnavailable);
         GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
         await using IdorGreenfieldSqlApiFactory factory = new();
@@ -343,17 +348,53 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
         using HttpClient client = factory.CreateClient();
         WireScope(client, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
-        HttpResponseMessage response = await client.PostAsJsonAsync(
-            $"/v1/artifacts/reviews/{seed.RunId}/export/push",
-            new { destinationSasUrl = PlaceholderAzureBlobSasUrl });
+        using CancellationTokenSource budget = new(TimeSpan.FromSeconds(30));
+        CancellationToken ct = budget.Token;
+        using IServiceScope services = factory.Services.CreateScope();
+        IScimUserRepository users = services.ServiceProvider.GetRequiredService<IScimUserRepository>();
+        string requesterObjectId = Guid.NewGuid().ToString("D");
+        ScimUserRecord requester = await users.InsertAsync(
+            ScopeIds.DefaultTenant, requesterObjectId, $"{requesterObjectId}@example.invalid", null,
+            true, ArchLucidRoles.Admin, ScimResolvedRoleOrigin.Manual, ct);
 
+        string route = $"/v1/artifacts/reviews/{seed.RunId}/export/push";
+        using HttpResponseMessage denied = await client.PostAsJsonAsync(
+            route, new { destinationSasUrl = PlaceholderAzureBlobSasUrl }, ct);
+        denied.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await CountQueuedExportsAsync(factory, seed.RunGuid, null, ct)).Should().Be(0);
+
+        client.DefaultRequestHeaders.Add(ArchLucidAuthOptions.TestActorIdHeader, requesterObjectId);
+        using HttpResponseMessage response = await client.PostAsJsonAsync(
+            route, new { destinationSasUrl = PlaceholderAzureBlobSasUrl }, ct);
+
+        await response.EnsureSuccessForTestAsync();
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+        (await CountQueuedExportsAsync(factory, seed.RunGuid, requester.Id, ct)).Should().Be(1);
+    }
+
+    private static async Task<int> CountQueuedExportsAsync(
+        GreenfieldSqlApiFactory factory, Guid runId, Guid? requesterId, CancellationToken ct)
+    {
+        await using SqlConnection connection = new(factory.SqlConnectionString);
+        await connection.OpenAsync(ct);
+        using SqlCommand command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT COUNT(*) FROM dbo.RunExportBlobPushOutbox
+            WHERE RunId = @runId AND TenantId = @tenantId AND WorkspaceId = @workspaceId AND ProjectId = @projectId
+              AND (@requesterId IS NULL OR RequestedByDirectoryUserId = @requesterId);
+            """;
+        command.Parameters.AddWithValue("@runId", runId);
+        command.Parameters.AddWithValue("@tenantId", ScopeIds.DefaultTenant);
+        command.Parameters.AddWithValue("@workspaceId", ScopeIds.DefaultWorkspace);
+        command.Parameters.AddWithValue("@projectId", ScopeIds.DefaultProject);
+        command.Parameters.Add("@requesterId", System.Data.SqlDbType.UniqueIdentifier).Value = (object?)requesterId ?? DBNull.Value;
+        return (int)(await command.ExecuteScalarAsync(ct))!;
     }
 
     [SkippableFact]
     public async Task Matching_tenant_committed_run_artifact_list_and_download_return_bytes_sql_tb298()
     {
-        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), SqlExplicitUnavailable);
         GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
         await using IdorGreenfieldSqlApiFactory factory = new();
@@ -398,7 +439,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
         string routeFamily,
         Func<HttpClient, Guid, Task<HttpResponseMessage>> send)
     {
-        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), SqlExplicitUnavailable);
         GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
         await using GreenfieldSqlApiFactory factory = new();
@@ -420,7 +461,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
         string routeFamily,
         Func<HttpClient, Guid, Task<HttpResponseMessage>> send)
     {
-        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), SqlExplicitUnavailable);
         GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
         await using GreenfieldSqlApiFactory factory = new();
@@ -445,7 +486,7 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
         Func<HttpClient, string, Task<HttpResponseMessage>> send,
         bool allowIngestRejection = false)
     {
-        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), SqlExplicitUnavailable);
         GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
         await using GreenfieldSqlApiFactory factory = new();
@@ -537,31 +578,6 @@ public sealed class ScopedSnapshotReadIdorIntegrationTests
     }
 
     private sealed record CrossTenantRunSeed(string RunId, string RequestId);
-
-    private static bool IsSqlServerReachableWithShortTimeout()
-    {
-        if (string.IsNullOrWhiteSpace(
-                Environment.GetEnvironmentVariable(TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable))
-            && string.IsNullOrWhiteSpace(
-                Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)))
-        {
-            return false;
-        }
-
-        try
-        {
-            string connectionString =
-                SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString("master");
-            SqlConnectionStringBuilder builder = new(connectionString) { ConnectTimeout = 4 };
-            using SqlConnection connection = new(builder.ConnectionString);
-            connection.Open();
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
 
     private static void WireScope(HttpClient client, Guid tenantId, Guid workspaceId, Guid projectId)
     {
