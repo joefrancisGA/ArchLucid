@@ -41,15 +41,13 @@ setup_deadline=$((SECONDS + setup_seconds))
 container_name=''
 container_id=''
 setup_output="$results_dir/.fixture-output"
+deadline_output="$results_dir/.fixture-deadline"
+fixture_timed_out=false
 active_phase=''
 active_pid=''
 cancel_signal=''
 cancel_status=0
 
-deadline_expired() {
-  # GNU timeout returns 137 instead of 124 when it has to escalate to SIGKILL.
-  [[ "$1" == 124 || "$1" == 137 ]]
-}
 record_deadline() {
   echo "Disposable SQL fixture $1 timed out." >&2
   python3 scripts/ci/run_focused_api_sql.py --results-dir "$results_dir" "--record-fixture-timeout=$1" \
@@ -65,24 +63,35 @@ record_cleanup() {
     || echo 'Could not annotate the focused SQL summary.' >&2
 }
 docker_until() {
-  local deadline=$1 phase=$2 remaining
+  local deadline=$1 phase=$2 remaining status=0
   shift 2
+  fixture_timed_out=false
   remaining=$((deadline - SECONDS))
   if ((remaining <= 0)); then
+    fixture_timed_out=true
     return 124
   fi
+  # Docker can return the same status as timeout. Keep the watchdog's
+  # signal diagnostics private and separate from Docker's stderr.
+  local -a command=("$timeout_command" --verbose --kill-after=2s "${remaining}s"
+                   "$BASH" -c 'exec docker "$@" 2>/dev/null' docker "$@")
   if [[ "$phase" == setup ]]; then
-    run_interruptible setup "$timeout_command" --kill-after=2s "${remaining}s" docker "$@"
+    LC_ALL=C run_interruptible setup "${command[@]}" 2>"$deadline_output" || status=$?
   else
-    "$timeout_command" --kill-after=2s "${remaining}s" docker "$@"
+    LC_ALL=C "${command[@]}" 2>"$deadline_output" || status=$?
   fi
+  if ((status == 124 || status == 137)) &&
+      grep -Eq '^[^:]+: sending signal (TERM|KILL) to command ' "$deadline_output"; then
+    fixture_timed_out=true
+  fi
+  return "$status"
 }
 setup_docker() {
   docker_until "$setup_deadline" setup "$@"
 }
 setup_failed() {
   local status=$1 reason=$2
-  if deadline_expired "$status"; then
+  if [[ "$fixture_timed_out" == true ]]; then
     record_deadline setup
     exit 124
   fi
@@ -92,7 +101,7 @@ setup_failed() {
   exit "$status"
 }
 verify_removal() {
-  local deadline=$1 target selector format listing query_status
+  local deadline=$1 target selector format listing
   if [[ -n "$container_id" ]]; then
     target=$container_id
     selector="id=$target"
@@ -104,7 +113,8 @@ verify_removal() {
   fi
   # An unsuccessful inspect can mean either "not found" or an unreachable daemon.
   # Accept absence only from a successful, bounded lookup including stopped containers.
-  if listing="$(docker_until "$deadline" cleanup container ls --all --no-trunc --filter "$selector" --format "$format" 2>/dev/null)"; then
+  if docker_until "$deadline" cleanup container ls --all --no-trunc --filter "$selector" --format "$format" >"$setup_output" 2>/dev/null; then
+    listing=$(<"$setup_output")
     if [[ -z "$listing" ]]; then
       record_cleanup already-absent
       return 0
@@ -115,9 +125,8 @@ verify_removal() {
       record_cleanup unverified
     fi
   else
-    query_status=$?
     record_cleanup unverified
-    if deadline_expired "$query_status"; then
+    if [[ "$fixture_timed_out" == true ]]; then
       record_deadline cleanup
       return 124
     fi
@@ -126,7 +135,6 @@ verify_removal() {
 }
 cleanup() {
   local status=$? cleanup_status deadline
-  rm -f -- "$setup_output" 2>/dev/null || true
   if [[ -n "$container_name" ]]; then
     deadline=$((SECONDS + cleanup_seconds))
     # Keep a target even if the daemon started the container but the client timed out before returning its ID.
@@ -134,7 +142,7 @@ cleanup() {
       :
     else
       cleanup_status=$?
-      if deadline_expired "$cleanup_status"; then
+      if [[ "$fixture_timed_out" == true ]]; then
         record_deadline cleanup
         cleanup_status=124
       elif verify_removal "$deadline"; then
@@ -147,6 +155,7 @@ cleanup() {
       fi
     fi
   fi
+  rm -f -- "$setup_output" "$deadline_output" 2>/dev/null || true
   exit "$status"
 }
 finish_cancellation() {
@@ -228,11 +237,9 @@ for attempt in {1..30}; do
   if sqlcmd -Q 'SET NOCOUNT ON; SELECT 1;' >/dev/null 2>&1; then
     ready=true
     break
-  else
-    probe_status=$?
-    if deadline_expired "$probe_status"; then
-      setup_failed "$probe_status" readiness-check-failed
-    fi
+  elif [[ "$fixture_timed_out" == true ]]; then
+    record_deadline setup
+    exit 124
   fi
   setup_docker inspect --format '{{.State.Running}}' "$container_id" >"$setup_output" 2>/dev/null \
     || setup_failed "$?" readiness-check-failed
@@ -244,7 +251,8 @@ for attempt in {1..30}; do
   fi
   remaining=$((setup_deadline - SECONDS))
   if ((remaining <= 0)); then
-    setup_failed 124 readiness-check-failed
+    record_deadline setup
+    exit 124
   fi
   run_interruptible setup sleep "$((remaining < 2 ? remaining : 2))"
 done

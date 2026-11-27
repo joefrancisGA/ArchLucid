@@ -54,7 +54,7 @@ else:
 class DisposableApiSqlSmokeTests(unittest.TestCase):
     def invoke(self, test_exit=0, server_exit=False, port="127.0.0.1:49155", image_id=SQL_PIN,
                repo_digest="", extra_args=(), cancel_signal=None, stall="", cleanup_check="", setup_error="",
-               cancel_setup=""):
+               cancel_setup="", setup_error_status=42, cleanup_error_status=1, ignore_term=False):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / "docker").write_text(
@@ -73,12 +73,15 @@ with (root / "setup.lock").open("w") as lock:
 ' "$FAKE_SETUP_STATE"
 fi
 if [[ "$1" = "$FAKE_DOCKER_STALL" ]]; then
+  if [[ "$FAKE_IGNORE_TERM" == true ]]; then trap '' TERM; fi
   exec sleep 30
 fi
 if [[ "$1" = "$FAKE_SETUP_ERROR" || ( "$FAKE_SETUP_ERROR" = configure && "$1" = exec && "${!#}" = 'ALTER DATABASE '* ) ]]; then
   echo 'unpublished-fixture-output'
   echo 'unpublished-fixture-error' >&2
-  exit 42
+  echo 'timeout: sending signal TERM to command fake' >&2
+  echo 'timeout: sending signal KILL to command fake' >&2
+  exit "$FAKE_SETUP_STATUS"
 fi
 case "$1" in
   pull) test "$2" = 'mcr.microsoft.com/mssql/server:2022-CU22-ubuntu-22.04' ;;
@@ -97,7 +100,7 @@ case "$1" in
       "$REAL_PYTHON" -c 'import json, sys; assert json.load(open(sys.argv[1]))["cases"][1]["outcome"] == "interrupted"' "$FAKE_SUMMARY"
       echo 'checkpoint saved before cleanup' >> "$FAKE_DOCKER_LOG"
     fi
-    if [[ -n "$FAKE_CLEANUP_CHECK" ]]; then exit 1; fi ;;
+    if [[ -n "$FAKE_CLEANUP_CHECK" ]]; then exit "$FAKE_CLEANUP_STATUS"; fi ;;
   container)
     [[ "$2 $3 $4 $5" == 'ls --all --no-trunc --filter' && "$7" == --format ]]
     case "$FAKE_CLEANUP_CHECK" in
@@ -105,6 +108,8 @@ case "$1" in
       present) printf '%s\n' "${6#*=}" ;;
       unexpected) printf '%s\n' 'unexpected-list-entry' ;;
       unavailable) exit 7 ;;
+      exit-124) exit 124 ;;
+      exit-137) exit 137 ;;
       timeout) exec sleep 30 ;;
       *) exit 2 ;;
     esac ;;
@@ -151,7 +156,10 @@ fi
                 "FAKE_DOCKER_LOG": str(root / "docker.log"),
                 "FAKE_DOCKER_STALL": stall,
                 "FAKE_SETUP_ERROR": setup_error,
+                "FAKE_SETUP_STATUS": str(setup_error_status),
                 "FAKE_CLEANUP_CHECK": cleanup_check,
+                "FAKE_CLEANUP_STATUS": str(cleanup_error_status),
+                "FAKE_IGNORE_TERM": str(ignore_term).lower(),
                 "FAKE_RUNNER_LOG": str(root / "runner.log"),
                 "FAKE_TEST_EXIT": str(test_exit),
                 "FAKE_SERVER_EXIT": str(server_exit).lower(),
@@ -354,6 +362,28 @@ fi
         self.assertEqual(docker[-1], f"rm -f {target}")
         self.assertEqual(report["fixture_timeouts"], ["setup"])
 
+    def test_setup_command_exit_codes_do_not_stand_in_for_deadline_evidence(self):
+        for status in (124, 137):
+            with self.subTest(status=status):
+                completed, docker, argv, report = self.invoke(setup_error="port", setup_error_status=status)
+                self.assertEqual(completed.returncode, status, completed.stderr)
+                self.assertIn("port-lookup-failed", completed.stderr)
+                self.assertNotIn("sending signal", completed.stderr)
+                self.assertFalse(argv)
+                self.assertEqual(docker[-1], "rm -f fake-container")
+                self.assertEqual(report["fixture_setup_failure"], "port-lookup-failed")
+                self.assertNotIn("fixture_timeouts", report)
+                self.assertEqual([row["outcome"] for row in report["cases"]], ["not-started"] * 3)
+
+    def test_setup_deadline_escalation_is_reported_as_a_timeout(self):
+        completed, docker, argv, report = self.invoke(stall="pull", ignore_term=True)
+        self.assertEqual(completed.returncode, 124, completed.stderr)
+        self.assertIn("fixture setup timed out", completed.stderr)
+        self.assertFalse(argv)
+        self.assertEqual(len(docker), 1)
+        self.assertEqual(report["fixture_timeouts"], ["setup"])
+        self.assertNotIn("fixture_setup_failure", report)
+
     def test_readiness_timeout_does_not_retry_after_the_setup_budget_expires(self):
         completed, docker, argv, report = self.invoke(stall="exec")
         self.assertEqual(completed.returncode, 124, completed.stderr)
@@ -394,6 +424,27 @@ fi
                 self.assertEqual(report["fixture_cleanup"], outcome)
                 self.assertEqual([row["outcome"] for row in report["cases"]], ["passed"] * 3)
                 self.assertNotIn("unexpected-list-entry", completed.stdout + completed.stderr + json.dumps(report))
+
+    def test_cleanup_command_exit_codes_still_allow_the_bounded_absence_check(self):
+        for status in (124, 137):
+            with self.subTest(status=status):
+                completed, docker, _, report = self.invoke(cleanup_check="absent", cleanup_error_status=status)
+                self.assertEqual(completed.returncode, 0, completed.stderr)
+                self.assertEqual(docker[-2:], ["rm -f fake-container",
+                                 "container ls --all --no-trunc --filter id=fake-container --format {{.ID}}"])
+                self.assertEqual(report["fixture_cleanup"], "already-absent")
+                self.assertNotIn("fixture_timeouts", report)
+                self.assertEqual([row["outcome"] for row in report["cases"]], ["passed"] * 3)
+
+    def test_failed_absence_query_without_deadline_evidence_remains_unverified(self):
+        for status in (124, 137):
+            with self.subTest(status=status):
+                completed, docker, _, report = self.invoke(cleanup_check=f"exit-{status}")
+                self.assertEqual(completed.returncode, 1, completed.stderr)
+                self.assertTrue(docker[-1].startswith("container ls "))
+                self.assertEqual(report["fixture_cleanup"], "unverified")
+                self.assertNotIn("fixture_timeouts", report)
+                self.assertEqual([row["outcome"] for row in report["cases"]], ["passed"] * 3)
 
     def test_cleanup_verification_uses_the_cleanup_deadline(self):
         completed, docker, _, report = self.invoke(cleanup_check="timeout")

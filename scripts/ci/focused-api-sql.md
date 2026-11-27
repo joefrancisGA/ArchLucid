@@ -43,6 +43,8 @@ The wrapper also uses GNU `timeout` (or `gtimeout`). Fixture setup shares a 180-
 
 On `SIGINT` or `SIGTERM` during setup, the wrapper stops its active setup job without waiting for the setup deadline and attempts bounded fixture removal. It uses the generated container name if the start command has not returned a container ID. Selected cases remain `not-started`, and the wrapper exits 130 or 143 even if removal fails.
 
+The wrapper records a fixture timeout when its phase budget is already exhausted or the watchdog signals the command at its deadline. A Docker command's own exit code of 124 or 137 is not enough. These command failures still receive the normal setup failure reason or the bounded cleanup check. The watchdog's diagnostic text stays off the public summary.
+
 If Docker removal returns an error without timing out, the wrapper uses the remaining cleanup budget to check for the same container by ID, or its generated name if start did not return an ID. The lookup includes stopped containers. A successful lookup with no matches records `fixture_cleanup: already-absent` and leaves the original exit status alone. If the target is still present or its state cannot be verified, the wrapper records `still-present` or `unverified` and fails an otherwise successful invocation. Test results are retained in all cases, and raw Docker output is not included in the summary.
 
 For non-timeout setup failures, `fixture_setup_failure` records a bounded reason such as `image-digest-mismatch`, `server-exited`, or `invalid-port-binding`. The wrapper keeps the setup exit status and the complete `not-started` test selection. Raw setup output is not published, and setup timeouts continue to use `fixture_timeouts`.
