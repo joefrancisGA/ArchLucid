@@ -11,7 +11,11 @@
 
 **Surfaces.** SecureNow reviewer home section, signed-in quote packet, pilot decision, drift guard and mounted-contract tests.
 
+## 2026-11-27 - Score lift round 150 (batch wave H2): SecureNow adoption friction next step
 
+**Outcome.** Infrastructure overview, remediation factory, and drift workbench name Reader-scoped collection blockers or ongoing scope discipline with a single primary CTA — not a self-service certification.
+
+**Surfaces.** Infrastructure overview, remediation factory client, drift workbench, drift guard and mounted-contract tests.
 
 ## 2026-11-27 - Score lift round 149 (batch wave H1): SecureNow time-to-value next step
 

@@ -61,7 +61,7 @@ import { ArchLucidOpenGateReturnHomeSection } from "@/components/architecture/Ar
 import { ArchLucidProcurementEvidenceHomeSection } from "@/components/procurement/ArchLucidProcurementEvidenceHomeSection";
 import { SecureNowAcceleratorHomeSection } from "@/components/product-line/SecureNowAcceleratorHomeSection";
 import { SecureNowBetaSkuContentsSection } from "@/components/product-line/SecureNowBetaSkuContentsSection";
-import { SecureNowReaderScopeWorkbenchStrip } from "@/components/product-line/SecureNowReaderScopeWorkbenchStrip";
+import { SecureNowAdoptionFrictionNextStepAuto } from "@/components/product-line/SecureNowAdoptionFrictionNextStepAuto";
 
 import { InfrastructureOverviewClaimOrientationStrip } from "./InfrastructureOverviewClaimOrientationStrip";
 
@@ -118,7 +118,7 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
         data-testid="governance-infrastructure-overview-primary-content"
       >
         {showSecureNowGroupedHomeSections ? (
-          <SecureNowReaderScopeWorkbenchStrip testId="infrastructure-overview-reader-scope-workbench" />
+          <SecureNowAdoptionFrictionNextStepAuto testId="infrastructure-overview-adoption-friction-next-step" />
         ) : null}
         {buyerPolishedShell ? (
           <section
