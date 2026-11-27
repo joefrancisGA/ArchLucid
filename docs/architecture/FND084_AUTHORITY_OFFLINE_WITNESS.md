@@ -1,0 +1,23 @@
+# FND-084 offline Authority graph comparison
+
+This is the executable preparation for [the FND-084 design](https://github.com/joefrancisGA/ArchLucid/pull/8360). It is not registered in Authority orchestration, does not read storage or call providers, and never approves reuse. The fixture caller supplies project scope, exact input digests, known coverage and the effective graph. Format and same-scope checks are not a substitute for resolving those inputs through authorization when a shadow caller is eventually added.
+
+## Input inventory
+
+[AuthorityPipelineFindingsStage](../../ArchLucid.Application/Runs/Orchestration/Pipeline/Stages/AuthorityPipelineFindingsStage.cs) builds analysis context and materializes pinned evidence. [FindingsOrchestrator](../../ArchLucid.Decisioning/Services/FindingsOrchestrator.cs) stamps that context and runs the policy stage before invoking the engines. The offline comparator takes the graph as presented to the selected engine, not the persisted graph before overlays.
+
+[TopologyAntiPatternFindingEngine](../../ArchLucid.Decisioning/Services/TopologyAntiPatternFindingEngine.cs) filters topology resources, reads compute and data/storage categories, labels and the stored `publicEndpoint` value, and uses directed `CONNECTS_TO` / `DEPENDS_ON` target membership. The engine ignores its analysis-context argument. The comparison still requires the exact scoped context, policy, evidence/lineage and configuration witnesses to agree before evaluating a pair. Those witnesses describe complete, fresh inputs. A caller unable to establish coverage supplies an unverified outcome. The graph and consumer contract are versioned separately from the deployed engine build.
+
+## Comparison
+
+1. Require matching project, run and context identities, validated SHA-256 witness syntax, an accepted projection and engine version, and verified complete input coverage. Refuse unsupported graph schema, invalid IDs, case-colliding IDs, dangling endpoints, nonfinite weights, malformed text, empty node sets, and graphs outside a bounded rehearsal budget.
+2. Make private evaluation copies. The candidate fingerprint sorts node and edge rows by exact ID and excludes the graph snapshot ID. Exact IDs remain in the evaluation copies. Everything else in the typed graph is preserved, including capture timestamp, warnings, property enumeration, case, labels, direction, weights, provenance, multiplicity and explicit nulls. Unknown derived graph/node/edge contracts are rejected. This typed API is not a parser for arbitrary JSON or future stored schemas.
+3. Invoke the real engine separately on each graph in its original order. Compare complete finding envelopes, including severity, evidence refs, related nodes, payloads and traces. Exclude only the random observation ID generated on each invocation for the comparison. Keep duplicate observations. Record both multiset and sequence agreement.
+4. Challenge the result with two actual downstream consumers. [DataFlowTrustBoundaryPathAnalyzer](../../ArchLucid.Decisioning/Analysis/DataFlowTrustBoundaryPathAnalyzer.cs) provides an independent order-sensitive path witness, including selected path node IDs. [FindingsSnapshotAuthorityMerger](../../ArchLucid.Decisioning/Services/FindingsSnapshotAuthorityMerger.cs) runs on two new in-memory snapshots to detect observable differences in retained finding order. Neither modifies inputs or runs a production gate. Curation and publication are not simulated or claimed equivalent.
+5. Report an offline typed observation. A matching candidate digest alone is never sufficient. Even an equivalent observation applies only to this reviewed comparison and neither advances nor replaces a checkpoint. Output IDs, authorized evidence or results may not be copied or rebound using the comparator.
+
+## Evidence and integration boundary
+
+The [focused regressions](../../ArchLucid.Application.Tests/Analysis/AuthorityTopologyOfflineComparisonTests.cs) include a nonempty harmless reordering and two negative controls where candidate fingerprints match but equivalence is denied. One swaps the input order of emitted observations and changes the merged output sequence. The other swaps two equal-hop diamond edges and changes the actual evidence path.
+
+Once [FND-083](https://github.com/joefrancisGA/ArchLucid/pull/8358) lands, a separate change can resolve authorized pairs, verify their exact checkpoint bindings, and record shadow observations without affecting execution. This slice does not implement early stopping, roll out flags, register SecureNow comparisons, change APIs or data contracts, or start a shadow run.
