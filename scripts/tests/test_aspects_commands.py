@@ -20,7 +20,7 @@ class NamedAspectsTests(unittest.TestCase):
         self.git('init', '-q')
         self.git('config', 'user.name', 'Fixture')
         self.git('config', 'user.email', 'fixture@example.test')
-        for i in range(40):
+        for i in range(42):
             self.write(f'Core/P{i:02}.cs', 'one\ntwo\n')
         for i in range(12):
             self.write(f'Core.Tests/P{i:02}Tests.cs', 'assertion\n')
@@ -48,13 +48,26 @@ class NamedAspectsTests(unittest.TestCase):
     def test_defaults_and_risk_priority(self):
         prod = commands.review_plan(self.repo, 'aspects', self.head)
         test = commands.review_plan(self.repo, 'test-aspects', self.head)
-        self.assertEqual(len(prod['candidates']), 35)
+        self.assertEqual(prod['requested_files'], 40)
+        self.assertEqual(len(prod['candidates']), 40)
         self.assertEqual(len(test['candidates']), 10)
         self.assertTrue(all(x['lane'] == 'production' for x in prod['candidates']))
         self.assertTrue(all(x['lane'] == 'test' for x in test['candidates']))
         self.assertIn('TenantIsolationTests.cs', test['candidates'][0]['path'])
         self.assertEqual(len(commands.review_plan(self.repo, 'aspects', self.head, 3)['candidates']), 3)
         self.assertFalse(commands.ledger_path(self.repo, 'test-aspects').exists())
+
+    def test_production_cli_defaults_to_40_files_without_an_explicit_limit(self):
+        runner = Path(commands.__file__).resolve()
+        args = [sys.executable, str(runner), '--repo', str(self.repo),
+                'aspects', 'plan', '--head', self.head]
+        plan = json.loads(subprocess.run(args, check=True, capture_output=True, text=True).stdout)
+        self.assertEqual(plan['requested_files'], 40)
+        self.assertEqual(len(plan['candidates']), 40)
+        override = json.loads(
+            subprocess.run([*args, '--limit', '35'], check=True, capture_output=True, text=True).stdout)
+        self.assertEqual(override['requested_files'], 35)
+        self.assertEqual(override['candidates'], plan['candidates'][:35])
 
     def test_ledger_and_density_isolation(self):
         commands.record_lane_review(self.repo, 'aspects', self.head, 'Core/P00.cs',
