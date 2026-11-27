@@ -11,7 +11,6 @@ namespace ArchLucid.Application.Integrations.Itsm.Outbound;
 public sealed partial class ItsmOutboundIntegrationHealthService
 {
     private async Task<ItsmOutboundIntegrationProviderProbe> BuildJiraProbeAsync(
-        HttpClient http,
         Guid tenantId,
         ResolvedItsmOutboundCredentials? credentials,
         ItsmOutboundLocalReadiness local,
@@ -26,7 +25,7 @@ public sealed partial class ItsmOutboundIntegrationHealthService
         Uri myselfUri = BuildJiraMyselfUri(credentials.InstanceBaseUrl);
         (bool ok, string detail) =
             await ProbeGetWithAuthorizationAsync(
-                    http,
+                    ItsmOutboundIntegrationHealthLimits.JiraHttpClientName,
                     myselfUri,
                     tenantId,
                     TenantItsmConnectorProvider.Jira,
@@ -52,7 +51,7 @@ public sealed partial class ItsmOutboundIntegrationHealthService
     }
 
     private async Task<(bool Ok, string Detail)> ProbeGetWithAuthorizationAsync(
-        HttpClient http,
+        string httpClientName,
         Uri requestUri,
         Guid tenantId,
         TenantItsmConnectorProvider provider,
@@ -60,7 +59,6 @@ public sealed partial class ItsmOutboundIntegrationHealthService
         string vendorLabel,
         CancellationToken ct)
     {
-        ArgumentNullException.ThrowIfNull(http);
         ArgumentNullException.ThrowIfNull(requestUri);
         ArgumentNullException.ThrowIfNull(credentials);
 
@@ -73,6 +71,7 @@ public sealed partial class ItsmOutboundIntegrationHealthService
         if (authorization is null)
             return (false, $"{vendorLabel} credentials could not be authorized for the health probe.");
 
+        using HttpClient http = _httpClientFactory.CreateClient(httpClientName);
         using HttpRequestMessage request = new(HttpMethod.Get, requestUri);
         ItsmOutboundHttpAuthorizationHeaders.Apply(request, authorization);
 

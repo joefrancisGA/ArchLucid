@@ -55,8 +55,6 @@ public sealed partial class ItsmOutboundIntegrationHealthService(
             ResolvedItsmOutboundCredentials? snowCredentials) =
             await LoadScopeCredentialsAsync(scope, cancellationToken).ConfigureAwait(false);
 
-        HttpClient http = _httpClientFactory.CreateClient(ItsmOutboundIntegrationHealthLimits.HttpClientName);
-
         ItsmOutboundLocalReadiness jiraLocal =
             ItsmOutboundLocalConfigurationEvaluator.EvaluateJiraFromResolvedCredentials(jiraCredentials, outbound, tenantRow);
 
@@ -64,10 +62,10 @@ public sealed partial class ItsmOutboundIntegrationHealthService(
             ItsmOutboundLocalConfigurationEvaluator.EvaluateServiceNowFromResolvedCredentials(snowCredentials, outbound);
 
         ItsmOutboundIntegrationProviderProbe jiraProbe =
-            await BuildJiraProbeAsync(http, scope.TenantId, jiraCredentials, jiraLocal, cancellationToken).ConfigureAwait(false);
+            await BuildJiraProbeAsync(scope.TenantId, jiraCredentials, jiraLocal, cancellationToken).ConfigureAwait(false);
 
         ItsmOutboundIntegrationProviderProbe snowProbe =
-            await BuildServiceNowProbeAsync(http, scope.TenantId, snowCredentials, snowLocal, cancellationToken).ConfigureAwait(false);
+            await BuildServiceNowProbeAsync(scope.TenantId, snowCredentials, snowLocal, cancellationToken).ConfigureAwait(false);
 
         return BuildLiveReport(jiraProbe, snowProbe);
     }

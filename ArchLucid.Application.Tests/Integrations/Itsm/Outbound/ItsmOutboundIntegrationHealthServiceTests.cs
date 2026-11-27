@@ -35,11 +35,7 @@ public sealed class ItsmOutboundIntegrationHealthServiceTests
             .Setup(t => t.TryGetAsync(TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((TenantItsmOutboundSettings?)null);
 
-        using HttpClient innerHttp = new(new StubHandler(static (_, _) => new HttpResponseMessage(HttpStatusCode.OK)));
-        Mock<IHttpClientFactory> factory = new();
-        factory
-            .Setup(f => f.CreateClient(ItsmOutboundIntegrationHealthLimits.HttpClientName))
-            .Returns(innerHttp);
+        Mock<IHttpClientFactory> factory = new(MockBehavior.Strict);
 
         ItsmOutboundIntegrationHealthService sut = new(
             factory.Object,
@@ -89,11 +85,7 @@ public sealed class ItsmOutboundIntegrationHealthServiceTests
             .Setup(t => t.TryGetAsync(TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((TenantItsmOutboundSettings?)null);
 
-        using HttpClient innerHttp = new(new StubHandler(static (_, _) => new HttpResponseMessage(HttpStatusCode.OK)));
-        Mock<IHttpClientFactory> factory = new();
-        factory
-            .Setup(f => f.CreateClient(ItsmOutboundIntegrationHealthLimits.HttpClientName))
-            .Returns(innerHttp);
+        Mock<IHttpClientFactory> factory = new(MockBehavior.Strict);
 
         ItsmOutboundIntegrationHealthService sut = new(
             factory.Object,
@@ -118,7 +110,7 @@ public sealed class ItsmOutboundIntegrationHealthServiceTests
         report.Jira.LocallyConfigured.Should().BeTrue();
         report.Jira.Reachable.Should().BeNull();
 
-        factory.Verify(f => f.CreateClient(ItsmOutboundIntegrationHealthLimits.HttpClientName), Times.Never);
+        factory.Verify(f => f.CreateClient(It.IsAny<string>()), Times.Never);
     }
 
     [Fact]
@@ -160,7 +152,7 @@ public sealed class ItsmOutboundIntegrationHealthServiceTests
 
         Mock<IHttpClientFactory> factory = new();
         factory
-            .Setup(f => f.CreateClient(ItsmOutboundIntegrationHealthLimits.HttpClientName))
+            .Setup(f => f.CreateClient(ItsmOutboundIntegrationHealthLimits.JiraHttpClientName))
             .Returns(innerHttp);
 
         ItsmOutboundIntegrationHealthService sut = new(
@@ -218,7 +210,7 @@ public sealed class ItsmOutboundIntegrationHealthServiceTests
 
         Mock<IHttpClientFactory> factory = new();
         factory
-            .Setup(f => f.CreateClient(ItsmOutboundIntegrationHealthLimits.HttpClientName))
+            .Setup(f => f.CreateClient(ItsmOutboundIntegrationHealthLimits.JiraHttpClientName))
             .Returns(innerHttp);
 
         ItsmOutboundIntegrationHealthService sut = new(
@@ -242,6 +234,56 @@ public sealed class ItsmOutboundIntegrationHealthServiceTests
         report.Status.Should().Be("unhealthy");
         report.Return503.Should().BeTrue();
         report.Jira.Reachable.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task GetHealthAsync_routes_both_probes_to_their_named_clients()
+    {
+        IntegrationsItsmOutboundOptions options = OutboundServiceNowConfigured();
+        options.Jira.CloudBaseUrl = "https://mock-jira.health.test";
+        options.Jira.ServiceAccountEmail = "bot@example.com";
+        options.Jira.ApiToken = "token";
+        options.Jira.DefaultProjectKey = "DP";
+
+        Mock<ITenantItsmOutboundSettingsRepository> tenantRepo = new();
+        tenantRepo
+            .Setup(t => t.TryGetAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantItsmOutboundSettings?)null);
+
+        using HttpClient jiraHttp = new(new StubHandler(static (request, _) =>
+        {
+            Assert.Equal(HttpMethod.Get, request.Method);
+            Assert.Equal("/rest/api/3/myself", request.RequestUri!.AbsolutePath);
+            return new HttpResponseMessage(HttpStatusCode.TooManyRequests);
+        }));
+        using HttpClient serviceNowHttp = new(new StubHandler(static (request, _) =>
+        {
+            Assert.Equal(HttpMethod.Get, request.Method);
+            Assert.Equal("/api/now/table/incident", request.RequestUri!.AbsolutePath);
+            return new HttpResponseMessage(HttpStatusCode.OK);
+        }));
+
+        Mock<IHttpClientFactory> factory = new(MockBehavior.Strict);
+        factory.Setup(f => f.CreateClient(ItsmOutboundIntegrationHealthLimits.JiraHttpClientName)).Returns(jiraHttp);
+        factory.Setup(f => f.CreateClient(ItsmOutboundIntegrationHealthLimits.ServiceNowHttpClientName)).Returns(serviceNowHttp);
+
+        ItsmOutboundIntegrationHealthService sut = new(
+            factory.Object,
+            Monitor(options).Object,
+            tenantRepo.Object,
+            CredentialResolver(options),
+            HttpAuthenticator(),
+            NullLogger<ItsmOutboundIntegrationHealthService>.Instance);
+
+        ItsmOutboundIntegrationHealthReport report = await sut.GetHealthAsync(
+            new ScopeContext { TenantId = TenantId },
+            CancellationToken.None);
+
+        report.Jira.Reachable.Should().BeFalse();
+        report.ServiceNow.Reachable.Should().BeTrue();
+        report.Return503.Should().BeTrue();
+        factory.Verify(f => f.CreateClient(ItsmOutboundIntegrationHealthLimits.JiraHttpClientName), Times.Once);
+        factory.Verify(f => f.CreateClient(ItsmOutboundIntegrationHealthLimits.ServiceNowHttpClientName), Times.Once);
     }
 
     private sealed class StubHandler : HttpMessageHandler
