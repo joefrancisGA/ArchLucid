@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-27 - Score lift round 153 (batch wave H5): SecureNow marketability buyer path
+
+**Outcome.** Reviewer home, quote packet, and pilot decision forward Why SecureNow, the synthetic sample, and the quote packet with beta NO_GO and signed-quote honesty — not checkout or a public GO.
+
+**Surfaces.** SecureNow reviewer home section, signed-in quote packet, pilot decision, drift guard and mounted-contract tests.
+
 ## 2026-11-27 - Score lift round 150 (batch wave H2): SecureNow adoption friction next step
 
 **Outcome.** Infrastructure overview, remediation factory, and drift workbench name Reader-scoped collection blockers or ongoing scope discipline with a single primary CTA — not a self-service certification.
