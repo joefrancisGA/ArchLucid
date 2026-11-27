@@ -10,6 +10,7 @@ on:
       - 'ArchLucid.Application.Tests/InfraEvidence/ReferenceAssurance/ReferenceCutPoint*.cs'
       - 'ArchLucid.Application.Tests/InfraEvidence/ReferenceAssurance/ReferenceReachability*.cs'
       - 'ArchLucid.Application.Tests/InfraEvidence/SecureNowReferenceCutPointOracleTests.cs'
+      - 'ArchLucid.Application/InfraEvidence/SecureNowArchitect/IntendedReachabilityPathEnumerator.cs'
       - 'ArchLucid.Application.Tests/InfraEvidence/SecureNowReferenceReachabilityOracleTests.cs'
 
 permissions:
@@ -42,7 +43,7 @@ jobs:
         if: ${{ !cancelled() }}
         run: >-
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~SecureNowReferenceCutPointOracleTests|FullyQualifiedName~ReferenceCutPointWorkedOracleTests|FullyQualifiedName~SecureNowReferenceReachabilityOracleTests|FullyQualifiedName~ReferenceReachabilityBoundaryOracleTests'
+          --filter 'FullyQualifiedName~SecureNowReferenceCutPointOracleTests|FullyQualifiedName~ReferenceCutPointWorkedOracleTests|FullyQualifiedName~SecureNowReferenceReachabilityOracleTests|FullyQualifiedName~ReferenceReachabilityBoundaryOracleTests|FullyQualifiedName~SecurityEvidencePathSearchContinuationTests|FullyQualifiedName~SecureNowArchitectNeighborhoodTraversalTests'
           --results-directory "$RUNNER_TEMP/independent-oracle-tests"
           --logger 'trx;LogFileName=application.trx'
       - name: Verify both suites executed

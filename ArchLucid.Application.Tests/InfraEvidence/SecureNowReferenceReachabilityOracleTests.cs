@@ -160,6 +160,99 @@ public sealed class SecureNowReferenceReachabilityOracleTests
                     StringComparison.OrdinalIgnoreCase)));
     }
 
+    [Theory]
+    [InlineData(0, 0, true)]
+    [InlineData(1, 1, true)]
+    [InlineData(2, 2, true)]
+    [InlineData(3, 3, false)]
+    [InlineData(4, 3, false)]
+    public void Production_accepts_qualifying_terminals_through_the_hop_limit(
+        int maxDepth,
+        int terminalCount,
+        bool depthLimited)
+    {
+        // Each successive terminal is exactly one additional edge away.
+        // The last edge points back to an ancestor and must not count as remaining work.
+        string[] terminals = ["alpha", "beta", "gamma"];
+        InventoryReachabilityPathGraphSnapshot graph = CreateBoundaryGraph(
+            terminals,
+            new Dictionary<string, List<PrivilegePathEdge>>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["start"] = [Edge("start", "alpha", GraphEdgeTypes.ConnectsTo)],
+                ["alpha"] = [Edge("alpha", "beta", GraphEdgeTypes.ConnectsTo)],
+                ["beta"] = [Edge("beta", "gamma", GraphEdgeTypes.ConnectsTo)],
+                ["gamma"] = [Edge("gamma", "alpha", GraphEdgeTypes.ConnectsTo)],
+            });
+
+        ReachabilityPathEnumerationResult actual =
+            IntendedReachabilityPathEnumerator.EnumerateWithLimits(graph, new() { MaxDepth = maxDepth });
+
+        Assert.Equal(terminals.Take(terminalCount), actual.Candidates.Select(path => path.TerminalAssetNodeId));
+        Assert.Equal(Enumerable.Range(1, terminalCount), actual.Candidates.Select(path => path.Hops.Count));
+
+        if (depthLimited)
+        {
+            SecurityEvidencePathSearchLimitHit hit = Assert.Single(actual.LimitHits);
+            Assert.Equal(SecurityEvidencePathSearchLimitKind.MaxDepth, hit.Kind);
+            Assert.Equal(maxDepth, hit.LimitValue);
+            Assert.Equal(terminalCount, hit.PathsEmitted);
+        }
+        else
+        {
+            Assert.Empty(actual.LimitHits);
+        }
+    }
+
+    [Theory]
+    [InlineData(1, 3, SecurityEvidencePathSearchLimitKind.MaxPaths)]
+    [InlineData(3, 1, SecurityEvidencePathSearchLimitKind.MaxFanOut)]
+    public void Production_terminals_at_the_hop_limit_still_obey_other_caps(
+        int maxPaths,
+        int maxFanOut,
+        SecurityEvidencePathSearchLimitKind expectedLimit)
+    {
+        InventoryReachabilityPathGraphSnapshot graph = CreateBoundaryGraph(
+            ["alpha", "beta"],
+            new Dictionary<string, List<PrivilegePathEdge>>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["start"] =
+                [
+                    Edge("start", "alpha", GraphEdgeTypes.ConnectsTo),
+                    Edge("start", "beta", GraphEdgeTypes.ConnectsTo),
+                ],
+            });
+
+        ReachabilityPathEnumerationResult actual = IntendedReachabilityPathEnumerator.EnumerateWithLimits(
+            graph,
+            new()
+            {
+                MaxDepth = 1,
+                MaxPaths = maxPaths,
+                MaxFanOutPerNode = maxFanOut,
+            });
+
+        ReachabilityPathCandidate first = Assert.Single(actual.Candidates);
+        Assert.Equal("alpha", first.TerminalAssetNodeId);
+        Assert.Single(first.Hops);
+        SecurityEvidencePathSearchLimitHit hit = Assert.Single(actual.LimitHits);
+        Assert.Equal(expectedLimit, hit.Kind);
+        Assert.Equal(1, hit.LimitValue);
+        Assert.Equal(1, hit.PathsEmitted);
+    }
+
+    private static InventoryReachabilityPathGraphSnapshot CreateBoundaryGraph(
+        IReadOnlyList<string> terminals,
+        IReadOnlyDictionary<string, List<PrivilegePathEdge>> outgoing) =>
+        new()
+        {
+            OutgoingEdges = outgoing,
+            PrivateIntegratedComputeArmIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "start" },
+            ResourcesByArmId = terminals.ToDictionary(
+                id => id,
+                id => Resource(id, "Microsoft.Web/sites"),
+                StringComparer.OrdinalIgnoreCase),
+        };
+
     private static void AssertMatchesOracle(
         Dictionary<string, List<PrivilegePathEdge>> outgoing,
         Dictionary<string, AzureInventoryResourceRecord> resources,
