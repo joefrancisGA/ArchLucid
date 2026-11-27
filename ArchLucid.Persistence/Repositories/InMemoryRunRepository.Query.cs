@@ -135,11 +135,13 @@ public sealed partial class InMemoryRunRepository
             return Task.FromResult<IReadOnlyList<Guid>>([]);
 
         List<Guid> updatedRunIds = [];
+
         foreach (Guid runId in _store.Keys.ToArray())
         {
             while (true)
             {
                 ct.ThrowIfCancellationRequested();
+
                 if (!_store.TryGetValue(runId, out RunRecord? candidate))
                     break;
 
@@ -147,6 +149,7 @@ public sealed partial class InMemoryRunRepository
                 {
                     // Do not clear a graph on a detached old run after archive/commit
                     // has replaced the current row.
+
                     if (!_store.TryGetValue(runId, out RunRecord? current) ||
                         !ReferenceEquals(candidate, current))
                         continue;
@@ -154,6 +157,7 @@ public sealed partial class InMemoryRunRepository
                     if (!RunRepositoryCore.IsActiveInScope(candidate, scope) ||
                         candidate.ArchitectureId != architectureId ||
                         candidate.GoldenManifestId.HasValue ||
+                        candidate.FindingsSnapshotId.HasValue ||
                         !candidate.GraphSnapshotId.HasValue)
                         break;
 

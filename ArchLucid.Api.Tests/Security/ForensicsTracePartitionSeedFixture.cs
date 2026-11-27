@@ -37,7 +37,7 @@ public sealed class ForensicsTracePartitionSeedFixture : IAsyncLifetime
         if (!SqlReachable)
             return;
 
-        if (GreenfieldSqlIntegrationWarmup.ShardWarmupTimedOut)
+        if (GreenfieldSqlIntegrationWarmup.Shared.ShardWarmupTimedOut)
         {
             ShardWarmupTimedOut = true;
             return;
@@ -53,13 +53,11 @@ public sealed class ForensicsTracePartitionSeedFixture : IAsyncLifetime
             ExecutedRunId =
                 await ArchitectureRequestConcurrencyTestSupport.WarmGreenfieldSqlHostAndSeedExecutedRunAsync(client);
         }
-        catch (WarmupTimedOutException)
+        catch
         {
-            GreenfieldSqlIntegrationWarmup.RecordShardWarmupTimedOut();
-            ShardWarmupTimedOut = true;
-
             await SeedFactory.DisposeAsync();
             SeedFactory = null;
+            throw;
         }
     }
 

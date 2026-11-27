@@ -14,6 +14,7 @@ using ArchLucid.Core.Authority;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Contracts.Scoping;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
@@ -601,14 +602,43 @@ public sealed class AuthorityPipelineStagesExecutorTests
                 It.Is<AuditEvent>(e =>
                     e.EventType == AuditEventTypes.ArtifactSynthesisFailed
                     && e.RunId == runGuid
-                    && e.ManifestId.HasValue
-                    && e.ManifestId.Value != Guid.Empty),
+                    && e.ManifestId == null),
                 It.IsAny<IArchLucidUnitOfWork>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
         audit.Verify(
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
+        fixture.Manifests.Verify(
+            r => r.SaveAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>(), null, null),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ExecuteAfterRunPersistedAsync_inserts_manifest_with_inventory_and_receipt_before_pinning_it()
+    {
+        AuthorityPipelineStagesExecutorTestFactory.ExecutorFixture fixture =
+            AuthorityPipelineStagesExecutorTestFactory.CreateExecutor();
+        AuthorityPipelineContext ctx = AuthorityPipelineStagesExecutorTestFactory.CreateContext();
+        fixture.Manifests
+            .Setup(r => r.SaveAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>(), null, null))
+            .Callback<ManifestDocument, CancellationToken, System.Data.IDbConnection?, System.Data.IDbTransaction?>(
+                (manifest, _, _, _) =>
+                {
+                    ctx.Run.GoldenManifestId.Should().BeNull();
+                    manifest.CommittedArtifactInventory.Select(row => row.ArtifactName).Should().BeEquivalentTo(
+                        ["golden-manifest", "findings-snapshot", "decision-trace", "artifact-bundle"]);
+                    manifest.CommittedArtifactInventory.Should().OnlyContain(row => row.CapturedUtc == ctx.Run.CreatedUtc);
+                    manifest.CommittedDecisionReceiptHashSha256.Should().NotBeNullOrWhiteSpace();
+                })
+            .Returns(Task.CompletedTask);
+
+        await fixture.Executor.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
+
+        fixture.Manifests.Verify(
+            r => r.SaveAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>(), null, null),
+            Times.Once);
+        ctx.Run.GoldenManifestId.Should().Be(ctx.Manifest!.ManifestId);
     }
 
     [SkippableFact]

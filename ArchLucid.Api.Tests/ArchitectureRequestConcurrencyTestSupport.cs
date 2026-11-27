@@ -329,7 +329,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             bootstrapBody);
     }
 
-    private static async Task RunUnderGreenfieldHostBootstrapBudgetAsync(
+    private static Task RunUnderGreenfieldHostBootstrapBudgetAsync(
         CancellationToken cancellationToken,
         string entryPointName,
         Func<CancellationToken, Task> warmupBody)
@@ -342,35 +342,8 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             + "; budget="
             + GreenfieldSqlHostBootstrapBudget);
 
-        using CancellationTokenSource bootstrap = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        bootstrap.CancelAfter(GreenfieldSqlHostBootstrapBudget);
-        CancellationToken ct = bootstrap.Token;
-
-        try
-        {
-            await warmupBody(ct);
-        }
-        catch (OperationCanceledException ex) when (bootstrap.Token.IsCancellationRequested)
-        {
-            throw CreateWarmupTimedOutException(ex, entryPointName);
-        }
-    }
-
-    private static WarmupTimedOutException CreateWarmupTimedOutException(
-        OperationCanceledException ex,
-        string entryPointName)
-    {
-        return new WarmupTimedOutException(
-            "Greenfield SQL host warmup exceeded "
-            + nameof(GreenfieldSqlHostBootstrapBudget)
-            + " ("
-            + GreenfieldSqlHostBootstrapBudget
-            + "). See "
-            + entryPointName
-            + " and "
-            + nameof(WarmSingleCreateRunPathAsync)
-            + ".",
-            ex);
+        return GreenfieldSqlIntegrationWarmup.Shared.RunUnderBudgetAsync(
+            warmupBody, GreenfieldSqlHostBootstrapBudget, entryPointName, cancellationToken);
     }
 
     /// <summary>
@@ -616,15 +589,13 @@ internal static class ArchitectureRequestConcurrencyTestSupport
                     + (lastBody ?? "(none)"));
             }
 
-            if (await GreenfieldCommittedRunReadinessPoll.TryReturnIfRunAlreadyCommittedAsync(client, runId, cancellationToken))
-                return;
-
             using CancellationTokenSource attemptBudget =
                 CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             attemptBudget.CancelAfter(GreenfieldSqlCommitAttemptHttpTimeout);
 
             try
             {
+                // A committed status does not prove the persisted seal passes finalize recovery.
                 using HttpResponseMessage response = await client.PostAsync(
                     IntegrationTestRunLifecycleSupport.FinalizeReviewRelativeUrl(runId),
                     null,
@@ -708,7 +679,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
                 : $" Last status={(int)lastStatusCode} ({lastStatusCode}). Body={lastBody}"));
     }
 
-    private static Task WaitUntilRunManifestReadableForCommitWithPollBudgetAsync(
+    private static async Task WaitUntilRunManifestReadableForCommitWithPollBudgetAsync(
         HttpClient client,
         string runId,
         CancellationToken cancellationToken)
@@ -718,7 +689,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
 
         pollBudget.CancelAfter(GreenfieldSqlManifestPollBudget);
 
-        return GreenfieldCommittedRunReadinessPoll.WaitUntilRunManifestReadableForCommitAsync(
+        await GreenfieldCommittedRunReadinessPoll.WaitUntilRunManifestReadableForCommitAsync(
             client,
             runId,
             pollBudget.Token);

@@ -90,9 +90,12 @@ public sealed partial class SqlGoldenManifestRepository
         GoldenManifestSerializedPayload payload = GoldenManifestSerializedPayload.FromDocument(manifest);
         string? manifestBlobUri = await TryOffloadPayloadAsync(manifest, payload, ct);
 
+        // Preserve the ticks used in the canonical manifest projection. SqlClient otherwise infers DATETIME.
+        DynamicParameters args = new(GoldenManifestInsertParameters.Create(manifest, payload, manifestBlobUri));
+        args.Add(nameof(manifest.CreatedUtc), manifest.CreatedUtc, DbType.DateTime2, scale: 7);
         await connection.ExecuteAsync(new CommandDefinition(
             GoldenManifestWriteSql.Insert,
-            GoldenManifestInsertParameters.Create(manifest, payload, manifestBlobUri),
+            args,
             transaction,
             cancellationToken: ct)).ConfigureAwait(false);
 

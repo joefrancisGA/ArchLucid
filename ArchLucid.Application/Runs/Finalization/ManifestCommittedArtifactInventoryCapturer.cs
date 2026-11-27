@@ -16,7 +16,8 @@ public static class ManifestCommittedArtifactInventoryCapturer
     public static void ApplyToManifest(
         ManifestDocument manifest,
         ManifestCommittedArtifactInventoryMaterial material,
-        DateTime capturedUtc)
+        DateTime capturedUtc,
+        string producer = nameof(ManifestFinalizationService))
     {
         ArgumentNullException.ThrowIfNull(manifest);
         ArgumentNullException.ThrowIfNull(material);
@@ -27,19 +28,19 @@ public static class ManifestCommittedArtifactInventoryCapturer
                 "golden-manifest",
                 "application/vnd.archlucid.golden-manifest+json",
                 HashUtf8(material.GoldenManifestUtf8),
-                "ManifestFinalizationService",
+                producer,
                 capturedUtc),
             CreateEntry(
                 "findings-snapshot",
                 "application/vnd.archlucid.findings-snapshot+json",
                 HashUtf8(material.FindingsSnapshotUtf8),
-                "ManifestFinalizationService",
+                producer,
                 capturedUtc),
             CreateEntry(
                 "decision-trace",
                 "application/vnd.archlucid.decision-trace+json",
                 HashUtf8(material.DecisionTraceUtf8),
-                "ManifestFinalizationService",
+                producer,
                 capturedUtc),
         ];
 
@@ -50,7 +51,7 @@ public static class ManifestCommittedArtifactInventoryCapturer
                     "artifact-bundle",
                     "application/vnd.archlucid.artifact-bundle+json",
                     HashUtf8(material.ArtifactBundleUtf8),
-                    "ManifestFinalizationService",
+                    producer,
                     capturedUtc));
         }
 

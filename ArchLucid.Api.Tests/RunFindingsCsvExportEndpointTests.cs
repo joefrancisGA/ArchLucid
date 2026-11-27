@@ -1,7 +1,5 @@
 ﻿using System.Net;
 
-using ArchLucid.Application.Reporting;
-
 using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
@@ -11,7 +9,6 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
-[Trait(HarnessGoldenPathGuardConstants.DemoBaselineTraitCategory, HarnessGoldenPathGuardConstants.DemoBaselineTraitValue)]
 public sealed class RunFindingsCsvExportEndpointTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [SkippableFact]
@@ -26,18 +23,16 @@ public sealed class RunFindingsCsvExportEndpointTests(ArchLucidApiFactory factor
     [Fact]
     public async Task ExportRunFindingsCsv_includes_external_tracking_header_columns()
     {
-        Guid runId = HarnessDemoBaselineSupport.AuthorityRunId;
-
-        using HttpResponseMessage res = await Client.GetReviewFindingsExportCsvHttpAsync(runId);
-
-        // Guard with return rather than Skip.If: throwing SkipException after an async operation
-        // causes the [SkippableFact] vstest runner to re-queue the test indefinitely (proven 30+
-        // iteration infinite hang on CI shard 2 chunk 3 before this fix).
-        if (res.StatusCode == HttpStatusCode.NotFound)
-            return;
+        FinalizedRun review = await ArrangeFinalizedAsync();
+        using HttpResponseMessage res = await review.GetFindingsExportCsvHttpAsync(Client);
 
         res.StatusCode.Should().Be(HttpStatusCode.OK);
         string csv = await res.Content.ReadAsStringAsync();
-        csv.Should().StartWith(ArchitectureRunFindingsCsvFormatter.HeaderLine);
+        // Reviewer notices appear before the column header, even when there are no finding rows.
+        string header = csv.Split('\n').Should().ContainSingle(
+            line => line.StartsWith("FindingId,", StringComparison.Ordinal)).Which.TrimEnd('\r');
+        header.Split(',').TakeLast(7).Should().Equal(
+            "Provider", "ExternalKey", "ExternalUrl", "HumanReviewStatus",
+            "LatestDisposition", "RevisitDueUtc", "ItsmLinkedTicketsSummary");
     }
 }

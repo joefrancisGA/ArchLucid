@@ -21,7 +21,9 @@ internal static class FindingsSnapshotMetadataMerger
         snapshot.EvaluationConfidenceEnrichmentSkipped = header.EvaluationConfidenceEnrichmentSkipped;
         snapshot.GenerationStatus = header.GenerationStatus;
         snapshot.ChecklistCoverage = header.ChecklistCoverage ?? [];
+        FindingPayloadJsonCodec.HydrateJsonElementPayloads(snapshot.ChecklistCoverage);
         snapshot.InsightDensityCuration = header.InsightDensityCuration;
         snapshot.WithheldFindings = header.WithheldFindings ?? [];
+        snapshot.TotalEstimatedSavings = header.TotalEstimatedSavings;
     }
 }

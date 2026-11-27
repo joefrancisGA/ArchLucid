@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
-using ArchLucid.TestSupport;
+using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
 
@@ -21,51 +21,44 @@ public sealed class ReferenceEvidenceAdminExportIntegrationTests
     {
         Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), "SQL integration env not configured");
 
-        try
-        {
-            GreenfieldIntegrationTenantScope.Scope scope = GreenfieldIntegrationTenantScope.CreateUniqueScope();
-            string testTag = "it-ref-evid-" + Guid.NewGuid().ToString("N");
+        GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
-            await using IdorGreenfieldSqlApiFactory factory = new();
-            await GreenfieldIntegrationTenantScope.EnsureScopeAfterGreenfieldHostReadyAsync(factory, scope);
+        GreenfieldIntegrationTenantScope.Scope scope = new(
+            ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
+        string testTag = "it-ref-evid-" + Guid.NewGuid().ToString("N");
 
-            using HttpClient client = factory.CreateClient();
-            GreenfieldIntegrationTenantScope.WireScope(client, scope);
+        await using IdorGreenfieldSqlApiFactory factory = new();
+        await GreenfieldIntegrationTenantScope.EnsureScopeAfterGreenfieldHostReadyAsync(factory, scope);
+        await HarnessDemoBaselineSupport.EnsureSeededAsync(factory.Services);
 
-            string requestId = testTag[..Math.Min(testTag.Length, 32)];
-            HttpResponseMessage create = await client.PostGreenfieldArchitectureRequestForTestAsync(
-                TestRequestFactory.CreateArchitectureRequest(requestId),
-                "tb291-ref-");
-            await create.EnsureSuccessForTestAsync();
-            CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(ArchitectureRequestConcurrencyTestSupport.JsonOptions);
-            string realRunId = created!.Run.RunId;
-            HarnessDemoBaselineSupport.AssertRunIdIsNotShowcase(realRunId);
+        using HttpClient client = factory.CreateClient();
+        GreenfieldIntegrationTenantScope.WireScope(client, scope);
 
-            await ArchitectureRequestConcurrencyTestSupport.PostExecuteWithGreenfieldTransientRetryAsync(client, realRunId);
-            await ArchitectureRequestConcurrencyTestSupport.PostCommitWithGreenfieldTransientRetryAsync(client, realRunId);
+        string requestId = testTag[..Math.Min(testTag.Length, 32)];
+        HttpResponseMessage create = await client.PostGreenfieldArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest(requestId),
+            "tb291-ref-");
+        await create.EnsureSuccessForTestAsync();
+        CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(ArchitectureRequestConcurrencyTestSupport.JsonOptions);
+        string realRunId = created!.Run.RunId;
+        HarnessDemoBaselineSupport.AssertRunIdIsNotShowcase(realRunId);
 
-            string readmeText = await GreenfieldCommittedRunReadinessPoll.WaitUntilReferenceEvidenceReadmeAnchorsRunAsync(
-                client,
-                realRunId);
+        await ArchitectureRequestConcurrencyTestSupport.PostExecuteWithGreenfieldTransientRetryAsync(client, realRunId);
+        await ArchitectureRequestConcurrencyTestSupport.PostCommitWithGreenfieldTransientRetryAsync(client, realRunId);
 
-            readmeText.Should().Contain(realRunId, because: "bundle must anchor on tenant real committed run");
-            HarnessDemoBaselineSupport.AssertTextExcludesShowcaseRunKeys(readmeText);
+        byte[] zipBytes = await GreenfieldCommittedRunReadinessPoll.WaitUntilReferenceEvidenceZipReadyAsync(
+            client, realRunId);
+        string? readmeText = ReferenceEvidenceZipReadmeReader.TryReadReadmeText(zipBytes);
+        readmeText.Should().NotBeNullOrWhiteSpace();
+        readmeText!.Should().Contain($"RunId: {Guid.Parse(realRunId):N}", because: "the ZIP must anchor on the committed non-demo run");
+        HarnessDemoBaselineSupport.AssertTextExcludesShowcaseRunKeys(readmeText);
+        HarnessDemoBaselineSupport.AssertTextExcludesShowcaseAuthorityRunGuids(readmeText);
 
-            HttpResponseMessage export = await client.GetAsync("/v1/admin/reference-evidence?includeDemo=false");
-            export.StatusCode.Should().Be(HttpStatusCode.OK);
+        zipBytes.Length.Should().BePositive();
 
-            byte[] zipBytes = await export.Content.ReadAsByteArrayAsync();
-            zipBytes.Length.Should().BePositive();
-
-            using MemoryStream ms = new(zipBytes);
-            using ZipArchive zip = new(ms, ZipArchiveMode.Read, false);
-            zip.Entries.Should().Contain(e => e.FullName == "pilot-run-deltas.json");
-        }
-        catch (GreenfieldCommitRetryBudgetExhaustedException)
-        {
-            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
-            return;
-        }
+        using MemoryStream ms = new(zipBytes);
+        using ZipArchive zip = new(ms, ZipArchiveMode.Read, false);
+        zip.Entries.Should().Contain(e => e.FullName == "pilot-run-deltas.json");
     }
 
 }

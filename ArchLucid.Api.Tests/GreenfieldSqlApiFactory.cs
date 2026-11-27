@@ -70,19 +70,11 @@ public class GreenfieldSqlApiFactory : SqlIntegrationTestWebAppFactoryBase
     }
 
     /// <inheritdoc />
-    public override async Task InitializeAsync()
+    public override Task InitializeAsync()
     {
-        GreenfieldSqlIntegrationWarmup.SkipIfShardWarmupAlreadyTimedOut();
+        GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
-        try
-        {
-            await base.InitializeAsync().ConfigureAwait(false);
-        }
-        catch (WarmupTimedOutException)
-        {
-            GreenfieldSqlIntegrationWarmup.RecordShardWarmupTimedOut();
-            throw;
-        }
+        return base.InitializeAsync();
     }
 
     /// <inheritdoc />

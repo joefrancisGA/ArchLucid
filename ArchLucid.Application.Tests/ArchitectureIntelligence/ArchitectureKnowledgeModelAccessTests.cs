@@ -375,7 +375,7 @@ public sealed class ArchitectureKnowledgeModelAccessTests
   }
 
   [Fact]
-  public async Task SaveForRunAsync_restores_in_flight_graph_after_architecture_wide_clear()
+  public async Task SaveForRunAsync_preserves_the_findings_graph_while_invalidating_a_draft_sibling()
   {
     Guid runId = Guid.Parse("78787878-7878-7878-7878-787878787878");
     Guid architectureId = Guid.Parse("90909090-9090-9090-9090-909090909090");
@@ -398,6 +398,18 @@ public sealed class ArchitectureKnowledgeModelAccessTests
     };
 
     await runs.SaveAsync(run, CancellationToken.None);
+    RunRecord draft = new()
+    {
+      RunId = Guid.NewGuid(),
+      TenantId = TestScope.TenantId,
+      WorkspaceId = TestScope.WorkspaceId,
+      ScopeProjectId = TestScope.ProjectId,
+      ProjectId = run.ProjectId,
+      ArchitectureId = architectureId,
+      GraphSnapshotId = Guid.NewGuid(),
+      CreatedUtc = run.CreatedUtc.AddMinutes(-1),
+    };
+    await runs.SaveAsync(draft, CancellationToken.None);
 
     Mock<IArchitectureIdentityRepository> identities = new();
 
@@ -415,6 +427,10 @@ public sealed class ArchitectureKnowledgeModelAccessTests
     RunRecord? loaded = await runs.GetByIdAsync(TestScope, runId, CancellationToken.None);
     loaded.Should().NotBeNull();
     loaded!.GraphSnapshotId.Should().Be(graphSnapshotId);
+    loaded.FindingsSnapshotId.Should().Be(findingsSnapshotId);
+    RunRecord? loadedDraft = await runs.GetByIdAsync(TestScope, draft.RunId, CancellationToken.None);
+    loadedDraft.Should().NotBeNull();
+    loadedDraft!.GraphSnapshotId.Should().BeNull();
   }
 
   [Fact]

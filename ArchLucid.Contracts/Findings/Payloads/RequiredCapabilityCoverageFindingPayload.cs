@@ -1,5 +1,6 @@
-namespace ArchLucid.Decisioning.Models;
+namespace ArchLucid.Contracts.Findings.Payloads;
 
+/// <summary>Coverage details carried by required-capability findings.</summary>
 public sealed class RequiredCapabilityCoverageFindingPayload
 {
     public List<string> RequiredCapabilities

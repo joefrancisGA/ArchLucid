@@ -1,6 +1,5 @@
 using ArchLucid.Application.Runs.Orchestration.Pipeline.Stages;
 using ArchLucid.Core.Authority;
-using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
@@ -215,7 +214,6 @@ public sealed class AuthorityPipelineDecisioningStageTests
         return new AuthorityPipelineDecisioningStage(
             Mock.Of<IDecisionEngine>(),
             Mock.Of<IAuthorityPipelineStagePersistence>(),
-            Mock.Of<IAuditService>(),
             Mock.Of<ArchLucid.Application.ArchitectureIntelligence.IAuthorityClosedLoopStrengtheningPass>(),
             Mock.Of<ArchLucid.Application.ArchitectureIntelligence.IClosedLoopStrengtheningScoreSyncService>(),
             Mock.Of<IManifestHashService>(),

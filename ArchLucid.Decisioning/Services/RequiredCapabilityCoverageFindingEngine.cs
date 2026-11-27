@@ -3,6 +3,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Findings.Payloads;
 
 namespace ArchLucid.Decisioning.Services;
 

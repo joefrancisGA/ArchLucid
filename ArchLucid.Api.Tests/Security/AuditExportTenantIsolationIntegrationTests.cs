@@ -42,109 +42,73 @@ public sealed class AuditExportTenantIsolationIntegrationTests
     [SkippableFact]
     public async Task Tenant_b_audit_list_take_200_excludes_tenant_a_run_id_sql_tb295()
     {
-        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), SqlExplicitUnavailable);
 
-        try
-        {
-            Guid runGuid = await SeedTenantACommittedRunAsync();
+        GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
-            await using GreenfieldSqlApiFactory factory = new();
-            using HttpClient clientB = factory.CreateClient();
-            WireScope(clientB, TenantB, WorkspaceB, ProjectB);
+        await using IdorGreenfieldSqlApiFactory factory = new();
+        Guid runGuid = await SeedTenantACommittedRunAsync(factory);
 
-            HttpResponseMessage list = await clientB.GetAsync("/v1/audit?take=200");
-            await list.EnsureSuccessForTestAsync();
+        using HttpClient clientB = factory.CreateClient();
+        WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
-            string json = await list.Content.ReadAsStringAsync();
-            json.Should().NotContain(runGuid.ToString("D"), because: "tenant B audit list must not include tenant A run id");
-        }
-        catch (WarmupTimedOutException)
-        {
-            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
-            return;
-        }
-        catch (GreenfieldCommitRetryBudgetExhaustedException)
-        {
-            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
-            return;
-        }
+        HttpResponseMessage list = await clientB.GetAsync("/v1/audit?take=200");
+        await list.EnsureSuccessForTestAsync();
+
+        string json = await list.Content.ReadAsStringAsync();
+        json.Should().NotContain(runGuid.ToString("D"), because: "tenant B audit list must not include tenant A run id");
     }
 
     [SkippableFact]
     public async Task Tenant_b_audit_csv_export_excludes_tenant_a_run_id_sql_tb295()
     {
-        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), SqlExplicitUnavailable);
 
-        try
-        {
-            Guid runGuid = await SeedTenantACommittedRunAsync();
+        GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
-            await using GreenfieldSqlApiFactory factory = new();
-            using HttpClient clientB = factory.CreateClient();
-            WireScope(clientB, TenantB, WorkspaceB, ProjectB);
+        await using IdorGreenfieldSqlApiFactory factory = new();
+        Guid runGuid = await SeedTenantACommittedRunAsync(factory);
 
-            HttpResponseMessage export = await clientB.GetAsync($"/v1/audit/export/csv?runId={runGuid:D}&maxRows=500");
-            await export.EnsureSuccessForTestAsync();
+        using HttpClient clientB = factory.CreateClient();
+        WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
-            string csv = await export.Content.ReadAsStringAsync();
-            csv.Should().NotContain(runGuid.ToString("D"), because: "tenant B CSV export must not leak tenant A run id filter results");
-        }
-        catch (WarmupTimedOutException)
-        {
-            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
-            return;
-        }
-        catch (GreenfieldCommitRetryBudgetExhaustedException)
-        {
-            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
-            return;
-        }
+        HttpResponseMessage export = await clientB.GetAsync($"/v1/audit/export/csv?runId={runGuid:D}&maxRows=500");
+        await export.EnsureSuccessForTestAsync();
+
+        string csv = await export.Content.ReadAsStringAsync();
+        csv.Should().NotContain(runGuid.ToString("D"), because: "tenant B CSV export must not leak tenant A run id filter results");
     }
 
     [SkippableFact]
     public async Task Tenant_b_audit_search_by_tenant_a_run_id_returns_empty_items_sql_tb295()
     {
-        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), SqlExplicitUnavailable);
 
-        try
-        {
-            Guid runGuid = await SeedTenantACommittedRunAsync();
+        GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
-            await using GreenfieldSqlApiFactory factory = new();
-            using HttpClient clientB = factory.CreateClient();
-            WireScope(clientB, TenantB, WorkspaceB, ProjectB);
+        await using IdorGreenfieldSqlApiFactory factory = new();
+        Guid runGuid = await SeedTenantACommittedRunAsync(factory);
 
-            HttpResponseMessage search = await clientB.GetAsync($"/v1/audit/search?runId={runGuid:D}&take=200");
-            await search.EnsureSuccessForTestAsync();
+        using HttpClient clientB = factory.CreateClient();
+        WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
-            CursorPagedResponse<AuditEvent>? page =
-                await search.Content.ReadFromJsonAsync<CursorPagedResponse<AuditEvent>>(JsonOptions);
+        HttpResponseMessage search = await clientB.GetAsync($"/v1/audit/search?runId={runGuid:D}&take=200");
+        await search.EnsureSuccessForTestAsync();
 
-            page.Should().NotBeNull();
-            page!.Items.Should().BeEmpty(because: "tenant B scoped audit search must not return tenant A run events");
-        }
-        catch (WarmupTimedOutException)
-        {
-            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
-            return;
-        }
-        catch (GreenfieldCommitRetryBudgetExhaustedException)
-        {
-            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
-            return;
-        }
+        CursorPagedResponse<AuditEvent>? page =
+            await search.Content.ReadFromJsonAsync<CursorPagedResponse<AuditEvent>>(JsonOptions);
+
+        page.Should().NotBeNull();
+        page!.Items.Should().BeEmpty(because: "tenant B scoped audit search must not return tenant A run events");
     }
 
-    private static async Task<Guid> SeedTenantACommittedRunAsync()
+    private static async Task<Guid> SeedTenantACommittedRunAsync(IdorGreenfieldSqlApiFactory factory)
     {
-        await using IdorGreenfieldSqlApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostAsync(primer);
         }
-
-        GreenfieldSqlIntegrationWarmup.SkipIfShardWarmupAlreadyTimedOut();
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
 
@@ -160,29 +124,6 @@ public sealed class AuditExportTenantIsolationIntegrationTests
         json.Should().Contain(AuditEventTypes.RunCompleted, because: "seed must produce durable audit rows for tenant A");
 
         return seed.RunGuid;
-    }
-
-    private static bool IsSqlServerReachableWithShortTimeout()
-    {
-        if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable))
-            && string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)))
-        {
-            return false;
-        }
-
-        try
-        {
-            string connectionString =
-                SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString("master");
-            SqlConnectionStringBuilder builder = new(connectionString) { ConnectTimeout = 4 };
-            using SqlConnection connection = new(builder.ConnectionString);
-            connection.Open();
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
     }
 
     private static void WireScope(HttpClient client, Guid tenantId, Guid workspaceId, Guid projectId)

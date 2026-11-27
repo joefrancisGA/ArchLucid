@@ -75,12 +75,13 @@ public sealed class TenantIsolationSmokeTests
     public async Task Tenant_b_cannot_see_tenant_a_run_sql_rls()
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
         await using GreenfieldSqlApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostAsync(primer);
         }
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
@@ -115,12 +116,13 @@ public sealed class TenantIsolationSmokeTests
     public async Task Tenant_b_cannot_access_tenant_a_run_roi_sql_rls()
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
         await using GreenfieldSqlApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostAsync(primer);
         }
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
@@ -147,12 +149,13 @@ public sealed class TenantIsolationSmokeTests
     public async Task Tenant_b_cannot_read_tenant_a_artifact_manifest_list_sql_rls()
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
         await using GreenfieldSqlApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostAsync(
                 primer,
                 includePostCreateRunWarmup: false);
         }
@@ -179,12 +182,13 @@ public sealed class TenantIsolationSmokeTests
     public async Task Admin_archive_batch_with_tenant_a_headers_does_not_archive_tenant_b_runs()
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
         await using GreenfieldSqlApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostAsync(primer);
         }
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
@@ -226,12 +230,13 @@ public sealed class TenantIsolationSmokeTests
     public async Task Tenant_b_cannot_read_tenant_a_run_provenance_sql_rls()
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
         await using GreenfieldSqlApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostAsync(primer);
         }
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
@@ -258,12 +263,13 @@ public sealed class TenantIsolationSmokeTests
     public async Task Tenant_b_cannot_read_tenant_a_executive_roi_summary_sql_rls()
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
         await using GreenfieldSqlApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostAsync(primer);
         }
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
@@ -290,12 +296,13 @@ public sealed class TenantIsolationSmokeTests
     public async Task Tenant_b_audit_export_does_not_include_tenant_a_run_events()
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
         await using GreenfieldSqlApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostAsync(primer);
         }
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);

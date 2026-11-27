@@ -36,31 +36,7 @@ internal static class GreenfieldCommittedRunReadinessPoll
     }
 
     /// <summary>
-    ///     Returns <see langword="true" /> when the run is already committed with a readable manifest version (idempotent
-    ///     success after a 409 manifest-load race or duplicate commit attempt).
-    /// </summary>
-    internal static async Task<bool> TryReturnIfRunAlreadyCommittedAsync(
-        HttpClient client,
-        string runId,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
-
-        using HttpResponseMessage response = await client.GetRunHttpAsync(runId, cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-            return false;
-
-        GetRunResponseDto detail =
-            await response.ReadJsonForTestAsync<GetRunResponseDto>(JsonOptions, cancellationToken);
-
-        return detail?.Run is { Status: "Committed", CurrentManifestVersion: { Length: > 0 } };
-    }
-
-    /// <summary>
-    ///     Polls until execute has promoted the run to <c>ReadyForCommit</c> with agent results visible on
-    ///     <c>GET /v1/architecture/review/{runId}</c>. Prevents POST /commit racing snapshot/materialization under CI SQL load.
-    ///     Note: <c>CurrentManifestVersion</c> is populated only after commit, not at ReadyForCommit.
+    ///     Waits for staged agent results or an already committed authority run that can be verified by finalize.
     /// </summary>
     internal static Task WaitUntilRunManifestReadableForCommitAsync(
         HttpClient client,
@@ -81,12 +57,10 @@ internal static class GreenfieldCommittedRunReadinessPoll
                 if (detail?.Run is null)
                     return false;
 
-                if (!string.Equals(detail.Run.Status, "ReadyForCommit", StringComparison.Ordinal))
-                    return false;
-
-                return detail.Results is { Count: > 0 };
+                return detail.Run is { Status: "Committed", CurrentManifestVersion: { Length: > 0 } }
+                    || (detail.Run.Status == "ReadyForCommit" && detail.Results is { Count: > 0 });
             },
-            "GET /v1/architecture/review/{runId} did not show ReadyForCommit with agent results before commit.",
+            "GET /v1/architecture/review/{runId} showed neither ReadyForCommit with agent results nor Committed with a manifest version.",
             cancellationToken,
             maxAttempts: 30,
             maxDelayMs: 4000);
@@ -139,32 +113,16 @@ internal static class GreenfieldCommittedRunReadinessPoll
             + body.Length.ToString(System.Globalization.CultureInfo.InvariantCulture);
     }
 
-    internal static Task<string> WaitUntilFirstValueReportMarkdownReadyAsync(
+    internal static async Task<string> WaitUntilFirstValueReportMarkdownReadyAsync(
         HttpClient client,
         string runId,
         CancellationToken cancellationToken = default)
     {
-        return WaitUntilAsync(
-            async ct =>
-            {
-                using HttpResponseMessage response =
-                    await client.GetAsync($"/v1/pilots/runs/{runId}/first-value-report", ct);
-
-                if (response.StatusCode != HttpStatusCode.OK)
-                    return (Ready: false, Value: (string?)null);
-
-                string markdown = await response.Content.ReadAsStringAsync(ct);
-
-                if (!markdown.Contains(runId, StringComparison.Ordinal))
-                    return (Ready: false, Value: markdown);
-
-                if (ContainsCanonicalShowcaseDemoRunIds(markdown))
-                    return (Ready: false, Value: markdown);
-
-                return (Ready: true, Value: markdown);
-            },
-            "GET /v1/pilots/runs/{runId}/first-value-report did not return sponsor-safe markdown for the committed run.",
-            cancellationToken);
+        string route = $"/v1/pilots/runs/{runId}/first-value-report";
+        using HttpResponseMessage response = await ReadEvidenceResponseAsync(client, route, runId, cancellationToken);
+        if (response.Content.Headers.ContentType?.MediaType != "text/markdown")
+            throw new InvalidOperationException($"Expected Markdown for committed run '{runId}'.");
+        return await response.Content.ReadAsStringAsync(cancellationToken);
     }
 
     internal static Task<string> WaitUntilAuditSearchContainsScopedLifecycleEventsAsync(
@@ -201,39 +159,47 @@ internal static class GreenfieldCommittedRunReadinessPoll
             cancellationToken);
     }
 
-    internal static Task<string> WaitUntilReferenceEvidenceReadmeAnchorsRunAsync(
+    internal static async Task<byte[]> WaitUntilReferenceEvidenceZipReadyAsync(
         HttpClient client,
         string runId,
         CancellationToken cancellationToken = default)
     {
-        return WaitUntilAsync(
-            async ct =>
+        using HttpResponseMessage response = await ReadEvidenceResponseAsync(
+            client, "/v1/admin/reference-evidence?includeDemo=false", runId, cancellationToken);
+        return await response.Content.ReadAsByteArrayAsync(cancellationToken);
+    }
+
+    private static async Task<HttpResponseMessage> ReadEvidenceResponseAsync(
+        HttpClient client, string route, string runId, CancellationToken cancellationToken)
+    {
+        using CancellationTokenSource budget = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        budget.CancelAfter(TimeSpan.FromSeconds(25));
+        string last = "no response";
+        try
+        {
+            for (int attempt = 1; attempt <= 6; attempt++)
             {
-                using HttpResponseMessage response =
-                    await client.GetAsync("/v1/admin/reference-evidence?includeDemo=false", ct);
+                HttpResponseMessage response = await client.GetAsync(route, budget.Token);
+                if (response.IsSuccessStatusCode)
+                    return response;
 
-                if (response.StatusCode == HttpStatusCode.NotFound)
-                    return (Ready: false, Value: (string?)null);
+                using (response)
+                {
+                    last = $"HTTP {(int)response.StatusCode}, content type {response.Content.Headers.ContentType?.MediaType ?? "not set"}";
+                    if (response.StatusCode is not (HttpStatusCode.ServiceUnavailable or HttpStatusCode.NotFound))
+                        break;
+                }
 
-                if (!response.IsSuccessStatusCode)
-                    return (Ready: false, Value: (string?)null);
+                if (attempt < 6)
+                    await Task.Delay(TimeSpan.FromMilliseconds(250 * attempt), budget.Token);
+            }
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            throw new TimeoutException($"Evidence readiness timed out for '{runId}' at GET {route}. Last response was {last}.");
+        }
 
-                byte[] zipBytes = await response.Content.ReadAsByteArrayAsync(ct);
-                string? readme = ReferenceEvidenceZipReadmeReader.TryReadReadmeText(zipBytes);
-
-                if (readme is null)
-                    return (Ready: false, Value: null);
-
-                if (!readme.Contains(runId, StringComparison.Ordinal))
-                    return (Ready: false, Value: readme);
-
-                if (ContainsCanonicalShowcaseDemoRunIds(readme))
-                    return (Ready: false, Value: readme);
-
-                return (Ready: true, Value: readme);
-            },
-            "GET /v1/admin/reference-evidence?includeDemo=false did not anchor on the committed non-demo run.",
-            cancellationToken);
+        throw new InvalidOperationException($"Evidence was unavailable for '{runId}' at GET {route}. Last response was {last}.");
     }
 
     private static async Task WaitUntilAsync(
@@ -287,17 +253,6 @@ internal static class GreenfieldCommittedRunReadinessPoll
             + nameof(GreenfieldCommittedRunReadinessPoll)
             + "."
             + (lastValue is null ? string.Empty : " Last payload length=" + lastValue.Length.ToString()));
-    }
-
-    private static bool ContainsCanonicalShowcaseDemoRunIds(string text)
-    {
-        if (string.IsNullOrEmpty(text))
-            return false;
-
-        return text.Contains(HarnessDemoBaselineSupport.DemoRunId, StringComparison.Ordinal)
-            || text.Contains(HarnessDemoBaselineSupport.DemoRunHardened, StringComparison.Ordinal)
-            || text.Contains(HarnessDemoBaselineSupport.AuthorityRunId.ToString("D"), StringComparison.Ordinal)
-            || text.Contains(HarnessDemoBaselineSupport.AuthorityRunHardenedId.ToString("D"), StringComparison.Ordinal);
     }
 
 }

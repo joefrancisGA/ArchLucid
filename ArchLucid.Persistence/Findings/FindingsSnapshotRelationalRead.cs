@@ -48,7 +48,7 @@ internal static class FindingsSnapshotRelationalRead
                 RunId = row.RunId,
                 ContextSnapshotId = row.ContextSnapshotId,
                 GraphSnapshotId = row.GraphSnapshotId,
-                CreatedUtc = row.CreatedUtc,
+                CreatedUtc = DateTime.SpecifyKind(row.CreatedUtc, DateTimeKind.Utc),
                 SchemaVersion = row.SchemaVersion,
                 GenerationStatus = FindingsSnapshotGenerationStatusParser.Parse(row.GenerationStatus),
                 Findings = legacyFindings
@@ -147,7 +147,7 @@ internal static class FindingsSnapshotRelationalRead
             RunId = row.RunId,
             ContextSnapshotId = row.ContextSnapshotId,
             GraphSnapshotId = row.GraphSnapshotId,
-            CreatedUtc = row.CreatedUtc,
+            CreatedUtc = DateTime.SpecifyKind(row.CreatedUtc, DateTimeKind.Utc),
             SchemaVersion = row.SchemaVersion,
             GenerationStatus = FindingsSnapshotGenerationStatusParser.Parse(row.GenerationStatus),
             Findings = findings

@@ -1,10 +1,10 @@
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Manifest.Sections;
-using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;

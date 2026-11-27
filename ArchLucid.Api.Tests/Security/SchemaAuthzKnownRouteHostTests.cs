@@ -36,6 +36,7 @@ public sealed class SchemaAuthzKnownRouteHostTests
     public async Task Tenant_b_get_review_by_id_for_tenant_a_run_is_not_success_with_payload()
     {
         Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
 
         IReadOnlyList<SchemaAuthzOperation> operations = LoadCommittedCatalogOperations();
         operations.Should().Contain(
@@ -46,7 +47,7 @@ public sealed class SchemaAuthzKnownRouteHostTests
         using (HttpClient primer = factory.CreateClient())
         {
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
-            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostAsync(primer);
         }
 
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);

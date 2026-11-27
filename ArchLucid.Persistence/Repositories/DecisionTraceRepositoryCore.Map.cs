@@ -17,7 +17,7 @@ public static partial class DecisionTraceRepositoryCore
             ProjectId = row.ProjectId,
             DecisionTraceId = row.DecisionTraceId,
             RunId = row.RunId,
-            CreatedUtc = row.CreatedUtc,
+            CreatedUtc = DateTime.SpecifyKind(row.CreatedUtc, DateTimeKind.Utc),
             RuleSetId = row.RuleSetId,
             RuleSetVersion = row.RuleSetVersion,
             RuleSetHash = row.RuleSetHash,

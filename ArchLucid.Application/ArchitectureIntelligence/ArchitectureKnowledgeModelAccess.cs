@@ -126,14 +126,10 @@ public sealed class ArchitectureKnowledgeModelAccess(
         run.KnowledgeModelId = nextModelId;
         RunHeaderKnowledgeModelContentPin.ApplyToHeader(run, modelToSave, nextModelId);
 
-        // Closed-loop publish runs during decisioning, after graph+findings. Nulling the
-        // in-flight graph pointer then sealing GoldenManifestId 409s first finalize
-        // (golden-cohort nightly: pipeline snapshot ids incomplete).
-        Guid? graphSnapshotToPreserve = ShouldPreserveInFlightPipelineGraph(run)
-            ? run.GraphSnapshotId
-            : null;
+        // Findings already depend on the pipeline's graph, even before the manifest is sealed.
+        bool evidenceGraphSelected = run.GoldenManifestId.HasValue || run.FindingsSnapshotId.HasValue;
 
-        if (run.GraphSnapshotId.HasValue && graphSnapshotToPreserve is null)
+        if (!evidenceGraphSelected)
             run.GraphSnapshotId = null;
 
         await _runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
@@ -156,12 +152,6 @@ public sealed class ArchitectureKnowledgeModelAccess(
                     .ClearGraphSnapshotForArchitectureAsync(scope, architectureIdToAdvance, cancellationToken)
                     .ConfigureAwait(false);
 
-                await RestorePreservedPipelineGraphPointerAsync(
-                        run,
-                        graphSnapshotToPreserve,
-                        cancellationToken)
-                    .ConfigureAwait(false);
-
                 await identityRepository
                     .UpdateCurrentModelAsync(scope, architectureIdToAdvance, nextModelId, cancellationToken)
                     .ConfigureAwait(false);
@@ -178,29 +168,12 @@ public sealed class ArchitectureKnowledgeModelAccess(
                 .ConfigureAwait(false);
         }
 
-        if (architectureIdentityAvailable && _knowledgeModelGraphReprojector is not null)
+        if (!evidenceGraphSelected && architectureIdentityAvailable && _knowledgeModelGraphReprojector is not null)
         {
             await _knowledgeModelGraphReprojector
                 .TryReprojectForRunAsync(scope, runId, model, cancellationToken)
                 .ConfigureAwait(false);
         }
-    }
-
-    private static bool ShouldPreserveInFlightPipelineGraph(ArchLucid.Persistence.Models.RunRecord run)
-    {
-        return run.GoldenManifestId.HasValue || run.FindingsSnapshotId.HasValue;
-    }
-
-    private async Task RestorePreservedPipelineGraphPointerAsync(
-        ArchLucid.Persistence.Models.RunRecord run,
-        Guid? graphSnapshotToPreserve,
-        CancellationToken cancellationToken)
-    {
-        if (!graphSnapshotToPreserve.HasValue || _runRepository is null)
-            return;
-
-        run.GraphSnapshotId = graphSnapshotToPreserve;
-        await _runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
     }
 
     private async Task<ArchitectureKnowledgeModel?> TryLoadViaArchitectureIdentityAsync(

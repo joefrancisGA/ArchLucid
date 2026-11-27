@@ -20,54 +20,41 @@ public sealed class ValueReportDemoRunIsolationIntegrationTests
     {
         Skip.IfNot(AuditTrailCommitIntegrityIntegrationTestsHelpers.IsSqlReachable(), "SQL integration env not configured");
 
-        try
+        GreenfieldSqlIntegrationWarmup.Shared.SkipIfShardWarmupAlreadyTimedOut();
+
+        GreenfieldIntegrationTenantScope.Scope scope = GreenfieldIntegrationTenantScope.CreateUniqueScope();
+        string testTag = "it-val-rpt-" + Guid.NewGuid().ToString("N");
+
+        await using IdorGreenfieldSqlApiFactory factory = new();
+        await GreenfieldIntegrationTenantScope.EnsureScopeAfterGreenfieldHostReadyAsync(factory, scope);
+
+        using (HttpClient primer = factory.CreateClient())
         {
-            GreenfieldIntegrationTenantScope.Scope scope = GreenfieldIntegrationTenantScope.CreateUniqueScope();
-            string testTag = "it-val-rpt-" + Guid.NewGuid().ToString("N");
-
-            await using IdorGreenfieldSqlApiFactory factory = new();
-            await GreenfieldIntegrationTenantScope.EnsureScopeAfterGreenfieldHostReadyAsync(factory, scope);
-
-            using (HttpClient primer = factory.CreateClient())
-            {
-                GreenfieldIntegrationTenantScope.WireScope(primer, scope);
-                await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostOrSkipOnShardOverloadAsync(primer);
-            }
-
-            GreenfieldSqlIntegrationWarmup.SkipIfShardWarmupAlreadyTimedOut();
-
-            using HttpClient client = factory.CreateClient();
-            GreenfieldIntegrationTenantScope.WireScope(client, scope);
-
-            string requestId = testTag[..Math.Min(testTag.Length, 32)];
-            HttpResponseMessage create = await client.PostGreenfieldArchitectureRequestForTestAsync(
-                TestRequestFactory.CreateArchitectureRequest(requestId),
-                "tb294-val-");
-            await create.EnsureSuccessForTestAsync();
-            CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(ArchitectureRequestConcurrencyTestSupport.JsonOptions);
-            string realRunId = created!.Run.RunId;
-            HarnessDemoBaselineSupport.AssertRunIdIsNotShowcase(realRunId);
-
-            await ArchitectureRequestConcurrencyTestSupport.PostExecuteAndCommitUnderGreenfieldBootstrapBudgetAsync(
-                client,
-                realRunId);
-
-            string markdown = await GreenfieldCommittedRunReadinessPoll.WaitUntilFirstValueReportMarkdownReadyAsync(client, realRunId);
-
-            markdown.Should().Contain(realRunId, because: "report must anchor on the committed integration run");
-            HarnessDemoBaselineSupport.AssertTextExcludesShowcaseRunKeys(markdown);
-            HarnessDemoBaselineSupport.AssertTextExcludesShowcaseAuthorityRunGuids(markdown);
+            GreenfieldIntegrationTenantScope.WireScope(primer, scope);
+            await GreenfieldSqlIntegrationWarmup.WarmArchitectureRequestHostAsync(primer);
         }
-        catch (WarmupTimedOutException)
-        {
-            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
-            return;
-        }
-        catch (GreenfieldCommitRetryBudgetExhaustedException)
-        {
-            GreenfieldSqlIntegrationWarmup.RecordAndReturnOnShardOverload();
-            return;
-        }
+
+        using HttpClient client = factory.CreateClient();
+        GreenfieldIntegrationTenantScope.WireScope(client, scope);
+
+        string requestId = testTag[..Math.Min(testTag.Length, 32)];
+        HttpResponseMessage create = await client.PostGreenfieldArchitectureRequestForTestAsync(
+            TestRequestFactory.CreateArchitectureRequest(requestId),
+            "tb294-val-");
+        await create.EnsureSuccessForTestAsync();
+        CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>(ArchitectureRequestConcurrencyTestSupport.JsonOptions);
+        string realRunId = created!.Run.RunId;
+        HarnessDemoBaselineSupport.AssertRunIdIsNotShowcase(realRunId);
+
+        await ArchitectureRequestConcurrencyTestSupport.PostExecuteAndCommitUnderGreenfieldBootstrapBudgetAsync(
+            client,
+            realRunId);
+
+        string markdown = await GreenfieldCommittedRunReadinessPoll.WaitUntilFirstValueReportMarkdownReadyAsync(client, realRunId);
+
+        markdown.Should().Contain(Guid.Parse(realRunId).ToString("N"), because: "report must anchor on the committed integration run");
+        HarnessDemoBaselineSupport.AssertTextExcludesShowcaseRunKeys(markdown);
+        HarnessDemoBaselineSupport.AssertTextExcludesShowcaseAuthorityRunGuids(markdown);
     }
 
 }

@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.Serialization;
 
@@ -52,7 +53,17 @@ public sealed class FindingsSnapshotMetadataMergerTests
                     ExceptionType = nameof(InvalidOperationException),
                 },
             ],
-            ChecklistCoverage = [new Finding { Category = "Hygiene", FindingType = "Tagging" }],
+            ChecklistCoverage =
+            [
+                new Finding
+                {
+                    Category = "Hygiene",
+                    FindingType = "Tagging",
+                    PayloadType = nameof(RequiredCapabilityCoverageFindingPayload),
+                    Payload = new RequiredCapabilityCoverageFindingPayload { MissingCapabilities = ["Tag owner"] },
+                },
+            ],
+            TotalEstimatedSavings = 42.75m,
         };
 
         string json = JsonEntitySerializer.Serialize(header);
@@ -69,7 +80,10 @@ public sealed class FindingsSnapshotMetadataMergerTests
         snapshot.RequirementComparisonRecovery.Should().Be(RequirementComparisonRecoveryCodes.RetryExhausted);
         snapshot.EvaluationConfidenceEnrichmentSkipped.Should().BeTrue();
         snapshot.EngineFailures.Should().ContainSingle(f => f.EngineType == "Cost");
-        snapshot.ChecklistCoverage.Should().ContainSingle(f => f.FindingType == "Tagging");
+        snapshot.ChecklistCoverage.Should().ContainSingle(f => f.FindingType == "Tagging")
+            .Which.Payload.Should().BeOfType<RequiredCapabilityCoverageFindingPayload>()
+            .Which.MissingCapabilities.Should().Equal("Tag owner");
+        snapshot.TotalEstimatedSavings.Should().Be(42.75m);
     }
 
     [Fact]
