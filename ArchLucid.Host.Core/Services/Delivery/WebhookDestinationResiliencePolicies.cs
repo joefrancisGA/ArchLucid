@@ -14,6 +14,7 @@ namespace ArchLucid.Host.Core.Services.Delivery;
 public sealed class WebhookDestinationResiliencePolicies
 {
     private const int DefaultCapacity = 4096;
+    private const int MaxConcurrentCallsPerDestination = 20;
     private static readonly TimeSpan SweepInterval = TimeSpan.FromSeconds(1);
 
     public static readonly TimeSpan CallTimeout = TimeSpan.FromSeconds(60);
@@ -54,9 +55,7 @@ public sealed class WebhookDestinationResiliencePolicies
         if (request.RequestUri is not { IsAbsoluteUri: true } destination)
             throw new HttpRequestException("A webhook destination must be an absolute URI.");
 
-        // Different endpoints on the same host need separate state. Do not retain or emit URL credentials.
-        string normalized = destination.GetComponents(UriComponents.HttpRequestUrl, UriFormat.UriEscaped);
-        string key = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(normalized)));
+        string key = ComputeDestinationHash(destination);
 
         lock (_gate)
         {
@@ -75,11 +74,19 @@ public sealed class WebhookDestinationResiliencePolicies
             if (_destinations.Count >= _capacity)
                 throw new HttpRequestException("Webhook destination resilience capacity is temporarily exhausted.");
 
-            IAsyncPolicy<HttpResponseMessage> policy = OutboundExternalHttpResiliencePolicy.Create(_options);
+            IAsyncPolicy<HttpResponseMessage> policy = OutboundExternalHttpResiliencePolicy.CreateBreakerOnly(_options, _clock, MaxConcurrentCallsPerDestination);
             _destinations.Add(key, new Entry(policy, now));
 
             return policy;
         }
+    }
+
+    internal static string ComputeDestinationHash(Uri destination)
+    {
+        // Different endpoints on the same host need separate state. Never persist URL credentials.
+        string normalized = destination.GetComponents(UriComponents.HttpRequestUrl, UriFormat.UriEscaped);
+
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(normalized)));
     }
 
     private void ReclaimIdleDestinations(long now)

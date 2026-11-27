@@ -8,6 +8,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.AwsExtractor;
 using ArchLucid.Core.CloudInventoryExtractor;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Http;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Serialization;
 
@@ -91,7 +92,7 @@ public sealed class HostedAwsExtractorRunService(
 
         HostedAwsExtractorCollectionResult collection;
 
-        using (HostedCloudCollectionDeadline deadline = new(_timeProvider, options.GetEffectiveCollectionTimeout(), cancellationToken))
+        using (OutboundOperationDeadline deadline = new(_timeProvider, options.GetEffectiveCollectionTimeout(), cancellationToken))
         {
             try
             {
@@ -114,7 +115,7 @@ public sealed class HostedAwsExtractorRunService(
                 await MarkErrorAsync(tenantId, connectionId, actorId, cancellationToken).ConfigureAwait(false);
 
                 if (timedOut)
-                    return HostedAwsExtractorRunResult.CreateCollectionFailed(deadline.FailureDetail("AWS"));
+                    return HostedAwsExtractorRunResult.CreateCollectionFailed(HostedCloudCollectionDeadline.FailureDetail(deadline, "AWS"));
 
                 if (HostedAwsExtractorFailureClassifier.IsThrottled(ex))
                     return HostedAwsExtractorRunResult.CreateThrottled(HostedAwsExtractorFailureClassifier.Describe(ex));
@@ -129,7 +130,7 @@ public sealed class HostedAwsExtractorRunService(
                 // Even a collector that returns a ZIP after cancellation cannot start ingest.
                 await MarkErrorAsync(tenantId, connectionId, actorId, cancellationToken).ConfigureAwait(false);
 
-                return HostedAwsExtractorRunResult.CreateCollectionFailed(deadline.FailureDetail("AWS"));
+                return HostedAwsExtractorRunResult.CreateCollectionFailed(HostedCloudCollectionDeadline.FailureDetail(deadline, "AWS"));
             }
         }
 

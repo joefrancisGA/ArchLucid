@@ -22,7 +22,7 @@ public sealed partial class SqlTenantHardPurgeService(ISqlConnectionFactory conn
         new[]
         {
             "dbo.UsageEvents", "dbo.TenantExecDigestPreferences", "dbo.SentEmails", "dbo.BillingSubscriptionStateHistory", "dbo.BillingSubscriptions",
-            "dbo.TenantTrialSeatOccupants", "dbo.IntegrationEventOutbox", "dbo.AzureDevOpsThreadCreateClaims", "dbo.ArchitectureRunIdempotency", "dbo.CommitRunIdempotency", "dbo.ProvenanceSnapshots",
+            "dbo.TenantTrialSeatOccupants", "dbo.IntegrationEventOutbox", "dbo.AzureDevOpsThreadCreateClaims", "dbo.OutboundWebhookDispatchClaims", "dbo.ArchitectureRunIdempotency", "dbo.CommitRunIdempotency", "dbo.ProvenanceSnapshots",
             "dbo.ConversationThreads", "dbo.RecommendationRecords", "dbo.RecommendationLearningProfiles", "dbo.AdvisoryScanSchedules",
             "dbo.AdvisoryScanExecutions", "dbo.ArchitectureDigests", "dbo.DigestSubscriptions", "dbo.DigestDeliveryAttempts", "dbo.AlertRules",
             "dbo.AlertRecords", "dbo.AlertRoutingSubscriptions", "dbo.AlertDeliveryAttempts", "dbo.CompositeAlertRules", "dbo.PolicyPacks",

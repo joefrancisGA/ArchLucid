@@ -9,7 +9,6 @@ using ArchLucid.Core.Http;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 
-using Polly;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -121,28 +120,9 @@ internal static partial class CostEstimateCommand
 
     private static HttpClient BuildRetailHttpClient()
     {
-        ILogger logger = NullLoggerFactory.Instance.CreateLogger("ArchLucid.Cli.AzureRetail");
-        AzureRetailPricesCliRetryHandler retry = new(logger) { InnerHandler = new HttpClientHandler() };
-        return CliHttpClientFactory.Create(retry, timeout: TimeSpan.FromSeconds(40), baseAddress: ArchLucidAzurePublicHttpClients.RetailPricesAuthority);
-    }
-
-    /// <remarks>
-    ///     Uses shared Polly v8 bridging policy (<see cref="AzureRmAndRetailPricesHttpRetryPolicy"/>) without IHttpClientFactory.
-    /// </remarks>
-    private sealed class AzureRetailPricesCliRetryHandler : DelegatingHandler
-    {
-        private readonly IAsyncPolicy<HttpResponseMessage> _policy;
-
-        public AzureRetailPricesCliRetryHandler(ILogger logger)
-        {
-            ArgumentNullException.ThrowIfNull(logger);
-            _policy = AzureRmAndRetailPricesHttpRetryPolicy.Create(logger);
-        }
-
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
-                CancellationToken cancellationToken)
-            =>
-                _policy.ExecuteAsync(ct => base.SendAsync(request, ct), cancellationToken);
+        TimeSpan budget = TimeSpan.FromSeconds(40);
+        CliRetryDelegatingHandler retry = new(callBudget: budget) { InnerHandler = new HttpClientHandler() };
+        return CliHttpClientFactory.Create(retry, timeout: budget, baseAddress: ArchLucidAzurePublicHttpClients.RetailPricesAuthority);
     }
 
     private static JsonSerializerOptions CreateManifestReadJson()

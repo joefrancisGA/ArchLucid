@@ -80,14 +80,10 @@ public static class HostedCloudExtractorCompositionModule
         services
             .AddHttpClient<IHostedAzureManagementPostReadClient, HostedAzureManagementPostReadClient>(static client =>
             {
-                client.Timeout = TimeSpan.FromMinutes(5);
+                client.Timeout = AzureArmReadHttpClientBuilderExtensions.CallBudget;
             })
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.CloudControlPlane)
-            .AddLongLivedPolicyHandler(static serviceProvider =>
-                ArchLucid.Core.Http.AzureRmAndRetailPricesHttpRetryPolicy.Create(
-                    serviceProvider
-                        .GetRequiredService<ILoggerFactory>()
-                        .CreateLogger("HostedAzureManagementPostReadClient.Policies")));
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.CloudControlPlane, allowAutoRedirect: false)
+            .AddDeadlineAwareArmReadRetries("HostedAzureManagementPostReadClient.Policies", allowVerifiedPostQueries: true);
         services.AddScoped<IHostedAzureExtractorClient, HostedAzureExtractorClient>();
         services.AddScoped<IAzureExtractorPreparedZipValidateStage, AzureExtractorPreparedZipValidateStage>();
         services.AddScoped<IAzureExtractorPreparedZipPersistStage, AzureExtractorPreparedZipPersistStage>();

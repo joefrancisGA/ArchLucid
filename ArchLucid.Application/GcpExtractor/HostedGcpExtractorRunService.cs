@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Http;
 using ArchLucid.Core.GcpExtractor;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Serialization;
@@ -90,7 +91,7 @@ public sealed class HostedGcpExtractorRunService(
 
         HostedGcpExtractorCollectionResult collection;
 
-        using (HostedCloudCollectionDeadline deadline = new(_timeProvider, options.GetEffectiveCollectionTimeout(), cancellationToken))
+        using (OutboundOperationDeadline deadline = new(_timeProvider, options.GetEffectiveCollectionTimeout(), cancellationToken))
         {
             try
             {
@@ -113,7 +114,7 @@ public sealed class HostedGcpExtractorRunService(
                 await MarkErrorAsync(tenantId, connectionId, actorId, cancellationToken).ConfigureAwait(false);
 
                 if (timedOut)
-                    return HostedGcpExtractorRunResult.CreateCollectionFailed(deadline.FailureDetail("GCP"));
+                    return HostedGcpExtractorRunResult.CreateCollectionFailed(HostedCloudCollectionDeadline.FailureDetail(deadline, "GCP"));
 
                 if (HostedGcpExtractorFailureClassifier.IsThrottled(ex))
                     return HostedGcpExtractorRunResult.CreateThrottled(HostedGcpExtractorFailureClassifier.Describe(ex));
@@ -128,7 +129,7 @@ public sealed class HostedGcpExtractorRunService(
                 // Even a collector that returns a ZIP after cancellation cannot start ingest.
                 await MarkErrorAsync(tenantId, connectionId, actorId, cancellationToken).ConfigureAwait(false);
 
-                return HostedGcpExtractorRunResult.CreateCollectionFailed(deadline.FailureDetail("GCP"));
+                return HostedGcpExtractorRunResult.CreateCollectionFailed(HostedCloudCollectionDeadline.FailureDetail(deadline, "GCP"));
             }
         }
 

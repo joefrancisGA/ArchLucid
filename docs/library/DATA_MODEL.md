@@ -191,3 +191,7 @@ Comparison replay is built on `PayloadJson` as the durable artifact. This enable
 ## Azure DevOps thread delivery claims
 
 `dbo.AzureDevOpsThreadCreateClaims` stores the tenant, run, Azure DevOps repository, PR number, and UTC claim time. Its composite primary key admits one server-side thread creation attempt per run and PR. A row records an attempt reservation, not delivery confirmation. It does not store the PAT, thread body, or remote response. Tenant hard purge removes these rows.
+
+## Outbound webhook dispatch claims
+
+`dbo.OutboundWebhookDispatchClaims` stores a tenant ID, outbound event ID, SHA-256 destination digest, and UTC claim time. The primary key allows one reservation per tenant, event, and destination. It stores no URL, credential, message body, or provider response. A reservation does not confirm delivery. Tenant hard purge removes the tenant's reservations.

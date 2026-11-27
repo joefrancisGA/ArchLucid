@@ -19,7 +19,7 @@ public static partial class ServiceCollectionExtensions
                     http.Timeout = AzureArmReadHttpClientBuilderExtensions.CallBudget;
                     http.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "application/json");
                 })
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.CloudControlPlane)
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.CloudControlPlane, allowAutoRedirect: false)
             .AddDeadlineAwareArmReadRetries(
                 $"{ArchLucid.Core.Http.ArchLucidAzurePublicHttpClients.ResourceManagerHttpClientName}.Policies");
 

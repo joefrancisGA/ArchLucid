@@ -98,6 +98,35 @@ public sealed class CliRetryDelegatingHandlerTests
         attempt.Should().Be(1);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task SendAsync_preserves_retry_after_when_the_server_wait_exceeds_the_call_budget(bool dateHeader)
+    {
+        int attempts = 0;
+        HttpMessageHandler inner = new LambdaHandler((_, _) =>
+        {
+            attempts++;
+            HttpResponseMessage response = new(HttpStatusCode.TooManyRequests);
+            response.Headers.RetryAfter = dateHeader
+                ? new System.Net.Http.Headers.RetryConditionHeaderValue(TimeProvider.System.GetUtcNow() + TimeSpan.FromMinutes(2))
+                : new System.Net.Http.Headers.RetryConditionHeaderValue(TimeSpan.FromMinutes(2));
+
+            return Task.FromResult(response);
+        });
+        using HttpRequestMessage request = new(HttpMethod.Get, "https://synthetic.invalid/read");
+        using HttpMessageInvoker invoker = new(new CliRetryDelegatingHandler
+        {
+            InnerHandler = inner
+        }, disposeHandler: true);
+
+        using HttpResponseMessage response = await invoker.SendAsync(request, CancellationToken.None);
+
+        response.StatusCode.Should().Be(HttpStatusCode.TooManyRequests);
+        response.Headers.RetryAfter.Should().NotBeNull();
+        attempts.Should().Be(1);
+    }
+
     private sealed class LambdaHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> send)
         : HttpMessageHandler
     {

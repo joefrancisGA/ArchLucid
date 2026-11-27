@@ -2,7 +2,9 @@
 
 using ArchLucid.Application.Advisory;
 using ArchLucid.Application.Governance;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Http;
+using ArchLucid.Core.Integration;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Decisioning.Advisory.Scheduling;
@@ -15,6 +17,7 @@ using ArchLucid.Host.Core.Services.Delivery;
 using ArchLucid.Notifications;
 using ArchLucid.Notifications.Advisory;
 using ArchLucid.Persistence.Advisory;
+using ArchLucid.Persistence.IntegrationOutbox;
 
 namespace ArchLucid.Host.Composition.Startup.Modules;
 
@@ -80,13 +83,22 @@ internal static class AdvisoryDigestSchedulingRegistrar
             configuration.GetSection(ChatOpsIncomingWebhooksOptions.SectionName));
         services.AddSingleton<IEmailSender, FakeEmailSender>();
         services.AddSingleton<WebhookDestinationResiliencePolicies>();
+        ArchLucidOptions storage = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
+
+        if (ArchLucidOptions.EffectiveIsInMemory(storage.StorageProvider))
+            services.AddSingleton<IOutboundWebhookDispatchClaimStore, InMemoryOutboundWebhookDispatchClaimStore>();
+        else
+            services.AddScoped<IOutboundWebhookDispatchClaimStore, DapperOutboundWebhookDispatchClaimStore>();
+
+        services.AddTransient<OutboundWebhookDispatchClaimHandler>();
         services
             .AddHttpClient(
                 HttpWebhookPoster.WebhookHttpClientName,
                 static client => client.Timeout = WebhookDestinationResiliencePolicies.CallTimeout)
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration, allowAutoRedirect: false)
             .AddPolicyHandler(static (sp, request) =>
-                sp.GetRequiredService<WebhookDestinationResiliencePolicies>().ForRequest(request));
+                sp.GetRequiredService<WebhookDestinationResiliencePolicies>().ForRequest(request))
+            .AddHttpMessageHandler<OutboundWebhookDispatchClaimHandler>();
         services.AddSingleton<HttpWebhookPoster>();
         services.AddSingleton<FakeWebhookPoster>();
         services.AddSingleton<IWebhookPoster>(static sp =>

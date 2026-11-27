@@ -11,20 +11,23 @@ public static partial class ServiceCollectionExtensions
 {
     internal static void RegisterItsmWriteHttpClients(IServiceCollection services)
     {
-        services.AddHttpClient<JiraOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
+        services.AddHttpClient<JiraOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.DevOpsIntegration))
             .ConfigureArchLucidOutboundSocketsHandler(
                 OutboundHttpSocketsHandlerProfile.ExternalIntegration,
+                allowAutoRedirect: false,
                 rejectPrivateNetworkConnectEndpoints: true)
-            .AddOutboundExternalHttpResilienceForReadRetries();
-        services.AddHttpClient<ServiceNowOutboundIncidentClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
+            .AddOutboundExternalHttpResilienceForReadRetries(OutboundHttpClientTimeoutSeconds.DevOpsIntegration);
+        services.AddHttpClient<ServiceNowOutboundIncidentClient>(static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.DevOpsIntegration))
             .ConfigureArchLucidOutboundSocketsHandler(
                 OutboundHttpSocketsHandlerProfile.ExternalIntegration,
+                allowAutoRedirect: false,
                 rejectPrivateNetworkConnectEndpoints: true)
-            .AddOutboundExternalHttpResilienceForReadRetries();
-        services.AddHttpClient<AzureBoardsOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(60))
+            .AddOutboundExternalHttpResilienceForReadRetries(OutboundHttpClientTimeoutSeconds.DevOpsIntegration);
+        services.AddHttpClient<AzureBoardsOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.DevOpsIntegration))
             .ConfigureArchLucidOutboundSocketsHandler(
                 OutboundHttpSocketsHandlerProfile.ExternalIntegration,
+                allowAutoRedirect: false,
                 rejectPrivateNetworkConnectEndpoints: true)
-            .AddOutboundExternalHttpResilienceForReadRetries();
+            .AddOutboundExternalHttpResilienceForReadRetries(OutboundHttpClientTimeoutSeconds.DevOpsIntegration);
     }
 }

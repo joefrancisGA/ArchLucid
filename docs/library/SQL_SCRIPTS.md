@@ -219,6 +219,7 @@ sequenceDiagram
 | **422_SecurityEvidencePathRoutingPrincipalWidth.sql** | Widens the SecureNow routing principal to match inventory tag values. Rollback: **`Rollback/R422_SecurityEvidencePathRoutingPrincipalWidth.sql`**. |
 | **423_SecurityEvidencePathRoutingReferenceWidth.sql** | Widens the SecureNow routing source reference to preserve the full inventory resource ID. Rollback: **`Rollback/R423_SecurityEvidencePathRoutingReferenceWidth.sql`**. |
 | **436_AzureDevOpsThreadCreateClaims.sql** | Adds tenant-local atomic send claims for server-side Azure DevOps PR threads. Rollback: **`Rollback/R436_AzureDevOpsThreadCreateClaims.sql`** (empty table only). |
+| **437_OutboundWebhookDispatchClaims.sql** | Adds tenant-local atomic send reservations for queued webhook events. Rollback: **`Rollback/R437_OutboundWebhookDispatchClaims.sql`** (empty table only). |
 
 **Note:** Authority-chain tables also appear in **`ArchLucid.sql`** for Persistence bootstrap parity.
 

@@ -27,6 +27,8 @@ public sealed class AuthorityRunCommittedChatOpsNotice
         init;
     }
 
+    public Guid? DispatchEventId { get; init; }
+
     public int FindingCount
     {
         get;

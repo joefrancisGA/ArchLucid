@@ -1,4 +1,4 @@
-using System.Net;
+using ArchLucid.Core.Http;
 
 using Polly;
 using Polly.Retry;
@@ -13,7 +13,7 @@ internal sealed class CliRetryDelegatingHandler : DelegatingHandler
 
     private readonly ResiliencePipeline<HttpResponseMessage>? _pipeline;
 
-    public CliRetryDelegatingHandler(CliResilienceOptions? options = null)
+    public CliRetryDelegatingHandler(CliResilienceOptions? options = null, TimeSpan? callBudget = null, TimeProvider? clock = null)
     {
         CliResilienceOptions resolved = options ?? new CliResilienceOptions();
         resolved.Normalize();
@@ -25,21 +25,12 @@ internal sealed class CliRetryDelegatingHandler : DelegatingHandler
             return;
         }
 
-        _pipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
-            .AddRetry(
-                new RetryStrategyOptions<HttpResponseMessage>
-                {
-                    MaxRetryAttempts = resolved.MaxRetryAttempts,
-                    Delay = TimeSpan.FromSeconds(resolved.InitialDelaySeconds),
-                    BackoffType = DelayBackoffType.Exponential,
-                    UseJitter = true,
-                    ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
-                        .Handle<HttpRequestException>()
-                        .HandleResult(static r =>
-                            (int)r.StatusCode >= 500
-                            || r.StatusCode == HttpStatusCode.RequestTimeout
-                            || r.StatusCode == (HttpStatusCode)429)
-                })
+        TimeProvider timeProvider = clock ?? TimeProvider.System;
+        DeadlineAwareReadRetryTiming timing = new(timeProvider, callBudget ?? TimeSpan.FromSeconds(30),
+            resolved.MaxRetryAttempts, TimeSpan.FromSeconds(resolved.InitialDelaySeconds));
+        _pipeline = new ResiliencePipelineBuilder<HttpResponseMessage> { TimeProvider = timeProvider }
+            .AddStrategy(_ => timing)
+            .AddRetry(timing.CreateRetryOptions())
             .Build();
     }
 
@@ -63,8 +54,8 @@ internal sealed class CliRetryDelegatingHandler : DelegatingHandler
 
     private static bool CanRetry(HttpRequestMessage request)
     {
-        if (request.Method == HttpMethod.Get || request.Method == HttpMethod.Head
-            || request.Method == HttpMethod.Options || request.Method == HttpMethod.Trace)
+        if (request.Content is null && (request.Method == HttpMethod.Get || request.Method == HttpMethod.Head
+            || request.Method == HttpMethod.Options || request.Method == HttpMethod.Trace))
             return true;
 
         // A header alone says nothing about whether this operation honors it.

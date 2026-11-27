@@ -22,7 +22,7 @@ public static partial class ServiceCollectionExtensions
                 .ConfigureArchLucidOutboundSocketsHandler(
                     OutboundHttpSocketsHandlerProfile.ExternalIntegration,
                     rejectPrivateNetworkConnectEndpoints: true)
-                .AddOutboundExternalHttpResilience();
+                .AddOutboundExternalHttpResilienceForReadRetries(ItsmOutboundIntegrationHealthLimits.NetworkTimeoutSeconds);
         }
     }
 }

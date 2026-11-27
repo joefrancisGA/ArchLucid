@@ -145,7 +145,7 @@ public sealed class AzureArmReadDeadlinePolicyTests
     [Theory]
     [InlineData(NamedArm)]
     [InlineData(HostedPostRead)]
-    public async Task Arm_non_get_registrations_keep_the_existing_retry_policy(string name)
+    public async Task Arm_unverified_post_requests_do_not_enter_retry_policy(string name)
     {
         RetryClock clock = new();
         RecordingTransport arm = new(index => index == 1
@@ -161,8 +161,40 @@ public sealed class AzureArmReadDeadlinePolicyTests
 
         using HttpResponseMessage result = await client.PostAsync(ArmUri, body).WaitAsync(TestTimeout);
 
-        Assert.Equal(HttpStatusCode.OK, result.StatusCode);
-        Assert.Equal(2, arm.Sends);
+        Assert.Equal(HttpStatusCode.TooManyRequests, result.StatusCode);
+        Assert.Equal(1, arm.Sends);
+    }
+
+    [Theory]
+    [InlineData("Microsoft.CostManagement/query", true)]
+    [InlineData("Microsoft.PolicyInsights/policyStates/latest/queryResults", true)]
+    [InlineData("Microsoft.ContainerService/managedClusters/test/runCommand", false)]
+    [InlineData("Microsoft.Network/networkInterfaces/test/effectiveRouteTable", false)]
+    public async Task Hosted_management_client_retries_only_verified_query_posts(string operation, bool retry)
+    {
+        RetryClock clock = new();
+        RecordingTransport arm = new(index => index == 1
+            ? new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
+            {
+                Headers = { RetryAfter = new RetryConditionHeaderValue(TimeSpan.FromSeconds(7)) },
+            }
+            : new HttpResponseMessage(HttpStatusCode.OK));
+        await using ServiceProvider services = BuildServices(clock, HostedPostRead, arm);
+        using HttpClient client = Client(services, HostedPostRead);
+        using StringContent body = new("{}");
+        string url = $"https://management.azure.com/subscriptions/{Guid.NewGuid():D}/providers/{operation}";
+
+        Task<HttpResponseMessage> result = client.PostAsync(new Uri(url), body);
+
+        if (retry)
+        {
+            Assert.Equal(TimeSpan.FromSeconds(7), await clock.NextTimerAsync().WaitAsync(TestTimeout));
+            clock.Advance(TimeSpan.FromSeconds(7));
+        }
+
+        using HttpResponseMessage response = await result.WaitAsync(TestTimeout);
+        Assert.Equal(retry ? HttpStatusCode.OK : HttpStatusCode.ServiceUnavailable, response.StatusCode);
+        Assert.Equal(retry ? 2 : 1, arm.Sends);
     }
 
     private static ServiceProvider BuildServices(

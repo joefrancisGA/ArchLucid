@@ -32,6 +32,9 @@ public sealed class WebhookPostOptions
         init;
     }
 
+    /// <summary>Stable ID for an automatically redeliverable event, not an HTTP correlation ID.</summary>
+    public Guid? DispatchEventId { get; init; }
+
     /// <summary>
     ///     Optional outbound <c>X-Correlation-ID</c> for customer log correlation (validated length when set).
     /// </summary>

@@ -27,6 +27,7 @@ public sealed class WebhookHmacEnvelopePoster(IOptionsMonitor<WebhookDeliveryOpt
                     HmacSha256SharedSecret = secret,
                     EventType = options?.EventType,
                     TenantId = options?.TenantId,
+                    DispatchEventId = options?.DispatchEventId,
                     CorrelationId = options?.CorrelationId,
                 }
                 : options);
