@@ -1,13 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SecureNowAdminSecondCapturePathDeltaStrip } from "@/components/product-line/SecureNowAdminSecondCapturePathDeltaStrip";
 import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
 import { SecureNowCollectionSetupStatusSection } from "@/components/product-line/SecureNowCollectionSetupStatusSection";
+import { SecureNowAcceleratorCatalogFilterChips } from "@/components/product-line/SecureNowAcceleratorCatalogFilterChips";
+import { SecureNowAcceleratorFamilyProgressStrip } from "@/components/product-line/SecureNowAcceleratorFamilyProgressStrip";
+import { filterSecureNowAcceleratorRowsByCatalogTag } from "@/lib/product-line/securenow-accelerator-catalog-filters";
+import type { SecureNowAcceleratorCatalogTag } from "@/lib/product-line/securenow-accelerator-catalog-taxonomy";
+import { useSecureNowAcceleratorVisitRecorder } from "@/hooks/use-securenow-accelerator-visit-recorder";
+import { SECURENOW_ACCELERATOR_INDEX_PATH } from "@/lib/product-line/securenow-accelerator-index-copy";
 import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
 import { SecureNowHomeDestinationSection } from "@/components/product-line/SecureNowHomeDestinationSection";
 import { SecureNowWorkspaceApiUnreachableNotice } from "@/components/product-line/SecureNowWorkspaceApiUnreachableNotice";
@@ -24,10 +30,12 @@ import { cn } from "@/lib/utils";
 
 export function SecureNowAcceleratorIndexPageView(): React.JSX.Element {
   const snapshotQuery = useSecureNowLatestSucceededSnapshotId();
-  const rows = useMemo(
-    () => buildSecureNowAcceleratorIndexRows({ latestSnapshotId: snapshotQuery.latestSnapshotId }),
-    [snapshotQuery.latestSnapshotId],
-  );
+  const [catalogTag, setCatalogTag] = useState<SecureNowAcceleratorCatalogTag>("all");
+  useSecureNowAcceleratorVisitRecorder({ href: SECURENOW_ACCELERATOR_INDEX_PATH, label: "Accelerator index" });
+  const rows = useMemo(() => {
+    const built = buildSecureNowAcceleratorIndexRows({ latestSnapshotId: snapshotQuery.latestSnapshotId });
+    return filterSecureNowAcceleratorRowsByCatalogTag(built, catalogTag);
+  }, [catalogTag, snapshotQuery.latestSnapshotId]);
 
   return (
     <OperatorPageContainer variant="full" data-testid="securenow-accelerator-index-page">
@@ -48,6 +56,10 @@ export function SecureNowAcceleratorIndexPageView(): React.JSX.Element {
         />
 
         <SecureNowAdminSecondCapturePathDeltaStrip testIdPrefix="securenow-accelerator-index" />
+
+        <SecureNowAcceleratorFamilyProgressStrip />
+
+        <SecureNowAcceleratorCatalogFilterChips activeTag={catalogTag} onTagChange={setCatalogTag} />
 
         <SecureNowCollectionSetupStatusSection
           testIdPrefix="securenow-accelerator-index"
