@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-using ArchLucid.Core.Agents;
+using ArchLucid.AgentRuntime.Quality;
 using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Common;
