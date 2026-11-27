@@ -86,14 +86,7 @@ internal static class IntendedReachabilityPathEnumerator
         bool touchedSeed,
         SecurityEvidencePathSearchLimitTracker limits)
     {
-        if (SecurityEvidencePathSearchLimitGuard.StopForDepth(
-                limits,
-                options,
-                path.Count,
-                graph.OutgoingEdges,
-                currentNode,
-                visited)
-            || SecurityEvidencePathSearchLimitGuard.StopForPathCap(
+        if (SecurityEvidencePathSearchLimitGuard.StopForPathCap(
                 limits,
                 options,
                 results.Count,
@@ -117,7 +110,15 @@ internal static class IntendedReachabilityPathEnumerator
             }
         }
 
-        if (!graph.OutgoingEdges.TryGetValue(currentNode, out List<PrivilegePathEdge>? edges))
+        // The depth cap stops expansion, not evaluation of the terminal already reached.
+        if (SecurityEvidencePathSearchLimitGuard.StopForDepth(
+                limits,
+                options,
+                path.Count,
+                graph.OutgoingEdges,
+                currentNode,
+                visited)
+            || !graph.OutgoingEdges.TryGetValue(currentNode, out List<PrivilegePathEdge>? edges))
         {
             return;
         }

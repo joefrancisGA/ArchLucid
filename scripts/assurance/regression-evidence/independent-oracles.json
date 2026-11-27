@@ -20,7 +20,7 @@
       "source": {
         "kind": "worked-example",
         "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
-        "sha256": "59d18f0193c99b2a2fe8ec9c460034801b305976dcfc3a71759ecad82d16d586",
+        "sha256": "d1c6add6dfadf21fd18f8f5970f2b229574c5674bac1976d2c390aba6283f3bb",
         "locator": "Cosine triangle and orthogonality"
       }
     },
@@ -42,7 +42,7 @@
       "source": {
         "kind": "requirement",
         "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
-        "sha256": "59d18f0193c99b2a2fe8ec9c460034801b305976dcfc3a71759ecad82d16d586",
+        "sha256": "d1c6add6dfadf21fd18f8f5970f2b229574c5674bac1976d2c390aba6283f3bb",
         "locator": "Cosine undefined-input fallback"
       }
     },
@@ -65,7 +65,7 @@
       "source": {
         "kind": "worked-example",
         "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
-        "sha256": "59d18f0193c99b2a2fe8ec9c460034801b305976dcfc3a71759ecad82d16d586",
+        "sha256": "d1c6add6dfadf21fd18f8f5970f2b229574c5674bac1976d2c390aba6283f3bb",
         "locator": "Telemetry affine endpoints"
       }
     },
@@ -88,7 +88,7 @@
       "source": {
         "kind": "worked-example",
         "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
-        "sha256": "59d18f0193c99b2a2fe8ec9c460034801b305976dcfc3a71759ecad82d16d586",
+        "sha256": "d1c6add6dfadf21fd18f8f5970f2b229574c5674bac1976d2c390aba6283f3bb",
         "locator": "Distinct paths example"
       }
     },
@@ -109,7 +109,7 @@
       "source": {
         "kind": "property",
         "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
-        "sha256": "59d18f0193c99b2a2fe8ec9c460034801b305976dcfc3a71759ecad82d16d586",
+        "sha256": "d1c6add6dfadf21fd18f8f5970f2b229574c5674bac1976d2c390aba6283f3bb",
         "locator": "C contributes no candidates"
       }
     },
@@ -256,7 +256,7 @@
       "source": {
         "kind": "worked-example",
         "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
-        "sha256": "59d18f0193c99b2a2fe8ec9c460034801b305976dcfc3a71759ecad82d16d586",
+        "sha256": "d1c6add6dfadf21fd18f8f5970f2b229574c5674bac1976d2c390aba6283f3bb",
         "locator": "Simple directed walk edge budget"
       }
     },
@@ -277,7 +277,7 @@
       "source": {
         "kind": "property",
         "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
-        "sha256": "59d18f0193c99b2a2fe8ec9c460034801b305976dcfc3a71759ecad82d16d586",
+        "sha256": "d1c6add6dfadf21fd18f8f5970f2b229574c5674bac1976d2c390aba6283f3bb",
         "locator": "Topology no-op and idempotence"
       }
     },
@@ -299,8 +299,54 @@
       "source": {
         "kind": "property",
         "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
-        "sha256": "59d18f0193c99b2a2fe8ec9c460034801b305976dcfc3a71759ecad82d16d586",
+        "sha256": "d1c6add6dfadf21fd18f8f5970f2b229574c5674bac1976d2c390aba6283f3bb",
         "locator": "Topology no-op and idempotence"
+      }
+    },
+    {
+      "product": "SecureNow",
+      "path": "ArchLucid.Application.Tests/InfraEvidence/SecureNowReferenceReachabilityOracleTests.cs",
+      "test": "Production_accepts_qualifying_terminals_through_the_hop_limit",
+      "classification": "independent",
+      "contract": "intended-reachability-inclusive-hop-limit",
+      "intent": "Limit edge expansion but accept qualifying final-hop terminals.",
+      "derivation": "Manually enumerate the first zero through three distinct terminal endpoints of the three-edge chain. An unvisited successor implies truncation and a visited return edge does not.",
+      "cases": [
+        "positive",
+        "negative",
+        "boundary"
+      ],
+      "limitations": [
+        "Uses a small materialized graph fixture. No live inventory or persistence is exercised."
+      ],
+      "source": {
+        "kind": "requirement",
+        "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
+        "sha256": "d1c6add6dfadf21fd18f8f5970f2b229574c5674bac1976d2c390aba6283f3bb",
+        "locator": "Inclusive intended reachability hop limit"
+      }
+    },
+    {
+      "product": "SecureNow",
+      "path": "ArchLucid.Application.Tests/InfraEvidence/SecureNowReferenceReachabilityOracleTests.cs",
+      "test": "Production_terminals_at_the_hop_limit_still_obey_other_caps",
+      "classification": "independent",
+      "contract": "intended-reachability-composed-caps",
+      "intent": "Preserve the result-count and per-node fan-out bounds at the final hop.",
+      "derivation": "The two ordered branches both end at depth one. Either independent cap of one permits only alpha.",
+      "cases": [
+        "positive",
+        "negative",
+        "boundary"
+      ],
+      "limitations": [
+        "Verifies an isolated enumeration. Continuation and persistence are outside this oracle."
+      ],
+      "source": {
+        "kind": "requirement",
+        "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
+        "sha256": "d1c6add6dfadf21fd18f8f5970f2b229574c5674bac1976d2c390aba6283f3bb",
+        "locator": "Inclusive intended reachability hop limit"
       }
     }
   ]
