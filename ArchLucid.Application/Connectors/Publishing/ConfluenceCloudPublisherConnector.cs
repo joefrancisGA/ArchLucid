@@ -12,6 +12,8 @@ using ArchLucid.Core.Integrations.Itsm;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using Polly.CircuitBreaker;
+
 namespace ArchLucid.Application.Connectors.Publishing;
 
 /// <summary>Minimal Confluence Cloud REST create-page publisher (storage HTML body).</summary>
@@ -49,10 +51,13 @@ public sealed class ConfluenceCloudPublisherConnector : IPublisherConnector
     public async Task<PublishOutcome> PublishDocumentAsync(PublishRequest request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
+        cancellationToken.ThrowIfCancellationRequested();
         ConfluencePublishingOptions o = _options.CurrentValue;
+
         if (!o.Enabled)
             return new PublishOutcome(false, null, ConfluencePublishFailureReason.BadResponse, "Confluence publishing is disabled in configuration.");
         string spaceKey = ConfluencePublishingSpaceKeyResolver.Resolve(o, request.ProjectId).Trim();
+
         if (spaceKey.Length is 0)
             return new PublishOutcome(false, null, ConfluencePublishFailureReason.BadResponse,
                 "Confluence space key is not configured for this project (Integrations:ConfluencePublishing:SpaceKey or ProjectSpaceKeys).");
@@ -98,15 +103,43 @@ public sealed class ConfluenceCloudPublisherConnector : IPublisherConnector
         httpRequest.Headers.Authorization = authorization;
         httpRequest.Content = JsonContent.Create(body, options: SerializerOptions);
 
-        using HttpResponseMessage response =
-            await _http.SendAsync(httpRequest, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            using HttpResponseMessage response =
+                await _http.SendAsync(httpRequest, cancellationToken).ConfigureAwait(false);
+            return await ReadCreateOutcomeAsync(response, cancellationToken).ConfigureAwait(false);
+        }
+        catch (BrokenCircuitException)
+        {
+            return new PublishOutcome(false, null, ConfluencePublishFailureReason.NetworkError,
+                "Confluence publishing is temporarily unavailable. The page create was not sent.");
+        }
+        catch (HttpRequestException)
+        {
+            return UnknownCreateOutcome(ConfluencePublishFailureReason.NetworkError);
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            return UnknownCreateOutcome(ConfluencePublishFailureReason.NetworkError);
+        }
+        catch (JsonException)
+        {
+            return UnknownCreateOutcome(ConfluencePublishFailureReason.BadResponse);
+        }
+    }
+
+    private async Task<PublishOutcome> ReadCreateOutcomeAsync(HttpResponseMessage response, CancellationToken cancellationToken)
+    {
 
         if (response.IsSuccessStatusCode)
         {
             ConfluenceCreateResponse? created = await response.Content.ReadFromJsonAsync<ConfluenceCreateResponse>(SerializerOptions, cancellationToken)
                 .ConfigureAwait(false);
             string? id = created?.Id;
-            return string.IsNullOrWhiteSpace(id) ? new PublishOutcome(false, null, ConfluencePublishFailureReason.BadResponse, "Confluence returned success but no page id.") : new PublishOutcome(true, id, null, null);
+            return string.IsNullOrWhiteSpace(id)
+                ? UnknownCreateOutcome(ConfluencePublishFailureReason.BadResponse)
+                : new PublishOutcome(true, id, null, null);
         }
 
         ConfluencePublishFailureReason reason = MapFailure(response.StatusCode);
@@ -115,8 +148,13 @@ public sealed class ConfluenceCloudPublisherConnector : IPublisherConnector
         if (_logger.IsEnabled(LogLevel.Warning))
             _logger.LogWarning("Confluence publish failed: {Status} {Body}", response.StatusCode, LogSanitizer.Sanitize(detail));
 
-        return new PublishOutcome(false, null, reason, Truncate(detail, 2048));
+        return reason is ConfluencePublishFailureReason.ServerError or ConfluencePublishFailureReason.NetworkError
+            ? UnknownCreateOutcome(reason)
+            : new PublishOutcome(false, null, reason, Truncate(detail, 2048));
     }
+
+    private static PublishOutcome UnknownCreateOutcome(ConfluencePublishFailureReason reason) =>
+        new(false, null, reason, "Confluence did not confirm the page create. Check the destination space for the page before retrying.");
 
     private static string BuildStorageHtml(string? markdownOrPlain)
     {
@@ -130,6 +168,7 @@ public sealed class ConfluenceCloudPublisherConnector : IPublisherConnector
         HttpStatusCode.Unauthorized => ConfluencePublishFailureReason.Unauthorized,
         HttpStatusCode.Forbidden => ConfluencePublishFailureReason.Forbidden,
         HttpStatusCode.NotFound => ConfluencePublishFailureReason.NotFound,
+        HttpStatusCode.RequestTimeout => ConfluencePublishFailureReason.NetworkError,
         HttpStatusCode.TooManyRequests => ConfluencePublishFailureReason.RateLimited,
         HttpStatusCode.RequestEntityTooLarge => ConfluencePublishFailureReason.PayloadTooLarge,
         >= HttpStatusCode.InternalServerError => ConfluencePublishFailureReason.ServerError,
