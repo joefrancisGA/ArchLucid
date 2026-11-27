@@ -65,11 +65,13 @@ public sealed class JiraOutboundIssueClient(HttpClient http, ILogger<JiraOutboun
         string raw = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
         // ReSharper disable once InvertIf
+
         if (response.IsSuccessStatusCode)
         {
             try
             {
                 JiraCreateIssueResponse? parsed = JsonSerializer.Deserialize<JiraCreateIssueResponse>(raw, ContractJson.CamelCaseIgnoreNullCompact);
+
                 if (parsed is null || string.IsNullOrWhiteSpace(parsed.Key))
                     return new JiraOutboundIssueHttpResult(false, null, null, response.StatusCode, "Jira returned success but no issue key.");
                 return new JiraOutboundIssueHttpResult(true, parsed.Key.Trim(), parsed.Id, response.StatusCode, null);

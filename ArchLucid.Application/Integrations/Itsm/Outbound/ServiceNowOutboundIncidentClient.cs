@@ -24,6 +24,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         ArgumentNullException.ThrowIfNull(instanceRoot);
         ArgumentNullException.ThrowIfNull(authorization);
         ArgumentNullException.ThrowIfNull(systemName);
+
         if (string.IsNullOrWhiteSpace(systemName))
             return new ServiceNowCmdbCiResolveResult(false, null, null, null);
 
@@ -110,6 +111,7 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         string raw = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
         // ReSharper disable once InvertIf
+
         if (response.IsSuccessStatusCode)
         {
             try
@@ -187,8 +189,10 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         try
         {
             using JsonDocument doc = JsonDocument.Parse(raw);
+
             if (!doc.RootElement.TryGetProperty("result", out JsonElement arr) || arr.ValueKind != JsonValueKind.Array)
                 return null;
+
             foreach (JsonElement row in arr.EnumerateArray())
             {
                 if (row.TryGetProperty("sys_id", out JsonElement sid))

@@ -146,6 +146,7 @@ public sealed class BackgroundJobWorkUnitExecutor(
         ArgumentNullException.ThrowIfNull(unit.Payload);
         ArchitectureAnalysisRequest request = unit.Payload.ToAnalysisRequest();
         ArchitectureRunDetail? detail = await _runDetailQuery.GetRunDetailAsync(unit.Payload.RunId, cancellationToken);
+
         if (detail is null)
             throw new InvalidOperationException($"Run '{unit.Payload.RunId}' was not found.");
         request.PreloadedRunDetail = detail;
@@ -174,6 +175,7 @@ public sealed class BackgroundJobWorkUnitExecutor(
             CompareRunId = p.CompareRunId
         };
         ArchitectureRunDetail? detail = await _runDetailQuery.GetRunDetailAsync(p.RunId, cancellationToken);
+
         if (detail is null)
             throw new InvalidOperationException($"Run '{p.RunId}' was not found.");
         analysisRequest.PreloadedRunDetail = detail;

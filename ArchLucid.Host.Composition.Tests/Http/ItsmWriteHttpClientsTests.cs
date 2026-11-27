@@ -38,6 +38,7 @@ public sealed class ItsmWriteHttpClientsTests
         Assert.Equal(1, handler.AcceptedWrites);
         Assert.False(result.Ok);
         Assert.Equal(HttpStatusCode.ServiceUnavailable, result.StatusCode);
+
         if (dropResponse)
         {
             Assert.Contains("Check for an existing Jira issue", result.ErrorDetail);
@@ -58,6 +59,7 @@ public sealed class ItsmWriteHttpClientsTests
         Assert.Equal(1, handler.AcceptedWrites);
         Assert.False(result.Ok);
         Assert.Equal(HttpStatusCode.ServiceUnavailable, result.StatusCode);
+
         if (dropResponse)
         {
             Assert.Contains("Check for an existing ServiceNow incident", result.ErrorDetail);
@@ -78,6 +80,7 @@ public sealed class ItsmWriteHttpClientsTests
         Assert.Equal(1, handler.AcceptedWrites);
         Assert.False(result.Ok);
         Assert.Equal(HttpStatusCode.ServiceUnavailable, result.StatusCode);
+
         if (dropResponse)
         {
             Assert.Contains("Check for an existing Azure Boards work item", result.ErrorDetail);
@@ -167,6 +170,7 @@ public sealed class ItsmWriteHttpClientsTests
             }
 
             Assert.Equal(HttpMethod.Post, request.Method);
+
             if (++AcceptedWrites > 1)
             {
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.Created) { Content = new StringContent(createdPayload) });
