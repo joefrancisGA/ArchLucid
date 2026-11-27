@@ -1,6 +1,8 @@
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration.Commit;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
@@ -144,6 +146,49 @@ public sealed class AuthorityCommitRecoveryVerifierTests
         Action act = () => AuthorityCommitRecoveryVerifier.ShouldVerifySealedInventory(null!);
 
         act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Theory]
+    [InlineData("golden-manifest")]
+    [InlineData("findings-snapshot")]
+    [InlineData("decision-trace")]
+    [InlineData("artifact-bundle")]
+    public void EnsureInventoryConsistentOrThrow_rejects_only_changed_artifact_bytes(string changedArtifact)
+    {
+        Guid manifestId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        RunRecord header = CreateHeader(manifestId, includeSnapshots: true);
+        ManifestDocument manifest = new()
+        {
+            ManifestId = manifestId,
+            ContextSnapshotId = header.ContextSnapshotId!.Value,
+            GraphSnapshotId = header.GraphSnapshotId!.Value,
+            FindingsSnapshotId = header.FindingsSnapshotId!.Value,
+        };
+        ManifestCommittedArtifactInventoryMaterial original = CreateInventoryMaterial();
+        ManifestCommittedArtifactInventoryCapturer.ApplyToManifest(manifest, original, DateTime.UnixEpoch);
+        manifest.CommittedArtifactInventory.Should().HaveCount(4);
+
+        Action verifyOriginal = () => AuthorityCommitRecoveryVerifier.EnsureInventoryConsistentOrThrow(
+            manifest, header, RunIdLabel, original);
+        verifyOriginal.Should().NotThrow();
+
+        // All identifiers and stored rows are unchanged. Only one recomputed artifact differs.
+        ManifestCommittedArtifactInventoryMaterial changed = CreateInventoryMaterial(changedArtifact);
+        Action verifyChanged = () => AuthorityCommitRecoveryVerifier.EnsureInventoryConsistentOrThrow(
+            manifest, header, RunIdLabel, changed);
+        verifyChanged.Should().ThrowExactly<ConflictException>();
+        verifyOriginal.Should().NotThrow();
+    }
+
+    private static ManifestCommittedArtifactInventoryMaterial CreateInventoryMaterial(string? changedArtifact = null)
+    {
+        return new ManifestCommittedArtifactInventoryMaterial
+        {
+            GoldenManifestUtf8 = changedArtifact == "golden-manifest" ? "changed"u8.ToArray() : "manifest"u8.ToArray(),
+            FindingsSnapshotUtf8 = changedArtifact == "findings-snapshot" ? "changed"u8.ToArray() : "findings"u8.ToArray(),
+            DecisionTraceUtf8 = changedArtifact == "decision-trace" ? "changed"u8.ToArray() : "trace"u8.ToArray(),
+            ArtifactBundleUtf8 = changedArtifact == "artifact-bundle" ? "changed"u8.ToArray() : "bundle"u8.ToArray(),
+        };
     }
 
     private static ArchitectureRun CreateRun(ArchitectureRunStatus status, Guid? goldenManifestId)
