@@ -58,3 +58,47 @@ export function resolveReviewCognitiveLoadEmptyLine(input: {
 
   return null;
 }
+export const REVIEW_COGNITIVE_LOAD_EVIDENCE_PRIMARY_LABEL = "Open evidence" as const;
+
+export const REVIEW_COGNITIVE_LOAD_FINALIZE_PRIMARY_LABEL = "Open sponsor packet" as const;
+
+export type ReviewCognitiveLoadPrimaryAction = {
+  readonly label: string;
+  readonly href: string;
+};
+
+export function resolveReviewCognitiveLoadPrimaryAction(input: {
+  readonly openGateReviewTab: ReviewDetailTabId | null;
+  readonly openGateLabel: string | null;
+  readonly evidenceReferenceCountNotStored: boolean;
+  readonly openGateHref: string | null;
+  readonly sponsorPacketHref: string | null;
+}): ReviewCognitiveLoadPrimaryAction | null {
+  if (input.openGateHref !== null && input.openGateLabel !== null && input.openGateReviewTab !== null) {
+    const trimmed = input.openGateLabel.trim();
+
+    if (trimmed.length > 0) {
+      return { label: `Open gate: ${trimmed}`, href: input.openGateHref };
+    }
+
+    return { label: "Open the gate", href: input.openGateHref };
+  }
+
+  if (input.evidenceReferenceCountNotStored || input.openGateReviewTab === "evidence") {
+    if (input.openGateHref !== null) {
+      return { label: REVIEW_COGNITIVE_LOAD_EVIDENCE_PRIMARY_LABEL, href: input.openGateHref };
+    }
+
+    return null;
+  }
+
+  if (input.openGateReviewTab === "review-package" && input.sponsorPacketHref !== null) {
+    return { label: REVIEW_COGNITIVE_LOAD_FINALIZE_PRIMARY_LABEL, href: input.sponsorPacketHref };
+  }
+
+  if (input.openGateLabel === null && input.sponsorPacketHref !== null) {
+    return { label: REVIEW_COGNITIVE_LOAD_SPONSOR_PRIMARY_LABEL, href: input.sponsorPacketHref };
+  }
+
+  return null;
+}

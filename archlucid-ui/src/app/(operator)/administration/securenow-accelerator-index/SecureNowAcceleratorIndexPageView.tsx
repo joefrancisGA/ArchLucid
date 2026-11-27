@@ -5,6 +5,7 @@ import { useMemo } from "react";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { SecureNowAdminSecondCapturePathDeltaStrip } from "@/components/product-line/SecureNowAdminSecondCapturePathDeltaStrip";
 import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
 import { SecureNowCollectionSetupStatusSection } from "@/components/product-line/SecureNowCollectionSetupStatusSection";
 import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
@@ -45,6 +46,8 @@ export function SecureNowAcceleratorIndexPageView(): React.JSX.Element {
           cloudConnectionsTestId="securenow-accelerator-index-partial-capture-cloud-connections"
           extractUploadTestId="securenow-accelerator-index-partial-capture-extract-upload"
         />
+
+        <SecureNowAdminSecondCapturePathDeltaStrip testIdPrefix="securenow-accelerator-index" />
 
         <SecureNowCollectionSetupStatusSection
           testIdPrefix="securenow-accelerator-index"
