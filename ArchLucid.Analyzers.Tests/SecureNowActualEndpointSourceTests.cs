@@ -1,3 +1,5 @@
+using Xunit;
+
 using ArchLucid.Analyzers;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -9,6 +11,8 @@ namespace ArchLucid.Analyzers.Tests;
 /// only synthetic examples. These tests validate structural invariants, not
 /// runtime authorization success or full CFG semantics.
 /// </summary>
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class SecureNowActualEndpointSourceTests
 {
     private static MethodDeclarationSyntax LoadEndpoint()

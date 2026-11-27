@@ -1,3 +1,5 @@
+using Xunit;
+
 using System.Collections.Immutable;
 using ArchLucid.Analyzers;
 using Microsoft.CodeAnalysis;
@@ -6,6 +8,8 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ArchLucid.Analyzers.Tests;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class SecureNowSnapshotAuthorizationOrderAnalyzerTests
 {
     private const string Types = """

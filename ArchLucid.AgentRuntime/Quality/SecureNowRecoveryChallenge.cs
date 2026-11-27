@@ -1,6 +1,8 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 
+using ArchLucid.Core.Agents;
+
 namespace ArchLucid.AgentRuntime.Quality;
 
 /// <summary>A self-contained synthetic check of the entire response, with no tenant or provider evidence reads.</summary>

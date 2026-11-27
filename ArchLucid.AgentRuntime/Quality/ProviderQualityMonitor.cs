@@ -1,18 +1,10 @@
 using System.Text.Json;
 
+using ArchLucid.Core.Agents;
+
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Quality;
-
-/// <summary>Independent adjudication labels; Unknown never counts as a successful sample.</summary>
-public enum ProviderQualityLabel
-{
-    Unknown = 0,
-    Supported = 1,
-    Unsupported = 2,
-    Contradicted = 3,
-}
-
 public sealed class ProviderQualityOptions
 {
     public const string SectionPath = "ArchLucid:Agents:ProviderQuality";
@@ -36,62 +28,6 @@ public sealed class ProviderQualityOptions
         QuarantineSeconds = Math.Clamp(QuarantineSeconds, 30, 86_400);
         RecoveryProbeLeaseSeconds = Math.Clamp(RecoveryProbeLeaseSeconds, 10, 3_600);
     }
-}
-
-public sealed record ProviderQualityKey(string ProviderId, string ModelId, string ModelVersion)
-{
-    public static ProviderQualityKey Create(string? providerId, string? modelId, string? modelVersion) =>
-        new(Normalize(providerId), Normalize(modelId), Normalize(modelVersion));
-
-    private static string Normalize(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? "unknown" : value.Trim().ToLowerInvariant();
-}
-
-public sealed record ProviderQualityAdjudication(
-    string SampleId,
-    ProviderQualityKey Key,
-    ProviderQualityLabel Label,
-    int SeverityWeight,
-    bool Independent,
-    string AdjudicatorKind,
-    DateTimeOffset ObservedUtc,
-    string? TraceId = null);
-
-public sealed record ProviderQualitySnapshot(
-    ProviderQualityKey Key,
-    int KnownSampleCount,
-    int UnknownSampleCount,
-    int BadSampleCount,
-    double WeightedBadRate,
-    double WilsonBadRateLowerBound,
-    bool Quarantined,
-    DateTimeOffset? QuarantinedUntilUtc,
-    bool HumanOverride,
-    bool RecoveryProbeInFlight,
-    string? LastReason,
-    int DecisionWindowKnownSamples = 0,
-    double DecisionWindowWeightedBadRate = 0,
-    double DecisionWindowWilsonLowerBound = 0);
-
-public sealed record ProviderQualityRecordResult(
-    ProviderQualitySnapshot Snapshot,
-    bool StateChanged,
-    string? Transition);
-
-public sealed record ProviderQualityAdmission(
-    bool Allowed,
-    bool RecoveryProbe,
-    ProviderQualityKey? Key,
-    DateTimeOffset? RetryAfterUtc,
-    string? Reason,
-    Guid? RecoveryLeaseId = null);
-
-public interface IProviderQualityMonitor
-{
-    Task<ProviderQualityAdmission> AdmitAsync(string? providerId, string? modelId, CancellationToken cancellationToken);
-    Task<ProviderQualityRecordResult> RecordAsync(ProviderQualityAdjudication sample, CancellationToken cancellationToken);
-    Task<bool> SetOperatorOverrideAsync(ProviderQualityKey key, TimeSpan? duration, Guid auditEventId, CancellationToken cancellationToken);
-    Task BindRecoveryTraceAsync(ProviderQualityKey key, Guid leaseId, string traceId, CancellationToken cancellationToken);
 }
 
 /// <summary>

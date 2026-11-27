@@ -14,7 +14,7 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
-import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import { resolveGuideHeadingsForStrip, resolvePageHeaderClaimDisciplineForStrip, resolvePageHeaderClaimDisciplineTestIdForStrip } from "@/lib/claim-discipline-policy";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
@@ -152,8 +152,8 @@ export function HelpGovernanceInfrastructureDiagramReconcileGuideView(
         titleTestId="help-governance-infrastructure-diagram-reconcile-page-title"
         subtitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_PAGE_SUBTITLE}
         navHref={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_CANONICAL_PATH}
-        claimDiscipline={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_CLAIM_DISCIPLINE}
-        claimDisciplineTestId="help-governance-infrastructure-diagram-reconcile-claim-discipline"
+        claimDiscipline={resolvePageHeaderClaimDisciplineForStrip("help-governance-infrastructure-diagram-reconcile", GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_CLAIM_DISCIPLINE)}
+        claimDisciplineTestId={resolvePageHeaderClaimDisciplineTestIdForStrip("help-governance-infrastructure-diagram-reconcile", "help-governance-infrastructure-diagram-reconcile-claim-discipline")}
         headingLevel="h1"
         metadata={buyerPolishedShell ? undefined : <HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={

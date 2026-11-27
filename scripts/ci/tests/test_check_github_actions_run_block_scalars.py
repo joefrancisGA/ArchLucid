@@ -42,6 +42,21 @@ class TestCheckGithubActionsRunBlockScalars(unittest.TestCase):
 
         self.assertEqual(sut.find_folded_run_steps(text), [1])
 
+    def test_defaults_run_mapping_is_not_a_shell_command(self) -> None:
+        text = (
+            "    defaults:\n"
+            "      # Shared settings for shell steps.\n"
+            "      run:\n"
+            "        working-directory: archlucid-ui\n"
+            "        shell: bash\n"
+            "    steps:\n"
+            "      - run:\n"
+            "          npm ci\n"
+            "          npm test\n"
+        )
+
+        self.assertEqual(sut.find_folded_run_steps(text), [7])
+
     def test_find_folded_run_steps_accepts_block_scalar(self) -> None:
         text = (
             "        run: |\n"

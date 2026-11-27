@@ -39,7 +39,7 @@ describe("HelpGovernanceInfrastructureDriftGuideView (HEG Phase 2)", () => {
       HELP_PAGE_LAYOUT.readingBody,
     );
     expect(screen.getAllByTestId("help-governance-infrastructure-drift-orientation-strip")).toHaveLength(1);
-    expect(screen.getByText(GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CLAIM_DISCIPLINE)).toBeInTheDocument();
+    expect(screen.getByTestId("help-governance-infrastructure-drift-claim-discipline")).toHaveTextContent(GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CLAIM_DISCIPLINE);
     expect(screen.getByTestId("help-governance-infrastructure-drift-honesty-panel")).toBeInTheDocument();
     expect(screen.getByText(/Before sponsor send/i)).toBeInTheDocument();
 

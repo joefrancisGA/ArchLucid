@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { resolveGlobalSearchDeskArchitectureId } from "@/lib/global-search-desk-architecture-id";
 // Pure fixture callbacks cannot be reset by the global restoreMocks lifecycle.
+vi.hoisted(() => vi.resetModules());
+
 const deskFixture = vi.hoisted(() => ({
   pathId: null as string | null,
   cachedId: "arch-cached" as string | null,

@@ -9,6 +9,6 @@ describe("score-lift round110 batch honesty", () => {
     expect(RUN_DETAIL_MANIFEST_BUNDLE_EXPORT_FINALIZE_NOT_LOAD_FAILURE_LINE).toContain("not a failed");
     expect(RUN_DETAIL_ARCHITECTURE_REVIEW_DOCX_EXPORT_FINALIZE_NOT_LOAD_FAILURE_LINE).toContain("not a failed");
     expect(EXPORT_TERRAFORM_ADVISORY_FINALIZE_NOT_LOAD_FAILURE_LINE).toContain("not a failed");
-    expect(CONNECTION_STATUS_CATEGORY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE).toContain("not");
+    expect(CONNECTION_STATUS_CATEGORY_FILTER_EMPTY_NOT_LOAD_FAILURE_LINE).toContain("Integrations loaded, but this category filter matches no connector rows");
   });
 });

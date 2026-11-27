@@ -429,7 +429,7 @@ describe("ReviewsHubReviewInventory", () => {
     expect(screen.getByRole("button", { name: "Filter reviews: Archived (1)" })).toBeInTheDocument();
   });
 
-  it("recomputes non-archived filter chip counts after the Archived filter changes the visibility pool", () => {
+  it("keeps non-archived filter chip counts scoped to active reviews in the Archived view", () => {
     writeArchivedReviewsClientCache([
       {
         runId: "archived-review",
@@ -459,7 +459,8 @@ describe("ReviewsHubReviewInventory", () => {
     expect(screen.getByRole("button", { name: "Filter reviews: Archived (1)" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Filter reviews: Archived/ }));
 
-    expect(screen.getByRole("button", { name: "Filter reviews: All (2)" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Filter reviews: Archived (1)" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Filter reviews: All (1)" })).toBeInTheDocument();
   });
 
   it("reconciles the active inventory filter when useSearchParams changes without a popstate event", () => {

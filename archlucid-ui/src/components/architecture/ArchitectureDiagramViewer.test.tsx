@@ -745,6 +745,27 @@ describe('ArchitectureDiagramViewer', () => {
     });
   });
 
+  it('hides painted nodes outside the selected path and restores them on expansion', async () => {
+    const layoutSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
+      '<g class="node" id="node-vault"><title>vault</title><rect width="20" height="20"/></g>' +
+      '<g class="node" id="node-other"><title>other</title><rect width="20" height="20"/></g></svg>';
+    const diagram = (visiblePathNodeIds: readonly string[] | null) => (
+      <ArchitectureDiagramViewer
+        mermaidSource="flowchart TD"
+        layoutSvg={layoutSvg}
+        textAlternative="Inventory topology"
+        visiblePathNodeIds={visiblePathNodeIds}
+      />
+    );
+    const { rerender } = render(diagram(['vault']));
+    const host = await screen.findByTestId('architecture-diagram-svg-host');
+
+    expect(host.querySelector('#node-vault')).not.toHaveClass('diagram-path-node-hidden');
+    expect(host.querySelector('#node-other')).toHaveClass('diagram-path-node-hidden');
+    rerender(diagram(null));
+    expect(host.querySelector('#node-other')).not.toHaveClass('diagram-path-node-hidden');
+  });
+
   it('scopes host CSS to card bodies so forest accents and pictograms keep baked fills', async () => {
     const forestLayoutSvg = [
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80">',

@@ -1,9 +1,13 @@
+using Xunit;
+
 using ArchLucid.Persistence.Sql;
 
 using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests.Sql;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class GoldenManifestReadSqlOrderingTests
 {
     [Fact]

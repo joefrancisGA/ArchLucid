@@ -4,6 +4,9 @@ import { resolveOperatorScopedRunReviewHref } from "@/lib/operator-scoped-run-re
 
 const deskFixture = vi.hoisted(() => ({ id: "architecture-alerts-001", reads: 0 }));
 
+// Shared setup may preload the desk helpers before this file's mocks are registered.
+vi.hoisted(() => vi.resetModules());
+
 vi.mock("@/lib/desk-continuity-preference", () => ({
   readCachedLastOpenArchitectureId: () => {
     deskFixture.reads += 1;
