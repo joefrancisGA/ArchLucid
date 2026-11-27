@@ -218,6 +218,7 @@ sequenceDiagram
 | **414_VerifiedRemediationControlAssociations.sql** | Identifier row for a verified remediation instance, its verification inventory snapshot, and a control. No payload. Rollback: **`Rollback/R414_VerifiedRemediationControlAssociations.sql`**. |
 | **422_SecurityEvidencePathRoutingPrincipalWidth.sql** | Widens the SecureNow routing principal to match inventory tag values. Rollback: **`Rollback/R422_SecurityEvidencePathRoutingPrincipalWidth.sql`**. |
 | **423_SecurityEvidencePathRoutingReferenceWidth.sql** | Widens the SecureNow routing source reference to preserve the full inventory resource ID. Rollback: **`Rollback/R423_SecurityEvidencePathRoutingReferenceWidth.sql`**. |
+| **436_AzureDevOpsThreadCreateClaims.sql** | Adds tenant-local atomic send claims for server-side Azure DevOps PR threads. Rollback: **`Rollback/R436_AzureDevOpsThreadCreateClaims.sql`** (empty table only). |
 
 **Note:** Authority-chain tables also appear in **`ArchLucid.sql`** for Persistence bootstrap parity.
 

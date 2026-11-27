@@ -14,11 +14,14 @@ namespace ArchLucid.Integrations.AzureDevOps.Tests;
 public sealed class AzureDevOpsPackageCoverageBatchRc23Tests
 {
     [Fact]
-    public void PullRequestDecoratorFactory_create_returns_decorator_using_named_http_client()
+    public void PullRequestDecoratorFactory_create_returns_decorator_using_both_named_http_clients()
     {
         Mock<IHttpClientFactory> factory = new();
         factory
             .Setup(f => f.CreateClient(AzureDevOpsPullRequestDecorator.HttpClientName))
+            .Returns(new HttpClient());
+        factory
+            .Setup(f => f.CreateClient(AzureDevOpsPullRequestDecorator.ThreadHttpClientName))
             .Returns(new HttpClient());
         AzureDevOpsPullRequestDecoratorFactory sut = new(
             factory.Object,
@@ -29,6 +32,7 @@ public sealed class AzureDevOpsPackageCoverageBatchRc23Tests
 
         decorator.Should().NotBeNull();
         factory.Verify(f => f.CreateClient(AzureDevOpsPullRequestDecorator.HttpClientName), Times.Once);
+        factory.Verify(f => f.CreateClient(AzureDevOpsPullRequestDecorator.ThreadHttpClientName), Times.Once);
     }
 
     [Fact]

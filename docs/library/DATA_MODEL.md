@@ -187,3 +187,7 @@ Comparison replay is built on `PayloadJson` as the durable artifact. This enable
   - runs (left/right run IDs), or
   - export records (left/right export record IDs)
 
+
+## Azure DevOps thread delivery claims
+
+`dbo.AzureDevOpsThreadCreateClaims` stores the tenant, run, Azure DevOps repository, PR number, and UTC claim time. Its composite primary key admits one server-side thread creation attempt per run and PR. A row records an attempt reservation, not delivery confirmation. It does not store the PAT, thread body, or remote response. Tenant hard purge removes these rows.
