@@ -4,6 +4,10 @@
 
 Full **monorepo map**, **`*.slnf`** filters, and assessment pointers: **`[docs/engineering/AGENTS.md](docs/engineering/AGENTS.md)`** · Next.js app only: **`[archlucid-ui/AGENTS.md](archlucid-ui/AGENTS.md)`**.
 
+## Common AI-assisted engineering governance
+
+All coding agents, including ChatGPT, Codex and Cursor, must follow the [common AI-assisted development governance protocol](docs/engineering/AI_ASSISTED_DEVELOPMENT_GOVERNANCE.md). Load the applicable current repository instructions before substantive work; preserve architectural invariants, assess shared-component impact, use scoped verification and report actual evidence and limitations. ChatGPT repository-connector sessions must explicitly retrieve this guidance.
+
 ## Mandatory shared-component impact analysis
 
 Before modifying shared code or contracts, follow [`.cursor/rules/Shared-Component-Impact-Analysis.mdc`](.cursor/rules/Shared-Component-Impact-Analysis.mdc): identify direct and transitive consumers, preserve architectural and behavioral contracts, record a risk-adjusted verification plan before editing, and report actual verification outcomes and unresolved coverage. This also applies to Cloud Agents and other coding agents that load this file rather than Cursor rules directly.
