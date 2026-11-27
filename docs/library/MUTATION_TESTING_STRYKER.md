@@ -43,14 +43,24 @@ From the repository root (after **`dotnet tool restore`**):
 python3 scripts/ci/refresh_stryker_baselines.py
 ```
 
-This runs **`dotnet dotnet-stryker`** once per matrix target (clears **`StrykerOutput/`** before each run), reads the newest **`mutation-report.json`**, floors each score to one decimal, and rewrites **`scripts/ci/stryker-baselines.json`** with a top-level **`_measuredDate`** (ISO date, informational only; the assert script ignores it).
+This runs **`dotnet dotnet-stryker`** once per matrix target (uses a new temporary run directory for each target), validates the single report and its run receipt, floors each score to one decimal, and rewrites **`scripts/ci/stryker-baselines.json`** with a top-level **`_measuredDate`** (ISO date, informational only; the assert script ignores it).
 
 - **CPU / time:** expect on the order of tens of minutes per target; run on a quiet machine or overnight.
 - **Subset + merge** (re-measure one project without re-running the full matrix):  
   `python3 scripts/ci/refresh_stryker_baselines.py --only Decisioning --merge-existing`  
   (requires an existing baseline file with the other **STRYKER_TARGETS** labels.)
 
-**Manual fallback:** open the scheduled workflow artifact or **`StrykerOutput/**/mutation-report.json`**, read the reported mutation score, and update the matching matrix label (still apply **round-down** to one decimal). Do **not** lower baselines to silence failures without a product decision.
+**Reuse one completed run:** give `--skip-stryker --run-root <directory> --only <label> --merge-existing` to the refresh tool. The directory must include its matching report and `run-evidence.json`; an old bare report is not refresh evidence. Do **not** lower baselines to silence failures without a product decision.
+
+### Score evidence and denominator
+
+[The pinned 4.16.0 implementation](https://github.com/stryker-mutator/stryker-net/blob/f9109e24c615a7030a3b33e5532c665c974e4ec5/src/Stryker.Core/Stryker.Core/ProjectComponents/ProjectComponent.cs) computes the official score as `(Killed + Timeout) / (Killed + Timeout + Survived + NoCoverage)`. Compile and runtime errors are invalid mutants, not detected mutants; ignored and pending mutants are excluded. The pinned JSON reporter emits a schema-2 inventory and does not emit an aggregate score. Recompute the official percentage from the inventory and reconcile it to the CLI's displayed score. Ignore nested scores for aggregate comparison; if a report adds a top-level score, it must be finite, in range, and agree with the inventory within display precision.
+
+The shared evidence runner uses a fresh directory on a clean, pinned checkout. It binds the target, base (for differential runs), configuration digest, report digest, CLI version and created-mutant count. Missing, mismatched, or incomplete evidence cannot pass. A verified differential run with no generated mutants or with all mutants removed by the since filter is **not scored**. A full run with a zero denominator, or a differential run with unexplained zero, is not valid baseline evidence.
+
+Mutation Aspects keeps assertion kills and its coverage-inclusive rate separate from the official score. It reports survivors, uncovered mutants, timeouts, errors, ignored and incomplete states distinctly. The pinned reporter does not have an equivalent-mutant status, so the equivalent count is unknown rather than estimated from ignored mutants. Previously committed baseline values and thresholds are not reset. The corrected calculation can read lower where the previous fallback omitted uncovered mutants or counted errors as detected.
+
+The path-scoped PR evidence check runs one tiny disposable .NET target against independently asserted behavior and compares the verified report with the real pinned CLI. It does not run the product matrix. The separate manual workflow-input repair remains FND-169.
 
 Full table: **[TEST_STRUCTURE.md](TEST_STRUCTURE.md)** (Stryker configs).
 

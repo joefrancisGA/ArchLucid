@@ -15,6 +15,7 @@ from aspects_systematic_review import (
     ARCH_STATUSES, build_inventory, classify, git, record_review,
 )
 from ci.stryker_pr_plan import FULL_MATRIX
+from ci.stryker_evidence import inventory, pinned_config, read_json, validate_run
 
 LANES = {'aspects': ('production', 35, 'aspects-review-ledger.jsonl'),
          'test-aspects': ('test', 10, 'test-aspects-review-ledger.jsonl')}
@@ -31,12 +32,6 @@ SCOPED_TARGETS = {label: config for label, config in FULL_MATRIX if label in {
     'ApplicationGovernance', 'ApplicationCommitCriticalPaths',
     'ApplicationGraphMergeProperties', 'DecisioningMerge',
 }}
-KNOWN_MUTATION_STATUSES = {
-    'Killed', 'Survived', 'NoCoverage', 'Timeout', 'RuntimeError',
-    'CompileError', 'Ignored', 'Pending',
-}
-
-
 def ledger_path(repo: Path, command: str) -> Path:
     name = ('mutation-aspects-ledger.jsonl' if command == 'mutation-aspects'
             else LANES[command][2])
@@ -187,7 +182,9 @@ def mutation_plan(repo: Path, head: str, target: str, minutes: int) -> dict:
             'baseline_commands': [
                 ['dotnet', 'test', project, '--filter', cfg['test-case-filter']]
                 for project in cfg['test-projects']],
-            'mutation_command': ['dotnet', 'dotnet-stryker', '-f', config_path],
+            'mutation_command': [
+                'python3', 'scripts/ci/stryker_evidence.py', '--head', head, '--target', target,
+                '--config', config_path, '--output', '<new-run-directory>', '--budget-seconds', str(60 * minutes)],
             'execution_policy': ('one scoped target in disposable checkout; run baseline first; '
                                  'execution is manual, enforce budget externally; no CI dispatch; '
                                  'use RC49 for any comprehensive build'),
@@ -195,60 +192,27 @@ def mutation_plan(repo: Path, head: str, target: str, minutes: int) -> dict:
 
 
 def mutation_counts(report: dict) -> dict:
-    """Count assertion kills separately from infrastructure failures and untested mutants."""
-    files = report.get('files')
-    if not isinstance(files, dict) or not files:
-        raise ValueError('Expected mutation-testing-elements report with files map')
-    counts = Counter()
-    candidates = []
-    for path, node in sorted(files.items()):
-        if not isinstance(node, dict) or not isinstance(node.get('mutants'), list):
-            raise ValueError(f'Invalid mutant list for {path}')
-        ids = set()
-        for mutant in node['mutants']:
-            if (not isinstance(mutant, dict) or not isinstance(mutant.get('status'), str)
-                    or not isinstance(mutant.get('id'), (str, int))
-                    or isinstance(mutant.get('id'), bool)):
-                raise ValueError(f'Invalid mutant in {path}')
-            identity = str(mutant['id'])
-            if identity in ids:
-                raise ValueError(f'Duplicate mutant ID in {path}: {identity}')
-            ids.add(identity)
-            status = mutant['status']
-            counts[status if status in KNOWN_MUTATION_STATUSES else 'Unknown'] += 1
-            if status in {'Survived', 'NoCoverage'}:
-                candidates.append({'path': path, 'id': identity, 'status': status,
-                                   'mutator': mutant.get('mutatorName'),
-                                   'location': mutant.get('location')})
-    killed, survived, uncovered = (counts[s] for s in ('Killed', 'Survived', 'NoCoverage'))
-    executed = killed + survived
-    complete = counts['Pending'] == counts['Unknown'] == 0
-    return {'status_counts': dict(sorted(counts.items())),
-            'assertion_kill_percent': 100 * killed / executed if executed and complete else None,
-            'coverage_inclusive_kill_percent': (
-                100 * killed / (executed + uncovered) if executed + uncovered and complete else None),
-            'survivor_candidates': candidates,
-            'complete_status_inventory': complete,
-            'score_policy': ('timeouts, runtime/compile errors, ignored and pending are not assertion kills; '
-                             'survivors require semantic triage, not automatic defect credit')}
+    """Show assertion behavior separately from the official Stryker score."""
+    return inventory(report)
 
 
 def record_mutation(repo: Path, head: str, target: str, report_path: Path,
-                    source: str, baseline_evidence: str, minutes: int) -> dict:
+                    source: str, baseline_evidence: str, minutes: int, run_evidence: Path) -> dict:
     if not source.strip() or not baseline_evidence.strip():
         raise ValueError('Report provenance and successful baseline evidence are required')
     plan = mutation_plan(repo, head, target, minutes)
     raw = report_path.read_bytes()
     digest = hashlib.sha256(raw).hexdigest()
-    report = json.loads(raw)
-    if not isinstance(report, dict):
-        raise ValueError('Expected a JSON report object')
+    receipt = read_json(run_evidence.read_bytes())
+    _, project_dir = pinned_config(repo, head, plan['config'])
+    evidence = validate_run(report_path, receipt, head=head, target=target,
+                            config_sha=plan['config_sha256'], project_dir=project_dir)
     row = {'head': head, 'target': target, 'config_sha256': plan['config_sha256'],
            'report_sha256': digest, 'source': source,
            'baseline_evidence': baseline_evidence,
-           'provenance': 'operator-attested run and baseline; report bytes hashed, not independently rerun',
+           'provenance': 'run receipt verified; baseline execution is operator-attested, not independently rerun',
            'captured_utc': datetime.now(timezone.utc).isoformat(),
-           **mutation_counts(report)}
+           **evidence}
     ledger = ledger_path(repo, 'mutation-aspects')
     if any((old['head'], old['target'], old['report_sha256']) == (head, target, digest)
            for old in read_records(ledger)):
@@ -303,6 +267,7 @@ def main() -> None:
         action.add_argument('--budget-minutes', type=int, default=30)
         if name == 'record':
             action.add_argument('--report', type=Path, required=True)
+            action.add_argument('--run-evidence', type=Path, required=True)
             action.add_argument('--source', required=True)
             action.add_argument('--baseline-evidence', required=True)
     actions.add_parser('report')
@@ -312,7 +277,7 @@ def main() -> None:
             result = mutation_plan(args.repo, args.head, args.target, args.budget_minutes)
         elif args.action == 'record':
             result = record_mutation(args.repo, args.head, args.target, args.report,
-                                     args.source, args.baseline_evidence, args.budget_minutes)
+                                     args.source, args.baseline_evidence, args.budget_minutes, args.run_evidence)
         else:
             result = {'runs': read_records(ledger_path(args.repo, args.command)),
                       'aggregation': 'compare like scope/config only; never combine with LOC density'}

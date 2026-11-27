@@ -99,8 +99,10 @@ fall back to a full assembly or matrix.
 Execute only after selecting a disposable local checkout at the pinned SHA
 (with pinned .NET tools available) and confirming the scope. Run the listed
 baseline commands; ensure a nonzero number of tests executed and all passed.
-Then run the single Stryker command, enforcing the shared wall-clock budget
-externally; stop and record an incomplete result if the budget is exceeded.
+Then run the single pinned Stryker evidence command with a fresh output
+directory. It enforces the shared wall-clock budget and only writes a receipt
+for a completed, reconciled report. Note an interrupted run as incomplete
+without importing it as a scored observation.
 Do not run an entire solution build against master; use RC49 for comprehensive
 builds. No tool restores, builds or mutation jobs are automatically triggered
 by the router. Existing scheduled Stryker jobs remain unchanged.
@@ -111,14 +113,16 @@ After a completed run, import its actual JSON artifact and baseline evidence:
 python scripts/aspects_commands.py mutation-aspects record \
   --head "$HEAD_SHA" --target ApplicationGraphMergeProperties \
   --report /path/to/mutation-report.json \
+  --run-evidence /path/to/run-evidence.json \
   --source "workflow/run/artifact or local run identity" \
   --baseline-evidence "passing baseline test run and nonzero executed count"
 python scripts/aspects_commands.py mutation-aspects report
 ```
 
-The importer records the Git-pinned config digest, report SHA-256, run source
-and operator-attested successful baseline evidence. This is not independent
-re-execution or proof that a caller's attestation is correct. A duplicate
+The importer verifies the receipt against the Git-pinned configuration and
+report SHA-256, then records the run source and operator-attested successful
+baseline evidence. This is not independent re-execution or authentication of
+an externally supplied receipt. A duplicate
 head/target/report digest does not add another observation. Keep the actual
 report artifact accessible for inspection.
 

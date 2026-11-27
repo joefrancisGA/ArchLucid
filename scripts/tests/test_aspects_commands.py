@@ -1,4 +1,5 @@
 """Named Aspects command isolation and mutation evidence, using synthetic Git."""
+import hashlib
 import json
 from math import fsum
 from pathlib import Path
@@ -27,7 +28,7 @@ class NamedAspectsTests(unittest.TestCase):
         self.write('infra/main.tf', 'resource\n')
         self.target = 'ApplicationGraphMergeProperties'
         self.write(commands.SCOPED_TARGETS[self.target], json.dumps({'stryker-config': {
-            'mutate': ['**/Gate.cs'], 'test-case-filter': 'FullyQualifiedName~GateTests',
+            'project': 'Core/Core.csproj', 'mutate': ['**/Gate.cs'], 'test-case-filter': 'FullyQualifiedName~GateTests',
             'test-projects': ['Core.Tests/Core.Tests.csproj'], 'reporters': ['json'],
         }}))
         self.git('add', '-A')
@@ -116,39 +117,52 @@ class NamedAspectsTests(unittest.TestCase):
         plan = commands.mutation_plan(self.repo, self.head, self.target, 10)
         self.assertEqual(plan['mutate'], ['**/Gate.cs'])
         self.assertEqual(plan['budget_minutes'], 10)
-        self.assertEqual(plan['mutation_command'][-1], commands.SCOPED_TARGETS[self.target])
+        command = plan['mutation_command']
+        self.assertEqual(command[command.index('--config') + 1], commands.SCOPED_TARGETS[self.target])
+        self.assertEqual(command[command.index('--budget-seconds') + 1], '600')
         self.assertIn('plan-only', plan['status'])
         with self.assertRaises(ValueError):
             commands.mutation_plan(self.repo, self.head, self.target, 31)
         with self.assertRaises(ValueError):
             commands.mutation_plan(self.repo, self.head, 'Application', 10)
 
+    def mutation_fixture(self, statuses):
+        return {'schemaVersion': '2', 'projectRoot': '/fixture/Core', 'files': {'/fixture/Core/Gate.cs': {
+            'mutants': [{'id': str(i), 'status': status} for i, status in enumerate(statuses)],
+        }}}
+
     def test_mutation_assertion_kills_are_not_infrastructure_failures(self):
         statuses = ['Killed', 'Survived', 'NoCoverage', 'Timeout', 'RuntimeError', 'CompileError', 'Ignored']
-        data = {'mutationScore': 99.9, 'files': {'Gate.cs': {'mutants': [
-            {'id': str(i), 'status': s} for i, s in enumerate(statuses)]}}}
+        data = self.mutation_fixture(statuses)
         counts = commands.mutation_counts(data)
         self.assertEqual(counts['assertion_kill_percent'], 50)
         self.assertAlmostEqual(counts['coverage_inclusive_kill_percent'], 100/3)
+        self.assertEqual(counts['official_score_percent'], 50)
         self.assertEqual(len(counts['survivor_candidates']), 2)
         path = self.write('report.json', json.dumps(data))
-        first = commands.record_mutation(self.repo, self.head, self.target, path,
-                                         'fixture artifact', 'fixture green baseline', 10)
-        again = commands.record_mutation(self.repo, self.head, self.target, path,
-                                         'fixture artifact', 'fixture green baseline', 10)
+        plan = commands.mutation_plan(self.repo, self.head, self.target, 10)
+        receipt = {'schema_version': 1, 'tool_version': '4.16.0', 'head': self.head, 'target': self.target,
+                   'config_sha256': plan['config_sha256'], 'project_dir': 'Core', 'base': None,
+                   'exit_code': 0, 'mutants_created': len(statuses), 'initial_tests_found': 1,
+                   'report_sha256': hashlib.sha256(path.read_bytes()).hexdigest(), 'tool_score_percent': 50}
+        receipt_path = self.write('receipt.json', json.dumps(receipt))
+        args = (self.repo, self.head, self.target, path, 'fixture artifact', 'fixture green baseline', 10, receipt_path)
+        first = commands.record_mutation(*args)
+        again = commands.record_mutation(*args)
         self.assertTrue(first['appended'])
         self.assertFalse(again['appended'])
         self.assertFalse(commands.ledger_path(self.repo, 'aspects').exists())
-        self.assertFalse(commands.ledger_path(self.repo, 'test-aspects').exists())
+        path.write_text(json.dumps(data) + ' ')
+        with self.assertRaisesRegex(ValueError, 'digest'):
+            commands.record_mutation(*args)
 
     def test_pending_and_unknown_are_not_a_completed_score(self):
         for status in ('Pending', 'NewStatus'):
-            data = {'files': {'Gate.cs': {'mutants': [
-                {'id': '1', 'status': 'Killed'}, {'id': '2', 'status': status}]}}}
-            self.assertIsNone(commands.mutation_counts(data)['assertion_kill_percent'])
-        with self.assertRaisesRegex(ValueError, 'Duplicate'):
-            commands.mutation_counts({'files': {'Gate.cs': {'mutants': [
-                {'id': '1', 'status': 'Killed'}, {'id': '1', 'status': 'Killed'}]}}})
+            self.assertIsNone(commands.mutation_counts(self.mutation_fixture(['Killed', status]))['assertion_kill_percent'])
+        data = self.mutation_fixture(['Killed', 'Survived'])
+        data['files']['/fixture/Core/Gate.cs']['mutants'][1]['id'] = '0'
+        with self.assertRaisesRegex(ValueError, 'duplicate mutant'):
+            commands.mutation_counts(data)
         with self.assertRaises(ValueError):
             commands.mutation_counts({'mutationScore': 100})
 

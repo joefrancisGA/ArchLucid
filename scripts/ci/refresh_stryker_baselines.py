@@ -15,72 +15,32 @@ Subset + merge (keep other labels from the current baseline file):
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import json
 import math
-import shutil
 import subprocess
 import sys
 from datetime import date
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
+from stryker_evidence import RECEIPT, digest, head_revision, percent, pinned_config, read_json, report_path, run_and_stamp, validate_run
+from stryker_pr_plan import FULL_MATRIX
 
-STRYKER_TARGETS: list[tuple[str, str]] = [
-    ("Persistence", "stryker-config.persistence.json"),
-    ("Application", "stryker-config.application.json"),
-    ("AgentRuntime", "stryker-config.agentruntime.json"),
-    ("Decisioning", "stryker-config.decisioning.json"),
-    ("PersistenceCoordination", "stryker-config.persistence-coordination.json"),
-    # Api added 2026-04-20 (Quality Assessment Improvement 4). Honest starting
-    # threshold of break=55 because HTTP wiring code is mutation-rich; the
-    # baseline floor in stryker-baselines.json starts at 55.0 and is ratcheted
-    # by re-running this script after a coverage uplift PR. See
-    # docs/MUTATION_TESTING_STRYKER.md "API target (advisory)".
-    ("Api", "stryker-config.api.json"),
-    # Scoped namespaces (Quality Assessment seven-improvements 2026-04-21): ratchet via CI after first green run.
-    ("DecisioningMerge", "stryker-config.decisioning-merge.json"),
-    ("ApplicationGovernance", "stryker-config.application-governance.json"),
-    (
-        "ApplicationCommitCriticalPaths",
-        "stryker-config.application-commit-critical-paths.json",
-    ),
-]
-
-
-def _load_assert_helpers():
-    """Reuse score/report discovery from assert_stryker_score_vs_baseline.py (no edits to that file)."""
-    path = Path(__file__).resolve().parent / "assert_stryker_score_vs_baseline.py"
-    spec = importlib.util.spec_from_file_location("_stryker_assert_helpers", path)
-    mod = importlib.util.module_from_spec(spec)
-    assert spec.loader
-    spec.loader.exec_module(mod)
-    return mod
+STRYKER_TARGETS = FULL_MATRIX
 
 
 def _floor_one_decimal(score: float) -> float:
     return math.floor(score * 10 + 1e-9) / 10
 
 
-def _run_stryker(repo_root: Path, config_file: str) -> None:
-    cmd = ["dotnet", "dotnet-stryker", "-f", config_file, "-s", "ArchLucid.sln"]
-    print(f"+ {' '.join(cmd)}", flush=True)
-    subprocess.run(cmd, cwd=repo_root, check=True)
-
-
-def _score_from_output(stryker_root: Path, helpers: object) -> float:
-    report_path = helpers.find_mutation_report_json(stryker_root)
-    if report_path is None:
-        raise FileNotFoundError(f"No mutation-report.json under {stryker_root} (enable json reporter in stryker-config).")
-    data = json.loads(report_path.read_text(encoding="utf-8"))
-    if not isinstance(data, dict):
-        raise ValueError("Mutation report JSON root must be an object.")
-    score, detected, denom = helpers.mutation_score_from_report(data)
-    print(
-        f"  Raw score {score:.4f}% from {report_path}"
-        + (f" (mutants detected={detected}, denom={denom})" if denom else ""),
-        flush=True,
-    )
-    return score
+def _score_from_output(root: Path, repo: Path, head: str, label: str, config: str) -> float:
+    raw_config, project = pinned_config(repo, head, config)
+    receipt = read_json((root / RECEIPT).read_bytes())
+    evidence = validate_run(report_path(root), receipt, head=head, target=label,
+                            config_sha=digest(raw_config), project_dir=project)
+    if evidence["status"] != "scored":
+        raise ValueError("cannot refresh a baseline from an unscored run")
+    return evidence["official_score_percent"]
 
 
 def _main() -> int:
@@ -117,13 +77,13 @@ def _main() -> int:
     parser.add_argument(
         "--skip-stryker",
         action="store_true",
-        help="Do not run dotnet-stryker; read the newest mutation-report.json under StrykerOutput only (single-target debugging).",
+        help="Read one explicitly selected, previously verified run instead of executing Stryker.",
     )
+    parser.add_argument("--run-root", type=Path, help="Exactly one prior run directory for --skip-stryker")
     args = parser.parse_args()
 
     repo_root = args.repo_root.resolve()
     output_path = args.output if args.output.is_absolute() else (repo_root / args.output)
-    stryker_output = repo_root / "StrykerOutput"
 
     only_set = {x.strip() for x in args.only if x.strip()}
     if only_set:
@@ -146,11 +106,13 @@ def _main() -> int:
         )
         return 2
 
-    if not args.skip_restore:
+    if args.skip_stryker != (args.run_root is not None) or (args.skip_stryker and len(targets) != 1):
+        parser.error("--skip-stryker needs one --only target and an explicit --run-root")
+    if not args.skip_restore and not args.skip_stryker:
         print("+ dotnet tool restore", flush=True)
         subprocess.run(["dotnet", "tool", "restore"], cwd=repo_root, check=True)
 
-    helpers = _load_assert_helpers()
+    head = head_revision(repo_root)
     measured: dict[str, dict[str, float]] = {}
 
     if args.merge_existing:
@@ -160,15 +122,18 @@ def _main() -> int:
         prior = json.loads(output_path.read_text(encoding="utf-8"))
         for label, _ in STRYKER_TARGETS:
             entry = prior.get(label)
-            if isinstance(entry, dict) and isinstance(entry.get("mutationScore"), (int, float)):
-                measured[label] = {"mutationScore": float(entry["mutationScore"])}
+            if isinstance(entry, dict):
+                measured[label] = {"mutationScore": percent(entry.get("mutationScore"))}
 
     for label, config_file in targets:
         print(f"\n=== {label} ({config_file}) ===", flush=True)
-        if not args.skip_stryker:
-            shutil.rmtree(stryker_output, ignore_errors=True)
-            _run_stryker(repo_root, config_file)
-        score = _score_from_output(stryker_output, helpers)
+        if args.skip_stryker:
+            score = _score_from_output(args.run_root, repo_root, head, label, config_file)
+        else:
+            with TemporaryDirectory(prefix="stryker-baseline-") as work:
+                run = Path(work) / label
+                run_and_stamp(repo_root, run, head=head, target=label, config=config_file, solution="ArchLucid.sln")
+                score = _score_from_output(run, repo_root, head, label, config_file)
         measured[label] = {"mutationScore": _floor_one_decimal(score)}
 
     missing = [label for label, _ in STRYKER_TARGETS if label not in measured]
@@ -188,4 +153,8 @@ def _main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(_main())
+    try:
+        raise SystemExit(_main())
+    except (OSError, ValueError, subprocess.SubprocessError) as exc:
+        print(f"Baseline not refreshed: {exc}", file=sys.stderr)
+        raise SystemExit(2) from None
