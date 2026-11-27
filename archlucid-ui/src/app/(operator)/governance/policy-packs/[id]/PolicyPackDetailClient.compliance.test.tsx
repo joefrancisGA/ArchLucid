@@ -3,9 +3,19 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/hooks/use-policy-pack-detail-page-query", () => ({
   usePolicyPackDetailPageQuery: () => ({
-    isPending: true,
+    isPending: false,
     isError: false,
-    data: null,
+    data: {
+      packRecord: {
+        policyPackId: "pack-1",
+        displayName: "Pack 1",
+        description: null,
+        version: "1",
+        isActive: true,
+      },
+      packContent: null,
+      workspaceSelection: [],
+    },
     refetch: vi.fn(),
   }),
 }));

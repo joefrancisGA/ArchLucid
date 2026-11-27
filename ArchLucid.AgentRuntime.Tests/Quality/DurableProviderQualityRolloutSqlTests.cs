@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 
 using ArchLucid.AgentRuntime.Quality;
+using ArchLucid.Core.Agents;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Resilience;
