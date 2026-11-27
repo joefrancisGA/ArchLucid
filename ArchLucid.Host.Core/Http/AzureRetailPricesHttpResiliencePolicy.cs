@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Headers;
 
 using Microsoft.Extensions.Logging;
 
@@ -28,7 +27,7 @@ public static class AzureRetailPricesHttpResiliencePolicy
 
     /// <summary>Uses exponential backoff (~2<sup>n</sup> seconds) between retry attempts.</summary>
     public static IAsyncPolicy<HttpResponseMessage> Create(ILogger logger) =>
-        Create(logger, GetExponentialDelay);
+        Create(logger, DeadlineAwareReadRetryTiming.GetExponentialDelay);
 
     /// <summary>
     ///     Identical fault handling as the single-parameter overload; inject zero-delay backoff for deterministic tests.
@@ -57,22 +56,21 @@ public static class AzureRetailPricesHttpResiliencePolicy
     {
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(callBudget, TimeSpan.Zero);
 
-        return Build(logger, GetExponentialDelay, new DeadlineAwareRetryTiming(timeProvider ?? TimeProvider.System, callBudget));
+        return Build(
+            logger,
+            DeadlineAwareReadRetryTiming.GetExponentialDelay,
+            new DeadlineAwareReadRetryTiming(timeProvider ?? TimeProvider.System, callBudget, MaxRetryAttempts));
     }
 
     private static IAsyncPolicy<HttpResponseMessage> Build(
         ILogger logger,
         Func<int, TimeSpan> sleepDurationProvider,
-        DeadlineAwareRetryTiming? timing)
+        DeadlineAwareReadRetryTiming? timing)
     {
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(sleepDurationProvider);
 
         ResiliencePipelineBuilder<HttpResponseMessage> builder = new();
-        Func<RetryPredicateArguments<HttpResponseMessage>, ValueTask<bool>> shouldHandle =
-            new PredicateBuilder<HttpResponseMessage>()
-                .Handle<HttpRequestException>()
-                .HandleResult(AzureRmAndRetailPricesHttpRetryPolicy.ShouldRetryHttpResponse);
 
         if (timing is not null)
         {
@@ -80,8 +78,22 @@ public static class AzureRetailPricesHttpResiliencePolicy
             // Reject local saturation outside the breaker and retry so it is not counted as a provider failure.
             builder.AddStrategy(static _ => new PricingCapacityGate());
             builder.AddStrategy(_ => timing);
-            shouldHandle = timing.PlanRetry;
         }
+
+        RetryStrategyOptions<HttpResponseMessage> retry = timing?.CreateRetryOptions(logger) ?? new()
+        {
+            MaxRetryAttempts = MaxRetryAttempts,
+            ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                .Handle<HttpRequestException>()
+                .HandleResult(AzureRmAndRetailPricesHttpRetryPolicy.ShouldRetryHttpResponse),
+            DelayGenerator = args => new ValueTask<TimeSpan?>(sleepDurationProvider(args.AttemptNumber)),
+            OnRetry = args =>
+            {
+                AzureRmAndRetailPricesHttpRetryPolicy.TryLogRetry(logger, args);
+
+                return ValueTask.CompletedTask;
+            },
+        };
 
         // The outer breaker samples only the final outcome of each logical call.
         ResiliencePipeline<HttpResponseMessage> pipeline = builder
@@ -95,19 +107,7 @@ public static class AzureRetailPricesHttpResiliencePolicy
                     .Handle<HttpRequestException>()
                     .HandleResult(CountsAsCircuitBreakerFailure),
             })
-            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
-            {
-                MaxRetryAttempts = MaxRetryAttempts,
-                ShouldHandle = shouldHandle,
-                DelayGenerator = args => new ValueTask<TimeSpan?>(
-                    timing is null ? sleepDurationProvider(args.AttemptNumber) : DeadlineAwareRetryTiming.GetPlannedDelay(args.Context)),
-                OnRetry = args =>
-                {
-                    AzureRmAndRetailPricesHttpRetryPolicy.TryLogRetry(logger, args);
-
-                    return ValueTask.CompletedTask;
-                },
-            })
+            .AddRetry(retry)
             .Build();
 
         return pipeline.AsAsyncPolicy();
@@ -116,9 +116,6 @@ public static class AzureRetailPricesHttpResiliencePolicy
     // Catalog circuit breakers and retries use the same transient HTTP status classification.
     private static bool CountsAsCircuitBreakerFailure(HttpResponseMessage response) =>
         AzureRmAndRetailPricesHttpRetryPolicy.ShouldRetryHttpResponse(response);
-
-    private static TimeSpan GetExponentialDelay(int attempt) =>
-        TimeSpan.FromSeconds(Math.Pow(2, attempt));
 
     private sealed class PricingCapacityGate : ResilienceStrategy<HttpResponseMessage>
     {
@@ -149,64 +146,5 @@ public static class AzureRetailPricesHttpResiliencePolicy
                 Interlocked.Decrement(ref _activeCalls);
             }
         }
-    }
-
-    // Store timing on the execution context so concurrent requests through the shared policy have independent budgets.
-    private sealed class DeadlineAwareRetryTiming(TimeProvider clock, TimeSpan callBudget) : ResilienceStrategy<HttpResponseMessage>
-    {
-        private static readonly ResiliencePropertyKey<long> StartedAt = new("PublicPricing.CallStartedAt");
-        private static readonly ResiliencePropertyKey<TimeSpan> PlannedDelay = new("PublicPricing.NextRetryDelay");
-
-        public TimeProvider Clock => clock;
-
-        public static TimeSpan GetPlannedDelay(ResilienceContext context) =>
-            context.Properties.GetValue(PlannedDelay, TimeSpan.Zero);
-
-        public ValueTask<bool> PlanRetry(RetryPredicateArguments<HttpResponseMessage> args)
-        {
-            HttpResponseMessage? response = args.Outcome.Result;
-
-            if (args.AttemptNumber >= MaxRetryAttempts ||
-                (args.Outcome.Exception is not HttpRequestException &&
-                 (response is null || !AzureRmAndRetailPricesHttpRetryPolicy.ShouldRetryHttpResponse(response))))
-            {
-                return new ValueTask<bool>(false);
-            }
-
-            // Spread local retries without letting jitter undercut a provider's minimum wait.
-            const double maxJitterFraction = 0.25;
-            TimeSpan delay = GetExponentialDelay(args.AttemptNumber) * (1 + (Random.Shared.NextDouble() * maxJitterFraction));
-
-            if (response?.StatusCode is HttpStatusCode.TooManyRequests or HttpStatusCode.ServiceUnavailable &&
-                response.Headers.RetryAfter is { } retryAfter)
-            {
-                TimeSpan serverDelay = ResolveServerDelay(retryAfter);
-                delay = serverDelay > delay ? serverDelay : delay;
-            }
-
-            long start = args.Context.Properties.GetValue(StartedAt, 0L);
-            TimeSpan remaining = callBudget - clock.GetElapsedTime(start);
-
-            if (delay >= remaining)
-            {
-                // Returning false leaves the last response intact for the caller.
-                return new ValueTask<bool>(false);
-            }
-
-            args.Context.Properties.Set(PlannedDelay, delay);
-            return new ValueTask<bool>(true);
-        }
-
-        protected override ValueTask<Outcome<HttpResponseMessage>> ExecuteCore<TState>(
-            Func<ResilienceContext, TState, ValueTask<Outcome<HttpResponseMessage>>> callback,
-            ResilienceContext context,
-            TState state)
-        {
-            context.Properties.Set(StartedAt, clock.GetTimestamp());
-            return callback(context, state);
-        }
-
-        private TimeSpan ResolveServerDelay(RetryConditionHeaderValue retryAfter) =>
-            retryAfter.Delta ?? (retryAfter.Date is { } retryAt ? retryAt - clock.GetUtcNow() : TimeSpan.Zero);
     }
 }
