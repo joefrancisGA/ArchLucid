@@ -169,6 +169,7 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
         using JsonDocument doc = JsonDocument.Parse(stub.ThreadJson!);
         string content = doc.RootElement.GetProperty("comments")[0].GetProperty("content").GetString() ?? "";
 
+        Assert.StartsWith($"<!-- archlucid:server-thread:{targetRun:N} -->", content, StringComparison.Ordinal);
         Assert.Contains("decisions tightened", content, StringComparison.Ordinal);
         Assert.Contains($"https://ops.example/runs/{targetRun:D}", content, StringComparison.Ordinal);
     }

@@ -7,6 +7,18 @@ public static class TenantSchemaSentinelManifest
     [
         new SchemaSentinelExpectation
         {
+            TableName = "AzureDevOpsThreadCreateClaims",
+            Columns =
+            [
+                new SchemaSentinelColumn { ColumnName = "TenantId", SqlDataType = "uniqueidentifier" },
+                new SchemaSentinelColumn { ColumnName = "RunId", SqlDataType = "uniqueidentifier" },
+                new SchemaSentinelColumn { ColumnName = "RepositoryId", SqlDataType = "uniqueidentifier" },
+                new SchemaSentinelColumn { ColumnName = "PullRequestId", SqlDataType = "int" },
+            ],
+            IndexNames = ["PK_AzureDevOpsThreadCreateClaims"],
+        },
+        new SchemaSentinelExpectation
+        {
             TableName = "SchemaVersions",
             Columns =
             [

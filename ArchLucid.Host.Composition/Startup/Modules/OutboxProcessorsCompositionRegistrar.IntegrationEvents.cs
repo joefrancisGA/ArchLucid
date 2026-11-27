@@ -70,13 +70,21 @@ internal static partial class OutboxProcessorsCompositionRegistrar
             static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.DevOpsIntegration))
             .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
             .AddOutboundExternalHttpResilience();
-        // A thread POST creates a new comment and has no verified upstream idempotency key.
+        ArchLucidOptions storageOptions = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
+        if (ArchLucidOptions.EffectiveIsInMemory(storageOptions.StorageProvider))
+            services.AddSingleton<IAzureDevOpsThreadCreateClaimStore, InMemoryAzureDevOpsThreadCreateClaimStore>();
+        else
+            services.AddScoped<IAzureDevOpsThreadCreateClaimStore, DapperAzureDevOpsThreadCreateClaimStore>();
+
+        services.AddTransient<AzureDevOpsThreadCreateClaimHandler>();
+        // Claim inside the breaker, so an open circuit does not spend the only create attempt.
         services.AddHttpClient(
             AzureDevOpsPullRequestDecorator.ThreadHttpClientName,
             static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.DevOpsIntegration))
             .ConfigureArchLucidOutboundSocketsHandler(
                 OutboundHttpSocketsHandlerProfile.ExternalIntegration, allowAutoRedirect: false)
-            .AddOutboundExternalHttpResilienceForReadRetries();
+            .AddOutboundExternalHttpResilienceForReadRetries()
+            .AddHttpMessageHandler<AzureDevOpsThreadCreateClaimHandler>();
         services.AddSingleton<IAzureDevOpsPullRequestDecoratorFactory, AzureDevOpsPullRequestDecoratorFactory>();
         services.AddSingleton<IIntegrationEventHandler, AuthorityRunCompletedAzureDevOpsIntegrationEventHandler>();
         services.AddSingleton<IIntegrationEventHandler, AuthorityRunCompletedChatOpsIntegrationEventHandler>();

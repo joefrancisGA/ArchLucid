@@ -5,6 +5,7 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Integration;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -23,6 +24,10 @@ public sealed class AzureDevOpsPullRequestDecorator(
 
     /// <summary>Named client for thread creation. Its policy must not replay the create POST.</summary>
     public const string ThreadHttpClientName = nameof(AzureDevOpsPullRequestDecorator) + ".ThreadCreate";
+
+    /// <summary>Stable claim required by the dedicated thread-create client.</summary>
+    public static HttpRequestOptionsKey<AzureDevOpsThreadCreateClaim> ThreadCreateClaimOption { get; } =
+        new(nameof(AzureDevOpsThreadCreateClaim));
 
     private static readonly JsonSerializerOptions CompareJsonOptions = new() { PropertyNameCaseInsensitive = true, };
 
@@ -69,8 +74,9 @@ public sealed class AzureDevOpsPullRequestDecorator(
             .ConfigureAwait(false);
 
         await PostStatusAsync(pat, basePath, markdown, operatorRunDeepLink, cancellationToken).ConfigureAwait(false);
-        await PostThreadAsync(pat, basePath, markdown, request.RunId, target.PullRequestId, cancellationToken)
-            .ConfigureAwait(false);
+        AzureDevOpsThreadCreateClaim claim = new(
+            request.TenantId, request.RunId, target.RepositoryId, target.PullRequestId);
+        await PostThreadAsync(pat, basePath, markdown, claim, cancellationToken).ConfigureAwait(false);
     }
 
     private async Task<string> BuildPrMarkdownAsync(
@@ -225,19 +231,20 @@ public sealed class AzureDevOpsPullRequestDecorator(
         string pat,
         string pullRequestBasePath,
         string markdown,
-        Guid runId,
-        int pullRequestId,
+        AzureDevOpsThreadCreateClaim claim,
         CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
         string url = $"{pullRequestBasePath}/threads?api-version=7.1";
-        string json = AzureDevOpsPullRequestWireFormat.SerializeThreadCreate(markdown);
+        // Keep a stable marker for operator reconciliation even when compare markdown has no run link.
+        string json = AzureDevOpsPullRequestWireFormat.SerializeThreadCreate(
+            $"<!-- archlucid:server-thread:{claim.RunId:N} -->\n\n{markdown}");
 
         try
         {
             using HttpResponseMessage response = await SendPatPostAsync(
-                    _threadHttpClient, pat, url, json, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
+                    _threadHttpClient, pat, url, json, HttpCompletionOption.ResponseHeadersRead, cancellationToken, claim)
                 .ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode && _logger.IsEnabled(LogLevel.Warning))
@@ -246,14 +253,14 @@ public sealed class AzureDevOpsPullRequestDecorator(
                 if (statusCode >= 500 || response.StatusCode == HttpStatusCode.RequestTimeout)
                 {
                     _logger.LogWarning(
-                        "Azure DevOps PR thread create outcome unknown for RunId={RunId}, PullRequestId={PullRequestId} (HTTP {StatusCode}). Verify the PR before replay.",
-                        runId, pullRequestId, statusCode);
+                        "Azure DevOps PR thread create outcome unknown for RunId={RunId}, PullRequestId={PullRequestId} (HTTP {StatusCode}). Verify the PR before manual recovery.",
+                        claim.RunId, claim.PullRequestId, statusCode);
                 }
                 else
                 {
                     _logger.LogWarning(
                         "Azure DevOps PR thread POST failed for RunId={RunId}, PullRequestId={PullRequestId} (HTTP {StatusCode}).",
-                        runId, pullRequestId, statusCode);
+                        claim.RunId, claim.PullRequestId, statusCode);
                 }
             }
         }
@@ -262,8 +269,8 @@ public sealed class AzureDevOpsPullRequestDecorator(
             if (_logger.IsEnabled(LogLevel.Warning))
             {
                 _logger.LogWarning(
-                    "Azure DevOps PR thread create outcome unknown for RunId={RunId}, PullRequestId={PullRequestId} ({FailureType}). Verify the PR before replay.",
-                    runId, pullRequestId, ex.GetType().Name);
+                    "Azure DevOps PR thread create outcome unknown for RunId={RunId}, PullRequestId={PullRequestId} ({FailureType}). Verify the PR before manual recovery.",
+                    claim.RunId, claim.PullRequestId, ex.GetType().Name);
             }
 
             if (cancellationToken.IsCancellationRequested)
@@ -275,7 +282,7 @@ public sealed class AzureDevOpsPullRequestDecorator(
             {
                 _logger.LogWarning(ex,
                     "Azure DevOps PR thread POST threw for RunId={RunId}, PullRequestId={PullRequestId}.",
-                    runId, pullRequestId);
+                    claim.RunId, claim.PullRequestId);
             }
         }
     }
@@ -286,9 +293,12 @@ public sealed class AzureDevOpsPullRequestDecorator(
         string requestUrl,
         string json,
         HttpCompletionOption completionOption,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        AzureDevOpsThreadCreateClaim? threadCreateClaim = null)
     {
         using HttpRequestMessage request = new(HttpMethod.Post, new Uri(requestUrl, UriKind.Absolute));
+        if (threadCreateClaim is { } claim)
+            request.Options.Set(ThreadCreateClaimOption, claim);
         request.Headers.Authorization = new AuthenticationHeaderValue(
             "Basic",
             Convert.ToBase64String(Encoding.ASCII.GetBytes($":{pat}")));
