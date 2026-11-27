@@ -5,6 +5,14 @@
 
 # ArchLucid changelog
 
+## 2026-11-27 - Score lift round 149 (batch wave H1): SecureNow time-to-value next step
+
+**Outcome.** Home, findings header, and snapshots drift name one collection or second-capture next step with a primary CTA and browser-local recovery links — not a timed SLA or usage score.
+
+**Surfaces.** SecureNow home environment context, governance findings queue header, infrastructure drift workbench, drift guard and mounted-contract tests.
+
+
+
 ## 2026-11-27 - Score lift round 148 (batch wave G): Review decision velocity and open-gate stickiness
 
 **Outcome.** Workspace chrome names one decision next step (finalize, blocking findings, or governance approval) distinct from the reviews hub queue. Open-gate return links architecture home and resumes the stored gate on the same review with browser-local honesty.
