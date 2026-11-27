@@ -7,6 +7,8 @@ using ArchLucid.Persistence.Billing.AzureMarketplace;
 
 namespace ArchLucid.Persistence.Tests.Billing;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class MarketplaceFulfillmentActivationTests
 {
     [Fact]
