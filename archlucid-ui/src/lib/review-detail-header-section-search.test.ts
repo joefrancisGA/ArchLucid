@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   findReviewDetailSectionSearchMatches,
   isReviewDetailHeaderSearchPath,
+  isReviewDetailOnThisPageSectionNavPresent,
 } from "./review-detail-header-section-search";
 
 describe("review detail header section search", () => {
@@ -10,6 +11,10 @@ describe("review detail header section search", () => {
     expect(isReviewDetailHeaderSearchPath("/architecture/reviews/run-abc")).toBe(true);
     expect(isReviewDetailHeaderSearchPath("/architecture/reviews")).toBe(false);
     expect(isReviewDetailHeaderSearchPath("/architecture/reviews/new")).toBe(false);
+  });
+
+  it("reports when on-this-page section nav is absent", () => {
+    expect(isReviewDetailOnThisPageSectionNavPresent()).toBe(false);
   });
 
   it("matches visible on-this-page section links", () => {

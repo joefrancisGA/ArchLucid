@@ -75,6 +75,8 @@ export type ReviewDetailWorkspaceProps = {
   readonly visitDefaultReviewHashWhenUrlSilent?: string | null;
   /** Working desk identity — upgrades flat peer URLs when syncing tabs (ADR 0077). */
   readonly parentArchitectureId?: string | null;
+  /** When true, tab cognitive guidance steers to evidence before finalize. */
+  readonly evidenceReferenceCountNotStored?: boolean;
 };
 
 type ReviewDetailWorkspaceTabContextValue = {

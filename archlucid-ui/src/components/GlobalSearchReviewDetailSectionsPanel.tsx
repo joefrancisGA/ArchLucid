@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { scheduleScrollToReviewDetailSection } from "@/lib/review-detail-section-scroll";
+import { REVIEW_DETAIL_HEADER_SECTION_SEARCH_EMPTY_NO_NAV_LINE } from "@/lib/reviews/review-detail-header-section-search-empty-copy";
 import type { GlobalSearchBarController } from "@/components/use-global-search-bar";
 
 type GlobalSearchReviewDetailSectionsPanelProps = {
@@ -12,7 +13,11 @@ type GlobalSearchReviewDetailSectionsPanelProps = {
 export function GlobalSearchReviewDetailSectionsPanel(props: GlobalSearchReviewDetailSectionsPanelProps) {
   const { controller } = props;
   const { inputId, searchResults, closePanel } = controller;
-  const { reviewDetailSectionMatches } = searchResults;
+  const { reviewDetailSectionMatches, reviewDetailOnThisPageNavPresent, trimmedQuery } = searchResults;
+  const showNoNavHonesty =
+    trimmedQuery.trim().length > 0
+    && reviewDetailSectionMatches.length === 0
+    && reviewDetailOnThisPageNavPresent === false;
 
   return (
     <div
@@ -23,7 +28,9 @@ export function GlobalSearchReviewDetailSectionsPanel(props: GlobalSearchReviewD
     >
       {reviewDetailSectionMatches.length === 0 ? (
         <p className={cn("m-0 px-3 py-2 text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>
-          No sections on this page matched.
+          {showNoNavHonesty
+            ? REVIEW_DETAIL_HEADER_SECTION_SEARCH_EMPTY_NO_NAV_LINE
+            : "No sections on this page matched."}
         </p>
       ) : (
         <section className="px-3 py-2">

@@ -30,6 +30,7 @@ import {
   ReviewObjectSentence,
 } from "@/components/reviews/ReviewJourneyStrip";
 import { ReviewWorkspaceLifecycleProgressStepper } from "@/components/reviews/ReviewWorkspaceLifecycleProgressStepper";
+import { ReviewWorkspacePackageSearchScopeChip } from "@/components/reviews/ReviewWorkspacePackageSearchScopeChip";
 import { ReviewWorkspaceUnifiedSearchHonestyStrip } from "@/components/reviews/ReviewWorkspaceUnifiedSearchHonestyStrip";
 import { ReviewVocabularyRail } from "@/components/reviews/ReviewVocabularyRail";
 import { resolveReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-lifecycle";
@@ -382,7 +383,9 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
           lifecycle={resolveReviewWorkspaceLifecycle({
             manifestId: props.signedReviewRecordId,
           })}
+          reviewIsSealed={reviewIsSealed}
         />
+        <ReviewWorkspacePackageSearchScopeChip />
         <ReviewWorkspaceUnifiedSearchHonestyStrip />
         <ReviewVocabularyRail />
         {!reviewPipelineIncomplete ? <ArchitectureObjectMapStrip focus="review" /> : null}

@@ -126,6 +126,7 @@ export function ReviewDetailWorkspaceTabShell({
         lifecycle={lifecycle}
         activeTab={activeTab}
         runId={props.runId}
+        evidenceReferenceCountNotStored={props.evidenceReferenceCountNotStored === true}
       />
 
       {props.tabSectionNav ?? null}
