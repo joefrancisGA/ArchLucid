@@ -1,6 +1,8 @@
 using System.Collections.Concurrent;
 using System.Net.Http.Json;
 
+using ArchLucid.Core.Http;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -88,6 +90,7 @@ public sealed partial class AzureRetailPricesCatalogClient
             $"serviceName eq '{OdataEscape(retailServiceName)}' and armRegionName eq '{OdataEscape(armRegionName.Trim())}'";
 
         HttpClient http = AcquireHttpClient();
+        using OutboundOperationDeadline deadline = PricingCatalogDeadline.Start(http, _clock, ct);
 
         Uri? cursor = ComposeRetailRelativeUri(filter);
 
@@ -100,7 +103,11 @@ public sealed partial class AzureRetailPricesCatalogClient
             try
             {
                 pagePayload =
-                    await http.GetFromJsonAsync<RetailPage>(cursor, Serialization.JsonOptions.Value, ct).ConfigureAwait(false);
+                    await http.GetFromJsonAsync<RetailPage>(cursor, Serialization.JsonOptions.Value, deadline.Token).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (!ct.IsCancellationRequested && deadline.IsExpired)
+            {
+                return null;
             }
             catch (OperationCanceledException)
             {
@@ -145,6 +152,11 @@ public sealed partial class AzureRetailPricesCatalogClient
             if (best is not null)
                 break;
         }
+
+        ct.ThrowIfCancellationRequested();
+
+        if (deadline.IsExpired)
+            return null;
 
         decimal? answer = best is null ? null : decimal.Round(best.Value, 2);
 

@@ -14,7 +14,7 @@ namespace ArchLucid.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
 {
-    private static void RegisterIntegrationsOutboundHttpClients(IServiceCollection services)
+    internal static void RegisterIntegrationsOutboundHttpClients(IServiceCollection services)
     {
         RegisterItsmWriteHttpClients(services);
         services
@@ -33,7 +33,8 @@ public static partial class ServiceCollectionExtensions
                 static client => client.Timeout = TimeSpan.FromSeconds(30))
             .ConfigureArchLucidOutboundSocketsHandler(
                 OutboundHttpSocketsHandlerProfile.ExternalIntegration,
+                allowAutoRedirect: false,
                 rejectPrivateNetworkConnectEndpoints: true)
-            .AddOutboundExternalHttpResilience();
+            .AddOutboundExternalHttpResilienceForReadRetries();
     }
 }

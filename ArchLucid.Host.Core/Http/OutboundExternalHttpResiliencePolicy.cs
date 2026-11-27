@@ -27,14 +27,38 @@ public static class OutboundExternalHttpResiliencePolicy
         OutboundExternalHttpResilienceOptions options,
         Func<int, TimeSpan> sleepDurationProvider)
     {
-        ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(sleepDurationProvider);
+
+        return Build(options, sleepDurationProvider, TimeProvider.System, maxConcurrentCalls: null);
+    }
+
+    /// <summary>Per-client or per-destination admission and breaker without any automatic replay.</summary>
+    public static IAsyncPolicy<HttpResponseMessage> CreateBreakerOnly(
+        OutboundExternalHttpResilienceOptions options, TimeProvider clock, int maxConcurrentCalls)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxConcurrentCalls);
+
+        return Build(options, sleepDurationProvider: null, clock, maxConcurrentCalls);
+    }
+
+    private static IAsyncPolicy<HttpResponseMessage> Build(
+        OutboundExternalHttpResilienceOptions options, Func<int, TimeSpan>? sleepDurationProvider,
+        TimeProvider clock, int? maxConcurrentCalls)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(clock);
 
         OutboundExternalHttpResilienceOptions normalized = CloneNormalized(options);
 
         // Polly applies strategies outermost-first. The breaker sees one final outcome,
         // not each individual retry, and rejects an open circuit before any send.
-        ResiliencePipelineBuilder<HttpResponseMessage> builder = new();
+        ResiliencePipelineBuilder<HttpResponseMessage> builder = new() { TimeProvider = clock };
+
+        if (maxConcurrentCalls is int capacity)
+        {
+            builder.AddStrategy(_ => new OutboundLogicalCallCapacity(
+                capacity, "Local outbound client concurrency limit reached"));
+        }
 
         if (normalized.CircuitBreakerEnabled)
         {
@@ -50,7 +74,7 @@ public static class OutboundExternalHttpResiliencePolicy
             });
         }
 
-        if (normalized.MaxRetryAttempts > 0)
+        if (sleepDurationProvider is not null && normalized.MaxRetryAttempts > 0)
         {
             builder.AddRetry(new RetryStrategyOptions<HttpResponseMessage>
             {

@@ -2,6 +2,7 @@ using ArchLucid.Application.CloudExtractor;
 using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Http;
 
 using Microsoft.Extensions.Options;
 
@@ -62,7 +63,7 @@ public sealed class HostedAzureExtractorRunService(
         cancellationToken.ThrowIfCancellationRequested();
         HostedAzureExtractorCollectionResult collection;
 
-        using (HostedCloudCollectionDeadline deadline = new(_timeProvider, options.GetEffectiveCollectionTimeout(), cancellationToken))
+        using (OutboundOperationDeadline deadline = new(_timeProvider, options.GetEffectiveCollectionTimeout(), cancellationToken))
         {
             try
             {
@@ -84,7 +85,7 @@ public sealed class HostedAzureExtractorRunService(
                 if (deadline.IsExpired)
                 {
                     // A collector that did not observe cancellation can still finish with a late package.
-                    return HostedAzureExtractorRunResult.CreateCollectionFailed(deadline.FailureDetail("Azure"));
+                    return HostedAzureExtractorRunResult.CreateCollectionFailed(HostedCloudCollectionDeadline.FailureDetail(deadline, "Azure"));
                 }
             }
             catch (Exception ex) when (ex is OperationCanceledException or HttpRequestException
@@ -93,7 +94,7 @@ public sealed class HostedAzureExtractorRunService(
                 cancellationToken.ThrowIfCancellationRequested();
 
                 if (deadline.IsExpired)
-                    return HostedAzureExtractorRunResult.CreateCollectionFailed(deadline.FailureDetail("Azure"));
+                    return HostedAzureExtractorRunResult.CreateCollectionFailed(HostedCloudCollectionDeadline.FailureDetail(deadline, "Azure"));
 
                 if (HostedAzureExtractorHttpFailureClassifier.IsArmThrottled(ex))
                 {

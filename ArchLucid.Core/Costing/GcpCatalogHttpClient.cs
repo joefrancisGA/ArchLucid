@@ -14,14 +14,16 @@ internal sealed class GcpCatalogHttpClient
     private readonly Func<HttpClient> _httpFactory;
 
     private readonly ILogger _logger;
+    private readonly TimeProvider _clock;
 
-    public GcpCatalogHttpClient(Func<HttpClient> httpClientFactory, ILogger logger)
+    public GcpCatalogHttpClient(Func<HttpClient> httpClientFactory, ILogger logger, TimeProvider? clock = null)
     {
         ArgumentNullException.ThrowIfNull(httpClientFactory);
         ArgumentNullException.ThrowIfNull(logger);
 
         _httpFactory = httpClientFactory;
         _logger = logger;
+        _clock = clock ?? TimeProvider.System;
     }
 
     public async Task<decimal?> TryFetchComputeHourlyUsdAsync(
@@ -39,6 +41,8 @@ internal sealed class GcpCatalogHttpClient
         string? pageToken = null;
         bool requireRegionMatch = !string.IsNullOrWhiteSpace(regionCode);
         decimal? matchedHourly = null;
+        using OutboundOperationDeadline deadline = PricingCatalogDeadline.Start(http, _clock, ct);
+        HashSet<string> seenTokens = new(StringComparer.Ordinal);
 
         try
         {
@@ -46,8 +50,13 @@ internal sealed class GcpCatalogHttpClient
             {
                 Uri requestUri = BuildSkuListRequestUri(apiKey, pageToken);
 
-                using Stream body = await http.GetStreamAsync(requestUri, ct).ConfigureAwait(false);
-                using JsonDocument document = await JsonDocument.ParseAsync(body, cancellationToken: ct).ConfigureAwait(false);
+                using Stream body = await http.GetStreamAsync(requestUri, deadline.Token).ConfigureAwait(false);
+                using JsonDocument document = await JsonDocument.ParseAsync(body, cancellationToken: deadline.Token).ConfigureAwait(false);
+
+                ct.ThrowIfCancellationRequested();
+
+                if (deadline.IsExpired)
+                    return null;
 
                 if (!JsonObjectPropertyLookup.TryGetIgnoreCase(document.RootElement, "skus", out JsonElement skus)
                     || skus.ValueKind != JsonValueKind.Array)
@@ -67,10 +76,19 @@ internal sealed class GcpCatalogHttpClient
                 }
 
                 pageToken = TryReadNextPageToken(document.RootElement);
+
+                if (pageToken is not null && !seenTokens.Add(pageToken))
+                    return null;
             }
             while (!string.IsNullOrWhiteSpace(pageToken));
 
-            return matchedHourly;
+            ct.ThrowIfCancellationRequested();
+
+            return deadline.IsExpired ? null : matchedHourly;
+        }
+        catch (OperationCanceledException) when (!ct.IsCancellationRequested && deadline.IsExpired)
+        {
+            return null;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

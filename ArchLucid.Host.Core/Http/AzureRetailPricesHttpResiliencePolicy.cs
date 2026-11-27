@@ -1,3 +1,5 @@
+using ArchLucid.Core.Http;
+
 using System.Net;
 
 using Microsoft.Extensions.Logging;
@@ -76,11 +78,12 @@ public static class AzureRetailPricesHttpResiliencePolicy
         {
             builder.TimeProvider = timing.Clock;
             // Reject local saturation outside the breaker and retry so it is not counted as a provider failure.
-            builder.AddStrategy(static _ => new PricingCapacityGate());
+            builder.AddStrategy(static _ => new OutboundLogicalCallCapacity(
+                MaxConcurrentPricingCalls, "Local pricing client concurrency limit reached"));
             builder.AddStrategy(_ => timing);
         }
 
-        RetryStrategyOptions<HttpResponseMessage> retry = timing?.CreateRetryOptions(logger) ?? new()
+        RetryStrategyOptions<HttpResponseMessage> retry = timing?.CreateRetryOptions(args => AzureRmAndRetailPricesHttpRetryPolicy.TryLogRetry(logger, args)) ?? new()
         {
             MaxRetryAttempts = MaxRetryAttempts,
             ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
@@ -116,35 +119,4 @@ public static class AzureRetailPricesHttpResiliencePolicy
     // Catalog circuit breakers and retries use the same transient HTTP status classification.
     private static bool CountsAsCircuitBreakerFailure(HttpResponseMessage response) =>
         AzureRmAndRetailPricesHttpRetryPolicy.ShouldRetryHttpResponse(response);
-
-    private sealed class PricingCapacityGate : ResilienceStrategy<HttpResponseMessage>
-    {
-        private int _activeCalls;
-
-        protected override async ValueTask<Outcome<HttpResponseMessage>> ExecuteCore<TState>(
-            Func<ResilienceContext, TState, ValueTask<Outcome<HttpResponseMessage>>> callback,
-            ResilienceContext context,
-            TState state)
-        {
-            context.CancellationToken.ThrowIfCancellationRequested();
-            int activeCalls = Interlocked.Increment(ref _activeCalls);
-
-            try
-            {
-                if (activeCalls > MaxConcurrentPricingCalls)
-                {
-                    return Outcome.FromResult(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
-                    {
-                        ReasonPhrase = "Local pricing client concurrency limit reached",
-                    });
-                }
-
-                return await callback(context, state).ConfigureAwait(false);
-            }
-            finally
-            {
-                Interlocked.Decrement(ref _activeCalls);
-            }
-        }
-    }
 }

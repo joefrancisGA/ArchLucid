@@ -1,15 +1,14 @@
 using System.Net;
 using System.Net.Http.Headers;
 
-using Microsoft.Extensions.Logging;
-
 using Polly;
 using Polly.Retry;
 
-namespace ArchLucid.Host.Core.Http;
+namespace ArchLucid.Core.Http;
 
 /// <summary>Plans each safe-read retry against the provider wait and the remaining HTTP call budget.</summary>
-internal sealed class DeadlineAwareReadRetryTiming(TimeProvider clock, TimeSpan callBudget, int maxRetryAttempts)
+public sealed class DeadlineAwareReadRetryTiming(
+    TimeProvider clock, TimeSpan callBudget, int maxRetryAttempts, TimeSpan? initialDelay = null)
     : ResilienceStrategy<HttpResponseMessage>
 {
     private static readonly ResiliencePropertyKey<long> StartedAt = new("OutboundRead.CallStartedAt");
@@ -17,7 +16,7 @@ internal sealed class DeadlineAwareReadRetryTiming(TimeProvider clock, TimeSpan 
 
     public TimeProvider Clock => clock;
 
-    public RetryStrategyOptions<HttpResponseMessage> CreateRetryOptions(ILogger logger) =>
+    public RetryStrategyOptions<HttpResponseMessage> CreateRetryOptions(Action<OnRetryArguments<HttpResponseMessage>>? logRetry = null) =>
         new()
         {
             MaxRetryAttempts = maxRetryAttempts,
@@ -26,7 +25,7 @@ internal sealed class DeadlineAwareReadRetryTiming(TimeProvider clock, TimeSpan 
                 args.Context.Properties.GetValue(PlannedDelay, TimeSpan.Zero)),
             OnRetry = args =>
             {
-                AzureRmAndRetailPricesHttpRetryPolicy.TryLogRetry(logger, args);
+                logRetry?.Invoke(args);
 
                 return ValueTask.CompletedTask;
             },
@@ -47,7 +46,9 @@ internal sealed class DeadlineAwareReadRetryTiming(TimeProvider clock, TimeSpan 
 
         // Spread local retries without letting jitter undercut a provider's minimum wait.
         const double maxJitterFraction = 0.25;
-        TimeSpan delay = GetExponentialDelay(args.AttemptNumber) * (1 + (Random.Shared.NextDouble() * maxJitterFraction));
+        TimeSpan delay = GetExponentialDelay(args.AttemptNumber)
+                         * ((initialDelay ?? TimeSpan.FromSeconds(1)).TotalSeconds)
+                         * (1 + (Random.Shared.NextDouble() * maxJitterFraction));
 
         if (response?.StatusCode is HttpStatusCode.TooManyRequests or HttpStatusCode.ServiceUnavailable &&
             response.Headers.RetryAfter is { } retryAfter)

@@ -33,6 +33,7 @@ public sealed class AuthorityRunCommittedChatOpsHook(
         {
             EventType = "chatOps.architectureAuthorityRun.completed",
             TenantId = notice.TenantId,
+            DispatchEventId = notice.DispatchEventId,
             CorrelationId = notice.RunId.ToString("D"),
         };
 

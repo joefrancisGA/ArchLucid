@@ -5,7 +5,7 @@
 
 # Resilience configuration (ArchLucid)
 
-Operators can tune retry and circuit-breaker behavior without recompiling. This document lists configuration paths, defaults, the Azure OpenAI circuit breaker state machine, emitted OpenTelemetry metrics, and example Prometheus queries.
+Operators can tune retry and circuit-breaker behavior without recompiling. This document lists configuration paths, defaults, the Azure OpenAI circuit breaker state machine, emitted OpenTelemetry metrics, and example Prometheus queries. See the [FND-065 adoption matrix](FND065_OUTBOUND_RESILIENCE_ADOPTION.md) for verified policy boundaries and rollout evidence.
 
 ## Configurable knobs
 
@@ -81,7 +81,7 @@ Already bound via `IOptions<AgentExecutionResilienceOptions>` from `AgentExecuti
 
 All three hosted public pricing clients (Azure Retail Prices, AWS Pricing, and GCP Cloud Billing Catalog) use one registration and resilience policy. Each named client owns a separate circuit breaker and connection pool.
 
-- Only bodyless GET and HEAD requests enter the retry policy. One HTTP call allows at most four attempts under the existing five-minute client timeout. This does not set a deadline for consuming a returned stream or for an entire paginated catalog scan.
+- Only bodyless GET and HEAD requests enter the retry policy. One HTTP call allows at most four attempts under the existing five-minute client timeout. Separately, the pricing lookup deadline covers the entire paginated scan and response consumption. It is at most five minutes or the shorter configured client timeout.
 - Local exponential delays start at one second with up to 25% positive jitter. A valid `Retry-After` delta or HTTP date on 429 or 503 sets a minimum wait. If the selected delay reaches or exceeds the remaining budget, return the last response and do not retry early. Caller cancellation interrupts retry waits.
 - Each provider breaker samples completed calls, not individual attempts. It opens after at least five calls in a one-minute sample when all are handled failures, then allows a recovery probe after 30 seconds. A successful recovery probe closes it. An open or recovering provider does not change the other providers' circuit state.
 
@@ -89,13 +89,13 @@ All three hosted public pricing clients (Azure Retail Prices, AWS Pricing, and G
 
 The pricing tests cover both header formats on all three named clients, elapsed-budget exhaustion, cancellation, the attempt limit, non-replayed writes, cross-provider failures, recovery, and independent capacity under simulated saturation. They do not measure real vendor latency or establish a distributed concurrency limit.
 
-The pricing breaker and concurrency settings apply only to the hosted pricing clients. The Azure Resource Manager read registrations below share the retry timing, not the pricing admission settings. CLI/direct SDK clients and other integrations follow their own policies. The shared external integration breaker already samples completed calls, Jira/ServiceNow health probes use independent clients, and the Jira, ServiceNow, and Azure Boards ticket paths do not automatically replay writes. Broader opt-in for read retry timing, concurrency limits beyond hosted pricing, and provider-specific idempotency verification for other mutation paths remain separate work. Do not adopt the pricing retry settings blindly for writes.
+The pricing breaker and concurrency settings apply only to the hosted pricing clients. The Azure Resource Manager read registrations below share the retry timing, not the pricing admission settings. CLI/direct SDK clients and other integrations follow their own policies. The shared external integration breaker already samples completed calls, Jira/ServiceNow health probes use independent clients, and the Jira, ServiceNow, and Azure Boards ticket paths do not automatically replay writes. Named external integration registrations use the shared safe-read timing and a 20-logical-call limit per client. The limit holds during backoff and rejects excess work before the breaker. This is process-local admission, not a shared tenant quota. Do not apply read retry settings to unverified writes.
 
 ### Azure Resource Manager reads (FND-065)
 
 The named `ArchLucid.AzureResourceManager` client and the hosted extractor's `IHostedAzureArmReadClient` use the same deadline-aware retry timing as public pricing for bodyless GET and HEAD requests. Each HTTP call keeps the existing five-minute timeout and four-attempt maximum. Exponential backoff includes up to 25% positive jitter. A valid `Retry-After` delta or HTTP date on 429 or 503 is a minimum wait. When that wait reaches or exceeds the remaining budget, the policy returns the last response unchanged. Caller cancellation stops a retry wait.
 
-This change does not alter other requests on the named client or the separate hosted management POST-read registration. It does not add a shared breaker or concurrency limit across authenticated ARM callers, change transport or authorization, or set a budget for a full paginated inventory. Fake-transport tests cover both production registrations and show that an ARM retry wait does not delay the independently registered pricing client. CLI/direct SDK and other provider integrations are not covered by this slice.
+The dedicated hosted management query registration opts in only the verified Cost Management and Policy Insights query POSTs. Other POSTs are single-send. The policy does not add a shared breaker or concurrency limit across authenticated ARM callers or replace the separate hosted collection deadline. Fake-transport tests cover both production registrations and show that an ARM retry wait does not delay the independently registered pricing client. CLI/direct SDK and other provider integrations are not covered by this slice.
 
 [Azure Resource Manager throttling and Retry-After](https://learn.microsoft.com/azure/azure-resource-manager/management/request-limits-and-throttling)
 
@@ -111,7 +111,7 @@ The audit at `b4b23e5` found two independent named breakers, but all webhook des
 
 | Path | Resilience and recovery |
 | --- | --- |
-| Slack, Teams, and on-call webhooks | The 60-second named client maintains a separate process-local breaker per configured URL, including path and query. Registry keys are digests and are not logged. At 4,096 active or recent destinations the client refuses admission of new destinations until idle entries can be reclaimed. It does not evict recent state or combine unrelated destinations into a shared fallback breaker. The existing HTTP retry, signing, envelope, and transport settings are unchanged. |
+| Slack, Teams, and on-call webhooks | The 60-second named client maintains a separate process-local breaker per configured URL, including path and query. Registry keys are digests and are not logged. At 4,096 active or recent destinations the client refuses admission of new destinations until idle entries can be reclaimed. It does not evict recent state or combine unrelated destinations into a shared fallback breaker. HTTP POSTs send once with no automatic redirects. Each destination admits up to 20 logical calls. Signing and envelopes are unchanged. |
 | Azure Marketplace manual activation | GET subscription status on a distinct 30-second client before submitting. `Subscribed` needs no POST. An eligible pending subscription can claim one automatic dispatch through an atomic insert into the canonical billing ledger using the subscription ID. The activation client never retries POSTs or follows redirects. The status client can retry GET and stays available when the activation breaker is open. |
 | Azure Marketplace plan and quantity updates | These handlers continue to mutate local billing and entitlement state. They do not use the activation submission client. |
 
@@ -119,7 +119,7 @@ The audit at `b4b23e5` found two independent named breakers, but all webhook des
 
 **Operator recovery:** If the worker stopped after recording a dispatch claim, the request may not have reached Marketplace. Check the subscription and the state of the original request on the provider side before manually completing activation. Do not clear claims as a standard retry mechanism. A hard stop can leave the pre-existing inbound receipt in `Received`; exact redelivery of that receipt is not a substitute for operator reconciliation. Drain workers running the previous activation path before mixing versions on the same workload.
 
-The webhook registry isolates breaker state, not concurrency across hosts. There is still no documented receiver-wide deduplication guarantee for [Slack incoming webhooks](https://docs.slack.dev/messaging/sending-messages-using-incoming-webhooks/) or [Teams webhooks](https://learn.microsoft.com/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook). Stable receiver-aware webhook retry rules and broader outbound adoption remain separate work.
+The webhook registry isolates breaker state and in-process concurrency, not concurrency across hosts. There is still no documented receiver-wide deduplication guarantee for [Slack incoming webhooks](https://docs.slack.dev/messaging/sending-messages-using-incoming-webhooks/) or [Teams webhooks](https://learn.microsoft.com/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook). Queued authority-run notices reserve a tenant/event/destination claim in SQL before the send. The reservation is not a delivery receipt. A lost response or stop after reservation needs operator reconciliation. Redelivered queue messages do not resubmit a claimed destination or emit a synthetic success metric. Drain old workers before mixing versions, and do not clear reservations to retry automatically.
 
 ### CLI HTTP retries
 
@@ -127,6 +127,8 @@ The webhook registry isolates breaker state, not concurrency across hosts. There
 |--------|--------|---------|--------|
 | Max retry attempts | `archlucid.json` → `httpResilience.maxRetryAttempts` | `3` | Clamped to 0–10. `0` disables retries. |
 | Initial delay (seconds) | `archlucid.json` → `httpResilience.initialDelaySeconds` | `1` | Clamped 0–300. Exponential backoff + jitter for 5xx, 429, timeouts. |
+
+CLI retries honor a provider minimum delay only when it fits the call budget. A write still requires explicit opt-in and a matching stable idempotency key. CLI Azure Retail Prices uses the same timing under its 40-second client limit.
 
 If `archlucid.json` is omitted, the CLI still attempts to load project config from the current directory for HTTP resilience when constructing `ArchLucidApiClient(string baseUrl)`.
 

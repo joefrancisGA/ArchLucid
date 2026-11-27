@@ -6,6 +6,7 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Integration;
 using ArchLucid.Host.Core.Middleware;
 using ArchLucid.Notifications;
 
@@ -15,6 +16,9 @@ namespace ArchLucid.Host.Core.Services.Delivery;
 public sealed class HttpWebhookPoster(ILogger<HttpWebhookPoster> logger, IHttpClientFactory httpClientFactory) : IWebhookPoster
 {
     public const string WebhookHttpClientName = "ArchLucidWebhooks";
+
+    public static readonly HttpRequestOptionsKey<OutboundWebhookDispatchClaim> DispatchClaimOption = new("ArchLucid.Webhook.DispatchClaim");
+    public static readonly HttpRequestOptionsKey<bool> DispatchSuppressedOption = new("ArchLucid.Webhook.DispatchSuppressed");
 
     public const string UserAgentProductToken = "ArchLucid-Webhook/1.0";
 
@@ -41,6 +45,15 @@ public sealed class HttpWebhookPoster(ILogger<HttpWebhookPoster> logger, IHttpCl
         request.Content = new ByteArrayContent(body);
         request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json") { CharSet = "utf-8" };
         request.Headers.TryAddWithoutValidation("User-Agent", UserAgentProductToken);
+
+        if (options?.DispatchEventId is Guid eventId)
+        {
+            if (eventId == Guid.Empty || telemetryTenantId == Guid.Empty || webhookUri is null)
+                throw new InvalidOperationException("Automatic webhook dispatch requires a valid tenant, event and destination.");
+
+            request.Options.Set(DispatchClaimOption, new OutboundWebhookDispatchClaim(
+                telemetryTenantId, eventId, WebhookDestinationResiliencePolicies.ComputeDestinationHash(webhookUri)));
+        }
 
         string? correlationId = options?.CorrelationId?.Trim();
 
@@ -91,7 +104,7 @@ public sealed class HttpWebhookPoster(ILogger<HttpWebhookPoster> logger, IHttpCl
                 succeeded: false);
 
             if (logger.IsEnabled(LogLevel.Warning))
-                logger.LogWarning(ex, "Webhook outbound POST transport error after outbound retries.");
+                logger.LogWarning(ex, "Webhook outbound POST ended without a confirmed response.");
 
             throw;
         }
@@ -112,6 +125,9 @@ public sealed class HttpWebhookPoster(ILogger<HttpWebhookPoster> logger, IHttpCl
         }
 
         using HttpResponseMessage response = transportResponse;
+
+        if (request.Options.TryGetValue(DispatchSuppressedOption, out bool suppressed) && suppressed)
+            return;
 
         HttpStatusCode code = response.StatusCode;
 

@@ -7,6 +7,18 @@ public static class TenantSchemaSentinelManifest
     [
         new SchemaSentinelExpectation
         {
+            TableName = "OutboundWebhookDispatchClaims",
+            Columns =
+            [
+                new SchemaSentinelColumn { ColumnName = "TenantId", SqlDataType = "uniqueidentifier" },
+                new SchemaSentinelColumn { ColumnName = "EventId", SqlDataType = "uniqueidentifier" },
+                new SchemaSentinelColumn { ColumnName = "DestinationHash", SqlDataType = "binary" },
+                new SchemaSentinelColumn { ColumnName = "ClaimedUtc", SqlDataType = "datetime2" },
+            ],
+            IndexNames = ["PK_OutboundWebhookDispatchClaims"],
+        },
+        new SchemaSentinelExpectation
+        {
             TableName = "AzureDevOpsThreadCreateClaims",
             Columns =
             [

@@ -130,6 +130,7 @@
     "dbo.LlmMonthlyTenantBudgetState",
     "dbo.LlmTenantWalletLedger",
     "dbo.LlmTenantWalletState",
+    "dbo.OutboundWebhookDispatchClaims",
     "dbo.PlatformTenantAuthRecoveryGrants",
     "dbo.SecurityEvidencePathExplanations",
     "dbo.SecurityEvidencePathRankWeights",

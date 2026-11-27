@@ -50,8 +50,8 @@ internal static partial class OutboxProcessorsCompositionRegistrar
         services.AddHttpClient(
             AzureDevOpsCommitStatusPublisher.HttpClientName,
             static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.DevOpsIntegration))
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
-            .AddOutboundExternalHttpResilience();
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration, allowAutoRedirect: false)
+            .AddOutboundExternalHttpResilienceForReadRetries(OutboundHttpClientTimeoutSeconds.DevOpsIntegration);
         services.AddScoped<IAzureDevOpsCommitStatusPublisher, AzureDevOpsCommitStatusPublisher>();
     }
 
@@ -68,9 +68,10 @@ internal static partial class OutboxProcessorsCompositionRegistrar
         services.AddHttpClient(
             AzureDevOpsPullRequestDecorator.HttpClientName,
             static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.DevOpsIntegration))
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
-            .AddOutboundExternalHttpResilience();
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration, allowAutoRedirect: false)
+            .AddOutboundExternalHttpResilienceForReadRetries(OutboundHttpClientTimeoutSeconds.DevOpsIntegration);
         ArchLucidOptions storageOptions = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
+
         if (ArchLucidOptions.EffectiveIsInMemory(storageOptions.StorageProvider))
             services.AddSingleton<IAzureDevOpsThreadCreateClaimStore, InMemoryAzureDevOpsThreadCreateClaimStore>();
         else
@@ -83,7 +84,7 @@ internal static partial class OutboxProcessorsCompositionRegistrar
             static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.DevOpsIntegration))
             .ConfigureArchLucidOutboundSocketsHandler(
                 OutboundHttpSocketsHandlerProfile.ExternalIntegration, allowAutoRedirect: false)
-            .AddOutboundExternalHttpResilienceForReadRetries()
+            .AddOutboundExternalHttpResilienceForReadRetries(OutboundHttpClientTimeoutSeconds.DevOpsIntegration)
             .AddHttpMessageHandler<AzureDevOpsThreadCreateClaimHandler>();
         services.AddSingleton<IAzureDevOpsPullRequestDecoratorFactory, AzureDevOpsPullRequestDecoratorFactory>();
         services.AddSingleton<IIntegrationEventHandler, AuthorityRunCompletedAzureDevOpsIntegrationEventHandler>();

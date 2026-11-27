@@ -34,7 +34,7 @@ public sealed class GcpCloudBillingCatalogClient
         ILogger<GcpCloudBillingCatalogClient> effectiveLogger =
             logger ?? NullLogger<GcpCloudBillingCatalogClient>.Instance;
 
-        _catalogHttpClient = new GcpCatalogHttpClient(httpClientFactory, effectiveLogger);
+        _catalogHttpClient = new GcpCatalogHttpClient(httpClientFactory, effectiveLogger, clock);
         _options = options;
         _clock = clock;
     }

@@ -1,4 +1,4 @@
-name: FND-065 Marketplace activation SQL replay
+name: FND-065 outbound SQL replay protection
 
 on:
   pull_request:
@@ -14,6 +14,10 @@ on:
       - 'ArchLucid.Persistence.Tests/Billing/MarketplaceActivationClaimSqlTests.cs'
       - 'ArchLucid.Persistence.Tests/Billing/MarketplaceFulfillmentActivationTests.cs'
       - 'ArchLucid.Persistence.Tests/SqlServerPersistenceFixture.cs'
+      - 'ArchLucid.Core/Integration/*OutboundWebhookDispatchClaim*.cs'
+      - 'ArchLucid.Persistence/IntegrationOutbox/*OutboundWebhookDispatchClaim*.cs'
+      - 'ArchLucid.Persistence/Migrations/*_OutboundWebhookDispatchClaims.sql'
+      - 'ArchLucid.Persistence.Tests/IntegrationOutbox/OutboundWebhookDispatchClaimSqlTests.cs'
   workflow_dispatch:
 
 permissions:
@@ -21,11 +25,12 @@ permissions:
 
 jobs:
   marketplace-activation-sql:
-    name: Verify Marketplace activation replay on SQL
+    name: Verify outbound reservations on SQL
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
       REPLAY_TEST: ArchLucid.Persistence.Tests.Billing.MarketplaceActivationClaimSqlTests.An_uncertain_activation_cannot_be_resubmitted_by_another_sql_ledger_instance
+      WEBHOOK_REPLAY_TEST: ArchLucid.Persistence.Tests.IntegrationOutbox.OutboundWebhookDispatchClaimSqlTests.One_sql_winner_survives_fresh_instances_and_isolated_destinations
       REPLAY_RESULTS: TestResults/fnd065-marketplace
     steps:
       - uses: actions/checkout@v7
@@ -46,16 +51,16 @@ jobs:
           connection="Server=127.0.0.1,1433;Initial Catalog=ArchLucidPersistenceTestsFnd065;User ID=sa;Password=$password;Encrypt=True;TrustServerCertificate=True;Connect Timeout=5"
           echo "::add-mask::$connection"
           echo "ARCHLUCID_SQL_TEST=$connection" >> "$GITHUB_ENV"
-      - name: Run the named Marketplace SQL replay test
+      - name: Run the named outbound SQL replay tests
         shell: bash
         run: |
           dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj \
             --configuration Release \
             -p:TreatWarningsAsErrors=true \
-            --filter "FullyQualifiedName=$REPLAY_TEST" \
+            --filter "FullyQualifiedName=$REPLAY_TEST|FullyQualifiedName=$WEBHOOK_REPLAY_TEST" \
             --logger 'trx;LogFileName=marketplace-activation-sql.trx' \
             --results-directory "$REPLAY_RESULTS"
-      - name: Require the named SQL test to execute and pass
+      - name: Require both named SQL tests to execute and pass
         shell: bash
         run: |
           python3 - <<'PY'
@@ -64,13 +69,13 @@ jobs:
           import xml.etree.ElementTree as ET
 
           report = Path(os.environ["REPLAY_RESULTS"]) / "marketplace-activation-sql.trx"
-          expected = os.environ["REPLAY_TEST"]
+          expected = sorted([(os.environ[name], "Passed") for name in ("REPLAY_TEST", "WEBHOOK_REPLAY_TEST")])
           ns = {"t": "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}
           results = ET.parse(report).findall(".//t:UnitTestResult", ns)
           actual = [(test.get("testName"), test.get("outcome")) for test in results]
-          if actual != [(expected, "Passed")]:
-              raise SystemExit(f"Expected exactly one executed, passing SQL replay case: {expected}. Got {actual}.")
-          print(f"Verified the SQL replay test passed: {expected}")
+          if sorted(actual) != expected:
+              raise SystemExit(f"Expected exactly two executed, passing SQL replay cases: {expected}. Got {actual}.")
+          print("Verified both outbound SQL replay cases passed.")
           PY
       - name: Preserve SQL test evidence
         if: always()

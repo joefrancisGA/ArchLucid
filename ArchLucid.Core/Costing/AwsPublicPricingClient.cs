@@ -105,11 +105,20 @@ public sealed class AwsPublicPricingClient
             $"offers/v1.0/aws/AmazonEC2/current/{regionCode.Trim()}/index.json",
             UriKind.Relative);
 
+        using OutboundOperationDeadline deadline = PricingCatalogDeadline.Start(http, _clock, ct);
+
         try
         {
-            string json = await http.GetStringAsync(requestUri, ct).ConfigureAwait(false);
+            string json = await http.GetStringAsync(requestUri, deadline.Token).ConfigureAwait(false);
 
-            return AwsEc2OfferIndexParser.TryGetLinuxOnDemandHourlyUsd(json, instanceType);
+            decimal? hourly = AwsEc2OfferIndexParser.TryGetLinuxOnDemandHourlyUsd(json, instanceType);
+            ct.ThrowIfCancellationRequested();
+
+            return deadline.IsExpired ? null : hourly;
+        }
+        catch (OperationCanceledException) when (!ct.IsCancellationRequested && deadline.IsExpired)
+        {
+            return null;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

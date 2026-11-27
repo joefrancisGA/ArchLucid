@@ -11,6 +11,8 @@ namespace ArchLucid.Notifications;
 public sealed class AuthorityRunCompletedChatOpsIntegrationEventHandler(
     IAuthorityRunCommittedChatOpsHook chatOpsHook) : IIntegrationEventHandler
 {
+    private static readonly JsonSerializerOptions SPayloadJson = new() { PropertyNameCaseInsensitive = true };
+
     private readonly IAuthorityRunCommittedChatOpsHook _chatOpsHook =
         chatOpsHook ?? throw new ArgumentNullException(nameof(chatOpsHook));
 
@@ -26,7 +28,7 @@ public sealed class AuthorityRunCompletedChatOpsIntegrationEventHandler(
         {
             payload = JsonSerializer.Deserialize<AuthorityRunCompletedPayload>(
                 utf8JsonPayload.Span,
-                AuthorityRunCompletedPayloadJson.Options);
+                SPayloadJson);
         }
         catch (JsonException ex)
         {
@@ -42,6 +44,7 @@ public sealed class AuthorityRunCompletedChatOpsIntegrationEventHandler(
             WorkspaceId = payload.WorkspaceId,
             ProjectId = payload.ProjectId,
             RunId = payload.RunId,
+            DispatchEventId = payload.ManifestId != Guid.Empty ? payload.ManifestId : payload.RunId,
             FindingCount = payload.Findings?.Count ?? 0,
             Description = payload.Description,
         };
@@ -64,9 +67,4 @@ public sealed class AuthorityRunCompletedChatOpsIntegrationEventHandler(
         string? FindingId,
         string? DeepLinkUrl,
         string? Severity);
-}
-
-internal static class AuthorityRunCompletedPayloadJson
-{
-    internal static readonly JsonSerializerOptions Options = new() { PropertyNameCaseInsensitive = true };
 }
