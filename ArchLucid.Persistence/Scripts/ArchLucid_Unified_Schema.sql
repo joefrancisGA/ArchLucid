@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 434_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 435_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -11735,5 +11735,26 @@ BEGIN
             (TenantId, WorkspaceId, ProjectId, ScopeHash),
         CONSTRAINT CK_RuntimeAttestationWatermarks_Times
             CHECK (EnumeratedAt <= IssuedAt AND IssuedAt < ExpiresAt)
+    );
+END;
+
+GO
+
+/* Append-only runtime finding evidence journal in the tenant catalog. */
+IF OBJECT_ID(N'dbo.RuntimeFindingEvidenceJournal', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.RuntimeFindingEvidenceJournal
+    (
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
+        ScopeHash BINARY(32) NOT NULL,
+        PayloadHash BINARY(32) NOT NULL,
+        Payload VARBINARY(MAX) NOT NULL,
+        RecordedUtc DATETIME2(7) NOT NULL CONSTRAINT DF_RuntimeFindingEvidenceJournal_RecordedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT PK_RuntimeFindingEvidenceJournal PRIMARY KEY
+            (TenantId, WorkspaceId, ProjectId, ScopeHash, PayloadHash),
+        CONSTRAINT CK_RuntimeFindingEvidenceJournal_Payload CHECK
+            (DATALENGTH(Payload) BETWEEN 1 AND 1048576 AND PayloadHash = HASHBYTES('SHA2_256', Payload))
     );
 END;
