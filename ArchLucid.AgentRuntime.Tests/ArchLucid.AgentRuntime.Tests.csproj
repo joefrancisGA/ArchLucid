@@ -80,6 +80,7 @@
 
   <ItemGroup>
     <Using Include="ArchLucid.Core" />
+    <Using Include="ArchLucid.Core.Agents" />
     <Using Include="ArchLucid.Core.Manifest" />
     <Using Include="ArchLucid.TestSupport.Diagnostics" />
   </ItemGroup>
