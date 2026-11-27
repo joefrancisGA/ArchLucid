@@ -1973,9 +1973,9 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 
 - [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — halfwidth katakana letter a inside `on` token — locus: Ff strip; input: `o` + U+FF71 + `n`; pass-255 reseed.
 - [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — box drawings heavy down and left inside true — locus: So strip; input: `tr` + U+2546 + `ue`; pass-255 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open over padded `OFF` base — locus: writer; input: open over padded OFF base; pass-255 reseed.
-- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `off` then `0` — locus: first-wins; input: repeated param; pass-255 reseed.
-- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves open metrics when clearing all selection on pathname-only href — locus: href; input: clear all selection; pass-255 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open over padded `ON` base — locus: writer; input: open over padded ON base; pass-255 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `ON` then `1` — locus: first-wins; input: repeated param; pass-255 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves open metrics when clearing path and finding on pathname-only href — locus: href; input: clear path and finding; pass-255 reseed.
 - [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — black curved lower-right quadrant inside true — **proven 2026-11-27 thorough hunt (hit):** regression `treats true metrics disclosure token with black curved lower-right quadrant inside the word as open on read`.
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open over padded `yes` base replaces with canonical `1` — **cheap-disproof 2026-11-27 thorough hunt (hit):** regression `canonicalizes padded yes metrics token to 1 when writing open state`.
 - [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `NO` then `1` — **cheap-disproof 2026-11-27 thorough hunt (hit):** regression `uses the first metrics disclosure token when NO precedes 1 in the query string`.
