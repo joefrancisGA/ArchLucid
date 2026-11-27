@@ -44,6 +44,7 @@ import {
   billingPlanAddonsHrefFromSearch,
   parseBillingPlanAddonsOpenFromSearch,
 } from "@/lib/administration/billing-plan-addons-url";
+import { SecureNowArchLucidBillingComparisonStrip } from "@/components/product-line/SecureNowArchLucidBillingComparisonStrip";
 import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
 import { SECURENOW_ARCHITECTURE_SUBSCRIPTION_BOUNDARY } from "@/lib/marketing/securenow-public-commercial-packaging-copy";
 import { SECURENOW_OPERATOR_QUOTE_PACKET_HREF } from "@/lib/product-line/securenow-beta-sku-contents-copy";
@@ -291,6 +292,8 @@ export function OperatorBillingPlansClient(props: OperatorBillingPlansClientProp
         </Link>
         .
       </p>
+
+      <SecureNowArchLucidBillingComparisonStrip />
 
       {pricingError ? (
         <p className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)} role="alert">
