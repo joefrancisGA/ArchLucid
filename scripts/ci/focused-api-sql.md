@@ -20,3 +20,15 @@ mcr.microsoft.com/mssql/server:2022-CU22-ubuntu-22.04@sha256:db9a8fe3098b7e8bbde
 5. Stop the container and discard its volumes even when a test times out. This completes cleanup when the watchdog terminates a process before the test fixture can drop its catalog.
 
 The runner launches each case independently, writes its log and TRX, and updates `summary.json` after every case. The summary records the checked-out commit. Missing or ambiguous results are interruptions, and explicit skips are not passes. Run on a clean checkout when producing review evidence. Use this lane before broader release runs. No comprehensive workflow is needed for a one-case comparison.
+
+## Three-case PR check
+
+The **Three API SQL cases** job builds only the API test project and runs finalize and replay, the persisted-inventory negative case, and the same-catalog audit fixture. It runs on its own hosted runner, checks out the exact PR head, and uses a new container with the pinned image. It publishes only `summary.json` and does not replace any required CI checks.
+
+For the same smoke run locally, build the API test project in Release first, then run:
+
+```sh
+bash scripts/ci/run_disposable_api_sql_smoke.sh /tmp/archlucid-api-sql-smoke
+```
+
+The wrapper requires Docker, .NET, and Python 3. It checks SQL readiness and removes its container even when a case fails.
