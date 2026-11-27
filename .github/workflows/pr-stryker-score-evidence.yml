@@ -1,0 +1,59 @@
+name: Stryker score evidence validation
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - '.github/workflows/pr-stryker-score-evidence.yml'
+      - '.github/workflows/stryker-pr.yml'
+      - '.github/workflows/stryker-scheduled.yml'
+      - '.config/dotnet-tools.json'
+      - 'scripts/ci/stryker_evidence.py'
+      - 'scripts/ci/assert_stryker_score_vs_baseline.py'
+      - 'scripts/ci/refresh_stryker_baselines.py'
+      - 'scripts/ci/tests/test_assert_stryker.py'
+      - 'scripts/ci/tests/run_stryker_metric_probe.py'
+      - 'scripts/aspects_commands.py'
+      - 'scripts/tests/test_aspects_commands.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stryker-score-evidence-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  score-evidence:
+    name: Verify pinned Stryker score evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Run scoring, provenance, and Aspects checks
+        run: |
+          python3 -m unittest discover -s scripts/ci/tests -p 'test_assert_stryker.py' -v
+          python3 scripts/tests/test_aspects_commands.py
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Run one bounded Stryker target against an independent test oracle
+        run: python3 scripts/ci/tests/run_stryker_metric_probe.py "$RUNNER_TEMP/stryker-metric-probe"
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: stryker-metric-probe
+          if-no-files-found: ignore
+          retention-days: 7
+          path: |
+            ${{ runner.temp }}/stryker-metric-probe/evidence/reports/mutation-report.json
+            ${{ runner.temp }}/stryker-metric-probe/evidence/run-evidence.json
+            ${{ runner.temp }}/stryker-metric-probe/evidence/score-summary.json
+            ${{ runner.temp }}/stryker-metric-probe/baseline/baseline.trx

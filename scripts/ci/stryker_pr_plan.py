@@ -44,6 +44,7 @@ RUN_ALL_EXACT: tuple[str, ...] = (
     ".github/workflows/stryker-scheduled.yml",
     "scripts/ci/stryker-baselines.json",
     "scripts/ci/assert_stryker_score_vs_baseline.py",
+    "scripts/ci/stryker_evidence.py",
     "scripts/ci/stryker_pr_plan.py",
     ".config/dotnet-tools.json",
 )

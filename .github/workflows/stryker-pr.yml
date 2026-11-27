@@ -78,12 +78,15 @@ jobs:
       - name: Restore local tools (dotnet-stryker)
         run: dotnet tool restore
 
-      - name: Run Stryker (diff vs base)
-        run: >
-          dotnet dotnet-stryker
-          -f ${{ matrix.config }}
-          -s ArchLucid.sln
-          --since:${{ github.event.pull_request.base.sha }}
+      - name: Run Stryker and seal run evidence
+        env:
+          TARGET: ${{ matrix.label }}
+          CONFIG: ${{ matrix.config }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          python3 scripts/ci/stryker_evidence.py \
+            --head "$(git rev-parse HEAD)" --target "$TARGET" --config "$CONFIG" \
+            --output StrykerOutput --solution ArchLucid.sln --base "$BASE_SHA"
 
       - name: Assert mutation score vs committed baseline
         if: success()
@@ -93,6 +96,7 @@ jobs:
           --label "${{ matrix.label }}"
           --stryker-root StrykerOutput
           --tolerance 0.10
+          --base "${{ github.event.pull_request.base.sha }}"
           --allow-zero-denominator
 
       - name: Upload Stryker report

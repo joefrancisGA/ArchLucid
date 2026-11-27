@@ -57,8 +57,14 @@ jobs:
       - name: Restore local tools (dotnet-stryker)
         run: dotnet tool restore
 
-      - name: Run Stryker
-        run: dotnet dotnet-stryker -f ${{ matrix.config }} -s ArchLucid.sln
+      - name: Run Stryker and seal run evidence
+        env:
+          TARGET: ${{ matrix.label }}
+          CONFIG: ${{ matrix.config }}
+        run: |
+          python3 scripts/ci/stryker_evidence.py \
+            --head "$(git rev-parse HEAD)" --target "$TARGET" --config "$CONFIG" \
+            --output StrykerOutput --solution ArchLucid.sln
 
       - name: Assert mutation score vs committed baseline
         if: success()
