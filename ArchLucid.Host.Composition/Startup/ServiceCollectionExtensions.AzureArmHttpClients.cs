@@ -16,15 +16,12 @@ public static partial class ServiceCollectionExtensions
                 static http =>
                 {
                     http.BaseAddress = ArchLucid.Core.Http.ArchLucidAzurePublicHttpClients.ResourceManagerAuthority;
-                    http.Timeout = TimeSpan.FromMinutes(5);
+                    http.Timeout = AzureArmReadHttpClientBuilderExtensions.CallBudget;
                     http.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "application/json");
                 })
             .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.CloudControlPlane)
-            .AddLongLivedPolicyHandler(static serviceProvider =>
-                ArchLucid.Core.Http.AzureRmAndRetailPricesHttpRetryPolicy.Create(
-                    serviceProvider
-                        .GetRequiredService<ILoggerFactory>()
-                        .CreateLogger($"{ArchLucid.Core.Http.ArchLucidAzurePublicHttpClients.ResourceManagerHttpClientName}.Policies")));
+            .AddDeadlineAwareArmReadRetries(
+                $"{ArchLucid.Core.Http.ArchLucidAzurePublicHttpClients.ResourceManagerHttpClientName}.Policies");
 
         RegisterPublicPricingHttpClient(
             services,
