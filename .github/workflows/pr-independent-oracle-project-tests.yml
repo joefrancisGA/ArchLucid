@@ -1,0 +1,72 @@
+name: Independent oracle project tests
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - '.github/workflows/pr-independent-oracle-project-tests.yml'
+      - 'ArchLucid.AgentRuntime/Evaluation/EmbeddingFaithfulnessVectorMath.cs'
+      - 'ArchLucid.AgentRuntime.Tests/Evaluation/EmbeddingFaithfulnessIndependentOracleTests.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/ReferenceAssurance/ReferenceCutPoint*.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/ReferenceAssurance/ReferenceReachability*.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/SecureNowReferenceCutPointOracleTests.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/SecureNowReferenceReachabilityOracleTests.cs'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: independent-oracle-project-tests-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  focused-project-tests:
+    name: Run affected .NET oracle project tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Test signed vector and telemetry cases
+        run: >-
+          dotnet test ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~EmbeddingFaithfulnessIndependentOracleTests'
+          --results-directory "$RUNNER_TEMP/independent-oracle-tests"
+          --logger 'trx;LogFileName=agent-runtime.trx'
+      - name: Test the reference graphs and production comparisons
+        if: ${{ !cancelled() }}
+        run: >-
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~SecureNowReferenceCutPointOracleTests|FullyQualifiedName~ReferenceCutPointWorkedOracleTests|FullyQualifiedName~SecureNowReferenceReachabilityOracleTests|FullyQualifiedName~ReferenceReachabilityBoundaryOracleTests'
+          --results-directory "$RUNNER_TEMP/independent-oracle-tests"
+          --logger 'trx;LogFileName=application.trx'
+      - name: Verify both suites executed
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          from xml.etree import ElementTree
+
+          results = Path(os.environ["RUNNER_TEMP"]) / "independent-oracle-tests"
+          for name in ("agent-runtime", "application"):
+              counters = ElementTree.parse(results / f"{name}.trx").find(".//{*}Counters")
+              if counters is None:
+                  raise SystemExit(f"{name}: missing counters")
+              total, executed, passed = (int(counters.attrib[key]) for key in ("total", "executed", "passed"))
+              if not total or total != executed or executed != passed:
+                  raise SystemExit(f"{name}: total={total}, executed={executed}, passed={passed}")
+              print(f"{name}: {passed} tests passed")
+          PY
+      - name: Publish exact-revision test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: independent-oracle-test-results
+          path: ${{ runner.temp }}/independent-oracle-tests/*.trx
+          if-no-files-found: warn
+          retention-days: 7

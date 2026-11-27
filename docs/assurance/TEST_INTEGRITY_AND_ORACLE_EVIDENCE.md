@@ -41,3 +41,38 @@ dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Re
 ```
 
 The advisory check validates source pins and searches for registered test identities. It cannot establish that an expected result was independently derived, determine whether cited requirements are authoritative, or discover all unregistered critical tests. Expand the inventory and resolve per-contract ambiguity before adopting wider verification claims.
+
+
+## FND-165 follow-up calibration and rollout decision
+
+After #8339 merged, replayed 13 landed comparisons at the first-parent boundary. This deliberately mixed Python test/evidence revisions, .NET assertion and fixture changes, TypeScript/Vitest additions, and CI workflow edits. It is not a statistical sample. Author review of the removed alerts found mock setup added with new tests or test modules, rather than a real dependency replaced in an existing check. Changes to shared fixtures and existing test mocks still produce review findings. New skip/exclusive markers still produce findings.
+
+| PR | First-parent base | Landed merge | Supported files | Before | After |
+| --- | --- | --- | ---: | ---: | ---: |
+| #8338 | `2bab65622b14` | `a5e2ec0d2e03` | 2 | 0 | 0 |
+| #8335 | `5c68b71dda70` | `87bf081a2a45` | 3 | 25 | 3 |
+| #8334 | `87bf081a2a45` | `bde9f398f7c9` | 1 | 1 | 1 |
+| #8332 | `350231361101` | `27911eaf2fc0` | 3 | 0 | 0 |
+| #8331 | `27911eaf2fc0` | `b25f279794d3` | 3 | 8 | 0 |
+| #8330 | `b25f279794d3` | `3ba0ab3e1969` | 2 | 2 | 2 |
+| #8329 | `f3b7e447eee0` | `5c68b71dda70` | 5 | 0 | 0 |
+| #8328 | `3386d3f4b46a` | `f9ab237bc0ab` | 1 | 0 | 0 |
+| #8327 | `f9ab237bc0ab` | `e0eabdf2bb3d` | 1 | 0 | 0 |
+| #8326 | `9a40453a48f2` | `1a718a4fde7f` | 1 | 8 | 0 |
+| #8324 | `967b54a9487c` | `689362774044` | 3 | 0 | 0 |
+| #8320 | `6cd5f80c92f5` | `d70c4052ab07` | 6 | 14 | 14 |
+| #8316 | `0e9e7759ca66` | `882cdb16ebc8` | 4 | 6 | 6 |
+
+The sample covered 35 supported files and produced 64 signals before and 26 after. The change removes 38 additions-only mock alerts. It does not claim that the remaining 26 are all actionable. All 13 scans completed for supported scope, with no unsupported or unscanned files among the selected comparisons. Warm-cache runs took 0.02–0.12 seconds on this checkout. Initial runs with missing Git blobs took as long as 27 seconds per comparison, so this is not a hosted runtime guarantee.
+
+The eleven independently labeled synthetic Git pairs yielded eight detections. The detected changes were a Python assertion, a pytest selection setting, a .NET negative control, a .NET mock added to an existing test, a Vitest tolerance, a Playwright exclusive test, a coverage exclusion, and a snapshot refresh. Three intentionally challenging positives were missed: an assertion edited only in a same-file Python helper, a data-driven expectation in an unsupported JSON fixture, and an edit to a multiline Playwright selection value without editing the option name. The fixture was reported as unsupported. These are measured example misses, not a repository-wide recall estimate.
+
+**Decision for this review: keep the guard advisory.** The measured misses and the lack of independent human labels or agreed operating thresholds do not support making it required. No exceptions, branch-protection changes, or full CI dispatch were made. Reproduce a row with the existing scanner by supplying the full SHAs resolved from its base and merge Git prefixes.
+
+## FND-171 follow-up scope and boundary
+
+The registry expands from nine to fourteen entries. The previously uncertain SecureNow comparison is now classified as independent **for the small fixture below the production depth cap**. The new entries also cover two distinct branches, revisited-node rejection, the neutral reference's inclusive edge budget, and the ArchLucid topology identity and idempotence properties. These are scoped test claims, not a product-wide coverage assertion.
+
+The reference treats its edge budget as inclusive for endpoint evaluation. The production walk checks its budget before accepting a terminal. The existing comparison is valid below the cap and cannot settle production's exact-cap contract. The new written example and four cases fix the boundary for the neutral reference only. Keep the two contracts separate unless the owner establishes a normative production expectation. This follow-up does not reclassify the difference as a confirmed product defect and makes no production change.
+
+The [path-scoped project workflow](../../.github/workflows/pr-independent-oracle-project-tests.yml) runs Release tests through both normal project files and verifies that each TRX actually records passed tests. It is not a required merge check. On the local checkout the AgentRuntime test project restored its normal dependency graph, but the shared Application compiler exited 137 before test execution. That is not a test pass or failure. A separate source-linked .NET 10 Release probe passed all 16 cases, including the four new neutral boundary cases. Check the hosted project's own TRX before treating this verification as complete.

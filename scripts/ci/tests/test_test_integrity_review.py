@@ -82,6 +82,24 @@ class CrossRunner(unittest.TestCase):
         self.assertEqual(got, {"fixture-body-changed", "mock-setup-added-or-changed",
                                "assertion-branch-guard-changed", "python-skip-or-xfail-added-or-changed"})
 
+    def test_new_standalone_mock_fixture_does_not_imply_a_coverage_reduction(self):
+        path = "Demo.Tests/ContractTests.cs"
+        existing = "[Fact] void Existing() { Assert.True(Run()); }"
+        addition = '[Fact] void New() { var fake = new Mock<IService>(); Assert.True(fake.Object.Read()); }'
+        self.assertEqual(lexical(existing, existing + addition, "dotnet-test", path), [])
+        self.assertEqual(report.scan_anchors([], token_anchors(addition, "dotnet-test"), None, path), [])
+        changed = existing.replace("Assert.True(Run());", "var fake = new Mock<IService>(); Assert.True(Run());")
+        self.assertEqual([r["signal"] for r in lexical(existing, changed, "dotnet-test", path)],
+                         ["mock-setup-added-or-changed"])
+
+    def test_new_shared_configuration_mock_and_new_skipped_tests_stay_visible(self):
+        fixture = "import pytest\n@pytest.fixture\ndef source():\n    return Mock()"
+        signals = report.scan_python("", fixture, None, "tests/conftest.py")
+        self.assertEqual([r["signal"] for r in signals], ["mock-setup-added-or-changed"])
+        test = 'test.only("new", () => { expect(1).toBe(1); });'
+        signals = report.scan_anchors([], token_anchors(test, "js-test"), None, "src/new.test.ts")
+        self.assertEqual([r["signal"] for r in signals], ["skip-or-exclusive-added-or-changed"])
+
     def test_strings_and_formatting_are_not_runner_controls(self):
         old = 'test("only text", () => { const p = "expect(1).toBe(true)"; expect(actual).toBe(2); });'
         new = old.replace("expect(1).toBe(true)", "test.only()").replace("toBe(2)", "toBe ( 2 )")

@@ -8,7 +8,7 @@
       "classification": "independent",
       "contract": "embedding-vector-cosine",
       "intent": "Require normalization and preserve sign.",
-      "derivation": "Dot product \u00b13 divided by norm product 5. Orthogonal vectors have a zero dot product.",
+      "derivation": "Dot product ±3 divided by norm product 5. Orthogonal vectors have a zero dot product.",
       "cases": [
         "positive",
         "negative",
@@ -20,7 +20,7 @@
       "source": {
         "kind": "worked-example",
         "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
-        "sha256": "9eee59b89d916e203d83ac1dc6bd8cffefad4fa09a5d86af933d5a93383278ae",
+        "sha256": "59d18f0193c99b2a2fe8ec9c460034801b305976dcfc3a71759ecad82d16d586",
         "locator": "Cosine triangle and orthogonality"
       }
     },
@@ -42,7 +42,7 @@
       "source": {
         "kind": "requirement",
         "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
-        "sha256": "9eee59b89d916e203d83ac1dc6bd8cffefad4fa09a5d86af933d5a93383278ae",
+        "sha256": "59d18f0193c99b2a2fe8ec9c460034801b305976dcfc3a71759ecad82d16d586",
         "locator": "Cosine undefined-input fallback"
       }
     },
@@ -65,7 +65,7 @@
       "source": {
         "kind": "worked-example",
         "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
-        "sha256": "9eee59b89d916e203d83ac1dc6bd8cffefad4fa09a5d86af933d5a93383278ae",
+        "sha256": "59d18f0193c99b2a2fe8ec9c460034801b305976dcfc3a71759ecad82d16d586",
         "locator": "Telemetry affine endpoints"
       }
     },
@@ -88,7 +88,7 @@
       "source": {
         "kind": "worked-example",
         "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
-        "sha256": "9eee59b89d916e203d83ac1dc6bd8cffefad4fa09a5d86af933d5a93383278ae",
+        "sha256": "59d18f0193c99b2a2fe8ec9c460034801b305976dcfc3a71759ecad82d16d586",
         "locator": "Distinct paths example"
       }
     },
@@ -109,7 +109,7 @@
       "source": {
         "kind": "property",
         "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
-        "sha256": "9eee59b89d916e203d83ac1dc6bd8cffefad4fa09a5d86af933d5a93383278ae",
+        "sha256": "59d18f0193c99b2a2fe8ec9c460034801b305976dcfc3a71759ecad82d16d586",
         "locator": "C contributes no candidates"
       }
     },
@@ -176,17 +176,132 @@
       "product": "SecureNow",
       "path": "ArchLucid.Application.Tests/InfraEvidence/SecureNowReferenceReachabilityOracleTests.cs",
       "test": "Production_reachability_matches_independent_brute_force_oracle_on_small_graph",
-      "classification": "uncertain",
-      "contract": "materialized-graph-reachability",
-      "intent": "Track a second priority family for contract review.",
-      "derivation": "The existing reference uses a small input graph.",
+      "classification": "independent",
+      "contract": "materialized-graph-reachability-below-cap",
+      "intent": "Check branch outcomes for a materialized fixture within the configured budget.",
+      "derivation": "Enumerate candidate paths with the independent small-graph walker and compare complete path-signature sets.",
       "cases": [
         "positive"
       ],
       "limitations": [
-        "This delivery did not establish coverage for the full graph contract."
+        "Fixture stays below the production exploration cap. Shared signature formatting is not independent evidence for serialization.",
+        "Production exact-cap terminal admission is not specified by this comparison."
       ],
-      "revisit": "Review the expected graph boundary behavior and exercise dedicated negative and boundary fixtures."
+      "source": {
+        "kind": "reference-evaluator",
+        "path": "ArchLucid.Application.Tests/InfraEvidence/ReferenceAssurance/ReferenceReachabilityOracle.cs",
+        "sha256": "3debfcfa0d9622ccbb919753ece6a349d9b69420d7b3333fcdd358f11ebee5b3",
+        "locator": "EnumeratePathSignatures"
+      }
+    },
+    {
+      "product": "SecureNow",
+      "path": "ArchLucid.Application.Tests/InfraEvidence/SecureNowReferenceReachabilityOracleTests.cs",
+      "test": "Production_reachability_matches_oracle_for_two_asset_branch",
+      "classification": "independent",
+      "contract": "materialized-graph-reachability-below-cap",
+      "intent": "Both fixture branches remain distinct.",
+      "derivation": "Walk from the source to two separate terminals with the neutral reference and compare path sets.",
+      "cases": [
+        "positive"
+      ],
+      "limitations": [
+        "Two-branch materialized fixture only."
+      ],
+      "source": {
+        "kind": "reference-evaluator",
+        "path": "ArchLucid.Application.Tests/InfraEvidence/ReferenceAssurance/ReferenceReachabilityOracle.cs",
+        "sha256": "3debfcfa0d9622ccbb919753ece6a349d9b69420d7b3333fcdd358f11ebee5b3",
+        "locator": "EnumeratePathSignatures"
+      }
+    },
+    {
+      "product": "SecureNow",
+      "path": "ArchLucid.Application.Tests/InfraEvidence/SecureNowReferenceReachabilityOracleTests.cs",
+      "test": "Production_reachability_and_oracle_stop_at_visited_nodes",
+      "classification": "independent",
+      "contract": "materialized-graph-simple-path",
+      "intent": "A return edge cannot create a repeated-node path.",
+      "derivation": "Only paths that never revisit a vertex belong to the result set.",
+      "cases": [
+        "positive",
+        "negative"
+      ],
+      "limitations": [
+        "Path set at a generous budget; does not prove exact-cap parity."
+      ],
+      "source": {
+        "kind": "reference-evaluator",
+        "path": "ArchLucid.Application.Tests/InfraEvidence/ReferenceAssurance/ReferenceReachabilityOracle.cs",
+        "sha256": "3debfcfa0d9622ccbb919753ece6a349d9b69420d7b3333fcdd358f11ebee5b3",
+        "locator": "HashSet<string> visited"
+      }
+    },
+    {
+      "product": "SecureNow",
+      "path": "ArchLucid.Application.Tests/InfraEvidence/ReferenceAssurance/ReferenceReachabilityBoundaryOracleTests.cs",
+      "test": "Simple_walk_reference_includes_terminals_at_its_edge_budget_but_never_revisits_nodes",
+      "classification": "independent",
+      "contract": "simple-walk-reference-edge-budget",
+      "intent": "Check empty, exact budget, and cycle boundaries against hand enumeration.",
+      "derivation": "List the only edges and endpoints reachable from A at budgets zero through three.",
+      "cases": [
+        "positive",
+        "negative",
+        "boundary"
+      ],
+      "limitations": [
+        "Reference oracle only. This is not a production exact-cap requirement."
+      ],
+      "source": {
+        "kind": "worked-example",
+        "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
+        "sha256": "59d18f0193c99b2a2fe8ec9c460034801b305976dcfc3a71759ecad82d16d586",
+        "locator": "Simple directed walk edge budget"
+      }
+    },
+    {
+      "product": "ArchLucid",
+      "path": "ArchLucid.Decisioning.Tests/Topology/TopologyAnalyzerMergeMetamorphicTests.cs",
+      "test": "No_op_merge_then_analyze_matches_original_structure_gaps",
+      "classification": "independent",
+      "contract": "topology-merge-identity",
+      "intent": "Empty merges preserve the structure-gap set.",
+      "derivation": "Identity of merging with zero proposals implies invariance across both observations.",
+      "cases": [
+        "boundary"
+      ],
+      "limitations": [
+        "Metamorphic property, not evidence that absolute gap classifications are correct."
+      ],
+      "source": {
+        "kind": "property",
+        "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
+        "sha256": "59d18f0193c99b2a2fe8ec9c460034801b305976dcfc3a71759ecad82d16d586",
+        "locator": "Topology no-op and idempotence"
+      }
+    },
+    {
+      "product": "ArchLucid",
+      "path": "ArchLucid.Decisioning.Tests/Topology/TopologyAnalyzerMergeMetamorphicTests.cs",
+      "test": "Duplicate_topology_service_proposal_merge_is_idempotent_for_structure_findings",
+      "classification": "independent",
+      "contract": "topology-merge-idempotence",
+      "intent": "Reapplying the identical proposal preserves the structure-gap set.",
+      "derivation": "The repeated transformation must be idempotent, so each observation has equal gap codes.",
+      "cases": [
+        "positive",
+        "boundary"
+      ],
+      "limitations": [
+        "Does not verify proposal validation or absolute gap labels."
+      ],
+      "source": {
+        "kind": "property",
+        "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
+        "sha256": "59d18f0193c99b2a2fe8ec9c460034801b305976dcfc3a71759ecad82d16d586",
+        "locator": "Topology no-op and idempotence"
+      }
     }
   ]
 }
