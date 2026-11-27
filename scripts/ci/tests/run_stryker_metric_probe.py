@@ -74,8 +74,6 @@ public sealed class ProbeTests
     (repo / ".config").mkdir()
     shutil.copyfile(ROOT / ".config/dotnet-tools.json", repo / ".config/dotnet-tools.json")
     shutil.copyfile(ROOT / "global.json", repo / "global.json")
-    run(repo, "dotnet", "new", "sln", "--format", "sln", "--name", "Probe")
-    run(repo, "dotnet", "sln", "Probe.sln", "add", "Product/Probe.csproj", "Tests/Probe.Tests.csproj")
     run(repo, "git", "init", "-q")
     run(repo, "git", "add", "-A")
     run(repo, "git", "-c", "user.name=Stryker fixture", "-c", "user.email=fixture@example.invalid",
@@ -90,7 +88,7 @@ public sealed class ProbeTests
     run(repo, "dotnet", "tool", "restore")
     output = work / "evidence"
     summary = run_and_stamp(repo, output, head=head_revision(repo), target="MetricProbe",
-                            config="stryker-config.json", solution="Probe.sln", budget=180)
+                            config="stryker-config.json", budget=180)
     counts = summary["status_counts"]
     if counts.get("Killed", 0) < 1 or counts.get("NoCoverage", 0) < 1:
         raise ValueError("live probe did not exercise both killed and uncovered mutants")
