@@ -227,9 +227,10 @@ export function HelpFirstLoginWorkspaceGuideView(
       />
 
       <div className={contentGridClass}>
-        <div
+        <main
           id={FIRST_LOGIN_WORKSPACE_HELP_PRIMARY_CONTENT_ID}
           tabIndex={-1}
+          data-testid="help-first-login-workspace-primary-content"
           className={cn(HELP_PAGE_LAYOUT.contentColumn, "scroll-mt-24 space-y-4")}
         >
           <div
@@ -431,7 +432,7 @@ export function HelpFirstLoginWorkspaceGuideView(
               </Link>
             </p>
           </section>
-        </div>
+        </main>
 
         <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
       </div>
