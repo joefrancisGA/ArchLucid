@@ -1615,6 +1615,17 @@ describe("remediation-factory-url-state", () => {
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25A2ue`).metricsSummaryOpen,
     ).toBe(true);
   });
+  it("treats ON metrics disclosure token with halfwidth katakana letter fu inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF8Cn`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with white square inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25A1ue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
   it("treats ON metrics disclosure token with halfwidth katakana letter ki inside the word as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF77n`).metricsSummaryOpen,
