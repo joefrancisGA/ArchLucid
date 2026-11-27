@@ -4,14 +4,14 @@ import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   REVIEW_COGNITIVE_LOAD_GLOSSARY_LINE,
-  REVIEW_COGNITIVE_LOAD_SPONSOR_PRIMARY_LABEL,
 } from "@/lib/reviews/review-cognitive-load-copy";
+import type { ReviewCognitiveLoadPrimaryAction } from "@/lib/reviews/review-cognitive-load-copy";
 import { cn } from "@/lib/utils";
 
 type ReviewCognitiveLoadGuidanceProps = {
   readonly nextAction: string;
   readonly emptyLine: string | null;
-  readonly sponsorHref: string | null;
+  readonly primaryAction: ReviewCognitiveLoadPrimaryAction | null;
 };
 
 /** One next action and a first-encounter glossary. Does not add or hide workspace tabs. */
@@ -29,9 +29,9 @@ export function ReviewCognitiveLoadGuidance(props: ReviewCognitiveLoadGuidancePr
           {props.emptyLine}
         </p>
       ) : null}
-      {props.sponsorHref !== null ? (
-        <Button asChild size="sm" data-testid="review-cognitive-load-sponsor-primary">
-          <Link href={props.sponsorHref}>{REVIEW_COGNITIVE_LOAD_SPONSOR_PRIMARY_LABEL}</Link>
+      {props.primaryAction !== null ? (
+        <Button asChild size="sm" data-testid="review-cognitive-load-primary">
+          <Link href={props.primaryAction.href}>{props.primaryAction.label}</Link>
         </Button>
       ) : null}
     </div>

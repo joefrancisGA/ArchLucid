@@ -6,6 +6,12 @@
 # ArchLucid changelog
 
 
+## 2026-11-27 - Lowest three qualities (template, stickiness, decision velocity)
+
+**Outcome.** SecureNow accelerator home lists specialty templates, golden sponsor, and fixture-path-03 quick links. Accelerator index and scenario walks mount second-capture path-delta honesty with return-path recovery. Review cognitive load exposes one primary action on the first-review spine when the open-gate button is withheld.
+
+**Surfaces.** SecureNow accelerator home, accelerator index, scenario walks, first-review spine band.
+
 ## 2026-11-27 - SecureNow template and accelerator richness (fixture-path-03)
 
 **Outcome.** Seventh fixture walk (vault secrets hops) on the public sample links to sponsor path rehearsal. Accelerator index and pilot spine catalog add specialty templates, golden sponsor walkthrough, and fixture-path-03 handoffs — all labeled synthetic.

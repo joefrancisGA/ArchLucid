@@ -103,7 +103,7 @@ describe("RunDetailFirstReviewSpineBand", () => {
       "No uncited finding or open decision-grade disposition is stored, and a committed package is stored. This is not an approval to build.",
     );
     expect(screen.getByTestId("review-cognitive-load-next-action")).toHaveTextContent("Open the sponsor packet");
-    expect(screen.getByTestId("review-cognitive-load-sponsor-primary")).toHaveAttribute(
+    expect(screen.getByTestId("review-cognitive-load-primary")).toHaveAttribute(
       "href",
       "/architecture/reviews/run-abc?reviewTab=review-package",
     );

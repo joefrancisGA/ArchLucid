@@ -33,6 +33,7 @@ import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import {
   resolveReviewCognitiveLoadEmptyLine,
   resolveReviewCognitiveLoadNextAction,
+  resolveReviewCognitiveLoadPrimaryAction,
 } from "@/lib/reviews/review-cognitive-load-copy";
 import { cn } from "@/lib/utils";
 
@@ -186,6 +187,17 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
     summary.topFindingId,
   ]);
 
+
+  const cognitivePrimaryAction =
+    openGateLinkEnabled && openGateHref !== null
+      ? null
+      : resolveReviewCognitiveLoadPrimaryAction({
+          openGateReviewTab: summary.openGateReviewTab,
+          openGateLabel: summary.openGateLabel,
+          evidenceReferenceCountNotStored: summary.evidenceReferenceCountNotStored,
+          openGateHref,
+          sponsorPacketHref,
+        });
   const openGateLinkAriaLabel = ((): string | undefined => {
     if (!openGateLinkEnabled || summary.openGateReviewTab === null) {
       return undefined;
@@ -242,7 +254,7 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
       <ReviewCognitiveLoadGuidance
         nextAction={cognitiveNextAction}
         emptyLine={cognitiveEmptyLine}
-        sponsorHref={sponsorPacketHref}
+        primaryAction={cognitivePrimaryAction}
       />
 
       {summary.gateOutcomeDetail !== null ? (

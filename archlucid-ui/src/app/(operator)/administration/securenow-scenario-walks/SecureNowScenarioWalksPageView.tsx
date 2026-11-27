@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { SecureNowAdminSecondCapturePathDeltaStrip } from "@/components/product-line/SecureNowAdminSecondCapturePathDeltaStrip";
 import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
 import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -35,6 +38,8 @@ export function SecureNowScenarioWalksPageView(): React.JSX.Element {
           cloudConnectionsTestId="securenow-scenario-walks-partial-capture-cloud-connections"
           extractUploadTestId="securenow-scenario-walks-partial-capture-extract-upload"
         />
+
+        <SecureNowAdminSecondCapturePathDeltaStrip testIdPrefix="securenow-scenario-walks" />
 
         <section aria-labelledby="securenow-scenario-walks-list-heading" className="space-y-2">
           <h2 id="securenow-scenario-walks-list-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
