@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
-"""Verify (proven) ledger rows: revert production hunks; cited test must fail."""
+"""Sample proven ledger rows with an isolated green run and production-revert red run."""
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
+import xml.etree.ElementTree as ET
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -31,7 +34,20 @@ BACKTICK_TEST = re.compile(r"`([^`]+)`")
 DOTNET_TEST_FILTER = re.compile(r"(?:Tests\.|\.Tests\.|Test\.)")
 VITEST_FILE = re.compile(r"\.test\.(tsx?|jsx?)$", re.IGNORECASE)
 
-TestRunner = Callable[[str, str, Path], tuple[bool, str]]
+EXPECTED_FAILURE = re.compile(r"\[expected-failure:\s*([^\]\r\n]+)\]")
+TEST_TIMEOUT_SECONDS = 60
+MAX_TRX_BYTES = 2 * 1024 * 1024
+
+
+@dataclass(frozen=True)
+class TestObservation:
+    outcome: str
+    identity: str | None = None
+    failure_message: str | None = None
+    detail: str | None = None
+
+
+TestRunner = Callable[[str, str, Path], TestObservation]
 GitRunner = Callable[[list[str], Path], tuple[int, str]]
 
 
@@ -80,57 +96,104 @@ def extract_test_citation(text: str) -> str | None:
 def is_excluded_revert_path(path: str) -> bool:
     normalized = path.replace("\\", "/")
     lowered = normalized.lower()
-    if "/tests/" in lowered or lowered.endswith("tests.cs") or "__tests__" in lowered:
+    parts = lowered.split("/")
+    if any(part in {"tests", "__tests__", "docs", ".github"} or part.endswith(".tests") for part in parts[:-1]):
         return True
-    if lowered.endswith(".md") or lowered.endswith(".jsonl"):
-        return True
-    if "/docs/" in lowered:
-        return True
-    return False
+    return lowered.endswith(("tests.cs", ".md", ".jsonl", ".runsettings")) or bool(VITEST_FILE.search(lowered))
 
 
-def classify_after_test_run(test_failed: bool) -> str:
-    return "guarded" if test_failed else "unguarded"
+def classify_after_test_run(green: TestObservation, red: TestObservation, expected_failure: str | None) -> str:
+    if green.outcome != "passed" or not green.identity or green.identity != red.identity:
+        return "could-not-run"
+    if red.outcome == "passed":
+        return "unguarded"
+    if red.outcome == "failed" and expected_failure and expected_failure in (red.failure_message or ""):
+        return "guarded"
+    return "could-not-run"
 
 
 def default_git_runner(args: list[str], cwd: Path) -> tuple[int, str]:
-    completed = subprocess.run(
-        ["git", *args],
-        cwd=cwd,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    try:
+        completed = subprocess.run(
+            ["git", *args], cwd=cwd, capture_output=True, text=True, check=False, timeout=45,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return 1, "git unavailable or timed out"
     output = (completed.stdout or "") + (completed.stderr or "")
     return completed.returncode, output.strip()
 
 
-def default_test_runner(test_citation: str, _sha: str, repo_root: Path) -> tuple[bool, str]:
-    if VITEST_FILE.search(test_citation):
-        file_part = test_citation.split(":")[0] if ":" in test_citation else test_citation
-        cmd = ["npm", "exec", "--", "vitest", "run", file_part]
-        completed = subprocess.run(cmd, cwd=repo_root, capture_output=True, text=True, check=False)
-        output = (completed.stdout or "") + (completed.stderr or "")
-        return completed.returncode != 0, output.strip()
+def read_trx(path: Path, citation: str, status: int) -> TestObservation:
+    uncheckable = TestObservation("uncheckable", detail="no matching executed result with a consistent exit status")
+    try:
+        if path.stat().st_size > MAX_TRX_BYTES:
+            return uncheckable
+        root = ET.parse(path).getroot()
+    except FileNotFoundError:
+        return TestObservation("not-run", detail="no test result was produced")
+    except (OSError, ET.ParseError, ValueError):
+        return uncheckable
 
-    filter_value = test_citation
-    if not filter_value.startswith("FullyQualifiedName~"):
-        filter_value = f"FullyQualifiedName~{test_citation}"
-    cmd = [
-        "dotnet",
-        "test",
-        "ArchLucid.Core.Tests/ArchLucid.Core.Tests.csproj",
-        "--filter",
-        filter_value,
-        "--no-restore",
+    if root.tag.rsplit("}", 1)[-1] != "TestRun":
+        return uncheckable
+    results = root.findall(".//{*}UnitTestResult")
+    if not results or all(result.get("outcome") in {"NotExecuted", "Skipped"} for result in results):
+        return TestObservation("not-run", detail="no tests executed")
+    if len(results) != 1 or not results[0].get("testId"):
+        return uncheckable
+    counters = root.findall("./{*}ResultSummary/{*}Counters")
+    if len(counters) != 1 or counters[0].get("total") != "1" or counters[0].get("executed") != "1":
+        return uncheckable
+    result = results[0]
+    methods = [
+        method for definition in root.findall(".//{*}UnitTest")
+        if definition.get("id") == result.get("testId")
+        for method in definition.findall("./{*}TestMethod")
     ]
-    completed = subprocess.run(cmd, cwd=repo_root, capture_output=True, text=True, check=False)
-    output = (completed.stdout or "") + (completed.stderr or "")
-    if completed.returncode not in (0, 1):
-        return False, output.strip()
-    failed = "Failed!" in output or "Test Run Failed" in output
-    passed = completed.returncode == 0 and not failed
-    return not passed, output.strip()
+    if len(methods) != 1 or not all(methods[0].get(key) for key in ("className", "name")):
+        return uncheckable
+    identity = f"{methods[0].get('className')}.{methods[0].get('name')}"
+    if identity != citation and not identity.endswith("." + citation):
+        return uncheckable
+    if status == 0 and result.get("outcome") == "Passed" and counters[0].get("passed") == "1":
+        return TestObservation("passed", identity)
+    message = result.findtext("./{*}Output/{*}ErrorInfo/{*}Message")
+    if status == 1 and result.get("outcome") == "Failed" and counters[0].get("failed") == "1" and message and message.strip():
+        return TestObservation("failed", identity, message)
+    return uncheckable
+
+
+def default_test_runner(test_citation: str, _sha: str, repo_root: Path) -> TestObservation:
+    if VITEST_FILE.search(test_citation):
+        return TestObservation("uncheckable", detail="Vitest file citation does not identify one executed assertion")
+    citation = test_citation.removeprefix("FullyQualifiedName~")
+    if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.]*", citation):
+        return TestObservation("uncheckable", detail="unsupported .NET test citation")
+    project = "ArchLucid.Core.Tests/ArchLucid.Core.Tests.csproj"
+    if not (repo_root / project).is_file():
+        return TestObservation("uncheckable", detail="supported Core test project is unavailable")
+    with tempfile.TemporaryDirectory(prefix="al-bug-trx-") as directory:
+        cmd = [
+            "dotnet", "test", project, "--filter", f"FullyQualifiedName~{citation}",
+            "--results-directory", directory, "--logger", "trx;LogFileName=case.trx",
+        ]
+        try:
+            with subprocess.Popen(cmd, cwd=repo_root, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                  start_new_session=os.name == "posix") as child:
+                try:
+                    status = child.wait(timeout=TEST_TIMEOUT_SECONDS)
+                except subprocess.TimeoutExpired:
+                    if os.name == "posix":
+                        try:
+                            os.killpg(child.pid, signal.SIGKILL)
+                        except ProcessLookupError:
+                            pass
+                    else:
+                        child.kill()
+                    return TestObservation("uncheckable", detail="test command timed out")
+        except OSError:
+            return TestObservation("uncheckable", detail="test command unavailable")
+        return read_trx(Path(directory) / "case.trx", citation, status)
 
 
 def list_production_paths_at_commit(
@@ -164,53 +227,38 @@ def verify_row(
     if sha is None:
         return RowVerification(row.zone_id, row.text, "no-commit-cited", test_name=test_name)
 
+    def result(classification: str, detail: str) -> RowVerification:
+        return RowVerification(row.zone_id, row.text, classification, test_name, sha, detail)
+
     production_paths = list_production_paths_at_commit(sha, git_runner, repo_root)
     if not production_paths:
-        return RowVerification(
-            row.zone_id,
-            row.text,
-            "could-not-run",
-            test_name=test_name,
-            commit_sha=sha,
-            detail="no production paths in commit",
-        )
+        return result("could-not-run", "no production paths in commit")
 
     worktree_dir = Path(tempfile.mkdtemp(prefix="al-bug-revert-"))
     try:
-        code, output = git_runner(["worktree", "add", "--detach", str(worktree_dir), sha], repo_root)
+        code, _ = git_runner(["worktree", "add", "--detach", str(worktree_dir), sha], repo_root)
         if code != 0:
-            return RowVerification(
-                row.zone_id,
-                row.text,
-                "could-not-run",
-                test_name=test_name,
-                commit_sha=sha,
-                detail=output,
-            )
+            return result("could-not-run", "temporary worktree could not be created")
 
-        for rel_path in production_paths:
-            parent_sha = f"{sha}^"
-            code, _ = git_runner(["checkout", parent_sha, "--", rel_path], worktree_dir)
-            if code != 0:
-                return RowVerification(
-                    row.zone_id,
-                    row.text,
-                    "could-not-run",
-                    test_name=test_name,
-                    commit_sha=sha,
-                    detail=f"checkout failed for {rel_path}",
-                )
-
-        test_failed, detail = test_runner(test_name, sha, worktree_dir)
-        classification = classify_after_test_run(test_failed)
-        return RowVerification(
-            row.zone_id,
-            row.text,
-            classification,
-            test_name=test_name,
-            commit_sha=sha,
-            detail=detail[:500] if detail else None,
+        green = test_runner(test_name, sha, worktree_dir)
+        if green.outcome != "passed":
+            return result("could-not-run", green.detail or "corrected revision had no verified passing test")
+        code, _ = git_runner(
+            ["--literal-pathspecs", "restore", f"--source={sha}^", "--staged", "--worktree", "--", *production_paths],
+            worktree_dir,
         )
+        if code != 0:
+            return result("could-not-run", "production paths could not be restored in the isolated worktree")
+
+        red = test_runner(test_name, sha, worktree_dir)
+        match = EXPECTED_FAILURE.search(row.text)
+        expectation = match.group(1).strip() if match else None
+        classification = classify_after_test_run(green, red, expectation)
+        if classification == "guarded":
+            return result(classification, "same test passed on the fix and failed for the expected reason after revert")
+        if classification == "unguarded":
+            return result(classification, "same test passed before and after the production revert")
+        return result(classification, red.detail or "revert did not demonstrate the expected failure of the same test")
     finally:
         git_runner(["worktree", "remove", "--force", str(worktree_dir)], repo_root)
         if worktree_dir.exists():
@@ -224,6 +272,8 @@ def select_rows(
     limit: int,
 ) -> list[ProvenRow]:
     selected: list[ProvenRow] = []
+    if limit <= 0:
+        return selected
     for row in rows:
         if zone is not None and row.zone_id != zone:
             continue
@@ -236,7 +286,11 @@ def select_rows(
     return selected
 
 
-def render_report(results: list[RowVerification]) -> str:
+def render_report(
+    results: list[RowVerification],
+    eligible_count: int | None = None,
+    citing_test_and_commit: int | None = None,
+) -> str:
     counts = Counter(item.classification for item in results)
     lines = [
         "> **Scope:** Sample of recent `(proven)` rows with cited tests — not a claim that all proven rows are guarded.",
@@ -244,12 +298,18 @@ def render_report(results: list[RowVerification]) -> str:
         "# `/al-bug` proven-row revert audit",
         "",
         f"**Rows sampled:** {len(results)}",
+    ]
+    if eligible_count is not None:
+        lines.append(f"**Rows in selection window:** {eligible_count}")
+    if citing_test_and_commit is not None:
+        lines.append(f"**Rows in selection window citing a test and commit:** {citing_test_and_commit}")
+    lines.extend([
         "",
         "## Classification counts",
         "",
         "| Class | Count |",
         "| --- | ---: |",
-    ]
+    ])
     for key in (
         "guarded",
         "unguarded",
@@ -267,12 +327,18 @@ def render_report(results: list[RowVerification]) -> str:
                 f"- `{item.zone_id}` test `{item.test_name}` sha `{item.commit_sha}` — cited test still passes after production revert"
             )
 
+    uncheckable = [item for item in results if item.classification in UNCHECKABLE_CLASSIFICATIONS]
+    if uncheckable:
+        lines.extend(["", "## Uncheckable rows", ""])
+        for item in uncheckable:
+            lines.append(f"- `{item.zone_id}` — {item.detail or item.classification}")
+
     return "\n".join(lines)
 
 
 DEFAULT_UNGUARDED_BASELINE = REPO_ROOT / "scripts/ci/al-bug-unguarded-proven-baseline.json"
 DEFAULT_UNCHECKABLE_BASELINE = REPO_ROOT / "scripts/ci/al-bug-uncheckable-proven-baseline.json"
-UNCHECKABLE_CLASSIFICATIONS = frozenset({"no-test-cited", "could-not-run"})
+UNCHECKABLE_CLASSIFICATIONS = frozenset({"no-test-cited", "no-commit-cited", "could-not-run"})
 
 
 def unguarded_key(item: RowVerification) -> str:
@@ -302,7 +368,7 @@ def new_unguarded_keys(results: list[RowVerification], baseline: set[str]) -> li
 
 
 def uncheckable_key(item: RowVerification) -> str:
-    """Stable identity for no-test-cited / could-not-run rows in the sample window."""
+    """Stable identity for no-test-cited / no-commit-cited / could-not-run rows in the sample window."""
     sha = (item.commit_sha or "")[:7]
     test_name = item.test_name or ""
     return f"{item.zone_id}|{item.classification}|{test_name}|{sha}"
@@ -346,7 +412,7 @@ def write_uncheckable_baseline(
     payload = {
         "uncheckableKeys": sorted(merged),
         "_measuredDate": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
-        "_comment": "ABQ-45: known no-test-cited / could-not-run keys in the verifier sample window.",
+        "_comment": "ABQ-45: known no-test-cited / no-commit-cited / could-not-run keys in the verifier sample window.",
     }
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
@@ -398,12 +464,14 @@ def main() -> int:
     parser.add_argument(
         "--fail-on-new-uncheckable",
         action="store_true",
-        help="Exit 1 when no-test-cited / could-not-run keys are not in --uncheckable-baseline (ABQ-45).",
+        help="Exit 1 when no-test-cited / no-commit-cited / could-not-run keys are not in --uncheckable-baseline (ABQ-45).",
     )
     parser.add_argument("--uncheckable-baseline", type=Path, default=DEFAULT_UNCHECKABLE_BASELINE)
     parser.add_argument("--write-uncheckable-baseline", action="store_true")
     parser.add_argument("--dry-run-fixture", action="store_true", help="Use built-in fixture rows (tests).")
     args = parser.parse_args()
+    if args.limit < 1:
+        parser.error("--limit must be positive")
 
     if args.since:
         since = datetime.strptime(args.since, "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -414,17 +482,18 @@ def main() -> int:
         rows = [
             ProvenRow("zone-a", "`FooTests.Bar` — fix abcdef1 2026-09-01"),
         ]
-        selected = rows
+        eligible = rows
     else:
         ledger_text = load_ledger_text(args.ledger)
         rows = collect_proven_rows(ledger_text)
-        selected = select_rows(rows, args.zone, since, args.limit)
+        eligible = select_rows(rows, args.zone, since, len(rows))
 
     results = [
         verify_row(row, REPO_ROOT, default_git_runner, default_test_runner)
-        for row in selected
+        for row in eligible[:args.limit]
     ]
-    report = render_report(results)
+    cited = sum(bool(extract_test_citation(row.text) and extract_commit_sha(row.text)) for row in eligible)
+    report = render_report(results, len(eligible), cited)
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(report + "\n", encoding="utf-8")
     print(report)
