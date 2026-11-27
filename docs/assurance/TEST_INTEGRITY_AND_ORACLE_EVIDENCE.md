@@ -69,6 +69,10 @@ The eleven independently labeled synthetic Git pairs yielded eight detections. T
 
 **Decision for this review: keep the guard advisory.** The measured misses and the lack of independent human labels or agreed operating thresholds do not support making it required. No exceptions, branch-protection changes, or full CI dispatch were made. Reproduce a row with the existing scanner by supplying the full SHAs resolved from its base and merge Git prefixes.
 
+## FND-165 closure
+
+**Closed for advisory scope on 2026-11-27 by owner decision.** The pilot, cross-language guard, and follow-up calibration shipped in [#8333](https://github.com/joefrancisGA/ArchLucid/pull/8333), [#8339](https://github.com/joefrancisGA/ArchLucid/pull/8339), and [#8343](https://github.com/joefrancisGA/ArchLucid/pull/8343). The known misses and calibration limits above remain documented. The guard is report-only and is not a prerequisite for merging. Any proposal to make it blocking is a separate decision requiring additional calibration and explicit owner approval. This closure does not record a passing hosted run or close FND-171.
+
 ## FND-171 follow-up scope and boundary
 
 The registry expands from nine to fourteen entries. The previously uncertain SecureNow comparison is now classified as independent **for the small fixture below the production depth cap**. The new entries also cover two distinct branches, revisited-node rejection, the neutral reference's inclusive edge budget, and the ArchLucid topology identity and idempotence properties. These are scoped test claims, not a product-wide coverage assertion.
