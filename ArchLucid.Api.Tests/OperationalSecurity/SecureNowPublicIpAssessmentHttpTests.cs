@@ -32,6 +32,24 @@ public sealed class SecureNowPublicIpAssessmentHttpTests(JwtLocalSigningWebAppFa
             WorkspaceId = ScopeIds.DefaultWorkspace,
             ProjectId = ScopeIds.DefaultProject,
         };
+        ScopeContext otherTenant = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+        };
+        ScopeContext otherWorkspace = new()
+        {
+            TenantId = scope.TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = scope.ProjectId,
+        };
+        ScopeContext otherProject = new()
+        {
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = Guid.NewGuid(),
+        };
         Guid snapshotId = Guid.NewGuid();
         Guid missingSnapshotId = Guid.NewGuid();
         string url = $"/v1/securenow/free/public-ip-assessment/{snapshotId:D}";
@@ -47,6 +65,8 @@ public sealed class SecureNowPublicIpAssessmentHttpTests(JwtLocalSigningWebAppFa
         Mock<ITenantRepository> tenants = new();
         tenants.Setup(r => r.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = scope.TenantId, Tier = TenantTier.Free });
+        tenants.Setup(r => r.GetByIdAsync(otherTenant.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = otherTenant.TenantId, Tier = TenantTier.Free });
 
         using var host = factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
         {
@@ -61,21 +81,21 @@ public sealed class SecureNowPublicIpAssessmentHttpTests(JwtLocalSigningWebAppFa
         }));
         using HttpClient client = host.CreateClient();
 
-        async Task<HttpResponseMessage> ReadAsync(string path, string product, Guid projectId)
+        async Task<HttpResponseMessage> ReadAsync(string path, string product, ScopeContext requestScope)
         {
             string token = JwtLocalSigningIntegrationTestTokens.MintBearerJwt(factory.PrivatePemForTests,
                 JwtLocalSigningWebAppFactory.JwtLocalTestIssuer, JwtLocalSigningWebAppFactory.JwtLocalTestAudience,
-                "SecureNow free reader", [ArchLucidRoles.Reader], scope.TenantId, scope.WorkspaceId, projectId);
+                "SecureNow free reader", [ArchLucidRoles.Reader], requestScope.TenantId, requestScope.WorkspaceId, requestScope.ProjectId);
             using HttpRequestMessage request = new(HttpMethod.Get, path);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             request.Headers.Add(ProductLineHttpHeaderNames.Header, product);
-            request.Headers.Add("x-tenant-id", scope.TenantId.ToString("D"));
-            request.Headers.Add("x-workspace-id", scope.WorkspaceId.ToString("D"));
-            request.Headers.Add("x-project-id", projectId.ToString("D"));
+            request.Headers.Add("x-tenant-id", requestScope.TenantId.ToString("D"));
+            request.Headers.Add("x-workspace-id", requestScope.WorkspaceId.ToString("D"));
+            request.Headers.Add("x-project-id", requestScope.ProjectId.ToString("D"));
             return await client.SendAsync(request);
         }
 
-        using HttpResponseMessage granted = await ReadAsync(url, "security", scope.ProjectId);
+        using HttpResponseMessage granted = await ReadAsync(url, "security", scope);
         Assert.Equal(HttpStatusCode.OK, granted.StatusCode);
         Assert.True(granted.Headers.CacheControl?.NoStore);
         PublicIpAssessmentResponse? result = await granted.Content.ReadFromJsonAsync<PublicIpAssessmentResponse>();
@@ -83,15 +103,23 @@ public sealed class SecureNowPublicIpAssessmentHttpTests(JwtLocalSigningWebAppFa
         Assert.Equal(snapshotId, result.SnapshotId);
         Assert.Equal("notAssessed", result.ObservedReachability);
 
-        using HttpResponseMessage architecture = await ReadAsync(url, "architecture", scope.ProjectId);
+        using HttpResponseMessage architecture = await ReadAsync(url, "architecture", scope);
         await AssertGenericNotFoundAsync(architecture);
-        using HttpResponseMessage otherProject = await ReadAsync(url, "security", Guid.NewGuid());
-        await AssertGenericNotFoundAsync(otherProject);
+        foreach (ScopeContext deniedScope in new[] { otherTenant, otherWorkspace, otherProject })
+        {
+            using HttpResponseMessage denied = await ReadAsync(url, "security", deniedScope);
+            await AssertGenericNotFoundAsync(denied);
+        }
+
+        using HttpResponseMessage ungrantedInvalidPage = await ReadAsync($"{url}?page=0", "security", otherProject);
+        await AssertGenericNotFoundAsync(ungrantedInvalidPage);
+        using HttpResponseMessage grantedInvalidPage = await ReadAsync($"{url}?page=0", "security", scope);
+        Assert.Equal(HttpStatusCode.BadRequest, grantedInvalidPage.StatusCode);
         using HttpResponseMessage missing = await ReadAsync($"/v1/securenow/free/public-ip-assessment/{missingSnapshotId:D}",
-            "security", scope.ProjectId);
+            "security", scope);
         await AssertGenericNotFoundAsync(missing);
         using HttpResponseMessage premium = await ReadAsync(
-            $"/v1/operational-security/paths/report?snapshotId={snapshotId:D}", "security", scope.ProjectId);
+            $"/v1/operational-security/paths/report?snapshotId={snapshotId:D}", "security", scope);
         Assert.Equal(HttpStatusCode.Forbidden, premium.StatusCode);
 
         assessments.Verify(r => r.TryGetAsync(It.IsAny<ScopeContext>(), snapshotId, 1, 50, It.IsAny<CancellationToken>()), Times.Once);
@@ -102,6 +130,7 @@ public sealed class SecureNowPublicIpAssessmentHttpTests(JwtLocalSigningWebAppFa
     private static async Task AssertGenericNotFoundAsync(HttpResponseMessage response)
     {
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.True(response.Headers.CacheControl?.NoStore);
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
         Microsoft.AspNetCore.Mvc.ProblemDetails? problem =
             await response.Content.ReadFromJsonAsync<Microsoft.AspNetCore.Mvc.ProblemDetails>();
