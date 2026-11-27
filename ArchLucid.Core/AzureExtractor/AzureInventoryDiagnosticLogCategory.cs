@@ -13,18 +13,21 @@ public sealed record AzureInventoryDiagnosticLogCategory(string? Category, strin
             return null;
 
         List<AzureInventoryDiagnosticLogCategory> categories = [];
+
         foreach (JsonElement log in logs.EnumerateArray())
         {
             if (log.ValueKind != JsonValueKind.Object
                 || !log.TryGetProperty("enabled", out JsonElement enabled)
-                || enabled.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+                || !AzureInventoryArmTolerantScalarReader.TryReadBooleanLiteral(enabled, out bool isEnabled))
                 return null;
+
             string? category = ReadName(log, "category");
             string? group = ReadName(log, "categoryGroup");
+
             if ((category is null) == (group is null))
                 return null;
 
-            categories.Add(new(category, group, enabled.GetBoolean()));
+            categories.Add(new(category, group, isEnabled));
         }
 
         return categories;
