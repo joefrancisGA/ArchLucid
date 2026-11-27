@@ -164,13 +164,17 @@ export async function fetchCloudResourceEvidenceHub(
 
     return mapHubResponse(raw);
   } catch (error: unknown) {
-    const demoFallback = params.has("runId") ? null : tryWorkbookInfraResourceHubDemoFallback(trimmedCloudResourceId);
+    const failure = toApiLoadFailure(error);
+    // A fixture must not disguise a freshness conflict or substitute for a pinned evidence read.
+    const demoFallback = params.has("runId") || failure.httpStatus === 409
+      ? null
+      : tryWorkbookInfraResourceHubDemoFallback(trimmedCloudResourceId);
+    const pinnedSnapshotId = params.get("snapshotId");
 
-    if (demoFallback !== null) {
+    if (demoFallback !== null && (pinnedSnapshotId === null || demoFallback.currentConfiguration?.snapshotId === pinnedSnapshotId)) {
       return demoFallback;
     }
 
-    const failure = toApiLoadFailure(error);
     const blockedReason = infraEvidenceHubBlockedReason(failure);
 
     throw new Error(blockedReason ?? formatInfraEvidenceSealedManifestAwareApiError(failure));

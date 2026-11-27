@@ -21,6 +21,9 @@ vi.mock("@/lib/oidc/config", () => ({
 }));
 
 const RESOURCE = "11111111-1111-1111-1111-111111111111";
+const SNAPSHOT = "22222222-2222-2222-2222-222222222222";
+const OTHER_SNAPSHOT = "33333333-3333-3333-3333-333333333333";
+const PINNED = { snapshotId: SNAPSHOT } as const;
 const scope = (tenant = "tenant-1", workspace = "workspace-1", project = "project-1") => ({
   "x-tenant-id": tenant,
   "x-workspace-id": workspace,
@@ -42,18 +45,18 @@ describe("SecureNow resource-hub cache CACHE-01 through CACHE-03", () => {
   it("partitions by principal, tenant, workspace, project and evidence query scope", async () => {
     const { buildInfraEvidenceResourceHubCacheKey: key } =
       await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
-    const base = key(RESOURCE, { snapshotId: "snapshot-1", controlId: "control-1" });
-    expect(key(RESOURCE, { snapshotId: "snapshot-1", controlId: "control-2" })).not.toBe(base);
-    expect(key(RESOURCE, { snapshotId: "snapshot-2", controlId: "control-1" })).not.toBe(base);
+    const base = key(RESOURCE, { snapshotId: SNAPSHOT, controlId: "control-1" });
+    expect(key(RESOURCE, { snapshotId: SNAPSHOT, controlId: "control-2" })).not.toBe(base);
+    expect(key(RESOURCE, { snapshotId: OTHER_SNAPSHOT, controlId: "control-1" })).not.toBe(base);
     readSignedInUserSubject.mockReturnValue("principal-2");
-    expect(key(RESOURCE, { snapshotId: "snapshot-1", controlId: "control-1" })).not.toBe(base);
+    expect(key(RESOURCE, { snapshotId: SNAPSHOT, controlId: "control-1" })).not.toBe(base);
     readSignedInUserSubject.mockReturnValue("principal-1");
     getEffectiveBrowserProxyScopeHeaders.mockReturnValue(scope("tenant-2"));
-    expect(key(RESOURCE, { snapshotId: "snapshot-1", controlId: "control-1" })).not.toBe(base);
+    expect(key(RESOURCE, { snapshotId: SNAPSHOT, controlId: "control-1" })).not.toBe(base);
     getEffectiveBrowserProxyScopeHeaders.mockReturnValue(scope("tenant-1", "workspace-2"));
-    expect(key(RESOURCE, { snapshotId: "snapshot-1", controlId: "control-1" })).not.toBe(base);
+    expect(key(RESOURCE, { snapshotId: SNAPSHOT, controlId: "control-1" })).not.toBe(base);
     getEffectiveBrowserProxyScopeHeaders.mockReturnValue(scope("tenant-1", "workspace-1", "project-2"));
-    expect(key(RESOURCE, { snapshotId: "snapshot-1", controlId: "control-1" })).not.toBe(base);
+    expect(key(RESOURCE, { snapshotId: SNAPSHOT, controlId: "control-1" })).not.toBe(base);
   });
 
   it("coalesces identical fetches and reuses a bounded fresh result", async () => {
@@ -64,21 +67,40 @@ describe("SecureNow resource-hub cache CACHE-01 through CACHE-03", () => {
     fetchCloudResourceEvidenceHub.mockReturnValueOnce(
       new Promise<CloudResourceEvidenceHubResponse>((r) => { resolve = r; }),
     );
-    const first = fetchCachedInfraEvidenceResourceHub(RESOURCE, { snapshotId: "s1" });
-    const second = fetchCachedInfraEvidenceResourceHub(RESOURCE, { snapshotId: "s1" });
+    const first = fetchCachedInfraEvidenceResourceHub(RESOURCE, PINNED);
+    const second = fetchCachedInfraEvidenceResourceHub(RESOURCE, PINNED);
     resolve?.(hub("fresh"));
     expect((await Promise.all([first, second])).map(x => (x as unknown as {label:string}).label))
       .toEqual(["fresh", "fresh"]);
     expect(readCachedInfraEvidenceResourceHub(buildInfraEvidenceResourceHubCacheKey(
-      RESOURCE, { snapshotId: "s1" },
+      RESOURCE, PINNED,
     ))).toEqual(hub("fresh"));
-    await fetchCachedInfraEvidenceResourceHub(RESOURCE, { snapshotId: "s1" });
+    await fetchCachedInfraEvidenceResourceHub(RESOURCE, PINNED);
     expect(fetchCloudResourceEvidenceHub).toHaveBeenCalledTimes(1);
   });
 
+  it.each([undefined, "", "00000000-0000-0000-0000-000000000000"])(
+    "does not reuse or coalesce an unpinned snapshot request (%s)",
+    async (snapshotId) => {
+      const cache = await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
+      const context = { snapshotId };
+      const key = cache.buildInfraEvidenceResourceHubCacheKey(RESOURCE, context);
+      fetchCloudResourceEvidenceHub.mockResolvedValueOnce(hub("first"))
+        .mockResolvedValueOnce(hub("second")).mockRejectedValueOnce(new Error("inventory expired"));
+
+      expect(await Promise.all([
+        cache.fetchCachedInfraEvidenceResourceHub(RESOURCE, context),
+        cache.fetchCachedInfraEvidenceResourceHub(RESOURCE, context),
+      ])).toEqual([hub("first"), hub("second")]);
+      expect(cache.readCachedInfraEvidenceResourceHub(key)).toBeNull();
+      await expect(cache.fetchCachedInfraEvidenceResourceHub(RESOURCE, context)).rejects.toThrow("inventory expired");
+      expect(fetchCloudResourceEvidenceHub).toHaveBeenCalledTimes(3);
+    },
+  );
+
   it("rechecks run access on concurrent requests and after a successful read", async () => {
     const cache = await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
-    const context = { runId: "run-1" };
+    const context = { ...PINNED, runId: "run-1" };
     const key = cache.buildInfraEvidenceResourceHubCacheKey(RESOURCE, context);
     cache.writeCachedInfraEvidenceResourceHub(key, hub("previously authorized"));
     expect(cache.readCachedInfraEvidenceResourceHub(key)).toBeNull();
@@ -100,17 +122,17 @@ describe("SecureNow resource-hub cache CACHE-01 through CACHE-03", () => {
       await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
     fetchCloudResourceEvidenceHub.mockResolvedValue(hub("server"));
     readSignedInUserSubject.mockReturnValue(null);
-    await fetchCachedInfraEvidenceResourceHub(RESOURCE);
-    await fetchCachedInfraEvidenceResourceHub(RESOURCE);
+    await fetchCachedInfraEvidenceResourceHub(RESOURCE, PINNED);
+    await fetchCachedInfraEvidenceResourceHub(RESOURCE, PINNED);
     expect(fetchCloudResourceEvidenceHub).toHaveBeenCalledTimes(2);
-    expect(readCachedInfraEvidenceResourceHub(buildInfraEvidenceResourceHubCacheKey(RESOURCE))).toBeNull();
+    expect(readCachedInfraEvidenceResourceHub(buildInfraEvidenceResourceHubCacheKey(RESOURCE, PINNED))).toBeNull();
     readSignedInUserSubject.mockReturnValue("principal-1");
     getEffectiveBrowserProxyScopeHeaders.mockReturnValue(scope("", "workspace-1", "project-1"));
-    await fetchCachedInfraEvidenceResourceHub(RESOURCE);
+    await fetchCachedInfraEvidenceResourceHub(RESOURCE, PINNED);
     expect(fetchCloudResourceEvidenceHub).toHaveBeenCalledTimes(3);
     getEffectiveBrowserProxyScopeHeaders.mockReturnValue(scope());
     isJwtAuthMode.mockReturnValue(false);
-    await fetchCachedInfraEvidenceResourceHub(RESOURCE);
+    await fetchCachedInfraEvidenceResourceHub(RESOURCE, PINNED);
     expect(fetchCloudResourceEvidenceHub).toHaveBeenCalledTimes(4);
   });
 
@@ -118,13 +140,13 @@ describe("SecureNow resource-hub cache CACHE-01 through CACHE-03", () => {
     const { fetchCachedInfraEvidenceResourceHub } =
       await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
     fetchCloudResourceEvidenceHub.mockResolvedValue(hub("data"));
-    await fetchCachedInfraEvidenceResourceHub(RESOURCE);
+    await fetchCachedInfraEvidenceResourceHub(RESOURCE, PINNED);
     readSignedInUserSubject.mockReturnValue("other-user");
-    await fetchCachedInfraEvidenceResourceHub(RESOURCE);
+    await fetchCachedInfraEvidenceResourceHub(RESOURCE, PINNED);
     readSignedInUserSubject.mockReturnValue("principal-1");
-    await fetchCachedInfraEvidenceResourceHub(RESOURCE);
+    await fetchCachedInfraEvidenceResourceHub(RESOURCE, PINNED);
     getEffectiveBrowserProxyScopeHeaders.mockReturnValue(scope("other-tenant"));
-    await fetchCachedInfraEvidenceResourceHub(RESOURCE);
+    await fetchCachedInfraEvidenceResourceHub(RESOURCE, PINNED);
     expect(fetchCloudResourceEvidenceHub).toHaveBeenCalledTimes(4);
   });
 
@@ -134,15 +156,15 @@ describe("SecureNow resource-hub cache CACHE-01 through CACHE-03", () => {
       await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
     for (let i = 0; i < 64; i += 1) {
       writeCachedInfraEvidenceResourceHub(buildInfraEvidenceResourceHubCacheKey(
-        RESOURCE, { controlId: "control-" + i },
+        RESOURCE, { ...PINNED, controlId: "control-" + i },
       ), hub(String(i)));
     }
-    const oldest = buildInfraEvidenceResourceHubCacheKey(RESOURCE, { controlId: "control-0" });
-    const second = buildInfraEvidenceResourceHubCacheKey(RESOURCE, { controlId: "control-1" });
+    const oldest = buildInfraEvidenceResourceHubCacheKey(RESOURCE, { ...PINNED, controlId: "control-0" });
+    const second = buildInfraEvidenceResourceHubCacheKey(RESOURCE, { ...PINNED, controlId: "control-1" });
     // Promote the oldest, so the second entry is evicted.
     expect(readCachedInfraEvidenceResourceHub(oldest)).not.toBeNull();
     writeCachedInfraEvidenceResourceHub(buildInfraEvidenceResourceHubCacheKey(
-      RESOURCE, { controlId: "control-64" },
+      RESOURCE, { ...PINNED, controlId: "control-64" },
     ), hub("64"));
     expect(readCachedInfraEvidenceResourceHub(second)).toBeNull();
     expect(readCachedInfraEvidenceResourceHub(oldest)).not.toBeNull();
@@ -154,7 +176,7 @@ describe("SecureNow resource-hub cache CACHE-01 through CACHE-03", () => {
       await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
     let now = 1000;
     vi.spyOn(Date, "now").mockImplementation(() => now);
-    const key = buildInfraEvidenceResourceHubCacheKey(RESOURCE);
+    const key = buildInfraEvidenceResourceHubCacheKey(RESOURCE, PINNED);
     writeCachedInfraEvidenceResourceHub(key, hub("x".repeat(300_000)));
     expect(readCachedInfraEvidenceResourceHub(key)).toBeNull();
     writeCachedInfraEvidenceResourceHub(key, hub("small"));
@@ -166,9 +188,9 @@ describe("SecureNow resource-hub cache CACHE-01 through CACHE-03", () => {
     const { buildInfraEvidenceResourceHubCacheKey, readCachedInfraEvidenceResourceHub,
       writeCachedInfraEvidenceResourceHub, invalidateInfraEvidenceResourceHubCacheForResource } =
       await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
-    const a = buildInfraEvidenceResourceHubCacheKey(RESOURCE, { snapshotId: "a" });
-    const b = buildInfraEvidenceResourceHubCacheKey(RESOURCE, { snapshotId: "b" });
-    const other = buildInfraEvidenceResourceHubCacheKey("resource-other");
+    const a = buildInfraEvidenceResourceHubCacheKey(RESOURCE, PINNED);
+    const b = buildInfraEvidenceResourceHubCacheKey(RESOURCE, { snapshotId: OTHER_SNAPSHOT });
+    const other = buildInfraEvidenceResourceHubCacheKey("resource-other", PINNED);
     writeCachedInfraEvidenceResourceHub(a, hub("a"));
     writeCachedInfraEvidenceResourceHub(b, hub("b"));
     writeCachedInfraEvidenceResourceHub(other, hub("other"));
@@ -189,13 +211,13 @@ describe("SecureNow resource-hub cache CACHE-01 through CACHE-03", () => {
     ).mockImplementationOnce(
       () => new Promise<CloudResourceEvidenceHubResponse>((r) => { resolveNew = r; }),
     );
-    const oldRequest = fetchCachedInfraEvidenceResourceHub(RESOURCE, { snapshotId: "s1" });
-    const key = buildInfraEvidenceResourceHubCacheKey(RESOURCE, { snapshotId: "s1" });
+    const oldRequest = fetchCachedInfraEvidenceResourceHub(RESOURCE, PINNED);
+    const key = buildInfraEvidenceResourceHubCacheKey(RESOURCE, PINNED);
     invalidateInfraEvidenceResourceHubCache(key);
-    const newRequest = fetchCachedInfraEvidenceResourceHub(RESOURCE, { snapshotId: "s1" });
+    const newRequest = fetchCachedInfraEvidenceResourceHub(RESOURCE, PINNED);
     resolveOld?.(hub("obsolete"));
     await oldRequest;
-    const coalesced = fetchCachedInfraEvidenceResourceHub(RESOURCE, { snapshotId: "s1" });
+    const coalesced = fetchCachedInfraEvidenceResourceHub(RESOURCE, PINNED);
     expect(fetchCloudResourceEvidenceHub).toHaveBeenCalledTimes(2);
     resolveNew?.(hub("fresh"));
     expect(await newRequest).toEqual(hub("fresh"));
@@ -211,13 +233,13 @@ describe("SecureNow resource-hub cache CACHE-01 through CACHE-03", () => {
     fetchCloudResourceEvidenceHub.mockImplementationOnce(
       () => new Promise<CloudResourceEvidenceHubResponse>((r) => { resolveOld = r; }),
     ).mockRejectedValueOnce(new Error("server unavailable"));
-    const old = fetchCachedInfraEvidenceResourceHub(RESOURCE);
+    const old = fetchCachedInfraEvidenceResourceHub(RESOURCE, PINNED);
     invalidateInfraEvidenceResourceHubCacheForResource(RESOURCE);
     resolveOld?.(hub("obsolete"));
     await old;
-    expect(readCachedInfraEvidenceResourceHub(buildInfraEvidenceResourceHubCacheKey(RESOURCE))).toBeNull();
-    await expect(fetchCachedInfraEvidenceResourceHub(RESOURCE)).rejects.toThrow("server unavailable");
-    expect(readCachedInfraEvidenceResourceHub(buildInfraEvidenceResourceHubCacheKey(RESOURCE))).toBeNull();
+    expect(readCachedInfraEvidenceResourceHub(buildInfraEvidenceResourceHubCacheKey(RESOURCE, PINNED))).toBeNull();
+    await expect(fetchCachedInfraEvidenceResourceHub(RESOURCE, PINNED)).rejects.toThrow("server unavailable");
+    expect(readCachedInfraEvidenceResourceHub(buildInfraEvidenceResourceHubCacheKey(RESOURCE, PINNED))).toBeNull();
   });
   it("bounds total approximate payload bytes even when under the 64-entry ceiling", async () => {
     const { buildInfraEvidenceResourceHubCacheKey, readCachedInfraEvidenceResourceHub,
@@ -226,15 +248,15 @@ describe("SecureNow resource-hub cache CACHE-01 through CACHE-03", () => {
     const large = hub("x".repeat(120_000)); // roughly 240 KiB per entry
     for (let i = 0; i < 22; i += 1) {
       writeCachedInfraEvidenceResourceHub(
-        buildInfraEvidenceResourceHubCacheKey(RESOURCE, { controlId: "large-" + i }),
+        buildInfraEvidenceResourceHubCacheKey(RESOURCE, { ...PINNED, controlId: "large-" + i }),
         large,
       );
     }
     expect(readCachedInfraEvidenceResourceHub(
-      buildInfraEvidenceResourceHubCacheKey(RESOURCE, { controlId: "large-0" }),
+      buildInfraEvidenceResourceHubCacheKey(RESOURCE, { ...PINNED, controlId: "large-0" }),
     )).toBeNull();
     expect(readCachedInfraEvidenceResourceHub(
-      buildInfraEvidenceResourceHubCacheKey(RESOURCE, { controlId: "large-21" }),
+      buildInfraEvidenceResourceHubCacheKey(RESOURCE, { ...PINNED, controlId: "large-21" }),
     )).not.toBeNull();
   });
 
@@ -242,7 +264,7 @@ describe("SecureNow resource-hub cache CACHE-01 through CACHE-03", () => {
     const { buildInfraEvidenceResourceHubCacheKey, readCachedInfraEvidenceResourceHub,
       writeCachedInfraEvidenceResourceHub } =
       await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
-    const key = buildInfraEvidenceResourceHubCacheKey(RESOURCE);
+    const key = buildInfraEvidenceResourceHubCacheKey(RESOURCE, PINNED);
     writeCachedInfraEvidenceResourceHub(key, hub("before-login"));
     window.dispatchEvent(new Event("archlucid:auth-context-changed"));
     expect(readCachedInfraEvidenceResourceHub(key)).toBeNull();
@@ -256,10 +278,10 @@ describe("SecureNow resource-hub cache CACHE-01 through CACHE-03", () => {
     fetchCloudResourceEvidenceHub.mockImplementationOnce(
       () => new Promise<CloudResourceEvidenceHubResponse>((r) => { resolveOld = r; }),
     ).mockResolvedValueOnce(hub("new-identity"));
-    const old = fetchCachedInfraEvidenceResourceHub(RESOURCE);
+    const old = fetchCachedInfraEvidenceResourceHub(RESOURCE, PINNED);
     readSignedInUserSubject.mockReturnValue("principal-2");
-    const newKey = buildInfraEvidenceResourceHubCacheKey(RESOURCE);
-    const fresh = await fetchCachedInfraEvidenceResourceHub(RESOURCE);
+    const newKey = buildInfraEvidenceResourceHubCacheKey(RESOURCE, PINNED);
+    const fresh = await fetchCachedInfraEvidenceResourceHub(RESOURCE, PINNED);
     resolveOld?.(hub("old-identity"));
     await old;
     expect(fresh).toEqual(hub("new-identity"));

@@ -1,14 +1,22 @@
+> **Scope:** Contributor guidance for the SecureNow resource evidence hub's freshness and browser cache behavior, not an authorization or collection policy.
+
 # SecureNow resource-hub cache hardening (CACHE-01 through CACHE-03)
 
 Applies to `archlucid-ui/src/lib/infra-evidence/infra-evidence-resource-hub-cache.ts`, the browser-only read-through cache for the resource evidence hub.
 
 ## CACHE-01: identity and authorization-context partition
 
-Every reusable cache key includes **authenticated OIDC subject + effective proxy tenant/workspace/project scope + resource ID + snapshot/run/assessment/audit-snapshot/control query identity**, encoded as a structured JSON tuple (version `securenow-hub-v2`). Distinct principals and projects cannot reuse the same cached response. Switching scope or subject clears retained responses and active single-flight records; explicit OIDC token replacement, login and logout dispatch a browser event to evict entries even when the same subject signs in again.
+Every reusable cache key includes **authenticated OIDC subject + effective proxy tenant/workspace/project scope + resource ID + snapshot/run/assessment/audit-snapshot/control query identity**, encoded as a structured JSON tuple (version `securenow-hub-v3`). Distinct principals and projects cannot reuse the same cached response. Switching scope or subject clears retained responses and active single-flight records; explicit OIDC token replacement, login and logout dispatch a browser event to evict entries even when the same subject signs in again.
 
 When JWT mode, authenticated subject or any of the three scope identifiers is unavailable, **bypass both cache reuse and request coalescing**. This includes opaque API-key sessions, which do not expose a stable browser principal. These requests still reach the authoritative API. The key never stores access tokens. Server authorization remains mandatory; browser caching does not grant any permission and does not replace server-side scope checks. Cache identity does not encode every instantaneous permission or role revocation; entries have a 30-second TTL and are cleared when the local OIDC session transitions.
 
 Requests with a run ID always reach the API, including overlapping requests from the same principal. The API checks current architecture sharing in the caller's tenant, workspace and project before loading the run manifest or hub. HTTP responses carry `Cache-Control: no-store`, and run-scoped failures propagate to the UI.
+
+## FND-064: current versus pinned resource evidence
+
+- With no review or snapshot pin, the hub reads the resource's exact-scope last-seen snapshot header from the existing repository. Current inventory requires a capture timestamp earlier than or equal to the current time and strictly less than seven days old. The hub returns HTTP 409 for missing, future, or expired capture time after scope and seal checks and before reading the snapshot's resource evidence. The timestamp is capture time, not ingest, update, or cache time. This does not trigger a collector or indicate that the resource was absent.
+- An explicitly pinned snapshot continues to use its exact ID after the existing scope and seal checks regardless of age. A review with no explicit inventory snapshot does not borrow a last-seen snapshot. Historical requests do not fall back to a different snapshot.
+- Unpinned requests bypass the browser cache and request coalescing so they recheck against the API. Only a non-empty canonical snapshot ID without a review ID is reusable. A freshness conflict cannot turn into canned workbook evidence.
 
 ## CACHE-02: bounded retention
 

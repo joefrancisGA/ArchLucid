@@ -136,6 +136,8 @@ public sealed class RunScopedEvidenceHubHttpTests(JwtLocalSigningWebAppFactory f
             .ReturnsAsync(new AzureInventorySnapshotRecord
             {
                 SnapshotId = snapshotId, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId,
+                // Keep freshness valid so this fixture exercises only cited-run access and the seal.
+                CapturedUtc = DateTime.UtcNow.AddMinutes(-1),
             });
         RunRecord run = new()
         {

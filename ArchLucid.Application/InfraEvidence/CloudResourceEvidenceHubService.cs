@@ -1,3 +1,4 @@
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Contracts.Architecture;
@@ -26,9 +27,11 @@ public sealed class CloudResourceEvidenceHubService(
     IAuthorityQueryService authorityQueryService,
     ICloudResourceAuditLineageResolver auditLineageResolver,
     IManifestHashService manifestHashService,
-    IInfraEvidenceRunReadAccess? runReadAccess = null) : ICloudResourceEvidenceHubService
+    IInfraEvidenceRunReadAccess? runReadAccess = null,
+    TimeProvider? timeProvider = null) : ICloudResourceEvidenceHubService
 {
     private const int RecentChangeTake = 25;
+    private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
 
     public async Task<CloudResourceEvidenceHubQueryResult> TryGetHubAsync(
         ScopeContext scope,
@@ -88,12 +91,15 @@ public sealed class CloudResourceEvidenceHubService(
         }
 
         bool explicitSnapshot = query.SnapshotId.GetValueOrDefault() != Guid.Empty;
-        Guid snapshotId = explicitSnapshot ? query.SnapshotId.GetValueOrDefault() : identity.LastSeenSnapshotId.GetValueOrDefault();
+        // A review without a snapshot pin must not silently use today's inventory.
+        Guid snapshotId = explicitSnapshot
+            ? query.SnapshotId.GetValueOrDefault()
+            : requestedRunId is null ? identity.LastSeenSnapshotId.GetValueOrDefault() : Guid.Empty;
+        AzureInventorySnapshotRecord? snapshot = null;
 
         if (snapshotId != Guid.Empty)
         {
-            AzureInventorySnapshotRecord? snapshot =
-                await snapshotRepository.TryGetBySnapshotIdAsync(scope, snapshotId, cancellationToken);
+            snapshot = await snapshotRepository.TryGetBySnapshotIdAsync(scope, snapshotId, cancellationToken);
 
             if (snapshot is null || snapshot.SnapshotId != snapshotId || snapshot.TenantId != scope.TenantId ||
                 snapshot.WorkspaceId != scope.WorkspaceId || snapshot.ProjectId != scope.ProjectId)
@@ -121,6 +127,12 @@ public sealed class CloudResourceEvidenceHubService(
                 manifestHashService,
                 (runId, ct) => runReadAccess?.CanReadRunAsync(scope, runId, ct) ?? Task.FromResult(false),
                 cancellationToken);
+
+            if (!explicitSnapshot)
+            {
+                InventorySnapshotFreshness.EnsureCurrent(
+                    snapshot?.CapturedUtc, _clock.GetUtcNow(), ArchitectureInventorySnapshotFreshness.StaleAfter);
+            }
         }
 
         (int page, int pageSize) = PaginationDefaults.Normalize(query.Page, query.PageSize);

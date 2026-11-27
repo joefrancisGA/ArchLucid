@@ -9,7 +9,9 @@ const HUB_CACHE_MAX_ENTRIES = 64;
 const HUB_CACHE_MAX_ESTIMATED_BYTES = 4 * 1024 * 1024;
 const HUB_CACHE_MAX_ENTRY_ESTIMATED_BYTES = 512 * 1024;
 const HUB_CACHE_MAX_INFLIGHT = 64;
-const CACHE_KEY_VERSION = "securenow-hub-v2";
+const CACHE_KEY_VERSION = "securenow-hub-v3";
+const PINNED_SNAPSHOT_ID = /^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i;
+const EMPTY_SNAPSHOT_ID = "00000000-0000-0000-0000-000000000000";
 
 type HubCacheEntry = {
   readonly hub: CloudResourceEvidenceHubResponse;
@@ -78,10 +80,13 @@ function currentPartition(): string | null {
   return identity;
 }
 
-// Run sharing can change between calls without a principal or scope transition.
+// Current reads must recheck capture time at the server. Run sharing can also change between calls.
 function reusablePartition(context: HubQueryCacheIdentity): string | null {
   const partition = currentPartition();
-  return normalizeCacheSegment(context.runId) ? null : partition;
+  const snapshotId = normalizeCacheSegment(context.snapshotId);
+  const pinned = PINNED_SNAPSHOT_ID.test(snapshotId) && snapshotId !== EMPTY_SNAPSHOT_ID;
+
+  return pinned && !normalizeCacheSegment(context.runId) ? partition : null;
 }
 
 function keyFor(identity: string, cloudResourceId: string, context: HubQueryCacheIdentity): string {

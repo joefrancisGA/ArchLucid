@@ -26,6 +26,8 @@ namespace ArchLucid.Application.Tests.InfraEvidence;
 [Trait("Suite", "Application")]
 public sealed class CloudResourceEvidenceHubServiceTests
 {
+    private static readonly DateTimeOffset Now = new(2026, 11, 26, 12, 0, 0, TimeSpan.Zero);
+
     private static ScopeContext CreateScope(Guid? tenantId = null) =>
         new()
         {
@@ -138,7 +140,8 @@ public sealed class CloudResourceEvidenceHubServiceTests
         };
 
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
-        AllowSnapshot(snapshotRepository, scope, lastSeenSnapshotId);
+        AllowSnapshot(snapshotRepository, scope, lastSeenSnapshotId,
+            DateTime.SpecifyKind(Now.UtcDateTime.AddDays(-7).AddTicks(1), DateTimeKind.Unspecified));
         snapshotRepository
             .Setup(repo => repo.ListResourcesBySnapshotIdPagedAsync(
                 scope,
@@ -169,6 +172,94 @@ public sealed class CloudResourceEvidenceHubServiceTests
                 cloudResourceId,
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Theory]
+    [InlineData(168, "too old")]
+    [InlineData(169, "too old")]
+    [InlineData(-1, "in the future")]
+    [InlineData(null, "no capture timestamp")]
+    public async Task TryGetHubAsync_current_snapshot_rejects_unusable_capture_time_before_payload(
+        int? ageHours, string reason)
+    {
+        ScopeContext scope = CreateScope();
+        Guid snapshotId = Guid.NewGuid(), cloudResourceId = Guid.NewGuid();
+        FakeCloudResourceIdentityDirectory identity = IdentityFor(scope, cloudResourceId, snapshotId);
+        Mock<IAzureInventorySnapshotRepository> snapshots = new(MockBehavior.Strict);
+        snapshots.Setup(repo => repo.TryGetBySnapshotIdAsync(scope, snapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AzureInventorySnapshotRecord
+            {
+                SnapshotId = snapshotId, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                CapturedUtc = ageHours.HasValue ? Now.UtcDateTime.AddHours(-ageHours.Value) : null,
+                CreatedUtc = Now.UtcDateTime,
+                UpdatedUtc = Now.UtcDateTime,
+            });
+        Mock<IAdvisoryTerraformRepresentationRepository> mappings = new(MockBehavior.Strict);
+        CloudResourceEvidenceHubService service = CreateService(
+            identity, snapshotRepository: snapshots.Object, terraformRepository: mappings.Object);
+
+        Func<Task> read = () => service.TryGetHubAsync(scope, cloudResourceId, new CloudResourceEvidenceHubQuery());
+
+        await read.Should().ThrowAsync<ConflictException>().WithMessage($"*{reason}*");
+        snapshots.Verify(repo => repo.TryGetBySnapshotIdAsync(scope, snapshotId, It.IsAny<CancellationToken>()), Times.Once);
+        snapshots.VerifyNoOtherCalls();
+        mappings.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task TryGetHubAsync_historical_snapshot_ignores_age_and_does_not_query_last_seen()
+    {
+        ScopeContext scope = CreateScope();
+        Guid pinnedId = Guid.NewGuid(), latestId = Guid.NewGuid(), cloudResourceId = Guid.NewGuid();
+        FakeCloudResourceIdentityDirectory identity = IdentityFor(scope, cloudResourceId, latestId);
+        Mock<IAzureInventorySnapshotRepository> snapshots = new(MockBehavior.Strict);
+        AllowSnapshot(snapshots, scope, pinnedId, Now.UtcDateTime.AddYears(-1));
+        snapshots.Setup(repo => repo.ListResourcesBySnapshotIdPagedAsync(
+                scope, pinnedId, 1, 1, cloudResourceId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(((IReadOnlyList<AzureInventoryResourceRecord>, int)?)null);
+        CloudResourceEvidenceHubService service = CreateService(identity, snapshotRepository: snapshots.Object);
+
+        CloudResourceEvidenceHubQueryResult result = await service.TryGetHubAsync(
+            scope, cloudResourceId, new CloudResourceEvidenceHubQuery { SnapshotId = pinnedId });
+
+        result.Succeeded.Should().BeTrue();
+        snapshots.Verify(repo => repo.TryGetBySnapshotIdAsync(scope, pinnedId, It.IsAny<CancellationToken>()), Times.Once);
+        snapshots.Verify(repo => repo.ListResourcesBySnapshotIdPagedAsync(
+            scope, pinnedId, 1, 1, cloudResourceId, It.IsAny<CancellationToken>()), Times.Once);
+        snapshots.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task TryGetHubAsync_pinned_run_without_inventory_pin_does_not_read_last_seen_snapshot()
+    {
+        ScopeContext scope = CreateScope();
+        Guid runId = Guid.NewGuid(), snapshotId = Guid.NewGuid(), cloudResourceId = Guid.NewGuid();
+        FakeCloudResourceIdentityDirectory identity = IdentityFor(scope, cloudResourceId, snapshotId);
+        Mock<IAzureInventorySnapshotRepository> snapshots = new(MockBehavior.Strict);
+        Mock<IInfraEvidenceRunReadAccess> access = new(MockBehavior.Strict);
+        access.Setup(a => a.CanReadRunAsync(scope, runId, It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        CloudResourceEvidenceHubService service = CreateService(
+            identity, snapshotRepository: snapshots.Object, runReadAccess: access.Object,
+            authorityQueryService: SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun());
+
+        CloudResourceEvidenceHubQueryResult result = await service.TryGetHubAsync(
+            scope, cloudResourceId, new CloudResourceEvidenceHubQuery { RunId = runId });
+
+        result.Succeeded.Should().BeTrue();
+        result.Hub!.CurrentConfiguration.Should().BeNull();
+        snapshots.VerifyNoOtherCalls();
+    }
+
+    private static FakeCloudResourceIdentityDirectory IdentityFor(ScopeContext scope, Guid cloudResourceId, Guid snapshotId)
+    {
+        FakeCloudResourceIdentityDirectory identities = new();
+        identities.Records[cloudResourceId] = new CloudResourceIdentityRecord
+        {
+            CloudResourceId = cloudResourceId, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId, LastSeenSnapshotId = snapshotId,
+        };
+        return identities;
     }
 
     [Theory]
@@ -686,11 +777,13 @@ public sealed class CloudResourceEvidenceHubServiceTests
         result.Hub.OperationalSecurityFindings.TotalCount.Should().Be(1);
     }
 
-    private static void AllowSnapshot(Mock<IAzureInventorySnapshotRepository> repository, ScopeContext scope, Guid id) =>
+    private static void AllowSnapshot(
+        Mock<IAzureInventorySnapshotRepository> repository, ScopeContext scope, Guid id, DateTime? capturedUtc = null) =>
         repository.Setup(repo => repo.TryGetBySnapshotIdAsync(scope, id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new AzureInventorySnapshotRecord
             {
                 SnapshotId = id, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId,
+                CapturedUtc = capturedUtc ?? DateTime.SpecifyKind(Now.UtcDateTime.AddDays(-6), DateTimeKind.Unspecified),
             });
 
     private static CloudResourceEvidenceHubService CreateService(
@@ -732,6 +825,7 @@ public sealed class CloudResourceEvidenceHubServiceTests
             .ReturnsAsync((ScopeContext scope, Guid id, CancellationToken _) => new AzureInventorySnapshotRecord
             {
                 SnapshotId = id, TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId,
+                CapturedUtc = Now.UtcDateTime,
             });
         snapshotRepositoryMock
             .Setup(repo => repo.ListResourcesBySnapshotIdPagedAsync(
@@ -790,7 +884,13 @@ public sealed class CloudResourceEvidenceHubServiceTests
             authorityQueryService ?? authorityQuery.Object,
             auditLineageResolver.Object,
             manifestHashService ?? SealedManifestHashTestSupport.CreateManifestHashService(),
-            runReadAccess);
+            runReadAccess,
+            new TestClock());
+    }
+
+    private sealed class TestClock : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => Now;
     }
 
     private sealed class FakeCloudResourceIdentityDirectory : ICloudResourceIdentityDirectory
