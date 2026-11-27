@@ -6,6 +6,12 @@
 # ArchLucid changelog
 
 
+## 2026-11-27 - SecureNow template and accelerator richness (fixture-path-03)
+
+**Outcome.** Seventh fixture walk (vault secrets hops) on the public sample links to sponsor path rehearsal. Accelerator index and pilot spine catalog add specialty templates, golden sponsor walkthrough, and fixture-path-03 handoffs — all labeled synthetic.
+
+**Surfaces.** Public SecureNow sample, scenario walks, accelerator index, pilot spine catalog, scenario home, template link module.
+
 ## 2026-11-24 - SecureNow stickiness second capture (batch)
 
 **Outcome.** Findings queue header and snapshots drift name that path id added, gone, and unchanged lists need a second successful capture, with securenowReturnPath recovery links. Not a usage claim.
