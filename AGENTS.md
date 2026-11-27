@@ -4,6 +4,10 @@
 
 Full **monorepo map**, **`*.slnf`** filters, and assessment pointers: **`[docs/engineering/AGENTS.md](docs/engineering/AGENTS.md)`** · Next.js app only: **`[archlucid-ui/AGENTS.md](archlucid-ui/AGENTS.md)`**.
 
+## Mandatory shared-component impact analysis
+
+Before modifying shared code or contracts, follow [`.cursor/rules/Shared-Component-Impact-Analysis.mdc`](.cursor/rules/Shared-Component-Impact-Analysis.mdc): identify direct and transitive consumers, preserve architectural and behavioral contracts, record a risk-adjusted verification plan before editing, and report actual verification outcomes and unresolved coverage. This also applies to Cloud Agents and other coding agents that load this file rather than Cursor rules directly.
+
 ## Compile verification (agents)
 
 **Debug `dotnet build` success is not evidence** that trunk will stay green. The **master/main push corset** (`.github/workflows/ui-typecheck-on-push.yml`) builds **Release** with `TreatWarningsAsErrors=true`. Prefer `scripts/ci/run_push_corset_dotnet.sh` or `scripts/ci/agent-compile-check.ps1` before claiming compile health.
