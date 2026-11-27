@@ -11,7 +11,8 @@ namespace ArchLucid.Cli.Tests;
 public sealed class CliRunCreationRetryTests
 {
     private const string RequestId = "cli-run-creation-retry";
-    private const string StableKey = "bc5acbf6-afa7-419e-b594-3d543d2863bf";
+    // Human-readable fixture — avoids gitleaks generic-api-key false positives on UUID-shaped values.
+    private const string StableKey = "cli-run-creation-retry-stable-idempotency-key";
 
     [Theory]
     [InlineData(null, StableKey, true, 2)]

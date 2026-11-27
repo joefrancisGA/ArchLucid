@@ -212,6 +212,12 @@ paths = [
   '''(?:^|/)ArchLucid\.Application\.Tests/Integrations/Itsm/ItsmInboundDispositionSyncTests\.cs$''',
 ]
 
+
+[[allowlists]]
+description = "CliRunCreationRetryTests (master FND-065): StableKey is a synthetic idempotency-key UUID fixture, not an API secret; generic-api-key false positive in full-history scan"
+paths = [
+  '''(?:^|/)ArchLucid\.Cli\.Tests/CliRunCreationRetryTests\.cs$''',
+]
 [[allowlists]]
 description = "Host.Core E2eHarness startup validation tests: configuration key names with synthetic SharedSecret literals only (not deployed credentials)"
 paths = [
