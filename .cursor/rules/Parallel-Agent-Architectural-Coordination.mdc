@@ -1,0 +1,20 @@
+---
+description: Coordinate overlapping AI-agent development through one shared architecture and one implementation owner per shared capability.
+alwaysApply: true
+---
+
+# Parallel agent architectural coordination
+
+Follow the mandatory [common AI-assisted development governance protocol](../../docs/engineering/AI_ASSISTED_DEVELOPMENT_GOVERNANCE.md#21-mandatory-parallel-agent-architectural-coordination) for Cursor, ChatGPT, Codex and other coding agents.
+
+Before implementing shared functionality or dispatching overlapping work:
+
+- Search existing implementations, extension points, relevant backlog items, open PRs and known active assignments by capability, not just file or class name.
+- Reuse existing components. Establish one implementation owner and agreed contract for each overlapping shared capability before dependent implementation proceeds.
+- Record ownership, scope, branch/PR, dependencies and verification in the existing shared task/PR plan. Do not create competing components or a second permanent registry.
+- Parallelize independent changes. Coordinate shared contract changes and avoid overlapping writes; disclose unknown or inaccessible concurrent work.
+- Before integration, recheck upstream and pending changes, review combined architectural impact and verify affected consumers against the integrated revision. Individual passing tests and conflict-free merges do not establish architectural compatibility.
+
+Preserve the Architecture-Invariants and Shared-Component-Impact-Analysis rules, working-tree safety, test integrity, existing branch and merge authority, and authorized CI budgets. This rule does not authorize delegation or background work. The canonical governance document defines the full procedure; do not duplicate it here.
+
+Mandatory procedural guidance, not an executable locking or global agent-discovery mechanism.
