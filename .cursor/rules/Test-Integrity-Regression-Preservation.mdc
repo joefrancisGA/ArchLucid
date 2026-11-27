@@ -1,0 +1,8 @@
+---
+description: Apply the canonical test-integrity review before materially changing what a test proves or whether it runs.
+alwaysApply: true
+---
+
+# Test integrity and regression preservation
+
+Read and follow [the canonical test-integrity review procedure](../../docs/engineering/AI_ASSISTED_DEVELOPMENT_GOVERNANCE.md#23-mandatory-test-integrity-and-regression-preservation) before proposing, reviewing, or accepting a material test change. Preserve the intended behavior and disclose what was not verified. The linked procedure is shared by Cursor, ChatGPT, and Codex. This rule does not define a separate policy or authorize bypassing any test or CI gate.
