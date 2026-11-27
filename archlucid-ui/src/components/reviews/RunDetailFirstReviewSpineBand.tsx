@@ -8,6 +8,8 @@ import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { writeArchLucidOpenGateReturnRecord } from "@/lib/architecture/archlucid-open-gate-return-storage";
 
 import { ReviewCognitiveLoadGuidance } from "@/components/reviews/ReviewCognitiveLoadGuidance";
+import { ReviewWorkspaceDeferredNotificationsDrawer } from "@/components/reviews/ReviewWorkspaceDeferredNotificationsDrawer";
+import type { ReviewWorkspaceDeferredNotificationLine } from "@/components/reviews/ReviewWorkspaceDeferredNotificationsDrawer";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
@@ -198,6 +200,28 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
           openGateHref,
           sponsorPacketHref,
         });
+  const deferredNotificationLines = useMemo((): ReviewWorkspaceDeferredNotificationLine[] => {
+    const lines: ReviewWorkspaceDeferredNotificationLine[] = [];
+
+    if (summary.gateOutcomeDetail !== null) {
+      lines.push({ id: "gate-outcome-detail", text: summary.gateOutcomeDetail });
+    }
+
+    if (props.isSample !== true && props.manifestVersion !== undefined) {
+      const versionLine = trimmedManifestVersion.length > 0 ? trimmedManifestVersion : "Version was not stored.";
+      lines.push({ id: "review-snapshot-version", text: `Review snapshot: ${versionLine}` });
+    }
+
+    if (summary.semanticSupportLine !== null) {
+      lines.push({ id: "semantic-support-line", text: summary.semanticSupportLine });
+    }
+
+    if (summary.showLaneBHonesty) {
+      lines.push({ id: "lane-b-honesty", text: SEMANTIC_SUPPORT_BAND_ASYNC_MAY_LAG_COPY });
+    }
+
+    return lines;
+  }, [props.isSample, props.manifestVersion, summary.gateOutcomeDetail, summary.semanticSupportLine, summary.showLaneBHonesty, trimmedManifestVersion]);
   const openGateLinkAriaLabel = ((): string | undefined => {
     if (!openGateLinkEnabled || summary.openGateReviewTab === null) {
       return undefined;
@@ -257,11 +281,7 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
         primaryAction={cognitivePrimaryAction}
       />
 
-      {summary.gateOutcomeDetail !== null ? (
-        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {summary.gateOutcomeDetail}
-        </p>
-      ) : null}
+      <ReviewWorkspaceDeferredNotificationsDrawer lines={deferredNotificationLines} />
 
       <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-open-gate">
         {summary.openGateLabel === FIRST_REVIEW_SPINE_OPEN_GATE_NOT_STORED ? (
@@ -287,15 +307,6 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
           </>
         )}
       </p>
-
-      {props.isSample !== true && props.manifestVersion !== undefined ? (
-        <p
-          className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="run-detail-first-review-spine-manifest"
-        >
-          Review snapshot: {trimmedManifestVersion.length > 0 ? trimmedManifestVersion : "Version was not stored."}
-        </p>
-      ) : null}
 
       {openGateLinkEnabled && openGateHref !== null ? (
         <div className="mt-2 flex flex-wrap gap-2">
