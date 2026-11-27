@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
+import { SecureNowMarketabilityBuyerPathAuto } from "@/components/product-line/SecureNowMarketabilityBuyerPathAuto";
 import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
 import { SecureNowBetaSkuContentsSection } from "@/components/product-line/SecureNowBetaSkuContentsSection";
 import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
@@ -132,6 +133,8 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
 
   return (
     <OperatorPageContainer variant="full" data-testid="securenow-pilot-decision-page">
+      <SecureNowMarketabilityBuyerPathAuto testId="securenow-pilot-decision-marketability-buyer-path" />
+
       <OperatorPageHeader
         title={SECURENOW_PILOT_DECISION_HEADING}
         subtitle={SECURENOW_PILOT_DECISION_LEAD}

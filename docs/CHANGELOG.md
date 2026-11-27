@@ -5,6 +5,14 @@
 
 # ArchLucid changelog
 
+## 2026-11-27 - Score lift round 153 (batch wave H5): SecureNow marketability buyer path
+
+**Outcome.** Reviewer home, quote packet, and pilot decision forward Why SecureNow, the synthetic sample, and the quote packet with beta NO_GO and signed-quote honesty — not checkout or a public GO.
+
+**Surfaces.** SecureNow reviewer home section, signed-in quote packet, pilot decision, drift guard and mounted-contract tests.
+
+
+
 ## 2026-11-27 - Score lift round 149 (batch wave H1): SecureNow time-to-value next step
 
 **Outcome.** Home, findings header, and snapshots drift name one collection or second-capture next step with a primary CTA and browser-local recovery links — not a timed SLA or usage score.
