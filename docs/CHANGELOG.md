@@ -6,13 +6,6 @@
 # ArchLucid changelog
 
 
-
-## 2026-11-27 - Score lift round 146 (Wave E): SecureNow packaging + procurement
-
-**Outcome.** Quote packet meter table footnote, ArchLucid-vs-SecureNow billing comparison strip, pilot-decision procurement CTA when disposition is unsaved, first-hour beta SKU band for marketing deep links, and route-gate entitlement parity in procurement copy sync.
-
-**Surfaces.** Quote packet, operator billing plans, pilot decision, first hour, product-line route gate sync.
-
 ## 2026-11-27 - Lowest three qualities (template, stickiness, decision velocity)
 
 **Outcome.** SecureNow accelerator home lists specialty templates, golden sponsor, and fixture-path-03 quick links. Accelerator index and scenario walks mount second-capture path-delta honesty with return-path recovery. Review cognitive load exposes one primary action on the first-review spine when the open-gate button is withheld.

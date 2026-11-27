@@ -4,7 +4,6 @@ import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/Sec
 import { SecureNowBetaSkuContentsSection } from "@/components/product-line/SecureNowBetaSkuContentsSection";
 import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
 import { SecureNowPublishedListPriceSection } from "@/components/product-line/SecureNowPublishedListPriceSection";
-import { SecureNowQuotePacketMeterTableFootnote } from "@/components/product-line/SecureNowQuotePacketMeterTableFootnote";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -76,7 +75,6 @@ export function SecureNowQuotePacketPageView(): React.JSX.Element {
               );
             })}
           </ul>
-          <SecureNowQuotePacketMeterTableFootnote />
         </section>
 
         <section aria-labelledby="securenow-quote-packet-sequence-heading" className="space-y-2">

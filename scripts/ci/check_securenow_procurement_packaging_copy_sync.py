@@ -9,8 +9,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 COPY = ROOT / "archlucid-ui/src/lib/product-line/securenow-procurement-trust-copy.ts"
 DRAWER = ROOT / "archlucid-ui/src/components/product-line/SecureNowProcurementTrustFooterDrawer.tsx"
-ENTITLEMENT = ROOT / "archlucid-ui/src/lib/product-line/product-line-route-blocked-entitlement-copy.ts"
-BLOCKED = ROOT / "archlucid-ui/src/components/product-line/ProductLineRouteBlockedView.tsx"
 
 
 def main() -> int:
