@@ -24,8 +24,15 @@ INVENTORY_STAGES = {
 }
 INVENTORY_HTTP_STATUS_EXPECTED = {"initial-status": "2xx", "control-repeat-status": "2xx", "repeat-status": 409}
 FINAL_OUTCOMES = ("passed", "failed", "skipped", "interrupted")
+LINUX_PROCESS_GROUPS = sys.platform == "linux"
+PROCESS_DRAIN_SECONDS = 2
 FIXTURE_PHASES = ("setup", "cleanup")
 FIXTURE_CLEANUP_OUTCOMES = ("already-absent", "still-present", "unverified")
+FIXTURE_SETUP_FAILURES = (
+    "image-pull-failed", "image-inspect-failed", "image-digest-mismatch", "fixture-initialization-failed",
+    "container-start-failed", "readiness-check-failed", "server-exited", "readiness-exhausted",
+    "sql-configuration-failed", "port-lookup-failed", "invalid-port-binding",
+)
 
 
 class Cancellation:
@@ -65,22 +72,24 @@ def inventory_failure(result):
 
 
 def read_result(trx, name, code, timed_out):
-    if timed_out or not trx.is_file():
-        return "interrupted", None
+    if timed_out:
+        return "interrupted", None, "watchdog-timeout"
     try:
         results = et.parse(trx).findall(".//{*}UnitTestResult")
-    except (et.ParseError, OSError):
-        return "interrupted", None
+    except FileNotFoundError:
+        return "interrupted", None, "missing-result"
+    except (et.ParseError, LookupError, OSError, ValueError):
+        return "interrupted", None, "invalid-result"
     if len(results) != 1 or results[0].get("testName") != name:
-        return "interrupted", None
+        return "interrupted", None, "invalid-result"
     recorded = results[0].get("outcome")
-    if recorded == "Passed":
-        return ("passed" if code == 0 else "interrupted"), None
+    if recorded == "Passed" and code == 0:
+        return "passed", None, None
     if recorded in ("NotExecuted", "Skipped"):
-        return "skipped", None
+        return "skipped", None, None
     if recorded == "Failed":
-        return "failed", inventory_failure(results[0]) if name == INVENTORY_CASE else None
-    return "interrupted", None
+        return "failed", inventory_failure(results[0]) if name == INVENTORY_CASE else None, None
+    return "interrupted", None, "invalid-result"
 
 
 def stop_test_tree(child):
@@ -96,6 +105,62 @@ def stop_test_tree(child):
     child.wait()
 
 
+def wait_for_test_exit(child, timeout, cancellation):
+    deadline = time.monotonic() + timeout
+    while cancellation.signum is None:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return None, True
+        if LINUX_PROCESS_GROUPS:
+            # Don't reap the session leader yet. Holding its PID prevents reuse
+            # of the process group ID while we verify or drain the group.
+            info = os.waitid(os.P_PID, child.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+            if info is not None:
+                return info.si_status if info.si_code == os.CLD_EXITED else -info.si_status, False
+            time.sleep(min(remaining, 0.05))
+        else:
+            try:
+                return child.wait(timeout=min(remaining, 0.2)), False
+            except subprocess.TimeoutExpired:
+                continue
+    return None, False
+
+
+def linux_group_has_live_members(group):
+    for entry in Path("/proc").iterdir():
+        if not entry.name.isdecimal():
+            continue
+        try:
+            raw = (entry / "stat").read_bytes()
+        except (FileNotFoundError, ProcessLookupError):
+            continue
+        # The parenthesized command may contain spaces or parentheses.
+        fields = raw.rsplit(b") ", 1)[1].split()
+        if int(fields[2]) == group and fields[0] not in (b"Z", b"X", b"x"):
+            return True
+    return False
+
+
+def drain_exited_linux_group(group):
+    deadline = time.monotonic() + PROCESS_DRAIN_SECONDS
+    while True:
+        try:
+            os.killpg(group, signal.SIGKILL)
+        except ProcessLookupError:
+            return True
+        except OSError:
+            return False
+        try:
+            if not linux_group_has_live_members(group):
+                return True
+        except (OSError, IndexError, ValueError):
+            return False
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return False
+        time.sleep(min(remaining, 0.02))
+
+
 def run_case(name, output, timeout, cancellation):
     result = {"case": name, "outcome": "interrupted", "exit_code": None, "artifact_dir": output.name}
     if cancellation.signum is not None:
@@ -109,7 +174,6 @@ def run_case(name, output, timeout, cancellation):
         "--results-directory", str(output), "--logger", "trx;LogFileName=case.trx",
         "--blame-hang-timeout", f"{timeout - 15}s", "--blame-hang-dump-type", "none",
     ]
-    timed_out = False
     with (output / "console.log").open("w", encoding="utf-8") as log:
         try:
             child = subprocess.Popen(cmd, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT,
@@ -117,24 +181,24 @@ def run_case(name, output, timeout, cancellation):
         except OSError:
             result["interruption"] = "launch-failed"
             return result
-        deadline = time.monotonic() + timeout
-        while cancellation.signum is None:
-            remaining = deadline - time.monotonic()
-            if remaining <= 0:
-                timed_out = True
-                break
-            try:
-                child.wait(timeout=min(remaining, 0.2))
-                break
-            except subprocess.TimeoutExpired:
-                continue
+        code, timed_out = wait_for_test_exit(child, timeout, cancellation)
         cancelled = cancellation.signum is not None
         if timed_out or cancelled:
             stop_test_tree(child)
-    outcome, failure = read_result(trx, name, child.returncode, timed_out or cancelled)
-    result.update(outcome=outcome, exit_code=child.returncode)
-    if cancelled:
-        result["interruption"] = "cancelled"
+            code = child.returncode
+        try:
+            if cancelled:
+                outcome, failure, interruption = "interrupted", None, "cancelled"
+            else:
+                outcome, failure, interruption = read_result(trx, name, code, timed_out)
+            # A valid result proves the test outcome, not that its helpers exited.
+            if LINUX_PROCESS_GROUPS and not (timed_out or cancelled) and not drain_exited_linux_group(child.pid):
+                result["process_cleanup"] = "unverified"
+        finally:
+            child.wait()
+    result.update(outcome=outcome, exit_code=code)
+    if interruption is not None:
+        result["interruption"] = interruption
     if failure is not None:
         result["failure"] = failure
     return result
@@ -179,9 +243,9 @@ def record_fixture_timeout(path, revision, phase):
         checkpoint(path, summary)
 
 
-def record_fixture_cleanup(path, revision, outcome):
+def record_fixture_field(path, revision, field, outcome):
     summary = read_fixture_summary(path, revision)
-    summary["fixture_cleanup"] = outcome
+    summary[field] = outcome
     checkpoint(path, summary)
 
 
@@ -197,6 +261,8 @@ def main(argv=None, cancellation=None):
     mode.add_argument("--record-fixture-timeout", choices=FIXTURE_PHASES, help="Add a fixture timeout without changing test outcomes")
     mode.add_argument("--record-fixture-cleanup", choices=FIXTURE_CLEANUP_OUTCOMES,
                       help="Record cleanup verification without changing test outcomes")
+    mode.add_argument("--record-fixture-setup-failure", choices=FIXTURE_SETUP_FAILURES,
+                      help="Record a bounded setup error without changing test outcomes")
     args = parser.parse_args(argv)
     if args.timeout_seconds < 20:
         parser.error("the case timeout must be at least 20 seconds")
@@ -204,12 +270,14 @@ def main(argv=None, cancellation=None):
     output = args.results_dir.resolve()
     summary_path = output / "summary.json"
     revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
-    if args.record_fixture_timeout or args.record_fixture_cleanup:
+    if args.record_fixture_timeout or args.record_fixture_cleanup or args.record_fixture_setup_failure:
         try:
             if args.record_fixture_timeout:
                 record_fixture_timeout(summary_path, revision, args.record_fixture_timeout)
+            elif args.record_fixture_cleanup:
+                record_fixture_field(summary_path, revision, "fixture_cleanup", args.record_fixture_cleanup)
             else:
-                record_fixture_cleanup(summary_path, revision, args.record_fixture_cleanup)
+                record_fixture_field(summary_path, revision, "fixture_setup_failure", args.record_fixture_setup_failure)
         except (OSError, ValueError):
             parser.error("cannot annotate the existing focused SQL summary")
         return cancellation.exit_code or 0
@@ -243,19 +311,28 @@ def main(argv=None, cancellation=None):
         row["outcome"] = "running"
         checkpoint(summary_path, summarize(revision, reports))
         print(f"[{index}/{len(cases)}] {name}", flush=True)
+        started_ns = time.monotonic_ns()
         result = run_case(name, output / row["artifact_dir"], args.timeout_seconds, cancellation)
+        result = dict(result, elapsed_ms=(time.monotonic_ns() - started_ns) // 1_000_000,
+                      watchdog_budget_ms=args.timeout_seconds * 1_000)
         reports[index - 1] = result
         checkpoint(summary_path, summarize(revision, reports))
-        print(f"  {result['outcome']}", flush=True)
+        reason = f" ({result['interruption']})" if "interruption" in result else ""
+        print(f"  {result['outcome']}{reason}", flush=True)
         if "failure" in result:
             print(f"  {json.dumps(result['failure'], sort_keys=True)}", flush=True)
         if result.get("interruption") == "launch-failed":
             print("Could not start the .NET test process. No further cases were started.", file=sys.stderr, flush=True)
             break
+        if result.get("process_cleanup") == "unverified":
+            print("Could not verify test process cleanup. No further cases were started.", file=sys.stderr, flush=True)
+            break
     counts = summarize(revision, reports)["counts"]
     print(json.dumps(counts, sort_keys=True))
     if cancellation.signum is not None:
         return cancellation.exit_code
+    if any(row.get("process_cleanup") == "unverified" for row in reports):
+        return 1
     return 0 if counts["passed"] == len(cases) else 1
 
 

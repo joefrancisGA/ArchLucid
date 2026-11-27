@@ -1,3 +1,8 @@
+import {
+  SECURENOW_GOLDEN_SPONSOR_WALKTHROUGH_HREF,
+  SECURENOW_SPECIALTY_TEMPLATES_HREF,
+} from "@/lib/product-line/securenow-accelerator-template-links";
+
 export const SECURENOW_PILOT_SPINE_ACCELERATOR_INDEX_TITLE = "Labeled accelerator catalog" as const;
 
 export const SECURENOW_PILOT_SPINE_ACCELERATOR_INDEX_LEAD =
@@ -19,7 +24,7 @@ export const SECURENOW_PILOT_SPINE_ACCELERATOR_LINKS: readonly SecureNowPilotSpi
   },
   {
     id: "specialty-walkthroughs",
-    href: "/help/specialty-walkthroughs",
+    href: SECURENOW_SPECIALTY_TEMPLATES_HREF,
     label: "Specialty review templates",
     hint: "Choose a labeled intake template; previews stay read-only until you start a review.",
   },
@@ -31,9 +36,15 @@ export const SECURENOW_PILOT_SPINE_ACCELERATOR_LINKS: readonly SecureNowPilotSpi
   },
   {
     id: "golden-sponsor",
-    href: "/help/specialty-walkthroughs",
+    href: SECURENOW_GOLDEN_SPONSOR_WALKTHROUGH_HREF,
     label: "Golden sponsor export walkthrough",
-    hint: "Illustrative example only — use the sample review link from Help when you are ready.",
+    hint: "Illustrative ArchLucid sample review only — exports stay separate from live workspace data.",
+  },
+  {
+    id: "fixture-path-03",
+    href: "/securenow-sample#fixture-path-03",
+    label: "Third synthetic path (fixture-path-03)",
+    hint: "Vault secrets hops on the public sample, then sponsor path rehearsal in product.",
   },
   {
     id: "remediation-factory-empty",

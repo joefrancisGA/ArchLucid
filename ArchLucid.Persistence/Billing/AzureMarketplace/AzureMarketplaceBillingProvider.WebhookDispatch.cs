@@ -1,4 +1,3 @@
-using System.Net.Http.Headers;
 using System.Text.Json;
 
 using ArchLucid.Core.Billing;
@@ -120,6 +119,17 @@ public sealed partial class AzureMarketplaceBillingProvider
 
             return BillingWebhookHandleResult.Ok(integrationPayload);
         }
+        catch (OperationCanceledException) when (
+            cancellationToken.IsCancellationRequested
+            && _billingOptions.CurrentValue.AzureMarketplace.FulfillmentApiEnabled
+            && IsActivationAction(action))
+        {
+            // Allow a later delivery to reconcile the durable activation claim even if the caller disconnected.
+            using CancellationTokenSource cleanup = new(TimeSpan.FromSeconds(5));
+            await _ledger.MarkWebhookProcessedAsync(dedupeKey, "Failed", cleanup.Token);
+
+            throw;
+        }
         catch (Exception)
         {
             await _ledger.MarkWebhookProcessedAsync(dedupeKey, "Failed", cancellationToken);
@@ -182,8 +192,7 @@ public sealed partial class AzureMarketplaceBillingProvider
                 : MarketplaceDispatchCompletion.PublishIntegrationEnvelope;
         }
 
-        if (!string.Equals(normalized, "Subscribe", StringComparison.OrdinalIgnoreCase) &&
-            !string.Equals(normalized, "Purchase", StringComparison.OrdinalIgnoreCase))
+        if (!IsActivationAction(normalized))
             return MarketplaceDispatchCompletion.PublishIntegrationEnvelope;
 
         await ActivateIfRequestedAsync(
@@ -197,6 +206,10 @@ public sealed partial class AzureMarketplaceBillingProvider
         return MarketplaceDispatchCompletion.PublishIntegrationEnvelope;
     }
 
+    private static bool IsActivationAction(string action) =>
+        string.Equals(action.Trim(), "Subscribe", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(action.Trim(), "Purchase", StringComparison.OrdinalIgnoreCase);
+
     private async Task ActivateIfRequestedAsync(
         Guid tenantId,
         Guid workspaceId,
@@ -209,27 +222,16 @@ public sealed partial class AzureMarketplaceBillingProvider
 
         if (billing.AzureMarketplace.FulfillmentApiEnabled)
         {
-            using HttpClient client = _httpClientFactory.CreateClient(nameof(AzureMarketplaceBillingProvider));
+            if (!Guid.TryParse(subscriptionId, out Guid marketplaceSubscriptionId) || marketplaceSubscriptionId == Guid.Empty)
+                throw new InvalidOperationException("Marketplace activation requires a valid subscription identifier.");
 
             TokenCredential credential = new DefaultAzureCredential();
             AccessToken token = await credential.GetTokenAsync(
                 new TokenRequestContext(["https://marketplaceapi.microsoft.com/.default"]),
                 cancellationToken);
 
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
-
-            string activateUrl =
-                $"https://marketplaceapi.microsoft.com/api/saas/subscriptions/{Uri.EscapeDataString(subscriptionId)}/activate?api-version=2018-08-31";
-
-            using HttpResponseMessage response = await client.PostAsync(activateUrl, null, cancellationToken);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                string body = await response.Content.ReadAsStringAsync(cancellationToken);
-
-                throw new InvalidOperationException(
-                    $"Marketplace activate failed with {(int)response.StatusCode}: {body}");
-            }
+            await MarketplaceFulfillmentActivation.EnsureAsync(
+                _httpClientFactory, _ledger, marketplaceSubscriptionId, token.Token, cancellationToken);
         }
 
         BillingCheckoutTier tier = BillingCheckoutTier.Team;

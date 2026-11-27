@@ -39,5 +39,7 @@ public sealed partial class AzureMarketplaceBillingProvider(
     private readonly BillingWebhookTrialActivator _trialActivator =
         trialActivator ?? throw new ArgumentNullException(nameof(trialActivator));
 
+    public const string ActivationStatusHttpClientName = "AzureMarketplaceActivationStatus";
+
     public string ProviderName => BillingProviderNames.AzureMarketplace;
 }

@@ -89,7 +89,31 @@ All three hosted public pricing clients (Azure Retail Prices, AWS Pricing, and G
 
 The pricing tests cover both header formats on all three named clients, elapsed-budget exhaustion, cancellation, the attempt limit, non-replayed writes, cross-provider failures, recovery, and independent capacity under simulated saturation. They do not measure real vendor latency or establish a distributed concurrency limit.
 
-This change expands adoption only for the hosted pricing clients. Azure Resource Manager, CLI/direct SDK clients, and non-pricing outbound integrations keep their own behavior. The shared external integration breaker already samples completed calls, Jira/ServiceNow health probes use independent clients, and the Jira, ServiceNow, and Azure Boards ticket paths do not automatically replay writes. Broader opt-in for read retry timing, concurrency limits beyond hosted pricing, and provider-specific idempotency verification for other mutation paths remain separate work. Do not adopt the pricing retry settings blindly for writes.
+The pricing breaker and concurrency settings apply only to the hosted pricing clients. The Azure Resource Manager read registrations below share the retry timing, not the pricing admission settings. CLI/direct SDK clients and other integrations follow their own policies. The shared external integration breaker already samples completed calls, Jira/ServiceNow health probes use independent clients, and the Jira, ServiceNow, and Azure Boards ticket paths do not automatically replay writes. Broader opt-in for read retry timing, concurrency limits beyond hosted pricing, and provider-specific idempotency verification for other mutation paths remain separate work. Do not adopt the pricing retry settings blindly for writes.
+
+### Azure Resource Manager reads (FND-065)
+
+The named `ArchLucid.AzureResourceManager` client and the hosted extractor's `IHostedAzureArmReadClient` use the same deadline-aware retry timing as public pricing for bodyless GET and HEAD requests. Each HTTP call keeps the existing five-minute timeout and four-attempt maximum. Exponential backoff includes up to 25% positive jitter. A valid `Retry-After` delta or HTTP date on 429 or 503 is a minimum wait. When that wait reaches or exceeds the remaining budget, the policy returns the last response unchanged. Caller cancellation stops a retry wait.
+
+This change does not alter other requests on the named client or the separate hosted management POST-read registration. It does not add a shared breaker or concurrency limit across authenticated ARM callers, change transport or authorization, or set a budget for a full paginated inventory. Fake-transport tests cover both production registrations and show that an ARM retry wait does not delay the independently registered pricing client. CLI/direct SDK and other provider integrations are not covered by this slice.
+
+[Azure Resource Manager throttling and Retry-After](https://learn.microsoft.com/azure/azure-resource-manager/management/request-limits-and-throttling)
+
+### Webhook and Marketplace delivery (FND-065)
+
+The audit at `b4b23e5` found two independent named breakers, but all webhook destinations shared one and both paths could retry POSTs. The current behavior is:
+
+| Path | Resilience and recovery |
+| --- | --- |
+| Slack, Teams, and on-call webhooks | The 60-second named client maintains a separate process-local breaker per configured URL, including path and query. Registry keys are digests and are not logged. At 4,096 active or recent destinations the client refuses admission of new destinations until idle entries can be reclaimed. It does not evict recent state or combine unrelated destinations into a shared fallback breaker. The existing HTTP retry, signing, envelope, and transport settings are unchanged. |
+| Azure Marketplace manual activation | GET subscription status on a distinct 30-second client before submitting. `Subscribed` needs no POST. An eligible pending subscription can claim one automatic dispatch through an atomic insert into the canonical billing ledger using the subscription ID. The activation client never retries POSTs or follows redirects. The status client can retry GET and stays available when the activation breaker is open. |
+| Azure Marketplace plan and quantity updates | These handlers continue to mutate local billing and entitlement state. They do not use the activation submission client. |
+
+[Microsoft's activation contract](https://learn.microsoft.com/en-us/partner-center/marketplace-offers/pc-saas-fulfillment-subscription-api#activate-a-subscription) distinguishes an accepted activation request from confirmed subscription state. After an ambiguous send, a status read showing `Subscribed` allows local fulfillment to continue. A pending status does not prove the submission failed. A later inbound delivery can check again but does not issue a second automatic POST for a claimed subscription. The claim survives a change in webhook payload and process restart when backed by SQL, but it is not delivery confirmation. No claim is required when the provider already reports `Subscribed`.
+
+**Operator recovery:** If the worker stopped after recording a dispatch claim, the request may not have reached Marketplace. Check the subscription and the state of the original request on the provider side before manually completing activation. Do not clear claims as a standard retry mechanism. A hard stop can leave the pre-existing inbound receipt in `Received`; exact redelivery of that receipt is not a substitute for operator reconciliation. Drain workers running the previous activation path before mixing versions on the same workload.
+
+The webhook registry isolates breaker state, not concurrency across hosts. There is still no documented receiver-wide deduplication guarantee for [Slack incoming webhooks](https://docs.slack.dev/messaging/sending-messages-using-incoming-webhooks/) or [Teams webhooks](https://learn.microsoft.com/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook). Stable receiver-aware webhook retry rules and broader outbound adoption remain separate work.
 
 ### CLI HTTP retries
 

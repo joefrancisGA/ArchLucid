@@ -27,8 +27,17 @@ public static partial class ServiceCollectionExtensions
             .AddHttpClient(
                 nameof(AzureMarketplaceBillingProvider),
                 static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration))
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
-            .AddOutboundExternalHttpResilience();
+            .ConfigureArchLucidOutboundSocketsHandler(
+                OutboundHttpSocketsHandlerProfile.ExternalIntegration, allowAutoRedirect: false)
+            .AddOutboundExternalHttpResilienceForReadRetries();
+        // An open activation breaker must not prevent a read-only reconciliation.
+        services
+            .AddHttpClient(
+                AzureMarketplaceBillingProvider.ActivationStatusHttpClientName,
+                static client => client.Timeout = TimeSpan.FromSeconds(OutboundHttpClientTimeoutSeconds.ExternalIntegration))
+            .ConfigureArchLucidOutboundSocketsHandler(
+                OutboundHttpSocketsHandlerProfile.ExternalIntegration, allowAutoRedirect: false)
+            .AddOutboundExternalHttpResilienceForReadRetries();
         services.AddScoped<BillingWebhookTrialActivator>();
         services.AddScoped<StripeBillingSubscriptionWebhookProcessor>();
         services.AddSingleton<IBillingWebhookReplayGuard, MemoryCacheBillingWebhookReplayGuard>();

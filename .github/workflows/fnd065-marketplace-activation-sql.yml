@@ -1,0 +1,86 @@
+name: FND-065 Marketplace activation SQL replay
+
+on:
+  pull_request:
+    branches: [master, main]
+    paths:
+      - '.github/workflows/fnd065-marketplace-activation-sql.yml'
+      - 'scripts/ci/wait-for-sqlserver.sh'
+      - 'ArchLucid.Core/Billing/IBillingLedger.cs'
+      - 'ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.Billing.cs'
+      - 'ArchLucid.Persistence/Billing/AzureMarketplace/**'
+      - 'ArchLucid.Persistence/Billing/SqlBillingLedger*.cs'
+      - 'ArchLucid.Persistence/Migrations/078_BillingSubscriptions.sql'
+      - 'ArchLucid.Persistence.Tests/Billing/MarketplaceActivationClaimSqlTests.cs'
+      - 'ArchLucid.Persistence.Tests/Billing/MarketplaceFulfillmentActivationTests.cs'
+      - 'ArchLucid.Persistence.Tests/SqlServerPersistenceFixture.cs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  marketplace-activation-sql:
+    name: Verify Marketplace activation replay on SQL
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      REPLAY_TEST: ArchLucid.Persistence.Tests.Billing.MarketplaceActivationClaimSqlTests.An_uncertain_activation_cannot_be_resubmitted_by_another_sql_ledger_instance
+      REPLAY_RESULTS: TestResults/fnd065-marketplace
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Start disposable SQL Server
+        shell: bash
+        run: |
+          set -euo pipefail
+          password="Fnd065!$(openssl rand -hex 20)"
+          echo "::add-mask::$password"
+          docker run -d --name fnd065-marketplace-sql -e ACCEPT_EULA=Y \
+            -e MSSQL_PID=Developer -e MSSQL_SA_PASSWORD="$password" \
+            -p 127.0.0.1:1433:1433 mcr.microsoft.com/mssql/server:2022-latest
+
+          SA_PASSWORD="$password" bash scripts/ci/wait-for-sqlserver.sh
+          connection="Server=127.0.0.1,1433;Initial Catalog=ArchLucidPersistenceTestsFnd065;User ID=sa;Password=$password;Encrypt=True;TrustServerCertificate=True;Connect Timeout=5"
+          echo "::add-mask::$connection"
+          echo "ARCHLUCID_SQL_TEST=$connection" >> "$GITHUB_ENV"
+      - name: Run the named Marketplace SQL replay test
+        shell: bash
+        run: |
+          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj \
+            --configuration Release \
+            -p:TreatWarningsAsErrors=true \
+            --filter "FullyQualifiedName=$REPLAY_TEST" \
+            --logger 'trx;LogFileName=marketplace-activation-sql.trx' \
+            --results-directory "$REPLAY_RESULTS"
+      - name: Require the named SQL test to execute and pass
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          report = Path(os.environ["REPLAY_RESULTS"]) / "marketplace-activation-sql.trx"
+          expected = os.environ["REPLAY_TEST"]
+          ns = {"t": "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}
+          results = ET.parse(report).findall(".//t:UnitTestResult", ns)
+          actual = [(test.get("testName"), test.get("outcome")) for test in results]
+          if actual != [(expected, "Passed")]:
+              raise SystemExit(f"Expected exactly one executed, passing SQL replay case: {expected}. Got {actual}.")
+          print(f"Verified the SQL replay test passed: {expected}")
+          PY
+      - name: Preserve SQL test evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: fnd065-marketplace-activation-sql-trx
+          path: TestResults/fnd065-marketplace/*.trx
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Remove disposable SQL Server
+        if: always()
+        shell: bash
+        run: docker rm -f fnd065-marketplace-sql || true

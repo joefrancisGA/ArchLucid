@@ -10,6 +10,12 @@ public sealed class HostedAzureExtractorOptions
     /// <summary>When false, hosted run endpoints return 503 (Tier 2 opt-in gate).</summary>
     public bool Enabled { get; set; }
 
+    /// <summary>Whole hosted collection deadline in seconds, excluding ingest. Defaults to 30 minutes.</summary>
+    public int CollectionTimeoutSeconds { get; set; } = 1_800;
+
+    public TimeSpan GetEffectiveCollectionTimeout() =>
+        TimeSpan.FromSeconds(Math.Clamp(CollectionTimeoutSeconds, 30, 7_200));
+
     /// <summary>ArchLucid user-assigned managed identity client id used as the federation source.</summary>
     public string? ArchLucidManagedIdentityClientId { get; set; }
 

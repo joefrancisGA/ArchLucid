@@ -73,14 +73,10 @@ public static class HostedCloudExtractorCompositionModule
         services
             .AddHttpClient<IHostedAzureArmReadClient, GetOnlyHostedAzureArmReadClient>(static client =>
             {
-                client.Timeout = TimeSpan.FromMinutes(5);
+                client.Timeout = AzureArmReadHttpClientBuilderExtensions.CallBudget;
             })
             .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.CloudControlPlane)
-            .AddLongLivedPolicyHandler(static serviceProvider =>
-                ArchLucid.Core.Http.AzureRmAndRetailPricesHttpRetryPolicy.Create(
-                    serviceProvider
-                        .GetRequiredService<ILoggerFactory>()
-                        .CreateLogger("HostedAzureArmReadClient.Policies")));
+            .AddDeadlineAwareArmReadRetries("HostedAzureArmReadClient.Policies");
         services
             .AddHttpClient<IHostedAzureManagementPostReadClient, HostedAzureManagementPostReadClient>(static client =>
             {
