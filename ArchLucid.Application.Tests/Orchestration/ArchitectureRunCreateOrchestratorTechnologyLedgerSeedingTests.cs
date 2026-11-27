@@ -219,7 +219,7 @@ public sealed class ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTest
 
         Mock<IEvidenceBundleRepository> evidenceBundleRepository = new();
         evidenceBundleRepository
-            .Setup(x => x.GetByIdAsync("eb-replay", It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetForRunAsync(TestScope, runGuid, "eb-replay", It.IsAny<CancellationToken>()))
             .ReturnsAsync(bundle);
 
         Mock<IArchitectureRunAuthorityCoordination> coordination = new();

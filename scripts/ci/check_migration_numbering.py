@@ -56,15 +56,18 @@ HISTORICAL_DUPLICATE_BLOBS: dict[str, dict[str, str]] = {
     },
     "354": {
         "354_AuditControlTechnicalTimeline.sql": "ec16316545ee69f516bb8eea4288ea0532523c5f",
-        "354_GoldenManifests_HasherBoundJson.sql": "dbef7997ce6409924a93c9b41b2ae8c876478ded"
+        "354_AuthorizationDecisionJournal.sql": "6bae6a629d6e09e66b2f8b388b63cd204e1e1661",
+        "354_GoldenManifests_HasherBoundJson.sql": "dbef7997ce6409924a93c9b41b2ae8c876478ded",
     },
     "355": {
+        "355_AuthorizationDecisionHashChain.sql": "ab08ff47b8ed05fddef5cc6f1a8e9fa1ca9987b2",
         "355_PolicyPacks_PackSlug.sql": "d6c7314f8c164a8748bcd82969ae29426fb9051e",
-        "355_SecurityCrosswalkMappings.sql": "17bc872b796c818635bd0dc08d2ffe9269232dab"
+        "355_SecurityCrosswalkMappings.sql": "17bc872b796c818635bd0dc08d2ffe9269232dab",
     },
     "356": {
         "356_OperationalSecurityFindings.sql": "7a3786e8e6e1feb7c81cb02ef7d5ffb56c842b02",
-        "356_Runs_AcknowledgedCoverageJson.sql": "89735e94daafff9a64460de9f97ed1708c35fbd7"
+        "356_RemediationEmergencyStop.sql": "71ff657093f1e46ec90f307c068fbb58e889ade3",
+        "356_Runs_AcknowledgedCoverageJson.sql": "89735e94daafff9a64460de9f97ed1708c35fbd7",
     },
     "357": {
         "357_PolicyPacks_PackSlug_Backfill.sql": "bcd7b0ba174ecd5463d352d21c887664f6f53f58",
