@@ -31,6 +31,8 @@ import {
 } from "@/components/reviews/ReviewJourneyStrip";
 import { ReviewWorkspaceLifecycleProgressStepper } from "@/components/reviews/ReviewWorkspaceLifecycleProgressStepper";
 import { ReviewWorkspacePackageSearchScopeChip } from "@/components/reviews/ReviewWorkspacePackageSearchScopeChip";
+import { ReviewWorkspaceDecisionVelocityNextStrip } from "@/components/reviews/ReviewWorkspaceDecisionVelocityNextStrip";
+import { ReviewWorkspaceOpenGateReturnStrip } from "@/components/reviews/ReviewWorkspaceOpenGateReturnStrip";
 import { ReviewWorkspaceUnifiedSearchHonestyStrip } from "@/components/reviews/ReviewWorkspaceUnifiedSearchHonestyStrip";
 import { ReviewVocabularyRail } from "@/components/reviews/ReviewVocabularyRail";
 import { resolveReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-lifecycle";
@@ -81,6 +83,10 @@ export type RunDetailWorkspaceHeaderProps = {
   readonly templateLabel: string | null;
   readonly finalizedAtLabel: string | null;
   readonly packageVersionLabel: string | null;
+  readonly blockingApprovalCount?: number;
+  readonly buyerPolishedArtifactTable?: boolean;
+  readonly operatorGovernanceDecision?: string | null;
+  readonly manifestStatus?: string | null;
 };
 
 function buildReviewMetadataFields(
@@ -387,6 +393,16 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
         />
         <ReviewWorkspacePackageSearchScopeChip />
         <ReviewWorkspaceUnifiedSearchHonestyStrip />
+        <ReviewWorkspaceDecisionVelocityNextStrip
+          runId={props.runId}
+          signedReviewRecordId={props.signedReviewRecordId}
+          workspaceStatusKind={props.workspaceStatus.kind}
+          blockingApprovalCount={props.blockingApprovalCount ?? 0}
+          buyerPolishedArtifactTable={props.buyerPolishedArtifactTable === true}
+          operatorGovernanceDecision={props.operatorGovernanceDecision}
+          manifestStatus={props.manifestStatus}
+        />
+        <ReviewWorkspaceOpenGateReturnStrip runId={props.runId} />
         <ReviewVocabularyRail />
         {!reviewPipelineIncomplete ? <ArchitectureObjectMapStrip focus="review" /> : null}
         <dl

@@ -281,6 +281,10 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
       templateLabel={templateLabel}
       finalizedAtLabel={finalizedAtLabel}
       packageVersionLabel={packageVersionLabel}
+      blockingApprovalCount={blockingApprovalCount}
+      buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
+      operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision}
+      manifestStatus={m.manifestSummary?.status ?? null}
     />
   );
 

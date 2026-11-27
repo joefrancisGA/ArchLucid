@@ -5,6 +5,14 @@
 
 # ArchLucid changelog
 
+## 2026-11-27 - Score lift round 148 (batch wave G): Review decision velocity and open-gate stickiness
+
+**Outcome.** Workspace chrome names one decision next step (finalize, blocking findings, or governance approval) distinct from the reviews hub queue. Open-gate return links architecture home and resumes the stored gate on the same review with browser-local honesty.
+
+**Surfaces.** Run detail workspace header chrome, drift guard and mounted-contract tests.
+
+
+
 ## 2026-11-27 - Score lift round 147 (batch wave F): Review workspace cognitive load and search honesty
 
 **Outcome.** Tab cognitive next steps honor missing evidence reference counts; lifecycle stepper hides on sealed reviews; workspace chrome mirrors package search scope; section search explains tabs without on-page nav; first-review spine suppresses duplicate open-gate primaries when the tab strip is visible.
