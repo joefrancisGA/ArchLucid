@@ -6,6 +6,12 @@
 # ArchLucid changelog
 
 
+
+## 2026-11-27 - Score lift round 145 (Wave D): SecureNow pinned accelerator paths + template grid footer
+
+**Outcome.** Accelerator index and scenario walks mount browser-local pinned path toggles (max three) and index path-inspect quick strip. Specialty template grid footer restates synthetic-only discipline below the card grid.
+
+**Surfaces.** Accelerator index, scenario walks, specialty walkthrough templates help.
 ## 2026-11-27 - Lowest three qualities (template, stickiness, decision velocity)
 
 **Outcome.** SecureNow accelerator home lists specialty templates, golden sponsor, and fixture-path-03 quick links. Accelerator index and scenario walks mount second-capture path-delta honesty with return-path recovery. Review cognitive load exposes one primary action on the first-review spine when the open-gate button is withheld.

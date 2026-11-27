@@ -5,6 +5,8 @@ import Link from "next/link";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SecureNowAcceleratorScenarioRelatedRail } from "@/components/product-line/SecureNowAcceleratorScenarioRelatedRail";
+import { SecureNowAcceleratorFamilyProgressStrip } from "@/components/product-line/SecureNowAcceleratorFamilyProgressStrip";
+import { SecureNowAcceleratorPinnedPathsStrip } from "@/components/product-line/SecureNowAcceleratorPinnedPathsStrip";
 import { SecureNowAdminSecondCapturePathDeltaStrip } from "@/components/product-line/SecureNowAdminSecondCapturePathDeltaStrip";
 import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
 import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
@@ -41,6 +43,10 @@ export function SecureNowScenarioWalksPageView(): React.JSX.Element {
         />
 
         <SecureNowAdminSecondCapturePathDeltaStrip testIdPrefix="securenow-scenario-walks" />
+
+        <SecureNowAcceleratorFamilyProgressStrip />
+
+        <SecureNowAcceleratorPinnedPathsStrip />
 
         <section aria-labelledby="securenow-scenario-walks-list-heading" className="space-y-2">
           <h2 id="securenow-scenario-walks-list-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>

@@ -9,6 +9,8 @@ import { SecureNowAdminSecondCapturePathDeltaStrip } from "@/components/product-
 import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
 import { SecureNowCollectionSetupStatusSection } from "@/components/product-line/SecureNowCollectionSetupStatusSection";
 import { SecureNowAcceleratorCatalogFilterChips } from "@/components/product-line/SecureNowAcceleratorCatalogFilterChips";
+import { SecureNowAcceleratorPinnedPathsStrip } from "@/components/product-line/SecureNowAcceleratorPinnedPathsStrip";
+import { SecureNowAcceleratorPinnedQuickStrip } from "@/components/product-line/SecureNowAcceleratorPinnedQuickStrip";
 import { SecureNowAcceleratorFamilyProgressStrip } from "@/components/product-line/SecureNowAcceleratorFamilyProgressStrip";
 import { filterSecureNowAcceleratorRowsByCatalogTag } from "@/lib/product-line/securenow-accelerator-catalog-filters";
 import type { SecureNowAcceleratorCatalogTag } from "@/lib/product-line/securenow-accelerator-catalog-taxonomy";
@@ -58,6 +60,10 @@ export function SecureNowAcceleratorIndexPageView(): React.JSX.Element {
         <SecureNowAdminSecondCapturePathDeltaStrip testIdPrefix="securenow-accelerator-index" />
 
         <SecureNowAcceleratorFamilyProgressStrip />
+
+        <SecureNowAcceleratorPinnedQuickStrip />
+
+        <SecureNowAcceleratorPinnedPathsStrip />
 
         <SecureNowAcceleratorCatalogFilterChips activeTag={catalogTag} onTagChange={setCatalogTag} />
 

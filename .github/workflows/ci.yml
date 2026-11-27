@@ -649,6 +649,10 @@ jobs:
         continue-on-error: true
         run: python scripts/ci/assert-score-lift-round144-batch.py
 
+      - name: Score lift round 145 batch drift guard
+        continue-on-error: true
+        run: python scripts/ci/assert-score-lift-round145-batch.py
+
       - name: SecureNow procurement packaging copy sync
         continue-on-error: true
         run: python scripts/ci/check_securenow_procurement_packaging_copy_sync.py
