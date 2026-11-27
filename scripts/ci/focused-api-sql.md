@@ -23,6 +23,8 @@ On `SIGINT` or `SIGTERM`, the wrapper forwards the signal and waits for the runn
 
 For a launched test process, the report distinguishes `watchdog-timeout` (the runner hit its deadline), `missing-result` (the process exited without a TRX file), and `invalid-result` (the file could not be read or did not provide a valid result for exactly the selected case). These reasons can differ even when process exit codes match. A TRX pass paired with a nonzero process exit is invalid, and none of the three reasons turns an interruption into a pass.
 
+On Linux, an unexpectedly exited test host's owned process group is stopped and checked for live members before the next case can start. If the group cannot be verified as stopped within two seconds, the runner records `process_cleanup: unverified`, preserves the original outcome and reason, and leaves the later cases `not-started`.
+
 ## Three-case PR check
 
 The **Focused API SQL cases** job builds the API test project and normally runs finalize and replay, the persisted-inventory negative case, and the same-catalog audit fixture. It runs on its own hosted runner, checks out the exact PR head, and uses a new container with the pinned image. It publishes only `summary.json` and does not replace any required CI checks. The inventory negative case reports a fixed stage name and, where available, a bounded expected and actual result. No raw test output or response bodies are published.

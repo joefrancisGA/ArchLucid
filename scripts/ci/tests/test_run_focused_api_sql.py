@@ -80,6 +80,69 @@ class FocusedApiSqlLaunchTests(TestCase):
                 self.assertEqual(result["outcome"], "interrupted")
                 self.assertEqual(result["interruption"], reason)
 
+    @skipUnless(sys.platform == "linux", "requires Linux process-group verification")
+    def test_early_exit_releases_the_previous_case_lock_before_starting_the_next(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            output = root / "results"
+            marker = output / "01" / "owned.group"
+            git = root / "git"
+            git.write_text(f"#!/bin/sh\nprintf '%s\\n' '{REVISION}'\n", encoding="utf-8")
+            git.chmod(0o700)
+            dotnet = root / "dotnet"
+            dotnet.write_text(f"#!{sys.executable}\n" + """\
+import fcntl
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+
+if sys.argv[1] == '--hold-lock':
+    folder = Path(sys.argv[2])
+    with (folder / 'fixture.lock').open('w') as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        (folder / 'owned.group').write_text(str(os.getpgrp()))
+        time.sleep(30)
+else:
+    args = sys.argv
+    folder = Path(args[args.index('--results-directory') + 1])
+    name = args[args.index('--filter') + 1].split('=', 1)[1]
+    if name.endswith('.EarlyExit'):
+        child = subprocess.Popen([sys.executable, __file__, '--hold-lock', str(folder)])
+        deadline = time.monotonic() + 4
+        while not (folder / 'owned.group').is_file() and child.poll() is None and time.monotonic() < deadline:
+            time.sleep(0.02)
+        os._exit(42)
+    with (folder.parent / '01' / 'fixture.lock').open('r+') as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    (folder / 'case.trx').write_text(
+        f'<TestRun><Results><UnitTestResult testName="{name}" outcome="Passed"/></Results></TestRun>')
+""", encoding="utf-8")
+            dotnet.chmod(0o700)
+            verified = False
+            try:
+                completed = subprocess.run(
+                    [sys.executable, str(SCRIPT), "--results-dir", str(output),
+                     "--case", CASE + ".EarlyExit", "--case", CASE + ".NextCase"],
+                    env=os.environ | {"PATH": str(root), "ARCHLUCID_API_TEST_SQL": "synthetic-fixture"},
+                    capture_output=True, text=True, timeout=10,
+                )
+                self.assertEqual(completed.returncode, 1, completed.stderr)
+                self.assertTrue(marker.is_file(), "synthetic helper never acquired the lock")
+                report = json.loads((output / "summary.json").read_text(encoding="utf-8"))
+                self.assertEqual([row["outcome"] for row in report["cases"]], ["interrupted", "passed"])
+                self.assertEqual(report["cases"][0]["exit_code"], 42)
+                self.assertEqual(report["cases"][0]["interruption"], "missing-result")
+                verified = True
+            finally:
+                # Remove only the synthetic process group if the regression fails.
+                if not verified and marker.is_file() and (group := marker.read_text()).isdecimal():
+                    try:
+                        os.killpg(int(group), signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+
 
 class FocusedApiSqlResultTests(TestCase):
     def report(self, rows, exit_code, timed_out=False):
@@ -260,6 +323,17 @@ class FocusedApiSqlCheckpointTests(TestCase):
         self.assertEqual(result["unreported"], 0)
         self.assertEqual([row["outcome"] for row in result["cases"]], outcomes)
         self.assertEqual(result["counts"]["interrupted"], 1)
+
+    def test_stops_the_batch_if_process_cleanup_cannot_be_verified(self):
+        os.environ["ARCHLUCID_SQL_TEST"] = "private-fixture-sentinel"
+        failure = {"case": self.names[0], "outcome": "interrupted", "exit_code": 42, "artifact_dir": "01",
+                   "interruption": "missing-result", "process_cleanup": "unverified"}
+        self.run_case.return_value = failure
+        self.assertEqual(RUNNER.main(self.args), 1)
+        result = self.read_summary()
+        self.run_case.assert_called_once()
+        self.assertEqual(result["cases"][0], failure)
+        self.assertEqual([row["outcome"] for row in result["cases"]], ["interrupted", "not-started", "not-started"])
 
     def test_refuses_changed_revision_or_selection_without_rewriting_the_plan(self):
         self.assertEqual(RUNNER.main(self.args + ["--prepare-only"]), 0)
