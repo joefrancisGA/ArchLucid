@@ -1,4 +1,4 @@
-﻿import { defineConfig, devices } from "@playwright/test";
+import { defineConfig, devices } from "@playwright/test";
 
 /**
  * Mock-backed operator UI Playwright suite (loopback mock API on 18765).
@@ -10,7 +10,8 @@
  * `MOCK_E2E_REUSE_SERVER=1` to reuse an existing listener when you intentionally run standalone yourself.
  * After a one-time `npm run build`, prefer `npm run screenshots:all:prebuilt` to avoid the webServer re-running
  * a full build (faster, clearer failures). PNGs for `capture-all` land under `public/screenshots/all-routes/`.
- * `screenshots:all` / `screenshots:all:prebuilt` pass `--workers=50%` so route screenshots run in parallel (CLI overrides `workers` below).
+ * `screenshots:all` defaults to `workers: 1` below — one shared Next `webServer` cannot sustain parallel hydration
+ * (`#5842`). For faster local crawls, pass `--workers=N` explicitly when you accept flake risk.
  */
 const mockE2eSkipNextBuild = process.env.MOCK_E2E_SKIP_NEXT_BUILD === "1";
 const mockWebServerCommand = mockE2eSkipNextBuild

@@ -31,6 +31,9 @@ const OUT = publicDirUnderUi("screenshots", "all-routes");
 /** Each route runs as its own parallel test; generous ceiling for cold Next + mock on shared webServer. */
 const PER_ROUTE_SCREENSHOT_TIMEOUT_MS = 12 * 60 * 1_000;
 
+/** Deep regression shares one Next `webServer`; allow extra hydration time under CI load. */
+const APP_READY_WAIT_MS = process.env.CI ? 120_000 : 60_000;
+
 function slugForHref(href: string): string {
   const noLead = href.replace(/^\//, "");
 
@@ -155,7 +158,7 @@ async function captureRouteModuleTdzEvidence(page: Page, errorText: string): Pro
   }
 }
 
-test.describe.parallel("all routes screenshots (mock API)", () => {
+(process.env.CI ? test.describe.serial : test.describe.parallel)("all routes screenshots (mock API)", () => {
   test.describe.configure({ timeout: PER_ROUTE_SCREENSHOT_TIMEOUT_MS });
 
   test.beforeEach(async ({ page }) => {
@@ -214,7 +217,7 @@ test.describe.parallel("all routes screenshots (mock API)", () => {
 
       /** Wait for hydrated shell ({@link AppShellClient} / {@link ShellReadySurface}); `networkidle` is unreliable on Next.js. */
       try {
-        await page.locator("[data-app-ready=\"true\"]").waitFor({ state: "attached", timeout: 60_000 });
+        await page.locator("[data-app-ready=\"true\"]").waitFor({ state: "attached", timeout: APP_READY_WAIT_MS });
       } catch (e) {
         throw new Error(
           `data-app-ready not found for href=${href} (url=${page.url()}). Use a free UI port, run mock webServer (see playwright.mock.config), ` +

@@ -11,7 +11,7 @@ const projectRoot = path.join(scriptDir, "..");
 
 const result = spawnSync(
   "npm",
-  ["run", "e2e:mock", "--", "capture-all-screenshots.spec.ts", "--workers=50%"],
+  ["run", "e2e:mock", "--", "capture-all-screenshots.spec.ts"],
   {
     stdio: "inherit",
     cwd: projectRoot,
