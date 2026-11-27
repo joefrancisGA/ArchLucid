@@ -1351,7 +1351,7 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — lower one quarter block inside true — locus: So strip; input: `tr` + U+2582 + `ue`; pass-177 reseed.
 - [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open over padded `false` base replaces with canonical `1` — locus: writer; input: open over padded false base; pass-177 reseed.
 - [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `no` then `1` — locus: first-wins; input: repeated param; pass-177 reseed.
-- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves snapshots when clearing path and finding on pathname-only href — locus: href; input: clear path and finding; pass-177 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves snapshots when clearing finding and path on pathname-only href — locus: href; input: clear path and finding; pass-177 reseed.
 - [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — upper right quadrant inside true — locus: So strip; input: `tr` + U+2599 + `ue`; pass-172 reseed.
 - [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded `no` base — locus: writer; input: close over padded no base; pass-172 reseed.
 - [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `on` then `0` — locus: first-wins; input: repeated param; pass-172 reseed.
