@@ -381,6 +381,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **code-changed-since:** yes
 
 
+2026-11-27 thorough hunt (hit): hint override `ui-lib-remediation-factory` (pass-335 queue). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with triple vertical bar delimiter (U+2980) and z notation spot (U+2981) inside `true` stayed closed because Miscellaneous Mathematical Symbols-B were absent from the strip class. Close U+2980 through U+29FF. **valid-no-repro** pass-335 monitors (metrics open over padded `ON`, duplicate `ON`/`1` first-wins, pathname href preserves open metrics when clearing path and finding). Pass-336 reseed below. Scoped vitest **1023/1023**. Private beta: Invited operators who deep-link with miscellaneous mathematical symbols-B inside `remediationFactoryMetricsOpen` on/true tokens open the executive metrics summary instead of landing with the panel closed.
 2026-11-27 thorough hunt (hit): hint override `ui-lib-remediation-factory` (pass-334 queue). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with rightwards two-headed arrow with vertical stroke (U+2900) and with double vertical stroke (U+2901) inside `true` stayed closed because Supplemental Arrows-B were absent from the strip class. Close U+2900 through U+297F. **valid-no-repro** pass-334 monitors (metrics close drops padded `OFF`, duplicate `off`/`1` first-wins, pathname href preserves foreign params when clearing all selection). Pass-335 reseed below. Scoped vitest **1021/1021**. Private beta: Invited operators who deep-link with supplemental arrows-B inside `remediationFactoryMetricsOpen` on/true tokens open the executive metrics summary instead of landing with the panel closed.
 2026-11-27 thorough hunt (hit): hint override `ui-lib-remediation-factory` (pass-333 queue). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with upwards quadruple arrow (U+27F0) and downwards quadruple arrow (U+27F1) inside `true` stayed closed because Supplemental Arrows-A were absent from the strip class. Close U+27F0 through U+27FF. **valid-no-repro** pass-333 monitors (metrics open over padded `ON`, duplicate `ON`/`1` first-wins, pathname href preserves open metrics when clearing path and finding). Pass-334 reseed below. Scoped vitest **1019/1019**. Private beta: Invited operators who deep-link with supplemental arrows-A inside `remediationFactoryMetricsOpen` on/true tokens open the executive metrics summary instead of landing with the panel closed.
 2026-11-27 thorough hunt (hit): hint override `ui-lib-remediation-factory` (pass-332 queue). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with three dimensional angle (U+27C0) and white triangle containing small white triangle (U+27C1) inside `true` stayed closed because Supplemental Mathematical Operators were absent from the strip class. Close U+27C0 through U+27EF. No enclosed-one or decimal-one scalar in that block. **valid-no-repro** pass-332 monitors (metrics close drops padded `OFF`, duplicate `off`/`1` first-wins, pathname href preserves foreign params when clearing all selection). Pass-333 reseed below. Scoped vitest **1017/1017**. Private beta: Invited operators who deep-link with supplemental mathematical operators inside `remediationFactoryMetricsOpen` on/true tokens open the executive metrics summary instead of landing with the panel closed.
@@ -2556,11 +2557,20 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 
 - [x] (superseded) pass-334 `(candidate)` queue — **superseded 2026-11-27 thorough hunt (hit):** pass-335 reseed.
 
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — triple vertical bar delimiter U+2980 inside true — locus: So strip gap; input: `tr` + U+2980 + `ue`; pass-335 reseed.
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — z notation spot U+2981 inside true — locus: So strip gap; input: `tr` + U+2981 + `ue`; pass-335 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open over padded `ON` base — locus: writer; input: open over padded ON base; pass-335 reseed.
-- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `ON` then `1` — locus: first-wins; input: repeated param; pass-335 reseed.
-- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves open metrics when clearing path and finding on pathname-only href — locus: href; input: clear path and finding; pass-335 reseed.
+- [x] (superseded) pass-335 `(candidate)` queue — **superseded 2026-11-27 thorough hunt (hit):** pass-336 reseed.
+
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — n-ary circled dot operator U+2A00 inside true — locus: So strip gap; input: `tr` + U+2A00 + `ue`; pass-336 reseed.
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — n-ary circled plus operator U+2A01 inside true — locus: So strip gap; input: `tr` + U+2A01 + `ue`; pass-336 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded `OFF` base — locus: writer; input: close over padded OFF base; pass-336 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `off` then `1` — locus: first-wins; input: repeated param; pass-336 reseed.
+- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves foreign params when clearing all selection on pathname-only href — locus: href; input: clear all selection; pass-336 reseed.
+
+
+- [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — triple vertical bar delimiter U+2980 inside true — **proven 2026-11-27 thorough hunt (hit):** regression `treats true metrics disclosure token with triple vertical bar delimiter inside the word as open on read`.
+- [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — z notation spot U+2981 inside true — **proven 2026-11-27 thorough hunt (hit):** regression `treats true metrics disclosure token with z notation spot inside the word as open on read`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics open over padded `ON` base — **cheap-disproof 2026-11-27 thorough hunt (hit):** regression `canonicalizes metrics open to 1 when writing open state from a padded ON base`.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `ON` then `1` — **cheap-disproof 2026-11-27 thorough hunt (hit):** regression `uses the first metrics disclosure token when ON precedes 1 in the query string`.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves open metrics when clearing path and finding on pathname-only href — **cheap-disproof 2026-11-27 thorough hunt (hit):** regression `remediationFactoryHrefFromSearch preserves open metrics when clearing path and finding on pathname-only href`.
 
 
 - [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — rightwards two-headed arrow with vertical stroke U+2900 inside true — **proven 2026-11-27 thorough hunt (hit):** regression `treats true metrics disclosure token with rightwards two-headed arrow with vertical stroke inside the word as open on read`.
@@ -3253,8 +3263,8 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 355
-- **bugs-found:** 341
+- **hunts:** 356
+- **bugs-found:** 342
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-27
 - **last-bug:** 2026-11-27
