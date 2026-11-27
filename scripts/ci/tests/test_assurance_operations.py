@@ -3,8 +3,11 @@
 
 from __future__ import annotations
 
+import hashlib
 import importlib.util
+import json
 import sys
+from tempfile import TemporaryDirectory
 import unittest
 from pathlib import Path
 
@@ -90,20 +93,28 @@ class AssuranceOperationsTests(unittest.TestCase):
         self.assertIn("STRONG_LANGUAGE_ON_INFERENCE", codes)
 
     def test_regression_ledger_requires_durable_memory_for_confirmed_defect(self) -> None:
-        bad = REGRESSION.validate([
-            {"defectId": "d1", "confirmed": True, "regressionDisposition": "regression-test"}
-        ])
-        self.assertTrue(bad)
-
-        good = REGRESSION.validate([
-            {
-                "defectId": "d1",
-                "confirmed": True,
-                "regressionDisposition": "metamorphic-test",
-                "regressionArtifact": "ArchLucid.Tests/FooTests.cs",
-            }
-        ])
-        self.assertEqual(good, [])
+        row = {"defectId": "d1", "confirmed": True, "regressionDisposition": "metamorphic-test"}
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.assertTrue(REGRESSION.validate([row], artifact_root=root))
+            self.assertTrue(REGRESSION.validate(
+                [dict(row, regressionArtifact="ArchLucid.Tests/FooTests.cs")], artifact_root=root,
+            ))
+            raw = json.dumps({
+                "schemaVersion": 1, "defectId": "d1", "regressionDisposition": "metamorphic-test",
+                "intendedBehavior": "Ordering is invariant under reversed input.",
+                "testIdentity": "FooTests.OrderingIsInvariant",
+                "expectedFailureReason": "ordering changed",
+                "baseline": {"revision": "a" * 40, "testIdentity": "FooTests.OrderingIsInvariant",
+                             "executedCount": 1, "exitCode": 1, "outcome": "assertion-failed",
+                             "failureReason": "ordering changed"},
+                "corrected": {"revision": "b" * 40, "testIdentity": "FooTests.OrderingIsInvariant",
+                              "executedCount": 1, "exitCode": 0, "outcome": "passed"},
+            }).encode()
+            (root / "proof.json").write_bytes(raw)
+            self.assertEqual(REGRESSION.validate([
+                dict(row, regressionArtifact="proof.json", regressionArtifactSha256=hashlib.sha256(raw).hexdigest())
+            ], artifact_root=root), [])
 
 
 if __name__ == "__main__":

@@ -1,0 +1,27 @@
+{
+  "baseline": {
+    "executedCount": 1,
+    "exitCode": 1,
+    "failureReason": "enforcement accepted a confirmed regression with a null artifact",
+    "outcome": "assertion-failed",
+    "revision": "62bc3b8d362e7694cee1394668cd0bcae790b54e",
+    "testIdentity": "regression_ledger.enforce_rejects_null_artifact",
+    "validatorErrorCount": 0,
+    "validatorExitCode": 0
+  },
+  "corrected": {
+    "executedCount": 1,
+    "exitCode": 0,
+    "outcome": "passed",
+    "revision": "12c7e9a95248f72f5374948a5fe533e5d4b373b2",
+    "testIdentity": "regression_ledger.enforce_rejects_null_artifact",
+    "validatorErrorCount": 1,
+    "validatorExitCode": 1
+  },
+  "defectId": "FND-166-NULL-RECEIPT",
+  "expectedFailureReason": "enforcement accepted a confirmed regression with a null artifact",
+  "intendedBehavior": "Enforcement rejects a confirmed regression whose artifact is null.",
+  "regressionDisposition": "regression-test",
+  "schemaVersion": 1,
+  "testIdentity": "regression_ledger.enforce_rejects_null_artifact"
+}

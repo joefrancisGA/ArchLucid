@@ -1,0 +1,57 @@
+name: Critical defect regression evidence
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - '.github/workflows/pr-regression-evidence.yml'
+      - 'scripts/assurance/regression_ledger.py'
+      - 'scripts/assurance/regression_evidence_gate.py'
+      - 'scripts/assurance/regression-evidence/**'
+      - 'scripts/agent/al-bug-verify-proven-revert.py'
+      - 'scripts/agent/al_bug_ledger.py'
+      - 'scripts/tests/test_al_bug_verify_proven_revert.py'
+      - 'scripts/ci/tests/test_assurance_operations.py'
+      - 'scripts/ci/tests/test_regression_evidence_gate.py'
+      - 'docs/assurance/AUTOMATIC_REGRESSION_POLICY.md'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: critical-regression-evidence-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  regression-evidence:
+    name: Validate and replay critical defect evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Run scoped assurance checks
+        run: |
+          python3 scripts/tests/test_al_bug_verify_proven_revert.py
+          python3 -m unittest discover -s scripts/ci/tests -p 'test_assurance_operations.py' -v
+          python3 -m unittest discover -s scripts/ci/tests -p 'test_regression_evidence_gate.py' -v
+
+      - name: Validate the intake and replay pinned defects
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python3 scripts/assurance/regression_evidence_gate.py \
+            --base "$BASE_SHA" --expected-head "$HEAD_SHA" \
+            --fetch-missing --output "$RUNNER_TEMP/critical-regression-evidence"
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: critical-regression-evidence
+          path: ${{ runner.temp }}/critical-regression-evidence/*.json
+          if-no-files-found: ignore
+          retention-days: 7
