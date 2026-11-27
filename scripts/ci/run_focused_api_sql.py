@@ -111,8 +111,12 @@ def run_case(name, output, timeout, cancellation):
     ]
     timed_out = False
     with (output / "console.log").open("w", encoding="utf-8") as log:
-        child = subprocess.Popen(cmd, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT,
-                                 start_new_session=os.name == "posix")
+        try:
+            child = subprocess.Popen(cmd, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT,
+                                     start_new_session=os.name == "posix")
+        except OSError:
+            result["interruption"] = "launch-failed"
+            return result
         deadline = time.monotonic() + timeout
         while cancellation.signum is None:
             remaining = deadline - time.monotonic()
@@ -245,6 +249,9 @@ def main(argv=None, cancellation=None):
         print(f"  {result['outcome']}", flush=True)
         if "failure" in result:
             print(f"  {json.dumps(result['failure'], sort_keys=True)}", flush=True)
+        if result.get("interruption") == "launch-failed":
+            print("Could not start the .NET test process. No further cases were started.", file=sys.stderr, flush=True)
+            break
     counts = summarize(revision, reports)["counts"]
     print(json.dumps(counts, sort_keys=True))
     if cancellation.signum is not None:

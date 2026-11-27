@@ -6,8 +6,10 @@ from io import StringIO
 import json
 import os
 from pathlib import Path
+import subprocess
+import sys
 from tempfile import TemporaryDirectory
-from unittest import TestCase
+from unittest import TestCase, skipUnless
 from unittest.mock import patch
 from xml.sax.saxutils import escape
 
@@ -18,6 +20,42 @@ RUNNER = module_from_spec(SPEC)
 SPEC.loader.exec_module(RUNNER)
 CASE = "ArchLucid.Api.Tests.FocusedExample.Test"
 REVISION = "a" * 40
+
+
+@skipUnless(os.name == "posix", "requires a controlled POSIX executable search path")
+class FocusedApiSqlLaunchTests(TestCase):
+    def test_failed_process_launch_is_reported_and_stops_the_batch(self):
+        for missing in (True, False):
+            with self.subTest(missing=missing), TemporaryDirectory() as directory:
+                root = Path(directory)
+                git = root / "git"
+                git.write_text(f"#!/bin/sh\nprintf '%s\\n' '{REVISION}'\n", encoding="utf-8")
+                git.chmod(0o700)
+                if not missing:
+                    dotnet = root / "dotnet"
+                    dotnet.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+                    dotnet.chmod(0o600)
+                output = root / "results"
+                names = [CASE + ".First", CASE + ".Second"]
+                completed = subprocess.run(
+                    [sys.executable, str(SCRIPT), "--results-dir", str(output),
+                     "--case", names[0], "--case", names[1]],
+                    env=os.environ | {"PATH": str(root), "ARCHLUCID_API_TEST_SQL": "synthetic-fixture"},
+                    capture_output=True, text=True, timeout=10,
+                )
+                self.assertEqual(completed.returncode, 1, completed.stderr)
+                self.assertIn("Could not start the .NET test process", completed.stderr)
+                self.assertNotIn("Traceback", completed.stderr)
+                self.assertNotIn(str(root), completed.stderr)
+                report = json.loads((output / "summary.json").read_text(encoding="utf-8"))
+                self.assertEqual(report["counts"], {"passed": 0, "failed": 0, "skipped": 0, "interrupted": 1})
+                self.assertEqual(report["unreported"], 1)
+                self.assertEqual(report["cases"], [
+                    {"case": names[0], "outcome": "interrupted", "artifact_dir": "01",
+                     "exit_code": None, "interruption": "launch-failed"},
+                    {"case": names[1], "outcome": "not-started", "artifact_dir": "02"},
+                ])
+                self.assertFalse((output / "02").exists())
 
 
 class FocusedApiSqlResultTests(TestCase):
