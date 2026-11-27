@@ -1,3 +1,4 @@
+using ArchLucid.Application.CloudExtractor;
 using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Configuration;
@@ -59,13 +60,9 @@ public sealed class HostedAzureExtractorRunService(
             return HostedAzureExtractorRunResult.CreateNotConfigured();
 
         cancellationToken.ThrowIfCancellationRequested();
-        TimeSpan budget = options.GetEffectiveCollectionTimeout();
-        long collectionStartedAt = _timeProvider.GetTimestamp();
         HostedAzureExtractorCollectionResult collection;
 
-        using (CancellationTokenSource deadline = new(budget, _timeProvider))
-        using (CancellationTokenSource collectionCancellation =
-            CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, deadline.Token))
+        using (HostedCloudCollectionDeadline deadline = new(_timeProvider, options.GetEffectiveCollectionTimeout(), cancellationToken))
         {
             try
             {
@@ -79,15 +76,15 @@ public sealed class HostedAzureExtractorRunService(
                             IncludeCost = configuration.IncludeCost,
                             IncludeAppSettingsHosts = true,
                         },
-                        collectionCancellation.Token)
+                        deadline.Token)
                     .ConfigureAwait(false);
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (CollectionDeadlineExpired(deadline, collectionStartedAt, budget))
+                if (deadline.IsExpired)
                 {
                     // A collector that did not observe cancellation can still finish with a late package.
-                    return CollectionTimeout(budget);
+                    return HostedAzureExtractorRunResult.CreateCollectionFailed(deadline.FailureDetail("Azure"));
                 }
             }
             catch (Exception ex) when (ex is OperationCanceledException or HttpRequestException
@@ -95,8 +92,8 @@ public sealed class HostedAzureExtractorRunService(
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (CollectionDeadlineExpired(deadline, collectionStartedAt, budget))
-                    return CollectionTimeout(budget);
+                if (deadline.IsExpired)
+                    return HostedAzureExtractorRunResult.CreateCollectionFailed(deadline.FailureDetail("Azure"));
 
                 if (HostedAzureExtractorHttpFailureClassifier.IsArmThrottled(ex))
                 {
@@ -134,11 +131,4 @@ public sealed class HostedAzureExtractorRunService(
             ingestResult.PackageId!.Value,
             collection.ResourceCount);
     }
-
-    private bool CollectionDeadlineExpired(CancellationTokenSource deadline, long startedAt, TimeSpan budget) =>
-        deadline.IsCancellationRequested || _timeProvider.GetElapsedTime(startedAt) >= budget;
-
-    private static HostedAzureExtractorRunResult CollectionTimeout(TimeSpan budget) =>
-        HostedAzureExtractorRunResult.CreateCollectionFailed(
-            $"Hosted Azure collection exceeded its {budget.TotalSeconds:0}-second deadline. No package was ingested.");
 }

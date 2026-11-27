@@ -99,6 +99,12 @@ This change does not alter other requests on the named client or the separate ho
 
 [Azure Resource Manager throttling and Retry-After](https://learn.microsoft.com/azure/azure-resource-manager/management/request-limits-and-throttling)
 
+### Hosted cloud inventory collection deadlines (FND-065)
+
+Manual and scheduled hosted runs share one collection deadline per attempted connection. The budget covers provider collection through ZIP preparation but excludes ingest. Configure it in seconds with `HostedAzureExtractor:CollectionTimeoutSeconds`, `HostedAwsExtractor:CollectionTimeoutSeconds`, or `HostedGcpExtractor:CollectionTimeoutSeconds`. Each defaults to 1,800 seconds and is clamped to 30–7,200 seconds.
+
+At expiry, the host cancels the collection token and rejects any late ZIP before ingest. Cancellation is cooperative, so a provider operation that does not observe the token can still take longer to return. AWS and GCP record an expired collection as a connection error and return the existing collection-failure result. Caller cancellation remains separate from a deadline failure. Ingest uses the original caller token after a timely collection. Provider SDK retry settings are unchanged.
+
 ### Webhook and Marketplace delivery (FND-065)
 
 The audit at `b4b23e5` found two independent named breakers, but all webhook destinations shared one and both paths could retry POSTs. The current behavior is:

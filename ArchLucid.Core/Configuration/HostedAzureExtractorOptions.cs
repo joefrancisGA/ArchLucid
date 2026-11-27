@@ -11,10 +11,10 @@ public sealed class HostedAzureExtractorOptions
     public bool Enabled { get; set; }
 
     /// <summary>Whole hosted collection deadline in seconds, excluding ingest. Defaults to 30 minutes.</summary>
-    public int CollectionTimeoutSeconds { get; set; } = 1_800;
+    public int CollectionTimeoutSeconds { get; set; } = HostedExtractorCollectionTimeout.DefaultSeconds;
 
     public TimeSpan GetEffectiveCollectionTimeout() =>
-        TimeSpan.FromSeconds(Math.Clamp(CollectionTimeoutSeconds, 30, 7_200));
+        HostedExtractorCollectionTimeout.Resolve(CollectionTimeoutSeconds);
 
     /// <summary>ArchLucid user-assigned managed identity client id used as the federation source.</summary>
     public string? ArchLucidManagedIdentityClientId { get; set; }
