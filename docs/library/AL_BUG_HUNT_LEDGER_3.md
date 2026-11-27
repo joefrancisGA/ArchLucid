@@ -381,6 +381,7 @@ esourceExplorerFilterHrefFromSearch — workQueue change may leave stale namePre
 - **code-changed-since:** yes
 
 
+2026-11-27 thorough hunt (hit): hint override `ui-lib-remediation-factory` (pass-168 queue). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with halfwidth katakana letter me (U+FF92) and lower-half-block padding (U+2595) inside words (e.g. `o` + U+FF92 + `n`, `tr` + U+2595 + `ue`) stayed closed because those Ff/So scalars were not stripped; strip U+FF92 and U+2595 with existing invisible scalar hygiene. **valid-no-repro** pass-168 monitors (metrics close drops padded `OFF` base, duplicate `NO`/`0` first-wins, pathname href preserves foreign when clearing path and finding). Pass-169 reseed below. Scoped vitest **691/691**. Private beta: Invited operators who deep-link with halfwidth-katakana-letter-me or lower-half-block padding inside `remediationFactoryMetricsOpen` on/true tokens open the executive metrics summary instead of landing with the panel closed.
 2026-11-27 thorough hunt (hit): hint override `ui-lib-remediation-factory` (pass-167 queue). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with halfwidth katakana letter mu (U+FF91) and upper-half-block padding (U+2594) inside words (e.g. `o` + U+FF91 + `n`, `tr` + U+2594 + `ue`) stayed closed because those Ff/So scalars were not stripped; strip U+FF91 and U+2594 with existing invisible scalar hygiene. **valid-no-repro** pass-167 monitors (metrics open over padded `OFF` base, duplicate `YES`/`0` first-wins, pathname href preserves metrics when clearing snapshots). Pass-168 reseed below. Scoped vitest **689/689**. Private beta: Invited operators who deep-link with halfwidth-katakana-letter-mu or upper-half-block padding inside `remediationFactoryMetricsOpen` on/true tokens open the executive metrics summary instead of landing with the panel closed.
 2026-11-27 thorough hunt (hit): hint override `ui-lib-remediation-factory` (pass-166 queue). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with halfwidth katakana letter mi (U+FF90) and dark-shade padding (U+2593) inside words (e.g. `o` + U+FF90 + `n`, `tr` + U+2593 + `ue`) stayed closed because those Ff/So scalars were not stripped; strip U+FF90 and U+2593 with existing invisible scalar hygiene. **valid-no-repro** pass-166 monitors (metrics close drops padded `false` base, duplicate `OFF`/`0` first-wins, pathname href preserves foreign when clearing metrics). Pass-167 reseed below. Scoped vitest **687/687**. Private beta: Invited operators who deep-link with halfwidth-katakana-letter-mi or dark-shade padding inside `remediationFactoryMetricsOpen` on/true tokens open the executive metrics summary instead of landing with the panel closed.
 2026-11-27 thorough hunt (hit): hint override `ui-lib-remediation-factory` (pass-165 queue). **proven** `parseRemediationFactoryDisclosureOpenFromSearch` — disclosure tokens with halfwidth katakana letter ma (U+FF8F) and medium-shade padding (U+2592) inside words (e.g. `o` + U+FF8F + `n`, `tr` + U+2592 + `ue`) stayed closed because those Ff/So scalars were not stripped; strip U+FF8F and U+2592 with existing invisible scalar hygiene. **valid-no-repro** pass-165 monitors (metrics open over padded `false` base, duplicate `NO`/`1` first-wins, pathname href preserves metrics when clearing snapshots). Pass-166 reseed below. Scoped vitest **685/685**. Private beta: Invited operators who deep-link with halfwidth-katakana-letter-ma or medium-shade padding inside `remediationFactoryMetricsOpen` on/true tokens open the executive metrics summary instead of landing with the panel closed.
@@ -1275,11 +1276,18 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves open metrics when clearing snapshots on pathname-only href — **cheap-disproof 2026-11-27 thorough hunt (hit):** regression `remediationFactoryHrefFromSearch preserves metrics when clearing snapshots on pathname-only href`.
 - [x] (superseded) pass-167 `(candidate)` queue — **superseded 2026-11-27 thorough hunt (hit):** pass-168 reseed.
 
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — halfwidth katakana letter me inside `on` token — locus: Ff strip; input: `o` + U+FF92 + `n`; pass-168 reseed.
-- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — lower half block inside true — locus: So strip; input: `tr` + U+2595 + `ue`; pass-168 reseed.
-- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded `OFF` base — locus: writer; input: close over padded OFF base; pass-168 reseed.
-- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `NO` then `0` — locus: first-wins; input: repeated param; pass-168 reseed.
-- [ ] (candidate) `remediationFactoryHrefFromSearch` — preserves foreign params when clearing path and finding on pathname-only href — locus: pathname href; input: clear path and finding; pass-168 reseed.
+- [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — halfwidth katakana letter me inside `on` token — **proven 2026-11-27 thorough hunt (hit):** regression `treats ON metrics disclosure token with halfwidth katakana letter me inside the word as open on read`.
+- [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — lower half block inside true — **proven 2026-11-27 thorough hunt (hit):** regression `treats true metrics disclosure token with lower half block inside the word as open on read`.
+- [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded `OFF` base — **cheap-disproof 2026-11-27 thorough hunt (hit):** regression `drops padded OFF metrics disclosure token from base search when writing closed state`.
+- [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `NO` then `0` — **cheap-disproof 2026-11-27 thorough hunt (hit):** regression `uses the first metrics disclosure token when NO precedes 0 in the query string`.
+- [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves foreign params when clearing path and finding on pathname-only href — **cheap-disproof 2026-11-27 thorough hunt (hit):** regression `remediationFactoryHrefFromSearch preserves foreign params when clearing path and finding on pathname-only href`.
+- [x] (superseded) pass-168 `(candidate)` queue — **superseded 2026-11-27 thorough hunt (hit):** pass-169 reseed.
+
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — halfwidth katakana letter mo inside `on` token — locus: Ff strip; input: `o` + U+FF93 + `n`; pass-169 reseed.
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — left half block inside true — locus: So strip; input: `tr` + U+2596 + `ue`; pass-169 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open over padded `ON` base replaces with canonical `1` — locus: writer; input: open over padded ON base; pass-169 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `OFF` then `1` — locus: first-wins; input: repeated param; pass-169 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — preserves open metrics when clearing finding and path only — locus: writer; input: clear finding and path; pass-169 reseed.
 
 - [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — halfwidth katakana letter ke inside `on` token — **proven 2026-11-27 thorough hunt (hit):** regression `treats ON metrics disclosure token with halfwidth katakana letter ke inside the word as open on read`.
 - [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — black curved lower-right quadrant inside true — **proven 2026-11-27 thorough hunt (hit):** regression `treats true metrics disclosure token with black curved lower-right quadrant inside the word as open on read`.
@@ -1898,8 +1906,8 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - **aliases:** remediation factory lib
 - **paths:** archlucid-ui/src/lib/remediation-factory/
 - **test-filter:** remediation-factory
-- **hunts:** 188
-- **bugs-found:** 175
+- **hunts:** 189
+- **bugs-found:** 176
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-11-27
 - **last-bug:** 2026-11-27
