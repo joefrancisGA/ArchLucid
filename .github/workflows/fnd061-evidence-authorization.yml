@@ -32,7 +32,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: python3 scripts/ci/authorization_ci_scope.py
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         if: steps.scope.outputs.run_tests == 'true'
         with:
           path: ~/.nuget/packages
