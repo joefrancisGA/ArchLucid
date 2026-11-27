@@ -7,6 +7,9 @@ on:
       - '.github/workflows/pr-focused-api-sql.yml'
       - 'scripts/ci/run_disposable_api_sql_smoke.sh'
       - 'scripts/ci/run_focused_api_sql.py'
+      - 'scripts/ci/focused-api-sql-cases.txt'
+      - 'scripts/ci/tests/test_run_disposable_api_sql_smoke.py'
+      - 'scripts/ci/tests/test_run_focused_api_sql.py'
       - 'ArchLucid.Api.Tests/AuthorityPipelineCommittedInventorySqlIntegrationTests.cs'
       - 'ArchLucid.Application.Tests/Runs/Orchestration/Commit/AuthorityCommitRecoveryVerifierTests.cs'
       - 'ArchLucid.Api.Tests/Security/AuditExportTenantIsolationIntegrationTests.cs'
@@ -30,6 +33,9 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+
+      - name: Verify the focused SQL runner and wrapper
+        run: python3 -m unittest discover -s scripts/ci/tests -p 'test_run_*api_sql*.py' -v
 
       - uses: actions/setup-dotnet@v6
         with:

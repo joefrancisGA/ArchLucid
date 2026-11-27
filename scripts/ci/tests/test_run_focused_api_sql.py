@@ -1,9 +1,14 @@
 """Contract checks for the focused SQL runner's result reporting."""
 
+from contextlib import redirect_stderr, redirect_stdout
 from importlib.util import module_from_spec, spec_from_file_location
+from io import StringIO
+import json
+import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
+from unittest.mock import patch
 from xml.sax.saxutils import escape
 
 SCRIPT = Path(__file__).resolve().parents[1] / "run_focused_api_sql.py"
@@ -12,6 +17,7 @@ assert SPEC is not None and SPEC.loader is not None
 RUNNER = module_from_spec(SPEC)
 SPEC.loader.exec_module(RUNNER)
 CASE = "ArchLucid.Api.Tests.FocusedExample.Test"
+REVISION = "a" * 40
 
 
 class FocusedApiSqlResultTests(TestCase):
@@ -81,3 +87,85 @@ class FocusedApiSqlResultTests(TestCase):
         self.assertEqual(self.report([], 0), "interrupted")
         self.assertEqual(self.report([(CASE + "Other", "Passed")], 0), "interrupted")
         self.assertEqual(self.report([(CASE, "Passed")] * 2, 0), "interrupted")
+
+
+class FocusedApiSqlCheckpointTests(TestCase):
+    def setUp(self):
+        directory = self.enterContext(TemporaryDirectory())
+        self.output = Path(directory) / "results"
+        self.summary = self.output / "summary.json"
+        self.names = [CASE + suffix for suffix in ("One", "Two", "Three")]
+        self.args = ["--results-dir", str(self.output)]
+        for name in self.names:
+            self.args.extend(("--case", name))
+        self.revision = self.enterContext(patch.object(RUNNER.subprocess, "check_output", return_value=REVISION + "\n"))
+        self.run_case = self.enterContext(patch.object(RUNNER, "run_case"))
+        self.enterContext(patch.dict(os.environ, {}, clear=True))
+        self.enterContext(redirect_stdout(StringIO()))
+        self.enterContext(redirect_stderr(StringIO()))
+
+    def read_summary(self):
+        result = json.loads(self.summary.read_text(encoding="utf-8"))
+        self.assertEqual(result["selected"], 3)
+        self.assertEqual([row["case"] for row in result["cases"]], self.names)
+        return result
+
+    def test_stopped_before_first_case_retains_the_selection_without_sql(self):
+        self.assertEqual(RUNNER.main(self.args + ["--prepare-only"]), 0)
+        self.run_case.assert_not_called()
+        result = self.read_summary()
+        self.assertEqual(result["commit"], REVISION)
+        self.assertEqual(result["unreported"], 3)
+        self.assertEqual([row["outcome"] for row in result["cases"]], ["not-started"] * 3)
+
+    def test_interruption_in_second_case_preserves_completed_active_and_pending_rows(self):
+        self.assertEqual(RUNNER.main(self.args + ["--prepare-only"]), 0)
+        os.environ["ARCHLUCID_API_TEST_SQL"] = "private-fixture-sentinel"
+        completed = {"case": self.names[0], "outcome": "passed", "exit_code": 0, "artifact_dir": "01"}
+        self.run_case.side_effect = [completed, KeyboardInterrupt()]
+        with self.assertRaises(KeyboardInterrupt):
+            RUNNER.main(self.args + ["--use-prepared"])
+        result = self.read_summary()
+        self.assertEqual(result["counts"], {"passed": 1, "failed": 0, "skipped": 0, "interrupted": 0})
+        self.assertEqual(result["unreported"], 2)
+        self.assertEqual(result["cases"], [completed,
+                         {"case": self.names[1], "outcome": "running", "artifact_dir": "02"},
+                         {"case": self.names[2], "outcome": "not-started", "artifact_dir": "03"}])
+        self.assertEqual(self.run_case.call_count, 2)
+        self.assertNotIn("private-fixture-sentinel", self.summary.read_text(encoding="utf-8"))
+
+    def test_interrupted_checkpoint_replacement_preserves_the_previous_summary(self):
+        self.assertEqual(RUNNER.main(self.args + ["--prepare-only"]), 0)
+        original = self.summary.read_bytes()
+        with patch.object(Path, "replace", side_effect=OSError("synthetic checkpoint error")):
+            with self.assertRaises(OSError):
+                RUNNER.checkpoint(self.summary, {"different": True})
+        self.assertEqual(self.summary.read_bytes(), original)
+        self.assertEqual(list(self.output.iterdir()), [self.summary])
+
+    def test_direct_run_preserves_final_results_and_does_not_hide_a_timeout(self):
+        os.environ["ARCHLUCID_SQL_TEST"] = "private-fixture-sentinel"
+        outcomes = ["passed", "interrupted", "passed"]
+        self.run_case.side_effect = [
+            {"case": name, "outcome": outcome, "exit_code": 0 if outcome == "passed" else -9,
+             "artifact_dir": f"{index:02d}"}
+            for index, (name, outcome) in enumerate(zip(self.names, outcomes), 1)
+        ]
+        self.assertEqual(RUNNER.main(self.args), 1)
+        result = self.read_summary()
+        self.assertEqual(result["unreported"], 0)
+        self.assertEqual([row["outcome"] for row in result["cases"]], outcomes)
+        self.assertEqual(result["counts"]["interrupted"], 1)
+
+    def test_refuses_changed_revision_or_selection_without_rewriting_the_plan(self):
+        self.assertEqual(RUNNER.main(self.args + ["--prepare-only"]), 0)
+        original = self.summary.read_bytes()
+        with self.assertRaises(SystemExit) as wrong_selection:
+            RUNNER.main(self.args[:-2] + ["--use-prepared"])
+        self.assertEqual(wrong_selection.exception.code, 2)
+        self.revision.return_value = "b" * 40 + "\n"
+        with self.assertRaises(SystemExit) as wrong_revision:
+            RUNNER.main(self.args + ["--use-prepared"])
+        self.assertEqual(wrong_revision.exception.code, 2)
+        self.run_case.assert_not_called()
+        self.assertEqual(self.summary.read_bytes(), original)

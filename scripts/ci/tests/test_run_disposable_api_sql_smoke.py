@@ -1,8 +1,10 @@
 """Exercise the hosted smoke wrapper without a Docker daemon or .NET build."""
 
+import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -38,7 +40,11 @@ esac
 set -eu
 if [[ "$1" = '-c' ]]; then
   echo 'fake-password-used-only-in-this-unit-test'
+elif [[ "${!#}" = --prepare-only ]]; then
+  test ! -e "$FAKE_DOCKER_LOG"
+  exec "$REAL_PYTHON" "$@"
 else
+  [[ "${!#}" = --use-prepared ]]
   [[ "$ARCHLUCID_API_TEST_SQL" = 'Server=127.0.0.1,49155;Database=master;'* ]]
   [[ "$ARCHLUCID_API_TEST_SQL" = "$ARCHLUCID_SQL_TEST" ]]
   [[ -z "${SQLCMDPASSWORD+x}${MSSQL_SA_PASSWORD+x}" ]]
@@ -48,10 +54,13 @@ fi
 """,
                 encoding="utf-8",
             )
-            for name in ("docker", "python3"):
+            (root / "git").write_text("#!/usr/bin/env bash\nset -eu\n[[ \"$*\" = 'rev-parse HEAD' ]]\necho " + "a" * 40 + "\n",
+                                      encoding="utf-8")
+            for name in ("docker", "python3", "git"):
                 (root / name).chmod(0o700)
             env = os.environ | {
                 "PATH": str(root) + os.pathsep + os.environ["PATH"],
+                "REAL_PYTHON": sys.executable,
                 "FAKE_DOCKER_LOG": str(root / "docker.log"),
                 "FAKE_RUNNER_LOG": str(root / "runner.log"),
                 "FAKE_TEST_EXIT": str(test_exit),
@@ -69,13 +78,16 @@ fi
             docker = docker_log.read_text(encoding="utf-8").splitlines() if docker_log.exists() else []
             log = root / "runner.log"
             argv = log.read_text(encoding="utf-8").splitlines() if log.exists() else []
-            return completed, docker, argv
+            summary = root / "results" / "summary.json"
+            plan = json.loads(summary.read_text(encoding="utf-8")) if summary.exists() else None
+            return completed, docker, argv, plan
 
     def test_runs_exactly_three_named_cases_with_the_pinned_local_fixture(self):
-        completed, docker, argv = self.invoke()
+        completed, docker, argv, plan = self.invoke()
         self.assertEqual(completed.returncode, 0, completed.stderr)
         cases = [argv[i + 1] for i, arg in enumerate(argv) if arg == "--case"]
         self.assertEqual(len(cases), 3)
+        self.assertEqual([row["case"] for row in plan["cases"]], cases)
         all_cases = (CI / "focused-api-sql-cases.txt").read_text(encoding="utf-8").splitlines()
         self.assertTrue(set(cases).issubset(all_cases))
         self.assertEqual([case.rsplit(".", 1)[-1] for case in cases], [
@@ -92,40 +104,44 @@ fi
         self.assertNotIn("fake-password-used-only", "\n".join(docker) + completed.stdout + completed.stderr)
 
     def test_test_failure_is_visible_and_still_cleans_up(self):
-        completed, docker, _ = self.invoke(test_exit=1)
+        completed, docker, _, _ = self.invoke(test_exit=1)
         self.assertEqual(completed.returncode, 1)
         self.assertEqual(docker[-1], "rm -f fake-container")
 
     def test_runs_only_the_selected_case(self):
         case = next(name for name in (CI / "focused-api-sql-cases.txt").read_text(encoding="utf-8").splitlines()
                     if name.endswith(".Repeat_finalize_rejects_a_corrupt_persisted_inventory_hash"))
-        completed, docker, argv = self.invoke(extra_args=("--case", case))
+        completed, docker, argv, plan = self.invoke(extra_args=("--case", case))
         self.assertEqual(completed.returncode, 0, completed.stderr)
         self.assertEqual([argv[i + 1] for i, arg in enumerate(argv) if arg == "--case"], [case])
+        self.assertEqual([row["case"] for row in plan["cases"]], [case])
         self.assertEqual(docker[-1], "rm -f fake-container")
 
     def test_rejects_an_unlisted_case_before_starting_docker(self):
-        completed, docker, argv = self.invoke(extra_args=("--case", "ArchLucid.Api.Tests.Other.Test"))
+        completed, docker, argv, plan = self.invoke(extra_args=("--case", "ArchLucid.Api.Tests.Other.Test"))
         self.assertEqual(completed.returncode, 2)
         self.assertFalse(docker)
         self.assertFalse(argv)
+        self.assertIsNone(plan)
 
     def test_startup_failure_does_not_run_tests_or_leak_the_container(self):
-        completed, docker, argv = self.invoke(server_exit=True)
+        completed, docker, argv, plan = self.invoke(server_exit=True)
         self.assertNotEqual(completed.returncode, 0)
         self.assertIn("exited before accepting connections", completed.stderr)
         self.assertFalse(argv)
+        self.assertEqual(plan["unreported"], 3)
+        self.assertEqual([row["outcome"] for row in plan["cases"]], ["not-started"] * 3)
         self.assertEqual(docker[-1], "rm -f fake-container")
 
     def test_non_loopback_binding_is_rejected(self):
-        completed, docker, argv = self.invoke(port="0.0.0.0:49155")
+        completed, docker, argv, _ = self.invoke(port="0.0.0.0:49155")
         self.assertNotEqual(completed.returncode, 0)
         self.assertIn("did not publish a loopback port", completed.stderr)
         self.assertFalse(argv)
         self.assertEqual(docker[-1], "rm -f fake-container")
 
     def test_changed_image_digest_is_rejected_before_the_fixture_starts(self):
-        completed, docker, argv = self.invoke(image_id="sha256:" + "0" * 64)
+        completed, docker, argv, _ = self.invoke(image_id="sha256:" + "0" * 64)
         self.assertNotEqual(completed.returncode, 0)
         self.assertIn("did not match the published digest", completed.stderr)
         self.assertFalse(argv)
@@ -133,7 +149,7 @@ fi
 
     def test_registry_manifest_pin_can_verify_an_image_with_a_distinct_id(self):
         image_id = "sha256:" + "a" * 64
-        completed, docker, _ = self.invoke(
+        completed, docker, _, _ = self.invoke(
             image_id=image_id, repo_digest=f"mcr.microsoft.com/mssql/server@{SQL_PIN}",
         )
         self.assertEqual(completed.returncode, 0, completed.stderr)

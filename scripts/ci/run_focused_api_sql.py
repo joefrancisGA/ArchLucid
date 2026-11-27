@@ -8,6 +8,7 @@ import re
 import signal
 import subprocess
 import sys
+from tempfile import NamedTemporaryFile
 import xml.etree.ElementTree as et
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -21,6 +22,7 @@ INVENTORY_STAGES = {
     "prepare-fixture", "repeat-finalize", "cleanup",
 }
 INVENTORY_HTTP_STATUS_EXPECTED = {"initial-status": "2xx", "control-repeat-status": "2xx", "repeat-status": 409}
+FINAL_OUTCOMES = ("passed", "failed", "skipped", "interrupted")
 
 
 def inventory_failure(result):
@@ -95,37 +97,77 @@ def run_case(name, output, timeout):
     return result
 
 
-def main():
+def summarize(revision, reports):
+    counts = {status: sum(row["outcome"] == status for row in reports) for status in FINAL_OUTCOMES}
+    return {
+        "commit": revision, "selected": len(reports), "counts": counts,
+        "unreported": len(reports) - sum(counts.values()), "cases": reports,
+    }
+
+
+def checkpoint(path, summary):
+    # Install each complete snapshot in one same-directory rename. An interrupted
+    # write cannot leave a truncated or missing previously published summary.
+    with NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent, delete=False) as temporary:
+        temp_path = Path(temporary.name)
+        try:
+            json.dump(summary, temporary, indent=2)
+            temporary.write("\n")
+            temporary.close()
+            temp_path.replace(path)
+        finally:
+            temp_path.unlink(missing_ok=True)
+
+
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--results-dir", required=True, type=Path, help="Must be a new results directory")
+    parser.add_argument("--results-dir", required=True, type=Path, help="New directory, or the directory from --prepare-only")
     parser.add_argument("--case", action="append", help="Exact fully qualified name; repeat to select multiple cases")
     parser.add_argument("--timeout-seconds", type=int, default=150, help="Limit per test process")
-    args = parser.parse_args()
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--prepare-only", action="store_true", help="Write the complete selection before fixture setup")
+    mode.add_argument("--use-prepared", action="store_true", help="Run the same selection from an untouched prepared summary")
+    args = parser.parse_args(argv)
     if args.timeout_seconds < 20:
         parser.error("the case timeout must be at least 20 seconds")
-    if not any(os.environ.get(key, "").strip() for key in ("ARCHLUCID_API_TEST_SQL", "ARCHLUCID_SQL_TEST")):
-        parser.error("set ARCHLUCID_API_TEST_SQL or ARCHLUCID_SQL_TEST to the disposable SQL fixture")
 
     cases = args.case or (Path(__file__).parent / "focused-api-sql-cases.txt").read_text(encoding="utf-8").splitlines()
     if not cases or len(set(cases)) != len(cases) or not all(CASE_NAME.fullmatch(case) for case in cases):
         parser.error("provide unique fully qualified API test names")
     output = args.results_dir.resolve()
-    output.mkdir(parents=True, exist_ok=False)
+    summary_path = output / "summary.json"
     revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
-    reports = []
+    reports = [{"case": name, "outcome": "not-started", "artifact_dir": f"{index:02d}"}
+               for index, name in enumerate(cases, 1)]
+    initial = summarize(revision, reports)
+    if args.use_prepared:
+        try:
+            prepared = json.loads(summary_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            parser.error("cannot read a prepared summary from the results directory")
+        if prepared != initial:
+            parser.error("prepared summary must match the revision and case selection and have no started cases")
+    else:
+        output.mkdir(parents=True, exist_ok=False)
+        checkpoint(summary_path, initial)
+        print(f"Selected cases: {json.dumps(cases)}", flush=True)
+    if args.prepare_only:
+        return 0
+    if not any(os.environ.get(key, "").strip() for key in ("ARCHLUCID_API_TEST_SQL", "ARCHLUCID_SQL_TEST")):
+        parser.error("set ARCHLUCID_API_TEST_SQL or ARCHLUCID_SQL_TEST to the disposable SQL fixture")
+
     for index, name in enumerate(cases, 1):
+        row = reports[index - 1]
+        row["outcome"] = "running"
+        checkpoint(summary_path, summarize(revision, reports))
         print(f"[{index}/{len(cases)}] {name}", flush=True)
-        result = run_case(name, output / f"{index:02d}", args.timeout_seconds)
-        reports.append(result)
+        result = run_case(name, output / row["artifact_dir"], args.timeout_seconds)
+        reports[index - 1] = result
+        checkpoint(summary_path, summarize(revision, reports))
         print(f"  {result['outcome']}", flush=True)
         if "failure" in result:
             print(f"  {json.dumps(result['failure'], sort_keys=True)}", flush=True)
-        counts = {status: sum(row["outcome"] == status for row in reports)
-                  for status in ("passed", "failed", "skipped", "interrupted")}
-        (output / "summary.json").write_text(json.dumps({
-            "commit": revision, "selected": len(cases), "counts": counts,
-            "unreported": len(cases) - len(reports), "cases": reports,
-        }, indent=2) + "\n", encoding="utf-8")
+    counts = summarize(revision, reports)["counts"]
     print(json.dumps(counts, sort_keys=True))
     return 0 if counts["passed"] == len(cases) else 1
 

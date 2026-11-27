@@ -17,7 +17,7 @@ Pull `mcr.microsoft.com/mssql/server:2022-CU22-ubuntu-22.04` and verify the publ
 
 5. Stop the container and discard its volumes even when a test times out. This completes cleanup when the watchdog terminates a process before the test fixture can drop its catalog.
 
-The runner launches each case independently, writes its log and TRX, and updates `summary.json` after every case. The summary records the checked-out commit. Missing or ambiguous results are interruptions, and explicit skips are not passes. Run on a clean checkout when producing review evidence. Use this lane before broader release runs. No comprehensive workflow is needed for a one-case comparison.
+The runner launches each case independently and keeps its raw log and TRX local to the runner. `summary.json` records the checked-out commit and every selected test, in order. The disposable wrapper writes the selection before SQL setup. The runner then atomically checkpoints each launch and result. `not-started` means a case was selected but did not reach its launch checkpoint. `running` means the launch was recorded but no final outcome was saved. Both are included in `unreported`. A returned test process with missing or ambiguous results is `interrupted`, and explicit skips are not passes. If the entire CI job is stopped before artifact upload, the case selection is also printed before SQL starts. Run on a clean checkout when producing review evidence. Use this lane before broader release runs. No comprehensive workflow is needed for a one-case comparison.
 
 ## Three-case PR check
 

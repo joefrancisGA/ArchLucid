@@ -22,6 +22,9 @@ else
   )
 fi
 
+runner_args=(--results-dir "$results_dir" --timeout-seconds 180 "${cases[@]}")
+python3 scripts/ci/run_focused_api_sql.py "${runner_args[@]}" --prepare-only
+
 sql_tag='mcr.microsoft.com/mssql/server:2022-CU22-ubuntu-22.04'
 sql_digest='sha256:db9a8fe3098b7e8bbde41106bdc7caee942e97124e5fdb71b872ca208de3092d'
 # A registry may publish an image config digest rather than a pullable manifest digest.
@@ -81,4 +84,4 @@ export ARCHLUCID_API_TEST_SQL="Server=127.0.0.1,${BASH_REMATCH[1]};Database=mast
 export ARCHLUCID_SQL_TEST="$ARCHLUCID_API_TEST_SQL"
 unset SQLCMDPASSWORD MSSQL_SA_PASSWORD
 
-python3 scripts/ci/run_focused_api_sql.py --results-dir "$results_dir" --timeout-seconds 180 "${cases[@]}"
+python3 scripts/ci/run_focused_api_sql.py "${runner_args[@]}" --use-prepared
