@@ -26,7 +26,7 @@ public sealed class SqlAnalysisRecoveryRepository(
         """;
 
     private const string Read = """
-        SELECT State, InputVersion, ResultReference, Owner, Fence, Attempts, LeaseUntilUtc
+        SELECT State, InputVersion, ResultReference, CoverageReason, Owner, Fence, Attempts, LeaseUntilUtc
         FROM dbo.AnalysisStageRecovery
         """;
 
@@ -113,9 +113,9 @@ public sealed class SqlAnalysisRecoveryRepository(
                 BEGIN
                     INSERT dbo.AnalysisStageRecoveryHistory
                         (TenantId, WorkspaceId, ProjectId, Pipeline, RunId, Stage, InputVersion, State,
-                         Fence, Attempts, ResultReference, SupersededUtc)
+                         Fence, Attempts, ResultReference, CoverageReason, SupersededUtc)
                     SELECT TenantId, WorkspaceId, ProjectId, Pipeline, RunId, Stage, InputVersion, State,
-                           Fence, Attempts, ResultReference, SYSUTCDATETIME()
+                           Fence, Attempts, ResultReference, CoverageReason, SYSUTCDATETIME()
                     FROM dbo.AnalysisStageRecovery WITH (UPDLOCK, HOLDLOCK)
                     WHERE {KeyPredicate} AND InputVersion <> @InputVersion AND Attempts < @MaxAttempts
                       AND (Owner IS NULL OR LeaseUntilUtc <= @Now);
@@ -127,6 +127,7 @@ public sealed class SqlAnalysisRecoveryRepository(
                            Fence = Fence + 1,
                            Attempts = CASE WHEN Attempts < @MaxAttempts THEN Attempts + 1 ELSE Attempts END,
                            ResultReference = NULL,
+                           CoverageReason = NULL,
                            LeaseUntilUtc = CASE WHEN Attempts < @MaxAttempts
                                THEN DATEADD(second, @LeaseSeconds, SYSUTCDATETIME()) END,
                            UpdatedUtc = SYSUTCDATETIME()
@@ -182,12 +183,13 @@ public sealed class SqlAnalysisRecoveryRepository(
 
     public Task<bool> ReleaseWithCoverageReasonAsync(
         AnalysisRecoveryStageKey key, Guid owner, long fence, string reason, CancellationToken cancellationToken) =>
-        WriteOwnedAsync(key, owner, fence, "release", 0, AnalysisCoverageReasons.Encode(reason),
-            "failed", null, cancellationToken);
+        WriteOwnedAsync(key, owner, fence, "release", 0, null,
+            "failed", null, cancellationToken, coverageReason: AnalysisCoverageReasons.RequireKnown(reason));
 
     private async Task<bool> WriteOwnedAsync(
         AnalysisRecoveryStageKey key, Guid owner, long fence, string operation, int leaseSeconds,
-        string? resultReference, string? failureState, IArchLucidUnitOfWork? unitOfWork, CancellationToken cancellationToken)
+        string? resultReference, string? failureState, IArchLucidUnitOfWork? unitOfWork, CancellationToken cancellationToken,
+        string? coverageReason = null)
     {
         DynamicParameters parameters = Bind(key);
         parameters.Add("Owner", owner);
@@ -196,13 +198,15 @@ public sealed class SqlAnalysisRecoveryRepository(
         parameters.Add("LeaseSeconds", leaseSeconds);
         parameters.Add("ResultReference", resultReference);
         parameters.Add("FailureState", failureState);
+        parameters.Add("CoverageReason", coverageReason);
         const string sql = $"""
             UPDATE dbo.AnalysisStageRecovery
                SET State = CASE @Operation WHEN N'renew' THEN State WHEN N'complete' THEN N'succeeded' ELSE @FailureState END,
                    Owner = CASE WHEN @Operation = N'renew' THEN Owner END,
                    LeaseUntilUtc = CASE WHEN @Operation = N'renew'
                        THEN DATEADD(second, @LeaseSeconds, SYSUTCDATETIME()) END,
-                   ResultReference = CASE WHEN @Operation IN (N'complete', N'release') THEN @ResultReference END,
+                   ResultReference = CASE WHEN @Operation = N'complete' THEN @ResultReference END,
+                   CoverageReason = CASE WHEN @Operation = N'release' AND @FailureState = N'failed' THEN @CoverageReason END,
                    UpdatedUtc = SYSUTCDATETIME()
             WHERE {KeyPredicate} {Owned};
             """;

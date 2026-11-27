@@ -5,7 +5,31 @@ namespace ArchLucid.Core.Analysis;
 /// <summary>Safe, bounded statements for generated documents. Coverage never implies approval.</summary>
 public static class AnalysisCoverageCopy
 {
-    public static string Explain(AnalysisCoverageSummary coverage) => (coverage.State, coverage.Freshness) switch
+    public static string Explain(AnalysisCoverageSummary coverage)
+    {
+        List<string> statements = [ExplainState(coverage)];
+        string[] gaps = coverage.MissingSources.Select(SourceName).OfType<string>().Distinct().ToArray();
+
+        if (gaps.Length > 0)
+            statements.Add($"Coverage gaps include {string.Join(", ", gaps)}.");
+
+        if (coverage.Recovery == "recovered")
+            statements.Add("Analysis completed after recovery.");
+
+        return string.Join(' ', statements);
+    }
+
+    private static string? SourceName(string source) => source switch
+    {
+        "finding_engines" => "finding engines",
+        "requirement_comparison" => "requirement comparison",
+        "inventory_capture" => "inventory capture",
+        "path_engines" => "path engines",
+        "path_ranking" => "path ranking",
+        _ => null,
+    };
+
+    private static string ExplainState(AnalysisCoverageSummary coverage) => (coverage.State, coverage.Freshness) switch
     {
         (AnalysisCoverageStates.Complete, "historical") =>
             "Coverage was complete for the recorded analysis scope. It does not describe the current environment.",

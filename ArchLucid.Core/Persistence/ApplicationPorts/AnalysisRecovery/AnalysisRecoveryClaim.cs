@@ -6,6 +6,7 @@ public sealed class AnalysisRecoveryClaim
     public string State { get; init; } = string.Empty;
     public string InputVersion { get; init; } = string.Empty;
     public string? ResultReference { get; init; }
+    public string? CoverageReason { get; init; }
     public Guid? Owner { get; init; }
     public long Fence { get; init; }
     public int Attempts { get; init; }

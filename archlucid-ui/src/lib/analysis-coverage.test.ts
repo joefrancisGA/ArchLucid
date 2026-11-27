@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { canAssertScopedAbsence, presentAnalysisCoverage, readAnalysisCoverage } from "./analysis-coverage";
+import { analysisCoverageDetails, canAssertScopedAbsence, presentAnalysisCoverage, readAnalysisCoverage } from "./analysis-coverage";
 
 describe("analysis coverage", () => {
   it("fails closed for older and contradictory responses", () => {
@@ -8,6 +8,13 @@ describe("analysis coverage", () => {
     expect(canAssertScopedAbsence({ state: "complete", freshness: "stale", canAssertAbsence: true })).toBe(false);
     expect(canAssertScopedAbsence({ state: "incomplete", freshness: "historical", canAssertAbsence: true })).toBe(false);
     expect(presentAnalysisCoverage(undefined).label).toBe("Coverage unverified");
+  });
+
+  it("shows bounded evidence gaps and recovery independently", () => {
+    expect(analysisCoverageDetails({
+      state: "failed", freshness: "stale", recovery: "retry_exhausted",
+      missingSources: ["path_engines", "private-provider-text", "path_engines"],
+    })).toEqual(["Coverage gaps include path engines.", "Analysis exhausted its retry budget."]);
   });
 
   it("labels a historical scoped success and retry exhaustion separately", () => {

@@ -30,6 +30,8 @@ public sealed class SecureNowPathAnalysisCoverageTests
 
         Assert.Equal(expected, coverage.State);
         Assert.Equal(verified, coverage.CanAssertAbsence);
+        Assert.Contains(coverage.Stages, stage => stage.Stage == "prior_snapshot_diff"
+            && stage.State == (job is null ? "unknown" : "not_applicable"));
 
         if (verified)
             Assert.Equal("recovered", coverage.Recovery);
@@ -72,13 +74,13 @@ public sealed class SecureNowPathAnalysisCoverageTests
         AnalysisCoverageSummary failed = SecureNowPathAnalysisCoverage.Evaluate(
             Capture(), new() { Outcome = "failed" }, new()
             {
-                State = "failed", ResultReference = AnalysisCoverageReasons.Encode("inputs_changed_during_execution"),
+                State = "failed", CoverageReason = "inputs_changed_during_execution",
             },
             null, false, false, false, false, Now, 24);
 
         Assert.Equal("stale", stale.State);
         Assert.Contains("inputs_changed_during_execution", failed.ReasonCodes);
-        Assert.Null(AnalysisCoverageReasons.Decode("coverage:provider-private-text"));
+        Assert.Null(AnalysisCoverageReasons.ReadKnown("provider-private-text"));
         Assert.False(stale.CanAssertAbsence);
         Assert.False(failed.CanAssertAbsence);
     }

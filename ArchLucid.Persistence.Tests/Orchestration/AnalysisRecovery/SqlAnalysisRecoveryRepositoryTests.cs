@@ -148,7 +148,8 @@ public sealed class SqlAnalysisRecoveryRepositoryTests(SqlServerPersistenceFixtu
         Assert.Equal("failed", (await jobs.TryGetAsync(project, snapshot, ct))?.Outcome);
         AnalysisRecoveryClaim? closed = await stages.ReadAsync(key, ct);
         Assert.Equal("failed", closed?.State);
-        Assert.Equal("incomplete_path_coverage", AnalysisCoverageReasons.Decode(closed?.ResultReference));
+        Assert.Null(closed?.ResultReference);
+        Assert.Equal("incomplete_path_coverage", closed?.CoverageReason);
         scopes.Setup(p => p.GetCurrentScope()).Returns(new ScopeContext
         {
             TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = Guid.NewGuid(),

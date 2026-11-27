@@ -6,6 +6,7 @@ export type AnalysisCoverage = {
   readonly recovery?: string;
   readonly advisoryOnlyDegradation?: boolean;
   readonly canAssertAbsence?: boolean;
+  readonly missingSources?: readonly string[];
 };
 
 export function readAnalysisCoverage(parent: unknown): AnalysisCoverage | null {
@@ -57,4 +58,35 @@ export function presentAnalysisCoverage(coverage: AnalysisCoverage | null | unde
     default:
       return { kind: "neutral", label: "Coverage unverified", detail: "Available results do not establish absence." } as const;
   }
+}
+
+const sources: Readonly<Record<string, string>> = {
+  finding_engines: "finding engines",
+  requirement_comparison: "requirement comparison",
+  inventory_capture: "inventory capture",
+  path_engines: "path engines",
+  path_ranking: "path ranking",
+};
+
+export function analysisCoverageDetails(coverage: AnalysisCoverage | null | undefined): readonly string[] {
+  if (!coverage) {
+    return [];
+  }
+
+  const details: string[] = [];
+  const gaps = Array.isArray(coverage.missingSources)
+    ? [...new Set(coverage.missingSources.filter((source) =>
+        typeof source === "string" && Object.hasOwn(sources, source)).map((source) => sources[source]))]
+    : [];
+  if (gaps.length > 0) {
+    details.push(`Coverage gaps include ${gaps.join(", ")}.`);
+  }
+
+  if (coverage.recovery === "recovered") {
+    details.push("Analysis completed after recovery.");
+  } else if (coverage.recovery === "retry_exhausted" && presentAnalysisCoverage(coverage).label !== "Retry budget exhausted") {
+    details.push("Analysis exhausted its retry budget.");
+  }
+
+  return details;
 }

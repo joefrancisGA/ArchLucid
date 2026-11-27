@@ -75,7 +75,7 @@ internal static class SecureNowPathAnalysisCoverage
         if (pathState == AnalysisCoverageStates.Complete && !hasVerifiedReceipt)
             pathState = receiptRejection is null ? AnalysisCoverageStates.Unknown : AnalysisCoverageStates.Stale;
 
-        string? failureReason = claim is { State: "failed" } ? AnalysisCoverageReasons.Decode(claim.ResultReference) : null;
+        string? failureReason = claim is { State: "failed" } ? AnalysisCoverageReasons.ReadKnown(claim.CoverageReason) : null;
 
         if (pathState != AnalysisCoverageStates.Complete)
         {
@@ -120,6 +120,10 @@ internal static class SecureNowPathAnalysisCoverage
             : pathState != AnalysisCoverageStates.Complete ? pathState
             : hasUnrankedPaths ? AnalysisCoverageStates.Incomplete
             : AnalysisCoverageStates.Complete;
+        // Prior-snapshot diff is optional without a subscription. Missing records otherwise are not proof of exclusion.
+        string diffState = job is not null && string.IsNullOrWhiteSpace(job.SubscriptionId)
+            ? AnalysisCoverageStates.NotApplicable : AnalysisCoverageStates.Unknown;
+
         return new AnalysisCoverageSummary
         {
             Scope = "securenow_attack_paths",
@@ -129,7 +133,7 @@ internal static class SecureNowPathAnalysisCoverage
             Recovery = recovery,
             ReasonCodes = reasons,
             MissingSources = missing,
-            Stages = [new(inventory, captureState), new(paths, pathState),
+            Stages = [new(inventory, captureState), new("prior_snapshot_diff", diffState), new(paths, pathState),
                 new(ranking, hasUnrankedPaths ? AnalysisCoverageStates.Incomplete : pathState)],
         };
     }
