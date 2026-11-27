@@ -18,6 +18,7 @@ import {
 import { filterDraftRegistryEntriesByShareVisibility } from "@/lib/architecture/share-visible-architecture-inventory";
 import {
   findReviewDetailSectionSearchMatches,
+  isReviewDetailOnThisPageSectionNavPresent,
   type ReviewDetailSectionSearchMatch,
 } from "@/lib/review-detail-header-section-search";
 import {
@@ -53,6 +54,7 @@ export function useGlobalSearchResults(
   const [reviewDetailSectionMatches, setReviewDetailSectionMatches] = useState<
     readonly ReviewDetailSectionSearchMatch[]
   >([]);
+  const [reviewDetailOnThisPageNavPresent, setReviewDetailOnThisPageNavPresent] = useState(false);
 
   const packageRunId = options.packageRunId?.trim() ?? "";
   const architectureScopedRunIds = options.architectureScopedRunIds ?? null;
@@ -189,9 +191,11 @@ export function useGlobalSearchResults(
   useEffect(() => {
     if (routeLocalSearchMode !== "review-detail") {
       setReviewDetailSectionMatches([]);
+      setReviewDetailOnThisPageNavPresent(false);
       return;
     }
 
+    setReviewDetailOnThisPageNavPresent(isReviewDetailOnThisPageSectionNavPresent());
     setReviewDetailSectionMatches(findReviewDetailSectionSearchMatches(query));
   }, [query, routeLocalSearchMode]);
 
@@ -259,6 +263,7 @@ export function useGlobalSearchResults(
     packageSearchLoading,
     packageSearchError,
     reviewDetailSectionMatches,
+    reviewDetailOnThisPageNavPresent,
     fetchResults,
     fetchPackageResults,
     findPageMatches: findPageMatches as readonly FindPageSearchEntry[],

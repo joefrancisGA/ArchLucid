@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 
 import { RunDetailPresenterElicitationBridge } from "@/components/reviews/RunDetailPresenterElicitationBridge";
+import { hasMissingEvidenceReferenceCount } from "@/lib/findings/review-detail-findings-classification-band";
 import { resolveRunDetailVisitDefaultReviewTab, resolveRunDetailVisitDefaultFindingIdWhenUrlSilent, resolveRunDetailVisitDefaultReviewHashWhenUrlSilent } from "@/lib/reviews/first-review-spine-band";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
@@ -128,6 +129,11 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
     />
   );
 
+  const evidenceReferenceCountNotStored =
+    model.resolvedDetail.findingsSnapshot === null
+      ? true
+      : hasMissingEvidenceReferenceCount(quickDecisionFindings);
+
   return (
     <Suspense fallback={<RunDetailExplanationSkeleton />}>
       <RunDetailPresenterElicitationBridge
@@ -162,6 +168,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
         visitDefaultReviewTabWhenUrlSilent={visitDefaultReviewTabWhenUrlSilent}
         visitDefaultFindingIdWhenUrlSilent={visitDefaultFindingIdWhenUrlSilent}
         visitDefaultReviewHashWhenUrlSilent={visitDefaultReviewHashWhenUrlSilent}
+        evidenceReferenceCountNotStored={evidenceReferenceCountNotStored}
       />
     </Suspense>
   );

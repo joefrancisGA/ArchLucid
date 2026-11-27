@@ -18,6 +18,15 @@ export function isReviewDetailHeaderSearchPath(pathname: string): boolean {
   return /^\/architecture\/architectures\/[^/]+\/reviews\/[^/]+(?:\/|$)/u.test(path);
 }
 
+/** True when review-detail header section jump can read anchor links from the DOM. */
+export function isReviewDetailOnThisPageSectionNavPresent(): boolean {
+  if (typeof document === "undefined") {
+    return false;
+  }
+
+  return document.querySelector('nav[aria-label="On this page sections"]') !== null;
+}
+
 /** Matches visible "On this page" section links for review-detail header search. */
 export function findReviewDetailSectionSearchMatches(query: string): ReviewDetailSectionSearchMatch[] {
   if (typeof document === "undefined") {

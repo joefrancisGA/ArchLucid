@@ -109,6 +109,7 @@ export function RunDetailReviewPackageStampViewport(
             manifestVersion={props.manifestVersion}
             sampleSponsorParagraph={feasibilityVerdict.summary}
             openGateNavigationInput={openGateNavigationInput}
+            suppressOpenGatePrimaryForTabCognitiveStrip
           />
         ) : null}
         <ArchLucidReviewPackageProcurementHonestySection />

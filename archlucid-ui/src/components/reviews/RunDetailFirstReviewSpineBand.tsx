@@ -49,6 +49,8 @@ export type RunDetailFirstReviewSpineBandProps = {
   readonly isSample?: boolean | null;
   readonly manifestVersion?: string | null;
   readonly sampleSponsorParagraph?: string | null;
+  /** Tab cognitive strip owns the open-gate primary on the tabbed workspace — hide duplicate spine CTAs. */
+  readonly suppressOpenGatePrimaryForTabCognitiveStrip?: boolean;
   readonly openGateNavigationInput?: {
     readonly findings: readonly QuickDecisionFinding[];
     readonly hasFindingsSnapshot: boolean;
@@ -308,7 +310,7 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
         )}
       </p>
 
-      {openGateLinkEnabled && openGateHref !== null ? (
+      {openGateLinkEnabled && openGateHref !== null && props.suppressOpenGatePrimaryForTabCognitiveStrip !== true ? (
         <div className="mt-2 flex flex-wrap gap-2">
           <Button asChild size="sm" data-testid="run-detail-first-review-spine-open-gate-primary">
             <Link href={openGateHref} aria-label={openGateLinkAriaLabel}>

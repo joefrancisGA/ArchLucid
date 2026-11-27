@@ -5,6 +5,14 @@
 
 # ArchLucid changelog
 
+## 2026-11-27 - Score lift round 147 (batch wave F): Review workspace cognitive load and search honesty
+
+**Outcome.** Tab cognitive next steps honor missing evidence reference counts; lifecycle stepper hides on sealed reviews; workspace chrome mirrors package search scope; section search explains tabs without on-page nav; first-review spine suppresses duplicate open-gate primaries when the tab strip is visible.
+
+**Surfaces.** Run detail workspace chrome, tab shell, global search section panel, first-review spine on review-package tab, drift guard and mounted-contract tests.
+
+
+
 
 
 ## 2026-11-27 - Score lift round 146 (Wave E): SecureNow packaging + procurement

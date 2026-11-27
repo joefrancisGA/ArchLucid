@@ -8,11 +8,16 @@ import { cn } from "@/lib/utils";
 
 export type ReviewWorkspaceLifecycleProgressStepperProps = {
   readonly lifecycle: ReviewWorkspaceLifecycle;
+  readonly reviewIsSealed?: boolean;
 };
 
 export function ReviewWorkspaceLifecycleProgressStepper(
   props: ReviewWorkspaceLifecycleProgressStepperProps,
-): React.JSX.Element {
+): React.JSX.Element | null {
+  if (props.reviewIsSealed === true) {
+    return null;
+  }
+
   const currentId = resolveReviewWorkspaceLifecycleProgressStep(props.lifecycle);
   const currentIndex = REVIEW_WORKSPACE_LIFECYCLE_PROGRESS_STEPS.findIndex((step) => step.id === currentId);
 
