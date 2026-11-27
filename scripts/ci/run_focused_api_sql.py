@@ -25,6 +25,7 @@ INVENTORY_STAGES = {
 INVENTORY_HTTP_STATUS_EXPECTED = {"initial-status": "2xx", "control-repeat-status": "2xx", "repeat-status": 409}
 FINAL_OUTCOMES = ("passed", "failed", "skipped", "interrupted")
 FIXTURE_PHASES = ("setup", "cleanup")
+FIXTURE_CLEANUP_OUTCOMES = ("already-absent", "still-present", "unverified")
 
 
 class Cancellation:
@@ -157,16 +158,27 @@ def checkpoint(path, summary):
             temp_path.unlink(missing_ok=True)
 
 
-def record_fixture_timeout(path, revision, phase):
+def read_fixture_summary(path, revision):
     summary = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(summary, dict) or summary.get("commit") != revision or not isinstance(summary.get("cases"), list):
         raise ValueError("fixture report is not from this revision")
+    return summary
+
+
+def record_fixture_timeout(path, revision, phase):
+    summary = read_fixture_summary(path, revision)
     phases = summary.setdefault("fixture_timeouts", [])
     if not isinstance(phases, list) or any(item not in FIXTURE_PHASES for item in phases):
         raise ValueError("invalid fixture phases")
     if phase not in phases:
         phases.append(phase)
         checkpoint(path, summary)
+
+
+def record_fixture_cleanup(path, revision, outcome):
+    summary = read_fixture_summary(path, revision)
+    summary["fixture_cleanup"] = outcome
+    checkpoint(path, summary)
 
 
 def main(argv=None, cancellation=None):
@@ -179,6 +191,8 @@ def main(argv=None, cancellation=None):
     mode.add_argument("--prepare-only", action="store_true", help="Write the complete selection before fixture setup")
     mode.add_argument("--use-prepared", action="store_true", help="Run the same selection from an untouched prepared summary")
     mode.add_argument("--record-fixture-timeout", choices=FIXTURE_PHASES, help="Add a fixture timeout without changing test outcomes")
+    mode.add_argument("--record-fixture-cleanup", choices=FIXTURE_CLEANUP_OUTCOMES,
+                      help="Record cleanup verification without changing test outcomes")
     args = parser.parse_args(argv)
     if args.timeout_seconds < 20:
         parser.error("the case timeout must be at least 20 seconds")
@@ -186,9 +200,12 @@ def main(argv=None, cancellation=None):
     output = args.results_dir.resolve()
     summary_path = output / "summary.json"
     revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
-    if args.record_fixture_timeout:
+    if args.record_fixture_timeout or args.record_fixture_cleanup:
         try:
-            record_fixture_timeout(summary_path, revision, args.record_fixture_timeout)
+            if args.record_fixture_timeout:
+                record_fixture_timeout(summary_path, revision, args.record_fixture_timeout)
+            else:
+                record_fixture_cleanup(summary_path, revision, args.record_fixture_cleanup)
         except (OSError, ValueError):
             parser.error("cannot annotate the existing focused SQL summary")
         return cancellation.exit_code or 0

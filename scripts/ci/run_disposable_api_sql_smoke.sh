@@ -50,12 +50,26 @@ record_deadline() {
   python3 scripts/ci/run_focused_api_sql.py --results-dir "$results_dir" "--record-fixture-timeout=$1" \
     || echo 'Could not annotate the focused SQL summary.' >&2
 }
-setup_docker() {
-  local remaining=$((setup_deadline - SECONDS))
+record_cleanup() {
+  if [[ "$1" == already-absent ]]; then
+    echo 'Disposable SQL fixture was already absent after the removal error.' >&2
+  else
+    echo "Disposable SQL fixture cleanup failed ($1)." >&2
+  fi
+  python3 scripts/ci/run_focused_api_sql.py --results-dir "$results_dir" "--record-fixture-cleanup=$1" \
+    || echo 'Could not annotate the focused SQL summary.' >&2
+}
+docker_until() {
+  local deadline=$1 remaining
+  shift
+  remaining=$((deadline - SECONDS))
   if ((remaining <= 0)); then
     return 124
   fi
   "$timeout_command" --kill-after=2s "${remaining}s" docker "$@"
+}
+setup_docker() {
+  docker_until "$setup_deadline" "$@"
 }
 setup_failed() {
   local status=$1
@@ -65,19 +79,58 @@ setup_failed() {
   fi
   exit "$status"
 }
+verify_removal() {
+  local deadline=$1 target selector format listing query_status
+  if [[ -n "$container_id" ]]; then
+    target=$container_id
+    selector="id=$target"
+    format='{{.ID}}'
+  else
+    target=$container_name
+    selector="name=$target"
+    format='{{.Names}}'
+  fi
+  # An unsuccessful inspect can mean either "not found" or an unreachable daemon.
+  # Accept absence only from a successful, bounded lookup including stopped containers.
+  if listing="$(docker_until "$deadline" container ls --all --no-trunc --filter "$selector" --format "$format" 2>/dev/null)"; then
+    if [[ -z "$listing" ]]; then
+      record_cleanup already-absent
+      return 0
+    fi
+    if grep -Fxq -- "$target" <<< "$listing"; then
+      record_cleanup still-present
+    else
+      record_cleanup unverified
+    fi
+  else
+    query_status=$?
+    record_cleanup unverified
+    if deadline_expired "$query_status"; then
+      record_deadline cleanup
+      return 124
+    fi
+  fi
+  return 1
+}
 cleanup() {
-  local status=$? cleanup_status
+  local status=$? cleanup_status deadline
   if [[ -n "$container_name" ]]; then
+    deadline=$((SECONDS + cleanup_seconds))
     # Keep a target even if the daemon started the container but the client timed out before returning its ID.
-    if "$timeout_command" --kill-after=2s "${cleanup_seconds}s" docker rm -f "${container_id:-$container_name}" >/dev/null 2>&1; then
+    if docker_until "$deadline" rm -f "${container_id:-$container_name}" >/dev/null 2>&1; then
       :
     else
       cleanup_status=$?
       if deadline_expired "$cleanup_status"; then
         record_deadline cleanup
-        if ((status == 0)); then
-          status=124
-        fi
+        cleanup_status=124
+      elif verify_removal "$deadline"; then
+        cleanup_status=0
+      else
+        cleanup_status=$?
+      fi
+      if ((status == 0)); then
+        status=$cleanup_status
       fi
     fi
   fi

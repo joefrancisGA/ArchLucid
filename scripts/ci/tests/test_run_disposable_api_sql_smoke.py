@@ -53,7 +53,7 @@ else:
 
 class DisposableApiSqlSmokeTests(unittest.TestCase):
     def invoke(self, test_exit=0, server_exit=False, port="127.0.0.1:49155", image_id=SQL_PIN,
-               repo_digest="", extra_args=(), cancel_signal=None, stall=""):
+               repo_digest="", extra_args=(), cancel_signal=None, stall="", cleanup_check=""):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / "docker").write_text(
@@ -79,7 +79,18 @@ case "$1" in
     if [[ "$FAKE_CANCEL_TEST" = true ]]; then
       "$REAL_PYTHON" -c 'import json, sys; assert json.load(open(sys.argv[1]))["cases"][1]["outcome"] == "interrupted"' "$FAKE_SUMMARY"
       echo 'checkpoint saved before cleanup' >> "$FAKE_DOCKER_LOG"
-    fi ;;
+    fi
+    if [[ -n "$FAKE_CLEANUP_CHECK" ]]; then exit 1; fi ;;
+  container)
+    [[ "$2 $3 $4 $5" == 'ls --all --no-trunc --filter' && "$7" == --format ]]
+    case "$FAKE_CLEANUP_CHECK" in
+      absent) : ;;
+      present) printf '%s\n' "${6#*=}" ;;
+      unexpected) printf '%s\n' 'unexpected-list-entry' ;;
+      unavailable) exit 7 ;;
+      timeout) exec sleep 30 ;;
+      *) exit 2 ;;
+    esac ;;
   *) exit 2 ;;
 esac
 """,
@@ -93,7 +104,7 @@ if [[ "$1" = '-c' ]]; then
 elif [[ "${!#}" = --prepare-only ]]; then
   test ! -e "$FAKE_DOCKER_LOG"
   exec "$REAL_PYTHON" "$@"
-elif [[ "${!#}" = --record-fixture-timeout=* ]]; then
+elif [[ "${!#}" = --record-fixture-timeout=* || "${!#}" = --record-fixture-cleanup=* ]]; then
   exec "$REAL_PYTHON" "$@"
 else
   [[ "${!#}" = --use-prepared ]]
@@ -101,7 +112,7 @@ else
   [[ "$ARCHLUCID_API_TEST_SQL" = "$ARCHLUCID_SQL_TEST" ]]
   [[ -z "${SQLCMDPASSWORD+x}${MSSQL_SA_PASSWORD+x}" ]]
   printf '%s\n' "$@" > "$FAKE_RUNNER_LOG"
-  if [[ "$FAKE_CANCEL_TEST" = true || "$FAKE_DOCKER_STALL" = rm ]]; then
+  if [[ "$FAKE_CANCEL_TEST" = true || "$FAKE_DOCKER_STALL" = rm || -n "$FAKE_CLEANUP_CHECK" ]]; then
     exec "$REAL_PYTHON" "$@"
   fi
   exit "$FAKE_TEST_EXIT"
@@ -113,7 +124,7 @@ fi
                                       encoding="utf-8")
             for name in ("docker", "python3", "git"):
                 (root / name).chmod(0o700)
-            if cancel_signal is not None or stall == "rm":
+            if cancel_signal is not None or stall == "rm" or cleanup_check:
                 dotnet = root / "dotnet"
                 dotnet.write_text(f"#!{sys.executable}\n" + SYNTHETIC_DOTNET, encoding="utf-8")
                 dotnet.chmod(0o700)
@@ -122,6 +133,7 @@ fi
                 "REAL_PYTHON": sys.executable,
                 "FAKE_DOCKER_LOG": str(root / "docker.log"),
                 "FAKE_DOCKER_STALL": stall,
+                "FAKE_CLEANUP_CHECK": cleanup_check,
                 "FAKE_RUNNER_LOG": str(root / "runner.log"),
                 "FAKE_TEST_EXIT": str(test_exit),
                 "FAKE_SERVER_EXIT": str(server_exit).lower(),
@@ -132,7 +144,7 @@ fi
                 "FAKE_CANCEL_TEST": str(cancel_signal is not None).lower(),
                 "FAKE_SUMMARY": str(root / "results" / "summary.json"),
                 "ARCHLUCID_FOCUSED_SQL_SETUP_SECONDS": "2" if stall in ("pull", "run", "exec") else "180",
-                "ARCHLUCID_FOCUSED_SQL_CLEANUP_SECONDS": "1" if stall == "rm" else "15",
+                "ARCHLUCID_FOCUSED_SQL_CLEANUP_SECONDS": "1" if stall == "rm" else "2" if cleanup_check == "timeout" else "15",
             }
             command = ["bash", str(WRAPPER), str(root / "results"), *extra_args]
             if cancel_signal is None:
@@ -290,6 +302,49 @@ fi
         self.assertEqual(completed.returncode, 1, completed.stderr)
         self.assertEqual(report["fixture_timeouts"], ["cleanup"])
         self.assertEqual([row["outcome"] for row in report["cases"]], ["passed", "failed", "passed"])
+
+    def test_removal_error_is_success_only_if_docker_confirms_absence(self):
+        completed, docker, _, report = self.invoke(cleanup_check="absent")
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual(docker[-2:], ["rm -f fake-container",
+                         "container ls --all --no-trunc --filter id=fake-container --format {{.ID}}"])
+        self.assertEqual(report["fixture_cleanup"], "already-absent")
+        self.assertEqual([row["outcome"] for row in report["cases"]], ["passed"] * 3)
+
+    def test_failed_removal_fails_smoke_when_presence_cannot_be_ruled_out(self):
+        for check, outcome in (("present", "still-present"), ("unavailable", "unverified"),
+                               ("unexpected", "unverified")):
+            with self.subTest(check=check):
+                completed, _, _, report = self.invoke(cleanup_check=check)
+                self.assertEqual(completed.returncode, 1, completed.stderr)
+                self.assertEqual(report["fixture_cleanup"], outcome)
+                self.assertEqual([row["outcome"] for row in report["cases"]], ["passed"] * 3)
+                self.assertNotIn("unexpected-list-entry", completed.stdout + completed.stderr + json.dumps(report))
+
+    def test_cleanup_verification_uses_the_cleanup_deadline(self):
+        completed, docker, _, report = self.invoke(cleanup_check="timeout")
+        self.assertEqual(completed.returncode, 124, completed.stderr)
+        self.assertIn("fixture cleanup timed out", completed.stderr)
+        self.assertTrue(docker[-1].startswith("container ls "))
+        self.assertEqual(report["fixture_timeouts"], ["cleanup"])
+        self.assertEqual(report["fixture_cleanup"], "unverified")
+        self.assertEqual([row["outcome"] for row in report["cases"]], ["passed"] * 3)
+
+    def test_confirmed_absence_does_not_mask_a_test_failure(self):
+        completed, _, _, report = self.invoke(cleanup_check="absent", test_exit=1)
+        self.assertEqual(completed.returncode, 1, completed.stderr)
+        self.assertEqual(report["fixture_cleanup"], "already-absent")
+        self.assertEqual([row["outcome"] for row in report["cases"]], ["passed", "failed", "passed"])
+
+    def test_absence_check_uses_the_generated_name_without_a_returned_id(self):
+        completed, docker, _, report = self.invoke(stall="run", cleanup_check="absent")
+        self.assertEqual(completed.returncode, 124, completed.stderr)
+        start = next(line for line in docker if line.startswith("run ")).split()
+        target = start[start.index("--name") + 1]
+        self.assertEqual(docker[-2:], [f"rm -f {target}",
+                         f"container ls --all --no-trunc --filter name={target} --format {{{{.Names}}}}"])
+        self.assertEqual(report["fixture_timeouts"], ["setup"])
+        self.assertEqual(report["fixture_cleanup"], "already-absent")
 
     def test_non_loopback_binding_is_rejected(self):
         completed, docker, argv, _ = self.invoke(port="0.0.0.0:49155")
