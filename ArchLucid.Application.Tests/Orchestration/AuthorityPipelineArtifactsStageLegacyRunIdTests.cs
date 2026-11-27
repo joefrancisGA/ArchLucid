@@ -1,6 +1,7 @@
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Application.Runs.Orchestration.Pipeline.Stages;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Persistence.Artifacts;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
@@ -14,6 +15,7 @@ using ArchLucid.Decisioning.Manifest;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -41,6 +43,8 @@ public sealed class AuthorityPipelineArtifactsStageLegacyRunIdTests
         string legacyUpper = canonicalRunId.ToUpperInvariant();
         Guid manifestId = Guid.Parse("11111111-1111-1111-1111-111111111111");
         Guid traceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        Guid findingsId = Guid.NewGuid();
+        DateTime createdUtc = DateTime.UtcNow;
 
         TechnologyLedgerEntry legacyEntry = new()
         {
@@ -93,25 +97,34 @@ public sealed class AuthorityPipelineArtifactsStageLegacyRunIdTests
 
         AuthorityPipelineContext context = new()
         {
-            Run = new RunRecord { RunId = runGuid },
+            Run = new RunRecord { RunId = runGuid, CreatedUtc = createdUtc },
             Scope = TestScope,
             UnitOfWork = uow,
-            Request = new ContextIngestionRequest(),
+            Request = new ContextIngestionRequest { RunId = runGuid, ProjectId = "legacy-ledger" },
+            FindingsSnapshot = new FindingsSnapshot
+            {
+                FindingsSnapshotId = findingsId,
+                RunId = runGuid,
+                CreatedUtc = createdUtc,
+            },
             Manifest = new ManifestDocument
             {
                 ManifestId = manifestId,
                 RunId = runGuid,
-                CreatedUtc = DateTime.UtcNow,
+                FindingsSnapshotId = findingsId,
+                DecisionTraceId = traceId,
+                CreatedUtc = createdUtc,
                 ManifestHash = "hash",
                 RuleSetId = "rules",
                 RuleSetVersion = "1",
                 RuleSetHash = "rule-hash",
+                FeasibilityVerdict = new FeasibilityVerdict { Kind = FeasibilityVerdictKind.Feasible },
             },
             Trace = RuleAuditTraceDto.From(new RuleAuditTracePayload
             {
                 DecisionTraceId = traceId,
                 RunId = runGuid,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = createdUtc,
             }),
         };
 
@@ -120,6 +133,8 @@ public sealed class AuthorityPipelineArtifactsStageLegacyRunIdTests
             synthesis.Object,
             persistence.Object,
             audit.Object,
+            new AuthorityCommitProjectionBuilder(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
             NullLogger<AuthorityPipelineArtifactsStage>.Instance);
 
         await sut.ExecuteAsync(context, CancellationToken.None);
