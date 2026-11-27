@@ -12,6 +12,7 @@ import { SecureNowBetaSkuContentsSection } from "@/components/product-line/Secur
 import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
 import { SecureNowPilotSpineAcceleratorIndex } from "@/components/product-line/SecureNowPilotSpineAcceleratorIndex";
 
+import { SecureNowPilotDecisionInProgressCtaStrip } from "@/components/product-line/SecureNowPilotDecisionInProgressCtaStrip";
 import { SecureNowPilotDispositionOutcomeRehearsalPanels } from "@/components/product-line/SecureNowPilotDispositionOutcomeRehearsalPanels";
 import { SecureNowProcurementTrustStrip } from "@/components/product-line/SecureNowProcurementTrustStrip";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -150,6 +151,9 @@ export function SecureNowPilotDecisionPageView(): React.JSX.Element {
             extractUploadTestId="securenow-pilot-decision-partial-capture-extract-upload"
           />
         ) : null}
+        <SecureNowPilotDecisionInProgressCtaStrip
+          visible={savedDisposition === null && (pathId.length === 0 || outcome.length === 0)}
+        />
         <section aria-labelledby="securenow-pilot-decision-steps-heading" className="space-y-2">
           <h2 id="securenow-pilot-decision-steps-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
             Close the review

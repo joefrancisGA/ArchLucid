@@ -8,6 +8,7 @@ import { SecureNowBetaSkuContentsSection } from "@/components/product-line/Secur
 import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
 import { SecureNowPilotSpineAcceleratorIndex } from "@/components/product-line/SecureNowPilotSpineAcceleratorIndex";
 import { SecureNowFirstHourCollectionSetupSection } from "@/components/product-line/SecureNowFirstHourCollectionSetupSection";
+import { SecureNowFirstHourMarketingSkuBand } from "@/components/product-line/SecureNowFirstHourMarketingSkuBand";
 import { SECURENOW_PILOT_SPINE_PATH } from "@/lib/product-line/securenow-pilot-spine-copy";
 import {
   SECURENOW_FIRST_HOUR_GUARDRAIL,
@@ -39,6 +40,7 @@ export function SecureNowFirstHourPageView(): React.JSX.Element {
           cloudConnectionsTestId="securenow-first-hour-partial-capture-cloud-connections"
           extractUploadTestId="securenow-first-hour-partial-capture-extract-upload"
         />
+        <SecureNowFirstHourMarketingSkuBand />
         <SecureNowFirstHourCollectionSetupSection />
 
         <section aria-labelledby="securenow-first-hour-steps-heading" className="space-y-2">
