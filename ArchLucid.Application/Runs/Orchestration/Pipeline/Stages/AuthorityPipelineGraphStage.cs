@@ -50,7 +50,8 @@ public sealed class AuthorityPipelineGraphStage(
 
         RunRecord run = context.Run;
 
-        GraphSnapshotResolutionResult? committedReuse = await GraphSnapshotCommittedReuseResolver.TryResolveAsync(
+        GraphSnapshotResolutionResult? committedReuse = context.RebuildGraphForDependencyChange
+            ? null : await GraphSnapshotCommittedReuseResolver.TryResolveAsync(
             context.Scope,
             run.RunId,
             run.GraphSnapshotId,
@@ -86,13 +87,14 @@ public sealed class AuthorityPipelineGraphStage(
         }
 
         ArchitectureKnowledgeModel? knowledgeModel = await TryLoadKnowledgeModelAsync(context.Scope, run.RunId, cancellationToken);
+        ContextSnapshot? compatiblePrior = context.RebuildGraphForDependencyChange ? null : context.PriorCommittedContext;
         ArchitectureKnowledgeModel? priorKnowledgeModel = null;
 
-        if (context.PriorCommittedContext is not null)
+        if (compatiblePrior is not null)
         {
             priorKnowledgeModel = await TryLoadKnowledgeModelAsync(
                 context.Scope,
-                context.PriorCommittedContext.RunId,
+                compatiblePrior.RunId,
                 cancellationToken);
         }
 
@@ -102,7 +104,7 @@ public sealed class AuthorityPipelineGraphStage(
         {
             graphResolution = await KnowledgeModelAwareGraphSnapshotResolver.ResolveAsync(
                 context.Scope,
-                context.PriorCommittedContext,
+                compatiblePrior,
                 context.ContextSnapshot!,
                 run.RunId,
                 knowledgeModel,
@@ -117,7 +119,7 @@ public sealed class AuthorityPipelineGraphStage(
         {
             graphResolution = await GraphSnapshotReuseEvaluator.ResolveAsync(
                 context.Scope,
-                context.PriorCommittedContext,
+                compatiblePrior,
                 context.ContextSnapshot!,
                 run.RunId,
                 _knowledgeGraphService,

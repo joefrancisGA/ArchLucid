@@ -86,7 +86,8 @@ public sealed class FourRealityDriftEngine(
 
         if (!string.IsNullOrWhiteSpace(currentSnapshot.Header.SubscriptionId))
         {
-            Guid? priorSnapshotId = await snapshotRepository.TryGetPriorMaterializedSnapshotIdAsync(
+            Guid? priorSnapshotId = SecureNowAnalysisRun.ExecutionBudget?.RecoverySession is { Versioned: true } recovery
+                ? recovery.PriorSnapshotId : await snapshotRepository.TryGetPriorMaterializedSnapshotIdAsync(
                 scope,
                 currentSnapshot.Header.SubscriptionId,
                 snapshotId,

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
@@ -47,6 +48,8 @@ internal static class SqlAuthorityPipelineRepositoryRegistrar
         services.AddScoped<IAuthorityPipelineStagesExecutor>(provider => provider.GetRequiredService<AuthorityPipelineStagesExecutor>());
         services.AddScoped<IAnalysisRecoveryRepository, SqlAnalysisRecoveryRepository>();
         services.AddScoped<AuthorityRecoveryPipeline>();
+        services.AddScoped<AnalysisDependencyConfiguration>();
+        services.AddScoped<SecureNowDependencyInputs>();
         services.AddScoped<ISecureNowAnalysisRecoveryJobs, SqlSecureNowAnalysisRecoveryJobs>();
         services.AddScoped<SecureNowAnalysisDurableRecovery>();
         services.AddScoped<IAuthorityCommittedPipelineFinalizer, AuthorityCommittedPipelineFinalizer>();

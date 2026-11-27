@@ -21,12 +21,16 @@ public sealed class SecureNowAnalysisDurableRecovery(
     private static readonly string Version = Convert.ToHexString(SHA256.HashData(
         Encoding.UTF8.GetBytes($"securenow-recovery-v1:{typeof(SecureNowAnalysisDurableRecovery).Module.ModuleVersionId:D}")));
 
+    private static readonly string DependencyVersion = AnalysisDependencyFingerprint.Digest(new { Version, Schema = 2 });
+
+    private string SelectedVersion => options.CurrentValue.EnableDependencyAwareAnalysisReuse ? DependencyVersion : Version;
+
     internal SecureNowAnalysisRecoveryAdmission? PrepareAdmission(bool fullRecompute)
     {
         AnalysisStageExecutionOptions policy = options.CurrentValue;
 
         return policy.EnableDurableSecureNowRecovery
-            ? new SecureNowAnalysisRecoveryAdmission(Version, fullRecompute, (int)policy.GetSecureNowRunTimeout().TotalSeconds)
+            ? new SecureNowAnalysisRecoveryAdmission(SelectedVersion, fullRecompute, (int)policy.GetSecureNowRunTimeout().TotalSeconds)
             : null;
     }
 
@@ -35,7 +39,7 @@ public sealed class SecureNowAnalysisDurableRecovery(
     {
         DateTime admittedUtc = clock.UtcNowDateTime();
 
-        return await jobs.AdmitAsync(ProjectScopeKey.From(scope), snapshotId, subscriptionId, fullRecompute, Version,
+        return await jobs.AdmitAsync(ProjectScopeKey.From(scope), snapshotId, subscriptionId, fullRecompute, SelectedVersion,
             admittedUtc, admittedUtc + options.CurrentValue.GetSecureNowRunTimeout(), ct);
     }
 
@@ -89,18 +93,22 @@ public sealed class SecureNowAnalysisDurableRecovery(
             {
                 try
                 {
-                    if (!string.Equals(Version, job.InputVersion, StringComparison.Ordinal))
+                    bool versioned = string.Equals(DependencyVersion, job.InputVersion, StringComparison.Ordinal);
+
+                    if (!versioned && !string.Equals(Version, job.InputVersion, StringComparison.Ordinal))
                         throw new AnalysisStageExecutionException("securenow.job", AnalysisStageOutcome.Failed);
 
                     admissionBudget.EnsureCanContinue("securenow.job");
                     using AnalysisExecutionBudget budget = new(policy, clock,
                         job.DeadlineUtc - clock.UtcNowDateTime(), lease.Token);
                     budget.RecoverySession = new SecureNowRecoverySession(checkpoints, job, policy.RecoveryMaxAttempts,
-                        clock, logger, caller);
+                        clock, logger, caller, versioned);
                     using IDisposable fence = lease.EnterSqlFence(job.AdmittedUtc);
                     await execute(budget, lease.Token);
                     budget.EnsureCanContinue("securenow.job");
-                    await lease.CompleteAsync(job.SnapshotId.ToString("D"), null, lease.Token);
+                    string reference = budget.RecoverySession.Receipt is { } receipt
+                        ? System.Text.Json.JsonSerializer.Serialize(receipt) : job.SnapshotId.ToString("D");
+                    await lease.CompleteAsync(reference, null, lease.Token);
                 }
                 catch (Exception ex)
                 {
