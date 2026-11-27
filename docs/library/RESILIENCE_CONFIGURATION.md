@@ -77,6 +77,20 @@ Already bound via `IOptions<AgentExecutionResilienceOptions>` from `AgentExecuti
 
 **Max billed completions per agent task (worst case):** `(1 + LlmCallMaxRetryAttempts) + (MaxCompletionAttempts − 1)` when retry is enabled. See **`docs/LLM_RETRY_AND_CIRCUIT_BREAKER.md`** § Schema remediation completions (TB-043).
 
+### Hosted public cloud pricing (FND-065)
+
+All three hosted public pricing clients (Azure Retail Prices, AWS Pricing, and GCP Cloud Billing Catalog) use one registration and resilience policy. Each named client owns a separate circuit breaker and connection pool.
+
+- Only bodyless GET and HEAD requests enter the retry policy. One HTTP call allows at most four attempts under the existing five-minute client timeout. This does not set a deadline for consuming a returned stream or for an entire paginated catalog scan.
+- Local exponential delays start at one second with up to 25% positive jitter. A valid `Retry-After` delta or HTTP date on 429 or 503 sets a minimum wait. If the selected delay reaches or exceeds the remaining budget, return the last response and do not retry early. Caller cancellation interrupts retry waits.
+- Each provider breaker samples completed calls, not individual attempts. It opens after at least five calls in a one-minute sample when all are handled failures, then allows a recovery probe after 30 seconds. A successful recovery probe closes it. An open or recovering provider does not change the other providers' circuit state.
+
+- Each provider admits up to 50 concurrent logical calls per host process, including calls in retry backoff. Excess calls return a local 503 immediately without queuing, retrying, or affecting circuit state. A completed or canceled call releases its slot. Slots cover the HTTP handler call and retries, not subsequent response-body consumption.
+
+The pricing tests cover both header formats on all three named clients, elapsed-budget exhaustion, cancellation, the attempt limit, non-replayed writes, cross-provider failures, recovery, and independent capacity under simulated saturation. They do not measure real vendor latency or establish a distributed concurrency limit.
+
+This change expands adoption only for the hosted pricing clients. Azure Resource Manager, CLI/direct SDK clients, and non-pricing outbound integrations keep their own behavior. The shared external integration breaker already samples completed calls, Jira/ServiceNow health probes use independent clients, and the Jira, ServiceNow, and Azure Boards ticket paths do not automatically replay writes. Broader opt-in for read retry timing, concurrency limits beyond hosted pricing, and provider-specific idempotency verification for other mutation paths remain separate work. Do not adopt the pricing retry settings blindly for writes.
+
 ### CLI HTTP retries
 
 | Setting | Source | Default | Notes |
