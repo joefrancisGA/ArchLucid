@@ -34,6 +34,10 @@ The **`pre-push`** hook runs the same OpenAPI v1 + buyer snapshot check as CI **
 - **Task discipline (always-loaded):** `.cursor/rules/User-Task-Discipline.mdc` — surface uncertainty, avoid speculative code, keep edits surgical, state acceptance criteria and verify before calling work done.
 - **Historical artifact snapshots:** **`docs/archive/`** (including **`docs/archive/assessments/`**) — for **today's** weighted workflow, follow **`ASSESSMENT_INPUTS.md`**; use archives only for historical comparison.
 
+## Mandatory shared-component impact analysis
+
+Follow the always-applied [shared-component impact analysis rule](../../.cursor/rules/Shared-Component-Impact-Analysis.mdc) before editing common implementations, cross-layer contracts or shared infrastructure. Record affected direct/transitive consumers, preserved behavior, unknown dependencies, risk and targeted verification before changing code; reconcile the final diff and disclose incomplete verification. This guidance supplements existing architectural invariants, working-tree safety and scoped build/CI policies; it does not authorize full master CI or bypass release restrictions.
+
 ## Partial .NET solution load
 
 Use **[solution filters](https://learn.microsoft.com/visualstudio/ide/filtered-solutions)** next to **`ArchLucid.sln`** (Visual Studio **Open a project or solution**, or CLI `dotnet build <filter>.slnf`):
