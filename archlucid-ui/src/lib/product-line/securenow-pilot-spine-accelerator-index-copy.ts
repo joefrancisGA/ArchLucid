@@ -33,7 +33,7 @@ export const SECURENOW_PILOT_SPINE_ACCELERATOR_LINKS: readonly SecureNowPilotSpi
     id: "golden-sponsor",
     href: "/help/specialty-walkthroughs",
     label: "Golden sponsor export walkthrough",
-    hint: "Illustrative sample package only — use the sample review link from Help when you are ready.",
+    hint: "Illustrative architecture package only — use the sample review link from Help when you are ready.",
   },
   {
     id: "remediation-factory-empty",

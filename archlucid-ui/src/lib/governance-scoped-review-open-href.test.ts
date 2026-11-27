@@ -5,6 +5,9 @@ import { resolveGovernanceScopedReviewOpenHref } from "@/lib/governance-scoped-r
 
 const deskFixture = vi.hoisted(() => ({ id: null as string | null }));
 
+// Shared setup may preload the desk helpers before this file's mocks are registered.
+vi.hoisted(() => vi.resetModules());
+
 vi.mock("@/lib/desk-continuity-preference", () => ({
   readCachedLastOpenArchitectureId: () => deskFixture.id,
 }));

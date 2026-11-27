@@ -1,4 +1,5 @@
-import { render, screen } from "@testing-library/react";
+import { renderDiagramsWorkbenchTest as render } from "@/testing/render-diagrams-workbench-test";
+import { screen } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
 let searchParams = new URLSearchParams();

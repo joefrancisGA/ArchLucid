@@ -13,7 +13,11 @@ describe("score-lift round122 mounted contract", () => {
     expect(explorer).toContain('data-testid="resource-explorer-work-queue-type-prefix-and-resource-group-filter-empty-not-load-failure"');
     expect(explorer).toContain('urlResourceType.length > 0 && urlNamePrefix.length > 0 && urlResourceGroup.length > 0 && urlWorkQueue === "all"');
     const graph = readUiSource("app/(operator)/insights/evidence-graph/_sections/GraphLoadedExperience.tsx");
-    expect(graph).toContain('data-testid="evidence-graph-node-focus-only-empty-partial-capture"');
-    expect(graph).toContain('data-testid="evidence-graph-path-only-empty-partial-capture"');
+    expect(graph).toContain("<GraphNodeFocusOnlyEmptyPartialCaptureHonesty />");
+    expect(readUiSource("app/(operator)/insights/evidence-graph/_sections/GraphNodeFocusOnlyEmptyPartialCaptureHonesty.tsx"))
+      .toContain('testId="evidence-graph-node-focus-only-empty-partial-capture"');
+    expect(graph).toContain("<GraphPathOnlyEmptyPartialCaptureHonesty />");
+    expect(readUiSource("app/(operator)/insights/evidence-graph/_sections/GraphPathOnlyEmptyPartialCaptureHonesty.tsx"))
+      .toContain('testId="evidence-graph-path-only-empty-partial-capture"');
   });
 });

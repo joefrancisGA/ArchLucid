@@ -1,6 +1,18 @@
 {
   "linePatterns": [
     {
+      "pattern": "An ArchLucid Team(?:, Professional, or Enterprise (?:subscription|payment)| or Professional subscription) does not (?:include SecureNow(?: SKU entitlements)?|grant SecureNow)\\.",
+      "reason": "Names the separate Architecture product only to make SecureNow entitlement exclusions explicit."
+    },
+    {
+      "pattern": "It is not credited against any ArchLucid SKU",
+      "reason": "SecureNow evaluation credit explicitly excludes the separate Architecture product."
+    },
+    {
+      "pattern": "label: \"ArchLucid AL-EVAL acceptance\"",
+      "reason": "Procurement link names the separate Architecture evaluation acceptance document."
+    },
+    {
       "pattern": "@archlucid\\.net",
       "reason": "Company email addresses stay on archlucid.net"
     },

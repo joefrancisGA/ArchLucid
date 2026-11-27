@@ -1,3 +1,5 @@
+using Xunit;
+
 using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Quality;
@@ -14,6 +16,8 @@ using Moq;
 
 namespace ArchLucid.AgentRuntime.Tests.Quality;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class IndependentProviderQualityObserverTests
 {
     [Fact]

@@ -6,6 +6,8 @@ using ArchLucid.Core.Resilience;
 
 using Microsoft.Extensions.Options;
 
+using ArchLucid.Core.Agents;
+
 namespace ArchLucid.AgentRuntime.Quality;
 
 /// <summary>Uses a shared control-plane transaction for observations and quarantine admission.</summary>

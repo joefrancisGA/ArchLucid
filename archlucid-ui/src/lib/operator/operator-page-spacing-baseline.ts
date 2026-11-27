@@ -5,6 +5,7 @@
 export const OPERATOR_PAGE_MARKETING_SCALE_SPACING_BASELINE_PATHS: readonly string[] = [
   "app/(operator)/administration/branding/BrandingSettingsFormFields.tsx",
   "app/(operator)/administration/connection-status/AdministrationConnectionStatusPageClient.tsx",
+  "app/(operator)/administration/securenow-accelerator-index/SecureNowAcceleratorIndexPageView.tsx",
   "app/(operator)/administration/securenow-accessibility/SecureNowAccessibilityPageView.tsx",
   "app/(operator)/administration/securenow-compliance-notes/SecureNowComplianceNotesPageView.tsx",
   "app/(operator)/administration/securenow-first-hour/SecureNowFirstHourPageView.tsx",

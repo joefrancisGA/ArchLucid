@@ -1,3 +1,5 @@
+using Xunit;
+
 using System.Net;
 using System.Text.Json;
 
@@ -11,6 +13,8 @@ using Moq;
 
 namespace ArchLucid.Persistence.Tests.Cosmos;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class CosmosAgentExecutionTracePatchTests
 {
     [Fact]

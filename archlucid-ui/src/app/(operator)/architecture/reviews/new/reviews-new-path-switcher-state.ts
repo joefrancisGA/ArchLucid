@@ -1,3 +1,9 @@
+import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
+import { SIMPLIFIED_PILOT_ADVANCED_CONFIG_OPEN_PARAM } from "@/lib/architecture/simplified-pilot-advanced-config-disclosure-url";
+import { GUIDED_INTAKE_VIEW_ALL_CLARIFICATIONS_OPEN_PARAM } from "@/lib/guided-intake/guided-intake-view-all-clarifications-disclosure-url";
+import { FIRST_PILOT_STANDARDS_SELECTION_OPEN_PARAM } from "@/lib/reviews/first-pilot-standards-selection-disclosure-url";
+import { REVIEWS_NEW_MORE_WAYS_TO_START_OPEN_PARAM } from "@/lib/reviews/reviews-new-more-ways-to-start-disclosure-url";
+import { REVIEWS_NEW_RETURNING_JOB_CHOOSER_OPEN_PARAM } from "@/lib/reviews/reviews-new-returning-job-chooser-disclosure-url";
 export const REVIEWS_NEW_PATH_STORAGE_KEY = "archlucid_reviews_new_path_v2";
 
 export type ReviewsNewPathMode = "quick-review" | "full-guided";
@@ -142,16 +148,40 @@ export function persistActivePath(path: ReviewsNewActivePath): void {
   persistFullGuidedSubMode(path === "detailed" ? "detailed" : "guided-intake");
 }
 
-/** Rewrites `path` while preserving unrelated query keys (TB-1867). */
-export function buildReviewsNewPathHref(
-  pathname: string,
+/** Switches review intake paths while preserving unrelated query keys (TB-1867). */
+export function reviewsNewPathHrefFromSearch(
+  currentSearch: string,
   path: ReviewsNewActivePath,
-  searchParams: URLSearchParams,
+  pathname: string,
 ): string {
-  const next = new URLSearchParams(searchParams.toString());
-  next.set("path", path);
+  return buildOperatorHrefFromSearch(currentSearch, pathname, {
+    selectionSwitch: { kind: "disclosure-only" },
+    mutate: (params) => {
+      params.set("path", path);
+      if (path === "quick-review") {
+        params.delete("baseline");
+        params.delete("accelerator");
+        params.delete("preset");
+        params.delete("template");
+        params.delete("example");
+        params.delete(FIRST_PILOT_STANDARDS_SELECTION_OPEN_PARAM);
+        params.delete(SIMPLIFIED_PILOT_ADVANCED_CONFIG_OPEN_PARAM);
+        params.delete(REVIEWS_NEW_MORE_WAYS_TO_START_OPEN_PARAM);
+        params.delete(REVIEWS_NEW_RETURNING_JOB_CHOOSER_OPEN_PARAM);
+        params.delete(GUIDED_INTAKE_VIEW_ALL_CLARIFICATIONS_OPEN_PARAM);
+      }
 
-  const query = next.toString();
+      params.delete("intakeStep");
+      params.delete("scopeGate");
 
-  return query.length > 0 ? `${pathname}?${query}` : pathname;
+      if (path !== "detailed") {
+        params.delete("step");
+        params.delete("mode");
+        params.delete("pilot");
+        params.delete("advancedConfig");
+        params.delete("evidenceSource");
+        params.delete("demoScenario");
+      }
+    },
+  });
 }

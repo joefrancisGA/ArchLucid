@@ -11705,7 +11705,6 @@ BEGIN
         CONSTRAINT PK_ArchitectureIntelligenceStandaloneRuns PRIMARY KEY (RunId)
     );
 END;
-
 GO
 
 -- Forward-only requester binding. Legacy outbox rows are intentionally not updated.

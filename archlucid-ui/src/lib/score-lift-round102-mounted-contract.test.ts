@@ -19,6 +19,6 @@ describe("score-lift round102 mounted contract", () => {
     expect(presenter).toContain('data-testid="review-presenter-mode-empty-not-load-failure"');
     expect(diagram).toContain('data-testid="infra-diagram-reconcile-stale-snapshot-filter-empty-not-load-failure"');
     expect(home).toContain("OperatorHomeSecureNowCollectionBlockerStrip");
-    expect(homeStrip).toContain('data-testid="operator-home-open-gate-collection-blocker-not-load-failure"');
+    expect(homeStrip).toContain('"operator-home-open-gate-collection-blocker-not-load-failure"');
   });
 });

@@ -14,7 +14,7 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
-import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import { resolveGuideHeadingsForStrip, resolvePageHeaderClaimDisciplineForStrip, resolvePageHeaderClaimDisciplineTestIdForStrip } from "@/lib/claim-discipline-policy";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
@@ -151,8 +151,8 @@ export function HelpGovernanceInfrastructureTerraformGuideView(
         titleTestId="help-governance-infrastructure-terraform-page-title"
         subtitle={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_HELP_PAGE_SUBTITLE}
         navHref={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_HELP_CANONICAL_PATH}
-        claimDiscipline={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_HELP_CLAIM_DISCIPLINE}
-        claimDisciplineTestId="help-governance-infrastructure-terraform-claim-discipline"
+        claimDiscipline={resolvePageHeaderClaimDisciplineForStrip("help-governance-infrastructure-terraform", GOVERNANCE_INFRASTRUCTURE_TERRAFORM_HELP_CLAIM_DISCIPLINE)}
+        claimDisciplineTestId={resolvePageHeaderClaimDisciplineTestIdForStrip("help-governance-infrastructure-terraform", "help-governance-infrastructure-terraform-claim-discipline")}
         headingLevel="h1"
         metadata={buyerPolishedShell ? undefined : <HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={

@@ -11,7 +11,7 @@ describe("SecureNowComplianceNotesPageView", () => {
 
     expect(screen.getByTestId("securenow-compliance-notes-page")).toBeInTheDocument();
     expect(screen.getByText(/Not a certification/)).toBeInTheDocument();
-    expect(screen.getByText(/NO_GO/)).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-compliance-notes-lead")).toHaveTextContent(/NO_GO/);
     expect(screen.getByText("Assurance opinion")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: SECURENOW_COMPLIANCE_NOTES_LINKS[0].label })).toHaveAttribute(
       "href",

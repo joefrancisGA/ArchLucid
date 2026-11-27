@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json;
 
-using ArchLucid.AgentRuntime.Quality;
+using ArchLucid.Core.Agents;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Security;
@@ -57,11 +57,6 @@ public sealed partial class AdminAgentModelCatalogController
                 "Supply a provider, model, version, decision and reason. An override must expire in 1 to 60 minutes.",
                 ProblemTypes.ValidationFailed);
         }
-
-        // In-memory mode cannot represent a platform-wide change and may have a no-op platform audit sink.
-        if (monitor is not DurableProviderQualityMonitor)
-            return this.ConflictProblem("Durable provider quality state is required.", ProblemTypes.Conflict);
-
         ProviderQualityKey key = ProviderQualityKey.Create(request.ProviderId, request.ModelId, request.ModelVersion);
         PlatformAuditEvent audit = new()
         {

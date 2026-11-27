@@ -7138,16 +7138,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 2026-10-21 thorough hunt (hit, lane C): JSON-null `addedServices` elements and null `AgentResult` entries no longer abort structural post-processing or cross-agent consistency merge; Application scoped filter 34/34.
 
-- **id:** storage-vs-data-category
-- **status:** unseeded
-- **impact:** medium
-- **aliases:** storage vs data; structural post-processor; consistency gate
-- **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
-- **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **consecutive-dry-hunts:** 0
-- **last-bug:** never
-- **related-pd-tb:** none
-- **code-changed-since:** yes
+
 
 2026-10-09 seed hunt (seed-only): re-read `AgentProposalStructuralPostProcessor` and `CrossAgentProposalConsistencyGate` after post-commit churn; no new mechanism-backed hunt-ready row survived cheap disproof in this exhausted zone. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -7155,30 +7146,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `AgentProposalStructuralPostProcessor.DedupeServices` — JSON-null service entry — **hit 2026-10-21 lane C:** regression `ApplyToProposal_skips_null_added_service_entry_from_deserialized_proposal`.
 - [x] (proven) `CrossAgentProposalConsistencyGate` — JSON-null service entry in batch merge — **hit 2026-10-21 lane C:** regression `ApplyToResults_skips_null_added_service_entry_from_deserialized_proposal`.
 
-- **id:** storage-vs-data-category
-- **status:** unseeded
-- **impact:** medium
-- **aliases:** storage vs data; structural post-processor; consistency gate
-- **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
-- **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **consecutive-dry-hunts:** 0
-- **last-bug:** never
-- **related-pd-tb:** none
-- **code-changed-since:** yes
 
-- **id:** storage-vs-data-category
-- **status:** unseeded
-- **impact:** medium
-- **aliases:** storage vs data; structural post-processor; consistency gate
-- **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
-- **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 0
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
-- **related-pd-tb:** none
-- **code-changed-since:** yes
 
 2026-10-09 seed hunt (seed-only): re-read `AgentProposalStructuralPostProcessor` and `CrossAgentProposalConsistencyGate` after post-commit churn; no new mechanism-backed hunt-ready row survived cheap disproof in this exhausted zone. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -7301,20 +7269,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `HasSubstantiveInfrastructureDeclaration` / `HasSubstantiveDocument` — `format` and `contentType` were not scanned for embedded combining marks, so declarations/documents with valid `name`/`content` but corrupted routing metadata survived materialization — **hit 2026-10-04 seed hunt:** apply `HasUsableIdentifierText` to `format` and `contentType`; regressions `Deserialize_filters_infrastructure_declaration_when_format_contains_embedded_combining_mark` and `Deserialize_filters_document_when_content_type_contains_embedded_combining_mark`.
 
 2026-10-12 seed hunt (seed-only): reread `AuthorityPipelineWorkPayload.cs` and both focused JSON/null-element test suites, checking identifier normalization, enum validation, nullable collections/elements, malformed JSON, and Unicode boundary handling. No fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped payload test run was blocked before discovery by existing `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`); no production or regression change.
-
-- **id:** authority-pipeline-payload
-- **status:** unseeded
-- **impact:** medium
-- **aliases:** authority payload; pipeline work payload
-- **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
-- **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 0
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
-- **related-pd-tb:** none
-- **code-changed-since:** yes
 
 ### Hypotheses
 - [x] (proven) `HasSubstantiveDocument` / `MaterializePathReferenceStringList` / `HasSubstantiveInfrastructureDeclaration` — compact identifier fields (document name/contentType, declaration name/format, policy/topology/security/capability refs) allowed embedded whitespace that path/batch normalizers only trim at ends — **hit 2026-10-04 seed hunt:** `HasUsableCompactIdentifierText` + `MaterializePathReferenceStringList`; regressions `Deserialize_filters_document_when_name_contains_embedded_nbsp`, `Deserialize_filters_policy_reference_when_entry_contains_embedded_nbsp`, and `Deserialize_keeps_inline_requirements_with_internal_spaces`.

@@ -1,5 +1,6 @@
+import { renderDiagramsWorkbenchTest } from "@/testing/render-diagrams-workbench-test";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { axe, toHaveNoViolations } from "jest-axe";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -187,15 +188,21 @@ vi.mock("@/components/infra-evidence/SecureNowQuestionQueue", async (importOrigi
 
 describe("SecureNow path surfaces — axe", () => {
   beforeEach(() => {
-    fetchInfraEvidenceSnapshotsMock.mockResolvedValue([
-      {
+    fetchInfraEvidenceSnapshotsMock.mockResolvedValue({
+      items: [{
         snapshotId: "11111111-1111-1111-1111-111111111111",
-        capturedOnUtc: "2026-01-01T00:00:00.000Z",
         subscriptionId: "sub-1",
-        subscriptionDisplayName: "Fixture subscription",
+        subscriptionName: "Fixture subscription",
+        capturedUtc: "2026-01-01T00:00:00.000Z",
+        captureStatus: 1,
         resourceCount: 3,
-      },
-    ]);
+        relationshipCount: 1,
+      }],
+      totalCount: 1,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
     fetchInfraEvidenceMermaidRenderMock.mockResolvedValue({
       snapshotId: "11111111-1111-1111-1111-111111111111",
       mode: "executive",
@@ -250,7 +257,8 @@ describe("SecureNow path surfaces — axe", () => {
   });
 
   it("has no serious axe violations on the path-scoped diagram surface", async () => {
-    const { container } = render(<DiagramsWorkbenchClient />);
+    const { container } = renderDiagramsWorkbenchTest(<DiagramsWorkbenchClient />);
+    await screen.findByTestId("securenow-diagram-path-focus-match-basis");
 
     expect(await axe(container)).toHaveNoViolations();
   });

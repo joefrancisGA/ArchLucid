@@ -14,7 +14,7 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
-import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import { resolveGuideHeadingsForStrip, resolvePageHeaderClaimDisciplineForStrip, resolvePageHeaderClaimDisciplineTestIdForStrip } from "@/lib/claim-discipline-policy";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
@@ -151,8 +151,8 @@ export function HelpGovernanceInfrastructureRemediationGuideView(
         titleTestId="help-governance-infrastructure-remediation-page-title"
         subtitle={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_HELP_PAGE_SUBTITLE}
         navHref={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_HELP_CANONICAL_PATH}
-        claimDiscipline={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_HELP_CLAIM_DISCIPLINE}
-        claimDisciplineTestId="help-governance-infrastructure-remediation-claim-discipline"
+        claimDiscipline={resolvePageHeaderClaimDisciplineForStrip("help-governance-infrastructure-remediation", GOVERNANCE_INFRASTRUCTURE_REMEDIATION_HELP_CLAIM_DISCIPLINE)}
+        claimDisciplineTestId={resolvePageHeaderClaimDisciplineTestIdForStrip("help-governance-infrastructure-remediation", "help-governance-infrastructure-remediation-claim-discipline")}
         headingLevel="h1"
         metadata={buyerPolishedShell ? undefined : <HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={

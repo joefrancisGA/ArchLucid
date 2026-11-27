@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.AgentRuntime.AgentModelAliases;
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.AgentRuntime.Quality;
+using ArchLucid.Core.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;

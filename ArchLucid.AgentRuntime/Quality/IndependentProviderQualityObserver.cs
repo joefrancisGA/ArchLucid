@@ -7,6 +7,8 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Scoping;
 
+using ArchLucid.Core.Agents;
+
 namespace ArchLucid.AgentRuntime.Quality;
 
 /// <summary>Aggregates SecureNow's independent inventory claim outcomes using live hosted transport attribution.</summary>

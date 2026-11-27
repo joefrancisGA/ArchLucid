@@ -119,6 +119,14 @@ describe("infra-evidence-diagrams-filter-url", () => {
     );
   });
 
+  it("keeps the neighborhood seed across filter changes but clears it for another snapshot", () => {
+    const search = "snapshotId=snap-1&mermaidMode=dependencyNeighborhood&seedNodeId=node-1";
+    const sameSnapshot = infraDiagramsFilterHrefFromSearch(search, { subscriptionFilter: "sub-1" });
+    expect(sameSnapshot).toContain("seedNodeId=node-1");
+    const nextSnapshot = infraDiagramsFilterHrefFromSearch(search, { snapshotId: "snap-2" });
+    expect(nextSnapshot).not.toContain("seedNodeId=");
+  });
+
   it("round-trips hidden Executive tier keys in filter href patches", () => {
     expect(
       infraDiagramsFilterHrefFromSearch("", {
