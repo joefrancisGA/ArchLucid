@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.CloudExtractor;
 using ArchLucid.Application.CloudInventoryExtractor;
 using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Contracts.Common;
@@ -33,7 +34,8 @@ public sealed class HostedAwsExtractorRunService(
     ICloudInventoryExtractorIngestService ingestService,
     IScopeContextProvider scopeContextProvider,
     IAuditService auditService,
-    IOptionsMonitor<HostedAwsExtractorOptions> optionsMonitor) : IHostedAwsExtractorRunService
+    IOptionsMonitor<HostedAwsExtractorOptions> optionsMonitor,
+    TimeProvider? timeProvider = null) : IHostedAwsExtractorRunService
 {
     private readonly ITenantAwsConnectionRepository _connectionRepository =
         connectionRepository ?? throw new ArgumentNullException(nameof(connectionRepository));
@@ -53,6 +55,8 @@ public sealed class HostedAwsExtractorRunService(
     private readonly IOptionsMonitor<HostedAwsExtractorOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
+    private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
+
     public async Task<HostedAwsExtractorRunResult> RunAsync(
         Guid tenantId,
         Guid connectionId,
@@ -61,7 +65,9 @@ public sealed class HostedAwsExtractorRunService(
         string? correlationId,
         CancellationToken cancellationToken)
     {
-        if (!_optionsMonitor.CurrentValue.Enabled)
+        HostedAwsExtractorOptions options = _optionsMonitor.CurrentValue;
+
+        if (!options.Enabled)
             return HostedAwsExtractorRunResult.CreateFeatureDisabled();
 
         TenantAwsConnectionRecord? connection = await _connectionRepository
@@ -70,6 +76,8 @@ public sealed class HostedAwsExtractorRunService(
 
         if (connection is null || connection.Status == AwsConnectionStatus.Disconnected)
             return HostedAwsExtractorRunResult.CreateNotConfigured();
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         await _connectionRepository
             .UpdateStatusAsync(
@@ -83,32 +91,46 @@ public sealed class HostedAwsExtractorRunService(
 
         HostedAwsExtractorCollectionResult collection;
 
-        try
+        using (HostedCloudCollectionDeadline deadline = new(_timeProvider, options.GetEffectiveCollectionTimeout(), cancellationToken))
         {
-            collection = await _hostedClient
-                .CollectZipAsync(
-                    new HostedAwsExtractorCollectionRequest
-                    {
-                        AccountId = connection.AccountId,
-                        Region = connection.Region,
-                        RoleArn = connection.RoleArn
-                    },
-                    cancellationToken)
-                .ConfigureAwait(false);
-        }
-        catch (Exception ex) when (HostedAwsExtractorFailureClassifier.IsThrottled(ex))
-        {
-            await MarkErrorAsync(tenantId, connectionId, actorId, cancellationToken).ConfigureAwait(false);
+            try
+            {
+                collection = await _hostedClient
+                    .CollectZipAsync(
+                        new HostedAwsExtractorCollectionRequest
+                        {
+                            AccountId = connection.AccountId,
+                            Region = connection.Region,
+                            RoleArn = connection.RoleArn
+                        },
+                        deadline.Token)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                bool timedOut = deadline.IsExpired;
 
-            return HostedAwsExtractorRunResult.CreateThrottled(
-                HostedAwsExtractorFailureClassifier.Describe(ex));
-        }
-        catch (Exception ex)
-        {
-            await MarkErrorAsync(tenantId, connectionId, actorId, cancellationToken).ConfigureAwait(false);
+                await MarkErrorAsync(tenantId, connectionId, actorId, cancellationToken).ConfigureAwait(false);
 
-            return HostedAwsExtractorRunResult.CreateCollectionFailed(
-                HostedAwsExtractorFailureClassifier.Describe(ex));
+                if (timedOut)
+                    return HostedAwsExtractorRunResult.CreateCollectionFailed(deadline.FailureDetail("AWS"));
+
+                if (HostedAwsExtractorFailureClassifier.IsThrottled(ex))
+                    return HostedAwsExtractorRunResult.CreateThrottled(HostedAwsExtractorFailureClassifier.Describe(ex));
+
+                return HostedAwsExtractorRunResult.CreateCollectionFailed(HostedAwsExtractorFailureClassifier.Describe(ex));
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (deadline.IsExpired)
+            {
+                // Even a collector that returns a ZIP after cancellation cannot start ingest.
+                await MarkErrorAsync(tenantId, connectionId, actorId, cancellationToken).ConfigureAwait(false);
+
+                return HostedAwsExtractorRunResult.CreateCollectionFailed(deadline.FailureDetail("AWS"));
+            }
         }
 
         await using MemoryStream stream = new(collection.ZipBytes);

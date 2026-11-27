@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.CloudExtractor;
 using ArchLucid.Application.CloudInventoryExtractor;
 using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Contracts.Common;
@@ -32,7 +33,8 @@ public sealed class HostedGcpExtractorRunService(
     ICloudInventoryExtractorIngestService ingestService,
     IScopeContextProvider scopeContextProvider,
     IAuditService auditService,
-    IOptionsMonitor<HostedGcpExtractorOptions> optionsMonitor) : IHostedGcpExtractorRunService
+    IOptionsMonitor<HostedGcpExtractorOptions> optionsMonitor,
+    TimeProvider? timeProvider = null) : IHostedGcpExtractorRunService
 {
     private readonly ITenantGcpConnectionRepository _connectionRepository =
         connectionRepository ?? throw new ArgumentNullException(nameof(connectionRepository));
@@ -52,6 +54,8 @@ public sealed class HostedGcpExtractorRunService(
     private readonly IOptionsMonitor<HostedGcpExtractorOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
+    private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
+
     public async Task<HostedGcpExtractorRunResult> RunAsync(
         Guid tenantId,
         Guid connectionId,
@@ -60,7 +64,9 @@ public sealed class HostedGcpExtractorRunService(
         string? correlationId,
         CancellationToken cancellationToken)
     {
-        if (!_optionsMonitor.CurrentValue.Enabled)
+        HostedGcpExtractorOptions options = _optionsMonitor.CurrentValue;
+
+        if (!options.Enabled)
             return HostedGcpExtractorRunResult.CreateFeatureDisabled();
 
         TenantGcpConnectionRecord? connection = await _connectionRepository
@@ -69,6 +75,8 @@ public sealed class HostedGcpExtractorRunService(
 
         if (connection is null || connection.Status == GcpConnectionStatus.Disconnected)
             return HostedGcpExtractorRunResult.CreateNotConfigured();
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         await _connectionRepository
             .UpdateStatusAsync(
@@ -82,32 +90,46 @@ public sealed class HostedGcpExtractorRunService(
 
         HostedGcpExtractorCollectionResult collection;
 
-        try
+        using (HostedCloudCollectionDeadline deadline = new(_timeProvider, options.GetEffectiveCollectionTimeout(), cancellationToken))
         {
-            collection = await _hostedClient
-                .CollectZipAsync(
-                    new HostedGcpExtractorCollectionRequest
-                    {
-                        ProjectId = connection.ProjectId,
-                        WorkloadIdentityPoolProvider = connection.WorkloadIdentityPoolProvider,
-                        ServiceAccountEmail = connection.ServiceAccountEmail
-                    },
-                    cancellationToken)
-                .ConfigureAwait(false);
-        }
-        catch (Exception ex) when (HostedGcpExtractorFailureClassifier.IsThrottled(ex))
-        {
-            await MarkErrorAsync(tenantId, connectionId, actorId, cancellationToken).ConfigureAwait(false);
+            try
+            {
+                collection = await _hostedClient
+                    .CollectZipAsync(
+                        new HostedGcpExtractorCollectionRequest
+                        {
+                            ProjectId = connection.ProjectId,
+                            WorkloadIdentityPoolProvider = connection.WorkloadIdentityPoolProvider,
+                            ServiceAccountEmail = connection.ServiceAccountEmail
+                        },
+                        deadline.Token)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                bool timedOut = deadline.IsExpired;
 
-            return HostedGcpExtractorRunResult.CreateThrottled(
-                HostedGcpExtractorFailureClassifier.Describe(ex));
-        }
-        catch (Exception ex)
-        {
-            await MarkErrorAsync(tenantId, connectionId, actorId, cancellationToken).ConfigureAwait(false);
+                await MarkErrorAsync(tenantId, connectionId, actorId, cancellationToken).ConfigureAwait(false);
 
-            return HostedGcpExtractorRunResult.CreateCollectionFailed(
-                HostedGcpExtractorFailureClassifier.Describe(ex));
+                if (timedOut)
+                    return HostedGcpExtractorRunResult.CreateCollectionFailed(deadline.FailureDetail("GCP"));
+
+                if (HostedGcpExtractorFailureClassifier.IsThrottled(ex))
+                    return HostedGcpExtractorRunResult.CreateThrottled(HostedGcpExtractorFailureClassifier.Describe(ex));
+
+                return HostedGcpExtractorRunResult.CreateCollectionFailed(HostedGcpExtractorFailureClassifier.Describe(ex));
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (deadline.IsExpired)
+            {
+                // Even a collector that returns a ZIP after cancellation cannot start ingest.
+                await MarkErrorAsync(tenantId, connectionId, actorId, cancellationToken).ConfigureAwait(false);
+
+                return HostedGcpExtractorRunResult.CreateCollectionFailed(deadline.FailureDetail("GCP"));
+            }
         }
 
         await using MemoryStream stream = new(collection.ZipBytes);
