@@ -1,0 +1,57 @@
+---
+description: Mandatory pre-edit dependency impact analysis and risk-adjusted regression verification for shared components and contracts.
+alwaysApply: true
+---
+
+# Shared component impact analysis
+
+**Before changing a shared component, determine its impact on direct and transitive consumers.** This applies to all coding agents, including delegated work, regardless of whether the task is a defect fix, refactor, optimization, or feature.
+
+## 1. Classify the change before editing
+
+Treat a change as shared-impacting when it modifies a component used by multiple consumers, a cross-layer or cross-product contract, or a common infrastructure mechanism. Examples: shared libraries/helpers, interfaces and DTOs, DI registrations, authorization/tenant scoping, persistence and migrations, cache keys, retry/concurrency behavior, common UI components/hooks, API contracts, configuration defaults, and reusable deployment/test infrastructure. If shared status is uncertain, investigate; do not assume isolation from file location, a single reference, or a small diff.
+
+For isolated changes, briefly state why no shared impact was identified. Read-only and documentation-only tasks do not require product dependency analysis unless they change executable behavior or engineering enforcement.
+
+## 2. Mandatory pre-edit impact assessment
+
+Before the first implementation edit:
+
+- Identify the defect or requested behavior and acceptance criteria. Reproduce a defect with an existing or focused regression test when feasible; explicitly record any limitation.
+- Locate the canonical implementation and extension points; prefer reuse over a parallel implementation. Inspect relevant contracts and architecture invariants in `docs/library/ARCHITECTURE_INVARIANTS.md`, and applicable product-specific guidance.
+- Trace direct callers and transitive consumers to the affected behavior boundary. Use symbol/reference search, project references, imports/exports, call sites, DI registration and configuration as applicable. Consider indirect consumers through interfaces, reflection, generated clients, serialization, background jobs, and external API consumers when relevant. Record searched scope, evidence and unknowns; do not claim exhaustive coverage from text search alone.
+- Identify behavior that must remain unchanged, including legitimate caller assumptions, public interfaces, wire/persistence compatibility, error/cancellation semantics, authorization and tenant isolation, concurrency, and performance where applicable.
+- State the smallest proposed correction, affected files/components, risk classification, and targeted verification plan in a concise impact note. Map affected contracts and consumer groups to tests or other verification evidence.
+- If the dependency boundary cannot be established, broaden investigation or validation within authorized budgets, narrow the proposed change, or report the blocker. Do not silently proceed as if unknown impact were zero.
+
+An impact note may be a short paragraph or checklist for a bounded change. Reuse existing investigation evidence; do not create redundant reports or launch a full solution build merely to produce the note. If a discovered dependency changes the scope, revise the assessment before editing that dependency.
+
+## 3. Implement and verify
+
+Keep changes surgical. Do not weaken, remove, skip, retag, or narrow tests, analyzers, assertions, or CI gates merely to obtain a green result. Intentional contract changes require explicit authorization, a compatibility/migration plan where relevant, and corresponding consumer updates.
+
+Use risk-adjusted verification, following existing commands and policies in `docs/engineering/AGENTS.md`, `docs/library/TEST_EXECUTION_MODEL.md`, and `docs/quality/INDEPENDENT_MODEL_CODE_REVIEW.md`:
+
+| Change | Minimum verification plan |
+| --- | --- |
+| Isolated implementation | Scoped compile/typecheck and focused behavioral regression |
+| Shared implementation | Scoped Release compile/typecheck as applicable; defect regression and affected direct/transitive consumer contracts |
+| Security/tenant boundary | Above plus relevant negative controls and independent review of material changes |
+| API/persistence/serialization contract | Above plus affected integration and compatibility checks, including historical data where applicable |
+| Cross-cutting architecture or release candidate | Expand affected verification and independently review material risks; comprehensive CI only on the owner-authorized release path |
+
+Select existing tests based on affected behavior, not merely changed file names. Where necessary, add a regression that fails on the defective behavior and passes after correction, without relaxing unrelated expectations. If test selection or dependency coverage is incomplete, report it and expand the scope when authorized. Do not dispatch comprehensive master CI or override current release-branch restrictions. Follow the existing scoped compilation limits and resource budgets; report verification blocked or deferred when those limits prevent required evidence.
+
+Independent review should challenge the full diff and affected contracts, not simply repeat the implementer's reasoning. AI reviewer agreement is not a substitute for executable evidence.
+
+## 4. Completion evidence
+
+Before reporting a shared-component correction complete, reconcile the final diff against the impact note, including newly affected consumers. Report:
+
+- Affected components/contracts and material unresolved dependency risks.
+- Exact verification scope and commands, with observed outcomes and test counts where available.
+- Verification not run, skipped, timed out, blocked, or deferred, with reasons and follow-up.
+
+A compile timeout/file lock, zero discovered tests, skipped test, or lack of observed errors is not a passing result. Distinguish implementation complete from verification complete. Do not claim full verification or readiness to merge while material required checks remain unverified; identify owner-approved deferrals explicitly. Existing authorization, working-tree, branch and release policies remain in force.
+
+This is mandatory agent guidance, not a claim that an always-applied prompt is an unbypassable executable CI gate.
