@@ -299,7 +299,3 @@ public sealed class ServiceNowOutboundIncidentClient(HttpClient http, ILogger<Se
         }
     }
 }
-
-public sealed record ServiceNowCmdbCiResolveResult(bool Fatal, string? SysId, HttpStatusCode? StatusCode, string? ErrorDetail);
-
-public sealed record ServiceNowIncidentHttpResult(bool Ok, string? SysId, string? Number, HttpStatusCode StatusCode, string? ErrorDetail);
