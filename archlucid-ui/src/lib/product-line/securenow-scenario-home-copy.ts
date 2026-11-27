@@ -35,6 +35,11 @@ export const SECURENOW_SCENARIO_HOME_ROWS: readonly SecureNowHomeDestinationRow[
     summary: `${SECURENOW_SAMPLE_FIXTURE_LINE} Missing evidence stays not verified.`,
   },
   {
+    href: "/securenow-sample#fixture-path-03",
+    label: "Vault secrets path (fixture-path-03)",
+    summary: `${SECURENOW_SAMPLE_FIXTURE_LINE} Public sample, then sponsor path rehearsal.`,
+  },
+  {
     href: "/administration/securenow-scenario-walks#contributor-role-between-snapshots",
     label: "Contributor between captures",
     summary: `${SECURENOW_SAMPLE_FIXTURE_LINE} A unit fixture is not a sponsor demo.`,

@@ -1,9 +1,13 @@
-import { SECURENOW_SAMPLE_FIXTURE_LINE } from "@/lib/marketing/securenow-sample-copy";
+import {
+  SECURENOW_SAMPLE_FIXTURE_LINE,
+  SECURENOW_SAMPLE_THIRD_FIXTURE_SPONSOR_HREF,
+  SECURENOW_SAMPLE_THIRD_FIXTURE_SPONSOR_LABEL,
+} from "@/lib/marketing/securenow-sample-copy";
 
 export const SECURENOW_SCENARIO_WALKS_HEADING = "Fixture walks" as const;
 
 export const SECURENOW_SCENARIO_WALKS_LEAD =
-  "Six fixture walks. Not customer evidence. SecureNow beta remains NO_GO." as const;
+  "Seven fixture walks. Not customer evidence. SecureNow beta remains NO_GO." as const;
 
 export const SECURENOW_SCENARIO_WALKS_GUARDRAIL =
   "A fixture walkthrough is not a customer outcome and not a starter proof pack." as const;
@@ -64,5 +68,13 @@ export const SECURENOW_SCENARIO_WALKS: readonly SecureNowScenarioWalk[] = [
     honestLabel: SECURENOW_SAMPLE_FIXTURE_LINE,
     operatorHandoffHref: "/security/remediation-factory?pathId=fixture-path-02",
     operatorHandoffLabel: "Open fixture-path-02 in product",
+  },
+  {
+    id: "fixture-path-03",
+    buyerJob:
+      "Walk a third synthetic path (fixture-path-03) for vault secrets access, then rehearse sponsor disposition — still not customer evidence.",
+    honestLabel: SECURENOW_SAMPLE_FIXTURE_LINE,
+    operatorHandoffHref: SECURENOW_SAMPLE_THIRD_FIXTURE_SPONSOR_HREF,
+    operatorHandoffLabel: SECURENOW_SAMPLE_THIRD_FIXTURE_SPONSOR_LABEL,
   },
 ] as const;

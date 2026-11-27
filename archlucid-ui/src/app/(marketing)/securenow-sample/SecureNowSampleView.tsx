@@ -17,6 +17,12 @@ import {
   SECURENOW_SAMPLE_SECOND_FIXTURE_HOPS,
   SECURENOW_SAMPLE_SECOND_FIXTURE_PATH_ID,
   SECURENOW_SAMPLE_SECOND_FIXTURE_SECTION_ID,
+  SECURENOW_SAMPLE_THIRD_FIXTURE_CUT_POINT,
+  SECURENOW_SAMPLE_THIRD_FIXTURE_HOPS,
+  SECURENOW_SAMPLE_THIRD_FIXTURE_PATH_ID,
+  SECURENOW_SAMPLE_THIRD_FIXTURE_SECTION_ID,
+  SECURENOW_SAMPLE_THIRD_FIXTURE_SPONSOR_HREF,
+  SECURENOW_SAMPLE_THIRD_FIXTURE_SPONSOR_LABEL,
   SECURENOW_SAMPLE_WHY_LINK_LABEL,
   SECURENOW_SAMPLE_WHY_LINK_LEAD,
   WHY_SECURENOW_CONVERSATION_LABEL,
@@ -122,7 +128,38 @@ export function SecureNowSampleView(): React.JSX.Element {
             Advisory cut point: {SECURENOW_SAMPLE_SECOND_FIXTURE_CUT_POINT}
           </p>
         </section>
-
+        <section
+          id={SECURENOW_SAMPLE_THIRD_FIXTURE_SECTION_ID}
+          aria-labelledby="securenow-sample-third-fixture-heading"
+          className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+          data-testid="securenow-sample-third-fixture"
+        >
+          <h2 id="securenow-sample-third-fixture-heading" className={MARKETING_TYPOGRAPHY.sectionTitle}>
+            Third synthetic path ({SECURENOW_SAMPLE_THIRD_FIXTURE_PATH_ID})
+          </h2>
+          <p className={MARKETING_TYPOGRAPHY.body}>
+            {SECURENOW_SAMPLE_FIXTURE_LINE} {SECURENOW_SAMPLE_FIXTURE_NOT_EXPLOIT_LINE}
+          </p>
+          <ol className="m-0 list-decimal space-y-1 pl-5">
+            {SECURENOW_SAMPLE_THIRD_FIXTURE_HOPS.map((hop) => (
+              <li key={hop.hopOrdinal} className={MARKETING_TYPOGRAPHY.body}>
+                Hop {hop.hopOrdinal}: {hop.label}
+              </li>
+            ))}
+          </ol>
+          <p className={MARKETING_TYPOGRAPHY.body}>
+            Advisory cut point: {SECURENOW_SAMPLE_THIRD_FIXTURE_CUT_POINT}
+          </p>
+          <p className={MARKETING_TYPOGRAPHY.body}>
+            <Link
+              href={SECURENOW_SAMPLE_THIRD_FIXTURE_SPONSOR_HREF}
+              className="text-al-link underline-offset-2 hover:underline"
+              data-testid="securenow-sample-third-fixture-sponsor"
+            >
+              {SECURENOW_SAMPLE_THIRD_FIXTURE_SPONSOR_LABEL}
+            </Link>
+          </p>
+        </section>
         <p className={MARKETING_TYPOGRAPHY.body}>
           <Link href={SECURENOW_PILOT_SPINE_PATH} className="text-al-link underline-offset-2 hover:underline">
             Full six-beat pilot checklist (signed in)

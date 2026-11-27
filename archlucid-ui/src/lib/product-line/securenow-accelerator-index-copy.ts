@@ -3,6 +3,10 @@ import {
   SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-home-destination-rows";
+import {
+  SECURENOW_GOLDEN_SPONSOR_WALKTHROUGH_HREF,
+  SECURENOW_SPECIALTY_TEMPLATES_HREF,
+} from "@/lib/product-line/securenow-accelerator-template-links";
 
 export const SECURENOW_ACCELERATOR_INDEX_PATH = "/administration/securenow-accelerator-index" as const;
 
@@ -15,6 +19,21 @@ export const SECURENOW_ACCELERATOR_INDEX_GUARDRAIL =
   "None of these rows are customer accelerators or sealed outcomes." as const;
 
 export const SECURENOW_ACCELERATOR_INDEX_ROWS: readonly SecureNowHomeDestinationRow[] = [
+  {
+    href: SECURENOW_SPECIALTY_TEMPLATES_HREF,
+    label: "Specialty review templates",
+    summary: "Labeled intake templates with read-only previews — not tenant capture.",
+  },
+  {
+    href: SECURENOW_GOLDEN_SPONSOR_WALKTHROUGH_HREF,
+    label: "Golden sponsor export walkthrough",
+    summary: "Illustrative sample review export path on ArchLucid — separate from SecureNow capture.",
+  },
+  {
+    href: "/administration/securenow-scenario-walks#fixture-path-03",
+    label: "Vault secrets fixture (fixture-path-03)",
+    summary: "Third synthetic walk plus sponsor disposition rehearsal on the public sample.",
+  },
   {
     href: "/administration/securenow-pilot-spine",
     label: "Pilot walkthrough (fixture)",

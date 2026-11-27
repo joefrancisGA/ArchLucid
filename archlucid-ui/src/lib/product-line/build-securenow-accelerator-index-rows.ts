@@ -42,7 +42,7 @@ export function buildSecureNowAcceleratorIndexRows(input: {
         ...row,
         href: "/administration/securenow-scenario-walks#fixture-path-02",
         summary:
-          "Includes fixture-path-02 with an in-product Path inspect handoff. Synthetic — not a customer result.",
+          "Fixture-path-02 Path inspect handoff plus fixture-path-03 sponsor rehearsal. Synthetic — not a customer result.",
       };
     }
 

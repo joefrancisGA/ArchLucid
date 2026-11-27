@@ -82,4 +82,15 @@ describe("SecureNow sample page (SN-MKT-09)", () => {
     expect(document.getElementById("fixture-path-02")).toBeInTheDocument();
     expect(screen.getByText(/Second synthetic path \(fixture-path-02\)/)).toBeInTheDocument();
   });
+
+  it("lists the third synthetic fixture path section and sponsor rehearsal link", () => {
+    render(<SecureNowSampleView />);
+
+    expect(document.getElementById("fixture-path-03")).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-sample-third-fixture")).toHaveTextContent("Key Vault Secrets User");
+    expect(screen.getByTestId("securenow-sample-third-fixture-sponsor")).toHaveAttribute(
+      "href",
+      "/administration/securenow-sponsor-path?pathId=fixture-path-01",
+    );
+  });
 });

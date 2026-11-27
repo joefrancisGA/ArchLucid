@@ -28,6 +28,29 @@ export const SECURENOW_SAMPLE_SECOND_FIXTURE_CUT_POINT =
 
 export const SECURENOW_SAMPLE_SECOND_FIXTURE_SECTION_ID = "fixture-path-02" as const;
 
+export const SECURENOW_SAMPLE_THIRD_FIXTURE_PATH_ID = "fixture-path-03" as const;
+
+export const SECURENOW_SAMPLE_THIRD_FIXTURE_SECTION_ID = "fixture-path-03" as const;
+
+export type SecureNowSampleThirdFixtureHop = {
+  readonly hopOrdinal: number;
+  readonly label: string;
+};
+
+export const SECURENOW_SAMPLE_THIRD_FIXTURE_HOPS: readonly SecureNowSampleThirdFixtureHop[] = [
+  { hopOrdinal: 1, label: "Reader on the subscription" },
+  { hopOrdinal: 2, label: "Key Vault Secrets User on a vault" },
+] as const;
+
+export const SECURENOW_SAMPLE_THIRD_FIXTURE_CUT_POINT =
+  "Rotate the secret and remove standing Secrets User on that vault." as const;
+
+export const SECURENOW_SAMPLE_THIRD_FIXTURE_SPONSOR_HREF =
+  "/administration/securenow-sponsor-path?pathId=fixture-path-01" as const;
+
+export const SECURENOW_SAMPLE_THIRD_FIXTURE_SPONSOR_LABEL =
+  "Open sponsor path rehearsal (fixture)" as const;
+
 export type SecureNowSampleFixtureHop = {
   readonly hopOrdinal: number;
   readonly label: string;
