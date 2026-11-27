@@ -47,11 +47,10 @@ public sealed class SecureNowReferenceCutPointOracleTests
                 productionPaths,
                 new Dictionary<Guid, string?>());
 
-        foreach (SecurityEvidenceCutPointCandidate candidate in production)
-        {
-            reference.Should().ContainKey(candidate.CutKey);
-            candidate.CollapsedPathIds.Count.Should().Be(reference[candidate.CutKey]);
-        }
+        // Compare keys in both directions. Iterating only actual candidates allowed an omission
+        // to pass as long as the one hard-coded candidate at the end remained present.
+        production.ToDictionary(candidate => candidate.CutKey, candidate => candidate.CollapsedPathIds.Count)
+            .Should().BeEquivalentTo(reference);
 
         production.Single(candidate => candidate.CutKey == $"node:{sharedIdentity}")
             .CollapsedPathIds.Should().HaveCount(3);

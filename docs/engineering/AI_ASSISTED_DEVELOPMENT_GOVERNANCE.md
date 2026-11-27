@@ -124,6 +124,10 @@ These examples are review exercises, not executable PR policy.
 
 This procedure provides a review standard. It does not add automated diff enforcement (FND-165) or the broader requirements-to-test traceability work (FND-171).
 
+For new or materially changed **critical** tests, carry FND-171 oracle provenance in the existing Test Aspects review or linked FND-166 evidence. Name the exact test and intended contract, then derive the expected result from a versioned requirement, accepted ADR or invariant, authoritative specification, worked example, mathematical property, or independently implemented reference. Pin the source to a content digest or immutable revision, with a precise locator. A reviewer must check independence and the derivation, not just the presence of fields. Use the [registered provenance inventory](../../scripts/assurance/regression-evidence/independent-oracles.json) for covered contracts and report the limits of what was inspected.
+
+Do not use the output under test, a golden regenerated from that output, or the same underlying calculation on both sides as independent correctness evidence. Keep genuine characterization and compatibility tests and label their scope. Surface ambiguous or conflicting requirements before changing the behavior the test asserts. For analytical or boundary contracts, seek positive, negative and boundary cases that catch a representative semantic mistake. Do not create a defect receipt solely for an illustrative seeded error.
+
 ## 3. Risk-adjusted verification and cost
 
 Use the existing [test execution model](../library/TEST_EXECUTION_MODEL.md), [build guidance](BUILD.md) and [independent model review practice](../quality/INDEPENDENT_MODEL_CODE_REVIEW.md). The following is a minimum planning guide, not a substitute for applicable required checks:

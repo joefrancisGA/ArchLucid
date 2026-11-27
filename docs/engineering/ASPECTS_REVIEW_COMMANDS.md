@@ -79,20 +79,24 @@ coverage qualifier. The new verified-series export is not a replacement for
 historical reconciliation. Review corrections are PRs against master;
 full builds remain RC49-only unless separately authorized.
 
-## Report-only test integrity pilot
+## Advisory test integrity and oracle provenance
 
-The [FND-165 pilot](../../.github/workflows/pr-test-integrity-report.yml) points reviewers to differences that could change what tests prove or what runs. Apply the [FND-163 review procedure](AI_ASSISTED_DEVELOPMENT_GOVERNANCE.md#23-mandatory-test-integrity-and-regression-preservation) before accepting a material change. A signal is a review lead, not proof of lost coverage or approval of a change.
+The [FND-165 review workflow](../../.github/workflows/pr-test-integrity-report.yml) points reviewers to changes that could affect what tests prove or what runs. Apply the [FND-163 review procedure](AI_ASSISTED_DEVELOPMENT_GOVERNANCE.md#23-mandatory-test-integrity-and-regression-preservation) before accepting a material change. A signal is a review lead, not proof of lost coverage or approval of a change.
 
 ```bash
 python3 scripts/ci/report_test_integrity_diff.py --base "$BASE_SHA" --head "$HEAD_SHA" \
   --output test-integrity-report.json
+python3 scripts/assurance/check_independent_oracles.py --head "$HEAD_SHA" \
+  --output independent-oracles.json
 ```
 
-Use full PR base and head SHAs. The tool resolves and records their merge base and compares it with the pinned head, so base-only edits are not attributed to the PR. The workflow fetches bounded history and publishes the report as an artifact. A missing merge base is incomplete evidence, not an empty clean scan.
+The integrity report compares the pinned head with its Git merge base. It covers Python AST patterns, selected xUnit/NUnit/MSTest and FluentAssertions matchers, and common Vitest/Jest/Playwright test and assertion forms. It highlights assertion and expected-outcome edits, explicit negatives and tolerances, fixture/mock changes, skips or exclusive tests, named runner filters and discovery/exclusions, analyzer suppressions, and conventional golden/snapshot changes. Code and configuration signals carry base/head line anchors. Golden/snapshot artifacts are identified at file level. Simple exact named-test renames and whitespace changes can be recognized without treating all moves as identical.
 
-The pilot covers direct Python test assertions, common `unittest` assertions and `pytest.raises` or `warns` controls, directly qualified skip/xfail changes, and selected workflow filters and pytest discovery settings. The JSON includes checked paths and exact base/head locations for signals. Syntax-equivalent formatting and simple one-to-one test renames within the same scope are preserved. It does not resolve aliases, helper semantics, dynamic discovery, or data flow, and does not yet inspect .NET/TypeScript assertions, snapshots, fixture or mock substitutions, or analyzer settings. Unsupported test-related files, parse failures, or exhausted scan budgets are reported separately from a completed scan. An empty finding list is not a guarantee against test weakening.
+The output statuses distinguish no supported changes, supported-scope completion, partial, and incomplete. An unsupported path, parser failure, exhausted cap, missing history, or truncation is not a clean result. The check does not resolve arbitrary helpers, dynamic discovery, dataflow, regular-expression literals or all templating/preprocessor syntax. PR path filters and GitHub's event diff limits can omit files from workflow scheduling. Use the pinned local invocation when a receipt is missing.
 
-The pilot does not stop a merge, change branch protection, excuse a reported change, or automatically classify a production defect. Add calibration, reviewed exceptions, and wider language/configuration coverage before proposing promotion.
+Review every visible finding that materially changes behavior. A [review record](../../scripts/ci/test-integrity-review.json) contains its exact finding ID and path, a decision, owner, reason, evidence URL, and revisit condition. Exceptions also require a UTC expiry date and become expired on that date. Merge-base records are annotations only, PR additions or edits are proposals, and neither can suppress findings or establish authorization. Historical-debt changes and attempted additions are reported separately. Only the applicable reviewer can approve a spending-down plan or an exception. Expect an ID to change if its path, test identity, recognized signal evidence, or identical occurrence order changes.
+
+Both results are advisory artifacts from PR code, not attestations made by a trusted independent service. See the [sample and go/no-go evidence](../assurance/TEST_INTEGRITY_AND_ORACLE_EVIDENCE.md) for the current limits. FND-171's [registered tests](../../scripts/assurance/regression-evidence/independent-oracles.json) point to independent worked cases and reference assurance, and distinguish characterization from correctness evidence. No branch-protection or release-policy changes are implied.
 
 ## Mutation Aspects
 
