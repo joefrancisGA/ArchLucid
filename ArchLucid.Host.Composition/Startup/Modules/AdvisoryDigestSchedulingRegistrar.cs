@@ -79,12 +79,14 @@ internal static class AdvisoryDigestSchedulingRegistrar
         services.Configure<ChatOpsIncomingWebhooksOptions>(
             configuration.GetSection(ChatOpsIncomingWebhooksOptions.SectionName));
         services.AddSingleton<IEmailSender, FakeEmailSender>();
+        services.AddSingleton<WebhookDestinationResiliencePolicies>();
         services
             .AddHttpClient(
                 HttpWebhookPoster.WebhookHttpClientName,
-                static client => client.Timeout = TimeSpan.FromSeconds(60))
+                static client => client.Timeout = WebhookDestinationResiliencePolicies.CallTimeout)
             .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration)
-            .AddOutboundExternalHttpResilience();
+            .AddPolicyHandler(static (sp, request) =>
+                sp.GetRequiredService<WebhookDestinationResiliencePolicies>().ForRequest(request));
         services.AddSingleton<HttpWebhookPoster>();
         services.AddSingleton<FakeWebhookPoster>();
         services.AddSingleton<IWebhookPoster>(static sp =>
