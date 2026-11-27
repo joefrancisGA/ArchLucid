@@ -80,15 +80,20 @@ def inventory(report: dict) -> dict:
     paths = set()
     candidates = []
     since_ignored = 0
+    auxiliary_files = 0
     for original, node in sorted(report["files"].items()):
         path = clean_path(original)
         if path in paths:
             raise ValueError("duplicate canonical report path")
         paths.add(path)
-        if not path.is_relative_to(project_root) or path == project_root:
-            raise ValueError("a report file is outside the reported project root")
         if not isinstance(node, dict) or not isinstance(node.get("mutants"), list):
             raise ValueError("invalid mutant inventory for a source file")
+        if not path.is_relative_to(project_root) or path == project_root:
+            if node["mutants"]:
+                raise ValueError("mutants were reported outside the pinned project root")
+            # Stryker can list shared build sources outside the project.
+            # Their empty inventories cannot contribute to either denominator.
+            auxiliary_files += 1
         ids = set()
         for mutant in node["mutants"]:
             if not isinstance(mutant, dict) or not isinstance(mutant.get("status"), str) or not re.fullmatch(
@@ -118,6 +123,7 @@ def inventory(report: dict) -> dict:
     return {
         "status_counts": dict(sorted(counts.items())),
         "mutant_count": sum(counts.values()),
+        "auxiliary_files_without_mutants": auxiliary_files,
         "official_score_percent": score if complete else None,
         "official_detected_count": detected,
         "official_denominator": denominator,

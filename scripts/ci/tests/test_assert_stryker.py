@@ -75,6 +75,16 @@ class StrykerEvidenceTests(TestCase):
         with self.assertRaisesRegex(ValueError, "outside"):
             evidence.inventory(sample)
 
+    def test_shared_build_file_is_allowed_only_without_mutants(self):
+        sample = report("Killed", "Survived")
+        sample["files"]["/fixture/build/Shared.cs"] = {"mutants": []}
+        result = evidence.inventory(sample)
+        self.assertEqual(result["auxiliary_files_without_mutants"], 1)
+        self.assertEqual(result["official_score_percent"], 50)
+        sample["files"]["/fixture/build/Shared.cs"]["mutants"] = [{"id": "0", "status": "Killed"}]
+        with self.assertRaisesRegex(ValueError, "outside"):
+            evidence.inventory(sample)
+
     def test_console_evidence_requires_actual_completion_and_tool_pin(self):
         log = ("Version: 4.16.0\nNumber of tests found: 1 for project Probe. Initial test run started.\n"
                "2 mutants created\nThe final mutation score is 50.00 %\n")
