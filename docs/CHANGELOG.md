@@ -5,6 +5,14 @@
 
 # ArchLucid changelog
 
+## 2026-11-27 - Score lift round 150 (batch wave H2): SecureNow adoption friction next step
+
+**Outcome.** Infrastructure overview, remediation factory, and drift workbench name Reader-scoped collection blockers or ongoing scope discipline with a single primary CTA — not a self-service certification.
+
+**Surfaces.** Infrastructure overview, remediation factory client, drift workbench, drift guard and mounted-contract tests.
+
+
+
 ## 2026-11-27 - Score lift round 148 (batch wave G): Review decision velocity and open-gate stickiness
 
 **Outcome.** Workspace chrome names one decision next step (finalize, blocking findings, or governance approval) distinct from the reviews hub queue. Open-gate return links architecture home and resumes the stored gate on the same review with browser-local honesty.
