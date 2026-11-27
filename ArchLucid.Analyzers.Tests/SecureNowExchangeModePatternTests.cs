@@ -1,9 +1,13 @@
+using Xunit;
+
 using ArchLucid.Analyzers;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ArchLucid.Analyzers.Tests;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class SecureNowExchangeModePatternTests
 {
     private static bool Recognized(string secondGuard)

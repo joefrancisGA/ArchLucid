@@ -2,6 +2,7 @@ using System.ClientModel;
 
 using ArchLucid.Core.Resilience;
 using ArchLucid.AgentRuntime.Quality;
+using ArchLucid.Core.Agents;
 
 using Azure;
 

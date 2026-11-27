@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Surfaces whose title block already carries folded claim-discipline copy omit the shared
  * claim-discipline hero band — operators should not see the same negation twice.
  *
@@ -226,6 +226,38 @@ export function resolveClaimDisciplineForStrip(
   }
 
   return claim;
+}
+
+/** Page header shows claim discipline only when the mid-page orientation strip omits the band. */
+export function resolvePageHeaderClaimDisciplineForStrip(
+  stripSlug: string,
+  claim: string | undefined,
+): string | undefined {
+  if (claim === undefined || claim.length === 0) {
+    return undefined;
+  }
+
+  if (shouldOmitClaimDisciplineBand(stripSlug)) {
+    return claim;
+  }
+
+  return undefined;
+}
+
+/** Stable test id for header claim discipline — paired with {@link resolvePageHeaderClaimDisciplineForStrip}. */
+export function resolvePageHeaderClaimDisciplineTestIdForStrip(
+  stripSlug: string,
+  testId: string | undefined,
+): string | undefined {
+  if (testId === undefined || testId.length === 0) {
+    return undefined;
+  }
+
+  if (shouldOmitClaimDisciplineBand(stripSlug)) {
+    return testId;
+  }
+
+  return undefined;
 }
 
 /** Drops the claim-discipline TOC entry when the strip omits the band so scroll-spy links stay valid. */

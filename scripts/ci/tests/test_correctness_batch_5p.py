@@ -21,7 +21,11 @@ class TestCorrectnessBatch5P(unittest.TestCase):
         path = REPO_ROOT / "ArchLucid.Api.Tests" / "ConversationServiceTests.cs"
         text = path.read_text(encoding="utf-8")
         self.assertIn("GetOrCreateThreadAsync_creates_new_thread_when_supplied_id_is_missing", text)
-        self.assertIn("GetHistoryAsync_passes_take_limit_to_repository", text)
+        self.assertIn("Unproven_history_has_no_payload_read", text)
+        self.assertIn(
+            "messages.Verify(x => x.GetRecentProofsAsync(scope, threadId, take, CancellationToken.None), Times.Once);",
+            text,
+        )
 
     def test_tb_203_empty_message_behavior_test_exists(self) -> None:
         path = REPO_ROOT / "ArchLucid.Api.Tests" / "ConversationServiceTests.cs"

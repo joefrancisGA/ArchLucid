@@ -1740,19 +1740,6 @@
 
 2026-10-21 seed hunt (seed-only): lane B; cheap-disproof closed five open `(candidate)` rows; no hunt-ready promotion; seeded five follow-on candidates; Host.Core 77/77; Api 97 passed (9 SQL integration unavailable on Linux VM).
 
-- **id:** host-core-jobs
-- **status:** open
-- **impact:** medium
-- **aliases:** background jobs; hosted services; durable job queue
-- **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
-- **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 0
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
-- **related-pd-tb:** none
-- **code-changed-since:** yes
 
 2026-10-06 thorough hunt (dry): cheap-disproof closed four seeded candidates; reseeded four candidates; 76 Host.Core + 42 focused Api background-job tests passed.
 
@@ -2052,15 +2039,6 @@
 - [ ] (candidate) `MutatingControllerAuditAnalyzer` — `AnalyzeReferencedBaseActions` skips shadowed virtual mutating actions when override only adds `[NonAction]` without removing verb from metadata — locus: `IsShadowedVirtualMutatingAction`; input: derived override hides base POST; wrong outcome: unaudited inherited mutating route; reachability: virtual controller hierarchies.
 
 
-- **id:** security-analyzers
-- **status:** open
-- **impact:** high
-- **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
-- **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
-- **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 0
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
 2026-11-17 thorough hunt #905 (dry): no rotation (shouldRotate: false). Cheap-disproof closed five `(candidate)` rows reseeded after hunt #904 — **valid-no-repro** switch `default` arm with unreachable `goto case` (`AL0003_reports_when_LogAsync_only_in_switch_default_arm_with_unreachable_goto_case`; constant-discriminant reachability parity with #873), **invalid** static nested authorized shell vs outer GET (`Reports_AL0001_on_outer_get_when_static_shell_nests_authorized_controller`), **valid-no-repro** file-scoped `using` alias to `HttpContext` (`Reports_HttpContext_parameter_when_type_is_file_scoped_using_alias`), **valid-no-repro** `await using` constructor initializer `LogAsync` (`AL0003_reports_when_LogAsync_runs_only_in_await_using_constructor_initializer`), **invalid** partial controller with authorized default-interface POST still reports inherited GET (`Reports_inherited_get_when_partial_controller_implements_authorized_default_interface_post`). Reseeded five `(candidate)` rows below. Scoped filter **194/194** passed (`RunAnalyzers=false`, Release). Private beta: n/a.
 - [x] (valid-no-repro) `MutatingControllerAuditAnalyzer` — `LogAsync` inside `switch` expression arm reached only via `goto case` from unreachable label suppresses AL0003 — **cheap-disproof 2026-11-17 thorough hunt #905:** regression above.
 - [x] (invalid) `RequireAuthorizationAnalyzer` — type-level `[Authorize]` on nested static controller class does not satisfy AL0001 for outer instance routes — **cheap-disproof 2026-11-17 thorough hunt #905:** nested static authorized routes do not clear outer GET; regression above.
@@ -26829,20 +26807,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-30 seed hunt #1000 (seed-only): re-read graph validation, overlay edge-key construction, inventory edge-id minting, provenance node-key construction, and revision fingerprint serialization; no hunt-ready promotion. Existing validator contracts make duplicate base graph rows invalid before overlay composition, and fingerprint property omission is an explicit stability policy; seeded five new boundary candidates for a later focused pass. Scoped Provenance and KnowledgeGraph tests passed (151 and 226 respectively). Private beta: n/a.
 
 2026-10-30 seed hunt #1001 (seed-only): re-read graph compiler, structured diagram merge/materialization, graph validation, inventory overlay rebinding, and provenance hashing paths; no hunt-ready promotion. The delimiter candidates require confirmation that authoring contracts permit delimiter-bearing identifiers before a repro is justified, so five mechanism-backed `(candidate)` rows are recorded for a later pass. Scoped Provenance and KnowledgeGraph tests passed (153 and 228 respectively). Private beta: n/a.
-
-- **id:** knowledge-graph-provenance
-- **status:** open
-- **impact:** medium
-- **aliases:** knowledge graph; provenance; lineage
-- **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
-- **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 0
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
-- **related-pd-tb:** none
-- **code-changed-since:** yes
 
 2026-10-30 thorough hunt #1001 (dry): rotation did not fire (`shouldRotate: false`; picker marked `seedHunt: true` with empty JSON candidate list while ledger retained five open `(candidate)` rows from hunt #999 — executed thorough cheap-disproof on that queue). Closed five header `(candidate)` rows — **valid-no-repro** padded plus case-variant duplicate manifest decision ids vs contained-in-manifest (`Build_deduplicates_contained_in_manifest_when_manifest_lists_padded_duplicate_decision_ids`); **valid-no-repro** base-graph overlay duplicate edge `InferenceSource` casing (`Merge_coalesces_base_graph_overlay_duplicate_edge_inference_sources_when_inference_sources_differ_only_by_casing`; parity with overlay-only inference casing regression); **valid-no-repro** duplicate finding rows with padded related-node ids plus case-variant graph nodes (`Build_deduplicates_influence_edges_when_duplicate_finding_rows_list_padded_related_ids_and_graph_lists_case_variant_nodes`, hunt #998); **valid-no-repro** duplicate ARM row subscription id backfill with case-variant metadata (`BuildOverlay_backfills_subscription_id_from_duplicate_row_when_first_row_omits_subscription_id_with_case_variant`; `TryMergeTrimmedScalarProperty` case-insensitive agreement); **valid-no-repro** duplicate artifact display names differing only by padding (`Build_coalesces_duplicate_artifact_rows_when_names_differ_only_by_surrounding_whitespace`). Reseeded five follow-on `(candidate)` rows; scoped filter **712** KnowledgeGraph + **202** Provenance tests passed. Private beta: n/a.
 

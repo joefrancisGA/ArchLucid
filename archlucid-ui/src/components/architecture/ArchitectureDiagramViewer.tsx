@@ -190,6 +190,8 @@ export type ArchitectureDiagramMermaidViewerProps = {
   readonly selectedConnector?: ArchitectureDiagramConnectorSelection | null;
   /** Connector identities that remain visible when an evidence-family filter is active. */
   readonly visibleConnectors?: readonly ArchitectureDiagramConnectorSelection[] | null;
+  /** Optional SecureNow path scope for painted inventory nodes, independent of camera focus. */
+  readonly visiblePathNodeIds?: readonly string[] | null;
   /** Optional max-height override for the scrolling camera (inventory workbench uses a taller frame). */
   readonly cameraMaxHeightClassName?: string;
   /** Docked inside the diagram viewport frame (inline and fullscreen). */
@@ -616,6 +618,7 @@ const MERMAID_SVG_HOST_CLASSNAME = cn(
   '[&_svg_marker#al-edge-arrow_path]:fill-[#111827] dark:[&_svg_marker#al-edge-arrow_path]:fill-[#e2e8f0]',
   '[&_svg_g.edge-label_text]:fill-[#111827] dark:[&_svg_g.edge-label_text]:fill-[#e2e8f0]',
   '[&_svg_.diagram-click-dim]:opacity-[0.15]',
+  '[&_svg_.diagram-path-node-hidden]:hidden',
 );
 
 const MERMAID_SVG_HOST_LIGHT_NODE_STYLE = {
@@ -642,6 +645,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     onSelectConnector,
     selectedConnector = null,
     visibleConnectors = null,
+    visiblePathNodeIds = null,
     cameraMaxHeightClassName = 'max-h-[36rem]',
     viewportHeader = null,
   } = props;
@@ -1118,6 +1122,28 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
   }, [fullscreenOpen, sanitizedSvg, syncFullscreenViewportCamera]);
 
   useEffect(() => {
+    const visible = visiblePathNodeIds === null
+      ? null
+      : new Set(visiblePathNodeIds.map(normalizeDiagramFocusToken));
+
+    for (const host of [svgHostRef.current, fullscreenHostRef.current]) {
+      const svg = host?.querySelector('svg');
+
+      if (svg == null) {
+        continue;
+      }
+
+      for (const node of svg.querySelectorAll('g.node')) {
+        const rawId = node.getAttribute('id')?.replace(/^node-/u, '') ?? '';
+        const title = node.querySelector('title')?.textContent ?? '';
+        const nodeId = resolveInventoryDiagramClickFocusId(rawId, title, outline);
+        node.classList.toggle('diagram-path-node-hidden', visible !== null && !visible.has(normalizeDiagramFocusToken(nodeId)));
+      }
+
+    }
+  }, [fullscreenOpen, outline, sanitizedSvg, visiblePathNodeIds]);
+
+  useEffect(() => {
     const hosts = [svgHostRef.current, fullscreenHostRef.current].filter(
       (host): host is HTMLDivElement => host !== null,
     );
@@ -1132,7 +1158,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
         if (svg instanceof SVGSVGElement) {
           clearClickFocusClasses(svg);
-          applyConnectorVisibility(svg, null);
+          applyConnectorVisibility(svg, visiblePathNodeIds === null ? null : visibleConnectors);
         }
       });
       return;
@@ -1272,6 +1298,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     sanitizedSvg,
     selectedConnector,
     visibleConnectors,
+    visiblePathNodeIds,
   ]);
 
   useEffect(() => {

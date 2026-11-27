@@ -1,35 +1,35 @@
 {
   "schemaVersion": 1,
-  "updatedUtc": "2026-11-07T12:18:18.000Z",
+  "updatedUtc": "2026-11-26T15:30:00.000Z",
   "regressionToleranceKb": 25,
   "routes": {
     "/": {
-      "firstLoadJsKb": 2504.4
+      "firstLoadJsKb": 2690.8
     },
     "/welcome": {
-      "firstLoadJsKb": 1720.4
+      "firstLoadJsKb": 1779.6
     },
     "/governance/approval-queue": {
-      "firstLoadJsKb": 1592.4
+      "firstLoadJsKb": 1666.3
     },
     "/governance/alerts": {
-      "firstLoadJsKb": 2657.7
+      "firstLoadJsKb": 2733.4
     },
     "/governance/alert-rules": {
-      "firstLoadJsKb": 2328.3
+      "firstLoadJsKb": 2396
     },
     "/architecture/reviews": {
-      "firstLoadJsKb": 2428.3
+      "firstLoadJsKb": 2480.2
     },
     "/architecture/reviews/[reviewId]": {
-      "firstLoadJsKb": 3370
+      "firstLoadJsKb": 3472
     },
     "/architecture/sponsor-dashboard": {
-      "firstLoadJsKb": 1593.2
+      "firstLoadJsKb": 1667.2
     },
     "/governance/sealed-records": {
-      "firstLoadJsKb": 1593.6
+      "firstLoadJsKb": 1667.7
     }
   },
-  "notes": "RC43 CI run 42369972648 (f62c05579d): refresh /architecture/reviews First Load JS baseline after PageContextualHelpButton + help-registry growth (+430.4 kB beyond +25 kB tolerance)."
+  "notes": "RC50 CI run 45758810698 (f9263007): refresh tracked First Load JS baselines after master/RC49 merges into RC50; measured from production build route-bundle-stats.json."
 }

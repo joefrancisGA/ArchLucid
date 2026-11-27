@@ -1,9 +1,13 @@
+using Xunit;
+
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Repositories;
 
 namespace ArchLucid.Application.Tests.Persistence;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class InMemoryArchitectureVersionRepositoryTests
 {
     [Fact]

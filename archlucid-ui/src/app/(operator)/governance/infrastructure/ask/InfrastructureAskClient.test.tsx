@@ -1,3 +1,4 @@
+import { buildInfraEvidenceAskScopeKey } from "@/lib/infra-evidence/infra-evidence-ask-transcript";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -591,7 +592,11 @@ describe("InfrastructureAskClient", () => {
   });
 
   it("rehydrates transcript and draft from sessionStorage per scope", async () => {
-    const scopeKey = "11111111-1111-1111-1111-111111111111|22222222-2222-2222-2222-222222222222|_|_|_|_|_|_|_|_|_|all|_";
+    const scopeKey = buildInfraEvidenceAskScopeKey({
+      cloudResourceId: "11111111-1111-1111-1111-111111111111",
+      snapshotId: "22222222-2222-2222-2222-222222222222",
+      workQueue: "all",
+    });
     window.sessionStorage.setItem(
       `archlucid.infra-evidence.ask-transcript.unknown.anonymous.${scopeKey}`,
       JSON.stringify({

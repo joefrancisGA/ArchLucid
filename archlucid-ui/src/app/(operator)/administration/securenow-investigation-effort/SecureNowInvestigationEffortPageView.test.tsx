@@ -53,7 +53,7 @@ describe("SecureNowInvestigationEffortPageView", () => {
     expect(
       screen.getByTestId("securenow-investigation-effort-page"),
     ).toBeInTheDocument();
-    expect(screen.getByText(/NO_GO/)).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-investigation-effort-lead")).toHaveTextContent(/NO_GO/);
     expect(screen.getByText(/This page is not a savings claim\./)).toBeInTheDocument();
     for (const note of SECURENOW_INVESTIGATION_EFFORT_NOTES) {
       expect(screen.getByRole("link", { name: note.label })).toHaveAttribute("href", note.href);

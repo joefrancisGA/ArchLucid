@@ -14,7 +14,7 @@ describe("score-lift round82 mounted contract", () => {
     expect(runs).toContain('data-testid="reviews-hub-list-context-and-package-scope-filter-empty"');
     expect(runs).toContain('data-testid="reviews-hub-orphan-candidates-and-search-filter-empty"');
     expect(readUiSource("app/(operator)/governance/findings/_sections/GovernanceFindingsQueueOutcomeSection.tsx")).toContain(
-      'data-testid="governance-findings-empty-collection-blocker-preface"',
+      "{GOVERNANCE_FINDINGS_EMPTY_COLLECTION_BLOCKER_PREFACE_LINE}",
     );
     expect(readUiSource("app/(operator)/governance/findings/_sections/GovernanceFindingsQueueResultsSection.tsx")).toContain(
       'data-testid="governance-findings-combined-filter-mode-legend"',

@@ -22,7 +22,7 @@ describe("infra-evidence-ask-transcript", () => {
         cloudResourceId: "res-1",
         snapshotId: "snap-1",
       }),
-    ).toBe("res-1|snap-1|_|_|_|_|_|_|_|_|_|_|_");
+    ).toBe("res-1|snap-1|_|_|_|_|_|_|_|_|_|_|_|_");
   });
 
   it("partitions transcript storage by signed-in user subject", () => {

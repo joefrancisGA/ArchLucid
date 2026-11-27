@@ -12,7 +12,7 @@ describe("SecureNowFirstHourPageView", () => {
     expect(screen.getByRole("heading", { name: "Terms in one place" })).toBeInTheDocument();
     expect(screen.getByText(/NOT VERIFIED/)).toBeInTheDocument();
     expect(screen.getByText(/does not change Azure/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Back to Home" })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
     const productLinks = screen.getAllByRole("link", { name: "Open in product" });
     expect(productLinks).toHaveLength(3);
     expect(productLinks[0]).toHaveAttribute(

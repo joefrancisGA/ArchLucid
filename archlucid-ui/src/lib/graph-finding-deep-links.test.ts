@@ -10,6 +10,9 @@ const recentDeskFixture = vi.hoisted(() => ({
   value: { primaryRunId: "run-1", architectureId: "arch-recent" },
 }));
 
+// Shared setup may preload the desk helpers before this file's mocks are registered.
+vi.hoisted(() => vi.resetModules());
+
 vi.mock("@/lib/reviews/review-pin-run-url", () => ({
   readRecentPrimaryReviewDeskTarget: () => recentDeskFixture.value,
 }));

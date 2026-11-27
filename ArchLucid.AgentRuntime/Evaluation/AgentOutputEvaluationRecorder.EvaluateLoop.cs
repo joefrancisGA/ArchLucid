@@ -8,6 +8,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.QualityGates;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Core.Agents;
 
 namespace ArchLucid.AgentRuntime.Evaluation;
 

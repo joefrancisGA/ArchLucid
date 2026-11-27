@@ -16,7 +16,7 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
-import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import { resolveGuideHeadingsForStrip, resolvePageHeaderClaimDisciplineForStrip, resolvePageHeaderClaimDisciplineTestIdForStrip } from "@/lib/claim-discipline-policy";
 import {
   DESIGN_TOKENS,
   OPERATOR_LAYOUT,
@@ -242,8 +242,8 @@ export function HelpGovernanceInfrastructureDriftGuideView(
         titleTestId="help-governance-infrastructure-drift-page-title"
         subtitle={governanceInfrastructureDriftHelpPageSubtitle(buyerPolishedShell)}
         navHref={GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CANONICAL_PATH}
-        claimDiscipline={GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CLAIM_DISCIPLINE}
-        claimDisciplineTestId="help-governance-infrastructure-drift-claim-discipline"
+        claimDiscipline={resolvePageHeaderClaimDisciplineForStrip("help-governance-infrastructure-drift", GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_CLAIM_DISCIPLINE)}
+        claimDisciplineTestId={resolvePageHeaderClaimDisciplineTestIdForStrip("help-governance-infrastructure-drift", "help-governance-infrastructure-drift-claim-discipline")}
         headingLevel="h1"
         metadata={buyerPolishedShell ? undefined : <HelpTopicRegistryProvenanceLine entry={entry} />}
         actions={

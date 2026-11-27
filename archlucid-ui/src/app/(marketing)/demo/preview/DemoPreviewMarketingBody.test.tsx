@@ -7,6 +7,9 @@ import { createMinimalDemoPreviewPayload } from "@/app/(marketing)/see-it/see-it
 
 import { DemoPreviewMarketingBody } from "./DemoPreviewMarketingBody";
 
+// Shared setup may preload the desk helpers before this file's mocks are registered.
+vi.hoisted(() => vi.resetModules());
+
 vi.mock("@/lib/desk-continuity-preference", () => ({
   readCachedLastOpenArchitectureId: vi.fn(() => "architecture-showcase-001"),
 }));
