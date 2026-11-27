@@ -56,7 +56,7 @@ Give sponsors a **defensible order-of-magnitude** for monthly Azure + LLM spend 
 
 The operator new-run wizard calls this endpoint for an **illustrative** USD band before starting a run in **Real** mode.
 
-- **Low:** one LLM completion assumed at **8192** input tokens and the host `AzureOpenAI:MaxCompletionTokens` output cap — a minimal-context floor for comparison only.
+- **Low:** one LLM completion at the host `AzureOpenAI:MaxCompletionTokens` output cap, with **8192** assumed input tokens or the configured high-case input allowance if smaller. This is a minimal-context floor for comparison only.
 - **High:** a **starter run** multiplies **four** parallel agents (Topology, Cost, Compliance, Critic), each modeled at up to `LlmDailyTenantBudget:AssumedMaxTotalTokensPerRequest` (default **65536**) input tokens and the same output cap — aligned with the daily-budget reservation heuristic, not a measured prompt size.
 - **Retries** (for example JSON schema remediation) add **extra** completions that are **not** included in the band.
 
