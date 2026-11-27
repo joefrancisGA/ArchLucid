@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
@@ -20,11 +21,13 @@ internal static class SecureNowAnalysisRun
     internal const long MaxRetainedEstimatedBytes = 16L * 1024 * 1024;
     internal const long MaxSingleEstimatedBytes = 8L * 1024 * 1024;
 
-    public static IDisposable Begin() => new RunLease();
+    public static AnalysisExecutionBudget? ExecutionBudget => Current.Value is { Active: true } run ? run.Budget : null;
 
-    public static IDisposable JoinOrBegin() => Current.Value is { Active: true }
+    public static IDisposable Begin(AnalysisExecutionBudget? budget = null) => new RunLease(budget);
+
+    public static IDisposable JoinOrBegin(AnalysisExecutionBudget? budget = null) => Current.Value is { Active: true }
         ? EmptyLease.Instance
-        : Begin();
+        : Begin(budget);
 
     public static async Task<SecureNowAnalysisSnapshot?> LoadAsync(
         IAzureInventorySnapshotRepository repository,
@@ -220,6 +223,7 @@ internal static class SecureNowAnalysisRun
 
     private sealed class RunState
     {
+        public AnalysisExecutionBudget? Budget { get; init; }
         public volatile bool Active = true;
         public object Sync { get; } = new();
         public CancellationTokenSource Stop { get; } = new();
@@ -279,10 +283,14 @@ internal static class SecureNowAnalysisRun
     private sealed class RunLease : IDisposable
     {
         private readonly RunState? _previous = Current.Value;
-        private readonly RunState _state = new();
+        private readonly RunState _state;
         private bool _disposed;
 
-        public RunLease() => Current.Value = _state;
+        public RunLease(AnalysisExecutionBudget? budget)
+        {
+            _state = new RunState { Budget = budget };
+            Current.Value = _state;
+        }
 
         public void Dispose()
         {

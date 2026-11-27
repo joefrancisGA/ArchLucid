@@ -60,6 +60,8 @@ public sealed class AuthorityPipelineStagePersistence(
     /// <inheritdoc />
     public async Task UpdateRunAsync(RunRecord run, IArchLucidUnitOfWork unitOfWork, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (unitOfWork.SupportsExternalTransaction)
             await _runRepository.UpdateAsync(run, cancellationToken, unitOfWork.Connection, unitOfWork.Transaction);
         else
@@ -72,6 +74,8 @@ public sealed class AuthorityPipelineStagePersistence(
         IArchLucidUnitOfWork unitOfWork,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (unitOfWork.SupportsExternalTransaction)
             await _contextSnapshotRepository.SaveAsync(snapshot, cancellationToken, unitOfWork.Connection, unitOfWork.Transaction);
         else
@@ -85,11 +89,14 @@ public sealed class AuthorityPipelineStagePersistence(
         IArchLucidUnitOfWork unitOfWork,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (_cosmosDbOptionsMonitor.CurrentValue.GraphSnapshotsEnabled)
         {
             if (unitOfWork.SupportsExternalTransaction)
             {
                 await _graphSnapshotSqlAuthorityWriter.SaveAsync(snapshot, cancellationToken, unitOfWork.Connection, unitOfWork.Transaction);
+                cancellationToken.ThrowIfCancellationRequested();
                 await _cosmosGraphSnapshotOutboxRepository.EnqueueAsync(
                     snapshot.GraphSnapshotId,
                     snapshot.RunId,
@@ -103,6 +110,7 @@ public sealed class AuthorityPipelineStagePersistence(
             else
             {
                 await _graphSnapshotSqlAuthorityWriter.SaveAsync(snapshot, cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
                 await _cosmosGraphSnapshotOutboxRepository.EnqueueAsync(
                     snapshot.GraphSnapshotId,
                     snapshot.RunId,
@@ -127,6 +135,8 @@ public sealed class AuthorityPipelineStagePersistence(
         IArchLucidUnitOfWork unitOfWork,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (unitOfWork.SupportsExternalTransaction)
             await _findingsSnapshotRepository.SaveAsync(snapshot, cancellationToken, unitOfWork.Connection, unitOfWork.Transaction);
         else
@@ -139,6 +149,8 @@ public sealed class AuthorityPipelineStagePersistence(
         IArchLucidUnitOfWork unitOfWork,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (unitOfWork.SupportsExternalTransaction)
             await _decisionTraceRepository.SaveAsync(trace, cancellationToken, unitOfWork.Connection, unitOfWork.Transaction);
         else
@@ -151,6 +163,8 @@ public sealed class AuthorityPipelineStagePersistence(
         IArchLucidUnitOfWork unitOfWork,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (unitOfWork.SupportsExternalTransaction)
             await _goldenManifestRepository.SaveAsync(manifest, cancellationToken, unitOfWork.Connection, unitOfWork.Transaction);
         else
@@ -163,6 +177,8 @@ public sealed class AuthorityPipelineStagePersistence(
         IArchLucidUnitOfWork unitOfWork,
         CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (unitOfWork.SupportsExternalTransaction)
             await _artifactBundleRepository.SaveAsync(bundle, cancellationToken, unitOfWork.Connection, unitOfWork.Transaction);
         else

@@ -1,5 +1,8 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Analysis;
+using ArchLucid.Core.Configuration;
+
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Persistence.Serialization;
@@ -8,6 +11,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 
@@ -18,7 +22,9 @@ public sealed class SecureNowArchitectNeighborhoodRunner(
     IIntendedReachabilityEngine intendedReachabilityEngine,
     IToxicCombinationEngine toxicCombinationEngine,
     IAuditService auditService,
-    ILogger<SecureNowArchitectNeighborhoodRunner> logger) : ISecureNowArchitectNeighborhoodRunner
+    ILogger<SecureNowArchitectNeighborhoodRunner> logger,
+    IOptionsMonitor<AnalysisStageExecutionOptions>? executionOptions = null,
+    TimeProvider? timeProvider = null) : ISecureNowArchitectNeighborhoodRunner
 {
     public async Task<SecureNowArchitectNeighborhoodRecomputeResult> RecomputeNeighborhoodAsync(
         ScopeContext scope,
@@ -29,7 +35,12 @@ public sealed class SecureNowArchitectNeighborhoodRunner(
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(summary);
         ArgumentNullException.ThrowIfNull(changes);
-        using IDisposable analysisRun = SecureNowAnalysisRun.JoinOrBegin();
+        AnalysisStageExecutionOptions options = executionOptions?.CurrentValue ?? new AnalysisStageExecutionOptions();
+        using AnalysisExecutionBudget? owned = SecureNowAnalysisRun.ExecutionBudget is null
+            ? new(options, timeProvider ?? TimeProvider.System, options.GetSecureNowRunTimeout(), cancellationToken)
+            : null;
+        AnalysisExecutionBudget budget = SecureNowAnalysisRun.ExecutionBudget ?? owned!;
+        using IDisposable analysisRun = SecureNowAnalysisRun.JoinOrBegin(budget);
 
         if (changes.Count == 0)
         {
@@ -41,7 +52,9 @@ public sealed class SecureNowArchitectNeighborhoodRunner(
         }
 
         SecureNowAnalysisSnapshot? analysisSnapshot =
-            await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, summary.SnapshotBId, cancellationToken);
+            await budget.ExecuteAsync("securenow.neighborhood.snapshot",
+                token => SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, summary.SnapshotBId, token),
+                cancellationToken);
         AzureInventorySnapshotDetailReadModel? snapshot = analysisSnapshot?.Snapshot;
 
         if (snapshot is null)
@@ -66,45 +79,40 @@ public sealed class SecureNowArchitectNeighborhoodRunner(
             };
         }
 
-        int carriedForward = await carryForwardService.CarryForwardAsync(
-            scope,
-            summary.SnapshotAId,
-            summary.SnapshotBId,
-            seeds,
-            cloudResourceIdByArmId,
+        int carriedForward = await budget.ExecuteAsync("securenow.neighborhood.carry_forward", token =>
+            carryForwardService.CarryForwardAsync(scope, summary.SnapshotAId, summary.SnapshotBId, seeds, cloudResourceIdByArmId, token),
             cancellationToken);
 
         SecureNowArchitectEngineRunScope runScope = SecureNowArchitectEngineRunScope.Neighborhood(seeds);
 
-        PrivilegePathEngineResult privilegeResult = await privilegePathEngine.RunAsync(
-            scope,
-            summary.SnapshotBId,
-            SecureNowArchitectConstants.SystemActorId,
-            cancellationToken,
-            runScope);
+        var (privilegeResult, privilegeFailure) = await budget.ExecuteIndependentAsync("securenow.privilege", token =>
+            privilegePathEngine.RunAsync(scope, summary.SnapshotBId, SecureNowArchitectConstants.SystemActorId, token, runScope),
+            cancellationToken, static result => result.Succeeded);
 
-        PrivilegePathEngineResult reachabilityResult = await intendedReachabilityEngine.RunAsync(
-            scope,
-            summary.SnapshotBId,
-            SecureNowArchitectConstants.SystemActorId,
-            cancellationToken,
-            runScope);
+        var (reachabilityResult, reachabilityFailure) = await budget.ExecuteIndependentAsync("securenow.reachability", token =>
+            intendedReachabilityEngine.RunAsync(scope, summary.SnapshotBId, SecureNowArchitectConstants.SystemActorId, token, runScope),
+            cancellationToken, static result => result.Succeeded);
 
-        PrivilegePathEngineResult toxicResult = await toxicCombinationEngine.RunAsync(
-            scope,
-            summary.SnapshotBId,
-            SecureNowArchitectConstants.SystemActorId,
-            cancellationToken,
-            runScope);
+        PrivilegePathEngineResult? toxicResult = null;
 
-        int pathsDiscovered = privilegeResult.PathsDiscovered
-                              + reachabilityResult.PathsDiscovered
-                              + toxicResult.PathsDiscovered;
-        int pathsPersisted = privilegeResult.PathsPersisted
-                             + reachabilityResult.PathsPersisted
-                             + toxicResult.PathsPersisted;
+        if (privilegeFailure is null && reachabilityFailure is null)
+        {
+            toxicResult = await budget.ExecuteAsync("securenow.toxic", token =>
+                toxicCombinationEngine.RunAsync(scope, summary.SnapshotBId, SecureNowArchitectConstants.SystemActorId, token, runScope),
+                cancellationToken, succeeded: static result => result.Succeeded);
+        }
+        else
+        {
+            budget.RecordNotStarted("securenow.toxic");
 
-        await LogAuditAsync(
+            if (privilegeResult is null || reachabilityResult is null)
+                throw privilegeFailure ?? reachabilityFailure!;
+        }
+
+        int pathsDiscovered = privilegeResult!.PathsDiscovered + reachabilityResult!.PathsDiscovered + (toxicResult?.PathsDiscovered ?? 0);
+        int pathsPersisted = privilegeResult.PathsPersisted + reachabilityResult.PathsPersisted + (toxicResult?.PathsPersisted ?? 0);
+
+        await budget.ExecuteAsync("securenow.neighborhood.audit", token => LogAuditAsync(
             scope,
             summary,
             changes.Count,
@@ -112,9 +120,9 @@ public sealed class SecureNowArchitectNeighborhoodRunner(
             carriedForward,
             pathsDiscovered,
             pathsPersisted,
-            cancellationToken);
+            token), cancellationToken);
 
-        if (!privilegeResult.Succeeded || !reachabilityResult.Succeeded || !toxicResult.Succeeded)
+        if (!privilegeResult.Succeeded || !reachabilityResult.Succeeded || toxicResult is not { Succeeded: true })
         {
             logger.LogWarning(
                 "SecureNow neighborhood recompute completed with engine errors for DiffId={DiffId}.",
@@ -125,7 +133,8 @@ public sealed class SecureNowArchitectNeighborhoodRunner(
                 Succeeded = false,
                 ErrorMessage = privilegeResult.ErrorMessage
                                ?? reachabilityResult.ErrorMessage
-                               ?? toxicResult.ErrorMessage,
+                               ?? toxicResult?.ErrorMessage
+                               ?? "A dependent analysis stage did not complete.",
                 ChangeCount = changes.Count,
                 SeedCount = seeds.Count,
                 PathsCarriedForward = carriedForward,
@@ -204,50 +213,5 @@ public sealed class SecureNowArchitectNeighborhoodRunner(
         {
             logger.LogWarning(ex, "Failed to log SecureNow neighborhood recompute audit for DiffId={DiffId}.", summary.DiffId);
         }
-    }
-}
-
-public sealed class SecureNowArchitectNeighborhoodRecomputeResult
-{
-    public bool Succeeded
-    {
-        get;
-        init;
-    }
-
-    public string? ErrorMessage
-    {
-        get;
-        init;
-    }
-
-    public int ChangeCount
-    {
-        get;
-        init;
-    }
-
-    public int SeedCount
-    {
-        get;
-        init;
-    }
-
-    public int PathsCarriedForward
-    {
-        get;
-        init;
-    }
-
-    public int PathsDiscovered
-    {
-        get;
-        init;
-    }
-
-    public int PathsPersisted
-    {
-        get;
-        init;
     }
 }

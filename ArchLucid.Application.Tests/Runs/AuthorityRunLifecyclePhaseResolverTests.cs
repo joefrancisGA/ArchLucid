@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Contracts.Common;
@@ -19,6 +20,21 @@ public sealed class AuthorityRunLifecyclePhaseResolverTests
             AuthorityRunLifecyclePhaseResolver.Resolve(null, manifest: null, stages);
 
         phase.Should().Be(AuthorityRunLifecyclePhase.InProgress);
+    }
+
+    [Theory]
+    [InlineData(AnalysisStageOutcome.TimedOut)]
+    [InlineData(AnalysisStageOutcome.Canceled)]
+    [InlineData(AnalysisStageOutcome.RetryExhausted)]
+    [InlineData(AnalysisStageOutcome.NotStarted)]
+    public void Resolve_when_a_required_stage_ended_without_success_is_failed(string status)
+    {
+        DateTime started = new(2026, 10, 7, 0, 0, 0, DateTimeKind.Utc);
+        IReadOnlyList<StageTimelineSummary> stages =
+            [StageTimelineSummary.FromRow("findings", started, started, status)];
+
+        AuthorityRunLifecyclePhaseResolver.Resolve(null, manifest: null, stages)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
     }
 
     private static IReadOnlyList<StageTimelineSummary> SucceededStages()

@@ -178,6 +178,7 @@ public sealed class AuthorityCommittedPipelineFinalizer(
         run.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
         run.CompletedUtc = completedUtc;
 
+        ct.ThrowIfCancellationRequested();
         await uow.CommitAsync(ct);
 
         if (run.GraphSnapshotId is { } graphSnapshotId)
@@ -274,8 +275,10 @@ public sealed class AuthorityCommittedPipelineFinalizer(
 
             if (candidate.RunId == run.RunId)
                 continue;
+
             if (candidate.ArchivedUtc is not null)
                 continue;
+
             if (candidate.GoldenManifestId is null)
                 continue;
 

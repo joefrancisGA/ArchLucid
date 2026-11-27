@@ -21,9 +21,19 @@ public sealed class OutboundOperationDeadline : IDisposable
     public CancellationToken Token => _collectionCancellation.Token;
 
     // The timestamp check also covers a collector that returns before the timer callback runs.
-    public bool IsExpired => _deadline.IsCancellationRequested || _timeProvider.GetElapsedTime(_startedAt) >= _budget;
+    public bool IsExpired => Remaining == TimeSpan.Zero;
 
     public TimeSpan Budget => _budget;
+
+    public TimeSpan Remaining
+    {
+        get
+        {
+            TimeSpan remaining = _budget - _timeProvider.GetElapsedTime(_startedAt);
+
+            return _deadline.IsCancellationRequested || remaining <= TimeSpan.Zero ? TimeSpan.Zero : remaining;
+        }
+    }
 
     public void Dispose()
     {

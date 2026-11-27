@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.ContextIngestion.Models;
@@ -54,7 +55,15 @@ public sealed class AuthorityPipelineExecuteWorkHandler(
             "(none)",
             entry.OutboxId.ToString());
 
-        await orchestrator.CompleteQueuedAuthorityPipelineAsync(request, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            await orchestrator.CompleteQueuedAuthorityPipelineAsync(request, cancellationToken).ConfigureAwait(false);
+        }
+        catch (AnalysisStageExecutionException ex)
+        {
+            // The outbox already dead-letters conflicts. A terminal stage outcome must not replay the pipeline.
+            throw new ConflictException(ex.Message, ex);
+        }
 
         _logger.LogInformationAgentExecutionStateTransitionDeferredOutbox(
             entry.RunId,

@@ -1,3 +1,6 @@
+using ArchLucid.Application.Analysis;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Resilience;
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
@@ -29,7 +32,9 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
     IFourRealityDriftEngine fourRealityDriftEngine,
     IPathRankingEngine pathRankingEngine,
     ICutPointAnalysisEngine cutPointAnalysisEngine,
-    ISecurityEvidencePathRoutingSyncService pathRoutingSyncService) : IAzureInventorySnapshotPostMaterializeCoordinator
+    ISecurityEvidencePathRoutingSyncService pathRoutingSyncService,
+    IOptionsMonitor<AnalysisStageExecutionOptions>? executionOptions = null,
+    TimeProvider? timeProvider = null) : IAzureInventorySnapshotPostMaterializeCoordinator
 {
     public async Task OnSnapshotMaterializedAsync(
         ScopeContext scope,
@@ -38,18 +43,22 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        using IDisposable analysisRun = SecureNowAnalysisRun.Begin();
+        AnalysisStageExecutionOptions options = executionOptions?.CurrentValue ?? new AnalysisStageExecutionOptions();
+        using AnalysisExecutionBudget budget = new(options, timeProvider ?? TimeProvider.System,
+            options.GetSecureNowRunTimeout(), cancellationToken);
+        using IDisposable analysisRun = SecureNowAnalysisRun.Begin(budget);
 
         Guid? priorSnapshotId = null;
         AzureInventoryDiffComputeResult? diffResult = null;
 
         if (!string.IsNullOrWhiteSpace(subscriptionId))
         {
-            priorSnapshotId = await snapshotRepository.TryGetPriorMaterializedSnapshotIdAsync(
-                scope,
-                subscriptionId,
-                snapshotId,
-                cancellationToken);
+            priorSnapshotId = await budget.ExecuteAsync("securenow.prior_snapshot",
+                token => snapshotRepository.TryGetPriorMaterializedSnapshotIdAsync(scope, subscriptionId, snapshotId, token),
+                cancellationToken,
+                retrySafeRead: static failure => failure is ReplaySafeAnalysisReadException retry
+                    ? new AnalysisReadRetrySignal(retry.RetryAfter)
+                    : null);
 
             if (priorSnapshotId == Guid.Empty)
             {
@@ -58,11 +67,9 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
 
             if (priorSnapshotId is not null)
             {
-                diffResult = await diffService.ComputeAndPersistDiffAsync(
-                    scope,
-                    priorSnapshotId.Value,
-                    snapshotId,
-                    cancellationToken);
+                diffResult = await budget.ExecuteAsync("securenow.diff",
+                    token => diffService.ComputeAndPersistDiffAsync(scope, priorSnapshotId.Value, snapshotId, token),
+                    cancellationToken, succeeded: static result => result.Succeeded && result.ConsumerFanOutSucceeded);
             }
         }
 
@@ -73,103 +80,117 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
 
         if (fullRecompute)
         {
-            await RunFullSecureNowPipelineAsync(scope, snapshotId, cancellationToken);
+            await RunFullSecureNowPipelineAsync(scope, snapshotId, budget);
 
             return;
         }
 
         if (diffResult is { Succeeded: true, Changes.Count: 0 })
         {
-            await neighborhoodRunner.CarryForwardAllAsync(
-                scope,
-                priorSnapshotId!.Value,
-                snapshotId,
-                cancellationToken);
+            await budget.ExecuteAsync("securenow.carry_forward", token =>
+                neighborhoodRunner.CarryForwardAllAsync(scope, priorSnapshotId!.Value, snapshotId, token), cancellationToken);
         }
 
-        await RunDownstreamSecureNowPipelineAsync(scope, snapshotId, cancellationToken);
+        await RunDownstreamSecureNowPipelineAsync(scope, snapshotId, budget);
     }
 
-    private async Task RunFullSecureNowPipelineAsync(
-        ScopeContext scope,
-        Guid snapshotId,
-        CancellationToken cancellationToken)
+    private async Task RunFullSecureNowPipelineAsync(ScopeContext scope, Guid snapshotId, AnalysisExecutionBudget budget)
     {
-        await privilegePathEngine.RunAsync(
-            scope,
-            snapshotId,
-            SecureNowArchitectConstants.SystemActorId,
-            cancellationToken: cancellationToken);
+        const string actor = SecureNowArchitectConstants.SystemActorId;
+        AnalysisStageExecutionException? firstFailure = null;
 
-        await intendedReachabilityEngine.RunAsync(
-            scope,
-            snapshotId,
-            SecureNowArchitectConstants.SystemActorId,
-            cancellationToken: cancellationToken);
+        bool privilegeSucceeded = await RunIndependentAsync("securenow.privilege",
+            token => privilegePathEngine.RunAsync(scope, snapshotId, actor, cancellationToken: token));
+        bool reachabilitySucceeded = await RunIndependentAsync("securenow.reachability",
+            token => intendedReachabilityEngine.RunAsync(scope, snapshotId, actor, cancellationToken: token));
+        bool pathsComplete = privilegeSucceeded && reachabilitySucceeded;
 
-        await toxicCombinationEngine.RunAsync(
-            scope,
-            snapshotId,
-            SecureNowArchitectConstants.SystemActorId,
-            cancellationToken: cancellationToken);
-
-        await capabilityToFlowEngine.RunAsync(
-            scope,
-            snapshotId,
-            SecureNowArchitectConstants.SystemActorId,
-            cancellationToken);
-
-        await sharedControlBlastRadiusEngine.RunAsync(
-            scope,
-            snapshotId,
-            SecureNowArchitectConstants.SystemActorId,
-            cancellationToken);
-
-        await fourRealityDriftEngine.RunAsync(
-            scope,
-            snapshotId,
-            SecureNowArchitectConstants.SystemActorId,
-            cancellationToken);
-
-        await RunRankingAndCutPointAnalysisAsync(scope, snapshotId, cancellationToken);
-
-        await pathRoutingSyncService.SyncSnapshotAsync(scope, snapshotId, cancellationToken);
-    }
-
-    private async Task RunDownstreamSecureNowPipelineAsync(
-        ScopeContext scope,
-        Guid snapshotId,
-        CancellationToken cancellationToken)
-    {
-        await pathRoutingSyncService.SyncSnapshotAsync(scope, snapshotId, cancellationToken);
-
-        await fourRealityDriftEngine.RunAsync(
-            scope,
-            snapshotId,
-            SecureNowArchitectConstants.SystemActorId,
-            cancellationToken);
-
-        await RunRankingAndCutPointAnalysisAsync(scope, snapshotId, cancellationToken);
-    }
-
-    private async Task RunRankingAndCutPointAnalysisAsync(
-        ScopeContext scope,
-        Guid snapshotId,
-        CancellationToken cancellationToken)
-    {
-        PathRankingEngineResult ranking = await pathRankingEngine.RunAsync(
-            scope,
-            snapshotId,
-            SecureNowArchitectConstants.SystemActorId,
-            cancellationToken);
-
-        if (ranking is { Succeeded: true })
+        if (pathsComplete)
         {
-            await cutPointAnalysisEngine.RunAsync(
-                scope,
-                snapshotId,
-                SecureNowArchitectConstants.SystemActorId,
-                cancellationToken);
+            await RunIndependentAsync("securenow.toxic",
+                token => toxicCombinationEngine.RunAsync(scope, snapshotId, actor, cancellationToken: token));
         }
+        else
+        {
+            budget.RecordNotStarted("securenow.toxic");
+        }
+
+        await RunIndependentAsync("securenow.capability_flow",
+            token => capabilityToFlowEngine.RunAsync(scope, snapshotId, actor, token));
+        await RunIndependentAsync("securenow.shared_control",
+            token => sharedControlBlastRadiusEngine.RunAsync(scope, snapshotId, actor, token));
+
+        if (pathsComplete)
+        {
+            await RunIndependentAsync("securenow.drift",
+                token => fourRealityDriftEngine.RunAsync(scope, snapshotId, actor, token));
+        }
+        else
+        {
+            budget.RecordNotStarted("securenow.drift");
+        }
+
+        if (firstFailure is not null)
+        {
+            budget.RecordNotStarted("securenow.ranking");
+            budget.RecordNotStarted("securenow.cut_point");
+            budget.RecordNotStarted("securenow.routing");
+            throw firstFailure;
+        }
+
+        await RunRankingAndCutPointAnalysisAsync(scope, snapshotId, budget);
+        await budget.ExecuteAsync("securenow.routing", token => pathRoutingSyncService.SyncSnapshotAsync(scope, snapshotId, token),
+            budget.Token);
+
+        async Task<bool> RunIndependentAsync(string stage, Func<CancellationToken, Task<PrivilegePathEngineResult>> work)
+        {
+            var (_, failure) = await budget.ExecuteIndependentAsync(stage, work, budget.Token, static result => result.Succeeded);
+            firstFailure ??= failure;
+
+            return failure is null;
+        }
+    }
+
+    private async Task RunDownstreamSecureNowPipelineAsync(ScopeContext scope, Guid snapshotId, AnalysisExecutionBudget budget)
+    {
+        await budget.ExecuteAsync("securenow.routing", token => pathRoutingSyncService.SyncSnapshotAsync(scope, snapshotId, token),
+            budget.Token);
+        await RequireEngineAsync(budget, "securenow.drift",
+            token => fourRealityDriftEngine.RunAsync(scope, snapshotId, SecureNowArchitectConstants.SystemActorId, token));
+        await RunRankingAndCutPointAnalysisAsync(scope, snapshotId, budget);
+    }
+
+    private async Task RunRankingAndCutPointAnalysisAsync(ScopeContext scope, Guid snapshotId, AnalysisExecutionBudget budget)
+    {
+        const string actor = SecureNowArchitectConstants.SystemActorId;
+        PathRankingEngineResult ranking = await budget.ExecuteAsync("securenow.ranking",
+            token => pathRankingEngine.RunAsync(scope, snapshotId, actor, token), budget.Token,
+            succeeded: static result => result.Succeeded);
+
+        if (!ranking.Succeeded)
+        {
+            budget.RecordNotStarted("securenow.cut_point");
+            throw new AnalysisStageExecutionException("securenow.ranking", AnalysisStageOutcome.Failed);
+        }
+
+        CutPointAnalysisEngineResult cutPoints = await budget.ExecuteAsync("securenow.cut_point",
+            token => cutPointAnalysisEngine.RunAsync(scope, snapshotId, actor, token), budget.Token,
+            succeeded: static result => result.Succeeded);
+
+        if (!cutPoints.Succeeded)
+            throw new AnalysisStageExecutionException("securenow.cut_point", AnalysisStageOutcome.Failed);
+    }
+
+    private static Task<PrivilegePathEngineResult> RunEngineAsync(
+        AnalysisExecutionBudget budget, string stage, Func<CancellationToken, Task<PrivilegePathEngineResult>> work) =>
+        budget.ExecuteAsync(stage, work, budget.Token, succeeded: static result => result.Succeeded);
+
+    private static async Task RequireEngineAsync(
+        AnalysisExecutionBudget budget, string stage, Func<CancellationToken, Task<PrivilegePathEngineResult>> work)
+    {
+        PrivilegePathEngineResult result = await RunEngineAsync(budget, stage, work);
+
+        if (!result.Succeeded)
+            throw new AnalysisStageExecutionException(stage, AnalysisStageOutcome.Failed);
     }
 }

@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AzureExtractor;
@@ -80,6 +81,7 @@ public sealed class AzureInventorySnapshotMaterializer(
 
             // Canonical evidence must retain imported resources independently of diagram visibility.
             // Diagram consumers apply AzureInventoryVisibleSnapshotProjection when rendering.
+
             foreach (AzureExtractorExtendedResourceRow row in inventory.Resources)
             {
                 string normalizedArmId = ArmResourceIdNormalizer.Normalize(row.AzureResourceId);
@@ -299,6 +301,7 @@ public sealed class AzureInventorySnapshotMaterializer(
                 || warning.Equals(SecurityEvidenceEntraGroupAdapterWarnings.GraphForbidden, StringComparison.OrdinalIgnoreCase));
             // Only the materializer may establish this reason for a partial capture.
             // Unknown or non-identity warnings prevent a scoped override.
+
             if (resources.Count > 0 && partialEntraCollection && !partialChildEnumeration
                 && completenessWarnings.All(SecurityEvidenceAddCredentialAdapterWarnings.IsEntraEvidenceWarning))
             {
@@ -365,6 +368,8 @@ public sealed class AzureInventorySnapshotMaterializer(
                 },
                 cancellationToken);
 
+            string analysisOutcome = AnalysisStageOutcome.NotStarted;
+
             try
             {
                 AzureInventorySnapshotRecord? materializedHeader =
@@ -377,13 +382,18 @@ public sealed class AzureInventorySnapshotMaterializer(
                         snapshotId,
                         materializedHeader.SubscriptionId,
                         cancellationToken);
+                    analysisOutcome = AnalysisStageOutcome.Succeeded;
                 }
             }
             catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
             {
+                analysisOutcome = ex is AnalysisStageExecutionException stageFailure
+                    ? stageFailure.Outcome
+                    : AnalysisStageOutcome.Failed;
                 logger.LogWarning(
                     ex,
-                    "Azure inventory snapshot was committed but post-materialization processing failed for SnapshotId={SnapshotId}.",
+                    "Azure inventory snapshot was committed but post-materialization analysis ended with {Outcome} for SnapshotId={SnapshotId}.",
+                    analysisOutcome,
                     snapshotId);
             }
 
@@ -391,6 +401,7 @@ public sealed class AzureInventorySnapshotMaterializer(
             {
                 Succeeded = true,
                 CaptureStatus = status,
+                PostMaterializationAnalysisOutcome = analysisOutcome,
                 ResourceCount = resources.Count,
                 RelationshipCount = securityEdges.Relationships.Count,
                 ContentHashSha256 = contentHash,
@@ -414,6 +425,7 @@ public sealed class AzureInventorySnapshotMaterializer(
     private static bool IsAllowedImportedRuntimeProperty(string resourceType, string key)
     {
         string normalized = key.Trim();
+
         if (!normalized.Equals("runtime", StringComparison.OrdinalIgnoreCase)
             && !normalized.StartsWith("runtime.", StringComparison.OrdinalIgnoreCase))
         {

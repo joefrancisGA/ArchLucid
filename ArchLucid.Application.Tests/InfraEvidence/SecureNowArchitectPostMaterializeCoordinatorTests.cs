@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Core.InfraEvidence;
@@ -7,6 +8,9 @@ using ArchLucid.Persistence.InfraEvidence;
 using FluentAssertions;
 
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Time.Testing;
+
+using ArchLucid.Core.Configuration;
 
 using Moq;
 
@@ -39,6 +43,10 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
         Mock<IPathRankingEngine> rankingEngine = new();
         Mock<ICutPointAnalysisEngine> cutPointEngine = new();
         Mock<ISecureNowArchitectNeighborhoodRunner> neighborhoodRunner = new();
+
+        SetupSuccessfulEngine(driftEngine);
+        SetupSuccessfulRankingEngine(rankingEngine);
+        SetupSuccessfulCutPointEngine(cutPointEngine);
 
         neighborhoodRunner
             .Setup(runner => runner.CarryForwardAllAsync(
@@ -100,6 +108,10 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
         Mock<IPathRankingEngine> rankingEngine = new();
         Mock<ICutPointAnalysisEngine> cutPointEngine = new();
         Mock<ISecureNowArchitectNeighborhoodRunner> neighborhoodRunner = new();
+
+        SetupSuccessfulEngine(driftEngine);
+        SetupSuccessfulRankingEngine(rankingEngine);
+        SetupSuccessfulCutPointEngine(cutPointEngine);
 
         neighborhoodRunner
             .Setup(runner => runner.CarryForwardAllAsync(
@@ -320,6 +332,14 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
 
         SetupSuccessfulEngine(privilegePathEngine);
 
+        SetupSuccessfulEngine(reachabilityEngine);
+        SetupSuccessfulEngine(toxicEngine);
+        SetupSuccessfulEngine(capabilityEngine);
+        SetupSuccessfulEngine(sharedEngine);
+        SetupSuccessfulEngine(driftEngine);
+        SetupSuccessfulRankingEngine(rankingEngine);
+        SetupSuccessfulCutPointEngine(cutPointEngine);
+
         AzureInventorySnapshotPostMaterializeCoordinator sut = new(
             Mock.Of<IAzureInventorySnapshotRepository>(),
             diffService.Object,
@@ -424,32 +444,85 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
     {
         Mock<IPathRankingEngine> ranking = new();
         ranking
-            .Setup(engine => engine.RunAsync(Scope, SnapshotId, SecureNowArchitectConstants.SystemActorId, CancellationToken.None))
+            .Setup(engine => engine.RunAsync(Scope, SnapshotId, SecureNowArchitectConstants.SystemActorId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PathRankingEngineResult { Succeeded = rankingSucceeded });
-
         Mock<ICutPointAnalysisEngine> cutPoints = new();
+        Mock<IPrivilegePathEngine> privilege = new();
+        Mock<IIntendedReachabilityEngine> reachability = new();
+        Mock<IToxicCombinationEngine> toxic = new();
+        Mock<ICapabilityToFlowEngine> capability = new();
+        Mock<ISharedControlBlastRadiusEngine> shared = new();
+        Mock<IFourRealityDriftEngine> drift = new();
+        SetupSuccessfulEngine(privilege);
+        SetupSuccessfulEngine(reachability);
+        SetupSuccessfulEngine(toxic);
+        SetupSuccessfulEngine(capability);
+        SetupSuccessfulEngine(shared);
+        SetupSuccessfulEngine(drift);
+        SetupSuccessfulCutPointEngine(cutPoints);
+
         AzureInventorySnapshotPostMaterializeCoordinator sut = CreateCoordinator(
-            fullRecompute,
-            hasPrior: true,
-            emptyDiff: false,
-            diffWasExisting: false,
-            diffSucceeded: true,
-            new Mock<IPrivilegePathEngine>(),
-            new Mock<IIntendedReachabilityEngine>(),
-            new Mock<IToxicCombinationEngine>(),
-            new Mock<ICapabilityToFlowEngine>(),
-            new Mock<ISharedControlBlastRadiusEngine>(),
-            new Mock<IFourRealityDriftEngine>(),
-            ranking,
-            cutPoints,
+            fullRecompute, hasPrior: true, emptyDiff: false, diffWasExisting: false, diffSucceeded: true,
+            privilege, reachability, toxic, capability, shared, drift, ranking, cutPoints,
             new Mock<ISecureNowArchitectNeighborhoodRunner>());
 
-        await sut.OnSnapshotMaterializedAsync(Scope, SnapshotId, SubscriptionId, CancellationToken.None);
+        if (rankingSucceeded)
+        {
+            await sut.OnSnapshotMaterializedAsync(Scope, SnapshotId, SubscriptionId);
+        }
+        else
+        {
+            AnalysisStageExecutionException failure = await Assert.ThrowsAsync<AnalysisStageExecutionException>(() =>
+                sut.OnSnapshotMaterializedAsync(Scope, SnapshotId, SubscriptionId));
+            Assert.Equal(AnalysisStageOutcome.Failed, failure.Outcome);
+        }
 
-        ranking.Verify(engine => engine.RunAsync(Scope, SnapshotId, SecureNowArchitectConstants.SystemActorId, CancellationToken.None), Times.Once);
-        cutPoints.Verify(
-            engine => engine.RunAsync(Scope, SnapshotId, SecureNowArchitectConstants.SystemActorId, CancellationToken.None),
+        ranking.Verify(engine => engine.RunAsync(
+            Scope, SnapshotId, SecureNowArchitectConstants.SystemActorId, It.IsAny<CancellationToken>()), Times.Once);
+        cutPoints.Verify(engine => engine.RunAsync(
+            Scope, SnapshotId, SecureNowArchitectConstants.SystemActorId, It.IsAny<CancellationToken>()),
             rankingSucceeded ? Times.Once() : Times.Never());
+    }
+
+    [Fact]
+    public async Task Privilege_stage_timeout_preserves_independent_outputs_and_blocks_dependents()
+    {
+        FakeTimeProvider clock = new();
+        Mock<IPrivilegePathEngine> privilege = new();
+        privilege.Setup(engine => engine.RunAsync(Scope, SnapshotId, SecureNowArchitectConstants.SystemActorId,
+                It.IsAny<CancellationToken>(), It.IsAny<SecureNowArchitectEngineRunScope?>()))
+            .ReturnsAsync(() =>
+            {
+                clock.Advance(TimeSpan.FromSeconds(1));
+
+                return new PrivilegePathEngineResult { Succeeded = true };
+            });
+        Mock<IIntendedReachabilityEngine> reachability = new();
+        Mock<IToxicCombinationEngine> toxic = new();
+        Mock<ICapabilityToFlowEngine> capability = new();
+        Mock<ISharedControlBlastRadiusEngine> shared = new();
+        Mock<IFourRealityDriftEngine> drift = new();
+        Mock<IPathRankingEngine> ranking = new();
+        SetupSuccessfulEngine(reachability);
+        SetupSuccessfulEngine(capability);
+        SetupSuccessfulEngine(shared);
+
+        AnalysisStageExecutionOptions options = new() { StageTimeoutSeconds = { ["securenow.privilege"] = 1 } };
+        AzureInventorySnapshotPostMaterializeCoordinator sut = CreateCoordinator(
+            fullRecompute: true, hasPrior: false, emptyDiff: true, diffWasExisting: false, diffSucceeded: true,
+            privilege, reachability, toxic, capability, shared, drift, ranking, new Mock<ICutPointAnalysisEngine>(),
+            new Mock<ISecureNowArchitectNeighborhoodRunner>(), executionOptions: options, clock: clock);
+
+        AnalysisStageExecutionException failure = await Assert.ThrowsAsync<AnalysisStageExecutionException>(() =>
+            sut.OnSnapshotMaterializedAsync(Scope, SnapshotId, SubscriptionId));
+        Assert.Equal(AnalysisStageOutcome.TimedOut, failure.Outcome);
+        Assert.Equal("securenow.privilege", failure.Stage);
+        Assert.Single(reachability.Invocations);
+        Assert.Single(capability.Invocations);
+        Assert.Single(shared.Invocations);
+        Assert.Empty(toxic.Invocations);
+        Assert.Empty(drift.Invocations);
+        Assert.Empty(ranking.Invocations);
     }
 
     private static AzureInventorySnapshotPostMaterializeCoordinator CreateCoordinator(
@@ -467,7 +540,9 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
         Mock<IPathRankingEngine> rankingEngine,
         Mock<ICutPointAnalysisEngine> cutPointEngine,
         Mock<ISecureNowArchitectNeighborhoodRunner> neighborhoodRunner,
-        bool consumerFanOutSucceeded = true)
+        bool consumerFanOutSucceeded = true,
+        AnalysisStageExecutionOptions? executionOptions = null,
+        TimeProvider? clock = null)
     {
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
 
@@ -506,6 +581,9 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
         IOptions<SecureNowArchitectNeighborhoodOptions> options = Options.Create(
             new SecureNowArchitectNeighborhoodOptions { FullRecompute = fullRecompute });
 
+        Mock<IOptionsMonitor<AnalysisStageExecutionOptions>> budgetOptions = new();
+        budgetOptions.SetupGet(monitor => monitor.CurrentValue).Returns(executionOptions ?? new AnalysisStageExecutionOptions());
+
         return new AzureInventorySnapshotPostMaterializeCoordinator(
             snapshotRepository.Object,
             diffService.Object,
@@ -519,7 +597,7 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
             driftEngine.Object,
             rankingEngine.Object,
             cutPointEngine.Object,
-            Mock.Of<ISecurityEvidencePathRoutingSyncService>());
+            Mock.Of<ISecurityEvidencePathRoutingSyncService>(), budgetOptions.Object, clock);
     }
 
     private static void SetupSuccessfulEngine(Mock<IPrivilegePathEngine> engine) =>

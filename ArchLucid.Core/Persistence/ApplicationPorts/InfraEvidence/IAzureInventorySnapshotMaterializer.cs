@@ -5,6 +5,9 @@ namespace ArchLucid.Persistence.InfraEvidence;
 
 public sealed class AzureInventorySnapshotMaterializeResult
 {
+    /// <summary>Terminal analysis outcome, distinct from the capture result. Null if capture did not commit.</summary>
+    public string? PostMaterializationAnalysisOutcome { get; init; }
+
     public bool Succeeded
     {
         get;
