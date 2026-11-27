@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 
 using Gen = ArchLucid.Api.Client.Generated;
@@ -61,6 +62,13 @@ public sealed partial class ArchLucidApiClient
         using HttpRequestMessage request = new(HttpMethod.Post, "v1/architecture/request");
         request.Content = new StringContent(json, Encoding.UTF8, "application/json");
         request.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
+
+        if (string.IsNullOrWhiteSpace(body.WorkflowIntent)
+            || string.Equals(body.WorkflowIntent, ArchitectureWorkflowIntent.StartReview, StringComparison.OrdinalIgnoreCase))
+        {
+            // Only the standard run path uses durable keyed replay. Synthesis and unknown intents stay single-send.
+            CliRetryDelegatingHandler.AllowReplayProtectedWrite(request, idempotencyKey);
+        }
 
         using HttpResponseMessage response = await _http.SendAsync(request, ct);
         string text = await response.Content.ReadAsStringAsync(ct);
