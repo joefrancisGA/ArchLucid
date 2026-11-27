@@ -91,6 +91,44 @@ public sealed class ImportRequestFileServiceTests
         result.FailureDetail!.Should().Contain(".toml");
     }
 
+    [Fact]
+    public async Task ImportAsync_rejects_non_utf8_bytes_before_persisting_or_auditing()
+    {
+        Mock<IImportedArchitectureRequestRepository> repo = new();
+        Mock<IAuditService> audit = new();
+        ImportRequestFileService sut = CreateSut(importedRequestRepository: repo.Object, auditService: audit.Object);
+        string text = MinimalValidJson.Replace("123456789012", "Café architecture", StringComparison.Ordinal);
+        byte[] latin1 = System.Text.Encoding.Latin1.GetBytes(text);
+
+        ImportRequestFileResult result = await sut.ImportAsync(CreateFormFile("req.json", latin1), CancellationToken.None);
+
+        result.Succeeded.Should().BeFalse();
+        result.FailureDetail.Should().Be("Could not read uploaded file as UTF-8 text.");
+        repo.Verify(r => r.InsertAsync(It.IsAny<ImportedArchitectureRequestRecord>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ImportAsync_preserves_valid_utf8_description()
+    {
+        const string description = "Café architecture";
+        Mock<IImportedArchitectureRequestRepository> repo = new();
+        ImportedArchitectureRequestRecord? imported = null;
+        repo.Setup(r => r.InsertAsync(It.IsAny<ImportedArchitectureRequestRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<ImportedArchitectureRequestRecord, CancellationToken>((record, _) => imported = record)
+            .Returns(Task.CompletedTask);
+        ImportRequestFileService sut = CreateSut(importedRequestRepository: repo.Object);
+        string text = MinimalValidJson.Replace("123456789012", description, StringComparison.Ordinal);
+
+        ImportRequestFileResult result = await sut.ImportAsync(CreateFormFile("req.json", text), CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        imported.Should().NotBeNull();
+        using System.Text.Json.JsonDocument persisted = System.Text.Json.JsonDocument.Parse(imported!.RequestJson!);
+        persisted.RootElement.GetProperty("description").GetString().Should().Be(description);
+    }
+
     private static ImportRequestFileService CreateSut(
         IImportedArchitectureRequestRepository? importedRequestRepository = null,
         IAuditService? auditService = null,
@@ -121,9 +159,11 @@ public sealed class ImportRequestFileServiceTests
             NullLogger<ImportRequestFileService>.Instance);
     }
 
-    private static IFormFile CreateFormFile(string fileName, string utf8Content)
+    private static IFormFile CreateFormFile(string fileName, string utf8Content) =>
+        CreateFormFile(fileName, System.Text.Encoding.UTF8.GetBytes(utf8Content));
+
+    private static IFormFile CreateFormFile(string fileName, byte[] bytes)
     {
-        byte[] bytes = System.Text.Encoding.UTF8.GetBytes(utf8Content);
         Mock<IFormFile> file = new();
         file.Setup(f => f.FileName).Returns(fileName);
         file.Setup(f => f.Length).Returns(bytes.Length);
