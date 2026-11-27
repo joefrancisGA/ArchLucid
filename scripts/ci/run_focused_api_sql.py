@@ -24,6 +24,7 @@ INVENTORY_STAGES = {
 }
 INVENTORY_HTTP_STATUS_EXPECTED = {"initial-status": "2xx", "control-repeat-status": "2xx", "repeat-status": 409}
 FINAL_OUTCOMES = ("passed", "failed", "skipped", "interrupted")
+FIXTURE_PHASES = ("setup", "cleanup")
 
 
 class Cancellation:
@@ -156,6 +157,18 @@ def checkpoint(path, summary):
             temp_path.unlink(missing_ok=True)
 
 
+def record_fixture_timeout(path, revision, phase):
+    summary = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(summary, dict) or summary.get("commit") != revision or not isinstance(summary.get("cases"), list):
+        raise ValueError("fixture report is not from this revision")
+    phases = summary.setdefault("fixture_timeouts", [])
+    if not isinstance(phases, list) or any(item not in FIXTURE_PHASES for item in phases):
+        raise ValueError("invalid fixture phases")
+    if phase not in phases:
+        phases.append(phase)
+        checkpoint(path, summary)
+
+
 def main(argv=None, cancellation=None):
     cancellation = cancellation if cancellation is not None else Cancellation()
     parser = argparse.ArgumentParser(description=__doc__)
@@ -165,16 +178,24 @@ def main(argv=None, cancellation=None):
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--prepare-only", action="store_true", help="Write the complete selection before fixture setup")
     mode.add_argument("--use-prepared", action="store_true", help="Run the same selection from an untouched prepared summary")
+    mode.add_argument("--record-fixture-timeout", choices=FIXTURE_PHASES, help="Add a fixture timeout without changing test outcomes")
     args = parser.parse_args(argv)
     if args.timeout_seconds < 20:
         parser.error("the case timeout must be at least 20 seconds")
 
-    cases = args.case or (Path(__file__).parent / "focused-api-sql-cases.txt").read_text(encoding="utf-8").splitlines()
-    if not cases or len(set(cases)) != len(cases) or not all(CASE_NAME.fullmatch(case) for case in cases):
-        parser.error("provide unique fully qualified API test names")
     output = args.results_dir.resolve()
     summary_path = output / "summary.json"
     revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+    if args.record_fixture_timeout:
+        try:
+            record_fixture_timeout(summary_path, revision, args.record_fixture_timeout)
+        except (OSError, ValueError):
+            parser.error("cannot annotate the existing focused SQL summary")
+        return cancellation.exit_code or 0
+
+    cases = args.case or (Path(__file__).parent / "focused-api-sql-cases.txt").read_text(encoding="utf-8").splitlines()
+    if not cases or len(set(cases)) != len(cases) or not all(CASE_NAME.fullmatch(case) for case in cases):
+        parser.error("provide unique fully qualified API test names")
     reports = [{"case": name, "outcome": "not-started", "artifact_dir": f"{index:02d}"}
                for index, name in enumerate(cases, 1)]
     initial = summarize(revision, reports)

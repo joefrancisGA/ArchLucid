@@ -31,4 +31,6 @@ For the same smoke run locally, build the API test project in Release first, the
 bash scripts/ci/run_disposable_api_sql_smoke.sh /tmp/archlucid-api-sql-smoke
 ```
 
-For an isolated retry, append `--case` and one exact name from `scripts/ci/focused-api-sql-cases.txt`. The wrapper requires Docker, .NET, and Python 3. It checks SQL readiness and removes its container even when a case fails.
+For an isolated retry, append `--case` and one exact name from `scripts/ci/focused-api-sql-cases.txt`. The wrapper requires Docker, .NET, and Python 3. It checks SQL readiness and attempts container removal even when a case fails.
+
+The wrapper also uses GNU `timeout` (or `gtimeout`). Fixture setup shares a 180-second deadline across the pull, start, readiness, and SQL configuration commands. Container removal has its own 15-second deadline, with up to two extra seconds to force-stop a stuck Docker client. To tune the budgets for a local fixture, set `ARCHLUCID_FOCUSED_SQL_SETUP_SECONDS` and `ARCHLUCID_FOCUSED_SQL_CLEANUP_SECONDS`. A timeout adds the phase to `fixture_timeouts` in the summary without changing test outcomes. A setup timeout leaves the selected cases `not-started`. A cleanup timeout makes an otherwise successful invocation exit 124 and preserves any earlier failure or cancellation status. A cleanup timeout does not confirm the container was removed.

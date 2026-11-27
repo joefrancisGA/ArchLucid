@@ -8,6 +8,16 @@ if [[ ( $# != 1 && $# != 3 ) || -z "${1:-}" || -e "$1" ]]; then
 fi
 
 results_dir=$1
+setup_seconds=${ARCHLUCID_FOCUSED_SQL_SETUP_SECONDS:-180}
+cleanup_seconds=${ARCHLUCID_FOCUSED_SQL_CLEANUP_SECONDS:-15}
+if ! [[ "$setup_seconds" =~ ^[1-9][0-9]{0,3}$ && "$cleanup_seconds" =~ ^[1-9][0-9]{0,3}$ ]]; then
+  echo 'SQL fixture deadlines must be positive whole seconds (up to 9999).' >&2
+  exit 2
+fi
+if ! timeout_command=$(command -v timeout || command -v gtimeout); then
+  echo 'The focused SQL wrapper requires GNU timeout.' >&2
+  exit 2
+fi
 if [[ $# == 3 ]]; then
   if [[ "$2" != --case || -z "$3" ]] || ! grep -Fxq -- "$3" scripts/ci/focused-api-sql-cases.txt; then
     echo 'Provide one exact test from the focused API SQL case list.' >&2
@@ -27,21 +37,51 @@ python3 scripts/ci/run_focused_api_sql.py "${runner_args[@]}" --prepare-only
 
 sql_tag='mcr.microsoft.com/mssql/server:2022-CU22-ubuntu-22.04'
 sql_digest='sha256:db9a8fe3098b7e8bbde41106bdc7caee942e97124e5fdb71b872ca208de3092d'
-# A registry may publish an image config digest rather than a pullable manifest digest.
-docker pull "$sql_tag"
-image_manifest="$(docker image inspect --format '{{.Id}}{{range .RepoDigests}}{{println}}{{.}}{{end}}' "$sql_tag")"
-image_id=${image_manifest%%$'\n'*}
-if [[ ! "$image_id" =~ ^sha256:[[:xdigit:]]{64}$ ]] || ! grep -Eq "(^|@)$sql_digest$" <<< "$image_manifest"; then
-  echo 'Disposable SQL image did not match the published digest.' >&2
-  exit 1
-fi
-export MSSQL_SA_PASSWORD
-MSSQL_SA_PASSWORD="$(python3 -c 'import secrets; print("Aa1!" + secrets.token_hex(20))')"
+setup_deadline=$((SECONDS + setup_seconds))
+container_name=''
 container_id=''
-cleanup() {
-  if [[ -n "$container_id" ]]; then
-    docker rm -f "$container_id" >/dev/null 2>&1 || true
+
+deadline_expired() {
+  # GNU timeout returns 137 instead of 124 when it has to escalate to SIGKILL.
+  [[ "$1" == 124 || "$1" == 137 ]]
+}
+record_deadline() {
+  echo "Disposable SQL fixture $1 timed out." >&2
+  python3 scripts/ci/run_focused_api_sql.py --results-dir "$results_dir" "--record-fixture-timeout=$1" \
+    || echo 'Could not annotate the focused SQL summary.' >&2
+}
+setup_docker() {
+  local remaining=$((setup_deadline - SECONDS))
+  if ((remaining <= 0)); then
+    return 124
   fi
+  "$timeout_command" --kill-after=2s "${remaining}s" docker "$@"
+}
+setup_failed() {
+  local status=$1
+  if deadline_expired "$status"; then
+    record_deadline setup
+    exit 124
+  fi
+  exit "$status"
+}
+cleanup() {
+  local status=$? cleanup_status
+  if [[ -n "$container_name" ]]; then
+    # Keep a target even if the daemon started the container but the client timed out before returning its ID.
+    if "$timeout_command" --kill-after=2s "${cleanup_seconds}s" docker rm -f "${container_id:-$container_name}" >/dev/null 2>&1; then
+      :
+    else
+      cleanup_status=$?
+      if deadline_expired "$cleanup_status"; then
+        record_deadline cleanup
+        if ((status == 0)); then
+          status=124
+        fi
+      fi
+    fi
+  fi
+  exit "$status"
 }
 cancel() {
   trap '' INT TERM
@@ -57,13 +97,25 @@ trap cleanup EXIT
 trap 'cancel INT 130' INT
 trap 'cancel TERM 143' TERM
 
-container_id="$(docker run --detach --rm --publish 127.0.0.1::1433 \
+# A registry may publish an image config digest rather than a pullable manifest digest.
+setup_docker pull "$sql_tag" || setup_failed "$?"
+image_manifest="$(setup_docker image inspect --format '{{.Id}}{{range .RepoDigests}}{{println}}{{.}}{{end}}' "$sql_tag")" \
+  || setup_failed "$?"
+image_id=${image_manifest%%$'\n'*}
+if [[ ! "$image_id" =~ ^sha256:[[:xdigit:]]{64}$ ]] || ! grep -Eq "(^|@)$sql_digest$" <<< "$image_manifest"; then
+  echo 'Disposable SQL image did not match the published digest.' >&2
+  exit 1
+fi
+export MSSQL_SA_PASSWORD
+MSSQL_SA_PASSWORD="$(python3 -c 'import secrets; print("Aa1!" + secrets.token_hex(20))')"
+container_name="archlucid-focused-sql-${BASHPID:-$$}-${RANDOM}-${RANDOM}-${RANDOM}"
+container_id="$(setup_docker run --detach --rm --name "$container_name" --publish 127.0.0.1::1433 \
   --env ACCEPT_EULA=Y --env MSSQL_PID=Developer --env MSSQL_SA_PASSWORD \
-  --env MSSQL_MEMORY_LIMIT_MB=2048 "$image_id")"
+  --env MSSQL_MEMORY_LIMIT_MB=2048 "$image_id")" || setup_failed "$?"
 export SQLCMDPASSWORD="$MSSQL_SA_PASSWORD"
 
 sqlcmd() {
-  docker exec --env SQLCMDPASSWORD "$container_id" /opt/mssql-tools18/bin/sqlcmd \
+  setup_docker exec --env SQLCMDPASSWORD "$container_id" /opt/mssql-tools18/bin/sqlcmd \
     -S localhost -U sa -C -b -l 3 -t 15 "$@"
 }
 
@@ -72,20 +124,30 @@ for attempt in {1..30}; do
   if sqlcmd -Q 'SET NOCOUNT ON; SELECT 1;' >/dev/null 2>&1; then
     ready=true
     break
+  else
+    probe_status=$?
+    if deadline_expired "$probe_status"; then
+      setup_failed "$probe_status"
+    fi
   fi
-  if [[ "$(docker inspect --format '{{.State.Running}}' "$container_id" 2>/dev/null)" != 'true' ]]; then
+  running="$(setup_docker inspect --format '{{.State.Running}}' "$container_id" 2>/dev/null)" || setup_failed "$?"
+  if [[ "$running" != 'true' ]]; then
     echo 'Disposable SQL Server exited before accepting connections.' >&2
     exit 1
   fi
-  sleep 2
+  remaining=$((setup_deadline - SECONDS))
+  if ((remaining <= 0)); then
+    setup_failed 124
+  fi
+  sleep "$((remaining < 2 ? remaining : 2))"
 done
 if [[ "$ready" != true ]]; then
   echo 'Disposable SQL Server did not become ready.' >&2
   exit 1
 fi
 
-sqlcmd -Q "ALTER DATABASE model SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE;"
-port_binding="$(docker port "$container_id" 1433/tcp)"
+sqlcmd -Q "ALTER DATABASE model SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE;" || setup_failed "$?"
+port_binding="$(setup_docker port "$container_id" 1433/tcp)" || setup_failed "$?"
 if [[ ! "$port_binding" =~ ^127\.0\.0\.1:([0-9]+)$ ]]; then
   echo 'Disposable SQL Server did not publish a loopback port.' >&2
   exit 1
