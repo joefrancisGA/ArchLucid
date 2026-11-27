@@ -311,7 +311,10 @@ def main(argv=None, cancellation=None):
         row["outcome"] = "running"
         checkpoint(summary_path, summarize(revision, reports))
         print(f"[{index}/{len(cases)}] {name}", flush=True)
+        started_ns = time.monotonic_ns()
         result = run_case(name, output / row["artifact_dir"], args.timeout_seconds, cancellation)
+        result = dict(result, elapsed_ms=(time.monotonic_ns() - started_ns) // 1_000_000,
+                      watchdog_budget_ms=args.timeout_seconds * 1_000)
         reports[index - 1] = result
         checkpoint(summary_path, summarize(revision, reports))
         reason = f" ({result['interruption']})" if "interruption" in result else ""

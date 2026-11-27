@@ -3,6 +3,7 @@
 from contextlib import redirect_stderr, redirect_stdout
 from importlib.util import module_from_spec, spec_from_file_location
 from io import StringIO
+from itertools import count
 import json
 import os
 from pathlib import Path
@@ -51,9 +52,13 @@ class FocusedApiSqlLaunchTests(TestCase):
                 report = json.loads((output / "summary.json").read_text(encoding="utf-8"))
                 self.assertEqual(report["counts"], {"passed": 0, "failed": 0, "skipped": 0, "interrupted": 1})
                 self.assertEqual(report["unreported"], 1)
+                elapsed = report["cases"][0]["elapsed_ms"]
+                self.assertIs(type(elapsed), int)
+                self.assertGreaterEqual(elapsed, 0)
                 self.assertEqual(report["cases"], [
                     {"case": names[0], "outcome": "interrupted", "artifact_dir": "01",
-                     "exit_code": None, "interruption": "launch-failed"},
+                     "exit_code": None, "interruption": "launch-failed",
+                     "elapsed_ms": elapsed, "watchdog_budget_ms": 150_000},
                     {"case": names[1], "outcome": "not-started", "artifact_dir": "02"},
                 ])
                 self.assertFalse((output / "02").exists())
@@ -239,6 +244,7 @@ class FocusedApiSqlCheckpointTests(TestCase):
             self.args.extend(("--case", name))
         self.revision = self.enterContext(patch.object(RUNNER.subprocess, "check_output", return_value=REVISION + "\n"))
         self.run_case = self.enterContext(patch.object(RUNNER, "run_case"))
+        self.clock = self.enterContext(patch.object(RUNNER.time, "monotonic_ns", side_effect=count(0, 2_000_000)))
         self.enterContext(patch.dict(os.environ, {}, clear=True))
         self.enterContext(redirect_stdout(StringIO()))
         self.enterContext(redirect_stderr(StringIO()))
@@ -255,7 +261,10 @@ class FocusedApiSqlCheckpointTests(TestCase):
         result = self.read_summary()
         self.assertEqual(result["commit"], REVISION)
         self.assertEqual(result["unreported"], 3)
-        self.assertEqual([row["outcome"] for row in result["cases"]], ["not-started"] * 3)
+        self.assertEqual(result["cases"], [
+            {"case": name, "outcome": "not-started", "artifact_dir": f"{index:02d}"}
+            for index, name in enumerate(self.names, 1)
+        ])
 
     def test_records_only_known_fixture_phases_without_rewriting_case_results(self):
         self.assertEqual(RUNNER.main(self.args + ["--prepare-only"]), 0)
@@ -305,7 +314,7 @@ class FocusedApiSqlCheckpointTests(TestCase):
         result = self.read_summary()
         self.assertEqual(result["counts"], {"passed": 1, "failed": 0, "skipped": 0, "interrupted": 0})
         self.assertEqual(result["unreported"], 2)
-        self.assertEqual(result["cases"], [completed,
+        self.assertEqual(result["cases"], [dict(completed, elapsed_ms=2, watchdog_budget_ms=150_000),
                          {"case": self.names[1], "outcome": "running", "artifact_dir": "02"},
                          {"case": self.names[2], "outcome": "not-started", "artifact_dir": "03"}])
         self.assertEqual(self.run_case.call_count, 2)
@@ -334,6 +343,24 @@ class FocusedApiSqlCheckpointTests(TestCase):
         self.assertEqual([row["outcome"] for row in result["cases"]], outcomes)
         self.assertEqual(result["counts"]["interrupted"], 1)
 
+    def test_records_each_case_elapsed_time_and_the_configured_watchdog_budget(self):
+        os.environ["ARCHLUCID_SQL_TEST"] = "synthetic-fixture"
+        self.clock.side_effect = [
+            100_000_000, 160_999_999, 200_000_000, 37_210_000_000, 38_000_000_000, 38_750_000_000,
+        ]
+        self.run_case.side_effect = [
+            {"case": self.names[0], "outcome": "passed", "exit_code": 0, "artifact_dir": "01"},
+            {"case": self.names[1], "outcome": "interrupted", "exit_code": -9, "artifact_dir": "02",
+             "interruption": "watchdog-timeout"},
+            {"case": self.names[2], "outcome": "passed", "exit_code": 0, "artifact_dir": "03"},
+        ]
+        self.assertEqual(RUNNER.main(self.args + ["--timeout-seconds", "37"]), 1)
+        rows = self.read_summary()["cases"]
+        self.assertEqual([row["elapsed_ms"] for row in rows], [60, 37_010, 750])
+        self.assertEqual([row["watchdog_budget_ms"] for row in rows], [37_000] * 3)
+        self.assertEqual(rows[1]["interruption"], "watchdog-timeout")
+        self.assertEqual([call.args[2] for call in self.run_case.call_args_list], [37] * 3)
+
     def test_stops_the_batch_if_process_cleanup_cannot_be_verified(self):
         os.environ["ARCHLUCID_SQL_TEST"] = "private-fixture-sentinel"
         failure = {"case": self.names[0], "outcome": "interrupted", "exit_code": 42, "artifact_dir": "01",
@@ -342,7 +369,7 @@ class FocusedApiSqlCheckpointTests(TestCase):
         self.assertEqual(RUNNER.main(self.args), 1)
         result = self.read_summary()
         self.run_case.assert_called_once()
-        self.assertEqual(result["cases"][0], failure)
+        self.assertEqual(result["cases"][0], dict(failure, elapsed_ms=2, watchdog_budget_ms=150_000))
         self.assertEqual([row["outcome"] for row in result["cases"]], ["interrupted", "not-started", "not-started"])
 
     def test_unverified_cleanup_on_the_last_passed_case_still_fails_the_batch(self):
@@ -355,7 +382,7 @@ class FocusedApiSqlCheckpointTests(TestCase):
         self.run_case.side_effect = passed
         self.assertEqual(RUNNER.main(self.args), 1)
         result = self.read_summary()
-        self.assertEqual(result["cases"], passed)
+        self.assertEqual(result["cases"], [dict(row, elapsed_ms=2, watchdog_budget_ms=150_000) for row in passed])
         self.assertEqual(result["counts"]["passed"], len(self.names))
         self.assertEqual(result["unreported"], 0)
 
