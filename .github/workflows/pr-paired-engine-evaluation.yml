@@ -1,0 +1,30 @@
+name: Paired engine evaluation contract
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - '.github/workflows/pr-paired-engine-evaluation.yml'
+      - 'scripts/assurance/paired_engine_evaluation.py'
+      - 'scripts/ci/tests/test_paired_engine_evaluation.py'
+      - 'tests/golden-corpus/agent-output-reference-cases.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: paired-engine-evaluation-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic-pairs:
+    name: Run offline paired evaluation cases
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Run acceptance tests
+        run: python3 -m unittest discover -s scripts/ci/tests -p 'test_paired_engine_evaluation.py' -v
