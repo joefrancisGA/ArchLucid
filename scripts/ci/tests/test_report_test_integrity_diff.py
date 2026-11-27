@@ -32,7 +32,7 @@ class PatternControls(TestCase):
         new = "class TestContract:\n    def test_invalid(self):\n        convert(1)\n"
         signals = guard.scan_python(old, new, PY_PATH, PY_PATH)
         self.assertEqual([(s["signal"], s["base_line"]) for s in signals],
-                         [("python-assertion-removed", 4), ("python-assertion-removed", 5)])
+                         [("python-assertion-removed", 4), ("python-assertion-removed", 5), ("negative-control-removed", 5)])
 
     def test_new_and_changed_skip_are_real_ast_signals(self):
         for marker in ("skip", "skipif(False)", 'xfail(reason="fixture")'):
@@ -120,7 +120,7 @@ class GitControls(TestCase):
         self.write(PY_PATH, "def test_contract():\n    assert ok()\n")
         base = self.commit()
         self.write(PY_PATH, "def test_contract(:\n")
-        self.write("Example.Tests/FooTests.cs", "unparsed fixture source\n")
+        self.write("Example.Tests/FooTests.go", "unparsed fixture source\n")
         head = self.commit()
         result = guard.report(self.repo, base, head)
         self.assertEqual(result["status"], "partial")
@@ -129,6 +129,35 @@ class GitControls(TestCase):
         self.assertEqual(guard.report(self.repo, "a" * 40, head)["status"], "incomplete")
         with patch.object(guard, "LIMIT_FILES", 0):
             self.assertEqual(guard.report(self.repo, base, head)["reason"], "scan budget exhausted")
+
+    def test_snapshot_findings_use_the_file_without_fabricating_line_spans(self):
+        self.write("README.md", "fixture")
+        base = self.commit()
+        snapshot = "ui/__snapshots__/golden[fixture].snap"
+        self.write(snapshot, "new accepted output")
+        report = guard.report(self.repo, base, self.commit())
+        row, = report["findings"]
+        self.assertEqual((row["signal"], row["head_path"], row["head_line"]),
+                         ("snapshot-or-golden-changed", snapshot, None))
+
+    def test_historical_debt_change_stays_visible_and_truncation_is_partial(self):
+        self.write(PY_PATH, "def test_contract():\n    assert value() == 3\n")
+        debt = {"finding_id": "a" * 64, "path": PY_PATH, "decision": "historical-debt",
+                "owner": "Maintainer", "evidence": "https://example.invalid/pr/1",
+                "revisit": "next audit", "reason": "existing debt"}
+        self.write(guard.REVIEW_PATH, json.dumps({"schema_version": 1, "records": [debt]}))
+        base = self.commit()
+        self.write(PY_PATH, "def test_contract():\n    assert value()\n")
+        self.write(guard.REVIEW_PATH, json.dumps({"schema_version": 1, "records": []}))
+        head = self.commit()
+        full = guard.report(self.repo, base, head)
+        self.assertEqual(full["finding_count"], 1)
+        self.assertTrue(full["review_errors"][0].startswith("historical debt record changed or removed"))
+        with patch.object(guard, "LIMIT_FINDINGS", 0):
+            bounded = guard.report(self.repo, base, head)
+            self.assertTrue(bounded["findings_truncated"])
+            self.assertEqual(bounded["status"], "partial")
+            self.assertEqual(bounded["finding_count"], 1)
 
     def test_report_only_returns_zero_with_a_finding(self):
         self.write(PY_PATH, "def test_contract():\n    assert value() == 3\n")

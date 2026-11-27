@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "tests": [
+    {
+      "product": "ArchLucid",
+      "path": "ArchLucid.AgentRuntime.Tests/Evaluation/EmbeddingFaithfulnessIndependentOracleTests.cs",
+      "test": "Cosine_matches_worked_three_four_five_triangle_and_preserves_sign",
+      "classification": "independent",
+      "contract": "embedding-vector-cosine",
+      "intent": "Require normalization and preserve sign.",
+      "derivation": "Dot product \u00b13 divided by norm product 5. Orthogonal vectors have a zero dot product.",
+      "cases": [
+        "positive",
+        "negative",
+        "boundary"
+      ],
+      "limitations": [
+        "Finite two-dimensional vectors only."
+      ],
+      "source": {
+        "kind": "worked-example",
+        "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
+        "sha256": "9eee59b89d916e203d83ac1dc6bd8cffefad4fa09a5d86af933d5a93383278ae",
+        "locator": "Cosine triangle and orthogonality"
+      }
+    },
+    {
+      "product": "ArchLucid",
+      "path": "ArchLucid.AgentRuntime.Tests/Evaluation/EmbeddingFaithfulnessIndependentOracleTests.cs",
+      "test": "Undefined_vector_pairs_use_zero_fallback",
+      "classification": "independent",
+      "contract": "embedding-vector-cosine",
+      "intent": "Handle undefined input pairs with the existing neutral fallback.",
+      "derivation": "Use zero for empty, dimension mismatch or zero-norm pairs.",
+      "cases": [
+        "negative",
+        "boundary"
+      ],
+      "limitations": [
+        "Compatibility behavior, not a near-zero tolerance specification."
+      ],
+      "source": {
+        "kind": "requirement",
+        "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
+        "sha256": "9eee59b89d916e203d83ac1dc6bd8cffefad4fa09a5d86af933d5a93383278ae",
+        "locator": "Cosine undefined-input fallback"
+      }
+    },
+    {
+      "product": "ArchLucid",
+      "path": "ArchLucid.AgentRuntime.Tests/Evaluation/EmbeddingFaithfulnessIndependentOracleTests.cs",
+      "test": "Telemetry_affine_mapping_matches_endpoints_midpoint_and_saturation",
+      "classification": "independent",
+      "contract": "embedding-telemetry-normalization",
+      "intent": "Protect the [0,1] telemetry boundary.",
+      "derivation": "An increasing affine map through (-1,0) and (1,1) fixes the slope and intercept. Clamp beyond the endpoints.",
+      "cases": [
+        "positive",
+        "negative",
+        "boundary"
+      ],
+      "limitations": [
+        "Finite inputs only."
+      ],
+      "source": {
+        "kind": "worked-example",
+        "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
+        "sha256": "9eee59b89d916e203d83ac1dc6bd8cffefad4fa09a5d86af933d5a93383278ae",
+        "locator": "Telemetry affine endpoints"
+      }
+    },
+    {
+      "product": "SecureNow",
+      "path": "ArchLucid.Application.Tests/InfraEvidence/ReferenceAssurance/ReferenceCutPointWorkedOracleTests.cs",
+      "test": "Counts_distinct_path_ids_not_number_of_hop_occurrences",
+      "classification": "independent",
+      "contract": "distinct-cut-point-paths",
+      "intent": "Check reference-evaluator correctness on a small neutral graph.",
+      "derivation": "Enumerate A and B by hand and count each node/edge at most once per path.",
+      "cases": [
+        "positive",
+        "negative",
+        "boundary"
+      ],
+      "limitations": [
+        "Checks the reference oracle, not which input paths production validators accept."
+      ],
+      "source": {
+        "kind": "worked-example",
+        "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
+        "sha256": "9eee59b89d916e203d83ac1dc6bd8cffefad4fa09a5d86af933d5a93383278ae",
+        "locator": "Distinct paths example"
+      }
+    },
+    {
+      "product": "SecureNow",
+      "path": "ArchLucid.Application.Tests/InfraEvidence/ReferenceAssurance/ReferenceCutPointWorkedOracleTests.cs",
+      "test": "Empty_path_set_has_no_candidates",
+      "classification": "independent",
+      "contract": "distinct-cut-point-paths",
+      "intent": "A zero-path input has no candidate keys.",
+      "derivation": "The union of zero sets is empty.",
+      "cases": [
+        "boundary"
+      ],
+      "limitations": [
+        "Reference oracle only."
+      ],
+      "source": {
+        "kind": "property",
+        "path": "docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md",
+        "sha256": "9eee59b89d916e203d83ac1dc6bd8cffefad4fa09a5d86af933d5a93383278ae",
+        "locator": "C contributes no candidates"
+      }
+    },
+    {
+      "product": "SecureNow",
+      "path": "ArchLucid.Application.Tests/InfraEvidence/SecureNowReferenceCutPointOracleTests.cs",
+      "test": "Production_cut_point_path_collapse_counts_match_brute_force_oracle",
+      "classification": "independent",
+      "contract": "distinct-cut-point-paths",
+      "intent": "Require matching keys and counts in both directions.",
+      "derivation": "Enumerate membership over neutral tuples and compare the entire resulting map, not only returned keys.",
+      "cases": [
+        "positive",
+        "negative"
+      ],
+      "limitations": [
+        "Small synthetic fixture, no data store or live graph verification."
+      ],
+      "source": {
+        "kind": "reference-evaluator",
+        "path": "ArchLucid.Application.Tests/InfraEvidence/ReferenceAssurance/ReferenceCutPointOracle.cs",
+        "sha256": "02049932e887a17e82c3ad4cb7735c885e86706263c7edc7c4bff2e2bc94530c",
+        "locator": "CountCollapsedPaths"
+      }
+    },
+    {
+      "product": "ArchLucid",
+      "path": "ArchLucid.Decisioning.Tests/GoldenCorpus/GoldenCorpusRegressionTests.cs",
+      "test": "All_cases_match_expected_outputs",
+      "classification": "characterization",
+      "contract": "golden-corpus-compatibility",
+      "intent": "Preserve committed golden output across changes.",
+      "derivation": "Compare artifact output to the checked-in corpus.",
+      "cases": [
+        "positive"
+      ],
+      "limitations": [
+        "Golden agreement alone is not proof of requirement correctness."
+      ]
+    },
+    {
+      "product": "ArchLucid",
+      "path": "ArchLucid.Decisioning.Tests/GoldenCorpus/ArchLucidMetamorphicAssuranceTests.cs",
+      "test": "Representative_cases_are_invariant_to_graph_collection_order",
+      "classification": "independent",
+      "contract": "graph-permutation-invariance",
+      "intent": "Protect invariance to input ordering.",
+      "derivation": "Compare original and reordered outputs for the same corpus case.",
+      "cases": [
+        "positive",
+        "boundary"
+      ],
+      "limitations": [
+        "Independent property, but can miss incorrect results common to both executions."
+      ],
+      "source": {
+        "kind": "property",
+        "path": "docs/assurance/SUPERHUMAN_ASSURANCE_WAVE_A.md",
+        "sha256": "c80c6dd02f22024224944b32241fd7bfce8371fa0ed5554226eda022e4bed256",
+        "locator": "ArchLucid Metamorphic Test Suite"
+      }
+    },
+    {
+      "product": "SecureNow",
+      "path": "ArchLucid.Application.Tests/InfraEvidence/SecureNowReferenceReachabilityOracleTests.cs",
+      "test": "Production_reachability_matches_independent_brute_force_oracle_on_small_graph",
+      "classification": "uncertain",
+      "contract": "materialized-graph-reachability",
+      "intent": "Track a second priority family for contract review.",
+      "derivation": "The existing reference uses a small input graph.",
+      "cases": [
+        "positive"
+      ],
+      "limitations": [
+        "This delivery did not establish coverage for the full graph contract."
+      ],
+      "revisit": "Review the expected graph boundary behavior and exercise dedicated negative and boundary fixtures."
+    }
+  ]
+}

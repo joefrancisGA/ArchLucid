@@ -1,10 +1,34 @@
-name: Test integrity pilot report
+name: Test integrity and oracle provenance report
 
 on:
   pull_request:
     branches: [main, master]
     paths:
       - '**/test_*.py'
+      - '**/conftest.py'
+      - '**/tests/**'
+      - '**/__tests__/**'
+      - '**/*.Tests/**'
+      - '**/*.test.*'
+      - '**/*.spec.*'
+      - '**/*.snap'
+      - '**/*.verified.*'
+      - '**/__snapshots__/**'
+      - '**/snapshots/**'
+      - '**/golden/**'
+      - '**/goldens/**'
+      - '**/golden-corpus/**'
+      - '**/*.runsettings'
+      - '**/*.csproj'
+      - '**/Directory.Build.props'
+      - '**/Directory.Build.targets'
+      - '**/.editorconfig'
+      - '**/.coveragerc'
+      - '**/GlobalSuppressions.cs'
+      - '**/vitest.config.*'
+      - '**/playwright.config.*'
+      - '**/jest.config.*'
+      - '**/package.json'
       - '**/*_test.py'
       - '**/pytest.ini'
       - '**/pyproject.toml'
@@ -13,7 +37,14 @@ on:
       - '.github/workflows/**'
       - 'scripts/ci/report_test_integrity_diff.py'
       - 'scripts/ci/git_diff_paths.py'
+      - 'scripts/ci/test_integrity_*.py'
+      - 'scripts/ci/test-integrity-review.json'
+      - 'scripts/ci/tests/test_test_integrity_review.py'
       - 'scripts/ci/tests/test_report_test_integrity_diff.py'
+      - 'scripts/assurance/check_independent_oracles.py'
+      - 'scripts/assurance/regression-evidence/independent-oracles.json'
+      - 'docs/assurance/INDEPENDENT_ORACLE_WORKED_CASES.md'
+      - 'docs/assurance/SUPERHUMAN_ASSURANCE_WAVE_A.md'
 
 permissions:
   contents: read
@@ -32,10 +63,14 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
-          sparse-checkout: scripts/ci
+          sparse-checkout: |
+            scripts/ci
+            scripts/assurance
 
-      - name: Validate the pilot's positive and negative controls
-        run: python3 -m unittest discover -s scripts/ci/tests -p 'test_report_test_integrity_diff.py' -v
+      - name: Validate positive and negative controls
+        run: |
+          python3 -m unittest discover -s scripts/ci/tests -p 'test_report_test_integrity_diff.py' -v
+          python3 -m unittest discover -s scripts/ci/tests -p 'test_test_integrity_review.py' -v
 
       - name: Fetch bounded comparison history
         continue-on-error: true
@@ -52,10 +87,20 @@ jobs:
           python3 scripts/ci/report_test_integrity_diff.py --base "$BASE_SHA" --head "$HEAD_SHA" \
             --output "$RUNNER_TEMP/test-integrity-report.json" | tee -a "$GITHUB_STEP_SUMMARY"
 
+      - name: Report registered oracle provenance
+        continue-on-error: true
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python3 scripts/assurance/check_independent_oracles.py --head "$HEAD_SHA" \
+            --output "$RUNNER_TEMP/independent-oracles.json"
+
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: test-integrity-report
-          path: ${{ runner.temp }}/test-integrity-report.json
+          path: |
+            ${{ runner.temp }}/test-integrity-report.json
+            ${{ runner.temp }}/independent-oracles.json
           if-no-files-found: warn
           retention-days: 7
