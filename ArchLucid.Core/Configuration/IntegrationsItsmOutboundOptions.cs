@@ -27,7 +27,7 @@ public sealed class IntegrationsItsmOutboundOptions
         set;
     } = true;
 
-    /// <summary>Worker-level retries after outbound HTTP attempts are exhausted (0–10). Jira and ServiceNow creates are not retried.</summary>
+    /// <summary>Legacy setting retained for configuration compatibility. Outbound ticket create jobs do not retry.</summary>
     public int AsyncCreateMaxRetries
     {
         get;

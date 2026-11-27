@@ -105,12 +105,8 @@ public sealed class BackgroundJobWorkUnitExecutor(
         foreach (AuditEvent auditEvent in result.AuditEvents)
             await _auditService.LogAsync(auditEvent, cancellationToken).ConfigureAwait(false);
 
-        ItsmOutboundCreateJobResult jobResult = ItsmOutboundCreateJobProcessor.ToJobResult(result, payload.Provider);
-
-        if (ItsmOutboundCreateJobProcessor.ShouldRetryWorker(payload.Provider, result))
-            throw ItsmOutboundCreateJobProcessor.BuildRetryException(jobResult);
-
-        return ItsmOutboundCreateJobProcessor.ToResultFile(jobResult);
+        // Keep the terminal outcome and any known external key without asking the queue to replay the write.
+        return ItsmOutboundCreateJobProcessor.ToResultFile(ItsmOutboundCreateJobProcessor.ToJobResult(result, payload.Provider));
     }
 
     private async Task<BackgroundJobFile> ExecuteFindingVerificationAsync(

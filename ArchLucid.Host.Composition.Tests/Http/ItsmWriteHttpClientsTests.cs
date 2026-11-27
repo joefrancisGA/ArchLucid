@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
+using ArchLucid.Application.Integrations.AzureBoards.Outbound;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Core.Http;
 using ArchLucid.Host.Composition.Startup;
@@ -20,6 +21,8 @@ public sealed class ItsmWriteHttpClientsTests
     private static readonly Uri JiraIssueUri = new("https://jira.example/rest/api/3/issue");
     private static readonly Uri ServiceNowRoot = new("https://snow.example");
     private static readonly Uri ServiceNowIncidentUri = new(ServiceNowRoot, "/api/now/table/incident");
+    private static readonly Uri AzureBoardsCreateUri = new("https://boards.example/org/project/_apis/wit/workitems/$Task");
+    private static readonly Uri AzureBoardsProjectsUri = new("https://boards.example/org/_apis/projects");
 
     [Theory]
     [InlineData(true)]
@@ -60,6 +63,41 @@ public sealed class ItsmWriteHttpClientsTests
         {
             Assert.Contains("Check for an existing ServiceNow incident", result.ErrorDetail);
         }
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Azure_Boards_create_is_not_replayed_on_lost_response_or_503(bool dropResponse)
+    {
+        AcceptingVendorHandler handler = new(dropResponse, """{"id":42}""");
+        await using ServiceProvider services = CreateServices<AzureBoardsOutboundIssueClient>(handler);
+
+        AzureBoardsOutboundIssueHttpResult result = await services.GetRequiredService<AzureBoardsOutboundIssueClient>().CreateWorkItemAsync(
+            AzureBoardsCreateUri, TestAuthorization, "title", "description", 2, null, null, null, CancellationToken.None);
+
+        Assert.Equal(1, handler.AcceptedWrites);
+        Assert.False(result.Ok);
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, result.StatusCode);
+        if (dropResponse)
+        {
+            Assert.Contains("Check for an existing Azure Boards work item", result.ErrorDetail);
+        }
+    }
+
+    [Fact]
+    public async Task Azure_Boards_project_lookup_still_retries()
+    {
+        AcceptingVendorHandler handler = new(dropResponse: true, """{"id":42}""", """{"value":[{"name":"Demo"}]}""");
+        await using ServiceProvider services = CreateServices<AzureBoardsOutboundIssueClient>(handler);
+
+        AzureBoardsProjectsHttpResult result = await services.GetRequiredService<AzureBoardsOutboundIssueClient>().ListProjectsAsync(
+            AzureBoardsProjectsUri, TestAuthorization, CancellationToken.None);
+
+        Assert.True(result.Ok);
+        Assert.Equal("Demo", Assert.Single(result.ProjectNames));
+        Assert.Equal(2, handler.Reads);
+        Assert.Equal(0, handler.AcceptedWrites);
     }
 
     [Fact]
@@ -105,13 +143,16 @@ public sealed class ItsmWriteHttpClientsTests
             options.MinimumThroughput = 2;
             options.FailureRatio = 1;
         });
-        ServiceCollectionExtensions.RegisterJiraAndServiceNowOutboundHttpClients(services);
+        ServiceCollectionExtensions.RegisterItsmWriteHttpClients(services);
         services.AddHttpClient<TClient>().ConfigurePrimaryHttpMessageHandler(() => handler);
         return services.BuildServiceProvider();
     }
 
     // Count the upstream side effect before either dropping the reply or returning a gateway-style failure.
-    private sealed class AcceptingVendorHandler(bool dropResponse, string createdPayload) : HttpMessageHandler
+    private sealed class AcceptingVendorHandler(
+        bool dropResponse,
+        string createdPayload,
+        string readPayload = """{"result":[]}""") : HttpMessageHandler
     {
         public int AcceptedWrites { get; private set; }
 
@@ -123,7 +164,7 @@ public sealed class ItsmWriteHttpClientsTests
             {
                 return Task.FromResult(++Reads == 1
                     ? new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
-                    : new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("""{"result":[]}""") });
+                    : new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(readPayload) });
             }
 
             Assert.Equal(HttpMethod.Post, request.Method);

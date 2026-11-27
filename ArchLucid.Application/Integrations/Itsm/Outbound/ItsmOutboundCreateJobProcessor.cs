@@ -7,7 +7,7 @@ using ArchLucid.Persistence.Serialization;
 
 namespace ArchLucid.Application.Integrations.Itsm.Outbound;
 
-/// <summary>Maps outbound create outcomes to background job files and worker retry policy (TB-394).</summary>
+/// <summary>Maps outbound create outcomes to background job result files (TB-394).</summary>
 public static class ItsmOutboundCreateJobProcessor
 {
     private static readonly JsonSerializerOptions JobResultJsonOptions = new(AuditJsonSerializationOptions.Instance)
@@ -30,7 +30,13 @@ public static class ItsmOutboundCreateJobProcessor
     {
         ArgumentNullException.ThrowIfNull(result);
 
-        string providerLabel = provider is ItsmOutboundIssueProvider.Jira ? "Jira" : "ServiceNow";
+        string providerLabel = provider switch
+        {
+            ItsmOutboundIssueProvider.Jira => "Jira",
+            ItsmOutboundIssueProvider.ServiceNow => "ServiceNow",
+            ItsmOutboundIssueProvider.AzureBoards => "Azure Boards",
+            _ => throw new ArgumentOutOfRangeException(nameof(provider), provider, null),
+        };
 
         return new ItsmOutboundCreateJobResult(
             result.Kind,
@@ -48,41 +54,4 @@ public static class ItsmOutboundCreateJobProcessor
 
         return new BackgroundJobFile("itsm-outbound-create-result.json", "application/json", bytes);
     }
-
-    /// <summary>Limits queue re-execution to providers still using the existing job retry policy.</summary>
-    public static int GetMaxRetries(ItsmOutboundIssueProvider provider, int configuredMaxRetries) =>
-        UsesJobRetryPolicy(provider) ? Math.Clamp(configuredMaxRetries, 0, 10) : 0;
-
-    /// <summary>When <see langword="true" />, the worker throws so the queue can retry or dead-letter the job.</summary>
-    public static bool ShouldRetryWorker(ItsmOutboundIssueProvider provider, ItsmOutboundIssueCreationResult result)
-    {
-        ArgumentNullException.ThrowIfNull(result);
-
-        // The provider can commit the create before a network error or local correlation save failure.
-        // Carry the result (and any known external key) to the operator without resubmitting the write.
-        if (!UsesJobRetryPolicy(provider))
-            return false;
-
-        if (result.Kind is ItsmOutboundCreateTerminalKind.CorrelationPersistenceFailed)
-            return true;
-
-        if (result.Kind is not ItsmOutboundCreateTerminalKind.VendorError)
-            return false;
-
-        int? code = result.VendorStatusCode;
-
-        if (code is 429)
-            return true;
-
-        if (code is >= 500 and <= 599)
-            return true;
-
-        return false;
-    }
-
-    public static InvalidOperationException BuildRetryException(ItsmOutboundCreateJobResult result) =>
-        new(result.UserMessage ?? "ITSM outbound create failed; retry scheduled.");
-
-    private static bool UsesJobRetryPolicy(ItsmOutboundIssueProvider provider) =>
-        provider is ItsmOutboundIssueProvider.AzureBoards;
 }

@@ -67,8 +67,8 @@ public sealed class AzureBoardsOutboundIssueClient(HttpClient http, ILogger<Azur
                 _logger.LogWarning(ex, "Azure Boards outbound create failed: transport error.");
 
             string detail = ex is OperationCanceledException
-                ? "Azure Boards request timed out."
-                : "Azure Boards request could not be completed (network error).";
+                ? "Azure Boards request timed out. Check for an existing Azure Boards work item before retrying."
+                : "Azure Boards request could not be completed (network error). Check for an existing Azure Boards work item before retrying.";
 
             return new AzureBoardsOutboundIssueHttpResult(false, null, null, HttpStatusCode.ServiceUnavailable, detail);
         }
