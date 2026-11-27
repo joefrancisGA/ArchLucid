@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.Text.Json;
 
+using ArchLucid.Application.Analysis;
+
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Core.Audit;
@@ -33,6 +35,8 @@ public sealed partial class AuthorityRunOrchestrator
 
         Guid? pipelineRunIdForDiagnostics = request.RunId;
 
+        AuthorityPipelineContext? executedContext = null;
+
         try
         {
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
@@ -54,15 +58,21 @@ public sealed partial class AuthorityRunOrchestrator
             }
 
             TimeSpan pipelineTimeout = authorityPipelineOptions.CurrentValue.PipelineTimeout;
-            using CancellationTokenSource
-                linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            // Redelivery uses the existing run admission stamp, never a fresh full budget.
 
-            if (pipelineTimeout > TimeSpan.Zero)
+            if (pipelineTimeout > TimeSpan.Zero && existing.CreatedUtc != default)
+            {
+                TimeSpan queueAge = _analysisClock.UtcNowDateTime() - existing.CreatedUtc;
 
-                linkedCts.CancelAfter(pipelineTimeout);
+                if (queueAge >= pipelineTimeout)
+                    throw new AnalysisStageExecutionException("authority.queue", AnalysisStageOutcome.NotStarted);
 
+                if (queueAge > TimeSpan.Zero)
+                    pipelineTimeout -= queueAge;
+            }
 
-            CancellationToken pipelineCt = linkedCts.Token;
+            using AnalysisExecutionBudget budget = BeginAnalysisBudget(pipelineTimeout, cancellationToken);
+            CancellationToken pipelineCt = budget.Token;
 
             RunRecord run = existing;
 
@@ -98,7 +108,8 @@ public sealed partial class AuthorityRunOrchestrator
                 Request = request,
                 UnitOfWork = uow,
                 Scope = scope,
-                RunActivity = runActivity
+                RunActivity = runActivity,
+                ExecutionBudget = budget
             };
 
             await auditService.LogAsync(
@@ -125,6 +136,7 @@ public sealed partial class AuthorityRunOrchestrator
 
             await PersistRunHeaderEvidenceAnchorsBeforePipelineStagesAsync(run, request, uow, pipelineCt);
 
+            executedContext = ctx;
             AuthorityPipelineStagesExecutionResult stageResult =
                 await _authorityPipelineStagesExecutionDriver.ExecuteStagesAsync(ctx, pipelineCt);
 
@@ -133,6 +145,7 @@ public sealed partial class AuthorityRunOrchestrator
                 LogAgentExecutionStateTransition(run.RunId, "inline_authority_pipeline_stages", "authority_pipeline_finalize",
                     "(none)");
 
+                budget.EnsureCanContinue("authority.finalize");
                 RunRecord finalized = await _authorityCommittedPipelineFinalizer.FinalizeAsync(
                     run,
                     ctx.ContextSnapshot!,
@@ -157,9 +170,13 @@ public sealed partial class AuthorityRunOrchestrator
 
             return stageResult.CompletedRun;
         }
-        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        catch (Exception ex) when (!cancellationToken.IsCancellationRequested &&
+                                   (ex is OperationCanceledException ||
+                                    ex is AnalysisStageExecutionException { Outcome: AnalysisStageOutcome.TimedOut or AnalysisStageOutcome.NotStarted }))
         {
-            await uow.RollbackAsync(cancellationToken);
+            await uow.RollbackAsync(CancellationToken.None);
+
+            await RecordTerminatedStageOutcomesAsync(executedContext);
 
             logger.LogError(
                 "Queued authority pipeline timed out after {PipelineTimeout}. RunId={RunId}",
@@ -172,7 +189,9 @@ public sealed partial class AuthorityRunOrchestrator
         }
         catch (Exception ex)
         {
-            await uow.RollbackAsync(cancellationToken);
+            await uow.RollbackAsync(CancellationToken.None);
+
+            await RecordTerminatedStageOutcomesAsync(executedContext);
 
             logger.LogError(
                 ex,

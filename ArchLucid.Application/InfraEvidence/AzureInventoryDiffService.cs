@@ -1,3 +1,5 @@
+using ArchLucid.Application.Analysis;
+
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
@@ -52,6 +54,7 @@ public sealed class AzureInventoryDiffService(
 
             // A missing observation in an incomplete capture is not evidence of removal.
             // Check both captures even when replaying a previously persisted diff.
+
             if (snapshotA.Header.CaptureStatus != AzureInventoryCaptureStatus.Succeeded
                 || snapshotB.Header.CaptureStatus != AzureInventoryCaptureStatus.Succeeded)
             {
@@ -113,7 +116,7 @@ public sealed class AzureInventoryDiffService(
 
             return await CompletePersistedDiffAsync(scope, persisted, changes, cancellationToken);
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not (OperationCanceledException or AnalysisStageExecutionException))
         {
             logger.LogWarning(
                 ex,
@@ -142,7 +145,8 @@ public sealed class AzureInventoryDiffService(
             {
                 await consumer.OnDiffComputedAsync(summary, changes, cancellationToken);
             }
-            catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
+            catch (Exception ex) when (ex is not AnalysisStageExecutionException &&
+                                       (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested))
             {
                 allConsumersSucceeded = false;
 

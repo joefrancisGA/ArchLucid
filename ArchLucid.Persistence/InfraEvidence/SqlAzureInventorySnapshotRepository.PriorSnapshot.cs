@@ -1,7 +1,11 @@
 using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Resilience;
+using ArchLucid.Persistence.Connections;
 using ArchLucid.Core.Scoping;
 
 using Dapper;
+
+using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.InfraEvidence;
 
@@ -40,21 +44,29 @@ public sealed partial class SqlAzureInventorySnapshotRepository
         using System.Data.IDbConnection conn =
             await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        Guid? priorSnapshotId = await conn.QuerySingleOrDefaultAsync<Guid?>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId,
-                    SubscriptionId = subscriptionId,
-                    NewerSnapshotId = newerSnapshotId,
-                    SucceededStatus = (int)AzureInventoryCaptureStatus.Succeeded,
-                    PartialStatus = (int)AzureInventoryCaptureStatus.Partial,
-                },
-                cancellationToken: cancellationToken));
+        try
+        {
+            Guid? priorSnapshotId = await conn.QuerySingleOrDefaultAsync<Guid?>(
+                new CommandDefinition(
+                    sql,
+                    new
+                    {
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        scope.ProjectId,
+                        SubscriptionId = subscriptionId,
+                        NewerSnapshotId = newerSnapshotId,
+                        SucceededStatus = (int)AzureInventoryCaptureStatus.Succeeded,
+                        PartialStatus = (int)AzureInventoryCaptureStatus.Partial,
+                    },
+                    cancellationToken: cancellationToken));
 
-        return priorSnapshotId == Guid.Empty ? null : priorSnapshotId;
+            return priorSnapshotId == Guid.Empty ? null : priorSnapshotId;
+        }
+        catch (SqlException ex) when (SqlTransientDetector.IsTransient(ex))
+        {
+            // The connection-open policy has already finished. Only the un-retried SELECT opts in.
+            throw new ReplaySafeAnalysisReadException(ex);
+        }
     }
 }

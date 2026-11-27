@@ -186,6 +186,7 @@ public sealed class AuthorityPipelineFindingsStage(
             }
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
         await _stagePersistence.SaveFindingsAsync(findingsSnapshot, context.UnitOfWork, cancellationToken);
         context.FindingsSnapshot = findingsSnapshot;
 
@@ -202,6 +203,7 @@ public sealed class AuthorityPipelineFindingsStage(
 
         RecordFindingsProducedForMetrics(findingsSnapshot);
 
+        cancellationToken.ThrowIfCancellationRequested();
         run.FindingsSnapshotId = findingsSnapshot.FindingsSnapshotId;
         await _stagePersistence.UpdateRunAsync(run, context.UnitOfWork, cancellationToken);
 

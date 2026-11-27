@@ -33,6 +33,14 @@ public sealed class DeadlineAwareReadRetryTiming(
 
     public static TimeSpan GetExponentialDelay(int attempt) => TimeSpan.FromSeconds(Math.Pow(2, attempt));
 
+    public static TimeSpan CalculateRetryDelay(int retryIndex, TimeSpan baseDelay, TimeSpan? minimumDelay)
+    {
+        // Spread local retries without undercutting an upstream minimum wait.
+        TimeSpan local = GetExponentialDelay(retryIndex) * baseDelay.TotalSeconds * (1 + (Random.Shared.NextDouble() * 0.25));
+
+        return minimumDelay is TimeSpan minimum && minimum > local ? minimum : local;
+    }
+
     private ValueTask<bool> PlanRetry(RetryPredicateArguments<HttpResponseMessage> args)
     {
         HttpResponseMessage? response = args.Outcome.Result;
@@ -44,18 +52,11 @@ public sealed class DeadlineAwareReadRetryTiming(
             return new ValueTask<bool>(false);
         }
 
-        // Spread local retries without letting jitter undercut a provider's minimum wait.
-        const double maxJitterFraction = 0.25;
-        TimeSpan delay = GetExponentialDelay(args.AttemptNumber)
-                         * ((initialDelay ?? TimeSpan.FromSeconds(1)).TotalSeconds)
-                         * (1 + (Random.Shared.NextDouble() * maxJitterFraction));
-
-        if (response?.StatusCode is HttpStatusCode.TooManyRequests or HttpStatusCode.ServiceUnavailable &&
-            response.Headers.RetryAfter is { } retryAfter)
-        {
-            TimeSpan serverDelay = ResolveServerDelay(retryAfter);
-            delay = serverDelay > delay ? serverDelay : delay;
-        }
+        TimeSpan? serverDelay = response?.StatusCode is HttpStatusCode.TooManyRequests or HttpStatusCode.ServiceUnavailable &&
+                                response.Headers.RetryAfter is { } retryAfter
+            ? ResolveServerDelay(retryAfter)
+            : null;
+        TimeSpan delay = CalculateRetryDelay(args.AttemptNumber, initialDelay ?? TimeSpan.FromSeconds(1), serverDelay);
 
         long start = args.Context.Properties.GetValue(StartedAt, 0L);
         TimeSpan remaining = callBudget - clock.GetElapsedTime(start);

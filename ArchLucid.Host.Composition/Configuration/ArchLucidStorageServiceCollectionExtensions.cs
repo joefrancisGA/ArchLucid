@@ -25,6 +25,8 @@ public static class ArchLucidStorageServiceCollectionExtensions
 
         services.Configure<CosmosDbOptions>(configuration.GetSection(CosmosDbOptions.SectionName));
 
+        services.Configure<AnalysisStageExecutionOptions>(
+            configuration.GetSection(AnalysisStageExecutionOptions.SectionName));
         services.Configure<AuthorityPipelineOptions>(
             configuration.GetSection("ArchLucid").GetSection(AuthorityPipelineOptions.SectionName));
 

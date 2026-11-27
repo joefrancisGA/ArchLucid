@@ -1,6 +1,7 @@
 using System.Diagnostics;
 
 using ArchLucid.Application.Agents;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Contracts.Common;
@@ -9,6 +10,8 @@ using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
@@ -40,8 +43,47 @@ public sealed partial class AuthorityRunOrchestrator(
     IRunStateTransitionService runStateTransitionService,
     IAgentModelAliasRegistry agentModelAliasRegistry,
     IRunCreatePinOrchestrator runCreatePinOrchestrator,
-    ILogger<AuthorityRunOrchestrator> logger) : IAuthorityRunOrchestrator
+    ILogger<AuthorityRunOrchestrator> logger,
+    IOptionsMonitor<AnalysisStageExecutionOptions>? executionOptions = null,
+    TimeProvider? timeProvider = null,
+    IRunStageOutcomesRepository? stageOutcomesRepository = null) : IAuthorityRunOrchestrator
 {
+    private readonly TimeProvider _analysisClock = timeProvider ?? TimeProvider.System;
+
+    private AnalysisExecutionBudget BeginAnalysisBudget(TimeSpan timeout, CancellationToken caller) =>
+        new(executionOptions?.CurrentValue ?? new AnalysisStageExecutionOptions(), _analysisClock, timeout, caller);
+
+    private async Task RecordTerminatedStageOutcomesAsync(AuthorityPipelineContext? context)
+    {
+        if (context is null || stageOutcomesRepository is null)
+            return;
+
+        using CancellationTokenSource cleanup = new(TimeSpan.FromSeconds(5), _analysisClock);
+
+        try
+        {
+            // The stage transaction has ended. Persist failure facts only, not successes rolled back with their outputs.
+
+            foreach (StageTimelineSummary stage in context.TerminalStageTimeline)
+            {
+                if (stage.OutcomeStatus is AnalysisStageOutcome.Succeeded or AnalysisStageOutcome.CheckpointReused)
+                    continue;
+
+                if (stage.OutcomeStatus == AnalysisStageOutcome.NotStarted &&
+                    AuthorityPipelineStageCheckpoint.IsComplete(context.Run, stage.StageName))
+                    continue;
+
+                await stageOutcomesRepository.RecordStageStartedAsync(context.Run.RunId, stage.StageName, stage.StartedUtc, cleanup.Token);
+                await stageOutcomesRepository.RecordStageCompletedAsync(context.Run.RunId, stage.StageName,
+                    stage.OutcomeStatus, stage.CompletedUtc ?? stage.StartedUtc, cleanup.Token);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Could not record rolled-back stage outcomes for RunId={RunId}.", context.Run.RunId);
+        }
+    }
+
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
@@ -229,7 +271,7 @@ public sealed partial class AuthorityRunOrchestrator(
             },
             ct);
 
-    private static RunRecord BuildNewRunRecord(Guid runId, ContextIngestionRequest request, ScopeContext scope)
+    private RunRecord BuildNewRunRecord(Guid runId, ContextIngestionRequest request, ScopeContext scope)
     {
         RunRecord run = new()
         {
@@ -237,7 +279,7 @@ public sealed partial class AuthorityRunOrchestrator(
             ArchitectureRequestId = request.ArchitectureRequestId,
             ProjectId = request.ProjectId,
             Description = request.Description,
-            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            CreatedUtc = _analysisClock.UtcNowDateTime(),
             StructuralExecutionMode = StructuralExecutionMode.Simulator
         };
         ApplyScope(run, scope);

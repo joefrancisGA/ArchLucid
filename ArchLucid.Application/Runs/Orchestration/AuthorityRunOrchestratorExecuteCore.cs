@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.Text.Json;
 
+using ArchLucid.Application.Analysis;
+
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Core.Audit;
@@ -33,18 +35,13 @@ public sealed partial class AuthorityRunOrchestrator
     {
         Guid? pipelineRunIdForDiagnostics = null;
 
+        AuthorityPipelineContext? executedContext = null;
+
         try
         {
             TimeSpan pipelineTimeout = authorityPipelineOptions.CurrentValue.PipelineTimeout;
-            using CancellationTokenSource
-                linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-
-            if (pipelineTimeout > TimeSpan.Zero)
-
-                linkedCts.CancelAfter(pipelineTimeout);
-
-
-            CancellationToken pipelineCt = linkedCts.Token;
+            using AnalysisExecutionBudget budget = BeginAnalysisBudget(pipelineTimeout, cancellationToken);
+            CancellationToken pipelineCt = budget.Token;
 
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
             Guid runId = request.RunId != Guid.Empty ? request.RunId : Guid.NewGuid();
@@ -211,7 +208,8 @@ public sealed partial class AuthorityRunOrchestrator
                     Request = request,
                     UnitOfWork = stagesUow,
                     Scope = scope,
-                    RunActivity = runActivity
+                    RunActivity = runActivity,
+                    ExecutionBudget = budget
                 };
 
                 // The artifacts stage persists GoldenManifestId. Provenance has to be on the row in that
@@ -221,6 +219,7 @@ public sealed partial class AuthorityRunOrchestrator
                     request.EffectiveModelAliasId,
                     _agentModelAliasRegistry);
 
+                executedContext = ctx;
                 AuthorityPipelineStagesExecutionResult stageResult =
                     await _authorityPipelineStagesExecutionDriver.ExecuteStagesAsync(ctx, pipelineCt);
 
@@ -233,6 +232,7 @@ public sealed partial class AuthorityRunOrchestrator
                     // evidence anchors). A second header write trips TB-310 immutability — same
                     // ordering as AuthorityRunQueuedPipelineCompleter (finalize only).
 
+                    budget.EnsureCanContinue("authority.finalize");
                     RunRecord finalized = await _authorityCommittedPipelineFinalizer.FinalizeAsync(
                         run,
                         ctx.ContextSnapshot!,
@@ -262,10 +262,14 @@ public sealed partial class AuthorityRunOrchestrator
                 await stagesUow.DisposeAsync();
             }
         }
-        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        catch (Exception ex) when (!cancellationToken.IsCancellationRequested &&
+                                   (ex is OperationCanceledException ||
+                                    ex is AnalysisStageExecutionException { Outcome: AnalysisStageOutcome.TimedOut }))
         {
             if (!callerOwnsUnitOfWork)
-                await uow.RollbackAsync(cancellationToken);
+                await uow.RollbackAsync(CancellationToken.None);
+
+            await RecordTerminatedStageOutcomesAsync(executedContext);
 
             logger.LogError(
                 "Authority pipeline timed out after {PipelineTimeout}. RunId={RunId}",
@@ -279,7 +283,9 @@ public sealed partial class AuthorityRunOrchestrator
         catch (Exception ex)
         {
             if (!callerOwnsUnitOfWork)
-                await uow.RollbackAsync(cancellationToken);
+                await uow.RollbackAsync(CancellationToken.None);
+
+            await RecordTerminatedStageOutcomesAsync(executedContext);
 
             logger.LogError(
                 ex,

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
@@ -33,7 +34,8 @@ public static class AuthorityRunLifecyclePhaseResolver
 
         bool anyFailed = AuthorityPipelineStageNames.Sequence.Any(stageName =>
             latestByName.TryGetValue(stageName, out StageTimelineSummary? row)
-            && string.Equals(row.OutcomeStatus, "failed", StringComparison.Ordinal));
+            && row.OutcomeStatus is AnalysisStageOutcome.Failed or AnalysisStageOutcome.TimedOut
+                or AnalysisStageOutcome.Canceled or AnalysisStageOutcome.RetryExhausted or AnalysisStageOutcome.NotStarted);
 
         if (anyFailed)
             return AuthorityRunLifecyclePhase.Failed;

@@ -1,5 +1,9 @@
 using System.Diagnostics;
 
+using ArchLucid.Application.Analysis;
+using ArchLucid.Core.Authority;
+using ArchLucid.Core.Configuration;
+
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Transactions;
@@ -8,6 +12,7 @@ using ArchLucid.Persistence.Models;
 using ArchLucid.Application.Runs.Orchestration.Pipeline.Stages;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Runs.Orchestration.Pipeline;
 
@@ -24,7 +29,10 @@ public sealed class AuthorityPipelineStagesExecutor(
     AuthorityPipelineStageContextHydrator stageContextHydrator,
     IRunGovernanceScopePinService runGovernanceScopePinService,
     IRunStageOutcomesRepository runStageOutcomesRepository,
-    ILogger<AuthorityPipelineStagesExecutor> logger) : IAuthorityPipelineStagesExecutor
+    ILogger<AuthorityPipelineStagesExecutor> logger,
+    IOptionsMonitor<AnalysisStageExecutionOptions>? executionOptions = null,
+    IOptionsMonitor<AuthorityPipelineOptions>? pipelineOptions = null,
+    TimeProvider? timeProvider = null) : IAuthorityPipelineStagesExecutor
 {
     private readonly IAuthorityPipelineContextIngestionStage _contextIngestionStage =
         contextIngestionStage ?? throw new ArgumentNullException(nameof(contextIngestionStage));
@@ -53,6 +61,8 @@ public sealed class AuthorityPipelineStagesExecutor(
     private readonly ILogger<AuthorityPipelineStagesExecutor> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
+    private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
+
     private static readonly string[] PipelineStageSequence = AuthorityPipelineStageNames.Sequence;
 
     /// <inheritdoc />
@@ -62,47 +72,46 @@ public sealed class AuthorityPipelineStagesExecutor(
 
         using IDisposable restoredPilotScope = _runGovernanceScopePinService.BeginRestoredScope(ctx.Run);
 
-        await ExecuteStageAsync(
-            ctx,
-            "authority.context_ingestion",
-            AuthorityPipelineStageNames.ContextIngestion,
-            (_, token) => _contextIngestionStage.ExecuteAsync(ctx, token),
-            ct);
+        using AnalysisExecutionBudget? ownedBudget = ctx.ExecutionBudget is null
+            ? new(executionOptions?.CurrentValue ?? new AnalysisStageExecutionOptions(), _clock,
+                pipelineOptions?.CurrentValue.PipelineTimeout ?? new AuthorityPipelineOptions().PipelineTimeout, ct)
+            : null;
+        AnalysisExecutionBudget budget = ctx.ExecutionBudget ?? ownedBudget!;
+        (string Activity, string Name, Func<CancellationToken, Task> Work)[] stages =
+        [
+            ("authority.context_ingestion", AuthorityPipelineStageNames.ContextIngestion, token => _contextIngestionStage.ExecuteAsync(ctx, token)),
+            ("authority.graph", AuthorityPipelineStageNames.Graph, token => _graphStage.ExecuteAsync(ctx, token)),
+            ("authority.findings", AuthorityPipelineStageNames.Findings, token => _findingsStage.ExecuteAsync(ctx, token)),
+            ("authority.decisioning", AuthorityPipelineStageNames.Decisioning, token => _decisioningStage.ExecuteAsync(ctx, token)),
+            ("authority.artifacts", AuthorityPipelineStageNames.Artifacts, token => _artifactsStage.ExecuteAsync(ctx, token)),
+        ];
+        int index = 0;
 
-        await ExecuteStageAsync(
-            ctx,
-            "authority.graph",
-            AuthorityPipelineStageNames.Graph,
-            (_, token) => _graphStage.ExecuteAsync(ctx, token),
-            ct);
+        try
+        {
+            for (; index < stages.Length; index++)
+            {
+                var stage = stages[index];
+                await ExecuteStageAsync(ctx, stage.Activity, stage.Name, stage.Work, budget, ct);
+            }
+        }
+        catch
+        {
+            DateTime nowUtc = _clock.UtcNowDateTime();
 
-        await ExecuteStageAsync(
-            ctx,
-            "authority.findings",
-            AuthorityPipelineStageNames.Findings,
-            (_, token) => _findingsStage.ExecuteAsync(ctx, token),
-            ct);
+            foreach (var blocked in stages.Skip(index + 1))
+                ctx.TerminalStageTimeline.Add(StageTimelineSummary.FromRow(blocked.Name, nowUtc, nowUtc, AnalysisStageOutcome.NotStarted));
 
-        await ExecuteStageAsync(
-            ctx,
-            "authority.decisioning",
-            AuthorityPipelineStageNames.Decisioning,
-            (_, token) => _decisioningStage.ExecuteAsync(ctx, token),
-            ct);
-
-        await ExecuteStageAsync(
-            ctx,
-            "authority.artifacts",
-            AuthorityPipelineStageNames.Artifacts,
-            (_, token) => _artifactsStage.ExecuteAsync(ctx, token),
-            ct);
+            throw;
+        }
     }
 
     private async Task ExecuteStageAsync(
         AuthorityPipelineContext ctx,
         string activityName,
         string stageName,
-        Func<Activity?, CancellationToken, Task> stageWork,
+        Func<CancellationToken, Task> stageWork,
+        AnalysisExecutionBudget budget,
         CancellationToken ct)
     {
         ActivityContext parentContext = ctx.RunActivity?.Context ?? default;
@@ -116,103 +125,119 @@ public sealed class AuthorityPipelineStagesExecutor(
         activity?.SetTag("archlucid.stage.name", stageName);
 
         long startTicks = Stopwatch.GetTimestamp();
-        string outcome = "success";
-        DateTime stageStartedUtc = TimeProvider.System.UtcNowDateTime();
+        string outcome = AnalysisStageOutcome.NotStarted;
+        DateTime stageStartedUtc = _clock.UtcNowDateTime();
+        bool started = false;
+        bool checkpointReused = false;
         IArchLucidUnitOfWork stageUow = ctx.UnitOfWork;
-
-        await RecordStageStartedAsync(ctx.Run.RunId, stageName, stageStartedUtc, stageUow, ct);
 
         try
         {
-            int stageIndex = Array.IndexOf(PipelineStageSequence, stageName);
-            string fromState = stageIndex > 0
-                ? PipelineStageSequence[stageIndex - 1]
-                : "inline_authority_pipeline_stages";
-
-            string nextStage =
-                stageIndex >= 0 && stageIndex + 1 < PipelineStageSequence.Length
-                    ? PipelineStageSequence[stageIndex + 1]
-                    : "(finalize_authority_pipeline)";
-
-            ArchLucidInstrumentation.RecordOrchestratorStateTransition(ctx.Run.RunId, fromState, stageName);
-
-            if (_logger.IsEnabled(LogLevel.Information))
+            await budget.ExecuteAsync(activityName, async stageToken =>
             {
-                _logger.LogInformation(
-                    "Authority pipeline state transition: RunId={RunId}, CurrentStage={CurrentStage}, NextStage={NextStage}",
-                    ctx.Run.RunId,
-                    stageName,
-                    nextStage);
-            }
+                await RecordStageStartedAsync(ctx.Run.RunId, stageName, stageStartedUtc, stageUow, stageToken);
+                started = true;
 
-            if (AuthorityPipelineStageCheckpoint.IsComplete(ctx.Run, stageName))
-            {
-                bool hydrated = await _stageContextHydrator.TryHydrateAsync(ctx, stageName, ct);
+                int stageIndex = Array.IndexOf(PipelineStageSequence, stageName);
+                string fromState = stageIndex > 0
+                    ? PipelineStageSequence[stageIndex - 1]
+                    : "inline_authority_pipeline_stages";
 
-                if (hydrated)
+                string nextStage =
+                    stageIndex >= 0 && stageIndex + 1 < PipelineStageSequence.Length
+                        ? PipelineStageSequence[stageIndex + 1]
+                        : "(finalize_authority_pipeline)";
+
+                ArchLucidInstrumentation.RecordOrchestratorStateTransition(ctx.Run.RunId, fromState, stageName);
+
+                if (_logger.IsEnabled(LogLevel.Information))
                 {
-                    outcome = "skipped_checkpoint";
-                    activity?.SetTag("archlucid.stage.skipped", true);
+                    _logger.LogInformation(
+                        "Authority pipeline state transition: RunId={RunId}, CurrentStage={CurrentStage}, NextStage={NextStage}",
+                        ctx.Run.RunId,
+                        stageName,
+                        nextStage);
+                }
 
-                    ArchLucidInstrumentation.AuthorityPipelineStageSkippedCheckpointTotal.Add(
-                        1,
-                        new KeyValuePair<string, object?>("stage", stageName));
+                if (AuthorityPipelineStageCheckpoint.IsComplete(ctx.Run, stageName))
+                {
+                    bool hydrated = await _stageContextHydrator.TryHydrateAsync(ctx, stageName, stageToken);
 
-                    if (_logger.IsEnabled(LogLevel.Information))
+                    if (hydrated)
                     {
-                        _logger.LogInformation(
-                            "Authority pipeline stage skipped (checkpoint): RunId={RunId}, Stage={Stage}",
+                        checkpointReused = true;
+                        activity?.SetTag("archlucid.stage.skipped", true);
+
+                        ArchLucidInstrumentation.AuthorityPipelineStageSkippedCheckpointTotal.Add(
+                            1,
+                            new KeyValuePair<string, object?>("stage", stageName));
+
+                        if (_logger.IsEnabled(LogLevel.Information))
+                        {
+                            _logger.LogInformation(
+                                "Authority pipeline stage skipped (checkpoint): RunId={RunId}, Stage={Stage}",
+                                ctx.Run.RunId,
+                                stageName);
+                        }
+
+                        return;
+                    }
+
+                    if (_logger.IsEnabled(LogLevel.Warning))
+                    {
+                        _logger.LogWarning(
+                            "Authority pipeline checkpoint FK set but artefact missing; re-running stage: RunId={RunId}, Stage={Stage}",
                             ctx.Run.RunId,
                             stageName);
                     }
-
-                    return;
                 }
 
-                if (_logger.IsEnabled(LogLevel.Warning))
+                await stageWork(stageToken);
+
+                if (_logger.IsEnabled(LogLevel.Information))
                 {
-                    _logger.LogWarning(
-                        "Authority pipeline checkpoint FK set but artefact missing; re-running stage: RunId={RunId}, Stage={Stage}",
+                    _logger.LogInformation(
+                        "Authority pipeline stage completed: RunId={RunId}, Stage={Stage}",
                         ctx.Run.RunId,
                         stageName);
                 }
-            }
-
-            await stageWork(activity, ct);
-
-            if (_logger.IsEnabled(LogLevel.Information))
+            }, ct, observe: observed =>
             {
-                _logger.LogInformation(
-                    "Authority pipeline stage completed: RunId={RunId}, Stage={Stage}",
-                    ctx.Run.RunId,
-                    stageName);
-            }
+                outcome = checkpointReused && observed.Status == AnalysisStageOutcome.Succeeded
+                    ? AnalysisStageOutcome.CheckpointReused
+                    : observed.Status;
+                activity?.SetTag("archlucid.analysis.attempts", observed.Attempts);
+            }, stageActivity: activity);
         }
         catch (Exception ex)
         {
-            outcome = "error";
             activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             activity?.SetTag("error.type", ex.GetType().Name);
             throw;
         }
         finally
         {
-            DateTime stageCompletedUtc = TimeProvider.System.UtcNowDateTime();
-            string persistedOutcome = MapStageOutcomeStatus(outcome);
+            DateTime stageCompletedUtc = _clock.UtcNowDateTime();
+            ctx.TerminalStageTimeline.Add(StageTimelineSummary.FromRow(stageName, stageStartedUtc, stageCompletedUtc, outcome));
+            activity?.SetTag("archlucid.analysis.outcome", outcome);
 
             try
             {
-                await RecordStageCompletedAsync(
-                    ctx.Run.RunId,
-                    stageName,
-                    persistedOutcome,
-                    stageCompletedUtc,
-                    stageUow,
-                    ct);
+                if (started)
+                {
+                    await RecordStageCompletedAsync(
+                        ctx.Run.RunId,
+                        stageName,
+                        outcome,
+                        stageCompletedUtc,
+                        stageUow,
+                        ct);
+                }
             }
-            catch (Exception ex) when (ex is not OperationCanceledException || outcome == "error")
+            catch (Exception ex) when (ex is not OperationCanceledException || outcome != AnalysisStageOutcome.Succeeded)
             {
                 // A canceled outcome write must not replace a stage that already failed.
+
                 if (_logger.IsEnabled(LogLevel.Warning))
                 {
                     _logger.LogWarning(
@@ -283,13 +308,4 @@ public sealed class AuthorityPipelineStagesExecutor(
             completedUtc,
             ct);
     }
-
-    private static string MapStageOutcomeStatus(string executorOutcome) =>
-        executorOutcome switch
-        {
-            "success" => "succeeded",
-            "error" => "failed",
-            "skipped_checkpoint" => "skipped",
-            _ => "failed",
-        };
 }

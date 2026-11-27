@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
@@ -28,6 +29,10 @@ public sealed class SecureNowArchitectDiffConsumer(
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
-        await neighborhoodRunner.RecomputeNeighborhoodAsync(scope, summary, changes, cancellationToken);
+        SecureNowArchitectNeighborhoodRecomputeResult result =
+            await neighborhoodRunner.RecomputeNeighborhoodAsync(scope, summary, changes, cancellationToken);
+
+        if (!result.Succeeded)
+            throw new AnalysisStageExecutionException("securenow.neighborhood", AnalysisStageOutcome.Failed);
     }
 }

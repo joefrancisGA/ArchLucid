@@ -9366,7 +9366,8 @@ BEGIN
             CONSTRAINT DF_RunStageOutcomes_OutcomeStatus DEFAULT (N'running'),
         CONSTRAINT PK_RunStageOutcomes PRIMARY KEY (RunId, StageName),
         CONSTRAINT CK_RunStageOutcomes_OutcomeStatus CHECK (
-            OutcomeStatus IN (N'running', N'succeeded', N'failed', N'skipped')),
+            OutcomeStatus IN (N'running', N'succeeded', N'failed', N'skipped',
+                          N'timed_out', N'canceled', N'retry_exhausted', N'not_started')),
         CONSTRAINT FK_RunStageOutcomes_Runs_RunId FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId)
     );
 

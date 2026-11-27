@@ -1,5 +1,8 @@
 using System.Diagnostics;
 
+using ArchLucid.Application.Analysis;
+using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
+
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Scoping;
@@ -42,6 +45,10 @@ public sealed class AuthorityPipelineContext
         get;
         init;
     }
+
+    internal AnalysisExecutionBudget? ExecutionBudget { get; init; }
+
+    internal List<StageTimelineSummary> TerminalStageTimeline { get; } = [];
 
     public ContextSnapshot? PriorCommittedContext
     {
