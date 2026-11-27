@@ -33,12 +33,17 @@ public sealed class SecureNowPublicIpAssessmentHttpTests(JwtLocalSigningWebAppFa
             ProjectId = ScopeIds.DefaultProject,
         };
         Guid snapshotId = Guid.NewGuid();
+        Guid missingSnapshotId = Guid.NewGuid();
         string url = $"/v1/securenow/free/public-ip-assessment/{snapshotId:D}";
         Mock<IPublicIpAssessmentQueryService> assessments = new(MockBehavior.Strict);
         assessments.Setup(r => r.TryGetAsync(It.Is<ScopeContext>(s =>
                 s.TenantId == scope.TenantId && s.WorkspaceId == scope.WorkspaceId && s.ProjectId == scope.ProjectId),
                 snapshotId, 1, 50, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PublicIpAssessmentResponse(snapshotId, null, "Partial", true, "notAssessed", 1, 50, 0, []));
+        assessments.Setup(r => r.TryGetAsync(It.Is<ScopeContext>(s =>
+                s.TenantId == scope.TenantId && s.WorkspaceId == scope.WorkspaceId && s.ProjectId == scope.ProjectId),
+                missingSnapshotId, 1, 50, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PublicIpAssessmentResponse?)null);
         Mock<ITenantRepository> tenants = new();
         tenants.Setup(r => r.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Id = scope.TenantId, Tier = TenantTier.Free });
@@ -79,15 +84,32 @@ public sealed class SecureNowPublicIpAssessmentHttpTests(JwtLocalSigningWebAppFa
         Assert.Equal("notAssessed", result.ObservedReachability);
 
         using HttpResponseMessage architecture = await ReadAsync(url, "architecture", scope.ProjectId);
-        Assert.Equal(HttpStatusCode.NotFound, architecture.StatusCode);
+        await AssertGenericNotFoundAsync(architecture);
         using HttpResponseMessage otherProject = await ReadAsync(url, "security", Guid.NewGuid());
-        Assert.Equal(HttpStatusCode.NotFound, otherProject.StatusCode);
+        await AssertGenericNotFoundAsync(otherProject);
+        using HttpResponseMessage missing = await ReadAsync($"/v1/securenow/free/public-ip-assessment/{missingSnapshotId:D}",
+            "security", scope.ProjectId);
+        await AssertGenericNotFoundAsync(missing);
         using HttpResponseMessage premium = await ReadAsync(
             $"/v1/operational-security/paths/report?snapshotId={snapshotId:D}", "security", scope.ProjectId);
         Assert.Equal(HttpStatusCode.Forbidden, premium.StatusCode);
 
         assessments.Verify(r => r.TryGetAsync(It.IsAny<ScopeContext>(), snapshotId, 1, 50, It.IsAny<CancellationToken>()), Times.Once);
+        assessments.Verify(r => r.TryGetAsync(It.IsAny<ScopeContext>(), missingSnapshotId, 1, 50, It.IsAny<CancellationToken>()), Times.Once);
         assessments.VerifyNoOtherCalls();
+    }
+
+    private static async Task AssertGenericNotFoundAsync(HttpResponseMessage response)
+    {
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+        Microsoft.AspNetCore.Mvc.ProblemDetails? problem =
+            await response.Content.ReadFromJsonAsync<Microsoft.AspNetCore.Mvc.ProblemDetails>();
+        Assert.NotNull(problem);
+        Assert.Equal((int)HttpStatusCode.NotFound, problem.Status);
+        Assert.Equal(ProblemTypes.ResourceNotFound, problem.Type);
+        Assert.Equal("Not Found", problem.Title);
+        Assert.Equal("The public IP assessment was not found.", problem.Detail);
     }
 
     [Fact]
