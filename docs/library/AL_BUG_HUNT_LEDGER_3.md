@@ -1322,6 +1322,13 @@ emediationFactoryMetricsOpen one digits open the executive metrics summary inste
 - [x] (valid-no-repro) `remediationFactoryUrlStateToSearchParams` — metrics close drops padded `OFF` base — **cheap-disproof 2026-11-27 thorough hunt (hit):** regression `drops padded OFF metrics disclosure token from base search when writing closed state`.
 - [x] (valid-no-repro) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `YES` then `0` — **cheap-disproof 2026-11-27 thorough hunt (hit):** regression `uses the first metrics disclosure token when YES precedes 0 in the query string`.
 - [x] (valid-no-repro) `remediationFactoryHrefFromSearch` — preserves snapshots when clearing path selection on pathname-only href — **cheap-disproof 2026-11-27 thorough hunt (hit):** regression `remediationFactoryHrefFromSearch preserves snapshots when clearing path selection on pathname-only href`.
+- [x] (superseded) pass-158 `(candidate)` queue — **superseded 2026-11-27 thorough hunt (hit):** pass-159 reseed.
+
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — halfwidth katakana letter no inside `on` token — locus: Ff strip; input: `o` + U+FF89 + `n`; pass-159 reseed.
+- [ ] (candidate) `parseRemediationFactoryDisclosureOpenFromSearch` — square with horizontal fill inside true — locus: So strip; input: `tr` + U+25A4 + `ue`; pass-159 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — metrics open over padded `no` base replaces with canonical `1` — locus: writer; input: open over padded no base; pass-159 reseed.
+- [ ] (candidate) `parseRemediationFactoryUrlStateFromSearch` — duplicate metrics `off` then `0` — locus: first-wins; input: repeated param; pass-159 reseed.
+- [ ] (candidate) `remediationFactoryUrlStateToSearchParams` — preserves open metrics when clearing path selection only — locus: writer; input: clear path keeping metrics; pass-159 reseed.
 
 - [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — halfwidth katakana letter na inside `on` token — **proven 2026-11-27 thorough hunt (hit):** regression `treats ON metrics disclosure token with halfwidth katakana letter na inside the word as open on read`.
 - [x] (proven) `parseRemediationFactoryDisclosureOpenFromSearch` — white small square inside true — **proven 2026-11-27 thorough hunt (hit):** regression `treats true metrics disclosure token with white small square inside the word as open on read`.
