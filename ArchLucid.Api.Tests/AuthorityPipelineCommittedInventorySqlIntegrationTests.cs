@@ -61,6 +61,12 @@ public sealed class AuthorityPipelineCommittedInventorySqlIntegrationTests(ITest
         ReportStage(FormattableString.Invariant($"initial-status {(int)finalize.StatusCode}"));
         await finalize.EnsureSuccessForTestAsync();
 
+        string finalizeUrl = IntegrationTestRunLifecycleSupport.FinalizeReviewRelativeUrl(runId);
+        ReportStage("control-repeat-finalize");
+        using HttpResponseMessage control = await client.PostAsync(finalizeUrl, null, ct);
+        ReportStage(FormattableString.Invariant($"control-repeat-status {(int)control.StatusCode}"));
+        await control.EnsureSuccessForTestAsync();
+
         ReportStage("prepare-fixture");
         await using SqlConnection connection = new(factory.SqlConnectionString);
         await connection.OpenAsync(ct);
@@ -82,15 +88,11 @@ public sealed class AuthorityPipelineCommittedInventorySqlIntegrationTests(ITest
         rowsChanged.Should().Be(1, "only this disposable test run may be modified");
 
         ReportStage("repeat-finalize");
-        using HttpResponseMessage replay = await client.PostAsync(
-            IntegrationTestRunLifecycleSupport.FinalizeReviewRelativeUrl(runId), null, ct);
+        using HttpResponseMessage replay = await client.PostAsync(finalizeUrl, null, ct);
         ReportStage(FormattableString.Invariant($"repeat-status {(int)replay.StatusCode}"));
+        // The HTTP contract exposes a generic conflict. AuthorityCommitRecoveryVerifierTests
+        // isolates the inventory mismatch check without depending on response wording.
         replay.StatusCode.Should().Be(HttpStatusCode.Conflict);
-        ReportStage("read-repeat-detail");
-        bool mismatchReported = (await replay.Content.ReadAsStringAsync(ct))
-            .Contains("diverges from recomputed bytes", StringComparison.Ordinal);
-        ReportStage(mismatchReported ? "repeat-detail present" : "repeat-detail missing");
-        mismatchReported.Should().BeTrue("the response should identify a persisted inventory mismatch");
         ReportStage("cleanup");
     }
 

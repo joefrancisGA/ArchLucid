@@ -8,6 +8,7 @@ on:
       - 'scripts/ci/run_disposable_api_sql_smoke.sh'
       - 'scripts/ci/run_focused_api_sql.py'
       - 'ArchLucid.Api.Tests/AuthorityPipelineCommittedInventorySqlIntegrationTests.cs'
+      - 'ArchLucid.Application.Tests/Runs/Orchestration/Commit/AuthorityCommitRecoveryVerifierTests.cs'
       - 'ArchLucid.Api.Tests/Security/AuditExportTenantIsolationIntegrationTests.cs'
       - 'ArchLucid.Application/Runs/Finalization/**'
       - 'ArchLucid.Application/Runs/Orchestration/Pipeline/Stages/AuthorityPipelineArtifactsStage.cs'
@@ -37,27 +38,28 @@ jobs:
       - name: Build API test project in Release
         run: dotnet build ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj -c Release -p:TreatWarningsAsErrors=true
 
-      - name: Run the two pipeline fixture test classes
+      - name: Run the focused application fixture and recovery tests
         run: >-
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj
           -c Release --no-build
-          --filter 'FullyQualifiedName~AuthorityPipelineDecisioningStageTests|FullyQualifiedName~AuthorityPipelineArtifactsStageLegacyRunIdTests'
+          --filter 'FullyQualifiedName~AuthorityPipelineDecisioningStageTests|FullyQualifiedName~AuthorityPipelineArtifactsStageLegacyRunIdTests|FullyQualifiedName~AuthorityCommitRecoveryVerifierTests'
 
-      # Limit this PR's diagnostic run to the failing case. Keep the normal smoke lane intact.
-      - name: Rerun the invalid-inventory case against disposable SQL Server
-        if: github.event.pull_request.number == 8266
+      # Verify this follow-up's isolated case before running the normal smoke lane.
+      - name: Verify the invalid-inventory case in isolation
+        if: github.event.pull_request.head.ref == 'test-aspects/verify-inventory-conflict'
         run: >-
-          bash scripts/ci/run_disposable_api_sql_smoke.sh "$RUNNER_TEMP/focused-api-sql"
+          bash scripts/ci/run_disposable_api_sql_smoke.sh "$RUNNER_TEMP/focused-api-sql-isolated"
           --case ArchLucid.Api.Tests.AuthorityPipelineCommittedInventorySqlIntegrationTests.Repeat_finalize_rejects_a_corrupt_persisted_inventory_hash
 
       - name: Run three cases against disposable SQL Server
-        if: github.event.pull_request.number != 8266
         run: bash scripts/ci/run_disposable_api_sql_smoke.sh "$RUNNER_TEMP/focused-api-sql"
 
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: focused-api-sql-summary
-          path: ${{ runner.temp }}/focused-api-sql/summary.json
+          path: |
+            ${{ runner.temp }}/focused-api-sql/summary.json
+            ${{ runner.temp }}/focused-api-sql-isolated/summary.json
           retention-days: 3
           if-no-files-found: ignore

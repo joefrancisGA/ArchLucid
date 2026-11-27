@@ -17,9 +17,10 @@ INVENTORY_CASE = ("ArchLucid.Api.Tests.AuthorityPipelineCommittedInventorySqlInt
                   "Repeat_finalize_rejects_a_corrupt_persisted_inventory_hash")
 INVENTORY_STAGE_MARKER = "ARCHLUCID_SQL_INVENTORY_STAGE "
 INVENTORY_STAGES = {
-    "bootstrap", "create-review", "initial-finalize", "prepare-fixture",
-    "repeat-finalize", "read-repeat-detail", "cleanup",
+    "bootstrap", "create-review", "initial-finalize", "control-repeat-finalize",
+    "prepare-fixture", "repeat-finalize", "cleanup",
 }
+INVENTORY_HTTP_STATUS_EXPECTED = {"initial-status": "2xx", "control-repeat-status": "2xx", "repeat-status": 409}
 
 
 def inventory_failure(result):
@@ -36,13 +37,10 @@ def inventory_failure(result):
                 report = {"stage": fields[0]}
             elif len(fields) == 2:
                 stage, value = fields
-                if stage in ("initial-status", "repeat-status") and re.fullmatch(r"[1-5][0-9]{2}", value):
-                    expected = "2xx" if stage == "initial-status" else 409
-                    report = {"stage": stage, "expected": expected, "actual": int(value)}
+                if stage in INVENTORY_HTTP_STATUS_EXPECTED and re.fullmatch(r"[1-5][0-9]{2}", value):
+                    report = {"stage": stage, "expected": INVENTORY_HTTP_STATUS_EXPECTED[stage], "actual": int(value)}
                 elif stage == "fixture-row-count" and re.fullmatch(r"-1|[0-9]{1,6}", value):
                     report = {"stage": stage, "expected": 1, "actual": int(value)}
-                elif stage == "repeat-detail" and value in ("present", "missing"):
-                    report = {"stage": stage, "expected": "present", "actual": value}
     return report
 
 

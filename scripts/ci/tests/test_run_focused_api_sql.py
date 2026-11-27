@@ -45,9 +45,9 @@ class FocusedApiSqlResultTests(TestCase):
         for event, expected in [
             ("prepare-fixture", {"stage": "prepare-fixture"}),
             ("initial-status 500", {"stage": "initial-status", "expected": "2xx", "actual": 500}),
+            ("control-repeat-status 409", {"stage": "control-repeat-status", "expected": "2xx", "actual": 409}),
             ("fixture-row-count -1", {"stage": "fixture-row-count", "expected": 1, "actual": -1}),
             ("repeat-status 200", {"stage": "repeat-status", "expected": 409, "actual": 200}),
-            ("repeat-detail missing", {"stage": "repeat-detail", "expected": "present", "actual": "missing"}),
         ]:
             with self.subTest(event=event):
                 self.assertEqual(self.inventory_report(f"{marker}bootstrap\n  {marker}{event}\n"),
@@ -57,7 +57,7 @@ class FocusedApiSqlResultTests(TestCase):
         marker = RUNNER.INVENTORY_STAGE_MARKER
         output = (f"private-database-string\n{marker}untrusted-stage payload\n"
                   f"{marker}repeat-status 200 extra\n{marker}fixture-row-count 123456789\n"
-                  f"{marker}repeat-detail arbitrary-body\n")
+                  f"{marker}control-repeat-status arbitrary-body\n")
         self.assertEqual(self.inventory_report(output), ("failed", {"stage": "not-reported"}))
 
     def test_nonfailures_and_unrelated_tests_do_not_emit_inventory_diagnostics(self):
