@@ -192,8 +192,10 @@ public sealed class ArchitectureRunCreateOrchestratorAsyncCompleteTests
 
         Mock<IEvidenceBundleRepository> evidence = new();
         evidence
-            .Setup(e => e.CreateAsync(
+            .Setup(e => e.CreateForRunAsync(
                 It.IsAny<EvidenceBundle>(),
+                AuthorityTestScope,
+                runId,
                 It.IsAny<CancellationToken>(),
                 null,
                 null))

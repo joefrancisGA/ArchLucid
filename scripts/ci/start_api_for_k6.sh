@@ -79,21 +79,49 @@ IF OBJECT_ID(N'dbo.Projects', N'U') IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM dbo.Projects WHERE Id = '${smoke_project_id}')
     INSERT INTO dbo.Projects (Id, TenantId, WorkspaceId, Name, IsDeleted)
     VALUES ('${smoke_project_id}', '${smoke_tenant_id}', '${smoke_workspace_id}', N'default', 0);
+IF COL_LENGTH(N'dbo.Tenants', N'TenantErasureApprovedUtc') IS NULL
+    ALTER TABLE dbo.Tenants ADD TenantErasureApprovedUtc DATETIMEOFFSET(7) NULL;
+IF COL_LENGTH(N'dbo.Tenants', N'TenantErasureApprovedByUserId') IS NULL
+    ALTER TABLE dbo.Tenants ADD TenantErasureApprovedByUserId NVARCHAR(256) NULL;
 "
 
-audit_code="$(curl -sS -o /dev/null -w "%{http_code}" "${API_URL}/v1/audit/search?take=1" -H "Accept: application/json")"
-if [ "${audit_code}" != "200" ]; then
-  echo "::error::GET /v1/audit/search (smoke) returned HTTP ${audit_code} — check API log for SQL/auth/RLS errors"
-  tail -n 200 "${LOG_FILE}" || true
-  exit 1
-fi
+audit_smoke_attempts="${ARCHLUCID_K6_AUDIT_SMOKE_ATTEMPTS:-30}"
+audit_smoke_sleep="${ARCHLUCID_K6_AUDIT_SMOKE_SLEEP_SECONDS:-2}"
+audit_code="000"
+for attempt in $(seq 1 "${audit_smoke_attempts}"); do
+  audit_code="$(curl -sS -o /dev/null -w "%{http_code}" "${API_URL}/v1/audit/search?take=1" -H "Accept: application/json" || echo "000")"
+  if [ "${audit_code}" = "200" ]; then
+  echo "GET /v1/audit/search (smoke) healthy on attempt ${attempt}/${audit_smoke_attempts}"
+    break
+  fi
 
-list_runs_code="$(curl -sS -o /dev/null -w "%{http_code}" "${API_URL}/v1/architecture/reviews?limit=1" -H "Accept: application/json")"
-if [ "${list_runs_code}" != "200" ]; then
+  echo "Attempt ${attempt}/${audit_smoke_attempts}: /v1/audit/search returned HTTP ${audit_code}"
+  if [ "${attempt}" -eq "${audit_smoke_attempts}" ]; then
+  echo "::error::GET /v1/audit/search (smoke) returned HTTP ${audit_code} — check API log for SQL/auth/RLS errors"
+    tail -n 200 "${LOG_FILE}" || true
+    exit 1
+  fi
+
+  sleep "${audit_smoke_sleep}"
+done
+
+list_runs_code="000"
+for attempt in $(seq 1 "${audit_smoke_attempts}"); do
+  list_runs_code="$(curl -sS -o /dev/null -w "%{http_code}" "${API_URL}/v1/architecture/reviews?limit=1" -H "Accept: application/json" || echo "000")"
+  if [ "${list_runs_code}" = "200" ]; then
+  echo "GET /v1/architecture/reviews (smoke) healthy on attempt ${attempt}/${audit_smoke_attempts}"
+    break
+  fi
+
+  echo "Attempt ${attempt}/${audit_smoke_attempts}: /v1/architecture/reviews returned HTTP ${list_runs_code}"
+  if [ "${attempt}" -eq "${audit_smoke_attempts}" ]; then
   echo "::error::GET /v1/architecture/reviews (smoke) returned HTTP ${list_runs_code} — check API log for SQL/auth/RLS errors"
-  tail -n 200 "${LOG_FILE}" || true
-  exit 1
-fi
+    tail -n 200 "${LOG_FILE}" || true
+    exit 1
+  fi
+
+  sleep "${audit_smoke_sleep}"
+done
 
 if [ "${ARCHLUCID_K6_SKIP_WRITE_SMOKE:-false}" != "true" ]; then
 create_run_body='{"requestId":"k6-startup-smoke-1","description":"k6 CI smoke architecture write-path test","systemName":"K6CiSmokeSystem","environment":"prod","cloudProvider":1,"constraints":[],"requiredCapabilities":["SQL"],"assumptions":[],"priorManifestVersion":null}'
