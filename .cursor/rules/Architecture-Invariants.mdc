@@ -1,0 +1,30 @@
+---
+description: Mandatory architecture invariant identification, preservation, and verification for ArchLucid and SecureNow changes.
+alwaysApply: true
+---
+
+# Architecture invariants (INV-*)
+
+The canonical cross-cutting invariant catalog is **`docs/library/ARCHITECTURE_INVARIANTS.md`**. Consult the current catalog and applicable accepted ADRs rather than duplicating or freezing its numbered inventory here. This rule applies to both products, all languages and layers, configuration, infrastructure, migrations, tests, and engineering automation.
+
+## Before substantive changes
+
+- Identify applicable invariant IDs and their concrete requirements; read the relevant catalog entries and governing decisions. Include tenant isolation, authorization, evidence and audit integrity, execution-mode honesty, cost guardrails, production safety, and architectural boundaries as applicable.
+- Locate existing enforcement and extension points; preserve their contracts. For shared components, include applicable invariants in the pre-edit consumer impact assessment required by the Shared-Component-Impact-Analysis rule when present. Do not create duplicate enforcement infrastructure.
+- Record a concise impact and verification plan: affected invariants, existing enforcement, tests or checks to run, and unknowns. If applicability is uncertain, investigate or explicitly disclose the limitation before making the affected change.
+- Do not silently weaken or bypass an invariant, analyzer, test, production guard, or accepted decision. If a requested change conflicts with a governing invariant or accepted decision, surface the conflict and obtain authorized resolution through the existing ADR/backlog process; do not assume this rule authorizes a change in policy.
+
+## After changes
+
+- Reconcile the final diff against affected invariants. Use existing risk-appropriate architecture tests, analyzers, integration/contract tests, and negative controls; distinguish observed passing checks from unrun, incomplete, timed-out, or blocked verification.
+- Cite affected invariant IDs and supporting verification evidence in the completion summary or PR. Do not claim enforcement or compliance solely because this instruction exists or the code compiles. Respect existing scoped verification, branch, and owner-authorized release CI policies.
+
+## Authority and existing qualifications
+
+- Catalog: `docs/library/ARCHITECTURE_INVARIANTS.md` (current registry, including newly added IDs).
+- Governance: `docs/architecture/adrs/0035-architecture-invariant-catalog.md`. Preserve its actual approval status; restoring this rule does not accept a proposed ADR or change normative decisions.
+- Implementation tracking: `docs/library/TECH_BACKLOG.md` (TB-009–TB-012 and subsequent enforcement work). ADR guidance: `docs/architecture/adrs/adr-template-full.md` and `docs/architecture/adrs/template.md`.
+- Preserve the existing INV-003/TB-001 distinction: transactional audit paths and best-effort informational async audit paths are not interchangeable. Do not impose synchronous failure on informational audit unless a superseding authorized decision applies.
+- For externally visible contract changes, follow the canonical API and OpenAPI drift guidance in `docs/library/API_CONTRACTS.md` and `docs/library/OPENAPI_CONTRACT_DRIFT.md`.
+
+Read-only and documentation-only work requires no product-code verification unless it changes executable behavior or engineering enforcement. This is mandatory agent guidance, not proof of universal executable enforcement.
