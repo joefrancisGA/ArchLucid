@@ -40,6 +40,11 @@ sql_digest='sha256:db9a8fe3098b7e8bbde41106bdc7caee942e97124e5fdb71b872ca208de30
 setup_deadline=$((SECONDS + setup_seconds))
 container_name=''
 container_id=''
+setup_output="$results_dir/.fixture-output"
+active_phase=''
+active_pid=''
+cancel_signal=''
+cancel_status=0
 
 deadline_expired() {
   # GNU timeout returns 137 instead of 124 when it has to escalate to SIGKILL.
@@ -60,16 +65,20 @@ record_cleanup() {
     || echo 'Could not annotate the focused SQL summary.' >&2
 }
 docker_until() {
-  local deadline=$1 remaining
-  shift
+  local deadline=$1 phase=$2 remaining
+  shift 2
   remaining=$((deadline - SECONDS))
   if ((remaining <= 0)); then
     return 124
   fi
-  "$timeout_command" --kill-after=2s "${remaining}s" docker "$@"
+  if [[ "$phase" == setup ]]; then
+    run_interruptible setup "$timeout_command" --kill-after=2s "${remaining}s" docker "$@"
+  else
+    "$timeout_command" --kill-after=2s "${remaining}s" docker "$@"
+  fi
 }
 setup_docker() {
-  docker_until "$setup_deadline" "$@"
+  docker_until "$setup_deadline" setup "$@"
 }
 setup_failed() {
   local status=$1 reason=$2
@@ -95,7 +104,7 @@ verify_removal() {
   fi
   # An unsuccessful inspect can mean either "not found" or an unreachable daemon.
   # Accept absence only from a successful, bounded lookup including stopped containers.
-  if listing="$(docker_until "$deadline" container ls --all --no-trunc --filter "$selector" --format "$format" 2>/dev/null)"; then
+  if listing="$(docker_until "$deadline" cleanup container ls --all --no-trunc --filter "$selector" --format "$format" 2>/dev/null)"; then
     if [[ -z "$listing" ]]; then
       record_cleanup already-absent
       return 0
@@ -117,10 +126,11 @@ verify_removal() {
 }
 cleanup() {
   local status=$? cleanup_status deadline
+  rm -f -- "$setup_output" 2>/dev/null || true
   if [[ -n "$container_name" ]]; then
     deadline=$((SECONDS + cleanup_seconds))
     # Keep a target even if the daemon started the container but the client timed out before returning its ID.
-    if docker_until "$deadline" rm -f "${container_id:-$container_name}" >/dev/null 2>&1; then
+    if docker_until "$deadline" cleanup rm -f "${container_id:-$container_name}" >/dev/null 2>&1; then
       :
     else
       cleanup_status=$?
@@ -139,24 +149,58 @@ cleanup() {
   fi
   exit "$status"
 }
-cancel() {
+finish_cancellation() {
   trap '' INT TERM
-  if [[ -n "${!:-}" ]]; then
-    # The runner is the only background job. Wait for its final checkpoint
-    # before the EXIT trap removes the SQL fixture.
-    kill -s "$1" %+ 2>/dev/null || true
-    wait "$!" || true
+  if [[ -n "$active_pid" ]]; then
+    # The current job is the wrapper's sole background job. Setup jobs
+    # have their own process group, including the timed Docker client.
+    if [[ "$active_phase" == setup ]]; then
+      kill -s KILL %+ 2>/dev/null || true
+    else
+      # Give the test runner time to save its final checkpoint.
+      kill -s "$cancel_signal" %+ 2>/dev/null || true
+    fi
+    wait "$active_pid" 2>/dev/null || true
   fi
-  exit "$2"
+  set +m
+  exit "$cancel_status"
+}
+cancel() {
+  if ((cancel_status == 0)); then
+    cancel_signal=$1
+    cancel_status=$2
+  fi
+  # A signal between launch and PID registration is handled as soon as
+  # the parent can identify the job, before waiting on it.
+  if [[ -z "$active_phase" || -n "$active_pid" ]]; then
+    finish_cancellation
+  fi
+}
+run_interruptible() {
+  local status=0
+  active_phase=$1
+  shift
+  if ((cancel_status)); then finish_cancellation; fi
+  "$@" &
+  active_pid=$!
+  if ((cancel_status)); then finish_cancellation; fi
+  wait "$active_pid" 2>/dev/null || status=$?
+  active_pid=''
+  active_phase=''
+  if ((cancel_status)); then finish_cancellation; fi
+  return "$status"
 }
 trap cleanup EXIT
 trap 'cancel INT 130' INT
 trap 'cancel TERM 143' TERM
+set -m
 
+# Capture setup output without running the supervisor in a command substitution.
 # A registry may publish an image config digest rather than a pullable manifest digest.
 setup_docker pull "$sql_tag" >/dev/null 2>&1 || setup_failed "$?" image-pull-failed
-image_manifest="$(setup_docker image inspect --format '{{.Id}}{{range .RepoDigests}}{{println}}{{.}}{{end}}' "$sql_tag" 2>/dev/null)" \
+setup_docker image inspect --format '{{.Id}}{{range .RepoDigests}}{{println}}{{.}}{{end}}' "$sql_tag" >"$setup_output" 2>/dev/null \
   || setup_failed "$?" image-inspect-failed
+image_manifest=$(<"$setup_output")
 image_id=${image_manifest%%$'\n'*}
 if [[ ! "$image_id" =~ ^sha256:[[:xdigit:]]{64}$ ]] || ! grep -Eq "(^|@)$sql_digest$" <<< "$image_manifest"; then
   setup_failed 1 image-digest-mismatch 'Disposable SQL image did not match the published digest.'
@@ -165,9 +209,10 @@ export MSSQL_SA_PASSWORD
 MSSQL_SA_PASSWORD="$(python3 -c 'import secrets; print("Aa1!" + secrets.token_hex(20))' 2>/dev/null)" \
   || setup_failed "$?" fixture-initialization-failed
 container_name="archlucid-focused-sql-${BASHPID:-$$}-${RANDOM}-${RANDOM}-${RANDOM}"
-container_id="$(setup_docker run --detach --rm --name "$container_name" --publish 127.0.0.1::1433 \
+setup_docker run --detach --rm --name "$container_name" --publish 127.0.0.1::1433 \
   --env ACCEPT_EULA=Y --env MSSQL_PID=Developer --env MSSQL_SA_PASSWORD \
-  --env MSSQL_MEMORY_LIMIT_MB=2048 "$image_id" 2>/dev/null)" || setup_failed "$?" container-start-failed
+  --env MSSQL_MEMORY_LIMIT_MB=2048 "$image_id" >"$setup_output" 2>/dev/null || setup_failed "$?" container-start-failed
+container_id=$(<"$setup_output")
 if [[ -z "$container_id" ]]; then
   setup_failed 1 container-start-failed
 fi
@@ -189,8 +234,9 @@ for attempt in {1..30}; do
       setup_failed "$probe_status" readiness-check-failed
     fi
   fi
-  running="$(setup_docker inspect --format '{{.State.Running}}' "$container_id" 2>/dev/null)" \
+  setup_docker inspect --format '{{.State.Running}}' "$container_id" >"$setup_output" 2>/dev/null \
     || setup_failed "$?" readiness-check-failed
+  running=$(<"$setup_output")
   if [[ "$running" == 'false' ]]; then
     setup_failed 1 server-exited 'Disposable SQL Server exited before accepting connections.'
   elif [[ "$running" != 'true' ]]; then
@@ -200,7 +246,7 @@ for attempt in {1..30}; do
   if ((remaining <= 0)); then
     setup_failed 124 readiness-check-failed
   fi
-  sleep "$((remaining < 2 ? remaining : 2))"
+  run_interruptible setup sleep "$((remaining < 2 ? remaining : 2))"
 done
 if [[ "$ready" != true ]]; then
   setup_failed 1 readiness-exhausted 'Disposable SQL Server did not become ready.'
@@ -208,7 +254,8 @@ fi
 
 sqlcmd -Q "ALTER DATABASE model SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE;" >/dev/null 2>&1 \
   || setup_failed "$?" sql-configuration-failed
-port_binding="$(setup_docker port "$container_id" 1433/tcp 2>/dev/null)" || setup_failed "$?" port-lookup-failed
+setup_docker port "$container_id" 1433/tcp >"$setup_output" 2>/dev/null || setup_failed "$?" port-lookup-failed
+port_binding=$(<"$setup_output")
 if [[ ! "$port_binding" =~ ^127\.0\.0\.1:([0-9]+)$ ]]; then
   setup_failed 1 invalid-port-binding 'Disposable SQL Server did not publish a loopback port.'
 fi
@@ -216,5 +263,5 @@ export ARCHLUCID_API_TEST_SQL="Server=127.0.0.1,${BASH_REMATCH[1]};Database=mast
 export ARCHLUCID_SQL_TEST="$ARCHLUCID_API_TEST_SQL"
 unset SQLCMDPASSWORD MSSQL_SA_PASSWORD
 
-python3 scripts/ci/run_focused_api_sql.py "${runner_args[@]}" --use-prepared &
-wait "$!"
+set +m
+run_interruptible tests python3 scripts/ci/run_focused_api_sql.py "${runner_args[@]}" --use-prepared

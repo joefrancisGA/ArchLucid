@@ -53,13 +53,25 @@ else:
 
 class DisposableApiSqlSmokeTests(unittest.TestCase):
     def invoke(self, test_exit=0, server_exit=False, port="127.0.0.1:49155", image_id=SQL_PIN,
-               repo_digest="", extra_args=(), cancel_signal=None, stall="", cleanup_check="", setup_error=""):
+               repo_digest="", extra_args=(), cancel_signal=None, stall="", cleanup_check="", setup_error="",
+               cancel_setup=""):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / "docker").write_text(
                 """#!/usr/bin/env bash
 set -eu
 printf '%s\n' "$*" >> "$FAKE_DOCKER_LOG"
+if [[ "$1" = "$FAKE_CANCEL_SETUP" ]]; then
+  exec "$REAL_PYTHON" -c '
+import fcntl, os, pathlib, signal, sys, time
+root = pathlib.Path(sys.argv[1])
+signal.signal(signal.SIGTERM, signal.SIG_IGN)
+with (root / "setup.lock").open("w") as lock:
+    fcntl.flock(lock, fcntl.LOCK_EX)
+    (root / "setup.group").write_text(str(os.getpgrp()), encoding="utf-8")
+    time.sleep(30)
+' "$FAKE_SETUP_STATE"
+fi
 if [[ "$1" = "$FAKE_DOCKER_STALL" ]]; then
   exec sleep 30
 fi
@@ -76,7 +88,7 @@ case "$1" in
   inspect) echo "$FAKE_RUNNING" ;;
   port) echo "$FAKE_PORT" ;;
   rm)
-    if [[ "$FAKE_DOCKER_STALL" = run ]]; then
+    if [[ "$FAKE_DOCKER_STALL" = run || "$FAKE_CANCEL_SETUP" = run ]]; then
       [[ "$3" = archlucid-focused-sql-* ]]
     else
       test "$3" = fake-container
@@ -147,7 +159,9 @@ fi
                 "FAKE_PORT": port,
                 "FAKE_IMAGE_ID": image_id,
                 "FAKE_REPO_DIGEST": repo_digest,
-                "FAKE_CANCEL_TEST": str(cancel_signal is not None).lower(),
+                "FAKE_CANCEL_TEST": str(cancel_signal is not None and not cancel_setup).lower(),
+                "FAKE_CANCEL_SETUP": cancel_setup,
+                "FAKE_SETUP_STATE": str(root),
                 "FAKE_SUMMARY": str(root / "results" / "summary.json"),
                 "ARCHLUCID_FOCUSED_SQL_SETUP_SECONDS": "2" if stall in ("pull", "run", "exec") else "180",
                 "ARCHLUCID_FOCUSED_SQL_CLEANUP_SECONDS": "1" if stall == "rm" else "2" if cleanup_check == "timeout" else "15",
@@ -155,6 +169,8 @@ fi
             command = ["bash", str(WRAPPER), str(root / "results"), *extra_args]
             if cancel_signal is None:
                 completed = subprocess.run(command, cwd=CI.parents[1], env=env, capture_output=True, text=True, timeout=10)
+            elif cancel_setup:
+                completed = self.cancel_setup_wrapper(command, env, root, cancel_signal)
             else:
                 completed = self.cancel_running_wrapper(command, env, root / "results" / "02", cancel_signal)
             docker_log = root / "docker.log"
@@ -164,6 +180,35 @@ fi
             summary = root / "results" / "summary.json"
             plan = json.loads(summary.read_text(encoding="utf-8")) if summary.exists() else None
             return completed, docker, argv, plan
+
+    def cancel_setup_wrapper(self, command, env, root, signum):
+        import fcntl
+
+        marker = root / "setup.group"
+        with subprocess.Popen(command, cwd=CI.parents[1], env=env, text=True, start_new_session=True,
+                              stdout=subprocess.PIPE, stderr=subprocess.PIPE) as wrapper:
+            verified = False
+            try:
+                deadline = time.monotonic() + 5
+                while not marker.is_file() and wrapper.poll() is None and time.monotonic() < deadline:
+                    time.sleep(0.02)
+                self.assertTrue(marker.is_file(), "synthetic setup client did not start")
+                wrapper.send_signal(signum)
+                stdout, stderr = wrapper.communicate(timeout=4)
+                with (root / "setup.lock").open("r+") as lock:
+                    fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                verified = True
+                return subprocess.CompletedProcess(command, wrapper.returncode, stdout, stderr)
+            finally:
+                if not verified:
+                    if marker.is_file() and (group := marker.read_text(encoding="utf-8")).isdecimal():
+                        try:
+                            os.killpg(int(group), signal.SIGKILL)
+                        except ProcessLookupError:
+                            pass
+                    if wrapper.poll() is None:
+                        wrapper.kill()
+                    wrapper.communicate(timeout=5)
 
     def cancel_running_wrapper(self, command, env, active, signum):
         import fcntl
@@ -222,6 +267,22 @@ fi
                 self.assertNotIn("elapsed_ms", report["cases"][2])
                 self.assertNotIn("watchdog_budget_ms", report["cases"][2])
                 self.assertEqual(report["unreported"], 1)
+
+    @unittest.skipUnless(os.name == "posix", "requires POSIX process groups and file locks")
+    def test_setup_cancellation_stops_the_client_and_attempts_fixture_cleanup(self):
+        for phase, signum in (("run", signal.SIGTERM), ("exec", signal.SIGINT)):
+            with self.subTest(phase=phase, signal=signum.name):
+                completed, docker, argv, report = self.invoke(cancel_signal=signum, cancel_setup=phase)
+                self.assertEqual(completed.returncode, 128 + signum, completed.stderr)
+                self.assertFalse(argv)
+                start = next(line for line in docker if line.startswith("run ")).split()
+                target = start[start.index("--name") + 1] if phase == "run" else "fake-container"
+                self.assertTrue(docker[-2].startswith(phase + " "))
+                self.assertEqual(docker[-1], f"rm -f {target}")
+                self.assertEqual(report["unreported"], 3)
+                self.assertEqual([row["outcome"] for row in report["cases"]], ["not-started"] * 3)
+                self.assertNotIn("fixture_timeouts", report)
+                self.assertNotIn("fixture_setup_failure", report)
 
     def test_runs_exactly_three_named_cases_with_the_pinned_local_fixture(self):
         completed, docker, argv, plan = self.invoke()
