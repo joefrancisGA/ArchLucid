@@ -8,6 +8,8 @@ import {
   EnterpriseTableCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { ReviewsHubDecisionSlaBadge } from "@/components/reviews/ReviewsHubDecisionSlaBadge";
+import { ReviewsHubWaitingOnChip } from "@/components/reviews/ReviewsHubWaitingOnChip";
 import { StatusTag } from "@/components/ui/status-tag";
 import { reviewsHubFindingsCountDisplay, reviewsHubRiskCountDisplay } from "@/lib/reviews/reviews-hub-inventory-count-display";
 import type { ReviewPackageOwnerResolutionContext } from "@/lib/review-package-validation-picker";
@@ -82,10 +84,14 @@ export function ReviewsHubInventoryRow(props: ReviewsHubInventoryRowProps): Reac
         )}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={STATUS_COLUMN_CLASS}>
-        <StatusTag
-          kind={reviewsHubOverallStatusTagKind(row.overallStatus, row.needsAttention)}
-          label={row.overallStatus}
-        />
+        <div className="flex flex-col gap-1">
+          <StatusTag
+            kind={reviewsHubOverallStatusTagKind(row.overallStatus, row.needsAttention)}
+            label={row.overallStatus}
+          />
+          <ReviewsHubDecisionSlaBadge run={props.run} />
+          <ReviewsHubWaitingOnChip run={props.run} />
+        </div>
       </EnterpriseTableCell>
       <EnterpriseTableCell>
         <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{row.governanceState}</span>

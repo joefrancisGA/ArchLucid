@@ -10,6 +10,7 @@ import { isSecureNowWorkspaceFooterTrustLinkExcluded } from "@/lib/product-line/
 import { resolveSecureNowAttribution } from "@/lib/editions/securenow-attribution";
 import { resolveSecureNowEditionIdFromEnv } from "@/lib/product-line/resolve-securenow-edition-id";
 import { cn } from "@/lib/utils";
+import { SecureNowProcurementTrustFooterDrawer } from "@/components/product-line/SecureNowProcurementTrustFooterDrawer";
 
 import {
   SystemHealthStatusStripDeferred,
@@ -52,6 +53,8 @@ export function AppShellWorkspaceFooter({ hideWorkspaceHealthFooter }: AppShellW
           ) : null}
           {showWorkspaceFooterTrustLink ? (
             <TrustCenterShellLinkDeferred variant="footer" className="ml-auto" />
+          ) : productLine === "security" ? (
+            <SecureNowProcurementTrustFooterDrawer />
           ) : null}
         </div>
       </footer>
