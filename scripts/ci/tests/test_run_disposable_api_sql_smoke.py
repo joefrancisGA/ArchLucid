@@ -9,10 +9,11 @@ import unittest
 
 CI = Path(__file__).resolve().parents[1]
 WRAPPER = CI / "run_disposable_api_sql_smoke.sh"
+SQL_PIN = "sha256:db9a8fe3098b7e8bbde41106bdc7caee942e97124e5fdb71b872ca208de3092d"
 
 
 class DisposableApiSqlSmokeTests(unittest.TestCase):
-    def invoke(self, test_exit=0, server_exit=False, port="127.0.0.1:49155"):
+    def invoke(self, test_exit=0, server_exit=False, port="127.0.0.1:49155", image_id=SQL_PIN, repo_digest=""):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / "docker").write_text(
@@ -20,7 +21,9 @@ class DisposableApiSqlSmokeTests(unittest.TestCase):
 set -eu
 printf '%s\n' "$*" >> "$FAKE_DOCKER_LOG"
 case "$1" in
-  run) test -n "$MSSQL_SA_PASSWORD"; echo fake-container ;;
+  pull) test "$2" = 'mcr.microsoft.com/mssql/server:2022-CU22-ubuntu-22.04' ;;
+  image) printf '%s\n' "$FAKE_IMAGE_ID" "$FAKE_REPO_DIGEST" ;;
+  run) test -n "$MSSQL_SA_PASSWORD"; test "${!#}" = "$FAKE_IMAGE_ID"; echo fake-container ;;
   exec) test -n "$SQLCMDPASSWORD"; [[ "$FAKE_SERVER_EXIT" = false ]] ;;
   inspect) echo "$FAKE_RUNNING" ;;
   port) echo "$FAKE_PORT" ;;
@@ -55,6 +58,8 @@ fi
                 "FAKE_SERVER_EXIT": str(server_exit).lower(),
                 "FAKE_RUNNING": str(not server_exit).lower(),
                 "FAKE_PORT": port,
+                "FAKE_IMAGE_ID": image_id,
+                "FAKE_REPO_DIGEST": repo_digest,
             }
             completed = subprocess.run(
                 ["bash", str(WRAPPER), str(root / "results")],
@@ -77,8 +82,10 @@ fi
             "Repeat_finalize_rejects_a_corrupt_persisted_inventory_hash",
             "Tenant_b_audit_list_take_200_excludes_tenant_a_run_id_sql_tb295",
         ])
-        self.assertIn("--publish 127.0.0.1::1433", docker[0])
-        self.assertIn("@sha256:", docker[0])
+        self.assertIn("pull mcr.microsoft.com/mssql/server:2022-CU22-ubuntu-22.04", docker)
+        start = next(command for command in docker if command.startswith("run "))
+        self.assertIn("--publish 127.0.0.1::1433", start)
+        self.assertTrue(start.endswith(" " + SQL_PIN))
         self.assertTrue(any("READ_COMMITTED_SNAPSHOT ON" in command for command in docker))
         self.assertEqual(docker[-1], "rm -f fake-container")
         self.assertNotIn("fake-password-used-only", "\n".join(docker) + completed.stdout + completed.stderr)
@@ -101,3 +108,19 @@ fi
         self.assertIn("did not publish a loopback port", completed.stderr)
         self.assertFalse(argv)
         self.assertEqual(docker[-1], "rm -f fake-container")
+
+    def test_changed_image_digest_is_rejected_before_the_fixture_starts(self):
+        completed, docker, argv = self.invoke(image_id="sha256:" + "0" * 64)
+        self.assertNotEqual(completed.returncode, 0)
+        self.assertIn("did not match the published digest", completed.stderr)
+        self.assertFalse(argv)
+        self.assertFalse(any(command.startswith("run ") for command in docker))
+
+    def test_registry_manifest_pin_can_verify_an_image_with_a_distinct_id(self):
+        image_id = "sha256:" + "a" * 64
+        completed, docker, _ = self.invoke(
+            image_id=image_id, repo_digest=f"mcr.microsoft.com/mssql/server@{SQL_PIN}",
+        )
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        start = next(command for command in docker if command.startswith("run "))
+        self.assertTrue(start.endswith(" " + image_id))

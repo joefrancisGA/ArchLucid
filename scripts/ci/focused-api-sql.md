@@ -2,9 +2,7 @@
 
 Run these cases on a disposable SQL Server, never against a shared development or production catalog. Use the same SQL build and settings for every revision in a comparison. The recommended fixture for this lane is SQL Server 2022 CU22 for Ubuntu 22.04, pinned by digest.
 
-```text
-mcr.microsoft.com/mssql/server:2022-CU22-ubuntu-22.04@sha256:db9a8fe3098b7e8bbde41106bdc7caee942e97124e5fdb71b872ca208de3092d
-```
+Pull `mcr.microsoft.com/mssql/server:2022-CU22-ubuntu-22.04` and verify the published digest `sha256:db9a8fe3098b7e8bbde41106bdc7caee942e97124e5fdb71b872ca208de3092d` before starting it. The smoke wrapper supports a match against either the image ID or a registry manifest digest and starts the verified image by ID.
 
 1. Start a fresh container with no published ports beyond a loopback mapping. Use Developer Edition and a throwaway password.
 2. Set `READ_COMMITTED_SNAPSHOT ON` on the disposable server's `model` catalog before the API fixture creates user databases. This keeps migration startup from waiting for exclusive access to the test catalog. Do not change isolation settings on a reused server.

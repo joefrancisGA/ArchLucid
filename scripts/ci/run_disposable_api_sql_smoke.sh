@@ -8,7 +8,16 @@ if [[ $# != 1 || -z "$1" || -e "$1" ]]; then
 fi
 
 results_dir=$1
-sql_image='mcr.microsoft.com/mssql/server:2022-CU22-ubuntu-22.04@sha256:db9a8fe3098b7e8bbde41106bdc7caee942e97124e5fdb71b872ca208de3092d'
+sql_tag='mcr.microsoft.com/mssql/server:2022-CU22-ubuntu-22.04'
+sql_digest='sha256:db9a8fe3098b7e8bbde41106bdc7caee942e97124e5fdb71b872ca208de3092d'
+# A registry may publish an image config digest rather than a pullable manifest digest.
+docker pull "$sql_tag"
+image_manifest="$(docker image inspect --format '{{.Id}}{{range .RepoDigests}}{{println}}{{.}}{{end}}' "$sql_tag")"
+image_id=${image_manifest%%$'\n'*}
+if [[ ! "$image_id" =~ ^sha256:[[:xdigit:]]{64}$ ]] || ! grep -Eq "(^|@)$sql_digest$" <<< "$image_manifest"; then
+  echo 'Disposable SQL image did not match the published digest.' >&2
+  exit 1
+fi
 export MSSQL_SA_PASSWORD
 MSSQL_SA_PASSWORD="$(python3 -c 'import secrets; print("Aa1!" + secrets.token_hex(20))')"
 container_id=''
@@ -23,7 +32,7 @@ trap 'exit 143' TERM
 
 container_id="$(docker run --detach --rm --publish 127.0.0.1::1433 \
   --env ACCEPT_EULA=Y --env MSSQL_PID=Developer --env MSSQL_SA_PASSWORD \
-  --env MSSQL_MEMORY_LIMIT_MB=2048 "$sql_image")"
+  --env MSSQL_MEMORY_LIMIT_MB=2048 "$image_id")"
 export SQLCMDPASSWORD="$MSSQL_SA_PASSWORD"
 
 sqlcmd() {
