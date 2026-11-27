@@ -21,9 +21,8 @@ internal static class EntraMultiTenantJwtBearerConfigurator
         if (!auth.MultiTenantEntra)
             return;
 
-        options.TokenValidationParameters.IssuerValidator = ValidateIssuer;
-
         IReadOnlyList<Guid> allowList = ParseAllowedEntraTenantIds(auth.AllowedEntraTenantIds);
+        options.TokenValidationParameters.IssuerValidator = ValidateIssuer;
 
         if (allowList.Count == 0)
             return;
@@ -75,15 +74,24 @@ internal static class EntraMultiTenantJwtBearerConfigurator
         if (string.IsNullOrWhiteSpace(raw))
             return [];
 
-        List<Guid> list = [];
+        const string invalidConfiguration =
+            "ArchLucidAuth:AllowedEntraTenantIds must contain a comma-separated list of directory GUIDs or be left unset.";
+        string[] parts = raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-        foreach (string part in raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        if (parts.Length == 0)
+            throw new InvalidOperationException(invalidConfiguration);
 
-            if (Guid.TryParse(part, out Guid g))
+        List<Guid> directoryIds = new(parts.Length);
 
-                list.Add(g);
+        foreach (string part in parts)
+        {
+            if (!Guid.TryParse(part, out Guid directoryId))
+                throw new InvalidOperationException(invalidConfiguration);
 
-        return list;
+            directoryIds.Add(directoryId);
+        }
+
+        return directoryIds;
     }
 
     private static bool TryGetTenantId(ClaimsPrincipal? principal, out Guid tenantId)
