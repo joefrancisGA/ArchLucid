@@ -209,6 +209,19 @@ class FocusedApiSqlCheckpointTests(TestCase):
         self.assertEqual(self.read_summary(), expected)
         self.run_case.assert_not_called()
 
+    def test_records_a_known_setup_failure_without_changing_case_or_cleanup_data(self):
+        self.assertEqual(RUNNER.main(self.args + ["--prepare-only"]), 0)
+        self.assertEqual(RUNNER.main(self.args + ["--record-fixture-cleanup", "already-absent"]), 0)
+        expected = self.read_summary()
+        self.assertEqual(RUNNER.main(self.args + ["--record-fixture-setup-failure", "server-exited"]), 0)
+        expected["fixture_setup_failure"] = "server-exited"
+        self.assertEqual(self.read_summary(), expected)
+        with self.assertRaises(SystemExit) as invalid:
+            RUNNER.main(self.args + ["--record-fixture-setup-failure", "raw-docker-output"])
+        self.assertEqual(invalid.exception.code, 2)
+        self.assertEqual(self.read_summary(), expected)
+        self.run_case.assert_not_called()
+
     def test_interruption_in_second_case_preserves_completed_active_and_pending_rows(self):
         self.assertEqual(RUNNER.main(self.args + ["--prepare-only"]), 0)
         os.environ["ARCHLUCID_API_TEST_SQL"] = "private-fixture-sentinel"

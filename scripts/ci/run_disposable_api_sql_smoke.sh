@@ -72,11 +72,14 @@ setup_docker() {
   docker_until "$setup_deadline" "$@"
 }
 setup_failed() {
-  local status=$1
+  local status=$1 reason=$2
   if deadline_expired "$status"; then
     record_deadline setup
     exit 124
   fi
+  echo "${3:-Disposable SQL fixture setup failed ($reason).}" >&2
+  python3 scripts/ci/run_focused_api_sql.py --results-dir "$results_dir" "--record-fixture-setup-failure=$reason" \
+    || echo 'Could not annotate the focused SQL summary.' >&2
   exit "$status"
 }
 verify_removal() {
@@ -151,20 +154,23 @@ trap 'cancel INT 130' INT
 trap 'cancel TERM 143' TERM
 
 # A registry may publish an image config digest rather than a pullable manifest digest.
-setup_docker pull "$sql_tag" || setup_failed "$?"
-image_manifest="$(setup_docker image inspect --format '{{.Id}}{{range .RepoDigests}}{{println}}{{.}}{{end}}' "$sql_tag")" \
-  || setup_failed "$?"
+setup_docker pull "$sql_tag" >/dev/null 2>&1 || setup_failed "$?" image-pull-failed
+image_manifest="$(setup_docker image inspect --format '{{.Id}}{{range .RepoDigests}}{{println}}{{.}}{{end}}' "$sql_tag" 2>/dev/null)" \
+  || setup_failed "$?" image-inspect-failed
 image_id=${image_manifest%%$'\n'*}
 if [[ ! "$image_id" =~ ^sha256:[[:xdigit:]]{64}$ ]] || ! grep -Eq "(^|@)$sql_digest$" <<< "$image_manifest"; then
-  echo 'Disposable SQL image did not match the published digest.' >&2
-  exit 1
+  setup_failed 1 image-digest-mismatch 'Disposable SQL image did not match the published digest.'
 fi
 export MSSQL_SA_PASSWORD
-MSSQL_SA_PASSWORD="$(python3 -c 'import secrets; print("Aa1!" + secrets.token_hex(20))')"
+MSSQL_SA_PASSWORD="$(python3 -c 'import secrets; print("Aa1!" + secrets.token_hex(20))' 2>/dev/null)" \
+  || setup_failed "$?" fixture-initialization-failed
 container_name="archlucid-focused-sql-${BASHPID:-$$}-${RANDOM}-${RANDOM}-${RANDOM}"
 container_id="$(setup_docker run --detach --rm --name "$container_name" --publish 127.0.0.1::1433 \
   --env ACCEPT_EULA=Y --env MSSQL_PID=Developer --env MSSQL_SA_PASSWORD \
-  --env MSSQL_MEMORY_LIMIT_MB=2048 "$image_id")" || setup_failed "$?"
+  --env MSSQL_MEMORY_LIMIT_MB=2048 "$image_id" 2>/dev/null)" || setup_failed "$?" container-start-failed
+if [[ -z "$container_id" ]]; then
+  setup_failed 1 container-start-failed
+fi
 export SQLCMDPASSWORD="$MSSQL_SA_PASSWORD"
 
 sqlcmd() {
@@ -180,30 +186,31 @@ for attempt in {1..30}; do
   else
     probe_status=$?
     if deadline_expired "$probe_status"; then
-      setup_failed "$probe_status"
+      setup_failed "$probe_status" readiness-check-failed
     fi
   fi
-  running="$(setup_docker inspect --format '{{.State.Running}}' "$container_id" 2>/dev/null)" || setup_failed "$?"
-  if [[ "$running" != 'true' ]]; then
-    echo 'Disposable SQL Server exited before accepting connections.' >&2
-    exit 1
+  running="$(setup_docker inspect --format '{{.State.Running}}' "$container_id" 2>/dev/null)" \
+    || setup_failed "$?" readiness-check-failed
+  if [[ "$running" == 'false' ]]; then
+    setup_failed 1 server-exited 'Disposable SQL Server exited before accepting connections.'
+  elif [[ "$running" != 'true' ]]; then
+    setup_failed 1 readiness-check-failed
   fi
   remaining=$((setup_deadline - SECONDS))
   if ((remaining <= 0)); then
-    setup_failed 124
+    setup_failed 124 readiness-check-failed
   fi
   sleep "$((remaining < 2 ? remaining : 2))"
 done
 if [[ "$ready" != true ]]; then
-  echo 'Disposable SQL Server did not become ready.' >&2
-  exit 1
+  setup_failed 1 readiness-exhausted 'Disposable SQL Server did not become ready.'
 fi
 
-sqlcmd -Q "ALTER DATABASE model SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE;" || setup_failed "$?"
-port_binding="$(setup_docker port "$container_id" 1433/tcp)" || setup_failed "$?"
+sqlcmd -Q "ALTER DATABASE model SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE;" >/dev/null 2>&1 \
+  || setup_failed "$?" sql-configuration-failed
+port_binding="$(setup_docker port "$container_id" 1433/tcp 2>/dev/null)" || setup_failed "$?" port-lookup-failed
 if [[ ! "$port_binding" =~ ^127\.0\.0\.1:([0-9]+)$ ]]; then
-  echo 'Disposable SQL Server did not publish a loopback port.' >&2
-  exit 1
+  setup_failed 1 invalid-port-binding 'Disposable SQL Server did not publish a loopback port.'
 fi
 export ARCHLUCID_API_TEST_SQL="Server=127.0.0.1,${BASH_REMATCH[1]};Database=master;User ID=sa;Password=$MSSQL_SA_PASSWORD;TrustServerCertificate=True;Encrypt=True;Connect Timeout=8;Pooling=False"
 export ARCHLUCID_SQL_TEST="$ARCHLUCID_API_TEST_SQL"

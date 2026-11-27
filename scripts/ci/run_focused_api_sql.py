@@ -26,6 +26,11 @@ INVENTORY_HTTP_STATUS_EXPECTED = {"initial-status": "2xx", "control-repeat-statu
 FINAL_OUTCOMES = ("passed", "failed", "skipped", "interrupted")
 FIXTURE_PHASES = ("setup", "cleanup")
 FIXTURE_CLEANUP_OUTCOMES = ("already-absent", "still-present", "unverified")
+FIXTURE_SETUP_FAILURES = (
+    "image-pull-failed", "image-inspect-failed", "image-digest-mismatch", "fixture-initialization-failed",
+    "container-start-failed", "readiness-check-failed", "server-exited", "readiness-exhausted",
+    "sql-configuration-failed", "port-lookup-failed", "invalid-port-binding",
+)
 
 
 class Cancellation:
@@ -184,9 +189,9 @@ def record_fixture_timeout(path, revision, phase):
         checkpoint(path, summary)
 
 
-def record_fixture_cleanup(path, revision, outcome):
+def record_fixture_field(path, revision, field, outcome):
     summary = read_fixture_summary(path, revision)
-    summary["fixture_cleanup"] = outcome
+    summary[field] = outcome
     checkpoint(path, summary)
 
 
@@ -202,6 +207,8 @@ def main(argv=None, cancellation=None):
     mode.add_argument("--record-fixture-timeout", choices=FIXTURE_PHASES, help="Add a fixture timeout without changing test outcomes")
     mode.add_argument("--record-fixture-cleanup", choices=FIXTURE_CLEANUP_OUTCOMES,
                       help="Record cleanup verification without changing test outcomes")
+    mode.add_argument("--record-fixture-setup-failure", choices=FIXTURE_SETUP_FAILURES,
+                      help="Record a bounded setup error without changing test outcomes")
     args = parser.parse_args(argv)
     if args.timeout_seconds < 20:
         parser.error("the case timeout must be at least 20 seconds")
@@ -209,12 +216,14 @@ def main(argv=None, cancellation=None):
     output = args.results_dir.resolve()
     summary_path = output / "summary.json"
     revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
-    if args.record_fixture_timeout or args.record_fixture_cleanup:
+    if args.record_fixture_timeout or args.record_fixture_cleanup or args.record_fixture_setup_failure:
         try:
             if args.record_fixture_timeout:
                 record_fixture_timeout(summary_path, revision, args.record_fixture_timeout)
+            elif args.record_fixture_cleanup:
+                record_fixture_field(summary_path, revision, "fixture_cleanup", args.record_fixture_cleanup)
             else:
-                record_fixture_cleanup(summary_path, revision, args.record_fixture_cleanup)
+                record_fixture_field(summary_path, revision, "fixture_setup_failure", args.record_fixture_setup_failure)
         except (OSError, ValueError):
             parser.error("cannot annotate the existing focused SQL summary")
         return cancellation.exit_code or 0
