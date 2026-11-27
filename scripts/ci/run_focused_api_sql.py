@@ -24,6 +24,8 @@ INVENTORY_STAGES = {
 }
 INVENTORY_HTTP_STATUS_EXPECTED = {"initial-status": "2xx", "control-repeat-status": "2xx", "repeat-status": 409}
 FINAL_OUTCOMES = ("passed", "failed", "skipped", "interrupted")
+LINUX_PROCESS_GROUPS = sys.platform == "linux"
+PROCESS_DRAIN_SECONDS = 2
 FIXTURE_PHASES = ("setup", "cleanup")
 FIXTURE_CLEANUP_OUTCOMES = ("already-absent", "still-present", "unverified")
 FIXTURE_SETUP_FAILURES = (
@@ -103,6 +105,62 @@ def stop_test_tree(child):
     child.wait()
 
 
+def wait_for_test_exit(child, timeout, cancellation):
+    deadline = time.monotonic() + timeout
+    while cancellation.signum is None:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return None, True
+        if LINUX_PROCESS_GROUPS:
+            # Don't reap the session leader yet. Holding its PID prevents reuse
+            # of the process group ID while we verify or drain the group.
+            info = os.waitid(os.P_PID, child.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+            if info is not None:
+                return info.si_status if info.si_code == os.CLD_EXITED else -info.si_status, False
+            time.sleep(min(remaining, 0.05))
+        else:
+            try:
+                return child.wait(timeout=min(remaining, 0.2)), False
+            except subprocess.TimeoutExpired:
+                continue
+    return None, False
+
+
+def linux_group_has_live_members(group):
+    for entry in Path("/proc").iterdir():
+        if not entry.name.isdecimal():
+            continue
+        try:
+            raw = (entry / "stat").read_bytes()
+        except (FileNotFoundError, ProcessLookupError):
+            continue
+        # The parenthesized command may contain spaces or parentheses.
+        fields = raw.rsplit(b") ", 1)[1].split()
+        if int(fields[2]) == group and fields[0] not in (b"Z", b"X", b"x"):
+            return True
+    return False
+
+
+def drain_exited_linux_group(group):
+    deadline = time.monotonic() + PROCESS_DRAIN_SECONDS
+    while True:
+        try:
+            os.killpg(group, signal.SIGKILL)
+        except ProcessLookupError:
+            return True
+        except OSError:
+            return False
+        try:
+            if not linux_group_has_live_members(group):
+                return True
+        except (OSError, IndexError, ValueError):
+            return False
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return False
+        time.sleep(min(remaining, 0.02))
+
+
 def run_case(name, output, timeout, cancellation):
     result = {"case": name, "outcome": "interrupted", "exit_code": None, "artifact_dir": output.name}
     if cancellation.signum is not None:
@@ -116,7 +174,6 @@ def run_case(name, output, timeout, cancellation):
         "--results-directory", str(output), "--logger", "trx;LogFileName=case.trx",
         "--blame-hang-timeout", f"{timeout - 15}s", "--blame-hang-dump-type", "none",
     ]
-    timed_out = False
     with (output / "console.log").open("w", encoding="utf-8") as log:
         try:
             child = subprocess.Popen(cmd, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT,
@@ -124,25 +181,22 @@ def run_case(name, output, timeout, cancellation):
         except OSError:
             result["interruption"] = "launch-failed"
             return result
-        deadline = time.monotonic() + timeout
-        while cancellation.signum is None:
-            remaining = deadline - time.monotonic()
-            if remaining <= 0:
-                timed_out = True
-                break
-            try:
-                child.wait(timeout=min(remaining, 0.2))
-                break
-            except subprocess.TimeoutExpired:
-                continue
+        code, timed_out = wait_for_test_exit(child, timeout, cancellation)
         cancelled = cancellation.signum is not None
         if timed_out or cancelled:
             stop_test_tree(child)
-    if cancelled:
-        outcome, failure, interruption = "interrupted", None, "cancelled"
-    else:
-        outcome, failure, interruption = read_result(trx, name, child.returncode, timed_out)
-    result.update(outcome=outcome, exit_code=child.returncode)
+            code = child.returncode
+        try:
+            if cancelled:
+                outcome, failure, interruption = "interrupted", None, "cancelled"
+            else:
+                outcome, failure, interruption = read_result(trx, name, code, timed_out)
+            # A valid result proves the test outcome, not that its helpers exited.
+            if LINUX_PROCESS_GROUPS and not (timed_out or cancelled) and not drain_exited_linux_group(child.pid):
+                result["process_cleanup"] = "unverified"
+        finally:
+            child.wait()
+    result.update(outcome=outcome, exit_code=code)
     if interruption is not None:
         result["interruption"] = interruption
     if failure is not None:
@@ -257,7 +311,10 @@ def main(argv=None, cancellation=None):
         row["outcome"] = "running"
         checkpoint(summary_path, summarize(revision, reports))
         print(f"[{index}/{len(cases)}] {name}", flush=True)
+        started_ns = time.monotonic_ns()
         result = run_case(name, output / row["artifact_dir"], args.timeout_seconds, cancellation)
+        result = dict(result, elapsed_ms=(time.monotonic_ns() - started_ns) // 1_000_000,
+                      watchdog_budget_ms=args.timeout_seconds * 1_000)
         reports[index - 1] = result
         checkpoint(summary_path, summarize(revision, reports))
         reason = f" ({result['interruption']})" if "interruption" in result else ""
@@ -267,10 +324,15 @@ def main(argv=None, cancellation=None):
         if result.get("interruption") == "launch-failed":
             print("Could not start the .NET test process. No further cases were started.", file=sys.stderr, flush=True)
             break
+        if result.get("process_cleanup") == "unverified":
+            print("Could not verify test process cleanup. No further cases were started.", file=sys.stderr, flush=True)
+            break
     counts = summarize(revision, reports)["counts"]
     print(json.dumps(counts, sort_keys=True))
     if cancellation.signum is not None:
         return cancellation.exit_code
+    if any(row.get("process_cleanup") == "unverified" for row in reports):
+        return 1
     return 0 if counts["passed"] == len(cases) else 1
 
 
