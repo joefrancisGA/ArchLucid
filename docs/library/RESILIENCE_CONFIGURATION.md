@@ -91,6 +91,22 @@ The pricing tests cover both header formats on all three named clients, elapsed-
 
 This change expands adoption only for the hosted pricing clients. Azure Resource Manager, CLI/direct SDK clients, and non-pricing outbound integrations keep their own behavior. The shared external integration breaker already samples completed calls, Jira/ServiceNow health probes use independent clients, and the Jira, ServiceNow, and Azure Boards ticket paths do not automatically replay writes. Broader opt-in for read retry timing, concurrency limits beyond hosted pricing, and provider-specific idempotency verification for other mutation paths remain separate work. Do not adopt the pricing retry settings blindly for writes.
 
+### Webhook and Marketplace delivery (FND-065)
+
+The audit at `b4b23e5` found two independent named breakers, but all webhook destinations shared one and both paths could retry POSTs. The current behavior is:
+
+| Path | Resilience and recovery |
+| --- | --- |
+| Slack, Teams, and on-call webhooks | The 60-second named client maintains a separate process-local breaker per configured URL, including path and query. Registry keys are digests and are not logged. At 4,096 active or recent destinations the client refuses admission of new destinations until idle entries can be reclaimed. It does not evict recent state or combine unrelated destinations into a shared fallback breaker. The existing HTTP retry, signing, envelope, and transport settings are unchanged. |
+| Azure Marketplace manual activation | GET subscription status on a distinct 30-second client before submitting. `Subscribed` needs no POST. An eligible pending subscription can claim one automatic dispatch through an atomic insert into the canonical billing ledger using the subscription ID. The activation client never retries POSTs or follows redirects. The status client can retry GET and stays available when the activation breaker is open. |
+| Azure Marketplace plan and quantity updates | These handlers continue to mutate local billing and entitlement state. They do not use the activation submission client. |
+
+[Microsoft's activation contract](https://learn.microsoft.com/en-us/partner-center/marketplace-offers/pc-saas-fulfillment-subscription-api#activate-a-subscription) distinguishes an accepted activation request from confirmed subscription state. After an ambiguous send, a status read showing `Subscribed` allows local fulfillment to continue. A pending status does not prove the submission failed. A later inbound delivery can check again but does not issue a second automatic POST for a claimed subscription. The claim survives a change in webhook payload and process restart when backed by SQL, but it is not delivery confirmation. No claim is required when the provider already reports `Subscribed`.
+
+**Operator recovery:** If the worker stopped after recording a dispatch claim, the request may not have reached Marketplace. Check the subscription and the state of the original request on the provider side before manually completing activation. Do not clear claims as a standard retry mechanism. A hard stop can leave the pre-existing inbound receipt in `Received`; exact redelivery of that receipt is not a substitute for operator reconciliation. Drain workers running the previous activation path before mixing versions on the same workload.
+
+The webhook registry isolates breaker state, not concurrency across hosts. There is still no documented receiver-wide deduplication guarantee for [Slack incoming webhooks](https://docs.slack.dev/messaging/sending-messages-using-incoming-webhooks/) or [Teams webhooks](https://learn.microsoft.com/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook). Stable receiver-aware webhook retry rules and broader outbound adoption remain separate work.
+
 ### CLI HTTP retries
 
 | Setting | Source | Default | Notes |
