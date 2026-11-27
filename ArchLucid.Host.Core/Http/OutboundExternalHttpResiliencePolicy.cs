@@ -15,7 +15,7 @@ namespace ArchLucid.Host.Core.Http;
 public static class OutboundExternalHttpResiliencePolicy
 {
     /// <summary>
-    ///     Production policy: exponential retry on transient faults, then advanced circuit breaker on sustained failure rate.
+    ///     Production policy: a circuit breaker around exponential retry, sampling one outcome per logical call.
     /// </summary>
     public static IAsyncPolicy<HttpResponseMessage> Create(OutboundExternalHttpResilienceOptions options) =>
         Create(options, static attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)));
@@ -32,8 +32,23 @@ public static class OutboundExternalHttpResiliencePolicy
 
         OutboundExternalHttpResilienceOptions normalized = CloneNormalized(options);
 
-        // Register retry first so it sits innermost; circuit breaker second so it wraps retries and fails fast when open.
+        // Polly applies strategies outermost-first. The breaker sees one final outcome,
+        // not each individual retry, and rejects an open circuit before any send.
         ResiliencePipelineBuilder<HttpResponseMessage> builder = new();
+
+        if (normalized.CircuitBreakerEnabled)
+        {
+            builder.AddCircuitBreaker(new CircuitBreakerStrategyOptions<HttpResponseMessage>
+            {
+                FailureRatio = normalized.FailureRatio,
+                SamplingDuration = TimeSpan.FromSeconds(normalized.SamplingDurationSeconds),
+                MinimumThroughput = normalized.MinimumThroughput,
+                BreakDuration = TimeSpan.FromSeconds(normalized.BreakDurationSeconds),
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .Handle<HttpRequestException>()
+                    .HandleResult(CountsAsCircuitBreakerFailure),
+            });
+        }
 
         if (normalized.MaxRetryAttempts > 0)
         {
@@ -49,28 +64,6 @@ public static class OutboundExternalHttpResiliencePolicy
 
                     return new ValueTask<TimeSpan?>(delay);
                 },
-            });
-        }
-
-        if (normalized.CircuitBreakerEnabled)
-        {
-            int minimumThroughput = normalized.MinimumThroughput;
-
-            if (normalized.MaxRetryAttempts > 0)
-            {
-                // Outer breaker records each retry attempt; scale so MinimumThroughput stays in logical-call units.
-                minimumThroughput = normalized.MinimumThroughput * (normalized.MaxRetryAttempts + 1);
-            }
-
-            builder.AddCircuitBreaker(new CircuitBreakerStrategyOptions<HttpResponseMessage>
-            {
-                FailureRatio = normalized.FailureRatio,
-                SamplingDuration = TimeSpan.FromSeconds(normalized.SamplingDurationSeconds),
-                MinimumThroughput = minimumThroughput,
-                BreakDuration = TimeSpan.FromSeconds(normalized.BreakDurationSeconds),
-                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
-                    .Handle<HttpRequestException>()
-                    .HandleResult(CountsAsCircuitBreakerFailure),
             });
         }
 

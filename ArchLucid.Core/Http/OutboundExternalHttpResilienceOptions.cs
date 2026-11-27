@@ -17,7 +17,7 @@ public sealed class OutboundExternalHttpResilienceOptions
     /// <summary>Sliding window length for failure-ratio sampling.</summary>
     public int SamplingDurationSeconds { get; set; } = 30;
 
-    /// <summary>Minimum calls in the window before the breaker can trip on ratio alone.</summary>
+    /// <summary>Minimum completed logical calls in the window before the breaker can trip. Retries do not add to the count.</summary>
     public int MinimumThroughput { get; set; } = 8;
 
     /// <summary>Duration the breaker stays open before probing half-open.</summary>

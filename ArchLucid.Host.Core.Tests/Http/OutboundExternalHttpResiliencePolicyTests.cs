@@ -49,6 +49,61 @@ public sealed class OutboundExternalHttpResiliencePolicyTests
     }
 
     [Fact]
+    public async Task Retry_recovery_does_not_open_the_breaker_after_successful_logical_calls()
+    {
+        IAsyncPolicy<HttpResponseMessage> policy = OutboundExternalHttpResiliencePolicy.Create(
+            new OutboundExternalHttpResilienceOptions
+            {
+                MinimumThroughput = 2,
+                FailureRatio = 0.5,
+                MaxRetryAttempts = 1,
+            },
+            static _ => TimeSpan.Zero);
+        int sends = 0;
+
+        Task<HttpResponseMessage> SendAsync(CancellationToken _) =>
+            Task.FromResult(new HttpResponseMessage(++sends % 2 == 1
+                ? HttpStatusCode.ServiceUnavailable
+                : HttpStatusCode.OK));
+
+        for (int i = 0; i < 3; i++)
+        {
+            using HttpResponseMessage response = await policy.ExecuteAsync(SendAsync, CancellationToken.None);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        sends.Should().Be(6);
+    }
+
+    [Fact]
+    public async Task Breaker_counts_nonretryable_auth_failures_in_logical_calls_even_with_retry_enabled()
+    {
+        IAsyncPolicy<HttpResponseMessage> policy = OutboundExternalHttpResiliencePolicy.Create(
+            new OutboundExternalHttpResilienceOptions
+            {
+                MinimumThroughput = 2,
+                FailureRatio = 0.5,
+                MaxRetryAttempts = 2,
+            },
+            static _ => TimeSpan.Zero);
+        int sends = 0;
+
+        Task<HttpResponseMessage> SendAsync(CancellationToken _) =>
+            Task.FromResult(new HttpResponseMessage(++sends == 1 ? HttpStatusCode.Unauthorized : HttpStatusCode.Forbidden));
+
+        using HttpResponseMessage first = await policy.ExecuteAsync(SendAsync, CancellationToken.None);
+        using HttpResponseMessage second = await policy.ExecuteAsync(SendAsync, CancellationToken.None);
+
+        first.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        second.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        sends.Should().Be(2, "authentication failures are not retried");
+
+        Func<Task> read = () => policy.ExecuteAsync(SendAsync, CancellationToken.None);
+        await read.Should().ThrowAsync<BrokenCircuitException>();
+        sends.Should().Be(2, "an open circuit must not send more requests");
+    }
+
+    [Fact]
     public void Create_with_defaults_returns_non_null_policy()
     {
         IAsyncPolicy<HttpResponseMessage> policy = OutboundExternalHttpResiliencePolicy.Create(new OutboundExternalHttpResilienceOptions());
