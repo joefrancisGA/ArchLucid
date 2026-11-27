@@ -1,0 +1,17 @@
+---
+description: Prefer explicit, enforceable architectural constraints, validated domain types, narrow capabilities and justified extension points.
+alwaysApply: true
+---
+
+# Constraint-driven architectural design
+
+Follow the mandatory [common AI-assisted development governance protocol](../../docs/engineering/AI_ASSISTED_DEVELOPMENT_GOVERNANCE.md#24-mandatory-constraint-driven-architectural-design) for Cursor, ChatGPT, Codex and other coding agents.
+
+- Identify requirements, applicable invariants, valid and invalid states, trust boundaries, legitimate variation and affected consumers before materially changing a design.
+- Reuse canonical domain types and ports. Prefer compile-time enforcement, validated domain types and explicit state models over ambiguous primitive values or untyped escape hatches. Validate external/persisted inputs and preserve documented contracts.
+- Prefer cohesive narrow interfaces, least-authority capabilities, encapsulation, immutable values and controlled state transitions where justified. Do not confuse strong typing with authorization, runtime validity or concurrency safety.
+- Introduce extensibility only for demonstrated requirements or established seams; avoid speculative abstractions, gratuitous wrappers, interface fragmentation and bypasses of mandatory controls.
+- Prefer structural prevention and existing executable enforcement. Verify valid-use and prohibited-use cases, relevant boundary bypasses and affected consumers; report actual evidence and remaining gaps.
+- Strengthen existing designs incrementally within authorized scope. Preserve the shared-component impact, parallel coordination, root-cause remediation and test-integrity rules. No mass retyping, incompatible contract changes, new enforcement infrastructure, comprehensive master CI or automatic merges without appropriate authorization.
+
+The canonical governance document defines the full procedure. This is mandatory design guidance, not proof of executable enforcement.
