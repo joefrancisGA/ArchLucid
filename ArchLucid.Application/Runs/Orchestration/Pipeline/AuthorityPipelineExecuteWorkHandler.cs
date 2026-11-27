@@ -61,7 +61,8 @@ public sealed class AuthorityPipelineExecuteWorkHandler(
         {
             completed = await orchestrator.CompleteQueuedAuthorityPipelineAsync(request, cancellationToken).ConfigureAwait(false);
         }
-        catch (AnalysisStageExecutionException ex)
+        catch (AnalysisStageExecutionException ex) when (ex.Reason is not
+            ("upstream_changed_during_execution" or "inputs_changed_during_execution"))
         {
             // The outbox already dead-letters conflicts. A terminal stage outcome must not replay the pipeline.
             throw new ConflictException(ex.Message, ex);

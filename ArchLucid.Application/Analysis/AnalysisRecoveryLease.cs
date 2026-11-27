@@ -39,14 +39,24 @@ internal sealed class AnalysisRecoveryLease : IAsyncDisposable
 
     public static async Task<AnalysisRecoveryLease> AcquireAsync(
         IAnalysisRecoveryRepository repository, AnalysisRecoveryStageKey key, string inputVersion,
-        int maxAttempts, TimeProvider clock, CancellationToken token)
+        int maxAttempts, TimeProvider clock, CancellationToken token, bool replaceAuthorityInputs = false)
     {
         Guid owner = Guid.NewGuid();
-        AnalysisRecoveryClaim claim = await repository.ClaimAsync(
-            key, inputVersion, owner, LeaseSeconds, Math.Clamp(maxAttempts, 1, 5), token);
+        int max = Math.Clamp(maxAttempts, 1, 5);
+        AnalysisRecoveryClaim claim = replaceAuthorityInputs
+            ? await repository.ClaimForAuthorityInputsAsync(key, inputVersion, owner, LeaseSeconds, max, token)
+            : await repository.ClaimAsync(key, inputVersion, owner, LeaseSeconds, max, token);
+
+        if (replaceAuthorityInputs && claim.State == "running" && claim.Owner != owner)
+            throw new AnalysisRecoveryLeaseLostException(key.Stage);
 
         if (!string.Equals(claim.InputVersion, inputVersion, StringComparison.Ordinal))
+        {
+            if (replaceAuthorityInputs && claim.Attempts >= max)
+                throw new AnalysisStageExecutionException(key.Stage, AnalysisStageOutcome.RetryExhausted);
+
             throw new ConflictException($"Pinned inputs do not match the saved analysis stage '{key.Stage}'.");
+        }
 
         if (claim.State == "failed")
             throw new AnalysisStageExecutionException(key.Stage, AnalysisStageOutcome.RetryExhausted);
@@ -72,6 +82,8 @@ internal sealed class AnalysisRecoveryLease : IAsyncDisposable
         // Lease expiry is the fallback if the worker is killed or cleanup cannot reach SQL.
         using CancellationTokenSource cleanup = new(TimeSpan.FromSeconds(4), _clock);
         bool retryable = allowReplay && (interrupted || failure is AnalysisRecoveryLeaseLostException ||
+            failure is AnalysisDependencyRejectionException { Reason: "upstream_changed_during_execution" or "inputs_changed_during_execution" }
+                && _key.Pipeline == "authority" ||
             failure is not AnalysisStageExecutionException { Outcome: not AnalysisStageOutcome.Failed } &&
             SqlTransientDetector.IsTransient(failure));
 

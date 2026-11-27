@@ -38,6 +38,8 @@ public sealed class AuthorityPipelineContext
 
     internal IArchLucidUnitOfWork? RecoveryUnitOfWork { get; set; }
 
+    internal bool RebuildGraphForDependencyChange { get; set; }
+
     internal bool UsesDurableRecovery { get; init; }
 
     public required ScopeContext Scope

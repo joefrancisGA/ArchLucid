@@ -8,6 +8,7 @@
     "dbo.AlertRoutingSubscriptions",
     "dbo.AlertRules",
     "dbo.AnalysisStageRecovery",
+    "dbo.AnalysisStageRecoveryHistory",
     "dbo.ArchitectureDigests",
     "dbo.ArchitectureIntelligenceStandaloneRuns",
     "dbo.ArchitectureInventoryBindings",

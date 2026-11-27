@@ -1873,12 +1873,11 @@ export function DriftWorkbenchClient() {
             footer={
               isSecureNowProductLine(productLine) &&
               countSuccessfulInfraCaptures(snapshots) === 1 ? (
-                <SecureNowSecondCapturePathDeltaHonestyStrip
-                  testId="infra-drift-diffs-empty-later-second-capture"
-                  returnPath={partialCaptureReturnPath}
+                <SecureNowTimeToValueNextStepAuto
+                  testId="infra-drift-diffs-empty-later-time-to-value-next-step"
                   middleLine={DRIFT_WORKBENCH_SECOND_CAPTURE_PATH_DELTA_LINE}
-                  cloudConnectionsTestId="infra-drift-diffs-empty-later-cloud-connections"
-                  extractUploadTestId="infra-drift-diffs-empty-later-extract-upload"
+                  cloudConnectionsTestId="infra-drift-diffs-empty-later-time-to-value-cloud-connections"
+                  extractUploadTestId="infra-drift-diffs-empty-later-time-to-value-extract-upload"
                 />
               ) : undefined
             }

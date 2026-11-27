@@ -49,6 +49,7 @@ import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-ca
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
 import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+import { SecureNowTimeToValueNextStepAuto } from "@/components/product-line/SecureNowTimeToValueNextStepAuto";
 
 const SNAPSHOT_PAGE_SIZE = 20;
 const CLOUD_CONNECTIONS_HREF = CLOUD_CONNECTIONS_PATH;
@@ -365,6 +366,12 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
           snapshotCaptureSucceeded={false}
           subscriptionLabelPresent={false}
         />
+        <SecureNowTimeToValueNextStepAuto
+          testId="securenow-home-time-to-value-next-step"
+          snapshotCaptureSucceeded={false}
+          cloudConnectionsTestId="securenow-home-time-to-value-cloud-connections"
+          extractUploadTestId="securenow-home-time-to-value-extract-upload"
+        />
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-home-next-step">
           Next step:{" "}
           <ContextLink href={next.href}>{next.label.replace("Next: ", "")}</ContextLink>{" "}
@@ -410,6 +417,12 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
           subscriptionLabelPresent={subscriptions !== null}
         />
       ) : null}
+      <SecureNowTimeToValueNextStepAuto
+        testId="securenow-home-time-to-value-next-step"
+        snapshotCaptureSucceeded={snapshotCaptureSucceeded}
+        cloudConnectionsTestId="securenow-home-time-to-value-cloud-connections"
+        extractUploadTestId="securenow-home-time-to-value-extract-upload"
+      />
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-home-next-step">
         Next step:{" "}
         {rankedPathNextStepPending ? (

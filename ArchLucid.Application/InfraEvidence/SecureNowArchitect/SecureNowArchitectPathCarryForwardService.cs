@@ -38,6 +38,12 @@ public sealed class SecureNowArchitectPathCarryForwardService(ISecurityEvidenceP
             SecurityEvidencePathRecord sourcePath = item.Path;
             IReadOnlyList<SecurityEvidencePathHopRecord> sourceHops = item.Hops;
 
+            // Drift reads prior inventory and current diagram reconciliation; rebuild it on the target.
+
+            if (SecureNowAnalysisRun.ExecutionBudget?.RecoverySession is { Versioned: true } &&
+                !SecureNowDependencyInputs.CarryForwardPathKind(sourcePath.PathKind))
+                continue;
+
             if (excludeCloudResourceIds is not null
                 && excludeCloudResourceIds.Count > 0
                 && SecureNowArchitectNeighborhoodFilter.PathTouchesSeeds(

@@ -11,6 +11,15 @@ public interface IAnalysisRecoveryRepository
         AnalysisRecoveryStageKey key, string inputVersion, Guid owner, int leaseSeconds, int maxAttempts,
         CancellationToken cancellationToken);
 
+    /// <summary>Replaces an incompatible, inactive checkpoint only while its Authority run is unsealed.</summary>
+    Task<AnalysisRecoveryClaim> ClaimForAuthorityInputsAsync(
+        AnalysisRecoveryStageKey key, string inputVersion, Guid owner, int leaseSeconds, int maxAttempts,
+        CancellationToken cancellationToken);
+
+    /// <summary>Checks and locks the dependency in the consumer's publication transaction.</summary>
+    Task<bool> IsCurrentAsync(AnalysisRecoveryStageKey key, string inputVersion, string resultReference,
+        IArchLucidUnitOfWork unitOfWork, CancellationToken cancellationToken);
+
     Task<bool> RenewAsync(
         AnalysisRecoveryStageKey key, Guid owner, long fence, int leaseSeconds, CancellationToken cancellationToken);
 

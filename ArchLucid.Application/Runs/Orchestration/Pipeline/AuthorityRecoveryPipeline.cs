@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 
 using ArchLucid.Application.Analysis;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
@@ -23,7 +24,8 @@ public sealed class AuthorityRecoveryPipeline(
     IOptionsMonitor<AnalysisStageExecutionOptions> options,
     TimeProvider clock,
     ILogger<AuthorityRecoveryPipeline> logger,
-    IOptionsMonitor<IntegrationEventsOptions> integrationOptions)
+    IOptionsMonitor<IntegrationEventsOptions> integrationOptions,
+    AnalysisDependencyConfiguration? dependencies = null)
 {
     private const string Pipeline = "authority";
     private const string Publish = "seal_and_publish";
@@ -61,6 +63,10 @@ public sealed class AuthorityRecoveryPipeline(
             new { Protocol = 1, Engine = typeof(AuthorityRecoveryPipeline).Module.ModuleVersionId, context.Request },
             AuditJsonSerializationOptions.Instance)));
 
+        bool versioned = options.CurrentValue.EnableDependencyAwareAnalysisReuse && dependencies is not null;
+        Dictionary<string, (string Version, string Result)> inputs = new(StringComparer.Ordinal);
+        context.RebuildGraphForDependencyChange = versioned;
+
         foreach (string stage in ResumableStages)
         {
             await ExecuteBoundaryAsync(stage, async (lease, uow, token) =>
@@ -82,6 +88,8 @@ public sealed class AuthorityRecoveryPipeline(
                 if (output.Length == 0)
                     throw new ConflictException($"Authority stage '{stage}' returned without a durable output.");
 
+                EnsureCoverage(stage);
+                await VerifyPublicationInputsAsync(stage, uow, token);
                 await lease.CompleteAsync(output, uow, token);
                 token.ThrowIfCancellationRequested();
                 await uow.CommitAsync(token);
@@ -94,6 +102,7 @@ public sealed class AuthorityRecoveryPipeline(
             await executor.ExecuteRecoveryStageAsync(context, AuthorityPipelineStageNames.Decisioning, token);
             await executor.ExecuteRecoveryStageAsync(context, AuthorityPipelineStageNames.Artifacts, token);
             context.ExecutionBudget!.EnsureCanContinue("authority.finalize");
+            await VerifyPublicationInputsAsync(Publish, uow, token);
             await lease.CompleteAsync(context.Run.GoldenManifestId!.Value.ToString("D"), uow, token);
             using IDisposable publication = lease.EnterSqlFence();
             await publish(uow, token);
@@ -107,18 +116,12 @@ public sealed class AuthorityRecoveryPipeline(
             AnalysisExecutionBudget budget = context.ExecutionBudget!;
             budget.EnsureCanContinue(stage);
             AnalysisRecoveryStageKey key = Key(context.Scope, context.Run.RunId, stage);
-            string stageVersion = stage == AuthorityPipelineStageNames.ContextIngestion
-                ? version
-                : Convert.ToHexString(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(new
-                {
-                    RequestVersion = version,
-                    context.Run.PinnedPolicyPackIdsHashSha256,
-                    context.Run.PinnedEvidencePackagePinsHashSha256,
-                    context.Run.PinnedArchitectureVersionContentHashSha256,
-                    context.Run.PinnedKnowledgeModelContentHashSha256
-                }, AuditJsonSerializationOptions.Instance)));
+            string stageVersion = await StageVersionAsync(stage, budget.Token);
+            AnalysisRecoveryClaim? previous = versioned ? await checkpoints.ReadAsync(key, budget.Token) : null;
             await using AnalysisRecoveryLease lease = await AnalysisRecoveryLease.AcquireAsync(
-                checkpoints, key, stageVersion, options.CurrentValue.RecoveryMaxAttempts, clock, budget.Token);
+                checkpoints, key, stageVersion, options.CurrentValue.RecoveryMaxAttempts, clock, budget.Token,
+                replaceAuthorityInputs: versioned);
+            inputs[stage] = (stageVersion, string.Empty);
 
             if (lease.IsComplete)
             {
@@ -131,13 +134,26 @@ public sealed class AuthorityRecoveryPipeline(
                 bool hydrated = await budget.ExecuteAsync($"authority.{stage}",
                     token => executor.HydrateRecoveryStageAsync(context, stage, token), budget.Token);
 
+                if (versioned && AnalysisDependencyFingerprint.Rejection(lease.Claim, stageVersion, hydrated, true) is { } reason)
+                    throw new AnalysisDependencyRejectionException(stage, reason);
+
                 if (!hydrated)
                     throw new ConflictException($"The saved Authority output for stage '{stage}' is missing.");
 
+                EnsureCoverage(stage);
+                inputs[stage] = (stageVersion, lease.Claim.ResultReference!);
                 logger.LogInformation("Reused Authority analysis checkpoint. RunId={RunId} Stage={Stage}",
                     context.Run.RunId, stage);
 
                 return;
+            }
+
+            if (versioned)
+            {
+                logger.LogInformation("Authority stage recomputation. RunId={RunId} Stage={Stage} Reason={Reason}",
+                    context.Run.RunId, stage,
+                    previous is null ? "checkpoint_missing" : previous.InputVersion != stageVersion
+                        ? "stale_dependencies" : "checkpoint_not_successful");
             }
 
             try
@@ -145,6 +161,9 @@ public sealed class AuthorityRecoveryPipeline(
                 await using IArchLucidUnitOfWork uow = await transactions.CreateAsync(lease.Token);
                 context.RecoveryUnitOfWork = uow;
                 await work(lease, uow, lease.Token);
+
+                if (stage != Publish)
+                    inputs[stage] = (stageVersion, RequireOutput(context.Run, stage));
             }
             catch (Exception ex)
             {
@@ -169,6 +188,66 @@ public sealed class AuthorityRecoveryPipeline(
             finally
             {
                 context.RecoveryUnitOfWork = null;
+            }
+        }
+
+        async Task<string> StageVersionAsync(string stage, CancellationToken token)
+        {
+            if (!versioned)
+            {
+                return stage == AuthorityPipelineStageNames.ContextIngestion
+                ? version
+                : Convert.ToHexString(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(new
+                {
+                    RequestVersion = version,
+                    context.Run.PinnedPolicyPackIdsHashSha256,
+                    context.Run.PinnedEvidencePackagePinsHashSha256,
+                    context.Run.PinnedArchitectureVersionContentHashSha256,
+                    context.Run.PinnedKnowledgeModelContentHashSha256
+                }, AuditJsonSerializationOptions.Instance)));
+            }
+
+            var run = context.Run;
+            string effective = await dependencies!.ForAuthorityAsync(stage, context, token);
+            string[] prerequisites = stage switch
+            {
+                AuthorityPipelineStageNames.Graph => [AuthorityPipelineStageNames.ContextIngestion],
+                AuthorityPipelineStageNames.Findings => [AuthorityPipelineStageNames.ContextIngestion, AuthorityPipelineStageNames.Graph],
+                Publish => ResumableStages,
+                _ => []
+            };
+
+            return AnalysisDependencyFingerprint.Create(ProjectScopeKey.From(context.Scope), stage,
+                version, effective, stage == AuthorityPipelineStageNames.ContextIngestion ? null : new
+                {
+                    run.PinnedPolicyPackIdsHashSha256, run.PinnedEvidencePackagePinsHashSha256,
+                    run.PinnedArchitectureVersionContentHashSha256, run.PinnedKnowledgeModelContentHashSha256,
+                    run.EngineProvenanceJson
+                }, prerequisites.Select(name => new { Name = name, inputs[name].Version, inputs[name].Result }).ToArray());
+        }
+
+        void EnsureCoverage(string stage)
+        {
+            if (versioned && stage == AuthorityPipelineStageNames.Findings &&
+                context.FindingsSnapshot?.GenerationStatus != FindingsSnapshotGenerationStatus.Complete)
+                throw new AnalysisDependencyRejectionException(stage, "incomplete_findings");
+        }
+
+        async Task VerifyPublicationInputsAsync(string stage, IArchLucidUnitOfWork uow, CancellationToken token)
+        {
+            if (!versioned)
+                return;
+
+            foreach (var (name, binding) in inputs)
+            {
+                // Recheck the effective inputs and lock the persisted upstream result until this commit.
+
+                if (binding.Version != await StageVersionAsync(name, token))
+                    throw new AnalysisDependencyRejectionException(stage, "inputs_changed_during_execution");
+
+                if (name != stage && !await checkpoints.IsCurrentAsync(
+                    Key(context.Scope, context.Run.RunId, name), binding.Version, binding.Result, uow, token))
+                    throw new AnalysisDependencyRejectionException(stage, "upstream_changed_during_execution");
             }
         }
     }

@@ -17,3 +17,11 @@ An increasing affine mapping taking -1 to 0 and 1 to 1 has slope 1/2 and interce
 ## Distinct paths example
 
 The number affected by a cut is the cardinality of the set of input path IDs containing that node or edge. For A = [(p, link, r)], B = [(p, link, q), (p, link, q)], and C = [], p belongs to A and B, r belongs only to A, and q belongs only to B. Each of the two directed edges belongs to one path. C contributes no candidates. The repetition is a neutral oracle control, not an assertion that such paths are accepted by every production validator.
+
+## Simple directed walk edge budget
+
+Consider A → B → C → A, plus disconnected D. Starting at A, and counting edges rather than vertices, zero edges produces no nonempty path. With a budget of 1, the only permitted path is A → B. With a budget of 2, the path A → B → C is also permitted. Increasing the budget to 3 creates no new simple path because revisiting A would repeat a vertex. D is never visited. This is an inclusive budget for the neutral reference oracle, not a statement of the exact-cap convention for production exploration.
+
+## Topology no-op and idempotence
+
+Under the empty-merge identity law, combining a graph with no proposals leaves its topology unchanged. The derived structure-gap set must therefore remain identical. Under the idempotence law for deterministic proposals, applying the same proposal twice has the same structural effect as applying it once. These tests compare relationships between runs. They do not prove the absolute correctness of a gap code or that any particular proposal should be accepted.

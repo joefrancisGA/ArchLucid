@@ -8,6 +8,7 @@ using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.InfraEvidence;
 
@@ -36,7 +37,9 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
     ISecurityEvidencePathRoutingSyncService pathRoutingSyncService,
     IOptionsMonitor<AnalysisStageExecutionOptions>? executionOptions = null,
     TimeProvider? timeProvider = null,
-    SecureNowAnalysisDurableRecovery? durableRecovery = null) : IAzureInventorySnapshotPostMaterializeCoordinator
+    SecureNowAnalysisDurableRecovery? durableRecovery = null,
+    SecureNowDependencyInputs? dependencyInputs = null,
+    ILogger<AzureInventorySnapshotPostMaterializeCoordinator>? logger = null) : IAzureInventorySnapshotPostMaterializeCoordinator
 {
     public async Task OnSnapshotMaterializedAsync(
         ScopeContext scope,
@@ -76,13 +79,26 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
             if (snapshot is null || !string.Equals(snapshot.SubscriptionId, job.SubscriptionId, StringComparison.Ordinal))
                 throw new AnalysisStageExecutionException("securenow.snapshot_binding", AnalysisStageOutcome.Failed);
 
-            await ExecuteAsync(scope, job.SnapshotId, job.SubscriptionId, job.FullRecompute, budget, token);
+            SecureNowDependencyVersions? version = null;
+
+            if (budget.RecoverySession is { Versioned: true } session)
+            {
+                if (dependencyInputs is null)
+                    throw new AnalysisDependencyRejectionException("securenow.job", "dependency_provider_unavailable");
+
+                version = await dependencyInputs.ConfigurationAsync(ProjectScopeKey.From(scope), job.SnapshotId, token);
+                session.BindSnapshot(SnapshotBinding(snapshot), version);
+            }
+
+            await ExecuteAsync(scope, job.SnapshotId, job.SubscriptionId, job.FullRecompute, budget, token,
+                snapshot, version);
         }, cancellationToken);
     }
 
     private async Task ExecuteAsync(
         ScopeContext scope, Guid snapshotId, string? subscriptionId, bool fullRecomputeRequested,
-        AnalysisExecutionBudget budget, CancellationToken cancellationToken)
+        AnalysisExecutionBudget budget, CancellationToken cancellationToken,
+        AzureInventorySnapshotRecord? target = null, SecureNowDependencyVersions? version = null)
     {
         using IDisposable analysisRun = SecureNowAnalysisRun.Begin(budget);
 
@@ -105,10 +121,24 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
 
             if (priorSnapshotId is not null)
             {
+                if (budget.RecoverySession is { Versioned: true } session)
+                {
+                    AzureInventorySnapshotRecord? source = await snapshotRepository.TryGetBySnapshotIdAsync(
+                        scope, priorSnapshotId.Value, cancellationToken);
+                    session.BindPrior(priorSnapshotId, source is null ? null : SnapshotBinding(source));
+                }
+
                 diffResult = await budget.ExecuteAsync("securenow.diff",
                     token => diffService.ComputeAndPersistDiffAsync(scope, priorSnapshotId.Value, snapshotId, token),
                     cancellationToken, succeeded: static result => result.Succeeded && result.ConsumerFanOutSucceeded);
             }
+        }
+
+        if (budget.RecoverySession is { Versioned: true } recovery)
+        {
+            await RunVersionedAsync(scope, target!, version!, priorSnapshotId, diffResult, budget, recovery, cancellationToken);
+
+            return;
         }
 
         if (budget.RecoverySession is not null &&
@@ -135,6 +165,67 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
 
         await RunDownstreamSecureNowPipelineAsync(scope, snapshotId, budget);
     }
+
+    private async Task RunVersionedAsync(ScopeContext scope, AzureInventorySnapshotRecord target, SecureNowDependencyVersions version,
+        Guid? prior, AzureInventoryDiffComputeResult? diff, AnalysisExecutionBudget budget,
+        SecureNowRecoverySession recovery, CancellationToken ct)
+    {
+        SecureNowDependencyInputs inputs = dependencyInputs!;
+        int maxAgeHours = executionOptions?.CurrentValue.SecureNowReuseMaxAgeHours ?? 24;
+
+        if (!inputs.Eligible(target, maxAgeHours))
+            throw new AnalysisDependencyRejectionException("securenow.reuse_plan", "incomplete_or_stale_inventory");
+
+        string? reason = recovery.FullRecompute ? "full_recompute_requested"
+            : prior is null || diff is not { Succeeded: true, ConsumerFanOutSucceeded: true, Changes.Count: 0 }
+                ? "incremental_equivalence_unproven"
+                : await inputs.CarryForwardRejectionAsync(scope, target, prior.Value, version.Paths, maxAgeHours, ct);
+        string plan = reason is null ? "carry_forward" : "full_recompute";
+        string binding = AnalysisDependencyFingerprint.Digest(new { Plan = plan, Prior = prior, DiffId = diff?.DiffId, MaxAgeHours = maxAgeHours });
+        string admitted = await recovery.PinPlanAsync(binding, plan, ct);
+
+        if (admitted != plan)
+            throw new AnalysisDependencyRejectionException("securenow.reuse_plan", "stale_snapshot_plan");
+
+        logger?.LogInformation("SecureNow dependency decision. SnapshotId={SnapshotId} Plan={Plan} Reason={Reason}",
+            target.SnapshotId, plan, reason ?? "verified_source");
+
+        if (plan == "carry_forward")
+        {
+            await budget.ExecuteAsync("securenow.carry_forward", token =>
+                neighborhoodRunner.CarryForwardAllAsync(scope, prior!.Value, target.SnapshotId, token), ct);
+            await RequireEngineAsync(budget, "securenow.drift",
+                token => fourRealityDriftEngine.RunAsync(scope, target.SnapshotId, SecureNowArchitectConstants.SystemActorId, token));
+            await RunRankingAndCutPointAnalysisAsync(scope, target.SnapshotId, budget);
+            await budget.ExecuteAsync("securenow.routing",
+                token => pathRoutingSyncService.SyncSnapshotAsync(scope, target.SnapshotId, token), ct);
+
+            if (await inputs.CarryForwardRejectionAsync(scope, target, prior!.Value, version.Paths, maxAgeHours, ct) is not null)
+                throw new AnalysisDependencyRejectionException("securenow.carry_forward", "source_changed_during_execution");
+        }
+        else
+        {
+            await RunFullSecureNowPipelineAsync(scope, target.SnapshotId, budget);
+        }
+
+        SecureNowDependencyReceipt? receipt = await inputs.CreateReceiptAsync(
+            scope, target, version.Paths, maxAgeHours, recovery.CompleteForCarryForward, ct);
+        AzureInventorySnapshotRecord? current = await snapshotRepository.TryGetBySnapshotIdAsync(scope, target.SnapshotId, ct);
+
+        if (current is null || SnapshotBinding(target) != SnapshotBinding(current) ||
+            version != await inputs.ConfigurationAsync(ProjectScopeKey.From(scope), target.SnapshotId, ct))
+            throw new AnalysisDependencyRejectionException("securenow.job", "inputs_changed_during_execution");
+
+        if (receipt is null)
+            throw new AnalysisDependencyRejectionException("securenow.job", "incomplete_path_coverage");
+
+        recovery.Receipt = receipt;
+    }
+
+    private static string SnapshotBinding(AzureInventorySnapshotRecord snapshot) => AnalysisDependencyFingerprint.Digest(new
+    {
+        snapshot.SnapshotId, snapshot.CapturedUtc, Evidence = SecureNowDependencyInputs.Evidence(snapshot)
+    });
 
     private async Task RunFullSecureNowPipelineAsync(ScopeContext scope, Guid snapshotId, AnalysisExecutionBudget budget)
     {

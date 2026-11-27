@@ -5,6 +5,10 @@ public sealed class AnalysisStageExecutionOptions
 {
     public const string SectionName = "AnalysisExecution";
 
+    public bool EnableDependencyAwareAnalysisReuse { get; set; }
+
+    public int SecureNowReuseMaxAgeHours { get; set; } = 24;
+
     public bool EnableDurableAuthorityRecovery { get; set; }
 
     public bool EnableDurableSecureNowRecovery { get; set; }
