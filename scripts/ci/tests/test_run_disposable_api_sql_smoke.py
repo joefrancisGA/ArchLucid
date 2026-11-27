@@ -13,7 +13,7 @@ SQL_PIN = "sha256:db9a8fe3098b7e8bbde41106bdc7caee942e97124e5fdb71b872ca208de309
 
 
 class DisposableApiSqlSmokeTests(unittest.TestCase):
-    def invoke(self, test_exit=0, server_exit=False, port="127.0.0.1:49155", image_id=SQL_PIN, repo_digest=""):
+    def invoke(self, test_exit=0, server_exit=False, port="127.0.0.1:49155", image_id=SQL_PIN, repo_digest="", extra_args=()):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / "docker").write_text(
@@ -62,10 +62,11 @@ fi
                 "FAKE_REPO_DIGEST": repo_digest,
             }
             completed = subprocess.run(
-                ["bash", str(WRAPPER), str(root / "results")],
-                env=env, capture_output=True, text=True, timeout=10,
+                ["bash", str(WRAPPER), str(root / "results"), *extra_args],
+                cwd=CI.parents[1], env=env, capture_output=True, text=True, timeout=10,
             )
-            docker = (root / "docker.log").read_text(encoding="utf-8").splitlines()
+            docker_log = root / "docker.log"
+            docker = docker_log.read_text(encoding="utf-8").splitlines() if docker_log.exists() else []
             log = root / "runner.log"
             argv = log.read_text(encoding="utf-8").splitlines() if log.exists() else []
             return completed, docker, argv
@@ -94,6 +95,20 @@ fi
         completed, docker, _ = self.invoke(test_exit=1)
         self.assertEqual(completed.returncode, 1)
         self.assertEqual(docker[-1], "rm -f fake-container")
+
+    def test_runs_only_the_selected_case(self):
+        case = next(name for name in (CI / "focused-api-sql-cases.txt").read_text(encoding="utf-8").splitlines()
+                    if name.endswith(".Repeat_finalize_rejects_a_corrupt_persisted_inventory_hash"))
+        completed, docker, argv = self.invoke(extra_args=("--case", case))
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual([argv[i + 1] for i, arg in enumerate(argv) if arg == "--case"], [case])
+        self.assertEqual(docker[-1], "rm -f fake-container")
+
+    def test_rejects_an_unlisted_case_before_starting_docker(self):
+        completed, docker, argv = self.invoke(extra_args=("--case", "ArchLucid.Api.Tests.Other.Test"))
+        self.assertEqual(completed.returncode, 2)
+        self.assertFalse(docker)
+        self.assertFalse(argv)
 
     def test_startup_failure_does_not_run_tests_or_leak_the_container(self):
         completed, docker, argv = self.invoke(server_exit=True)

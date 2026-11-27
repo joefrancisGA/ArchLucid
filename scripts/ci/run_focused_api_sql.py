@@ -13,23 +13,56 @@ import xml.etree.ElementTree as et
 ROOT = Path(__file__).resolve().parents[2]
 TEST_PROJECT = "ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj"
 CASE_NAME = re.compile(r"ArchLucid\.Api\.Tests\.[A-Za-z0-9_.]+")
+INVENTORY_CASE = ("ArchLucid.Api.Tests.AuthorityPipelineCommittedInventorySqlIntegrationTests."
+                  "Repeat_finalize_rejects_a_corrupt_persisted_inventory_hash")
+INVENTORY_STAGE_MARKER = "ARCHLUCID_SQL_INVENTORY_STAGE "
+INVENTORY_STAGES = {
+    "bootstrap", "create-review", "initial-finalize", "prepare-fixture",
+    "repeat-finalize", "read-repeat-detail", "cleanup",
+}
 
 
-def read_outcome(trx, name, code, timed_out):
+def inventory_failure(result):
+    # VSTest captures ITestOutputHelper in StdOut. Copy only known stages and bounded
+    # numbers or enums, never assertion messages, response bodies, or general stdout.
+    report = {"stage": "not-reported"}
+    for stdout in result.findall("./{*}Output/{*}StdOut"):
+        for line in (stdout.text or "").splitlines():
+            line = line.strip()
+            if not line.startswith(INVENTORY_STAGE_MARKER):
+                continue
+            fields = line[len(INVENTORY_STAGE_MARKER):].split()
+            if len(fields) == 1 and fields[0] in INVENTORY_STAGES:
+                report = {"stage": fields[0]}
+            elif len(fields) == 2:
+                stage, value = fields
+                if stage in ("initial-status", "repeat-status") and re.fullmatch(r"[1-5][0-9]{2}", value):
+                    expected = "2xx" if stage == "initial-status" else 409
+                    report = {"stage": stage, "expected": expected, "actual": int(value)}
+                elif stage == "fixture-row-count" and re.fullmatch(r"-1|[0-9]{1,6}", value):
+                    report = {"stage": stage, "expected": 1, "actual": int(value)}
+                elif stage == "repeat-detail" and value in ("present", "missing"):
+                    report = {"stage": stage, "expected": "present", "actual": value}
+    return report
+
+
+def read_result(trx, name, code, timed_out):
     if timed_out or not trx.is_file():
-        return "interrupted"
+        return "interrupted", None
     try:
         results = et.parse(trx).findall(".//{*}UnitTestResult")
     except (et.ParseError, OSError):
-        return "interrupted"
+        return "interrupted", None
     if len(results) != 1 or results[0].get("testName") != name:
-        return "interrupted"
+        return "interrupted", None
     recorded = results[0].get("outcome")
     if recorded == "Passed":
-        return "passed" if code == 0 else "interrupted"
+        return ("passed" if code == 0 else "interrupted"), None
     if recorded in ("NotExecuted", "Skipped"):
-        return "skipped"
-    return "failed" if recorded == "Failed" else "interrupted"
+        return "skipped", None
+    if recorded == "Failed":
+        return "failed", inventory_failure(results[0]) if name == INVENTORY_CASE else None
+    return "interrupted", None
 
 
 def run_case(name, output, timeout):
@@ -57,8 +90,11 @@ def run_case(name, output, timeout):
             else:
                 subprocess.run(["taskkill", "/F", "/T", "/PID", str(child.pid)], check=False)
             child.wait()
-    return {"case": name, "outcome": read_outcome(trx, name, child.returncode, timed_out),
-            "exit_code": child.returncode, "artifact_dir": output.name}
+    outcome, failure = read_result(trx, name, child.returncode, timed_out)
+    result = {"case": name, "outcome": outcome, "exit_code": child.returncode, "artifact_dir": output.name}
+    if failure is not None:
+        result["failure"] = failure
+    return result
 
 
 def main():
@@ -84,6 +120,8 @@ def main():
         result = run_case(name, output / f"{index:02d}", args.timeout_seconds)
         reports.append(result)
         print(f"  {result['outcome']}", flush=True)
+        if "failure" in result:
+            print(f"  {json.dumps(result['failure'], sort_keys=True)}", flush=True)
         counts = {status: sum(row["outcome"] == status for row in reports)
                   for status in ("passed", "failed", "skipped", "interrupted")}
         (output / "summary.json").write_text(json.dumps({

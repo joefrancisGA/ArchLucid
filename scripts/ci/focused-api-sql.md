@@ -21,7 +21,7 @@ The runner launches each case independently, writes its log and TRX, and updates
 
 ## Three-case PR check
 
-The **Three API SQL cases** job builds only the API test project and runs finalize and replay, the persisted-inventory negative case, and the same-catalog audit fixture. It runs on its own hosted runner, checks out the exact PR head, and uses a new container with the pinned image. It publishes only `summary.json` and does not replace any required CI checks.
+The **Focused API SQL cases** job builds the API test project and normally runs finalize and replay, the persisted-inventory negative case, and the same-catalog audit fixture. It runs on its own hosted runner, checks out the exact PR head, and uses a new container with the pinned image. It publishes only `summary.json` and does not replace any required CI checks. The inventory negative case reports a fixed stage name and, where available, a bounded expected and actual result. No raw test output or response bodies are published.
 
 For the same smoke run locally, build the API test project in Release first, then run:
 
@@ -29,4 +29,4 @@ For the same smoke run locally, build the API test project in Release first, the
 bash scripts/ci/run_disposable_api_sql_smoke.sh /tmp/archlucid-api-sql-smoke
 ```
 
-The wrapper requires Docker, .NET, and Python 3. It checks SQL readiness and removes its container even when a case fails.
+For an isolated retry, append `--case` and one exact name from `scripts/ci/focused-api-sql-cases.txt`. The wrapper requires Docker, .NET, and Python 3. It checks SQL readiness and removes its container even when a case fails.

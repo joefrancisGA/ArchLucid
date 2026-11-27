@@ -2,12 +2,26 @@
 # Run after building ArchLucid.Api.Tests in Release. Owns the database for this invocation.
 set -euo pipefail
 
-if [[ $# != 1 || -z "$1" || -e "$1" ]]; then
-  echo "Usage: $0 <new-results-directory>" >&2
+if [[ ( $# != 1 && $# != 3 ) || -z "${1:-}" || -e "$1" ]]; then
+  echo "Usage: $0 <new-results-directory> [--case <listed-test>]" >&2
   exit 2
 fi
 
 results_dir=$1
+if [[ $# == 3 ]]; then
+  if [[ "$2" != --case || -z "$3" ]] || ! grep -Fxq -- "$3" scripts/ci/focused-api-sql-cases.txt; then
+    echo 'Provide one exact test from the focused API SQL case list.' >&2
+    exit 2
+  fi
+  cases=(--case "$3")
+else
+  cases=(
+    --case ArchLucid.Api.Tests.AuthorityPipelineCommittedInventorySqlIntegrationTests.Fresh_sql_review_finalization_replays_the_sealed_artifact_inventory
+    --case ArchLucid.Api.Tests.AuthorityPipelineCommittedInventorySqlIntegrationTests.Repeat_finalize_rejects_a_corrupt_persisted_inventory_hash
+    --case ArchLucid.Api.Tests.Security.AuditExportTenantIsolationIntegrationTests.Tenant_b_audit_list_take_200_excludes_tenant_a_run_id_sql_tb295
+  )
+fi
+
 sql_tag='mcr.microsoft.com/mssql/server:2022-CU22-ubuntu-22.04'
 sql_digest='sha256:db9a8fe3098b7e8bbde41106bdc7caee942e97124e5fdb71b872ca208de3092d'
 # A registry may publish an image config digest rather than a pullable manifest digest.
@@ -67,7 +81,4 @@ export ARCHLUCID_API_TEST_SQL="Server=127.0.0.1,${BASH_REMATCH[1]};Database=mast
 export ARCHLUCID_SQL_TEST="$ARCHLUCID_API_TEST_SQL"
 unset SQLCMDPASSWORD MSSQL_SA_PASSWORD
 
-python3 scripts/ci/run_focused_api_sql.py --results-dir "$results_dir" --timeout-seconds 180 \
-  --case ArchLucid.Api.Tests.AuthorityPipelineCommittedInventorySqlIntegrationTests.Fresh_sql_review_finalization_replays_the_sealed_artifact_inventory \
-  --case ArchLucid.Api.Tests.AuthorityPipelineCommittedInventorySqlIntegrationTests.Repeat_finalize_rejects_a_corrupt_persisted_inventory_hash \
-  --case ArchLucid.Api.Tests.Security.AuditExportTenantIsolationIntegrationTests.Tenant_b_audit_list_take_200_excludes_tenant_a_run_id_sql_tb295
+python3 scripts/ci/run_focused_api_sql.py --results-dir "$results_dir" --timeout-seconds 180 "${cases[@]}"
