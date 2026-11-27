@@ -1,0 +1,23 @@
+{
+  "defects": [
+    {
+      "confirmed": true,
+      "defectId": "FND-166-NULL-RECEIPT",
+      "regressionArtifact": "receipts/null-receipt.json",
+      "regressionArtifactSha256": "7285817dd702d8d48722fc7f46efbb79ebc06c366dc00a92255f04df72ee6279",
+      "regressionDisposition": "regression-test",
+      "replay": "null-receipt",
+      "severity": "critical"
+    },
+    {
+      "confirmed": true,
+      "defectId": "FND-166-MISSING-DEFECTS",
+      "regressionArtifact": "receipts/missing-defects.json",
+      "regressionArtifactSha256": "56ccf4dd9ddc582b4bafa040e4b01050e793363da522cdc39a70b6b1eeffc356",
+      "regressionDisposition": "regression-test",
+      "replay": "missing-defects",
+      "severity": "critical"
+    }
+  ],
+  "schemaVersion": 1
+}

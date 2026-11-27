@@ -1,0 +1,27 @@
+{
+  "baseline": {
+    "executedCount": 1,
+    "exitCode": 1,
+    "failureReason": "enforcement accepted a ledger envelope without a defect list",
+    "outcome": "assertion-failed",
+    "revision": "62bc3b8d362e7694cee1394668cd0bcae790b54e",
+    "testIdentity": "regression_ledger.enforce_rejects_missing_defects",
+    "validatorErrorCount": 0,
+    "validatorExitCode": 0
+  },
+  "corrected": {
+    "executedCount": 1,
+    "exitCode": 0,
+    "outcome": "passed",
+    "revision": "12c7e9a95248f72f5374948a5fe533e5d4b373b2",
+    "testIdentity": "regression_ledger.enforce_rejects_missing_defects",
+    "validatorErrorCount": 1,
+    "validatorExitCode": 1
+  },
+  "defectId": "FND-166-MISSING-DEFECTS",
+  "expectedFailureReason": "enforcement accepted a ledger envelope without a defect list",
+  "intendedBehavior": "Enforcement rejects a ledger envelope without a defect list.",
+  "regressionDisposition": "regression-test",
+  "schemaVersion": 1,
+  "testIdentity": "regression_ledger.enforce_rejects_missing_defects"
+}

@@ -50,7 +50,15 @@ Property and metamorphic tests use the same receipt shape. For `structural-preve
 
 The existing `al-bug-verify-proven-revert.py` sample first requires a passing test on the corrected commit. It then restores the changed production paths from the parent in a disposable worktree, retaining the corrected test, and reruns that test. For a legacy Markdown citation, add `[expected-failure: stable assertion text]` to identify the defect-specific failure. Only an executed failure of the same test that matches that text is `guarded`. An executed pass on both versions is `unguarded`. Missing, skipped, ambiguous, timed-out, or build-only runs and unrelated failures are uncheckable, with separate details in the report.
 
-The current adapter checks one cited Core .NET test through its TRX result. A filename-only Vitest citation is not proof of an exact test. The report counts eligible rows and rows with both citations separately from the bounded sample. The sampled verifier and structured receipt validator are complementary controls. The existing sample limits and ratchet baselines are unchanged, and the receipt validator is not yet enforced on a repository-wide defect ledger.
+The current adapter checks one cited Core .NET test through its TRX result. A filename-only Vitest citation is not proof of an exact test. The report counts eligible rows and rows with both citations separately from the bounded sample. The legacy sample limits and ratchet baselines are unchanged.
+
+## Critical-defect intake and CI
+
+Register newly confirmed critical defects in [the structured intake](../../scripts/assurance/regression-evidence/critical-defects.json) when the defect is confirmed. Each entry needs an explicit `severity` and `confirmed` flag and must supply an evidence receipt, a structural proof, or an approved nonautomatable disposition. The [path-scoped PR check](../../.github/workflows/pr-regression-evidence.yml) validates every confirmed critical entry, compares the intake against the PR base, and rejects removal or downgrading of previously confirmed critical entries.
+
+The same check exercises up to five registered replay cases, prioritizing new and changed registrations. The two initial cases are real ledger-validator regressions pinned to their original and corrected Git revisions. The runner extracts the standalone validator from each commit into a disposable directory, runs the same negative fixture on both, regenerates the receipt from the observed outcomes, and compares its bytes to the committed receipt. A passing check publishes the generated receipts and a summary bound to the PR head and base. No raw logs are uploaded. An empty eligible intake reports `no-eligible-defects`, and valid intake without registered replay reports `receipt-validation-only`.
+
+This check enforces the **structured intake**, not arbitrary Markdown, issues, or historic ledger rows. Externally produced receipts are validated, but only registered probes are automatically replayed in this check. The legacy verifier remains responsible for its separate Core .NET sample and continues to show uncited and uncheckable rows. The PR check does not modify branch protection or certify historical defect coverage.
 
 ## Preferred mapping
 
