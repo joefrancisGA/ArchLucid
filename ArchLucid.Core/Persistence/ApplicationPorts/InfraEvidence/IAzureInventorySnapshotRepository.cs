@@ -150,6 +150,13 @@ public interface IAzureInventorySnapshotRepository
         return Task.FromResult<IReadOnlyList<AzureInventoryTagReadModel>>([]);
     }
 
+    /// <summary>Reads only stored inventory rows needed by the public IP assessment, without operator enrichment.</summary>
+    Task<AzureInventorySnapshotDetailReadModel?> TryGetPublicIpAssessmentInventoryAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<AzureInventorySnapshotDetailReadModel?>(null);
+
     Task<AzureInventorySnapshotDetailReadModel?> TryGetAdvisoryTerraformVisibleSnapshotAsync(
         ScopeContext scope,
         Guid snapshotId,

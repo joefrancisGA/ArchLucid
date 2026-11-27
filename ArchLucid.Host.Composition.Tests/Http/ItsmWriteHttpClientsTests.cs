@@ -5,7 +5,6 @@ using System.Text.Json;
 using ArchLucid.Application.Integrations.AzureBoards.Outbound;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Core.Http;
-using ArchLucid.Host.Composition.Startup;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -143,7 +142,7 @@ public sealed class ItsmWriteHttpClientsTests
             options.MinimumThroughput = 2;
             options.FailureRatio = 1;
         });
-        ServiceCollectionExtensions.RegisterItsmWriteHttpClients(services);
+        global::ArchLucid.Host.Composition.Startup.ServiceCollectionExtensions.RegisterItsmWriteHttpClients(services);
         services.AddHttpClient<TClient>().ConfigurePrimaryHttpMessageHandler(() => handler);
         return services.BuildServiceProvider();
     }

@@ -202,22 +202,3 @@ public sealed class AzureBoardsOutboundIssueClient(HttpClient http, ILogger<Azur
 
     private sealed record AzureBoardsNamedItem(string? Name);
 }
-
-public sealed record AzureBoardsOutboundIssueHttpResult(
-    bool Ok,
-    string? WorkItemId,
-    string? RemoteId,
-    HttpStatusCode StatusCode,
-    string? ErrorDetail);
-
-public sealed record AzureBoardsProjectsHttpResult(
-    bool Ok,
-    IReadOnlyList<string> ProjectNames,
-    HttpStatusCode StatusCode,
-    string? ErrorDetail);
-
-public sealed record AzureBoardsWorkItemTypesHttpResult(
-    bool Ok,
-    IReadOnlyList<string> WorkItemTypeNames,
-    HttpStatusCode StatusCode,
-    string? ErrorDetail);

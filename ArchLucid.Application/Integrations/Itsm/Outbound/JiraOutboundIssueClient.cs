@@ -93,5 +93,3 @@ public sealed class JiraOutboundIssueClient(HttpClient http, ILogger<JiraOutboun
 
     private sealed record JiraCreateIssueResponse(string? Id, string? Key);
 }
-
-public sealed record JiraOutboundIssueHttpResult(bool Ok, string? IssueKey, string? RemoteId, HttpStatusCode StatusCode, string? ErrorDetail);
