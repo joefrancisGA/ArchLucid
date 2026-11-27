@@ -66,11 +66,12 @@ public sealed class SecurityTrustPublicationController(IAuditService auditServic
                 ProblemTypes.ValidationFailed);
         }
 
-        if (!string.IsNullOrWhiteSpace(body.PublishedOn))
+        string? publishedOn = string.IsNullOrWhiteSpace(body.PublishedOn) ? null : body.PublishedOn.Trim();
+        if (publishedOn is not null
+            && !DateOnly.TryParseExact(publishedOn, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
         {
-            if (!DateOnly.TryParse(body.PublishedOn.Trim(), CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
-                return this.BadRequestProblem("PublishedOn must be a calendar date (YYYY-MM-DD).",
-                    ProblemTypes.ValidationFailed);
+            return this.BadRequestProblem("PublishedOn must be a calendar date (YYYY-MM-DD).",
+                ProblemTypes.ValidationFailed);
         }
 
         string payload = JsonSerializer.Serialize(
@@ -79,7 +80,7 @@ public sealed class SecurityTrustPublicationController(IAuditService auditServic
                 assessmentCode = body.AssessmentCode.Trim(),
                 summaryReference = body.SummaryReference.Trim(),
                 assessorDisplayName = body.AssessorDisplayName?.Trim(),
-                publishedOn = string.IsNullOrWhiteSpace(body.PublishedOn) ? null : body.PublishedOn.Trim()
+                publishedOn
             });
 
         await _auditService.LogAsync(
