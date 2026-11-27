@@ -95,7 +95,7 @@ public sealed class BrandAssetController(
             cancellationToken).ConfigureAwait(false);
 
         return CreatedAtAction(
-            nameof(GetContentAsync),
+            nameof(GetContent),
             new { assetId = result.Asset.AssetId },
             MapResponse(result.Asset));
     }
@@ -124,7 +124,7 @@ public sealed class BrandAssetController(
     [HttpGet("{assetId:guid}/content")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetContentAsync(Guid assetId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetContent(Guid assetId, CancellationToken cancellationToken)
     {
         if (assetId == Guid.Empty)
             return this.BadRequestProblem("AssetId is required.", ProblemTypes.ValidationFailed);
