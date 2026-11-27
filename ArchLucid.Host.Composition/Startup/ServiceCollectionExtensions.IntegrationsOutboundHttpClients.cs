@@ -33,13 +33,7 @@ public static partial class ServiceCollectionExtensions
                 rejectPrivateNetworkConnectEndpoints: true)
             .AddOutboundExternalHttpResilience();
         services
-            .AddHttpClient(
-                ItsmOutboundIntegrationHealthLimits.HttpClientName,
-                static client => client.Timeout = TimeSpan.FromSeconds(ItsmOutboundIntegrationHealthLimits.NetworkTimeoutSeconds))
-            .ConfigureArchLucidOutboundSocketsHandler(
-                OutboundHttpSocketsHandlerProfile.ExternalIntegration,
-                rejectPrivateNetworkConnectEndpoints: true)
-            .AddOutboundExternalHttpResilience();
+            .RegisterItsmOutboundHealthHttpClients();
         services
             .AddHttpClient<IOutboundWebhookDryRunService, OutboundWebhookDryRunService>(static client =>
             {

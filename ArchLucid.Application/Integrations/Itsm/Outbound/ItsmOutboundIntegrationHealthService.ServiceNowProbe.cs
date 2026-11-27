@@ -9,7 +9,6 @@ namespace ArchLucid.Application.Integrations.Itsm.Outbound;
 public sealed partial class ItsmOutboundIntegrationHealthService
 {
     private async Task<ItsmOutboundIntegrationProviderProbe> BuildServiceNowProbeAsync(
-        HttpClient http,
         Guid tenantId,
         ResolvedItsmOutboundCredentials? credentials,
         ItsmOutboundLocalReadiness local,
@@ -24,7 +23,7 @@ public sealed partial class ItsmOutboundIntegrationHealthService
         Uri incidentProbeUri = BuildServiceNowIncidentProbeUri(credentials.InstanceBaseUrl);
 
         (bool ok, string detail) = await ProbeGetWithAuthorizationAsync(
-                http,
+                ItsmOutboundIntegrationHealthLimits.ServiceNowHttpClientName,
                 incidentProbeUri,
                 tenantId,
                 TenantItsmConnectorProvider.ServiceNow,
