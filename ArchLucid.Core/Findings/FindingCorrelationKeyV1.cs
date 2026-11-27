@@ -27,7 +27,7 @@ public static class FindingCorrelationKeyV1
 
     /// <summary>Legacy delimiter-joined tokens. Used for possible matches, not proof of identity.</summary>
     public static string NormalizeFuzzyKey(string? category, string? text) =>
-        $"{NormalizeToken(category)}|{NormalizeToken(text)}";
+        $"{FindingCorrelationToken.Normalize(category)}|{FindingCorrelationToken.Normalize(text)}";
 
     private static string? TryBuildPolicyKey(string? policyRuleId, string? category, string? text, bool lowerCaseRuleId)
     {
@@ -35,38 +35,10 @@ public static class FindingCorrelationKeyV1
             return null;
 
         string ruleId = policyRuleId.Trim();
+
         if (lowerCaseRuleId)
             ruleId = ruleId.ToLowerInvariant();
 
         return $"{ruleId}:{NormalizeFingerprint(category, text)}";
-    }
-
-    private static string NormalizeToken(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return string.Empty;
-
-        string trimmed = value.Trim().ToLowerInvariant();
-        StringBuilder builder = new(trimmed.Length);
-        bool previousWasSpace = false;
-
-        foreach (char character in trimmed)
-        {
-            if (char.IsWhiteSpace(character))
-            {
-                if (!previousWasSpace)
-                {
-                    builder.Append(' ');
-                    previousWasSpace = true;
-                }
-
-                continue;
-            }
-
-            builder.Append(character);
-            previousWasSpace = false;
-        }
-
-        return builder.ToString();
     }
 }

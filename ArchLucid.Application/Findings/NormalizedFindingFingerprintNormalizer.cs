@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Findings;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Application.Findings;
 
@@ -17,6 +18,30 @@ public static class NormalizedFindingFingerprintNormalizer
         ArgumentNullException.ThrowIfNull(finding);
 
         return FindingCorrelationKeyV1.TryBuildCrossReviewPolicyKey(finding.PolicyRuleId, finding.Category, finding.Message);
+    }
+
+    /// <summary>Build a scoped canonical candidate from authorized source data without altering the legacy key.</summary>
+    public static string? TryBuildCanonicalKey(ArchitectureFinding finding, ProjectScopeKey? project, string? canonicalAssetKey)
+    {
+        ArgumentNullException.ThrowIfNull(finding);
+
+        return FindingCorrelationKeyV2.TryBuild(project, canonicalAssetKey, finding.PolicyRuleId, finding.Category, finding.Message);
+    }
+
+    /// <summary>Rebuild a canonical candidate only if the original source row reproduces its exact legacy policy key.</summary>
+    public static string? TryRebuildCanonicalKeyFromLegacy(
+        ArchitectureFinding finding, ProjectScopeKey? project, string? canonicalAssetKey, string? legacyPolicyKey)
+    {
+        ArgumentNullException.ThrowIfNull(finding);
+
+        if (string.IsNullOrWhiteSpace(finding.PolicyRuleId)
+            || legacyPolicyKey is null
+            || !string.Equals(legacyPolicyKey, TryBuildDedupeKey(finding), StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        return TryBuildCanonicalKey(finding, project, canonicalAssetKey);
     }
 
     /// <summary>Normalized category+message fingerprint used for fuzzy and policy-rule correlation.</summary>

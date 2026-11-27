@@ -1,3 +1,5 @@
+> **Scope:** Contributors implementing scoped finding correlation and legacy-key compatibility. This ADR does not activate V2 matching or change governance dispositions.
+
 # ADR FND-006 — Cross-product finding identity and deduplication
 
 Status: Proposed additive contract, 2026-11-22. No production deduplication behavior changed.
@@ -32,3 +34,31 @@ Build adapters for actual source DTOs, reconcile policy rule normalization, add 
 Both existing key producers delegate to `ArchLucid.Core/Findings/FindingCorrelationKeyV1.cs`. V1 shares token normalization and hashing but deliberately keeps both historical policy rule casing profiles and the unhashed snapshot fallback. “V1” labels the implementation contract, not a new wire prefix. Neither producer changes emitted keys, matching behavior, stored finding IDs, or evidence and governance provenance.
 
 The shared code only formats input. It does not authenticate tenant, workspace or asset scope, and its legacy pipe-delimited input is not an unambiguous identity encoding. Before enabling a canonical format, validate scope and collision cases, define how mixed-version comparisons are read, and keep the historical formats available for compatibility. Do not use a fuzzy match as an authoritative identity or rewrite existing records.
+
+## FND-062 scoped canonical candidate
+
+V2 is an additive policy correlation key, not a new finding ID or authorization mechanism. It requires a caller-verified tenant/workspace/project and a single authoritative, provider-qualified or otherwise namespaced asset key. The formatter treats the asset key as opaque and compares it ordinally. Missing or ambiguous asset bindings, missing policy/category/text, and malformed UTF-16 do not produce a key. The caller must not manufacture a binding from a title, node position, or an unverified payload field.
+
+The canonical string is `fnd:v2:` followed by lowercase SHA-256 hex. The hash starts with the fixed UTF-8 domain `archlucid/finding-correlation/v2`. It then takes these fields in order, each with a four-byte big-endian UTF-8 byte length: tenant, workspace, and project GUIDs in lowercase `N` format, the exact asset key, trimmed invariant-lowercase policy rule ID, and the normalized category and text. Category and text retain ADR 0063 token normalization. Separate field lengths eliminate ambiguities in the legacy pipe-joined input. A matching digest is still only a correlation candidate.
+
+For cloud resources, `FindingCorrelationAssetKey` maps the durable directory ID to `cloud-resource:{id:N}` only when the directory row matches all three project coordinates. Read the record through the authorized project, then establish the link to the finding's evidence before projecting the ID. The adapter does not fall back to a provider identifier or display label.
+
+Both producers can rebuild the canonical key for legacy policy material when the authorized original source row reproduces that producer's exact V1 key. This is a read-time projection, not a mapping from an opaque historical hash. A fuzzy key, unrelated legacy key, or a key without trusted scope is not upgraded. Compare the two independently rebuilt V2 keys, not the legacy strings. No legacy finding IDs, dispositions, evidence, or exports are rewritten.
+
+Production comparison and snapshot merging continue to use V1. The current finding DTOs do not supply a verified stable asset binding for every entry, and changing the merge path can change which records are withheld or kept. Switch only after a read-only comparison on a cohort with verified bindings measures missing bindings, disagreements, and collisions. Leave unmatched or ambiguous findings distinct. Neither key format makes a fuzzy match authoritative.
+
+### Read-only cohort result
+
+`FindingCorrelationReadOnlyCohortTests` runs the production declaration security finding engine on local Azure storage graphs and reads the seeded in-memory identity directory through its exact-scope API. For a V2 candidate it requires one related graph node, the engine's concrete citation for that node's source resource, and a directory row for the same resource in the exact project. No display-name, prose, or tenant-only lookup is used. It also checks that the review and snapshot adapters agree and leave the source finding ID and V1 key unchanged.
+
+| Result on the 11 fixture pairs | Count |
+| --- | ---: |
+| Equal V1 keys | 9 |
+| Equal V2 keys (same asset across observations) | 1 |
+| Different V2 keys | 5 |
+| V2 unavailable | 5 |
+| Equal V1 keys with different V2 keys (subset of the 5 differences) | 4 |
+
+The four separated pairs differ by asset, project, workspace, or tenant. The remaining difference is a change to the finding text on the same asset. The five unavailable pairs lack an in-scope directory binding, have ambiguous or inconsistent evidence, or have no policy key. Neither an unavailable key nor different text proves that a finding is new or resolved. V1 counts describe equality of key strings on deliberately paired fixtures, not cross-scope matching in the live product.
+
+Reproduce with `dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release --filter FullyQualifiedName~FindingCorrelationReadOnlyCohortTests`. This is a fixture-based comparison using real engine and directory code. It is not a measurement of deployed data or production binding coverage. The next rollout gate is a read-only run on an authorized representative cohort with stable asset evidence. V1 remains active pending that run.
