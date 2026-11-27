@@ -1560,6 +1560,17 @@ describe("remediation-factory-url-state", () => {
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25A7ue`).metricsSummaryOpen,
     ).toBe(true);
   });
+  it("treats ON metrics disclosure token with halfwidth katakana letter nu inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF87n`).metricsSummaryOpen,
+    ).toBe(true);
+  });
+
+  it("treats true metrics disclosure token with black medium square inside the word as open on read", () => {
+    expect(
+      parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=tr\u25A6ue`).metricsSummaryOpen,
+    ).toBe(true);
+  });
   it("treats ON metrics disclosure token with halfwidth katakana letter ki inside the word as open on read", () => {
     expect(
       parseRemediationFactoryUrlStateFromSearch(`?${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=o\uFF77n`).metricsSummaryOpen,
@@ -2514,7 +2525,31 @@ describe("remediation-factory-url-state", () => {
     expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
     expect(params.get(REMEDIATION_FACTORY_SELECTED_FINDING_PARAM)).toBeNull();
   });
-  it("canonicalizes metrics open to 1 when writing open state from a padded off base", () => {
+
+  it("preserves foreign params when clearing finding selection only", () => {
+    const findingId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const pathId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    const params = remediationFactoryUrlStateToSearchParams(
+      {
+        selectedFindingId: null,
+        selectedPathId: pathId,
+        fromSnapshotId: null,
+        toSnapshotId: null,
+        metricsSummaryOpen: true,
+      },
+      [
+        `${REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM}=1`,
+        `${REMEDIATION_FACTORY_SELECTED_FINDING_PARAM}=${findingId}`,
+        `${REMEDIATION_FACTORY_SELECTED_PATH_PARAM}=${pathId}`,
+        "foreign=keep",
+      ].join("&"),
+    );
+
+    expect(params.get("foreign")).toBe("keep");
+    expect(params.get(REMEDIATION_FACTORY_SELECTED_PATH_PARAM)).toBe(pathId);
+    expect(params.get(REMEDIATION_FACTORY_SELECTED_FINDING_PARAM)).toBeNull();
+    expect(params.get(REMEDIATION_FACTORY_METRICS_SUMMARY_OPEN_PARAM)).toBe("1");
+  });  it("canonicalizes metrics open to 1 when writing open state from a padded off base", () => {
     const params = remediationFactoryUrlStateToSearchParams(
       {
         selectedFindingId: null,
