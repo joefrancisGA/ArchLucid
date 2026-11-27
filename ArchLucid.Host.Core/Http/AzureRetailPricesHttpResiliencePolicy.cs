@@ -10,14 +10,14 @@ using Polly.Retry;
 namespace ArchLucid.Host.Core.Http;
 
 /// <summary>
-///     Retry plus consecutive-failure circuit breaker for the public Azure Retail Prices HTTP client.
+///     Retry and a circuit breaker for read-only public cloud pricing clients.
 /// </summary>
 public static class AzureRetailPricesHttpResiliencePolicy
 {
     /// <summary>Retries after the first attempt (four total executions when transient failures occupy the first three responses).</summary>
     public const int MaxRetryAttempts = 3;
 
-    /// <summary>Opens the circuit after this many handled failures within the sampling window.</summary>
+    /// <summary>Minimum failed logical calls needed to open the circuit within the sampling window.</summary>
     public const int CircuitBreakerFailureThreshold = 5;
 
     /// <summary>Duration the circuit remains open before a trial call is allowed.</summary>
@@ -34,10 +34,20 @@ public static class AzureRetailPricesHttpResiliencePolicy
         Build(logger, sleepDurationProvider, timing: null);
 
     /// <summary>
-    ///     Uses Retry-After on 429 and 503 responses from the read-only Azure catalog when another attempt fits the call budget.
+    ///     Compatibility alias for the deadline-aware public pricing policy.
     ///     The caller should use the same budget for <see cref="HttpClient.Timeout" /> to bound requests in flight.
     /// </summary>
     public static IAsyncPolicy<HttpResponseMessage> CreateForAzureRetailPrices(
+        ILogger logger,
+        TimeSpan callBudget,
+        TimeProvider? timeProvider = null) =>
+        CreateForPublicPricing(logger, callBudget, timeProvider);
+
+    /// <summary>
+    ///     Honors Retry-After on 429 and 503 responses when the delay fits the remaining call budget.
+    ///     Use the same budget for <see cref="HttpClient.Timeout" /> to bound the HTTP request.
+    /// </summary>
+    public static IAsyncPolicy<HttpResponseMessage> CreateForPublicPricing(
         ILogger logger,
         TimeSpan callBudget,
         TimeProvider? timeProvider = null)
@@ -55,9 +65,6 @@ public static class AzureRetailPricesHttpResiliencePolicy
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(sleepDurationProvider);
 
-        // Retry wraps the breaker, so each attempt reaches it. Preserve the existing attempt-based threshold.
-        const int attemptsPerLogicalCall = MaxRetryAttempts + 1;
-
         ResiliencePipelineBuilder<HttpResponseMessage> builder = new();
         Func<RetryPredicateArguments<HttpResponseMessage>, ValueTask<bool>> shouldHandle =
             new PredicateBuilder<HttpResponseMessage>()
@@ -71,7 +78,18 @@ public static class AzureRetailPricesHttpResiliencePolicy
             shouldHandle = timing.PlanRetry;
         }
 
+        // The outer breaker samples only the final outcome of each logical call.
         ResiliencePipeline<HttpResponseMessage> pipeline = builder
+            .AddCircuitBreaker(new CircuitBreakerStrategyOptions<HttpResponseMessage>
+            {
+                FailureRatio = 1.0,
+                MinimumThroughput = CircuitBreakerFailureThreshold,
+                SamplingDuration = TimeSpan.FromMinutes(1),
+                BreakDuration = TimeSpan.FromSeconds(CircuitBreakerBreakDurationSeconds),
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .Handle<HttpRequestException>()
+                    .HandleResult(CountsAsCircuitBreakerFailure),
+            })
             .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
             {
                 MaxRetryAttempts = MaxRetryAttempts,
@@ -85,23 +103,12 @@ public static class AzureRetailPricesHttpResiliencePolicy
                     return ValueTask.CompletedTask;
                 },
             })
-            .AddCircuitBreaker(new CircuitBreakerStrategyOptions<HttpResponseMessage>
-            {
-                FailureRatio = 1.0,
-                MinimumThroughput = CircuitBreakerFailureThreshold * attemptsPerLogicalCall,
-                SamplingDuration = TimeSpan.FromMinutes(1),
-                BreakDuration = TimeSpan.FromSeconds(CircuitBreakerBreakDurationSeconds),
-                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
-                    .Handle<HttpRequestException>()
-                    .HandleResult(CountsAsCircuitBreakerFailure),
-            })
             .Build();
 
         return pipeline.AsAsyncPolicy();
     }
 
-    // Keep circuit-breaker failure classification aligned with the shared
-    // outbound retry policy rather than maintaining a second status allowlist.
+    // Catalog circuit breakers and retries use the same transient HTTP status classification.
     private static bool CountsAsCircuitBreakerFailure(HttpResponseMessage response) =>
         AzureRmAndRetailPricesHttpRetryPolicy.ShouldRetryHttpResponse(response);
 
@@ -111,8 +118,8 @@ public static class AzureRetailPricesHttpResiliencePolicy
     // Store timing on the execution context so concurrent requests through the shared policy have independent budgets.
     private sealed class DeadlineAwareRetryTiming(TimeProvider clock, TimeSpan callBudget) : ResilienceStrategy<HttpResponseMessage>
     {
-        private static readonly ResiliencePropertyKey<long> StartedAt = new("AzureRetailPrices.CallStartedAt");
-        private static readonly ResiliencePropertyKey<TimeSpan> PlannedDelay = new("AzureRetailPrices.NextRetryDelay");
+        private static readonly ResiliencePropertyKey<long> StartedAt = new("PublicPricing.CallStartedAt");
+        private static readonly ResiliencePropertyKey<TimeSpan> PlannedDelay = new("PublicPricing.NextRetryDelay");
 
         public TimeProvider Clock => clock;
 
@@ -130,7 +137,9 @@ public static class AzureRetailPricesHttpResiliencePolicy
                 return new ValueTask<bool>(false);
             }
 
-            TimeSpan delay = GetExponentialDelay(args.AttemptNumber);
+            // Spread local retries without letting jitter undercut a provider's minimum wait.
+            const double maxJitterFraction = 0.25;
+            TimeSpan delay = GetExponentialDelay(args.AttemptNumber) * (1 + (Random.Shared.NextDouble() * maxJitterFraction));
 
             if (response?.StatusCode is HttpStatusCode.TooManyRequests or HttpStatusCode.ServiceUnavailable &&
                 response.Headers.RetryAfter is { } retryAfter)

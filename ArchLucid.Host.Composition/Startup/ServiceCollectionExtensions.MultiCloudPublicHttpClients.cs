@@ -6,38 +6,35 @@ namespace ArchLucid.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
 {
-    private static void RegisterMultiCloudPublicPricingHttpClients(this IServiceCollection services)
-    {
-        services
-            .AddHttpClient(
-                ArchLucidMultiCloudPublicHttpClients.AwsPricingHttpClientName,
-                static http =>
-                {
-                    http.BaseAddress = ArchLucidMultiCloudPublicHttpClients.AwsPricingAuthority;
-                    http.Timeout = TimeSpan.FromMinutes(5);
-                    http.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "application/json");
-                })
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.CloudControlPlane)
-            .AddLongLivedPolicyHandler(static serviceProvider =>
-                AzureRetailPricesHttpResiliencePolicy.Create(
-                    serviceProvider
-                        .GetRequiredService<ILoggerFactory>()
-                        .CreateLogger($"{ArchLucidMultiCloudPublicHttpClients.AwsPricingHttpClientName}.Policies")));
+    private static readonly TimeSpan PublicPricingCallBudget = TimeSpan.FromMinutes(5);
 
-        services
-            .AddHttpClient(
-                ArchLucidMultiCloudPublicHttpClients.GcpCloudBillingHttpClientName,
-                static http =>
-                {
-                    http.BaseAddress = ArchLucidMultiCloudPublicHttpClients.GcpCloudBillingAuthority;
-                    http.Timeout = TimeSpan.FromMinutes(5);
-                    http.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "application/json");
-                })
+    internal static void RegisterMultiCloudPublicPricingHttpClients(this IServiceCollection services)
+    {
+        RegisterPublicPricingHttpClient(
+            services,
+            ArchLucidMultiCloudPublicHttpClients.AwsPricingHttpClientName,
+            ArchLucidMultiCloudPublicHttpClients.AwsPricingAuthority);
+        RegisterPublicPricingHttpClient(
+            services,
+            ArchLucidMultiCloudPublicHttpClients.GcpCloudBillingHttpClientName,
+            ArchLucidMultiCloudPublicHttpClients.GcpCloudBillingAuthority);
+    }
+
+    private static void RegisterPublicPricingHttpClient(IServiceCollection services, string name, Uri authority)
+    {
+        services.AddHttpClient(name, http =>
+            {
+                http.BaseAddress = authority;
+                http.Timeout = PublicPricingCallBudget;
+                http.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "application/json");
+            })
             .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.CloudControlPlane)
-            .AddLongLivedPolicyHandler(static serviceProvider =>
-                AzureRetailPricesHttpResiliencePolicy.Create(
-                    serviceProvider
-                        .GetRequiredService<ILoggerFactory>()
-                        .CreateLogger($"{ArchLucidMultiCloudPublicHttpClients.GcpCloudBillingHttpClientName}.Policies")));
+            .AddLongLivedPolicyHandler(
+                serviceProvider => AzureRetailPricesHttpResiliencePolicy.CreateForPublicPricing(
+                    serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger($"{name}.Policies"),
+                    PublicPricingCallBudget,
+                    serviceProvider.GetService<TimeProvider>()),
+                static request => request.Content is null &&
+                    (request.Method == HttpMethod.Get || request.Method == HttpMethod.Head));
     }
 }
