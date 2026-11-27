@@ -44,6 +44,7 @@ public sealed class SecureNowPublicIpAssessmentController(
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
         if (productLine.GetEffectiveProductLine() != EffectiveProductLineKind.Security || !options.Value.Allows(scope))
             return this.NotFoundProblem(NotFoundDetail, ProblemTypes.ResourceNotFound);
 

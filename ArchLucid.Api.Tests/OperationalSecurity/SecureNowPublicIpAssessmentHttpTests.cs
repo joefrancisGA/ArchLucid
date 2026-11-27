@@ -105,6 +105,7 @@ public sealed class SecureNowPublicIpAssessmentHttpTests(JwtLocalSigningWebAppFa
 
         using HttpResponseMessage architecture = await ReadAsync(url, "architecture", scope);
         await AssertGenericNotFoundAsync(architecture);
+
         foreach (ScopeContext deniedScope in new[] { otherTenant, otherWorkspace, otherProject })
         {
             using HttpResponseMessage denied = await ReadAsync(url, "security", deniedScope);
