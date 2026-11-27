@@ -79,6 +79,21 @@ coverage qualifier. The new verified-series export is not a replacement for
 historical reconciliation. Review corrections are PRs against master;
 full builds remain RC49-only unless separately authorized.
 
+## Report-only test integrity pilot
+
+The [FND-165 pilot](../../.github/workflows/pr-test-integrity-report.yml) points reviewers to differences that could change what tests prove or what runs. Apply the [FND-163 review procedure](AI_ASSISTED_DEVELOPMENT_GOVERNANCE.md#23-mandatory-test-integrity-and-regression-preservation) before accepting a material change. A signal is a review lead, not proof of lost coverage or approval of a change.
+
+```bash
+python3 scripts/ci/report_test_integrity_diff.py --base "$BASE_SHA" --head "$HEAD_SHA" \
+  --output test-integrity-report.json
+```
+
+Use full PR base and head SHAs. The tool resolves and records their merge base and compares it with the pinned head, so base-only edits are not attributed to the PR. The workflow fetches bounded history and publishes the report as an artifact. A missing merge base is incomplete evidence, not an empty clean scan.
+
+The pilot covers direct Python test assertions, common `unittest` assertions and `pytest.raises` or `warns` controls, directly qualified skip/xfail changes, and selected workflow filters and pytest discovery settings. The JSON includes checked paths and exact base/head locations for signals. Syntax-equivalent formatting and simple one-to-one test renames within the same scope are preserved. It does not resolve aliases, helper semantics, dynamic discovery, or data flow, and does not yet inspect .NET/TypeScript assertions, snapshots, fixture or mock substitutions, or analyzer settings. Unsupported test-related files, parse failures, or exhausted scan budgets are reported separately from a completed scan. An empty finding list is not a guarantee against test weakening.
+
+The pilot does not stop a merge, change branch protection, excuse a reported change, or automatically classify a production defect. Add calibration, reviewed exceptions, and wider language/configuration coverage before proposing promotion.
+
 ## Mutation Aspects
 
 Reuse the existing risk-weighted Stryker tooling, rather than introduce a

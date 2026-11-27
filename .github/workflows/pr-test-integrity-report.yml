@@ -1,0 +1,61 @@
+name: Test integrity pilot report
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - '**/test_*.py'
+      - '**/*_test.py'
+      - '**/pytest.ini'
+      - '**/pyproject.toml'
+      - '**/setup.cfg'
+      - '**/tox.ini'
+      - '.github/workflows/**'
+      - 'scripts/ci/report_test_integrity_diff.py'
+      - 'scripts/ci/git_diff_paths.py'
+      - 'scripts/ci/tests/test_report_test_integrity_diff.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: test-integrity-pilot-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  report-only:
+    name: Report possible test-integrity changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          sparse-checkout: scripts/ci
+
+      - name: Validate the pilot's positive and negative controls
+        run: python3 -m unittest discover -s scripts/ci/tests -p 'test_report_test_integrity_diff.py' -v
+
+      - name: Fetch bounded comparison history
+        continue-on-error: true
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: git fetch --no-tags --depth=64 --filter=blob:none origin "$BASE_SHA" "$HEAD_SHA"
+
+      - name: Report only
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python3 scripts/ci/report_test_integrity_diff.py --base "$BASE_SHA" --head "$HEAD_SHA" \
+            --output "$RUNNER_TEMP/test-integrity-report.json" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-integrity-report
+          path: ${{ runner.temp }}/test-integrity-report.json
+          if-no-files-found: warn
+          retention-days: 7

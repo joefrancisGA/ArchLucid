@@ -76,6 +76,34 @@ def git_diff_name_only(repo: Path, diff_range: str) -> list[str]:
     return [line.strip() for line in result.stdout.splitlines() if line.strip()]
 
 
+def git_diff_paired_paths(repo: Path, base: str, head: str) -> list[tuple[str | None, str | None]]:
+    """Return before/after paths, preserving deletions and detected renames."""
+    result = subprocess.run(
+        ["git", "diff", "--name-status", "-z", "--find-renames", "-l500", "--no-ext-diff",
+         base, head, "--"],
+        cwd=repo, check=False, capture_output=True, timeout=30,
+    )
+    if result.returncode != 0:
+        raise RuntimeError("Git could not enumerate changed paths")
+    fields = iter(result.stdout.decode("utf-8").split("\0"))
+    pairs = []
+    for status in fields:
+        if not status:
+            break
+        path = next(fields)
+        if status.startswith(("R", "C")):
+            pairs.append((path, next(fields)))
+        elif status == "A":
+            pairs.append((None, path))
+        elif status == "D":
+            pairs.append((path, None))
+        elif status in {"M", "T"}:
+            pairs.append((path, path))
+        else:
+            raise RuntimeError("Git returned an unsupported diff status")
+    return pairs
+
+
 def add_diff_range_arg(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--diff-range",
