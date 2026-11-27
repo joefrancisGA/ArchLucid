@@ -32,7 +32,7 @@
 | Priority | QA & stabilization | Release readiness | 2.0 foundations | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Immediate | 0 | 0 | 0 | 0 |
-| Critical | 109 | 5 | 0 | 114 |
+| Critical | 108 | 5 | 0 | 113 |
 | High | 270 | 141 | 0 | 411 |
 | Medium | 11 | 2 | 15 | 28 |
 | Low | 0 | 0 | 63 | 63 |
@@ -45,7 +45,7 @@ Each section is ordered **QA → release readiness → 2.0 foundations**. Within
 
 ### Critical
 
-#### QA & stabilization (109)
+#### QA & stabilization (108)
 
 | ID | Technical item | Origin / qualification |
 | --- | --- | --- |
@@ -157,7 +157,6 @@ Each section is ordered **QA → release readiness → 2.0 foundations**. Within
 | FND-163 | Mandatory test integrity and regression preservation governance | Critical TG-AUD-01; [test governance audit](quality/AI_ASSISTED_TEST_GOVERNANCE_AUDIT.md#tg-aud-01--critical-test-integrity-and-regression-preservation-rule). Extend the canonical AI-assisted development governance and active Cursor rules for ChatGPT/Codex/Cursor. Distinguish production defects, erroneous tests, authorized contract evolution and environmental failures; require evidence and review before materially changing assertions, expectations, snapshots, tolerances, mocks, skips or discovery. Preserve intended behavior and require reproducible red/green evidence or an independently justified structural/reference/property alternative. Explicitly disclose incomplete verification; test positive and negative policy examples. Reuse existing rules; no competing governance framework. |
 | FND-164 | Mutation evidence classification and denominator honesty | Critical TG-AUD-02; [test governance audit](quality/AI_ASSISTED_TEST_GOVERNANCE_AUDIT.md#tg-aud-02--critical-mutation-evidence-and-denominator-honesty). Extend existing Stryker score parser, baselines and Mutation Aspects reporting; preserve version-specific official score semantics separately from meaningful behavioral kills, survivors, NoCoverage, ignored/equivalent, timeout, runtime/compile errors and incomplete outcomes. Validate report schema, scope, provenance, numeric bounds and completeness; reconcile embedded scores and fallback calculations against installed Stryker semantics without silent baseline changes. Never classify compilation failures or timeouts as demonstrated assertion kills. Test nested conflicting scores, missing and malformed reports, zero denominator and mixed status fixtures; no invented mutation improvement. |
 | FND-166 | Evidence-bound regression disposition and red/green verification | Critical TG-AUD-04; [test governance audit](quality/AI_ASSISTED_TEST_GOVERNANCE_AUDIT.md#tg-aud-04--critical-evidence-bound-redgreen-regression-disposition). Extend existing automatic regression policy, regression_ledger.py and proven-fix revert verifier. Bind confirmed defect IDs to baseline/corrected revisions, intended behavior, exact test identity, expected failure reason, actual nonzero execution/outcomes and resolvable artifact digest or structural prevention proof. Correct list/dict payload handling and validate malformed/missing evidence; distinguish not run, uncheckable and unguarded from verified. Reuse bounded targeted isolated verification and existing new-unguarded/uncheckable ratchets; audit enforcement invocation and coverage before claiming universality. Require documented nonautomatable exceptions with owner/rationale/revisit condition. Test bogus artifact, unrelated compile failure, baseline fail/fix pass, legitimate alternatives and workspace safety. |
-| FND-171 | Independent test oracle and requirements traceability | Critical cross-product test governance extension of FND-163/166/168/170 and existing [automatic regression policy](assurance/AUTOMATIC_REGRESSION_POLICY.md) and [independent reference assurance](assurance/SUPERHUMAN_ASSURANCE_WAVE_A.md). Require independently justified expected outcomes for new or materially changed critical tests, especially analytical algorithms and boundary contracts: cite versioned requirements, accepted ADRs/invariants, authoritative specifications, independently derived worked examples, mathematical properties or genuinely independent reference evaluators. Trace test intent and expected outcomes to those sources rather than the implementation under test, its generated outputs, or a shared defective helper; document assumptions, ambiguity and unverified claims. Distinguish characterization/snapshot tests preserving observed behavior from correctness evidence; retain legitimate compatibility tests with explicit purpose. Reuse existing reference engines, synthetic worlds and fixtures instead of duplicating them. Acceptance: independently specified positive, negative and boundary cases detect seeded semantic defects even when implementation-derived expectations pass; unresolved requirement conflicts are surfaced, not silently resolved in favor of existing code. Scope verification to affected contracts and authorized release policy. |
 
 #### Release readiness (5)
 
