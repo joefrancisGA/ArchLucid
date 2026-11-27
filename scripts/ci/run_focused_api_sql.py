@@ -191,9 +191,9 @@ def run_case(name, output, timeout, cancellation):
                 outcome, failure, interruption = "interrupted", None, "cancelled"
             else:
                 outcome, failure, interruption = read_result(trx, name, code, timed_out)
-            if LINUX_PROCESS_GROUPS and not (timed_out or cancelled):
-                if (outcome == "interrupted" or code not in (0, 1)) and not drain_exited_linux_group(child.pid):
-                    result["process_cleanup"] = "unverified"
+            # A valid result proves the test outcome, not that its helpers exited.
+            if LINUX_PROCESS_GROUPS and not (timed_out or cancelled) and not drain_exited_linux_group(child.pid):
+                result["process_cleanup"] = "unverified"
         finally:
             child.wait()
     result.update(outcome=outcome, exit_code=code)
@@ -328,6 +328,8 @@ def main(argv=None, cancellation=None):
     print(json.dumps(counts, sort_keys=True))
     if cancellation.signum is not None:
         return cancellation.exit_code
+    if any(row.get("process_cleanup") == "unverified" for row in reports):
+        return 1
     return 0 if counts["passed"] == len(cases) else 1
 
 

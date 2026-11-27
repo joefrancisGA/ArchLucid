@@ -82,6 +82,13 @@ class FocusedApiSqlLaunchTests(TestCase):
 
     @skipUnless(sys.platform == "linux", "requires Linux process-group verification")
     def test_early_exit_releases_the_previous_case_lock_before_starting_the_next(self):
+        self.assert_previous_case_releases_lock("EarlyExit", "interrupted", 42, "missing-result")
+
+    @skipUnless(sys.platform == "linux", "requires Linux process-group verification")
+    def test_successful_exit_releases_the_previous_case_lock_before_starting_the_next(self):
+        self.assert_previous_case_releases_lock("PassedWithHelper", "passed", 0, None)
+
+    def assert_previous_case_releases_lock(self, suffix, outcome, exit_code, interruption):
         with TemporaryDirectory() as directory:
             root = Path(directory)
             output = root / "results"
@@ -108,14 +115,16 @@ else:
     args = sys.argv
     folder = Path(args[args.index('--results-directory') + 1])
     name = args[args.index('--filter') + 1].split('=', 1)[1]
-    if name.endswith('.EarlyExit'):
+    if name.endswith(('.EarlyExit', '.PassedWithHelper')):
         child = subprocess.Popen([sys.executable, __file__, '--hold-lock', str(folder)])
         deadline = time.monotonic() + 4
         while not (folder / 'owned.group').is_file() and child.poll() is None and time.monotonic() < deadline:
             time.sleep(0.02)
-        os._exit(42)
-    with (folder.parent / '01' / 'fixture.lock').open('r+') as lock:
-        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        if name.endswith('.EarlyExit'):
+            os._exit(42)
+    else:
+        with (folder.parent / '01' / 'fixture.lock').open('r+') as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     (folder / 'case.trx').write_text(
         f'<TestRun><Results><UnitTestResult testName="{name}" outcome="Passed"/></Results></TestRun>')
 """, encoding="utf-8")
@@ -124,16 +133,17 @@ else:
             try:
                 completed = subprocess.run(
                     [sys.executable, str(SCRIPT), "--results-dir", str(output),
-                     "--case", CASE + ".EarlyExit", "--case", CASE + ".NextCase"],
+                     "--case", CASE + "." + suffix, "--case", CASE + ".NextCase"],
                     env=os.environ | {"PATH": str(root), "ARCHLUCID_API_TEST_SQL": "synthetic-fixture"},
                     capture_output=True, text=True, timeout=10,
                 )
-                self.assertEqual(completed.returncode, 1, completed.stderr)
                 self.assertTrue(marker.is_file(), "synthetic helper never acquired the lock")
                 report = json.loads((output / "summary.json").read_text(encoding="utf-8"))
-                self.assertEqual([row["outcome"] for row in report["cases"]], ["interrupted", "passed"])
-                self.assertEqual(report["cases"][0]["exit_code"], 42)
-                self.assertEqual(report["cases"][0]["interruption"], "missing-result")
+                self.assertEqual([row["outcome"] for row in report["cases"]], [outcome, "passed"])
+                self.assertEqual(report["cases"][0]["exit_code"], exit_code)
+                self.assertEqual(report["cases"][0].get("interruption"), interruption)
+                self.assertNotIn("process_cleanup", report["cases"][0])
+                self.assertEqual(completed.returncode, 0 if outcome == "passed" else 1, completed.stderr)
                 verified = True
             finally:
                 # Remove only the synthetic process group if the regression fails.
@@ -334,6 +344,20 @@ class FocusedApiSqlCheckpointTests(TestCase):
         self.run_case.assert_called_once()
         self.assertEqual(result["cases"][0], failure)
         self.assertEqual([row["outcome"] for row in result["cases"]], ["interrupted", "not-started", "not-started"])
+
+    def test_unverified_cleanup_on_the_last_passed_case_still_fails_the_batch(self):
+        os.environ["ARCHLUCID_SQL_TEST"] = "private-fixture-sentinel"
+        passed = [
+            {"case": name, "outcome": "passed", "exit_code": 0, "artifact_dir": f"{index:02d}"}
+            for index, name in enumerate(self.names, 1)
+        ]
+        passed[-1]["process_cleanup"] = "unverified"
+        self.run_case.side_effect = passed
+        self.assertEqual(RUNNER.main(self.args), 1)
+        result = self.read_summary()
+        self.assertEqual(result["cases"], passed)
+        self.assertEqual(result["counts"]["passed"], len(self.names))
+        self.assertEqual(result["unreported"], 0)
 
     def test_refuses_changed_revision_or_selection_without_rewriting_the_plan(self):
         self.assertEqual(RUNNER.main(self.args + ["--prepare-only"]), 0)
