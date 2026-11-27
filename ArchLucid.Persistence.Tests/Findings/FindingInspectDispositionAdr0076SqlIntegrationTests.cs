@@ -25,21 +25,13 @@ public sealed class FindingInspectDispositionAdr0076SqlIntegrationTests(SqlServe
 {
     private const string FindingId = "finding-disposition-inspect";
 
-    private static readonly Guid TenantId = Guid.Parse("d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1");
-    private static readonly Guid WorkspaceId = Guid.Parse("e2e2e2e2-e2e2-e2e2-e2e2-e2e2e2e2e2e2");
-    private static readonly Guid ProjectId = Guid.Parse("f3f3f3f3-f3f3-f3f3-f3f3-f3f3f3f3f3f3");
 
     [SkippableFact]
     public async Task GetInspectAsync_surfaces_current_disposition_pointer_fields_from_FindingCurrentDispositions()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
-        ScopeContext scope = new()
-        {
-            TenantId = TenantId,
-            WorkspaceId = WorkspaceId,
-            ProjectId = ProjectId,
-        };
+        ScopeContext scope = IsolatedPersistenceTestScope.New();
 
         Guid runId = await SeedFindingAsync(fixture.ConnectionString, scope);
 
@@ -55,9 +47,9 @@ public sealed class FindingInspectDispositionAdr0076SqlIntegrationTests(SqlServe
             new FindingReviewEventRecord
             {
                 EventId = eventId,
-                TenantId = TenantId,
-                WorkspaceId = WorkspaceId,
-                ProjectId = ProjectId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
                 FindingId = FindingId,
                 ReviewerUserId = reviewerUserId,
                 Action = FindingReviewAction.RecordDisposition,
@@ -95,12 +87,7 @@ public sealed class FindingInspectDispositionAdr0076SqlIntegrationTests(SqlServe
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         CancellationToken ct = CancellationToken.None;
-        ScopeContext scope = new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-        };
+        ScopeContext scope = IsolatedPersistenceTestScope.New();
         await SeedFindingAsync(fixture.ConnectionString, scope);
 
         SqlConnectionFactory factory = new(fixture.ConnectionString);
@@ -137,12 +124,7 @@ public sealed class FindingInspectDispositionAdr0076SqlIntegrationTests(SqlServe
     public async Task Remediation_assignment_is_persisted_and_visible_in_finding_inspect()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        ScopeContext scope = new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-        };
+        ScopeContext scope = IsolatedPersistenceTestScope.New();
         Guid runId = await SeedFindingAsync(fixture.ConnectionString, scope);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         DapperFindingRecordRemediationAssignmentRepository assignmentRepository = new(factory);

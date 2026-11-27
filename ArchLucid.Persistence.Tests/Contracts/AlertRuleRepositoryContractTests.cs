@@ -1,4 +1,5 @@
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Tests.Support;
 using ArchLucid.Decisioning.Alerts;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -11,16 +12,12 @@ namespace ArchLucid.Persistence.Tests.Contracts;
 /// </summary>
 public abstract class AlertRuleRepositoryContractTests
 {
-    private static readonly Guid TenantId = Guid.Parse("a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0");
-    private static readonly Guid WorkspaceId = Guid.Parse("b0b0b0b0-b0b0-b0b0-b0b0-b0b0b0b0b0b0");
-    private static readonly Guid ProjectId = Guid.Parse("c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0");
+    private readonly ScopeContext _testScope = IsolatedPersistenceTestScope.New();
+    private Guid TenantId => _testScope.TenantId;
+    private Guid WorkspaceId => _testScope.WorkspaceId;
+    private Guid ProjectId => _testScope.ProjectId;
 
-    private static readonly ScopeContext Scope = new()
-    {
-        TenantId = TenantId,
-        WorkspaceId = WorkspaceId,
-        ProjectId = ProjectId,
-    };
+    private ScopeContext Scope => _testScope;
 
     protected abstract IAlertRuleRepository CreateRepository();
 
@@ -29,7 +26,7 @@ public abstract class AlertRuleRepositoryContractTests
     {
     }
 
-    private static AlertRule CreateRule(Guid? ruleId = null, bool isEnabled = true, DateTime? createdUtc = null)
+    private AlertRule CreateRule(Guid? ruleId = null, bool isEnabled = true, DateTime? createdUtc = null)
     {
         return new AlertRule
         {

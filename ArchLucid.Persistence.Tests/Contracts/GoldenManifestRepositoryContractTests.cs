@@ -1,4 +1,5 @@
 ﻿using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Tests.Support;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
@@ -157,12 +158,7 @@ public abstract class GoldenManifestRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IGoldenManifestRepository repo = CreateRepository();
-        ScopeContext scope = new()
-        {
-            TenantId = Guid.Parse("d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1"),
-            WorkspaceId = Guid.Parse("d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2"),
-            ProjectId = Guid.Parse("d3d3d3d3-d3d3-d3d3-d3d3-d3d3d3d3d3d3")
-        };
+        ScopeContext scope = IsolatedPersistenceTestScope.New();
 
         Guid runId = Guid.NewGuid();
         Guid contextId = Guid.NewGuid();

@@ -1,4 +1,6 @@
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Tests.Support;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Persistence.Audit;
 
@@ -19,9 +21,10 @@ public abstract class AuditRepositoryContractTests
     /// <summary>More events than <c>maxRows: 25</c> in export many-rows contract test.</summary>
     private const int SeededExportEventsForManyRowsTest = 80;
 
-    private static readonly Guid TenantId = Guid.Parse("a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1");
-    private static readonly Guid WorkspaceId = Guid.Parse("a2a2a2a2-a2a2-a2a2-a2a2-a2a2a2a2a2a2");
-    private static readonly Guid ProjectId = Guid.Parse("a3a3a3a3-a3a3-a3a3-a3a3-a3a3a3a3a3a3");
+    private readonly ScopeContext _testScope = IsolatedPersistenceTestScope.New();
+    private Guid TenantId => _testScope.TenantId;
+    private Guid WorkspaceId => _testScope.WorkspaceId;
+    private Guid ProjectId => _testScope.ProjectId;
 
     protected abstract IAuditRepository CreateRepository();
 
@@ -43,7 +46,7 @@ public abstract class AuditRepositoryContractTests
         return Task.CompletedTask;
     }
 
-    private static AuditEvent NewEvent(
+    private AuditEvent NewEvent(
         string eventType = "ContractTest",
         DateTime? occurredUtc = null,
         Guid? projectId = null,
@@ -184,7 +187,7 @@ public abstract class AuditRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IAuditRepository repo = CreateRepository();
-        DateTime mid = TimeProvider.System.UtcNowDateTime().AddMinutes(-30);
+        DateTime mid = new(2026, 4, 28, 12, 0, 0, DateTimeKind.Utc);
         AuditEvent before = NewEvent(occurredUtc: mid.AddHours(-2));
         AuditEvent inside = NewEvent(occurredUtc: mid);
         AuditEvent after = NewEvent(occurredUtc: mid.AddHours(2));
@@ -198,9 +201,7 @@ public abstract class AuditRepositoryContractTests
         IReadOnlyList<AuditEvent> list =
             await repo.GetFilteredAsync(TenantId, WorkspaceId, ProjectId, filter, CancellationToken.None);
 
-        list.Should().Contain(x => x.EventId == inside.EventId);
-        list.Should().NotContain(x => x.EventId == before.EventId);
-        list.Should().NotContain(x => x.EventId == after.EventId);
+        list.Select(x => x.EventId).Should().Equal(inside.EventId);
     }
 
     [SkippableFact]
@@ -587,9 +588,11 @@ public abstract class AuditRepositoryContractTests
         IAuditRepository repo = CreateRepository();
         Guid isolatedProjectId = Guid.NewGuid();
         DateTime t = new(2026, 4, 28, 12, 0, 0, DateTimeKind.Utc);
-        Guid idHigh = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
-        Guid idMid = Guid.Parse("80000000-0000-0000-0000-000000000002");
-        Guid idLow = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        // Share all but the final nibble so the order is identical for SQL and in-memory GUID comparisons.
+        string prefix = Guid.NewGuid().ToString("D")[..^1];
+        Guid idHigh = Guid.Parse(prefix + "3");
+        Guid idMid = Guid.Parse(prefix + "2");
+        Guid idLow = Guid.Parse(prefix + "1");
 
         await repo.AppendAsync(
             NewEvent("KeysetTie", t, isolatedProjectId, eventId: idHigh),

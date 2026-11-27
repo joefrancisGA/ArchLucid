@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Tests.Support;
 using ArchLucid.Persistence.Data.Repositories;
 
 using ArchLucid.Core.Scoping;
@@ -111,8 +112,8 @@ public abstract class RunExportRecordRepositoryContractTests
         string runId = Guid.NewGuid().ToString("N");
         string requestId = "req-exp-case-" + Guid.NewGuid().ToString("N");
         await PrepareRunAsync(requestId, runId, CancellationToken.None);
-        const string storedExportId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-        const string lookupExportId = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+        string storedExportId = "a" + runId[1..];
+        string lookupExportId = storedExportId.ToUpperInvariant();
 
         await repo.CreateAsync(
             NewRecord(storedExportId, runId, new DateTime(2026, 4, 2, 14, 0, 0, DateTimeKind.Utc)),
@@ -192,13 +193,17 @@ public abstract class RunExportRecordRepositoryContractTests
         DateTime older = new(2026, 4, 1, 10, 0, 0, DateTimeKind.Utc);
         DateTime newer = new(2026, 4, 1, 11, 0, 0, DateTimeKind.Utc);
 
-        await repo.CreateAsync(NewRecord("e-old", runId, older), CancellationToken.None);
-        await repo.CreateAsync(NewRecord("e-new-a", runId, newer), CancellationToken.None);
-        await repo.CreateAsync(NewRecord("e-new-b", runId, newer), CancellationToken.None);
+        string oldId = ArchitectureCommitTestSeed.RunScopedRowId(runId, "e-old");
+        string newAId = ArchitectureCommitTestSeed.RunScopedRowId(runId, "e-new-a");
+        string newBId = ArchitectureCommitTestSeed.RunScopedRowId(runId, "e-new-b");
+
+        await repo.CreateAsync(NewRecord(oldId, runId, older), CancellationToken.None);
+        await repo.CreateAsync(NewRecord(newAId, runId, newer), CancellationToken.None);
+        await repo.CreateAsync(NewRecord(newBId, runId, newer), CancellationToken.None);
 
         IReadOnlyList<RunExportRecord> list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
 
-        list.Select(record => record.ExportRecordId).Should().Equal("e-new-b", "e-new-a", "e-old");
+        list.Select(record => record.ExportRecordId).Should().Equal(newBId, newAId, oldId);
     }
 
     private static RunExportRecord NewRecord(string exportId, string runId, DateTime createdUtc)

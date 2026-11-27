@@ -4,6 +4,7 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Serialization;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Tests.Support;
 
 using Dapper;
@@ -21,9 +22,10 @@ namespace ArchLucid.Persistence.Tests.Governance;
 [Trait("Category", "SqlServerContainer")]
 public sealed class ArchitectureDecisionRegisterReaderSqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    private static readonly Guid TenantId = Guid.Parse("a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1");
-    private static readonly Guid WorkspaceId = Guid.Parse("b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2");
-    private static readonly Guid ProjectId = Guid.Parse("c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3");
+    private readonly ScopeContext _testScope = IsolatedPersistenceTestScope.New();
+    private Guid TenantId => _testScope.TenantId;
+    private Guid WorkspaceId => _testScope.WorkspaceId;
+    private Guid ProjectId => _testScope.ProjectId;
 
     [SkippableFact]
     public async Task ListAsync_applies_category_filter_before_top_limit()
@@ -71,7 +73,7 @@ public sealed class ArchitectureDecisionRegisterReaderSqlIntegrationTests(SqlSer
         decisions[0].Category.Should().Be("Security");
     }
 
-    private static async Task SeedManifestForDecisionAsync(
+    private async Task SeedManifestForDecisionAsync(
         SqlConnection connection,
         Guid manifestId,
         DateTime createdUtc,
@@ -110,7 +112,7 @@ public sealed class ArchitectureDecisionRegisterReaderSqlIntegrationTests(SqlSer
             decisionId);
     }
 
-    private static async Task InsertManifestWithDecisionAsync(
+    private async Task InsertManifestWithDecisionAsync(
         SqlConnection connection,
         Guid runId,
         Guid contextId,

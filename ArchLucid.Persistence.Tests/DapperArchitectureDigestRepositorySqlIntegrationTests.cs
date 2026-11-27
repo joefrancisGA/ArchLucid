@@ -1,4 +1,5 @@
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Tests.Support;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Persistence.Connections;
 
@@ -19,10 +20,11 @@ public sealed class DapperArchitectureDigestRepositorySqlIntegrationTests(SqlSer
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         DapperArchitectureDigestRepository repository = new(factory);
 
-        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-        Guid workspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
-        Guid projectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
-        Guid digestId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        ScopeContext scope = IsolatedPersistenceTestScope.New();
+        Guid tenantId = scope.TenantId;
+        Guid workspaceId = scope.WorkspaceId;
+        Guid projectId = scope.ProjectId;
+        Guid digestId = Guid.NewGuid();
 
         ArchitectureDigest created = new()
         {
@@ -30,7 +32,7 @@ public sealed class DapperArchitectureDigestRepositorySqlIntegrationTests(SqlSer
             TenantId = tenantId,
             WorkspaceId = workspaceId,
             ProjectId = projectId,
-            RunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+            RunId = Guid.NewGuid(),
             ComparedToRunId = null,
             GeneratedUtc = new DateTime(2026, 3, 27, 10, 0, 0, DateTimeKind.Utc),
             Title = "SQL integration digest",
@@ -42,7 +44,7 @@ public sealed class DapperArchitectureDigestRepositorySqlIntegrationTests(SqlSer
         await repository.CreateAsync(created, CancellationToken.None);
 
         ArchitectureDigest? loaded = await repository.GetByIdAsync(
-            new ScopeContext { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
+            scope,
             digestId,
             CancellationToken.None);
         loaded.Should().NotBeNull();
