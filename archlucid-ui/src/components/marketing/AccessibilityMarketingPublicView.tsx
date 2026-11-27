@@ -59,9 +59,10 @@ export function AccessibilityMarketingPublicView(props: AccessibilityMarketingPu
         {ACCESSIBILITY_MARKETING_SKIP_LINK_LABEL}
       </a>
 
-      <div
+      <main
         id={ACCESSIBILITY_MARKETING_PRIMARY_CONTENT_ID}
-        data-testid={ACCESSIBILITY_MARKETING_PRIMARY_CONTENT_ID}
+        tabIndex={-1}
+        data-testid="accessibility-marketing-primary-content"
         className="space-y-10"
       >
         <header className={ACCESSIBILITY_PUBLIC_LAYOUT.header}>
@@ -86,7 +87,7 @@ export function AccessibilityMarketingPublicView(props: AccessibilityMarketingPu
           </div>
         </header>
 
-        <div id={ACCESSIBILITY_MARKETING_MAIN_ID} tabIndex={-1}>
+        <div id={ACCESSIBILITY_MARKETING_MAIN_ID}>
           <div
             id={ACCESSIBILITY_MARKETING_SKIP_TARGET_ID}
             data-testid={ACCESSIBILITY_MARKETING_FIRST_VIEWPORT_TEST_ID}
@@ -182,7 +183,7 @@ export function AccessibilityMarketingPublicView(props: AccessibilityMarketingPu
             </div>
           </div>
         </div>
-      </div>
+      </main>
     </MarketingPageShell>
   );
 }
