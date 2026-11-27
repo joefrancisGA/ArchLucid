@@ -3,6 +3,9 @@ namespace ArchLucid.Core.Audit;
 // Quick scan, Architecture Intelligence, recommendations, product learning, advisory scans, and digests.
 public static partial class AuditEventTypes
 {
+    /// <summary>Exact scoped dependency and checkpoint witnesses committed with a versioned analysis stage.</summary>
+    public const string AnalyticalDependencyCheckpointRecorded = "Analysis.DependencyCheckpointRecorded";
+
     /// <summary>Post-merge graph invariant checker detected dangling edges or topology endpoint collisions.</summary>
     public const string GraphMergeInvariantViolation = "GraphMerge.InvariantViolation";
 

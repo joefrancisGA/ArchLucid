@@ -76,7 +76,9 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
         {
             AzureInventorySnapshotRecord? snapshot = await snapshotRepository.TryGetBySnapshotIdAsync(scope, job.SnapshotId, token);
 
-            if (snapshot is null || !string.Equals(snapshot.SubscriptionId, job.SubscriptionId, StringComparison.Ordinal))
+            if (snapshot is null || snapshot.SnapshotId != job.SnapshotId || snapshot.TenantId != job.TenantId
+                || snapshot.WorkspaceId != job.WorkspaceId || snapshot.ProjectId != job.ProjectId
+                || !string.Equals(snapshot.SubscriptionId, job.SubscriptionId, StringComparison.Ordinal))
                 throw new AnalysisStageExecutionException("securenow.snapshot_binding", AnalysisStageOutcome.Failed);
 
             SecureNowDependencyVersions? version = null;
@@ -88,6 +90,9 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
 
                 version = await dependencyInputs.ConfigurationAsync(ProjectScopeKey.From(scope), job.SnapshotId, token);
                 session.BindSnapshot(SnapshotBinding(snapshot), version);
+
+                if (session.UsesGraph)
+                    session.BindOutputWitness((stage, ct) => dependencyInputs.ReadGraphOutputWitnessAsync(scope, job.SnapshotId, stage, ct));
             }
 
             await ExecuteAsync(scope, job.SnapshotId, job.SubscriptionId, job.FullRecompute, budget, token,
