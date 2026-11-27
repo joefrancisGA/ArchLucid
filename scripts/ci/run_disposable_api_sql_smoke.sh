@@ -43,9 +43,19 @@ cleanup() {
     docker rm -f "$container_id" >/dev/null 2>&1 || true
   fi
 }
+cancel() {
+  trap '' INT TERM
+  if [[ -n "${!:-}" ]]; then
+    # The runner is the only background job. Wait for its final checkpoint
+    # before the EXIT trap removes the SQL fixture.
+    kill -s "$1" %+ 2>/dev/null || true
+    wait "$!" || true
+  fi
+  exit "$2"
+}
 trap cleanup EXIT
-trap 'exit 130' INT
-trap 'exit 143' TERM
+trap 'cancel INT 130' INT
+trap 'cancel TERM 143' TERM
 
 container_id="$(docker run --detach --rm --publish 127.0.0.1::1433 \
   --env ACCEPT_EULA=Y --env MSSQL_PID=Developer --env MSSQL_SA_PASSWORD \
@@ -84,4 +94,5 @@ export ARCHLUCID_API_TEST_SQL="Server=127.0.0.1,${BASH_REMATCH[1]};Database=mast
 export ARCHLUCID_SQL_TEST="$ARCHLUCID_API_TEST_SQL"
 unset SQLCMDPASSWORD MSSQL_SA_PASSWORD
 
-python3 scripts/ci/run_focused_api_sql.py "${runner_args[@]}" --use-prepared
+python3 scripts/ci/run_focused_api_sql.py "${runner_args[@]}" --use-prepared &
+wait "$!"

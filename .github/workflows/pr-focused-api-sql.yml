@@ -54,11 +54,11 @@ jobs:
       - name: Verify the invalid-inventory case in isolation
         if: github.event.pull_request.head.ref == 'test-aspects/verify-inventory-conflict'
         run: >-
-          bash scripts/ci/run_disposable_api_sql_smoke.sh "$RUNNER_TEMP/focused-api-sql-isolated"
+          exec bash scripts/ci/run_disposable_api_sql_smoke.sh "$RUNNER_TEMP/focused-api-sql-isolated"
           --case ArchLucid.Api.Tests.AuthorityPipelineCommittedInventorySqlIntegrationTests.Repeat_finalize_rejects_a_corrupt_persisted_inventory_hash
 
       - name: Run three cases against disposable SQL Server
-        run: bash scripts/ci/run_disposable_api_sql_smoke.sh "$RUNNER_TEMP/focused-api-sql"
+        run: exec bash scripts/ci/run_disposable_api_sql_smoke.sh "$RUNNER_TEMP/focused-api-sql"
 
       - uses: actions/upload-artifact@v7
         if: always()

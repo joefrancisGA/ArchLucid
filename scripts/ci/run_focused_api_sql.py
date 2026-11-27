@@ -9,6 +9,7 @@ import signal
 import subprocess
 import sys
 from tempfile import NamedTemporaryFile
+import time
 import xml.etree.ElementTree as et
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -23,6 +24,21 @@ INVENTORY_STAGES = {
 }
 INVENTORY_HTTP_STATUS_EXPECTED = {"initial-status": "2xx", "control-repeat-status": "2xx", "repeat-status": 409}
 FINAL_OUTCOMES = ("passed", "failed", "skipped", "interrupted")
+
+
+class Cancellation:
+    def __init__(self):
+        self.signum = None
+
+    def request(self, signum, _frame):
+        # Do not raise from a handler. A signal can arrive before Popen returns,
+        # or while the runner is installing an atomic checkpoint.
+        if self.signum is None:
+            self.signum = signum
+
+    @property
+    def exit_code(self):
+        return None if self.signum is None else 128 + self.signum
 
 
 def inventory_failure(result):
@@ -65,7 +81,24 @@ def read_result(trx, name, code, timed_out):
     return "interrupted", None
 
 
-def run_case(name, output, timeout):
+def stop_test_tree(child):
+    if os.name == "posix":
+        try:
+            os.killpg(child.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+    elif child.poll() is None:
+        result = subprocess.run(["taskkill", "/F", "/T", "/PID", str(child.pid)], check=False)
+        if result.returncode and child.poll() is None:
+            child.kill()
+    child.wait()
+
+
+def run_case(name, output, timeout, cancellation):
+    result = {"case": name, "outcome": "interrupted", "exit_code": None, "artifact_dir": output.name}
+    if cancellation.signum is not None:
+        result["interruption"] = "cancelled"
+        return result
     output.mkdir()
     trx = output / "case.trx"
     cmd = [
@@ -78,20 +111,24 @@ def run_case(name, output, timeout):
     with (output / "console.log").open("w", encoding="utf-8") as log:
         child = subprocess.Popen(cmd, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT,
                                  start_new_session=os.name == "posix")
-        try:
-            child.wait(timeout=timeout)
-        except subprocess.TimeoutExpired:
-            timed_out = True
-            if os.name == "posix":
-                try:
-                    os.killpg(child.pid, signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
-            else:
-                subprocess.run(["taskkill", "/F", "/T", "/PID", str(child.pid)], check=False)
-            child.wait()
-    outcome, failure = read_result(trx, name, child.returncode, timed_out)
-    result = {"case": name, "outcome": outcome, "exit_code": child.returncode, "artifact_dir": output.name}
+        deadline = time.monotonic() + timeout
+        while cancellation.signum is None:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                timed_out = True
+                break
+            try:
+                child.wait(timeout=min(remaining, 0.2))
+                break
+            except subprocess.TimeoutExpired:
+                continue
+        cancelled = cancellation.signum is not None
+        if timed_out or cancelled:
+            stop_test_tree(child)
+    outcome, failure = read_result(trx, name, child.returncode, timed_out or cancelled)
+    result.update(outcome=outcome, exit_code=child.returncode)
+    if cancelled:
+        result["interruption"] = "cancelled"
     if failure is not None:
         result["failure"] = failure
     return result
@@ -119,7 +156,8 @@ def checkpoint(path, summary):
             temp_path.unlink(missing_ok=True)
 
 
-def main(argv=None):
+def main(argv=None, cancellation=None):
+    cancellation = cancellation if cancellation is not None else Cancellation()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--results-dir", required=True, type=Path, help="New directory, or the directory from --prepare-only")
     parser.add_argument("--case", action="append", help="Exact fully qualified name; repeat to select multiple cases")
@@ -151,17 +189,19 @@ def main(argv=None):
         output.mkdir(parents=True, exist_ok=False)
         checkpoint(summary_path, initial)
         print(f"Selected cases: {json.dumps(cases)}", flush=True)
-    if args.prepare_only:
-        return 0
+    if args.prepare_only or cancellation.signum is not None:
+        return cancellation.exit_code or 0
     if not any(os.environ.get(key, "").strip() for key in ("ARCHLUCID_API_TEST_SQL", "ARCHLUCID_SQL_TEST")):
         parser.error("set ARCHLUCID_API_TEST_SQL or ARCHLUCID_SQL_TEST to the disposable SQL fixture")
 
     for index, name in enumerate(cases, 1):
+        if cancellation.signum is not None:
+            break
         row = reports[index - 1]
         row["outcome"] = "running"
         checkpoint(summary_path, summarize(revision, reports))
         print(f"[{index}/{len(cases)}] {name}", flush=True)
-        result = run_case(name, output / row["artifact_dir"], args.timeout_seconds)
+        result = run_case(name, output / row["artifact_dir"], args.timeout_seconds, cancellation)
         reports[index - 1] = result
         checkpoint(summary_path, summarize(revision, reports))
         print(f"  {result['outcome']}", flush=True)
@@ -169,8 +209,13 @@ def main(argv=None):
             print(f"  {json.dumps(result['failure'], sort_keys=True)}", flush=True)
     counts = summarize(revision, reports)["counts"]
     print(json.dumps(counts, sort_keys=True))
+    if cancellation.signum is not None:
+        return cancellation.exit_code
     return 0 if counts["passed"] == len(cases) else 1
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    cancellation = Cancellation()
+    for signum in (signal.SIGINT, signal.SIGTERM):
+        signal.signal(signum, cancellation.request)
+    sys.exit(main(cancellation=cancellation))

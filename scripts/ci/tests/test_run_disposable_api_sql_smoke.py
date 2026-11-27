@@ -3,19 +3,54 @@
 import json
 import os
 from pathlib import Path
+import signal
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 
 
 CI = Path(__file__).resolve().parents[1]
 WRAPPER = CI / "run_disposable_api_sql_smoke.sh"
 SQL_PIN = "sha256:db9a8fe3098b7e8bbde41106bdc7caee942e97124e5fdb71b872ca208de3092d"
+SYNTHETIC_DOTNET = """\
+import fcntl
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+
+
+def hold_lock(output, role):
+    with (output / f'{role}.lock').open('w') as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        (output / f'{role}.pid').write_text(str(os.getpid()), encoding='utf-8')
+        if role == 'host':
+            (output / 'runner.pid').write_text(str(os.getppid()), encoding='utf-8')
+            subprocess.Popen([sys.executable, __file__, '--grandchild', str(output)])
+        time.sleep(30)
+
+
+if sys.argv[1] == '--grandchild':
+    hold_lock(Path(sys.argv[2]), 'grandchild')
+else:
+    args = sys.argv
+    output = Path(args[args.index('--results-directory') + 1])
+    name = args[args.index('--filter') + 1].split('=', 1)[1]
+    if output.name == '02':
+        hold_lock(output, 'host')
+    else:
+        (output / 'case.trx').write_text(
+            f'<TestRun><Results><UnitTestResult testName="{name}" outcome="Passed"/></Results></TestRun>',
+            encoding='utf-8')
+"""
 
 
 class DisposableApiSqlSmokeTests(unittest.TestCase):
-    def invoke(self, test_exit=0, server_exit=False, port="127.0.0.1:49155", image_id=SQL_PIN, repo_digest="", extra_args=()):
+    def invoke(self, test_exit=0, server_exit=False, port="127.0.0.1:49155", image_id=SQL_PIN,
+               repo_digest="", extra_args=(), cancel_signal=None):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / "docker").write_text(
@@ -29,7 +64,12 @@ case "$1" in
   exec) test -n "$SQLCMDPASSWORD"; [[ "$FAKE_SERVER_EXIT" = false ]] ;;
   inspect) echo "$FAKE_RUNNING" ;;
   port) echo "$FAKE_PORT" ;;
-  rm) test "$3" = fake-container ;;
+  rm)
+    test "$3" = fake-container
+    if [[ "$FAKE_CANCEL_TEST" = true ]]; then
+      "$REAL_PYTHON" -c 'import json, sys; assert json.load(open(sys.argv[1]))["cases"][1]["outcome"] == "interrupted"' "$FAKE_SUMMARY"
+      echo 'checkpoint saved before cleanup' >> "$FAKE_DOCKER_LOG"
+    fi ;;
   *) exit 2 ;;
 esac
 """,
@@ -49,6 +89,9 @@ else
   [[ "$ARCHLUCID_API_TEST_SQL" = "$ARCHLUCID_SQL_TEST" ]]
   [[ -z "${SQLCMDPASSWORD+x}${MSSQL_SA_PASSWORD+x}" ]]
   printf '%s\n' "$@" > "$FAKE_RUNNER_LOG"
+  if [[ "$FAKE_CANCEL_TEST" = true ]]; then
+    exec "$REAL_PYTHON" "$@"
+  fi
   exit "$FAKE_TEST_EXIT"
 fi
 """,
@@ -58,6 +101,10 @@ fi
                                       encoding="utf-8")
             for name in ("docker", "python3", "git"):
                 (root / name).chmod(0o700)
+            if cancel_signal is not None:
+                dotnet = root / "dotnet"
+                dotnet.write_text(f"#!{sys.executable}\n" + SYNTHETIC_DOTNET, encoding="utf-8")
+                dotnet.chmod(0o700)
             env = os.environ | {
                 "PATH": str(root) + os.pathsep + os.environ["PATH"],
                 "REAL_PYTHON": sys.executable,
@@ -69,11 +116,14 @@ fi
                 "FAKE_PORT": port,
                 "FAKE_IMAGE_ID": image_id,
                 "FAKE_REPO_DIGEST": repo_digest,
+                "FAKE_CANCEL_TEST": str(cancel_signal is not None).lower(),
+                "FAKE_SUMMARY": str(root / "results" / "summary.json"),
             }
-            completed = subprocess.run(
-                ["bash", str(WRAPPER), str(root / "results"), *extra_args],
-                cwd=CI.parents[1], env=env, capture_output=True, text=True, timeout=10,
-            )
+            command = ["bash", str(WRAPPER), str(root / "results"), *extra_args]
+            if cancel_signal is None:
+                completed = subprocess.run(command, cwd=CI.parents[1], env=env, capture_output=True, text=True, timeout=10)
+            else:
+                completed = self.cancel_running_wrapper(command, env, root / "results" / "02", cancel_signal)
             docker_log = root / "docker.log"
             docker = docker_log.read_text(encoding="utf-8").splitlines() if docker_log.exists() else []
             log = root / "runner.log"
@@ -81,6 +131,58 @@ fi
             summary = root / "results" / "summary.json"
             plan = json.loads(summary.read_text(encoding="utf-8")) if summary.exists() else None
             return completed, docker, argv, plan
+
+    def cancel_running_wrapper(self, command, env, active, signum):
+        import fcntl
+
+        with subprocess.Popen(command, cwd=CI.parents[1], env=env, text=True,
+                              stdout=subprocess.PIPE, stderr=subprocess.PIPE) as wrapper:
+            verified = False
+            try:
+                deadline = time.monotonic() + 5
+                while not (active / "grandchild.pid").is_file() and wrapper.poll() is None and time.monotonic() < deadline:
+                    time.sleep(0.02)
+                self.assertTrue((active / "grandchild.pid").is_file(), "synthetic test tree did not start")
+                wrapper.send_signal(signum)
+                stdout, stderr = wrapper.communicate(timeout=5)
+                self.assertEqual(wrapper.returncode, 128 + signum, stderr)
+                for role in ("host", "grandchild"):
+                    with (active / f"{role}.lock").open("r+") as lock:
+                        deadline = time.monotonic() + 2
+                        while True:
+                            try:
+                                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                                break
+                            except BlockingIOError:
+                                self.assertLess(time.monotonic(), deadline, f"{role} survived cancellation")
+                                time.sleep(0.02)
+                verified = True
+                return subprocess.CompletedProcess(command, wrapper.returncode, stdout, stderr)
+            finally:
+                if not verified:
+                    if wrapper.poll() is None:
+                        wrapper.kill()
+                    # Fixture-only fallback, so a regression never leaves our test processes running.
+                    for role, kill in (("host", os.killpg), ("runner", os.kill)):
+                        pid_file = active / f"{role}.pid"
+                        if pid_file.is_file() and (pid := pid_file.read_text(encoding="utf-8")).isdecimal():
+                            try:
+                                kill(int(pid), signal.SIGKILL)
+                            except ProcessLookupError:
+                                pass
+                    wrapper.communicate(timeout=5)
+
+    @unittest.skipUnless(os.name == "posix", "requires POSIX process groups and file locks")
+    def test_wrapper_cancellation_stops_the_test_tree_and_saves_the_report(self):
+        for signum in (signal.SIGTERM, signal.SIGINT):
+            with self.subTest(signal=signum.name):
+                completed, docker, _, report = self.invoke(cancel_signal=signum)
+                self.assertEqual(completed.returncode, 128 + signum)
+                self.assertEqual(docker[-2:], ["rm -f fake-container", "checkpoint saved before cleanup"])
+                self.assertEqual([row["outcome"] for row in report["cases"]],
+                                 ["passed", "interrupted", "not-started"])
+                self.assertEqual(report["cases"][1]["interruption"], "cancelled")
+                self.assertEqual(report["unreported"], 1)
 
     def test_runs_exactly_three_named_cases_with_the_pinned_local_fixture(self):
         completed, docker, argv, plan = self.invoke()
