@@ -42,7 +42,7 @@ public sealed class ForeachToLinqAnalyzer : DiagnosticAnalyzer
         if (!foreachSyntax.AwaitKeyword.IsKind(SyntaxKind.None))
             return null;
 
-        if (foreachSyntax.Identifier.ValueText == "_")
+        if (foreachSyntax.Identifier.ValueText == "_" || foreachSyntax.Type is RefTypeSyntax)
             return null;
 
         ILocalSymbol? loopSymbol = semanticModel.GetDeclaredSymbol(foreachSyntax, cancellationToken);
@@ -64,12 +64,11 @@ public sealed class ForeachToLinqAnalyzer : DiagnosticAnalyzer
                 out InvocationExpressionSyntax? selectAddInvocation,
                 out ExpressionSyntax? selectListReceiver))
         {
-            if (!IsBuiltInListReceiverAndAddInvocation(
+            if (!UsesBuiltInListAdd(
                     selectAddInvocation!,
                     selectListReceiver!,
                     semanticModel,
-                    cancellationToken,
-                    out _))
+                    cancellationToken))
             {
                 return null;
             }
@@ -79,7 +78,8 @@ public sealed class ForeachToLinqAnalyzer : DiagnosticAnalyzer
             if (!ExpressionSemanticallyTouchesLoop(loopSymbol, addArg, semanticModel, cancellationToken))
                 return null;
 
-            if (IsOrContainsAssignment(addArg) || ExpressionContainsRefOrOutKeywords(addArg))
+            if (IsOrContainsAssignment(addArg) || ExpressionContainsRefOrOutKeywords(addArg) ||
+                !SupportsGenericLinqSource(foreachSyntax.Expression, semanticModel, cancellationToken))
                 return null;
 
             return new ForeachToLinqMatch(
@@ -99,12 +99,11 @@ public sealed class ForeachToLinqAnalyzer : DiagnosticAnalyzer
                 out ExpressionSyntax? whereListReceiver,
                 out ExpressionSyntax? predicate))
         {
-            if (!IsBuiltInListReceiverAndAddInvocation(
+            if (!UsesBuiltInListAdd(
                     whereAddInvocation!,
                     whereListReceiver!,
                     semanticModel,
-                    cancellationToken,
-                    out _))
+                    cancellationToken))
             {
                 return null;
             }
@@ -122,7 +121,8 @@ public sealed class ForeachToLinqAnalyzer : DiagnosticAnalyzer
             if (predicate is null ||
                 !ExpressionSemanticallyTouchesLoop(loopSymbol, predicate, semanticModel, cancellationToken) ||
                 IsOrContainsAssignment(predicate) ||
-                ExpressionContainsRefOrOutKeywords(predicate))
+                ExpressionContainsRefOrOutKeywords(predicate) ||
+                !SupportsGenericLinqSource(foreachSyntax.Expression, semanticModel, cancellationToken))
             {
                 return null;
             }
@@ -302,48 +302,43 @@ public sealed class ForeachToLinqAnalyzer : DiagnosticAnalyzer
         return true;
     }
 
-    /// <summary>Returns true when the receiver type is or derives from <c>List&lt;T&gt;</c> and the invocation is an instance <c>Add</c> with one parameter.</summary>
-    private static bool IsBuiltInListReceiverAndAddInvocation(
+    private static bool SupportsGenericLinqSource(
+        ExpressionSyntax source,
+        SemanticModel semanticModel,
+        CancellationToken cancellationToken)
+    {
+        ITypeSymbol? sourceType = semanticModel.GetTypeInfo(source, cancellationToken).Type;
+
+        if (sourceType is IArrayTypeSymbol array)
+            return array.IsSZArray;
+
+        if (sourceType is null || sourceType.IsRefLikeType)
+            return false;
+
+        INamedTypeSymbol enumerable = semanticModel.Compilation.GetSpecialType(SpecialType.System_Collections_Generic_IEnumerable_T);
+
+        return SymbolEqualityComparer.Default.Equals(sourceType.OriginalDefinition, enumerable) ||
+               sourceType.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i.OriginalDefinition, enumerable));
+    }
+
+    private static bool UsesBuiltInListAdd(
         InvocationExpressionSyntax addInvocation,
         ExpressionSyntax listReceiverExpression,
         SemanticModel semanticModel,
-        CancellationToken cancellationToken,
-        out INamedTypeSymbol? listReceiverType)
+        CancellationToken cancellationToken)
     {
-        listReceiverType = null;
-
-        if (semanticModel.GetSymbolInfo(addInvocation, cancellationToken).Symbol is not IMethodSymbol addMethod)
-            return false;
-
-        if (addMethod.IsStatic || addMethod.Name != "Add" || addMethod.Parameters.Length != 1)
-            return false;
-
-        if (addMethod.MethodKind == MethodKind.ReducedExtension)
+        if (semanticModel.GetSymbolInfo(addInvocation, cancellationToken).Symbol is not IMethodSymbol addMethod ||
+            addMethod.IsStatic || addMethod.Name != "Add" || addMethod.Parameters.Length != 1 ||
+            addMethod.MethodKind == MethodKind.ReducedExtension)
             return false;
 
         ITypeSymbol? receiverType = semanticModel.GetTypeInfo(listReceiverExpression, cancellationToken).Type;
+        INamedTypeSymbol? listDefinition = semanticModel.Compilation.GetTypeByMetadataName("System.Collections.Generic.List`1");
 
-        if (receiverType is not INamedTypeSymbol named)
-            return false;
-
-        INamedTypeSymbol? listOriginal = semanticModel.Compilation.GetTypeByMetadataName("System.Collections.Generic.List`1");
-
-        if (listOriginal is null)
-            return false;
-
-        for (INamedTypeSymbol? current = named; current is not null; current = current.BaseType)
-        {
-            if (!SymbolEqualityComparer.Default.Equals(current.OriginalDefinition, listOriginal))
-                continue;
-
-            listReceiverType = named;
-
-            return true;
-        }
-
-        listReceiverType = null;
-
-        return false;
+        // A subclass can customize either Add or the replacement AddRange call.
+        return receiverType is INamedTypeSymbol named && listDefinition is not null &&
+               SymbolEqualityComparer.Default.Equals(named.OriginalDefinition, listDefinition) &&
+               SymbolEqualityComparer.Default.Equals(addMethod.ContainingType.OriginalDefinition, listDefinition);
     }
 
     private static bool ExpressionSemanticallyTouchesLoop(
