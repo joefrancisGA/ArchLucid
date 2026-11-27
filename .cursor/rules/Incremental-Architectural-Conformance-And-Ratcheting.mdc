@@ -1,0 +1,17 @@
+---
+description: Prevent new architectural violations while incrementally retiring individually tracked historical violations.
+alwaysApply: true
+---
+
+# Incremental architectural conformance and ratcheting
+
+Follow the mandatory [common AI-assisted development governance protocol](../../docs/engineering/AI_ASSISTED_DEVELOPMENT_GOVERNANCE.md#25-mandatory-incremental-architectural-conformance-and-ratcheting) for Cursor, ChatGPT, Codex and other coding agents.
+
+- Identify the governing invariant, enforcement, actual inspected scope and pinned evidence. Reuse existing analyzers, architecture tests, CI guards and exception schemas.
+- Individually identify historical violations; a count alone is insufficient. Record stable identity or scoped fingerprint, risk, rationale, accountable owner or backlog link and retirement criteria. Distinguish confirmed violations, reviewed exceptions and unknown coverage. Never automatically approve a baseline or grandfather a non-exemptable control.
+- Reject new or materially worsened violations, unauthorized baseline expansion and recurrence of retired violations through existing or authorized executable enforcement. Fixing one violation does not permit another to be introduced.
+- Prioritize high-risk and shared-root-cause defects. Retire debt in small independently verified slices; preserve release readiness, scope authorization and coordinated consumer impact.
+- Remove exact retired entries after verification. Do not weaken tests or guards, refresh baselines to conceal failures, or silently transfer exceptions. Legitimate exceptions require explicit authorization, limited scope, rationale and review or expiry.
+- Verify valid cases and negative controls, including same-count substitution, reintroduction and unauthorized baseline changes. Report actual enforcement, scope, remaining debt and verification gaps; no diagnostic or skipped check is not proof of conformance.
+
+Use the canonical protocol for the full procedure. No new executable gate, comprehensive master CI, automatic merge or gate bypass is authorized by this rule alone.
