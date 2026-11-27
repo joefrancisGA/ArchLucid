@@ -52,6 +52,9 @@ jobs:
         run: bash scripts/ci/install_k6_apt.sh
 
       - name: Create catalog + start API (Simulator)
+        env:
+          # Same cold-SQL startup headroom as k6 per-tenant burst (Evergreen #4964 / #5239).
+          ARCHLUCID_API_READY_UNREACHABLE_FAIL_AFTER: "60"
         run: bash scripts/ci/start_api_for_k6.sh ArchLucidK6ProductionLike "${RUNNER_TEMP}/k6-pl-api.log" "${RUNNER_TEMP}/k6-pl-api.pid"
 
       - name: Verify API readiness
