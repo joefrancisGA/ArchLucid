@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-27 - Score lift round 150 (batch wave H2): SecureNow adoption friction next step
+
+**Outcome.** Infrastructure overview, remediation factory, and drift workbench name Reader-scoped collection blockers or ongoing scope discipline with a single primary CTA — not a self-service certification.
+
+**Surfaces.** Infrastructure overview, remediation factory client, drift workbench, drift guard and mounted-contract tests.
+
 ## 2026-11-27 - Score lift round 149 (batch wave H1): SecureNow time-to-value next step
 
 **Outcome.** Home, findings header, and snapshots drift name one collection or second-capture next step with a primary CTA and browser-local recovery links — not a timed SLA or usage score.
