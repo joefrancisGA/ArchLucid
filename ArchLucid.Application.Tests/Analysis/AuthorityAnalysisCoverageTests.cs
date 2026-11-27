@@ -75,19 +75,29 @@ public sealed class AuthorityAnalysisCoverageTests
         Assert.Contains("not", AnalysisCoverageCopy.Explain(recovered), StringComparison.Ordinal);
     }
 
-    [Fact]
-    public void Advisory_engine_failures_preserve_findings_but_not_absence_claims_or_exception_text()
+    [Theory]
+    [InlineData("Cost", false)]
+    [InlineData("Security", true)]
+    public void Engine_failures_preserve_findings_but_not_absence_claims_or_exception_text(string category, bool blocking)
     {
         FindingsSnapshot snapshot = new()
         {
             CreatedUtc = AsOf, GenerationStatus = FindingsSnapshotGenerationStatus.PartiallyComplete,
             Findings = [new Finding()],
-            EngineFailures = [new FindingEngineFailure { EngineType = "advisory", Category = "Cost", ErrorMessage = "sensitive-data" }],
+            EngineFailures =
+            [
+                new FindingEngineFailure
+                {
+                    EngineType = "example", Category = category, ErrorMessage = "sensitive-data", ExceptionType = "TimeoutException",
+                },
+            ],
         };
 
         AnalysisCoverageSummary result = AuthorityAnalysisCoverage.Evaluate(snapshot);
 
         Assert.False(result.CanAssertAbsence);
+        Assert.Equal(blocking, AuthorityAnalysisCoverage.HasCommitBlockingFailures(snapshot));
+        Assert.Equal(!blocking, result.AdvisoryOnlyDegradation);
         Assert.Single(snapshot.Findings);
         Assert.DoesNotContain("sensitive-data", System.Text.Json.JsonSerializer.Serialize(result), StringComparison.Ordinal);
     }
