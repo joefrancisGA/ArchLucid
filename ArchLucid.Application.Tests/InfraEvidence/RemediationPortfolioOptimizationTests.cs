@@ -309,8 +309,10 @@ public sealed class RemediationPortfolioOptimizationTests
                 for (int j = 0; j < i; j++)
                 {
                     int kind = random.Next(8);
+
                     if (kind == 0)
                         links.Add(new(actions[i].Id, actions[j].Id, PortfolioRelationship.Requires));
+
                     if (kind == 1)
                         links.Add(new(actions[i].Id, actions[j].Id, PortfolioRelationship.Conflicts));
                 }
@@ -372,6 +374,7 @@ public sealed class RemediationPortfolioOptimizationTests
         {
             var chosen = fixture.Actions.Where((_, index) => (choice & (1 << index)) != 0).ToArray();
             var ids = chosen.Select(action => action.Id).ToHashSet(StringComparer.Ordinal);
+
             if (chosen.Any(row => !row.Eligible || !row.Cost.HasValue)
                 || !fixture.Request.MandatoryActionIds.All(ids.Contains)
                 || chosen.Sum(value => value.Cost!.Value) > fixture.Request.Limits.Cost
@@ -379,6 +382,7 @@ public sealed class RemediationPortfolioOptimizationTests
                 || chosen.Sum(value => value.StaffB) > fixture.Request.Limits.Staff[1].Minutes
                 || chosen.Sum(value => value.Disruption) > fixture.Request.Limits.Disruption)
                 continue;
+
             if (fixture.Links.Any(link => link.Kind == PortfolioRelationship.Requires
                     && ids.Contains(link.From) && !ids.Contains(link.To))
                 || fixture.Links.Any(link => link.Kind == PortfolioRelationship.Conflicts
@@ -395,12 +399,12 @@ public sealed class RemediationPortfolioOptimizationTests
             .ThenBy(item => string.Join(",", item.Selected), StringComparer.Ordinal).FirstOrDefault();
     }
 
-    private sealed record ActionCase(string Id, long? Cost = 1, long StaffA = 0, long StaffB = 0, long Disruption = 0, bool Eligible = true);
-    private sealed record ScenarioCase(string Id, long Points, string[][] Clauses, bool Reviewed = true);
-    private sealed record Link(string From, string To, PortfolioRelationship Kind);
+    internal sealed record ActionCase(string Id, long? Cost = 1, long StaffA = 0, long StaffB = 0, long Disruption = 0, bool Eligible = true);
+    internal sealed record ScenarioCase(string Id, long Points, string[][] Clauses, bool Reviewed = true);
+    internal sealed record Link(string From, string To, PortfolioRelationship Kind);
     private sealed record Expected(string[] Selected, string[] Covered, long Points);
 
-    private sealed class Fixture
+    internal sealed class Fixture
     {
         private readonly Dictionary<string, Guid> findings;
         internal ActionCase[] Actions { get; }
@@ -446,7 +450,7 @@ public sealed class RemediationPortfolioOptimizationTests
             new BoundedRemediationPortfolioOptimizer(clock ?? new TestClock()).Optimize(Pin, Graph, request ?? Request, token);
     }
 
-    private sealed class TestClock(long tickStep = 0, Action<int>? onReading = null) : TimeProvider
+    internal sealed class TestClock(long tickStep = 0, Action<int>? onReading = null) : TimeProvider
     {
         private int reads;
         public override long TimestampFrequency => TimeSpan.TicksPerSecond;

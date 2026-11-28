@@ -41,9 +41,11 @@ internal sealed class PortfolioOptimizationModel
         for (int i = 0; i < count; i++)
         {
             var action = graph.Actions[i];
+
             if (action.Eligible)
                 eligible |= Bit(i);
             var staff = new long[teams.Count];
+
             if (estimates.TryGetValue(action.Id, out var estimate)
                 && estimate.Cost.Units is long money && estimate.Disruption.Units is long downtime && estimate.Staff is { } staffing)
             {
@@ -55,11 +57,13 @@ internal sealed class PortfolioOptimizationModel
             else
             {
                 costs[i] = new(0, 0, staff); // Not selectable; placeholder values never enter a plan.
+
                 if (action.Eligible)
                     issues.Add(new(action.Id, "resource_estimate_missing"));
             }
 
             int rank = action.FindingIds.Select(id => ranks.GetValueOrDefault(id, int.MaxValue)).DefaultIfEmpty(int.MaxValue).Min();
+
             if (rank != int.MaxValue)
                 ranked.Add((rank, i));
         }
@@ -68,6 +72,7 @@ internal sealed class PortfolioOptimizationModel
         {
             int first = index[edge.FirstActionId];
             int second = index[edge.SecondActionId];
+
             if (edge.Relationship == PortfolioRelationship.Requires)
                 requirements[first] |= Bit(second);
             else if (edge.Relationship == PortfolioRelationship.Conflicts)
@@ -91,6 +96,7 @@ internal sealed class PortfolioOptimizationModel
             if (!Contains(eligible, requirements[i]))
                 continue;
             evidenceAvailable |= Bit(i);
+
             if (Contains(estimated, requirements[i]))
                 available |= Bit(i);
             else if ((estimated & Bit(i)) != 0)
@@ -127,16 +133,19 @@ internal sealed class PortfolioOptimizationModel
         for (UInt128 bits = selected; bits != 0; bits &= bits - 1)
         {
             int i = Index(bits);
+
             if (!Contains(selected, requirements[i]) || (conflicts[i] & selected) != 0)
                 return false;
             var cost = costs[i];
             money += cost.Money;
             disruption += cost.Disruption;
+
             if (money > input.Limits.Cost || disruption > input.Limits.Disruption)
                 return false;
             for (int t = 0; t < cost.Staff.Length; t++)
             {
                 staff[t] += cost.Staff[t];
+
                 if (staff[t] > input.Limits.Staff[t].Minutes)
                     return false;
             }
@@ -147,6 +156,7 @@ internal sealed class PortfolioOptimizationModel
     internal long Score(UInt128 selectedOrPossible)
     {
         long total = 0;
+
         foreach (var scenario in scenarios)
         {
             foreach (UInt128 clause in scenario.Clauses)
@@ -158,6 +168,21 @@ internal sealed class PortfolioOptimizationModel
             }
         }
         return total;
+    }
+
+    internal (long Cost, long Disruption) ObjectiveResources(UInt128 selected)
+    {
+        long money = 0;
+        long disruption = 0;
+
+        for (UInt128 bits = selected; bits != 0; bits &= bits - 1)
+        {
+            var cost = costs[Index(bits)];
+            money += cost.Money;
+            disruption += cost.Disruption;
+        }
+
+        return (money, disruption);
     }
 
     internal PortfolioAdvisoryPlan Describe(UInt128 selected)
@@ -177,11 +202,13 @@ internal sealed class PortfolioOptimizationModel
         }
 
         var evaluated = graph.EvaluateSelection(actions);
+
         if (!evaluated.Feasible || !IsFeasible(selected))
             throw new InvalidOperationException("An internal advisory candidate did not pass final feasibility validation.");
 
         var weights = input.ScenarioWeights.ToDictionary(row => row.ScenarioId, row => row.Points, StringComparer.Ordinal);
         long graphScore = evaluated.CoveredScenarioIds.Sum(id => weights[id]);
+
         if (graphScore != Score(selected))
             throw new InvalidOperationException("Portfolio coverage disagreed with the pinned dependency graph.");
 
