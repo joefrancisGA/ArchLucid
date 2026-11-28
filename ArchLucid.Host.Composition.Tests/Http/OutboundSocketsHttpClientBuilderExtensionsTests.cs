@@ -31,6 +31,7 @@ public sealed class OutboundSocketsHttpClientBuilderExtensionsTests
         using HttpClient client = factory.CreateClient("tb2163-test");
 
         client.Should().NotBeNull();
+        GetPrimarySocketsHandler(client).UseCookies.Should().BeTrue();
 
         IHttpClientBuilder? builderRegistration = services
             .OfType<ServiceDescriptor>()
@@ -67,6 +68,26 @@ public sealed class OutboundSocketsHttpClientBuilderExtensionsTests
 
         GetPrimarySocketsHandler(withGuard).ConnectCallback.Should().NotBeNull();
         GetPrimarySocketsHandler(withoutGuard).ConnectCallback.Should().BeNull();
+    }
+
+    [Fact]
+    public void Tuned_control_plane_client_keeps_explicit_cookie_and_redirect_policy()
+    {
+        ServiceCollection services = [];
+        services.AddHttpClient("without-cookies")
+            .ConfigureArchLucidOutboundSocketsHandler(
+                OutboundHttpSocketsHandlerProfile.CloudControlPlane,
+                allowAutoRedirect: false,
+                rejectPrivateNetworkConnectEndpoints: false,
+                useCookies: false);
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+        using HttpClient client = provider.GetRequiredService<IHttpClientFactory>().CreateClient("without-cookies");
+        SocketsHttpHandler handler = GetPrimarySocketsHandler(client);
+
+        handler.UseCookies.Should().BeFalse();
+        handler.AllowAutoRedirect.Should().BeFalse();
+        handler.PooledConnectionLifetime.Should().Be(TimeSpan.FromMinutes(5));
     }
 
     private static SocketsHttpHandler GetPrimarySocketsHandler(HttpMessageInvoker client)
