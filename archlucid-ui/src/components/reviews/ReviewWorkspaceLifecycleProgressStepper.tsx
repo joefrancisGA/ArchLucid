@@ -40,6 +40,7 @@ export function ReviewWorkspaceLifecycleProgressStepper(
                   : "border-border text-al-text-secondary",
               OPERATOR_TYPOGRAPHY.micro,
             )}
+            aria-current={index === currentIndex ? "step" : undefined}
             data-current={index === currentIndex ? "true" : undefined}
           >
             {step.label}
