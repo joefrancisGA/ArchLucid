@@ -38,7 +38,7 @@ try
         bytes.Write(chunk, 0, read);
     }
     var input = JsonSerializer.Deserialize<RecordedReplayWorkerInput>(bytes.GetBuffer().AsSpan(0, (int)bytes.Length), inputOptions);
-    if (input is null || input.RecordedUtc == default || input.Run.RunId == Guid.Empty)
+    if (input?.Run is null || input.Inputs is null || input.RecordedUtc == default || input.Run.RunId == Guid.Empty)
         return 2;
     var output = input.Run.Product switch
     {
@@ -53,7 +53,7 @@ try
     return 0;
 }
 catch (Exception exception) when (exception is JsonException or InvalidOperationException or ArgumentException
-    or IOException or NotSupportedException or KeyNotFoundException)
+    or InvalidDataException or IOException or NotSupportedException or KeyNotFoundException)
 {
     // No raw case data or parser exception details cross the sandbox boundary.
     return 2;
