@@ -5,6 +5,12 @@
 
 # ArchLucid changelog
 
+## 2026-11-28 - Score lift round 154 (batch low-score): H3 cutting-edge + lowest-quality closures
+
+**Outcome.** Cutting-edge substrate mounts on ranked paths, path inspect, and attack path with stored-rank discipline (wave H3 on trunk). Accelerator index and scenario walks state specialty templates are synthetic fixtures. Cloud connections name Reader inventory posture. Reviews hub links finalize, compare, and sealed records without implying a Sources package. Assigned-to-me empty queue adds time-to-value and adoption next steps with not-SLA honesty.
+
+**Surfaces.** Remediation factory, path inspect, attack path, accelerator index, scenario walks, cloud connections, reviews hub, governance assigned empty, drift guard and mounted-contract tests.
+
 ## 2026-11-27 - Score lift round 153 (batch wave H5): SecureNow marketability buyer path
 
 **Outcome.** Reviewer home, quote packet, and pilot decision forward Why SecureNow, the synthetic sample, and the quote packet with beta NO_GO and signed-quote honesty — not checkout or a public GO.

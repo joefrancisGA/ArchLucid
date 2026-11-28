@@ -6,6 +6,8 @@ import { useMemo, useState } from "react";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SecureNowAdminSecondCapturePathDeltaStrip } from "@/components/product-line/SecureNowAdminSecondCapturePathDeltaStrip";
+import { SecureNowAcceleratorTemplateRichnessHonestyStrip } from "@/components/product-line/SecureNowAcceleratorTemplateRichnessHonestyStrip";
+import { resolveSecureNowAcceleratorTemplateRichnessHonesty } from "@/lib/product-line/resolve-securenow-accelerator-template-richness-honesty";
 import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
 import { SecureNowCollectionSetupStatusSection } from "@/components/product-line/SecureNowCollectionSetupStatusSection";
 import { SecureNowAcceleratorCatalogFilterChips } from "@/components/product-line/SecureNowAcceleratorCatalogFilterChips";
@@ -56,6 +58,11 @@ export function SecureNowAcceleratorIndexPageView(): React.JSX.Element {
         />
 
         <SecureNowAdminSecondCapturePathDeltaStrip testIdPrefix="securenow-accelerator-index" />
+
+        <SecureNowAcceleratorTemplateRichnessHonestyStrip
+          testId="securenow-accelerator-template-richness-honesty"
+          honesty={resolveSecureNowAcceleratorTemplateRichnessHonesty()}
+        />
 
         <SecureNowAcceleratorFamilyProgressStrip />
 

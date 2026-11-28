@@ -39,6 +39,7 @@ import { resolveReviewsHubContinueReviewCandidate } from "@/lib/reviews-hub-cont
 import { resolveReviewsHubAttentionSuppressKinds } from "@/lib/reviews-hub-attention-suppress";
 import { ReviewsHubDisclosuresClient } from "./ReviewsHubDisclosuresClient";
 import { OperatorHomeWorkingOpenGateStrip } from "@/components/operator-home/OperatorHomeWorkingOpenGateStrip";
+import { ArchLucidSealedReviewBuyerPathAuto } from "@/components/product-line/ArchLucidSealedReviewBuyerPathAuto";
 import { ReviewsHubOpenGateCollectionBlockerHost } from "./ReviewsHubOpenGateCollectionBlockerHost";
 import type { RunsPageModel } from "./runs-page-model";
 import { deriveReviewsWorkspaceSummary } from "./reviews-workspace-summary";
@@ -94,6 +95,7 @@ export function RunsPageView(props: Props) {
           )}
         >
         <ReviewsHubBuyerChrome />
+        <ArchLucidSealedReviewBuyerPathAuto testId="reviews-hub-sealed-review-buyer-path" />
         <OperatorHomeWorkingOpenGateStrip />
 
         {hubLoadOk ? (

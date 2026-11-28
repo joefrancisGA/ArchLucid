@@ -31,6 +31,7 @@ import { SecureNowPilotWalkthroughBanner } from "@/components/product-line/Secur
 import { SecureNowRemediationFactoryStepFocusBanner } from "@/components/product-line/SecureNowRemediationFactoryStepFocusBanner";
 import { SecureNowRemediationFactoryCollectionSetupBanner } from "@/components/product-line/SecureNowRemediationFactoryCollectionSetupBanner";
 import { SecureNowAgentReadinessSubstrateAuto } from "@/components/product-line/SecureNowAgentReadinessSubstrateAuto";
+import { SecureNowCuttingEdgeSubstrateAuto } from "@/components/product-line/SecureNowCuttingEdgeSubstrateAuto";
 import { SecureNowAdoptionFrictionNextStepAuto } from "@/components/product-line/SecureNowAdoptionFrictionNextStepAuto";
 import { SecureNowReaderScopeWorkbenchStrip } from "@/components/product-line/SecureNowReaderScopeWorkbenchStrip";
 import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
@@ -1014,6 +1015,9 @@ export function RemediationFactoryClient() {
             </>
           )}
         </header>
+        {productLine === "security" ? (
+          <SecureNowCuttingEdgeSubstrateAuto testId="remediation-ranked-paths-cutting-edge-substrate" />
+        ) : null}
         {productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 && !pathViewFiltersExpanded ? null : (
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="remediation-ranked-path-filters-scope">
             These filters narrow the path list only. Counts are for paths on this page.

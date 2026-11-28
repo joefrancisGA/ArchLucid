@@ -48,6 +48,9 @@ import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platf
 import { shouldShowSecureNowCollectionMissingBlock } from "@/lib/product-line/securenow-collection-missing-reason";
 import { resolveSecureNowGovernanceFindingsEmptyStateCopy } from "@/lib/product-line/securenow-governance-findings-copy";
 import { SecureNowCollectionPrimaryBlockerLine } from "@/components/product-line/SecureNowCollectionPrimaryBlockerLine";
+import { SecureNowTimeToValueNextStepAuto } from "@/components/product-line/SecureNowTimeToValueNextStepAuto";
+import { SecureNowAdoptionFrictionNextStepAuto } from "@/components/product-line/SecureNowAdoptionFrictionNextStepAuto";
+import { GOVERNANCE_ASSIGNED_TO_ME_EMPTY_STICKINESS_NOT_SLA_LINE } from "@/lib/product-line/securenow-low-score-assigned-stickiness-copy";
 import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
 import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-capture-partial";
 import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
@@ -294,6 +297,19 @@ export function GovernanceFindingsQueueOutcomeSection(
                       input={collectionInput}
                       testIdPrefix="governance-assigned-findings-empty"
                     />
+                  ) : null}
+                  <Button asChild size="sm" variant="outline">
+                  {isSecureNowProductLine(productLine) && !secureNowCollectionMissing && props.rows.length === 0 && !props.loadFailed ? (
+                    <div className="space-y-3" data-testid="governance-assigned-to-me-empty-stickiness">
+                      <p
+                        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                        data-testid="governance-assigned-to-me-empty-stickiness-not-sla"
+                      >
+                        {GOVERNANCE_ASSIGNED_TO_ME_EMPTY_STICKINESS_NOT_SLA_LINE}
+                      </p>
+                      <SecureNowTimeToValueNextStepAuto testId="governance-assigned-to-me-empty-time-to-value-next-step" />
+                      <SecureNowAdoptionFrictionNextStepAuto testId="governance-assigned-to-me-empty-adoption-friction-next-step" />
+                    </div>
                   ) : null}
                   <Button asChild size="sm" variant="outline">
                     <Link href={assignedToMeFindingsHref(productLine)}>
