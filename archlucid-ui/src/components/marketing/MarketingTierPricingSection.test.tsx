@@ -1,5 +1,8 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react/pure";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react/pure";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { getOperatorQueryClient, resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
 import { MarketingTierPricingSection } from "./MarketingTierPricingSection";
 
@@ -64,6 +67,8 @@ describe("MarketingTierPricingSection", () => {
   });
 
   afterEach(() => {
+    cleanup();
+    resetOperatorQueryClientForTests();
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
   });
@@ -101,6 +106,36 @@ describe("MarketingTierPricingSection", () => {
     expect(screen.getByRole("heading", { name: "Architect" })).toBeInTheDocument();
     expect(screen.queryAllByTestId("pricing-tier-skeleton")).toHaveLength(0);
     expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
+
+  it("fetches the public catalog instead of using an operator cache entry", async () => {
+    getOperatorQueryClient().setQueryData(operatorQueryKeys.marketingPublicPricing, {
+      ...mockPricingDoc,
+      packages: [],
+    });
+
+    render(<MarketingTierPricingSection sectionHeadingId="pricing-heading" sectionTitle="Pricing" signupHref="/signup" />);
+
+    expect(await screen.findByRole("heading", { name: "Architect" })).toBeInTheDocument();
+    expect(globalThis.fetch).toHaveBeenCalledExactlyOnceWith("/pricing.json", { cache: "no-store" });
+  });
+
+  it("links quote tiers to the pricing page when the host page has no local quote panel", () => {
+    render(
+      <MarketingTierPricingSection
+        sectionHeadingId="pricing-heading"
+        sectionTitle="Packaging overview"
+        signupHref="/signup"
+        initialPricing={mockPricingDoc as never}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Request guided trial" })).toHaveAttribute(
+      "href", "/pricing#pricing-quote-request",
+    );
+    expect(screen.getByRole("link", { name: "Request enterprise discussion" })).toHaveAttribute(
+      "href", "/pricing#pricing-quote-request",
+    );
   });
 
   it("loads client pricing without the operator provider and surfaces a fetch failure", async () => {
