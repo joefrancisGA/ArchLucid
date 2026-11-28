@@ -173,7 +173,10 @@ public sealed class GovernedHistoricalReplayReader : IScopedHistoricalArtifactRe
             return new(HistoricalArtifactAvailability.AccessDenied, null);
         if (current.Lifecycle != HistoricalArtifactLifecycle.Available || !current.ErasureIndexCoversAllCopies || !current.Durable)
             return new(HistoricalArtifactAvailability.Unknown, null);
-        if (await erasure.IsErasedAsync(identity, ct))
+        var erased = await erasure.IsErasedAsync(identity, ct);
+        if (erased is null)
+            return new(HistoricalArtifactAvailability.Unknown, null);
+        if (erased.Value)
             return new(HistoricalArtifactAvailability.Erased, null);
 
         now = time.GetUtcNow();

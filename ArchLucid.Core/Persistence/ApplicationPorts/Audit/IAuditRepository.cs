@@ -1,6 +1,7 @@
 using System.Data;
 
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Audit;
 
@@ -66,6 +67,16 @@ public interface IAuditRepository
         Guid projectId,
         AuditEventFilter filter,
         CancellationToken ct);
+
+    /// <summary>
+    /// Looks for an exact scoped event using the current authoritative committed store, never an audit list cache or replica.
+    /// Null explicitly means this repository cannot attest completeness for a safety-critical lookup.
+    /// </summary>
+    Task<bool?> HasCommittedEventAsync(ProjectScopeKey scope, string eventType, string correlationId, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        return Task.FromResult<bool?>(null);
+    }
 
     /// <summary>
     ///     Bulk export for compliance reporting: events in <paramref name="tenantId" /> /

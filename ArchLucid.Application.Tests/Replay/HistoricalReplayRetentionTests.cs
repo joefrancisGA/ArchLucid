@@ -13,6 +13,8 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.BlobStore;
+using ArchLucid.Persistence.Caching;
+using ArchLucid.Persistence.Connections;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
@@ -314,6 +316,52 @@ public sealed class HistoricalReplayRetentionTests
     }
 
     [Fact]
+    public async Task Sql_tombstone_lookup_uses_the_primary_factory_instead_of_the_read_replica()
+    {
+        var f = new Fixture();
+        var primary = new Mock<ISqlConnectionFactory>(MockBehavior.Strict);
+        var replica = new Mock<IReadOnlyDbConnectionFactory>(MockBehavior.Strict);
+        primary.Setup(factory => factory.CreateOpenConnectionAsync(CancellationToken.None))
+            .ThrowsAsync(new InvalidOperationException("primary was reached"));
+        var sqlRepository = new DapperAuditRepository(primary.Object, replica.Object);
+
+        var error = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            sqlRepository.HasCommittedEventAsync(f.Run.Scope, AuditEventTypes.HistoricalReplayArtifactErased, Hash,
+                CancellationToken.None));
+        Assert.Equal("primary was reached", error.Message);
+        replica.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Wrong_ambient_project_cannot_read_or_write_an_erasure_marker()
+    {
+        var f = new Fixture();
+        var audit = new Mock<IAuditRepository>(MockBehavior.Strict);
+        var scope = new Mock<IScopeContextProvider>(MockBehavior.Strict);
+        scope.Setup(port => port.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = f.Run.TenantId, WorkspaceId = f.Run.WorkspaceId, ProjectId = Guid.NewGuid(),
+        });
+        var journal = new HistoricalErasureJournal(audit.Object, scope.Object, f.Clock, NullLogger<HistoricalErasureJournal>.Instance);
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
+            _ = await journal.IsErasedAsync(f.Output, CancellationToken.None));
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
+            journal.RecordCompletedErasureAsync(f.Output, Guid.NewGuid(), "authorized-actor", CancellationToken.None));
+        audit.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task An_unsupported_committed_marker_lookup_cannot_be_replaced_by_an_audit_list_or_a_backup()
+    {
+        var f = new Fixture { CommittedLookupAvailable = false };
+        var result = await f.Reader().OpenReadAsync(f.Output, CancellationToken.None);
+        Assert.Equal(HistoricalArtifactAvailability.Unknown, result!.Availability);
+        Assert.Null(result.Content);
+        Assert.Empty(f.Primary.Calls);
+        Assert.Empty(f.Archive.Calls);
+    }
+
+    [Fact]
     public async Task A_changed_policy_or_expired_grant_is_not_replaced_with_current_artifacts()
     {
         var f = new Fixture();
@@ -347,6 +395,7 @@ public sealed class HistoricalReplayRetentionTests
         internal HistoricalErasureJournal Journal { get; }
         internal HistoricalArtifactIdentity Output => Identity("archived-output");
         internal TenantRecord Tenant { get; set; }
+        internal bool CommittedLookupAvailable { get; set; } = true;
         internal List<AuditEvent> Markers { get; } = [];
         internal List<AuditEvent> Logged { get; } = [];
         internal StoreStub Primary { get; } = new();
@@ -378,14 +427,23 @@ public sealed class HistoricalReplayRetentionTests
 
             tenants.Setup(port => port.GetByIdUncachedAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(() => Tenant);
             var journal = new Mock<IAuditRepository>(MockBehavior.Strict);
-            journal.Setup(port => port.CountFilteredAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId,
-                    It.IsAny<AuditEventFilter>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Guid _, Guid _, Guid _, AuditEventFilter filter, CancellationToken _) =>
-                    Markers.Count(row => row.EventType == filter.EventType && row.CorrelationId == filter.CorrelationId));
+            journal.Setup(port => port.HasCommittedEventAsync(scope, AuditEventTypes.HistoricalReplayArtifactErased,
+                    It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((ProjectScopeKey _, string eventType, string correlation, CancellationToken _) =>
+                    CommittedLookupAvailable ? Markers.Exists(row => row.EventType == eventType
+                        && row.CorrelationId == correlation) : (bool?)null);
             journal.Setup(port => port.AppendAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>(), null, null))
                 .Callback((AuditEvent row, CancellationToken _, IDbConnection? _, IDbTransaction? _) => Markers.Add(row))
                 .Returns(Task.CompletedTask);
-            Journal = new(journal.Object, Clock, NullLogger<HistoricalErasureJournal>.Instance);
+            var scopeProvider = new Mock<IScopeContextProvider>(MockBehavior.Strict);
+            scopeProvider.Setup(port => port.GetCurrentScope()).Returns(new ScopeContext
+            {
+                TenantId = scope.TenantId, WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId,
+            });
+            // The actual hot-path decorator must forward the lookup without touching its cache.
+            var noCache = new Mock<IHotPathReadCache>(MockBehavior.Strict);
+            Journal = new(new CachingAuditRepository(journal.Object, noCache.Object), scopeProvider.Object,
+                Clock, NullLogger<HistoricalErasureJournal>.Instance);
             audit.Setup(port => port.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
                 .Callback((AuditEvent row, CancellationToken _) => Logged.Add(row)).Returns(Task.CompletedTask);
         }
