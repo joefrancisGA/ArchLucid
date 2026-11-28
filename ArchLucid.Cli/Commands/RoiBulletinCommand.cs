@@ -12,7 +12,7 @@ namespace ArchLucid.Cli.Commands;
 ///     <c>--synthetic</c> local sample (no API) that mirrors demo-seed narrative constants.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification =
-    "HTTP + file I/O; covered by RoiBulletinCommandTests with a mock HttpMessageHandler.")]
+    "HTTP + file I/O; preview decoding is covered by RoiBulletinCommandTests.")]
 internal static class RoiBulletinCommand
 {
     private static readonly JsonSerializerOptions JsonRead = new() { PropertyNameCaseInsensitive = true };
@@ -110,8 +110,7 @@ internal static class RoiBulletinCommand
             return CliExitCode.OperationFailed;
         }
 
-        RoiBulletinPreviewPayload? payload =
-            JsonSerializer.Deserialize<RoiBulletinPreviewPayload>(responseBody, JsonRead);
+        RoiBulletinPreviewPayload? payload = ReadPreviewPayload(responseBody);
 
         if (payload is null)
         {
@@ -137,6 +136,18 @@ internal static class RoiBulletinCommand
         Console.WriteLine($"Wrote draft bulletin to {opts.OutPath}");
 
         return CliExitCode.Success;
+    }
+
+    internal static RoiBulletinPreviewPayload? ReadPreviewPayload(string responseBody)
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<RoiBulletinPreviewPayload>(responseBody, JsonRead);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 
     private static async Task WriteSyntheticExplainAsync()
