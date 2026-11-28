@@ -22,11 +22,9 @@ public static class SseEventWriter
         StringBuilder sb = new();
         sb.Append("id: ").Append(id).Append('\n');
         sb.Append("event: ").Append(eventName).Append('\n');
-        sb.Append("data: ");
-
         foreach (string line in (data ?? string.Empty).Replace("\r\n", "\n").Replace('\r', '\n').Split('\n'))
         {
-            sb.Append(line).Append('\n');
+            sb.Append("data: ").Append(line).Append('\n');
         }
 
         sb.Append('\n');
