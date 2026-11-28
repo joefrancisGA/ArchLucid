@@ -49,6 +49,37 @@ public sealed class ValueReportControllerUnitTests
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
+    [Theory]
+    [InlineData(29, false)]
+    [InlineData(30, true)]
+    public async Task GenerateAsync_handles_lower_bound_of_default_thirty_day_window(int endDaysAfterMinimum, bool valid)
+    {
+        Guid jobId = Guid.NewGuid();
+        Mock<IValueReportJobQueue> jobQueue = new();
+        jobQueue.Setup(q => q.Enqueue(It.IsAny<ValueReportJobRequest>())).Returns(jobId);
+        ValueReportController controller = CreateController(
+            asyncJobThresholdDays: 1,
+            jobQueue: jobQueue.Object,
+            renderer: Mock.Of<IValueReportRenderer>());
+
+        IActionResult action = await controller.GenerateAsync(
+            tenantId: null,
+            from: null,
+            to: DateTimeOffset.MinValue.AddDays(endDaysAfterMinimum),
+            CancellationToken.None);
+
+        if (valid)
+        {
+            Assert.IsType<AcceptedResult>(action);
+            jobQueue.Verify(q => q.Enqueue(It.IsAny<ValueReportJobRequest>()), Times.Once);
+        }
+        else
+        {
+            Assert.Equal(StatusCodes.Status400BadRequest, Assert.IsType<ObjectResult>(action).StatusCode);
+            jobQueue.Verify(q => q.Enqueue(It.IsAny<ValueReportJobRequest>()), Times.Never);
+        }
+    }
+
     [Fact]
     public async Task GenerateAsync_returns_accepted_when_window_exceeds_async_threshold()
     {
