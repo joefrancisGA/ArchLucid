@@ -54,7 +54,28 @@ describe("RunDetailFindingCoverageDispositionPanel (P-02 / P-03)", () => {
       />,
     );
 
+    expect(screen.getByRole("status")).toHaveTextContent("Engines 2/2 succeeded");
     expect(screen.getByText("Finding disposition counts were not stored.")).toBeInTheDocument();
+  });
+
+  it("keeps the finalization warning when disposition counts are absent", () => {
+    render(
+      <RunDetailFindingCoverageDispositionPanel
+        summary={{
+          hasCommitBlockingFailures: true,
+          enginesSucceeded: 1,
+          enginesAttempted: 2,
+          enginesFailed: 1,
+          dispositionCoverage: null,
+        }}
+      />,
+    );
+
+    const alert = screen.getByRole("alert");
+    expect(alert).toHaveTextContent("Commit-blocking finding coverage");
+    expect(alert).toHaveTextContent("Engines 1/2 succeeded · 1 failed");
+    expect(alert).toHaveTextContent(/Finalization should remain blocked/);
+    expect(alert).toHaveTextContent("Finding disposition counts were not stored.");
   });
 
   it("states when commit-blocking flag was not stored (P-18)", () => {
