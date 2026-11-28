@@ -1,3 +1,4 @@
+import { REVIEWS_HUB_MAX_PAGE_SIZE } from "@/lib/inventory-showing-count";
 import { buildOperatorHrefFromSearch } from "@/lib/operator/operator-url-href-from-search";
 
 function runsListPaginationProjectIdFromParams(params: URLSearchParams, fallbackProjectId: string): string {
@@ -38,7 +39,7 @@ function runsListPaginationPageSizeFromParams(params: URLSearchParams, fallbackP
     return fallbackPageSize;
   }
 
-  return parsed;
+  return Math.min(parsed, REVIEWS_HUB_MAX_PAGE_SIZE);
 }
 
 export function runsListPreviousPageHrefFromSearch(
