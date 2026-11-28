@@ -6,6 +6,7 @@ using System.Text.Json.Nodes;
 
 using ArchLucid.Application.Replay.Historical;
 using ArchLucid.Application.Replay.Historical.Execution;
+using ArchLucid.Application.Replay.Historical.Assurance;
 using ArchLucid.Application.Replay.Historical.Retention;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.InfraEvidence;
@@ -241,6 +242,11 @@ public sealed class RecordedHistoricalReplayTests
         internal bool Authorized { get; set; } = true;
         internal bool FailAudit { get; set; }
         internal bool ChangeLease { get; set; }
+        internal bool CommittedErased { get; set; }
+        internal Action<AuditEvent>? OnAudit { get; set; }
+        internal HistoricalRetentionGrant ReconstructionGrant => Grant with { Mode = HistoricalReplayMode.Reconstruction };
+        internal FakeTimeProvider Clock => clock;
+        internal const string ControlClaim = "control-state-v1|sample-resource|sample-control|enabled";
         internal string? Absent { get; set; }
         internal List<AuditEvent> Logged { get; } = [];
         internal Func<HistoricalArtifactIdentity, HistoricalArtifactRead> Observe { get; set; }
@@ -248,7 +254,8 @@ public sealed class RecordedHistoricalReplayTests
         internal RecordedReplayWorkerInput? Input { get; private set; }
 
         internal Fixture(HistoricalReplayProduct product = HistoricalReplayProduct.SecureNow,
-            HistoricalReplayMode mode = HistoricalReplayMode.RecordedTyped, string? image = null, bool withTool = false)
+            HistoricalReplayMode mode = HistoricalReplayMode.RecordedTyped, string? image = null, bool withTool = false,
+            bool reviewClaim = false, string? secureNowObservedSetting = "Enabled")
         {
             var run = new HistoricalRunIdentity(ProjectScopeKey.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()), product,
                 Guid.NewGuid(), product == HistoricalReplayProduct.SecureNow ? Guid.NewGuid() : null,
@@ -269,7 +276,7 @@ public sealed class RecordedHistoricalReplayTests
             {
                 const string resultId = "result-pinned";
                 const string taskId = "task-pinned";
-                const string claim = "Recorded policy finding";
+                string claim = reviewClaim ? ControlClaim : "Recorded policy finding";
                 const string known = "historical-evidence-1";
                 const string unknown = "historical-evidence-missing";
                 string[] claims = [claim];
@@ -312,6 +319,11 @@ public sealed class RecordedHistoricalReplayTests
             {
                 var captured = RecordedAt.AddHours(-1);
                 var rowId = Guid.NewGuid();
+                List<AzureInventoryResourcePropertyReadModel> properties = [];
+                if (secureNowObservedSetting is not null)
+                    properties.Add(new() { ResourceRowId = rowId, PropertyKey = "publicNetworkAccess", PropertyValue = secureNowObservedSetting });
+                if (!string.Equals(secureNowObservedSetting, "Enabled", StringComparison.Ordinal))
+                    properties.Add(new() { ResourceRowId = rowId, PropertyKey = "historical.publicNetworkAccess", PropertyValue = "Enabled" });
                 var snapshot = new AzureInventorySnapshotDetailReadModel
                 {
                     Header = new()
@@ -322,7 +334,7 @@ public sealed class RecordedHistoricalReplayTests
                     },
                     Resources = [new() { SnapshotId = run.SnapshotId.Value, TenantId = run.TenantId, ResourceRowId = rowId,
                         ResourceType = "Microsoft.Storage/storageAccounts", AzureResourceId = Target, SubscriptionId = "test" }],
-                    Properties = [new() { ResourceRowId = rowId, PropertyKey = "publicNetworkAccess", PropertyValue = "Enabled" }],
+                    Properties = properties,
                 };
                 Bytes["evidence"] = JsonSerializer.SerializeToUtf8Bytes(snapshot, Web);
                 Bytes["policy"] = JsonSerializer.SerializeToUtf8Bytes(new { maximumCaptureAgeHours = 24 });
@@ -359,6 +371,7 @@ public sealed class RecordedHistoricalReplayTests
             {
                 if (FailAudit)
                     throw new IOException("synthetic audit failure");
+                OnAudit?.Invoke(row);
                 Logged.Add(row);
                 return Task.CompletedTask;
             });
@@ -379,6 +392,34 @@ public sealed class RecordedHistoricalReplayTests
             SetPin(id, row => row with { Length = value.Length, Sha256 = Convert.ToHexString(SHA256.HashData(value)) });
         }
 
+        internal void AddObservations(string state, bool coverage = true, DateTimeOffset? observedAt = null)
+        {
+            var at = observedAt ?? RecordedAt.AddMinutes(-2);
+            Bytes["independent-observations"] = JsonSerializer.SerializeToUtf8Bytes(new
+            {
+                coverageComplete = coverage,
+                observations = new[] { new { resource = "sample-resource", control = "sample-control", state,
+                    evidenceRef = "historical-evidence-1", observedUtc = at, validUntilUtc = at.AddMinutes(10) } },
+            });
+            Descriptor = Descriptor with { Artifacts = [.. Descriptor.Artifacts,
+                Pin("independent-observations", HistoricalArtifactRole.SourceEvidence, HistoricalClaimOracle.AuthorityObservationSchema, AuthorityStage)] };
+            Trust = Trust with { DescriptorSha256 = HistoricalReplayCompletenessService.DescriptorSha256(Descriptor) };
+        }
+
+        internal HistoricalReplayAssurance Assurance(IRecordedReplayWorker? worker = null,
+            IHistoricalAssuranceAuthority? reviewAuthority = null, RecordedReplayImage? approval = null)
+        {
+            if (reviewAuthority is null)
+            {
+                var permitted = new Mock<IHistoricalAssuranceAuthority>(MockBehavior.Strict);
+                permitted.Setup(port => port.IsAuthorizedAsync(ReconstructionGrant, Trust.DescriptorSha256!,
+                    It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+                reviewAuthority = permitted.Object;
+            }
+            return new(reviewAuthority, scopes.Object, Service(worker, approval), audit.Object, clock,
+                NullLogger<HistoricalReplayAssurance>.Instance);
+        }
+
         internal RecordedHistoricalReplay Service(IRecordedReplayWorker? worker = null, RecordedReplayImage? approval = null) =>
             new(authority.Object, scopes.Object, audit.Object, clock, NullLogger<RecordedHistoricalReplay>.Instance,
                 worker ?? new Worker(this), [approval ?? Approval]);
@@ -386,26 +427,28 @@ public sealed class RecordedHistoricalReplayTests
         internal Task<RecordedReplayResult> ReplayAsync(RecordedReplayImage? approval = null, CancellationToken ct = default) =>
             Service(approval: approval).ReplayVerifiedAsync(Trust, Descriptor, Grant, Primary, (_, _) => ValueTask.FromResult(true), ct);
 
-        internal GovernedHistoricalReplayReader GovernedReader()
+        internal GovernedHistoricalReplayReader GovernedReader(HistoricalRetentionGrant? selectedGrant = null)
         {
-            var scope = Grant.Run.Scope;
+            var grant = selectedGrant ?? Grant;
+            var scope = grant.Run.Scope;
             var policy = new HistoricalRetentionPolicy(scope, Guid.NewGuid(), "approved-v1", "eastus",
                 RecordedAt.AddDays(-1), RecordedAt.AddDays(10), Descriptor.Artifacts.Select(row => row.Role).Distinct()
-                    .Select(role => new HistoricalRetentionRule(Grant.Mode, role, 10, HistoricalRetentionPolicyRules.IsRaw(role), true, true)).ToArray());
+                    .Where(role => !HistoricalRetentionPolicyRules.IsRaw(role) || grant.Mode == HistoricalReplayMode.RecordedRaw)
+                    .Select(role => new HistoricalRetentionRule(grant.Mode, role, 10, HistoricalRetentionPolicyRules.IsRaw(role), true, true)).ToArray());
             var digest = HistoricalRetentionPolicyRules.PolicySha256(policy);
             var tenants = new Mock<ITenantDirectoryReader>(MockBehavior.Strict);
             tenants.Setup(port => port.GetByIdUncachedAsync(scope.TenantId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new TenantRecord { Id = scope.TenantId, DataRegion = "eastus" });
             var journal = new Mock<IAuditRepository>(MockBehavior.Strict);
             journal.Setup(port => port.HasCommittedEventAsync(scope, AuditEventTypes.HistoricalReplayArtifactErased,
-                    It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
+                    It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(() => CommittedErased);
             var custody = new Mock<IHistoricalRetentionAuthority>(MockBehavior.Strict);
-            custody.Setup(port => port.ReadCurrentAsync(Grant, It.IsAny<HistoricalArtifactIdentity>(), It.IsAny<CancellationToken>()))
+            custody.Setup(port => port.ReadCurrentAsync(grant, It.IsAny<HistoricalArtifactIdentity>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((HistoricalRetentionGrant _, HistoricalArtifactIdentity id, CancellationToken _) =>
-                    new HistoricalRetentionDecision(id, Grant.GrantId, Grant.ActorId, Grant.Mode, Grant.EndsUtc, true, digest,
+                    new HistoricalRetentionDecision(id, grant.GrantId, grant.ActorId, grant.Mode, grant.EndsUtc, true, digest,
                         ChangeLease ? 2 : 1, HistoricalArtifactLifecycle.Available, RecordedAt.AddDays(7), null, true, true,
                         HistoricalArtifactAvailability.Exact, new("primary", "eastus", true, true), new("archive", "eastus", true, true)));
-            return new(Trust, Descriptor, policy, digest, Grant, tenants.Object, custody.Object,
+            return new(Trust, Descriptor, policy, digest, grant, tenants.Object, custody.Object,
                 new HistoricalErasureJournal(journal.Object, scopes.Object, clock, NullLogger<HistoricalErasureJournal>.Instance),
                 audit.Object, new("primary", Primary), new("archive", Archive), clock, NullLogger<GovernedHistoricalReplayReader>.Instance);
         }
@@ -529,7 +572,7 @@ public sealed class RecordedReplayWorkerIntegrationTests
     }
 
     // Local evidence uses a fresh Linux network namespace. The focused CI lane always exercises the container worker instead.
-    private sealed class NamespaceWorker(string dll) : IRecordedReplayWorker
+    internal sealed class NamespaceWorker(string dll) : IRecordedReplayWorker
     {
         public async Task<RecordedReplayWorkerOutput?> RunAsync(string imageId, RecordedReplayWorkerInput input, CancellationToken cancellationToken)
         {
