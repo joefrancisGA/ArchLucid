@@ -2,6 +2,8 @@
 from pathlib import Path
 import unittest
 
+from scripts.ci.tests.remediation_disposable_catalog_contract import assert_uses_disposable_catalog
+
 ROOT = Path(__file__).resolve().parents[3]
 
 class RemediationAtomicUpdateContractTests(unittest.TestCase):
@@ -65,8 +67,7 @@ class RemediationAtomicUpdateContractTests(unittest.TestCase):
     def test_real_sql_regression_impersonates_non_owner_app_user(self):
         test = (ROOT / "ArchLucid.Persistence.Tests/Sql/"
                 "RemediationSqlRolePrivilegesTests.cs").read_text()
-        self.assertIn("SqlServerPersistenceFixture", test)
-        self.assertIn('InitialCatalog.Should().Contain("Test"', test)
+        assert_uses_disposable_catalog(self, ROOT, test)
         self.assertIn("foreach (int migrationNumber in new[] { 426, 427, 428 })", test)
         self.assertIn("EXECUTE AS USER =", test)
         self.assertIn("forbiddenDirectUpdate", test)
