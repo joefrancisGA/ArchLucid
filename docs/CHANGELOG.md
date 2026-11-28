@@ -11,6 +11,12 @@
 
 **Surfaces.** SecureNow reviewer home section, signed-in quote packet, pilot decision, drift guard and mounted-contract tests.
 
+## 2026-11-27 - Score lift round 152 (batch wave H3): SecureNow cutting-edge AI substrate
+
+**Outcome.** Ranked paths, path inspect, and attack-path report name stored SA-09 rank discipline, bounded Ask/explanation substrate (simulator or configured Azure OpenAI), and honest not-frontier copy — PathRankingEngine weights unchanged.
+
+**Surfaces.** Remediation factory ranked paths, security evidence path inspect panel, attack-path report section, drift guard and mounted-contract tests.
+
 ## 2026-11-27 - Score lift round 151 (batch wave H4): SecureNow AI and agent readiness substrate
 
 **Outcome.** Remediation factory, infrastructure Ask, and attack-path report name simulator versus Real agent mode, deterministic rank discipline, and citation bounds — not an autonomous subscription agent.

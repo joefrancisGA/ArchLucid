@@ -32,6 +32,7 @@ import {
 import { formatRemediationFactoryAttackPathOverflowLine } from "@/lib/remediation-factory/remediation-factory-attack-path-overflow-honesty-copy";
 import { INFRASTRUCTURE_ASK_EVIDENCE_ROW_CAP_LINE } from "@/lib/infra-evidence/infrastructure-ask-ranked-path-honesty-copy";
 import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+import { SecureNowCuttingEdgeSubstrateAuto } from "@/components/product-line/SecureNowCuttingEdgeSubstrateAuto";
 import { SecureNowAgentReadinessSubstrateAuto } from "@/components/product-line/SecureNowAgentReadinessSubstrateAuto";
 import { REMEDIATION_FACTORY_ATTACK_PATH_PARTIAL_RERANK_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-partial-rerank-copy";
 import { REMEDIATION_FACTORY_ATTACK_PATH_TABLE_PARTIAL_CAPTURE_LINE } from "@/lib/remediation-factory/remediation-factory-attack-path-table-partial-capture-copy";
@@ -108,6 +109,7 @@ export function RemediationFactoryAttackPathReportSection(props: {
       <header className="space-y-1">
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{REMEDIATION_FACTORY_ATTACK_PATH_REPORT_TITLE}</h2>
         <p className={OPERATOR_TYPOGRAPHY.helper}>{REMEDIATION_FACTORY_ATTACK_PATH_REPORT_LEAD}</p>
+        <SecureNowCuttingEdgeSubstrateAuto testId="attack-path-cutting-edge-substrate" />
         <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="attack-path-report-ask-row-cap-honesty">
           {INFRASTRUCTURE_ASK_EVIDENCE_ROW_CAP_LINE}
         </p>

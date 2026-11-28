@@ -78,6 +78,7 @@ import {
   useRemediationRankedFindingsQuery,
 } from "@/hooks/use-remediation-factory-query";
 import { useSecurityEvidenceRankedPathsQuery } from "@/hooks/use-security-evidence-ranked-paths-query";
+import { SecureNowCuttingEdgeSubstrateAuto } from "@/components/product-line/SecureNowCuttingEdgeSubstrateAuto";
 import { useSecurityEvidencePathReportQuery } from "@/hooks/use-security-evidence-path-report-query";
 import { useOperatorRelativeFreshnessNowMs } from "@/hooks/use-operator-relative-freshness-now-ms";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
@@ -1007,6 +1008,9 @@ export function RemediationFactoryClient() {
         ) : null}
         <header className="space-y-1">
           <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{SECURENOW_PATH_RANKED_PATHS_TITLE}</h2>
+          {productLine === "security" ? (
+            <SecureNowCuttingEdgeSubstrateAuto testId="remediation-ranked-paths-cutting-edge-substrate" />
+          ) : null}
           {productLine === "security" && selectedPathId !== null && selectedPathId.trim().length > 0 && !pathViewFiltersExpanded ? null : (
             <>
               <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_RANKED_PATHS_LEAD}</p>

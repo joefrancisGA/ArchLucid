@@ -38,6 +38,7 @@ import { buildResourceHubOverviewHref } from "@/lib/infra-evidence/infra-evidenc
 import { buildRemediationWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import { fetchRemediationInstances } from "@/lib/infra-evidence/infra-evidence-remediation-api";
 import { SecureNowPinPathButton } from "@/components/product-line/SecureNowPinPathButton";
+import { SecureNowCuttingEdgeSubstrateAuto } from "@/components/product-line/SecureNowCuttingEdgeSubstrateAuto";
 import { SecureNowPathInspectAssignedPacksLine } from "@/components/security/SecureNowPathInspectAssignedPacksLine";
 import {
   SECURENOW_PATH_INSPECT_ADVISORY_INSTANCE_LINK,
@@ -929,6 +930,7 @@ export function SecurityEvidencePathInspectPanel(props: {
           ) : null}
         </div>
         <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_INSPECT_PANEL_LEAD}</p>
+        <SecureNowCuttingEdgeSubstrateAuto testId="path-inspect-cutting-edge-substrate" />
         {resolvedPathId != null ? (
           <SecureNowInfraPartialCaptureStrip
             testId="security-evidence-path-inspect-partial-capture"
