@@ -1,0 +1,77 @@
+name: Incremental recomputation equivalence contract
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - '.github/workflows/pr-incremental-equivalence.yml'
+      - 'ArchLucid.Application/Analysis/SecureNowDependencyReceipt.cs'
+      - 'ArchLucid.Application/InfraEvidence/AzureInventorySnapshotPostMaterializeCoordinator.cs'
+      - 'ArchLucid.Application/InfraEvidence/SecureNowDependencyInputs.cs'
+      - 'ArchLucid.Application/InfraEvidence/SecureNowArchitect/**'
+      - 'ArchLucid.Application.Tests/Analysis/SecureNowDependencyInputsTests.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/SecureNowArchitect*Tests.cs'
+      - 'docs/assurance/FND086_INCREMENTAL_EQUIVALENCE.md'
+      - 'scripts/assurance/verify_incremental_equivalence.py'
+      - 'scripts/assurance/paired_engine_evaluation.py'
+      - 'scripts/assurance/regression-evidence/fnd086-new-path.json'
+      - 'scripts/ci/tests/test_incremental_equivalence.py'
+      - 'scripts/ci/tests/test_paired_engine_evaluation.py'
+      - 'tests/golden-corpus/agent-output-reference-cases.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: incremental-equivalence-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  synthetic-shadow:
+    name: Test shadow comparisons and independent reference outcomes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Test paired output and dependency plans
+        run: |
+          python3 -m unittest discover -s scripts/ci/tests -p 'test_paired_engine_evaluation.py' -v
+          python3 -m unittest discover -s scripts/ci/tests -p 'test_incremental_equivalence.py' -v
+
+  versioned-reuse:
+    name: Test SecureNow versioned carry-forward contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Test scoped dependency and coordinator behavior in Release
+        run: >-
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~SecureNowDependencyInputsTests|FullyQualifiedName~SecureNowArchitectPostMaterializeCoordinatorTests|FullyQualifiedName~SecureNowArchitectDiffConsumerTests'
+          --results-directory "$RUNNER_TEMP/incremental-equivalence"
+          --logger 'trx;LogFileName=application.trx'
+      - name: Require executed passing tests
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          from xml.etree import ElementTree
+
+          result = Path(os.environ["RUNNER_TEMP"]) / "incremental-equivalence" / "application.trx"
+          counters = ElementTree.parse(result).find(".//{*}Counters")
+          if counters is None:
+              raise SystemExit("Test result does not contain counters")
+          total, executed, passed = (int(counters.attrib[key]) for key in ("total", "executed", "passed"))
+          if not total or total != executed or executed != passed:
+              raise SystemExit(f"total={total}, executed={executed}, passed={passed}")
+          print(f"{passed} tests passed")
+          PY

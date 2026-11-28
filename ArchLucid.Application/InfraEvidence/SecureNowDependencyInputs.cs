@@ -62,6 +62,15 @@ public sealed class SecureNowDependencyInputs(
             || !source.ContentHashSha256!.SequenceEqual(target.ContentHashSha256!))
             return "changed_inventory";
 
+        // Zero observed paths is still a dependency on the entire captured search domain.
+        // A same-content diff is not an absence proof across collector or scope changes.
+        if (!KnownDomain(scope, source) || !KnownDomain(scope, target))
+            return "negative_dependency_domain_unknown";
+
+        string domain = Evidence(source);
+        if (!string.Equals(domain, Evidence(target), StringComparison.Ordinal))
+            return "negative_dependency_domain_changed";
+
         var key = new AnalysisRecoveryStageKey(ProjectScopeKey.From(scope), "securenow", sourceId, "job");
         AnalysisRecoveryClaim? predecessor = await checkpoints.ReadAsync(key, ct);
 
@@ -80,9 +89,9 @@ public sealed class SecureNowDependencyInputs(
             return "source_lineage_missing";
         }
 
-        if (receipt is not { Schema: 2 } || receipt.SnapshotId != sourceId ||
+        if (receipt is not { Schema: SecureNowDependencyReceipt.CurrentSchema } || receipt.SnapshotId != sourceId ||
             !string.Equals(receipt.Configuration, version, StringComparison.Ordinal) ||
-            !string.Equals(receipt.Evidence, Evidence(source), StringComparison.Ordinal))
+            !string.Equals(receipt.Evidence, domain, StringComparison.Ordinal))
             return "source_lineage_incompatible";
 
         string? witness = await PathWitnessAsync(scope, sourceId, ct);
@@ -98,12 +107,24 @@ public sealed class SecureNowDependencyInputs(
 
         string? witness = await PathWitnessAsync(scope, snapshot.SnapshotId, ct);
 
-        return witness is null ? null : new SecureNowDependencyReceipt(2, snapshot.SnapshotId, Evidence(snapshot), version, witness);
+        return witness is null ? null : new SecureNowDependencyReceipt(
+            SecureNowDependencyReceipt.CurrentSchema, snapshot.SnapshotId, Evidence(snapshot), version, witness);
     }
 
-    // Capture time is part of each execution binding, but not exact cross-snapshot evidence equivalence.
+    private static bool KnownDomain(ScopeContext scope, AzureInventorySnapshotRecord snapshot) =>
+        snapshot.TenantId != Guid.Empty && snapshot.WorkspaceId != Guid.Empty && snapshot.ProjectId != Guid.Empty
+        && snapshot.TenantId == scope.TenantId && snapshot.WorkspaceId == scope.WorkspaceId && snapshot.ProjectId == scope.ProjectId
+        && !string.IsNullOrWhiteSpace(snapshot.SubscriptionId)
+        && !string.IsNullOrWhiteSpace(snapshot.CaptureVersion) && !string.IsNullOrWhiteSpace(snapshot.CollectorVersion)
+        && (snapshot.CaptureMethod is AzureInventoryCaptureMethod.CustomerScript or AzureInventoryCaptureMethod.HostedReader)
+        && snapshot.ResourceCount >= 0 && snapshot.RelationshipCount >= 0;
+
+    // Capture time binds the execution separately. Scope, collection contract, and cardinalities bind the
+    // negative search domain even when the result witness contains no path rows.
     internal static string Evidence(AzureInventorySnapshotRecord snapshot) => AnalysisDependencyFingerprint.Digest(new
     {
+        snapshot.TenantId, snapshot.WorkspaceId, snapshot.ProjectId, snapshot.CaptureMethod,
+        snapshot.ResourceCount, snapshot.RelationshipCount,
         snapshot.SubscriptionId, snapshot.ContentHashSha256, snapshot.CaptureVersion, snapshot.CollectorVersion,
         snapshot.CaptureStatus, snapshot.ErrorCount, snapshot.WarningCount, snapshot.CompletenessScore
     });

@@ -1,0 +1,93 @@
+{
+  "after": {
+    "captureId": "snapshot-b",
+    "captureVersion": "capture-1",
+    "collectionComplete": true,
+    "collectorVersion": "collector-1",
+    "configurationVersion": "settings-1",
+    "domains": [
+      {
+        "complete": true,
+        "edges": [
+          {
+            "from": "a",
+            "id": "ab",
+            "requires": [],
+            "to": "b"
+          },
+          {
+            "from": "b",
+            "id": "bc",
+            "requires": [],
+            "to": "c"
+          },
+          {
+            "from": "c",
+            "id": "cd",
+            "requires": [],
+            "to": "d"
+          }
+        ],
+        "enabledControls": [],
+        "id": "world",
+        "vertices": [
+          "a",
+          "b",
+          "c",
+          "d"
+        ]
+      }
+    ],
+    "engineRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "policyVersion": "policy-1",
+    "scopeId": "synthetic-scope"
+  },
+  "before": {
+    "captureId": "snapshot-a",
+    "captureVersion": "capture-1",
+    "collectionComplete": true,
+    "collectorVersion": "collector-1",
+    "configurationVersion": "settings-1",
+    "domains": [
+      {
+        "complete": true,
+        "edges": [
+          {
+            "from": "a",
+            "id": "ab",
+            "requires": [],
+            "to": "b"
+          },
+          {
+            "from": "b",
+            "id": "bc",
+            "requires": [],
+            "to": "c"
+          }
+        ],
+        "enabledControls": [],
+        "id": "world",
+        "vertices": [
+          "a",
+          "b",
+          "c"
+        ]
+      }
+    ],
+    "engineRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "policyVersion": "policy-1",
+    "scopeId": "synthetic-scope"
+  },
+  "caseId": "fnd086-new-path",
+  "dataClass": "reviewed_synthetic",
+  "product": "SecureNow",
+  "queries": [
+    {
+      "domain": "world",
+      "from": "a",
+      "id": "probe",
+      "to": "d"
+    }
+  ],
+  "schemaVersion": 1
+}
