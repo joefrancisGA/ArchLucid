@@ -7,6 +7,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
+using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 using ArchLucid.Persistence.Serialization;
@@ -25,10 +26,11 @@ public sealed class AuthorityRecoveryPipeline(
     TimeProvider clock,
     ILogger<AuthorityRecoveryPipeline> logger,
     IOptionsMonitor<IntegrationEventsOptions> integrationOptions,
-    AnalysisDependencyConfiguration? dependencies = null)
+    AnalysisDependencyConfiguration? dependencies = null,
+    IAuditRepository? dependencyAudit = null)
 {
     private const string Pipeline = "authority";
-    private const string Publish = "seal_and_publish";
+    private const string Publish = AnalysisDependencyGraphs.AuthorityPublish;
     private static readonly string[] ResumableStages =
     [
         AuthorityPipelineStageNames.ContextIngestion, AuthorityPipelineStageNames.Graph, AuthorityPipelineStageNames.Findings
@@ -63,13 +65,24 @@ public sealed class AuthorityRecoveryPipeline(
             new { Protocol = 1, Engine = typeof(AuthorityRecoveryPipeline).Module.ModuleVersionId, context.Request },
             AuditJsonSerializationOptions.Instance)));
 
-        bool versioned = options.CurrentValue.EnableDependencyAwareAnalysisReuse && dependencies is not null;
+        AnalysisStageExecutionOptions policy = options.CurrentValue;
+        bool versioned = policy.EnableDependencyAwareAnalysisReuse && dependencies is not null;
+        bool useGraph = versioned && policy.EnableAnalyticalDependencyGraph;
+        ProjectScopeKey scope = ProjectScopeKey.From(context.Scope);
+        AnalysisDependencyExecution? planner = versioned && (useGraph || policy.ObserveAnalyticalDependencyGraph)
+            ? new(AnalysisDependencyGraphs.Authority, scope, context.Run.RunId) : null;
+
+        if (useGraph && dependencyAudit is null)
+            throw new AnalysisDependencyRejectionException(Publish, "dependency_provider_unavailable");
+
         Dictionary<string, (string Version, string Result)> inputs = new(StringComparer.Ordinal);
         context.RebuildGraphForDependencyChange = versioned;
 
-        foreach (string stage in ResumableStages)
+        IEnumerable<string> orderedStages = useGraph ? planner!.Order.Where(stage => stage != Publish) : ResumableStages;
+
+        foreach (string stage in orderedStages)
         {
-            await ExecuteBoundaryAsync(stage, async (lease, uow, token) =>
+            await ExecuteBoundaryAsync(stage, async (lease, uow, binding, decision, token) =>
             {
                 if (stage == AuthorityPipelineStageNames.ContextIngestion)
                 {
@@ -90,20 +103,23 @@ public sealed class AuthorityRecoveryPipeline(
 
                 EnsureCoverage(stage);
                 await VerifyPublicationInputsAsync(stage, uow, token);
+                await AppendLineageAsync(stage, binding, decision, output, lease, uow, token);
                 await lease.CompleteAsync(output, uow, token);
                 token.ThrowIfCancellationRequested();
                 await uow.CommitAsync(token);
             });
         }
 
-        await ExecuteBoundaryAsync(Publish, async (lease, uow, token) =>
+        await ExecuteBoundaryAsync(Publish, async (lease, uow, binding, decision, token) =>
         {
             using IDisposable pins = executor.BeginRecoveryGovernanceScope(context);
             await executor.ExecuteRecoveryStageAsync(context, AuthorityPipelineStageNames.Decisioning, token);
             await executor.ExecuteRecoveryStageAsync(context, AuthorityPipelineStageNames.Artifacts, token);
             context.ExecutionBudget!.EnsureCanContinue("authority.finalize");
             await VerifyPublicationInputsAsync(Publish, uow, token);
-            await lease.CompleteAsync(context.Run.GoldenManifestId!.Value.ToString("D"), uow, token);
+            string manifestId = context.Run.GoldenManifestId!.Value.ToString("D");
+            await AppendLineageAsync(Publish, binding, decision, manifestId, lease, uow, token);
+            await lease.CompleteAsync(manifestId, uow, token);
             using IDisposable publication = lease.EnterSqlFence();
             await publish(uow, token);
         });
@@ -111,13 +127,21 @@ public sealed class AuthorityRecoveryPipeline(
         return context.Run;
 
         async Task ExecuteBoundaryAsync(
-            string stage, Func<AnalysisRecoveryLease, IArchLucidUnitOfWork, CancellationToken, Task> work)
+            string stage, Func<AnalysisRecoveryLease, IArchLucidUnitOfWork, AnalysisDependencyBinding?, AnalysisDependencyDecision?, CancellationToken, Task> work)
         {
             AnalysisExecutionBudget budget = context.ExecutionBudget!;
             budget.EnsureCanContinue(stage);
             AnalysisRecoveryStageKey key = Key(context.Scope, context.Run.RunId, stage);
-            string stageVersion = await StageVersionAsync(stage, budget.Token);
+            var (stageVersion, binding) = await StageVersionAsync(stage, budget.Token);
+            AnalysisDependencyDecision? decision = null;
             AnalysisRecoveryClaim? previous = versioned ? await checkpoints.ReadAsync(key, budget.Token) : null;
+
+            if (binding is not null)
+            {
+                string? rejection = AnalysisDependencyFingerprint.Rejection(previous, stageVersion, true, true);
+                decision = planner!.Observe(stage, binding, rejection, rejection is null, useGraph, logger);
+            }
+
             await using AnalysisRecoveryLease lease = await AnalysisRecoveryLease.AcquireAsync(
                 checkpoints, key, stageVersion, options.CurrentValue.RecoveryMaxAttempts, clock, budget.Token,
                 replaceAuthorityInputs: versioned);
@@ -142,6 +166,7 @@ public sealed class AuthorityRecoveryPipeline(
 
                 EnsureCoverage(stage);
                 inputs[stage] = (stageVersion, lease.Claim.ResultReference!);
+                planner?.Record(stage, stageVersion, lease.Claim.ResultReference!, lease.Claim.Fence);
                 logger.LogInformation("Reused Authority analysis checkpoint. RunId={RunId} Stage={Stage}",
                     context.Run.RunId, stage);
 
@@ -160,10 +185,14 @@ public sealed class AuthorityRecoveryPipeline(
             {
                 await using IArchLucidUnitOfWork uow = await transactions.CreateAsync(lease.Token);
                 context.RecoveryUnitOfWork = uow;
-                await work(lease, uow, lease.Token);
+                await work(lease, uow, binding, decision, lease.Token);
 
                 if (stage != Publish)
-                    inputs[stage] = (stageVersion, RequireOutput(context.Run, stage));
+                {
+                    string output = RequireOutput(context.Run, stage);
+                    inputs[stage] = (stageVersion, output);
+                    planner?.Record(stage, stageVersion, output, lease.Claim.Fence);
+                }
             }
             catch (Exception ex)
             {
@@ -191,11 +220,11 @@ public sealed class AuthorityRecoveryPipeline(
             }
         }
 
-        async Task<string> StageVersionAsync(string stage, CancellationToken token)
+        async Task<(string Version, AnalysisDependencyBinding? Binding)> StageVersionAsync(string stage, CancellationToken token)
         {
             if (!versioned)
             {
-                return stage == AuthorityPipelineStageNames.ContextIngestion
+                return (stage == AuthorityPipelineStageNames.ContextIngestion
                 ? version
                 : Convert.ToHexString(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(new
                 {
@@ -204,27 +233,49 @@ public sealed class AuthorityRecoveryPipeline(
                     context.Run.PinnedEvidencePackagePinsHashSha256,
                     context.Run.PinnedArchitectureVersionContentHashSha256,
                     context.Run.PinnedKnowledgeModelContentHashSha256
-                }, AuditJsonSerializationOptions.Instance)));
+                }, AuditJsonSerializationOptions.Instance))), null);
             }
 
             var run = context.Run;
             string effective = await dependencies!.ForAuthorityAsync(stage, context, token);
+            var pins = stage == AuthorityPipelineStageNames.ContextIngestion ? null : new
+            {
+                run.PinnedPolicyPackIdsHashSha256, run.PinnedEvidencePackagePinsHashSha256,
+                run.PinnedArchitectureVersionContentHashSha256, run.PinnedKnowledgeModelContentHashSha256,
+                run.EngineProvenanceJson,
+            };
+            var binding = planner?.BindInputs(stage, new
+            {
+                RequestAndEngine = version,
+                Configuration = effective,
+                Policy = pins?.PinnedPolicyPackIdsHashSha256,
+                Evidence = pins?.PinnedEvidencePackagePinsHashSha256,
+                Architecture = pins?.PinnedArchitectureVersionContentHashSha256,
+                Knowledge = pins?.PinnedKnowledgeModelContentHashSha256,
+                EngineProvenance = pins?.EngineProvenanceJson,
+            });
+
+            if (useGraph)
+                return (binding!.InputVersion, binding);
+
+            // Preserve the v2 digest exactly for older and shadow-mode work.
             string[] prerequisites = stage switch
             {
                 AuthorityPipelineStageNames.Graph => [AuthorityPipelineStageNames.ContextIngestion],
                 AuthorityPipelineStageNames.Findings => [AuthorityPipelineStageNames.ContextIngestion, AuthorityPipelineStageNames.Graph],
                 Publish => ResumableStages,
-                _ => []
+                _ => [],
             };
-
-            return AnalysisDependencyFingerprint.Create(ProjectScopeKey.From(context.Scope), stage,
-                version, effective, stage == AuthorityPipelineStageNames.ContextIngestion ? null : new
-                {
-                    run.PinnedPolicyPackIdsHashSha256, run.PinnedEvidencePackagePinsHashSha256,
-                    run.PinnedArchitectureVersionContentHashSha256, run.PinnedKnowledgeModelContentHashSha256,
-                    run.EngineProvenanceJson
-                }, prerequisites.Select(name => new { Name = name, inputs[name].Version, inputs[name].Result }).ToArray());
+            return (AnalysisDependencyFingerprint.Create(scope, stage, version, effective, pins,
+                prerequisites.Select(name => new { Name = name, inputs[name].Version, inputs[name].Result }).ToArray()), binding);
         }
+
+        Task AppendLineageAsync(string stage, AnalysisDependencyBinding? binding, AnalysisDependencyDecision? decision,
+            string output, AnalysisRecoveryLease lease, IArchLucidUnitOfWork uow, CancellationToken token) => useGraph
+            ? AnalysisDependencyAudit.AppendAsync(dependencyAudit!, clock, Key(context.Scope, context.Run.RunId, stage),
+                binding!, decision!.Action == AnalysisDependencyAction.Reuse ? new(AnalysisDependencyAction.Recompute, "checkpoint_changed_during_claim") : decision,
+                output, lease.Claim.Fence, uow, token)
+            : Task.CompletedTask;
 
         void EnsureCoverage(string stage)
         {
@@ -242,7 +293,7 @@ public sealed class AuthorityRecoveryPipeline(
             {
                 // Recheck the effective inputs and lock the persisted upstream result until this commit.
 
-                if (binding.Version != await StageVersionAsync(name, token))
+                if (binding.Version != (await StageVersionAsync(name, token)).Version)
                     throw new AnalysisDependencyRejectionException(stage, "inputs_changed_during_execution");
 
                 if (name != stage && !await checkpoints.IsCurrentAsync(

@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:456 -->
+<!-- audit-core-const-count:457 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -682,6 +682,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | Path explanation generate (AiInference artifact) | — | `OperationalSecurityPathsController` (`POST /v1/operational-security/paths/{pathId}/explanations`; `[MutatingAuditExcluded]`) |
 | `OperatorInferredConnectionConfirmed` | `OperatorInferredConnection.Confirmed` | `OperatorInferredConnectionService` (`InfraEvidenceOperatorInferredConnectionsController` `POST /v1/infra-evidence/snapshots/{snapshotId}/operator-inferred-connections/confirm`) |
 | `OperatorInferredConnectionDismissed` | `OperatorInferredConnection.Dismissed` | `OperatorInferredConnectionService` (`InfraEvidenceOperatorInferredConnectionsController` `POST /v1/infra-evidence/snapshots/{snapshotId}/operator-inferred-connections/dismiss`) |
+| `AnalyticalDependencyCheckpointRecorded` | `Analysis.DependencyCheckpointRecorded` | `AnalysisDependencyAudit` (FND-083 versioned graph stages, transactionally paired with the scoped checkpoint) |
 | `SecureNowArchitectNeighborhoodRecomputed` | `SecureNowArchitect.NeighborhoodRecomputed` | `SecureNowArchitectNeighborhoodRunner` (infra-evidence neighborhood diff recompute) |
 | `SecureNowCollectionRunTriggered` | `SecureNowCollectionRun.Triggered` | `CollectionRunTriggerService` (`CollectionRunsController` `POST /v1/collection-runs:trigger`) |
 | `SecureNowPilotPathDispositionRecorded` | `SecureNowPilotPath.DispositionRecorded` | `SecureNowPilotPathDispositionService` (`PUT /v1/operational-security/paths/{pathId}/pilot-disposition`; operator Proceed / Extend / Stop choice; tenant/workspace/project-scoped `IAuditService.LogAsync`) |

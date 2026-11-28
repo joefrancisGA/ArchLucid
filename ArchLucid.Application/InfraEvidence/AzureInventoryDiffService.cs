@@ -147,6 +147,7 @@ public sealed class AzureInventoryDiffService(
                 if (SecureNowAnalysisRun.ExecutionBudget is { RecoverySession: not null } budget &&
                     consumer is AuditContinuousReadinessDiffConsumer)
                 {
+                    budget.RecoverySession.BindDiff(summary.DiffId, summary.SnapshotAId, summary.SnapshotBId);
                     await budget.ExecuteAsync("securenow.audit_readiness",
                         token => consumer.OnDiffComputedAsync(summary, changes, token), cancellationToken);
                 }

@@ -21,7 +21,8 @@ public sealed class SecureNowDependencyInputs(
     IRemediationPatternRepository remediationPatterns,
     IAnalysisRecoveryRepository checkpoints,
     IArchitectureDiagramReconciliationRepository reconciliations,
-    TimeProvider clock)
+    TimeProvider clock, ISecurityEvidenceCutPointRepository? cutPoints = null,
+    ISecurityEvidencePathRoutingRepository? routing = null)
 {
     internal async Task<SecureNowDependencyVersions> ConfigurationAsync(ProjectScopeKey scope, Guid snapshotId, CancellationToken ct)
     {
@@ -48,6 +49,57 @@ public sealed class SecureNowDependencyInputs(
         });
 
         return new SecureNowDependencyVersions(pathsVersion, ranking, cuts, drift);
+    }
+
+    internal async Task<string?> ReadGraphOutputWitnessAsync(ScopeContext scope, Guid snapshotId, string stage, CancellationToken ct)
+    {
+        ProjectSnapshotScopeKey key = ProjectSnapshotScopeKey.Create(ProjectScopeKey.From(scope), snapshotId);
+
+        if (stage == "securenow.ranking")
+        {
+            var rows = await ranks.ListBySnapshotAsync(key, ct);
+
+            return AnalysisDependencyFingerprint.Digest(rows.OrderBy(row => row.PathId).ToArray());
+        }
+
+        if (stage == "securenow.cut_point" && cutPoints is not null)
+        {
+            var rows = await cutPoints.ListBySnapshotAsync(key, ct);
+
+            return AnalysisDependencyFingerprint.Digest(rows.OrderBy(row => row.CutPointId).ToArray());
+        }
+
+        if (stage == "securenow.routing" && routing is not null)
+        {
+            List<SecurityEvidencePathRoutingRecord> routes = [];
+            var rows = await paths.ListBySnapshotAsync(key, ct);
+
+            foreach (SecurityEvidencePathRecord row in rows)
+                routes.AddRange(await routing.ListByPathIdInScopeAsync(ProjectScopeKey.From(scope), row.PathId, ct));
+
+            return AnalysisDependencyFingerprint.Digest(routes.OrderBy(row => row.RoutingRowId).ToArray());
+        }
+
+        PathKind? kind = stage switch
+        {
+            "securenow.privilege" => PathKind.Privilege,
+            "securenow.reachability" => PathKind.IntendedReachability,
+            "securenow.toxic" => PathKind.ToxicCombination,
+            "securenow.capability_flow" => PathKind.CapabilityToFlow,
+            "securenow.shared_control" => PathKind.SharedControlBlastRadius,
+            "securenow.drift" => PathKind.FourRealityDrift,
+            _ => null,
+        };
+
+        if (kind is null && stage != AnalysisDependencyGraphs.Carry)
+            return null;
+
+        var scopedPaths = await paths.ListWithHopsBySnapshotAsync(key, ct);
+
+        return AnalysisDependencyFingerprint.Digest(scopedPaths.Where(row => kind is { } selected
+                ? row.Path.PathKind == selected : CarryForwardPathKind(row.Path.PathKind))
+            .OrderBy(row => row.Path.PathId)
+            .Select(row => new { row.Path, Hops = row.Hops.OrderBy(hop => hop.HopOrdinal).ToArray() }).ToArray());
     }
 
     internal async Task<string?> CarryForwardRejectionAsync(ScopeContext scope, AzureInventorySnapshotRecord target,

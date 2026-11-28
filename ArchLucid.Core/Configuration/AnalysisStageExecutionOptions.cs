@@ -7,6 +7,12 @@ public sealed class AnalysisStageExecutionOptions
 
     public bool EnableDependencyAwareAnalysisReuse { get; set; }
 
+    /// <summary>Compare graph decisions without changing the existing execution or checkpoint protocol.</summary>
+    public bool ObserveAnalyticalDependencyGraph { get; set; }
+
+    /// <summary>Use the graph for new versioned durable work. Defaults off.</summary>
+    public bool EnableAnalyticalDependencyGraph { get; set; }
+
     public int SecureNowReuseMaxAgeHours { get; set; } = 24;
 
     public bool EnableDurableAuthorityRecovery { get; set; }
