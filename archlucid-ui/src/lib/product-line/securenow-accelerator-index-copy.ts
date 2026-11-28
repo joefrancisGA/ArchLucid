@@ -27,7 +27,7 @@ export const SECURENOW_ACCELERATOR_INDEX_ROWS: readonly SecureNowHomeDestination
   {
     href: SECURENOW_GOLDEN_SPONSOR_WALKTHROUGH_HREF,
     label: "Golden sponsor export walkthrough",
-    summary: "Illustrative sample review export path on ArchLucid — separate from SecureNow capture.",
+    summary: "Illustrative architecture review export — separate from SecureNow capture.",
   },
   {
     href: "/administration/securenow-scenario-walks#fixture-path-03",

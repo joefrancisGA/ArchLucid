@@ -4,16 +4,6 @@ using ArchLucid.Core.Agents;
 
 namespace ArchLucid.AgentRuntime.Quality;
 
-public sealed class ProviderQualityQuarantinedException(
-    ProviderQualityKey key,
-    DateTimeOffset? retryAfterUtc,
-    string? reason)
-    : InvalidOperationException(reason ?? "AI provider output is quarantined pending independent quality recovery.")
-{
-    public ProviderQualityKey Key { get; } = key;
-    public DateTimeOffset? RetryAfterUtc { get; } = retryAfterUtc;
-}
-
 /// <summary>Admission decorator that reuses the normal fallback chain when independent quality quarantine is open.</summary>
 public sealed class ProviderQualityQuarantiningAgentCompletionClient(
     IAgentCompletionClient inner,
@@ -35,6 +25,7 @@ public sealed class ProviderQualityQuarantiningAgentCompletionClient(
         ProviderQualityAdmission admission = await AdmitAsync(cancellationToken).ConfigureAwait(false);
         using ProviderQualityRecoveryResponse.Capture? capture =
             ProviderQualityRecoveryResponse.Begin(admission, IndependentProviderQualityObserver.IsObservingSecureNow);
+
         if (capture?.Probe.SecureNowChallenge is { } challenge)
         {
             // Reuse the admitted completion instead of making a second call. Do not send customer data on this lease.
@@ -79,6 +70,7 @@ public sealed class ProviderQualityQuarantiningAgentCompletionClient(
     {
         ProviderQualityAdmission admission = await _monitor.AdmitAsync(
             Descriptor.ProviderKind, Descriptor.ModelId, cancellationToken).ConfigureAwait(false);
+
         if (!admission.Allowed)
             throw new ProviderQualityQuarantinedException(CurrentKey(), admission.RetryAfterUtc, admission.Reason);
         return admission;

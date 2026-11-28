@@ -142,6 +142,20 @@ $bOpen
     }
 }
 
+Describe 'Canonical ledger counters' {
+    It 'does not let a pasted hypothesis diary override the header tally' {
+        $ledger = (Get-TwoZoneLedger -ZoneAHunts 25 -ZoneABugs 12).Replace(
+            '### Hypotheses', "### Hypotheses`n- **hunts:** 8`n- **bugs-found:** 12"
+        )
+        $result = Invoke-Picker -LedgerPath (New-LedgerFixture -Content $ledger) -Hint 'zone-a'
+
+        $result.zoneId | Should -Be 'zone-a'
+        $result.hunts | Should -Be 25
+        $result.bugsFound | Should -Be 12
+        $result.bugsFoundInvariantViolating | Should -BeFalse
+    }
+}
+
 Describe 'al-bug-pick-zone.ps1' {
 
     It 'samples an untried zone ahead of a high-hypothesis sampled zone' {

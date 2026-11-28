@@ -98,14 +98,15 @@ def parse_zone_counters(ledger_text: str) -> list[ZoneCounters]:
 
     for part in parts:
         id_match = FIELD_ID.search(part)
-        hunts_matches = FIELD_HUNTS.findall(part)
-        bugs_matches = FIELD_BUGS.findall(part)
+        metadata = zone_metadata_block(part)
+        hunts_matches = FIELD_HUNTS.findall(metadata)
+        bugs_matches = FIELD_BUGS.findall(metadata)
 
         if not id_match or not hunts_matches or not bugs_matches:
             continue
 
-        # Last-wins matches al-bug-pick-zone.ps1, which overwrites the field map
-        # as it walks the whole zone body.
+        # Use only header counters, matching the picker. Duplicate metadata
+        # is reported separately rather than hidden by a copied hunt note.
         zones.append(
             ZoneCounters(
                 zone_id=id_match.group(1).strip(),
@@ -120,7 +121,7 @@ def parse_zone_counters(ledger_text: str) -> list[ZoneCounters]:
 def duplicate_counter_zone_ids(ledger_text: str) -> list[str]:
     """Zones whose header lists hunts or bugs-found more than once.
 
-    The picker and this linter both keep the last value. Duplicate header fields
+    The picker and this linter both use the last header value. Duplicate fields
     still fail so a later paste cannot silently diverge from the first copy that
     bump scripts increment.
     """

@@ -108,7 +108,7 @@ public sealed class ArchitectureRunCreateOrchestratorAsyncCompleteTests
             c => c.CreateRunAsync(
                 It.IsAny<ArchitectureRequest>(),
                 It.IsAny<CancellationToken>(),
-                It.Is<IArchLucidUnitOfWork?>(uow => uow != null),
+                It.Is<IArchLucidUnitOfWork?>(uow => !ReferenceEquals(uow, null)),
                 It.IsAny<Guid?>()),
             Times.Never);
     }
@@ -193,7 +193,7 @@ public sealed class ArchitectureRunCreateOrchestratorAsyncCompleteTests
         Mock<IEvidenceBundleRepository> evidence = new();
         evidence
             .Setup(e => e.CreateForRunAsync(
-                It.IsAny<EvidenceBundle>(),
+                It.Is<EvidenceBundle>(bundle => bundle.EvidenceBundleId == "eb-req-async-persist-fail"),
                 AuthorityTestScope,
                 runId,
                 It.IsAny<CancellationToken>(),

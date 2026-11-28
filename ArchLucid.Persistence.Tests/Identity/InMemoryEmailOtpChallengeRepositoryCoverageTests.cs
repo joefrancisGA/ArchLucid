@@ -111,7 +111,7 @@ public sealed class InMemoryEmailOtpChallengeRepositoryCoverageTests
             new EmailOtpChallengeInsert
             {
                 NormalizedEmail = "otp@example.com",
-                CodeHash = "correct-hash",
+                CodeHash = new string('A', 64),
                 ExpiresUtc = now.AddMinutes(5),
             },
             CancellationToken.None);
@@ -133,7 +133,7 @@ public sealed class InMemoryEmailOtpChallengeRepositoryCoverageTests
             .Result.Should()
             .Be(EmailOtpChallengeCompletionResult.Expired);
 
-        (await sut.TryCompleteAsync(active.Id, "wrong", now, maxFailedAttempts: 2, CancellationToken.None))
+        (await sut.TryCompleteAsync(active.Id, new string('B', 64), now, maxFailedAttempts: 2, CancellationToken.None))
             .Result.Should()
             .Be(EmailOtpChallengeCompletionResult.InvalidCode);
 
@@ -141,7 +141,7 @@ public sealed class InMemoryEmailOtpChallengeRepositoryCoverageTests
             .Should()
             .Be(1);
 
-        (await sut.TryCompleteAsync(active.Id, "wrong-again", now, maxFailedAttempts: 2, CancellationToken.None))
+        (await sut.TryCompleteAsync(active.Id, new string('C', 64), now, maxFailedAttempts: 2, CancellationToken.None))
             .Result.Should()
             .Be(EmailOtpChallengeCompletionResult.TooManyAttempts);
 
@@ -149,14 +149,14 @@ public sealed class InMemoryEmailOtpChallengeRepositoryCoverageTests
             new EmailOtpChallengeInsert
             {
                 NormalizedEmail = "otp@example.com",
-                CodeHash = "ok-hash",
+                CodeHash = new string('D', 64),
                 ExpiresUtc = now.AddMinutes(5),
             },
             CancellationToken.None);
 
         EmailOtpChallengeCompletionOutcome completed = await sut.TryCompleteAsync(
             fresh.Id,
-            "ok-hash",
+            new string('D', 64),
             now,
             maxFailedAttempts: 5,
             CancellationToken.None);
@@ -164,7 +164,7 @@ public sealed class InMemoryEmailOtpChallengeRepositoryCoverageTests
         completed.Result.Should().Be(EmailOtpChallengeCompletionResult.Completed);
         completed.Challenge.Should().NotBeNull();
 
-        (await sut.TryCompleteAsync(fresh.Id, "ok-hash", now, 5, CancellationToken.None))
+        (await sut.TryCompleteAsync(fresh.Id, new string('D', 64), now, 5, CancellationToken.None))
             .Result.Should()
             .Be(EmailOtpChallengeCompletionResult.AlreadyCompleted);
     }
@@ -244,12 +244,13 @@ public sealed class InMemoryEmailOtpChallengeRepositoryCoverageTests
             new EmailOtpChallengeInsert
             {
                 NormalizedEmail = "otp@example.com",
-                CodeHash = "correct-hash",
+                CodeHash = new string('A', 64),
                 ExpiresUtc = now.AddMinutes(5),
             },
             CancellationToken.None);
 
-        await sut.TryCompleteAsync(active.Id, "correct-hash", now, maxFailedAttempts: 5, CancellationToken.None);
+        (await sut.TryCompleteAsync(active.Id, new string('A', 64), now, maxFailedAttempts: 5, CancellationToken.None))
+            .Result.Should().Be(EmailOtpChallengeCompletionResult.Completed);
 
         (await sut.CountRecentRequestsByEmailAsync("otp@example.com", since, now, CancellationToken.None))
             .Should()

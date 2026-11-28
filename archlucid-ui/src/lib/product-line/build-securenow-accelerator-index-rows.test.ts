@@ -22,11 +22,16 @@ describe("buildSecureNowAcceleratorIndexRows", () => {
     expect(rows.find((row) => row.label.includes("Pilot walkthrough"))?.recommendedFirst).toBe(false);
   });
 
-  it("deep-links scenario walks to fixture-path-02", () => {
+  it("deep-links the scenario index and vault fixture to their distinct walks", () => {
     const rows = buildSecureNowAcceleratorIndexRows({ latestSnapshotId: null });
-    const scenarioRow = rows.find((row) => row.href.includes("securenow-scenario-walks"));
+    const scenarioPath = "/administration/securenow-scenario-walks";
 
-    expect(scenarioRow?.href).toBe("/administration/securenow-scenario-walks#fixture-path-02");
-    expect(scenarioRow?.summary).toMatch(/fixture-path-02/i);
+    expect(rows.find((row) => row.label === "Scenario walks")?.href).toBe(
+      `${scenarioPath}#fixture-path-02`,
+    );
+    expect(rows.find((row) => row.label.includes("fixture-path-03"))?.href).toBe(
+      `${scenarioPath}#fixture-path-03`,
+    );
+    expect(rows.find((row) => row.label === "Scenario walks")?.summary).toMatch(/fixture-path-02/i);
   });
 });
