@@ -57,3 +57,19 @@ Reads lost to recomputation on all three runs for both Authority sizes and the s
 6. Verify the exact integrated build with disposable SQL and the selected existing backing store. Check restart and interrupted write recovery, concurrent cleanup and reads, eviction under pressure, deployment rollback, compatible and incompatible producer versions, independent result equivalence, and full cost and latency. Limit rollout to approved workloads only. Disabling optional writes must leave existing required recovery and historical evidence intact.
 
 Neither this pilot nor its policy tests add a deployed persistence or cleanup path, change retention configuration, or enable optional writes.
+
+## Read-only calibration on representative captures
+
+The SecureNow resolver can emit process-local closed cohorts for scoped, complete canonical captures whose input and output each contain 2,048–8,192 resources or nodes. It does not change what is returned, write artifacts, or share any state across instances. Enable Trace for only `ArchLucid.Application.InfraEvidence.Mermaid.SecureNowProjectionReuseObserver` using the existing logging configuration in an authorized isolated environment. Leave the category at its ordinary level elsewhere. The direct snapshot-to-graph adapter without an authorized scoped read does not generate observations.
+
+Each one-hour cohort starts after the first projection completes. A repeat must begin after that first result is available and reproduce the same capture, output, scope and visibility settings. Process restart and rolling deployment lose unclosed cohorts. Event **8505** is emitted on subsequent eligible traffic after a cohort closes and includes node count, compressed bytes, repeat opportunities and first compute time. Event **8506** indicates capacity or payload skips. Keep dropped observations visible. Treat the data as same-process lower-bound evidence, not a deployment-wide hit rate, and do not extrapolate to payloads outside the measured size band. No scope identifiers, fingerprints, or payloads are logged by the observer. Its in-process tracking is capped at 64 cohorts.
+
+Export completed events into a single deduplicated JSON evidence document for one compatible build and workload band. Use each log record's unique event identity, not a customer identifier. Do not count recent open cohorts as zero reuse. Provide measured marginal compute, encode/write, and validated-read cost in one currency for the **same** workload and intended provider. Include operation and data-transfer charges, actual storage format and minimum billed retention. Zero is valid only when the measured cost is zero. Do not substitute the earlier local latency medians for monetary rates or treat a configured provider as a billed-cost measurement.
+
+Required top-level fields are `schema` (1), `windowSeconds` (3600), `provider`, `providerEvidence` (reference to the measured provider evidence), `currency`, `storageEncoding` (`binary` or `base64`), `minNodes`, `maxNodes`, `droppedObservations`, `encodeWriteCostPerArtifact`, `validateReadCostPerHit`, `recomputeCostPerHit`, `retentionCostPerGiBHour`, `minimumBillableHours`, and `cohorts`. A cohort row contains `eventId`, `nodes`, `binaryBytes`, and `repeats`.
+
+```sh
+python scripts/ci/report_fnd085_projection_calibration.py evidence.json
+```
+
+Pass the evidence filename as the positional argument. The report rejects missing rates and duplicate records, marks an empty cohort set unmeasured, and marks any reported drops incomplete. Even `CANDIDATE_FOR_REVIEW` is not permission to write. Verify production-representative coverage and the remaining runtime acceptance tasks before changing storage or recovery behavior.
