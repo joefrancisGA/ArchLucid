@@ -90,6 +90,20 @@ public sealed class ValueReportReviewCycleMissingValuesTests
             .Should().ContainInOrder(baseline, Measured, delta);
     }
 
+    [Theory]
+    [InlineData(true, "Delta: 2 h longer per run (20% longer than baseline)")]
+    [InlineData(false, "Delta: 2 h longer per run")]
+    public void Slower_measured_cycle_is_not_described_as_savings(bool hasPercent, string expectedDelta)
+    {
+        // ValueReportBuilder uses baseline minus measured. A 12 h cycle against a 10 h
+        // baseline is 2 h longer, and the comparison percentage is 20% longer.
+        ValueReportSnapshot snapshot = CreateSnapshot(10m, 12m, -2m, hasPercent ? -20m : null);
+        const string baseline = "Baseline review cycle: 10 h (tenant-supplied at trial signup)";
+        const string measured = "Measured review cycle (this window): 12 h across 3 run(s)";
+
+        AssertLines(snapshot, [Heading, baseline, measured, expectedDelta], [$"## {Heading}", baseline, measured, expectedDelta]);
+    }
+
     private static void AssertLines(ValueReportSnapshot snapshot, string[] expectedParagraphs, string[] expectedMarkdown)
     {
         IReadOnlyList<ValueReportReviewCycleParagraph> paragraphs =

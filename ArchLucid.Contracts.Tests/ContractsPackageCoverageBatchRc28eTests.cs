@@ -45,7 +45,7 @@ public sealed class ContractsPackageCoverageBatchRc28eTests
         ValueReportSnapshot snapshot = CreateMeasuredSnapshot(
             ReviewCycleBaselineProvenance.TenantSuppliedAtSignup,
             tenantBaselineHours: 40m,
-            measuredHours: 32m,
+            measuredHours: 48m,
             delta: -8m,
             deltaPct: -20m);
 
@@ -53,7 +53,7 @@ public sealed class ContractsPackageCoverageBatchRc28eTests
             ValueReportReviewCycleSectionFormatter.GetParagraphs(snapshot, SponsorRoiClaimDisposition.Pass);
 
         paragraphs.Should().ContainSingle(p =>
-            p.Text.Contains("Delta: -8 h saved per run (-20% improvement)", StringComparison.Ordinal));
+            p.Text.Contains("Delta: 8 h longer per run (20% longer than baseline)", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public sealed class ContractsPackageCoverageBatchRc28eTests
         ValueReportSnapshot snapshot = CreateMeasuredSnapshot(
             ReviewCycleBaselineProvenance.TenantSuppliedAtSignup,
             tenantBaselineHours: 40m,
-            measuredHours: 30m,
+            measuredHours: 50m,
             delta: -10m,
             deltaPct: -25m,
             capturedUtc: DateTimeOffset.Parse("2026-06-01T12:00:00Z"),
@@ -111,7 +111,7 @@ public sealed class ContractsPackageCoverageBatchRc28eTests
 
         string markdown = sb.ToString();
         markdown.Should().StartWith("## Review-cycle delta (before vs measured)");
-        markdown.Should().Contain("Delta: -10 h saved per run (-25% improvement)");
+        markdown.Should().Contain("Delta: 10 h longer per run (25% longer than baseline)");
         markdown.Should().Contain("Captured at signup (UTC)");
         markdown.Should().Contain("Source note: sponsor supplied");
         markdown.Should().NotContain("Review-cycle delta (before vs measured)\r\n\r\nReview-cycle delta");

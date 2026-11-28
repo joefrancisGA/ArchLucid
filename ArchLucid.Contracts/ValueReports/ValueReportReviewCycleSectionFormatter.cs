@@ -214,6 +214,14 @@ public static class ValueReportReviewCycleSectionFormatter
                 : $"Directional delta (estimate basis): {FormatHours(delta)} h — **WARN: not customer-specific**";
         }
 
+        if (delta < 0m)
+        {
+            string longer = $"Delta: {FormatHours(Math.Abs(delta))} h longer per run";
+            return deltaPct is { } slowerPct
+                ? $"{longer} ({Math.Abs(slowerPct).ToString("0.##", CultureInfo.InvariantCulture)}% longer than baseline)"
+                : longer;
+        }
+
         return deltaPct is { } pct
             ? $"Delta: {FormatHours(delta)} h saved per run ({pct.ToString("0.##", CultureInfo.InvariantCulture)}% improvement)"
             : $"Delta: {FormatHours(delta)} h saved per run";
