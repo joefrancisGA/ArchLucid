@@ -9,7 +9,7 @@ namespace ArchLucid.Cli.Commands;
 ///     no SQL on the developer machine — so it is safe to run against staging in Stripe TEST mode.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification =
-    "HTTP entry point; behavior is covered by TrialSmokeRunnerTests + TrialSmokeCommandOptionsTests.")]
+    "HTTP entry point; URL validation, runner and option parsing have focused tests.")]
 internal static class TrialSmokeCommand
 {
     private static readonly JsonSerializerOptions JsonCamel = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -36,6 +36,16 @@ internal static class TrialSmokeCommand
         string baseUrl = string.IsNullOrWhiteSpace(options.ApiBaseUrl)
             ? CliCommandShared.GetBaseUrl(config)
             : options.ApiBaseUrl!.Trim().TrimEnd('/');
+
+        if (ArchLucidApiClient.GetInvalidApiBaseUrlReason(baseUrl) is { } urlError)
+        {
+            if (CliExecutionContext.JsonOutput)
+                CliJson.WriteFailureLine(Console.Error, CliExitCode.ConfigurationError, "configuration", urlError);
+            else
+                await Console.Error.WriteLineAsync("[ArchLucid CLI] " + urlError);
+
+            return CliExitCode.ConfigurationError;
+        }
 
         using HttpClient http = CliHttpClientFactory.Create();
         http.BaseAddress = new Uri(baseUrl + "/");
