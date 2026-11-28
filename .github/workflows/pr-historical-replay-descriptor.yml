@@ -6,6 +6,16 @@ on:
     paths:
       - '.github/workflows/pr-historical-replay-descriptor.yml'
       - 'ArchLucid.Application/Replay/Historical/**'
+      - 'ArchLucid.HistoricalReplay.Worker/**'
+      - 'ArchLucid.Application/ArchLucid.Application.csproj'
+      - 'ArchLucid.Decisioning/Validation/**'
+      - 'ArchLucid.Contracts/Agents/AgentResult*.cs'
+      - 'ArchLucid.Core/InfraEvidence/AzureInventoryPublicNetworkAccessResolver.cs'
+      - 'ArchLucid.Application.Tests/Replay/RecordedHistoricalReplayTests.cs'
+      - 'ArchLucid.AgentRuntime/AgentResultParser.cs'
+      - 'ArchLucid.Application/InfraEvidence/SecureNowArchitect/InventoryReachabilityPathGraph.cs'
+      - 'schemas/agentresult.schema.json'
+      - 'docs/assurance/FND095_RECORDED_INPUT_REPLAY.md'
       - 'ArchLucid.Application/Replay/ReplayRunPrepareStage.cs'
       - 'ArchLucid.Application.Tests/Replay/HistoricalReplayCompletenessTests.cs'
       - 'ArchLucid.Application.Tests/Replay/HistoricalReplayRetentionTests.cs'
@@ -47,12 +57,33 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
+      - name: Build and probe the isolated replay worker
+        shell: bash
+        run: |
+          dotnet publish ArchLucid.HistoricalReplay.Worker/ArchLucid.HistoricalReplay.Worker.csproj -c Release -o "$RUNNER_TEMP/historical-worker"
+          docker build --iidfile "$RUNNER_TEMP/historical-image" -f ArchLucid.HistoricalReplay.Worker/Dockerfile "$RUNNER_TEMP/historical-worker"
+          image=$(cat "$RUNNER_TEMP/historical-image")
+          docker run --rm --pull never --network none --ipc none --read-only --cap-drop ALL \
+            --security-opt no-new-privileges --pids-limit 64 --memory 256m --memory-swap 256m --cpus 1 \
+            --log-driver none --user 65532:65532 --entrypoint /bin/sh "$image" -ec '
+              test "$(tail -n +3 /proc/net/dev | cut -d : -f 1 | tr -d "[:space:]")" = lo
+              test "$(awk "END {print NR}" /proc/net/route)" -eq 1
+              grep -Eq "^NoNewPrivs:[[:space:]]+1$" /proc/self/status
+              grep -Eq "^CapEff:[[:space:]]+0000000000000000$" /proc/self/status
+              test "$(cat /sys/fs/cgroup/memory.max)" -eq 268435456
+              test "$(cat /sys/fs/cgroup/pids.max)" -eq 64
+              test ! -S /var/run/docker.sock
+              test -z "${AZURE_CLIENT_SECRET:-}"
+              ! touch /app/probe-write
+            '
+          echo "FND095_TEST_IMAGE=$image" >> "$GITHUB_ENV"
       - name: Run focused Release tests
         env:
+          FND095_REPLAY_EVIDENCE_DIR: ${{ runner.temp }}/historical-replay-descriptor/replay
           FND096_RESTORE_EVIDENCE: ${{ runner.temp }}/historical-replay-descriptor/fnd096-restore.json
         run: >-
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~HistoricalReplayCompletenessTests|FullyQualifiedName~HistoricalReplayRetentionTests|FullyQualifiedName~ReplayRunPrepareStageTests|FullyQualifiedName~SecureNowOfflineQuestionReplayTests'
+          --filter 'FullyQualifiedName~HistoricalReplayCompletenessTests|FullyQualifiedName~HistoricalReplayRetentionTests|FullyQualifiedName~ReplayRunPrepareStageTests|FullyQualifiedName~SecureNowOfflineQuestionReplayTests|FullyQualifiedName~RecordedHistoricalReplayTests|FullyQualifiedName~RecordedReplayWorkerIntegrationTests'
           --results-directory "$RUNNER_TEMP/historical-replay-descriptor"
           --logger 'trx;LogFileName=application.trx'
       - name: Require executed passing descriptor and adjacent replay tests
@@ -77,7 +108,8 @@ jobs:
               if item.attrib.get("outcome") == "Passed"
           }
           for suite in ("HistoricalReplayCompletenessTests", "HistoricalReplayRetentionTests",
-                        "ReplayRunPrepareStageTests", "SecureNowOfflineQuestionReplayTests"):
+                        "ReplayRunPrepareStageTests", "SecureNowOfflineQuestionReplayTests",
+                        "RecordedHistoricalReplayTests", "RecordedReplayWorkerIntegrationTests"):
               suite_ids = {
                   unit.attrib["id"]
                   for unit in root.findall(".//{*}TestDefinitions/{*}UnitTest")
@@ -89,13 +121,20 @@ jobs:
           restore = json.loads(result.with_name("fnd096-restore.json").read_text(encoding="utf-8"))
           if restore["archiveReads"] != 1 or restore["payloadBytes"] <= 0 or restore["storedBytes"] <= restore["payloadBytes"]:
               raise SystemExit("Restore evidence did not record an encrypted archive round trip")
+          for product, mode in (("ArchLucid", "RecordedTyped"), ("ArchLucid", "RecordedRaw"), ("SecureNow", "RecordedTyped")):
+              replay = json.loads((result.parent / "replay" / f"{product}-{mode}.json").read_text(encoding="utf-8"))
+              if replay["outcome"] != "ReproducedWithinScope" or replay["image"] != os.environ["FND095_TEST_IMAGE"]:
+                  raise SystemExit(f"Invalid isolated replay evidence for {product} {mode}")
+              if product == "ArchLucid" and mode == "RecordedTyped" and not replay["restored"]:
+                  raise SystemExit("ArchLucid typed replay did not use encrypted restoration")
           print(f"{passed} tests passed")
           PY
-      - name: Publish governed restoration evidence
+      - name: Publish restoration and scoped replay evidence
         uses: actions/upload-artifact@v7
         with:
           name: historical-replay-retention-evidence
           path: |
             ${{ runner.temp }}/historical-replay-descriptor/application.trx
             ${{ runner.temp }}/historical-replay-descriptor/fnd096-restore.json
+            ${{ runner.temp }}/historical-replay-descriptor/replay/*.json
           if-no-files-found: error

@@ -74,7 +74,11 @@ public sealed class GovernedHistoricalReplayReader : IScopedHistoricalArtifactRe
         CancellationToken cancellationToken = default) =>
         new HistoricalReplayCompletenessService(this).AssessAsync(trust, descriptor, grant.Mode, compatibleRuntime, cancellationToken);
 
-    public async ValueTask<HistoricalArtifactRead?> OpenReadAsync(HistoricalArtifactIdentity identity, CancellationToken cancellationToken)
+    public ValueTask<HistoricalArtifactRead?> OpenReadAsync(HistoricalArtifactIdentity identity, CancellationToken cancellationToken) =>
+        OpenWithReceiptAsync(identity, null, cancellationToken);
+
+    internal async ValueTask<HistoricalArtifactRead?> OpenWithReceiptAsync(HistoricalArtifactIdentity identity,
+        Action<HistoricalRetentionDecision>? onRead, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(identity);
         cancellationToken.ThrowIfCancellationRequested();
@@ -135,6 +139,7 @@ public sealed class GovernedHistoricalReplayReader : IScopedHistoricalArtifactRe
             if (afterAudit.Decision != decision)
                 return Unavailable(identity, Changed(afterAudit));
             cancellationToken.ThrowIfCancellationRequested();
+            onRead?.Invoke(decision);
             owned = null;
             return staged;
         }
@@ -143,6 +148,22 @@ public sealed class GovernedHistoricalReplayReader : IScopedHistoricalArtifactRe
             if (owned is not null)
                 await owned.DisposeAsync();
         }
+    }
+
+    internal bool IsBoundTo(HistoricalReplayTrust expected, HistoricalRetentionGrant replayGrant) =>
+        grant == replayGrant && EqualAnchors(trust.Source, expected.Source)
+        && SameHash(trust.DescriptorSha256, expected.DescriptorSha256);
+
+    // Recheck current grants and erasure without rereading, restaging or reaudit of the bytes.
+    internal async ValueTask<bool> RemainsAuthorizedAsync(HistoricalArtifactIdentity identity, HistoricalRetentionDecision receipt, CancellationToken ct)
+    {
+        if (identity.Run != grant.Run || !pins.TryGetValue(identity.ArtifactId, out var pin)
+            || identity != new HistoricalArtifactIdentity(grant.Run, pin.ArtifactId, pin.Role, pin.Schema, pin.StageId, pin.AttemptId)
+            || !rules.TryGetValue(identity.Role, out var rule) || (IsRaw(identity.Role) && !rule.AllowExactRaw)
+            || pin.RecordedAvailability != HistoricalArtifactAvailability.Exact)
+            return false;
+        var check = await AuthorizeAsync(identity, pin, rule, ct);
+        return check.Decision == receipt;
     }
 
     private async ValueTask<Authorization> AuthorizeAsync(HistoricalArtifactIdentity identity, HistoricalArtifactPin pin,
