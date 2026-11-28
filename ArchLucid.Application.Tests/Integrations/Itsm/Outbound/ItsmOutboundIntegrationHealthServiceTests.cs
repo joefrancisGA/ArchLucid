@@ -286,6 +286,93 @@ public sealed class ItsmOutboundIntegrationHealthServiceTests
         factory.Verify(f => f.CreateClient(ItsmOutboundIntegrationHealthLimits.ServiceNowHttpClientName), Times.Once);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task GetHealthAsync_propagates_caller_cancellation_in_either_vendor_probe(bool cancelInServiceNow)
+    {
+        IntegrationsItsmOutboundOptions options = OutboundServiceNowConfigured();
+        options.Jira.CloudBaseUrl = "https://mock-jira.health.test";
+        options.Jira.ServiceAccountEmail = "bot@example.com";
+        options.Jira.ApiToken = "token";
+        options.Jira.DefaultProjectKey = "DP";
+
+        Mock<ITenantItsmOutboundSettingsRepository> tenantRepo = new();
+        tenantRepo
+            .Setup(t => t.TryGetAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantItsmOutboundSettings?)null);
+
+        using CancellationTokenSource caller = new();
+        using HttpClient jiraHttp = new(new StubHandler((_, token) =>
+        {
+            if (!cancelInServiceNow)
+            {
+                caller.Cancel();
+                token.ThrowIfCancellationRequested();
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.OK);
+        }));
+        using HttpClient serviceNowHttp = new(new StubHandler((_, token) =>
+        {
+            caller.Cancel();
+            token.ThrowIfCancellationRequested();
+            return new HttpResponseMessage(HttpStatusCode.OK);
+        }));
+
+        Mock<IHttpClientFactory> factory = new(MockBehavior.Strict);
+        factory.Setup(f => f.CreateClient(ItsmOutboundIntegrationHealthLimits.JiraHttpClientName)).Returns(jiraHttp);
+        factory.Setup(f => f.CreateClient(ItsmOutboundIntegrationHealthLimits.ServiceNowHttpClientName)).Returns(serviceNowHttp);
+        ItsmOutboundIntegrationHealthService sut = new(
+            factory.Object, Monitor(options).Object, tenantRepo.Object,
+            CredentialResolver(options), HttpAuthenticator(),
+            NullLogger<ItsmOutboundIntegrationHealthService>.Instance);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            sut.GetHealthAsync(new ScopeContext { TenantId = TenantId }, caller.Token));
+
+        factory.Verify(f => f.CreateClient(ItsmOutboundIntegrationHealthLimits.JiraHttpClientName), Times.Once);
+        factory.Verify(f => f.CreateClient(ItsmOutboundIntegrationHealthLimits.ServiceNowHttpClientName),
+            cancelInServiceNow ? Times.Once() : Times.Never());
+    }
+
+    [Fact]
+    public async Task GetHealthAsync_when_transport_times_out_without_caller_cancellation_reports_unhealthy()
+    {
+        IntegrationsItsmOutboundOptions options = new()
+        {
+            Jira =
+            {
+                CloudBaseUrl = "https://mock-jira.health.test",
+                ServiceAccountEmail = "bot@example.com",
+                ApiToken = "token",
+                DefaultProjectKey = "DP",
+            },
+        };
+
+        Mock<ITenantItsmOutboundSettingsRepository> tenantRepo = new();
+        tenantRepo
+            .Setup(t => t.TryGetAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantItsmOutboundSettings?)null);
+
+        using HttpClient jiraHttp = new(new StubHandler(static (_, _) =>
+            throw new TaskCanceledException("Simulated request timeout.")));
+        Mock<IHttpClientFactory> factory = new(MockBehavior.Strict);
+        factory.Setup(f => f.CreateClient(ItsmOutboundIntegrationHealthLimits.JiraHttpClientName)).Returns(jiraHttp);
+        ItsmOutboundIntegrationHealthService sut = new(
+            factory.Object, Monitor(options).Object, tenantRepo.Object,
+            CredentialResolver(options), HttpAuthenticator(),
+            NullLogger<ItsmOutboundIntegrationHealthService>.Instance);
+
+        ItsmOutboundIntegrationHealthReport report =
+            await sut.GetHealthAsync(new ScopeContext { TenantId = TenantId }, CancellationToken.None);
+
+        report.Status.Should().Be("unhealthy");
+        report.Return503.Should().BeTrue();
+        report.Jira.Reachable.Should().BeFalse();
+        report.Jira.Summary.Should().Be("Jira health probe timed out.");
+    }
+
     private sealed class StubHandler : HttpMessageHandler
     {
         private readonly Func<HttpRequestMessage, CancellationToken, HttpResponseMessage> _handler;

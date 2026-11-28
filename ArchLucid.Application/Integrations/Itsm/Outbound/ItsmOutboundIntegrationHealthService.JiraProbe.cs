@@ -87,7 +87,11 @@ public sealed partial class ItsmOutboundIntegrationHealthService
             return (false,
                 $"{vendorLabel} returned {(int)response.StatusCode} {response.ReasonPhrase}: {TruncateDetail(raw)}".Trim());
         }
-        catch (Exception ex) when (ex is OperationCanceledException or HttpRequestException or TaskCanceledException)
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex) when (ex is OperationCanceledException or HttpRequestException)
         {
             string detail = ex is OperationCanceledException
                 ? $"{vendorLabel} health probe timed out."
