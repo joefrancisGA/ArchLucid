@@ -1,7 +1,7 @@
 "use client";
 
-import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
+import { InteractiveChip } from "@/components/ui/interactive-chip";
 import {
   SECURENOW_ACCELERATOR_CATALOG_FILTER_LABELS,
   type SecureNowAcceleratorCatalogTag,
@@ -16,18 +16,18 @@ type SecureNowAcceleratorCatalogFilterChipsProps = {
 
 export function SecureNowAcceleratorCatalogFilterChips(props: SecureNowAcceleratorCatalogFilterChipsProps): React.JSX.Element {
   return (
-    <FilterChipGroup ariaLabel="Filter accelerator catalog" data-testid="securenow-accelerator-catalog-filters">
+    <FilterChipGroup aria-label="Filter accelerator catalog" data-testid="securenow-accelerator-catalog-filters">
       {TAGS.map((tag) => (
-        <FilterChip
+        <InteractiveChip
           key={tag}
-          pressed={props.activeTag === tag}
-          onPressedChange={() => {
+          aria-pressed={props.activeTag === tag}
+          onClick={() => {
             props.onTagChange(tag);
           }}
           data-testid={`securenow-accelerator-catalog-filter-${tag}`}
         >
           {SECURENOW_ACCELERATOR_CATALOG_FILTER_LABELS[tag]}
-        </FilterChip>
+        </InteractiveChip>
       ))}
     </FilterChipGroup>
   );

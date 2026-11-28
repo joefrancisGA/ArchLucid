@@ -1,4 +1,5 @@
 using ArchLucid.AgentRuntime.Quality;
+using ArchLucid.Core.Agents;
 using ArchLucid.Core.Resilience;
 
 using FluentAssertions;
