@@ -24,7 +24,7 @@ internal static partial class CostEstimateCommand
             return FailureExitCode;
         }
 
-        string absolutePath = Path.GetFullPath(path!.Trim());
+        string absolutePath = Path.GetFullPath(path);
 
         if (!File.Exists(absolutePath))
         {
