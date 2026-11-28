@@ -93,7 +93,7 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
       }
     };
 
-    // The public header's client-side link can update history without a hashchange event.
+    // The public header's link can drop campaign query params without firing hashchange.
     const openForSamePageQuoteLink = (event: MouseEvent) => {
       if (event.button !== 0 || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
         return;
@@ -104,7 +104,6 @@ export function MarketingPricingQuotePanel(props: MarketingPricingQuotePanelProp
         link?.hash === quoteHash &&
         link.origin === window.location.origin &&
         link.pathname === window.location.pathname &&
-        link.search === window.location.search &&
         (!link.target || link.target === "_self") &&
         !link.hasAttribute("download")
       ) {

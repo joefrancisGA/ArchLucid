@@ -25,28 +25,52 @@ describe("MarketingPricingQuotePanel", () => {
     vi.unstubAllGlobals();
   });
 
-  it("opens an already-mounted panel when the public header link navigates in the current page", () => {
-    const push = vi.fn(async (href: string) => {
-      window.history.pushState(null, "", href);
-      return true;
-    });
-    const router = { pathname: "/pricing", asPath: "/pricing", query: {}, push } as NextRouter;
+  it.each(["", "?utm_source=campaign"])(
+    "opens an already-mounted panel when the Public Header demo link navigates from /pricing%s",
+    (search) => {
+      window.history.replaceState(null, "", `/pricing${search}`);
+      const push = vi.fn(async (href: string) => {
+        // App Router can commit history after the document click listener has run.
+        await Promise.resolve();
+        window.history.pushState(null, "", href);
+        return true;
+      });
+      const router: NextRouter = {
+        route: "/pricing",
+        pathname: "/pricing",
+        asPath: `/pricing${search}`,
+        basePath: "",
+        isLocaleDomain: false,
+        query: {},
+        push,
+        replace: vi.fn(async () => true),
+        prefetch: vi.fn(async () => {}),
+        back: vi.fn(),
+        forward: vi.fn(),
+        reload: vi.fn(),
+        beforePopState: vi.fn(),
+        events: { on: vi.fn(), off: vi.fn(), emit: vi.fn() },
+        isFallback: false,
+        isPreview: false,
+        isReady: true,
+      };
 
-    render(
-      <RouterContext.Provider value={router}>
-        <Link href="/pricing#pricing-quote-request" prefetch={false}>
-          <span>Request demo</span>
-        </Link>
-        <MarketingPricingQuotePanel />
-      </RouterContext.Provider>,
-    );
-    expect(screen.queryByRole("textbox", { name: "Work email" })).not.toBeInTheDocument();
+      render(
+        <RouterContext.Provider value={router}>
+          <Link href="/pricing#pricing-quote-request" prefetch={false}>
+            <span>Request demo</span>
+          </Link>
+          <MarketingPricingQuotePanel />
+        </RouterContext.Provider>,
+      );
+      expect(screen.queryByRole("textbox", { name: "Work email" })).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByText("Request demo"));
+      fireEvent.click(screen.getByText("Request demo"));
 
-    expect(push).toHaveBeenCalled();
-    expect(screen.getByRole("textbox", { name: "Work email" })).toBeInTheDocument();
-  });
+      expect(push).toHaveBeenCalled();
+      expect(screen.getByRole("textbox", { name: "Work email" })).toBeInTheDocument();
+    },
+  );
 
   it("opens an already-mounted panel when the browser navigates to the quote anchor", async () => {
     render(<MarketingPricingQuotePanel />);
@@ -123,7 +147,7 @@ describe("MarketingPricingQuotePanel", () => {
     expect(fetch).not.toHaveBeenCalled();
   });
   it("posts trimmed work email and company after validation", async () => {
-    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ ok: true }), { status: 200 }));
+    const fetchMock = vi.fn<typeof fetch>(async () => new Response(JSON.stringify({ ok: true }), { status: 200 }));
     vi.stubGlobal("fetch", fetchMock);
 
     render(<MarketingPricingQuotePanel openOnMount />);
