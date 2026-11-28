@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Models.Evolution;
 using ArchLucid.Contracts.Evolution;
 
@@ -70,5 +72,31 @@ public sealed class EvolutionCandidateChangeSetResponseMapperTests
         response.WarningsJson.Should().Be(record.WarningsJson);
         response.CompletedUtc.Should().Be(completedUtc);
         response.IsShadowOnly.Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(DateTimeKind.Unspecified)]
+    [InlineData(DateTimeKind.Utc)]
+    public void ToResponse_serializes_candidate_creation_as_utc(DateTimeKind kind)
+    {
+        DateTime createdUtc = new(2026, 7, 1, 12, 0, 0, kind);
+        EvolutionCandidateChangeSetRecord record = new() { CreatedUtc = createdUtc };
+
+        using JsonDocument json = JsonSerializer.SerializeToDocument(record.ToResponse(), JsonSerializerOptions.Web);
+
+        Assert.Equal("2026-07-01T12:00:00Z", json.RootElement.GetProperty("createdUtc").GetString());
+    }
+
+    [Theory]
+    [InlineData(DateTimeKind.Unspecified)]
+    [InlineData(DateTimeKind.Utc)]
+    public void ToResponse_serializes_simulation_completion_as_utc(DateTimeKind kind)
+    {
+        DateTime completedUtc = new(2026, 7, 2, 8, 30, 0, kind);
+        EvolutionSimulationRunRecord record = new() { CompletedUtc = completedUtc };
+
+        using JsonDocument json = JsonSerializer.SerializeToDocument(record.ToResponse(), JsonSerializerOptions.Web);
+
+        Assert.Equal("2026-07-02T08:30:00Z", json.RootElement.GetProperty("completedUtc").GetString());
     }
 }

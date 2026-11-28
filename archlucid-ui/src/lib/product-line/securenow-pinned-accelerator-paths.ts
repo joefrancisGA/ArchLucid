@@ -27,13 +27,22 @@ function safeParsePinned(raw: string | null): SecureNowPinnedAcceleratorPath[] {
   }
 
   try {
-    const parsed = JSON.parse(raw) as SecureNowPinnedAcceleratorPath[];
+    const parsed: unknown = JSON.parse(raw);
 
     if (!Array.isArray(parsed)) {
       return [];
     }
 
-    return parsed.filter((row) => (row.href?.trim() ?? "").length > 0 && (row.label?.trim() ?? "").length > 0);
+    return parsed.filter((row: unknown): row is SecureNowPinnedAcceleratorPath =>
+      typeof row === "object"
+      && row !== null
+      && "href" in row
+      && typeof row.href === "string"
+      && row.href.trim().length > 0
+      && "label" in row
+      && typeof row.label === "string"
+      && row.label.trim().length > 0,
+    );
   } catch {
     return [];
   }

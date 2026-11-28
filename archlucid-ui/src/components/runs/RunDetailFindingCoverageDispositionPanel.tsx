@@ -78,26 +78,7 @@ export function RunDetailFindingCoverageDispositionPanel({
     </p>
   ) : null;
 
-  if (disposition === null || disposition === undefined) {
-    return (
-      <section
-        className={cn(
-          "rounded-lg border border-neutral-200 bg-neutral-50/80 px-3 py-3 text-neutral-900 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-100",
-          OPERATOR_TYPOGRAPHY.body,
-        )}
-        data-testid="finding-coverage-disposition-panel"
-        role="status"
-      >
-        <p className="m-0 font-semibold">Finding disposition coverage</p>
-        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
-          Finding disposition counts were not stored.
-        </p>
-        {recoveryDetail}
-      </section>
-    );
-  }
-
-  const rows = [
+  const rows = disposition == null ? null : [
     ["Open", disposition.openCount, "Open count was not stored."],
     ["Accepted", disposition.acceptedCount, "Accepted count was not stored."],
     ["Remediated", disposition.remediatedCount, "Remediated count was not stored."],
@@ -144,16 +125,22 @@ export function RunDetailFindingCoverageDispositionPanel({
           finalization rules are confirmed.
         </p>
       ) : null}
-      <dl className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        {rows.map(([label, value, notStoredLabel]) => (
-          <div key={label} className="rounded-md bg-white/65 px-2 py-1.5 dark:bg-black/15">
-            <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "opacity-70")}>{label}</dt>
-            <dd className={cn("m-0 font-semibold tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-              {finiteIntegerCountDisplay(value, { notStoredLabel })}
-            </dd>
-          </div>
-        ))}
-      </dl>
+      {rows === null ? (
+        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
+          Finding disposition counts were not stored.
+        </p>
+      ) : (
+        <dl className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {rows.map(([label, value, notStoredLabel]) => (
+            <div key={label} className="rounded-md bg-white/65 px-2 py-1.5 dark:bg-black/15">
+              <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "opacity-70")}>{label}</dt>
+              <dd className={cn("m-0 font-semibold tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                {finiteIntegerCountDisplay(value, { notStoredLabel })}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      )}
     </section>
   );
 }

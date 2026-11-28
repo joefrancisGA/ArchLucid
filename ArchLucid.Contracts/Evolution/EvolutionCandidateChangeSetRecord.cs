@@ -66,7 +66,10 @@ public sealed class EvolutionCandidateChangeSetRecord
     public DateTime CreatedUtc
     {
         get;
-        init;
+        // SQL Server DATETIME2 preserves the UTC clock value, but not DateTime.Kind.
+        init => field = value.Kind == DateTimeKind.Unspecified
+            ? DateTime.SpecifyKind(value, DateTimeKind.Utc)
+            : value;
     }
 
     public string? CreatedByUserId

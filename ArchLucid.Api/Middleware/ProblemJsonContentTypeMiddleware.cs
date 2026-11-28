@@ -1,5 +1,7 @@
 using ArchLucid.Api.ProblemDetails;
 
+using Microsoft.Net.Http.Headers;
+
 namespace ArchLucid.Api.Middleware;
 
 /// <summary>
@@ -21,16 +23,11 @@ internal sealed class ProblemJsonContentTypeMiddleware(RequestDelegate next)
             if (httpContext.Response.StatusCode is < 400)
                 return Task.CompletedTask;
 
-            string? contentType = httpContext.Response.ContentType;
-
-            if (string.IsNullOrWhiteSpace(contentType))
+            if (!MediaTypeHeaderValue.TryParse(httpContext.Response.ContentType, out MediaTypeHeaderValue? contentType))
                 return Task.CompletedTask;
 
-            if (contentType.Contains("problem+json", StringComparison.OrdinalIgnoreCase))
-                return Task.CompletedTask;
-
-            if (!contentType.StartsWith("application/json", StringComparison.OrdinalIgnoreCase) &&
-                !contentType.StartsWith("text/json", StringComparison.OrdinalIgnoreCase))
+            if (!contentType.MediaType.Equals("application/json", StringComparison.OrdinalIgnoreCase) &&
+                !contentType.MediaType.Equals("text/json", StringComparison.OrdinalIgnoreCase))
                 return Task.CompletedTask;
 
             httpContext.Response.ContentType = ApplicationProblemMapper.ProblemJsonMediaType;

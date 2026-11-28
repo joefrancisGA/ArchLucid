@@ -103,7 +103,12 @@ public sealed class MarketingEarlyAccessRequestController(
 
         string t = value.Trim();
 
-        return t.Length > maxChars ? t[..maxChars] : t;
+        if (t.Length <= maxChars)
+            return t;
+
+        // The column limit is in UTF-16 code units; don't keep half of a surrogate pair.
+        int end = char.IsSurrogatePair(t, maxChars - 1) ? maxChars - 1 : maxChars;
+        return t[..end];
     }
 
     private static byte[]? TryHashRemoteIp(HttpContext httpContext)

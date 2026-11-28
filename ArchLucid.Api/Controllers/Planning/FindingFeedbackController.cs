@@ -65,6 +65,8 @@ public sealed partial class FindingFeedbackController(
         if (request.Score is not -1 and not 1)
             return this.BadRequestProblem("Score must be -1 or 1.", ProblemTypes.ValidationFailed);
 
+        string trimmedFindingId = findingId.Trim();
+
         try
         {
             ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -75,11 +77,11 @@ public sealed partial class FindingFeedbackController(
                     $"Run '{runId}' has no findings snapshot in the current scope.",
                     ProblemTypes.RunNotFound);
 
-            bool found = list.Any(f => string.Equals(f.FindingId, findingId, StringComparison.OrdinalIgnoreCase));
+            bool found = list.Any(f => string.Equals(f.FindingId, trimmedFindingId, StringComparison.OrdinalIgnoreCase));
 
             if (!found)
                 return this.NotFoundProblem(
-                    $"Finding '{findingId}' was not found on run '{runId}'.",
+                    $"Finding '{trimmedFindingId}' was not found on run '{runId}'.",
                     ProblemTypes.ResourceNotFound);
 
             IActionResult? sealedGuardResult =
@@ -94,7 +96,7 @@ public sealed partial class FindingFeedbackController(
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
                 RunId = runId,
-                FindingId = findingId.Trim(),
+                FindingId = trimmedFindingId,
                 Score = request.Score
             };
 

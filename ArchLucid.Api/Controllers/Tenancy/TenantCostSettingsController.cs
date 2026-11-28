@@ -139,8 +139,9 @@ public sealed class TenantCostSettingsController(
         TenantCostSettingsRecord record = new()
         {
             TenantId = scope.TenantId,
-            ArchitectHourlyRateUsd = body.ArchitectHourlyRateUsd,
-            AverageIncidentCostUsd = body.AverageIncidentCostUsd,
+            // Match the stored cents before projecting the response or comparing an identical retry.
+            ArchitectHourlyRateUsd = decimal.Round(body.ArchitectHourlyRateUsd, 2, MidpointRounding.AwayFromZero),
+            AverageIncidentCostUsd = decimal.Round(body.AverageIncidentCostUsd, 2, MidpointRounding.AwayFromZero),
             EaDiscountMultiplier = eaDiscountMultiplier,
             UpdatedUtc = updatedUtc,
             UpdatedByActorId = actorUserId,

@@ -33,6 +33,19 @@ public sealed class BoardPackQuarterWindowTests
         endUtc.Should().Be(overrideEnd);
     }
 
+    [Theory]
+    [InlineData(true, "overrideEndUtc")]
+    [InlineData(false, "overrideStartUtc")]
+    public void Resolve_rejects_a_one_sided_override(bool startIsSet, string missingParameter)
+    {
+        DateTimeOffset boundary = new(2026, 2, 10, 0, 0, 0, TimeSpan.Zero);
+
+        Action act = () => BoardPackQuarterWindow.Resolve(
+            2026, 1, startIsSet ? boundary : null, startIsSet ? null : boundary);
+
+        act.Should().Throw<ArgumentOutOfRangeException>().WithParameterName(missingParameter);
+    }
+
     [Fact]
     public void Resolve_throws_when_override_end_is_not_after_start()
     {

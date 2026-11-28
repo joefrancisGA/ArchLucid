@@ -43,4 +43,27 @@ public sealed class EvolutionOutcomeShadowReaderTests
 
         kind.Should().Be("invalid");
     }
+
+    [Theory]
+    [InlineData("null")]
+    [InlineData("[]")]
+    public void TryReadShadow_non_object_outcome_reports_invalid(string outcomeJson)
+    {
+        EvolutionOutcomeShadowReader.TryReadShadow(outcomeJson, out EvolutionShadowOutcomeSnapshot? shadow, out string kind);
+
+        shadow.Should().BeNull();
+        kind.Should().Be("invalid");
+    }
+
+    [Theory]
+    [InlineData("{\"architectureRunId\":\"legacy-run\"}")]
+    [InlineData("{\"schemaVersion\":1,\"architectureRunId\":\"legacy-run\"}")]
+    public void TryReadShadow_flat_outcome_retains_legacy_shadow(string outcomeJson)
+    {
+        EvolutionOutcomeShadowReader.TryReadShadow(outcomeJson, out EvolutionShadowOutcomeSnapshot? shadow, out string kind);
+
+        shadow.Should().NotBeNull();
+        shadow!.ArchitectureRunId.Should().Be("legacy-run");
+        kind.Should().Be("legacy");
+    }
 }

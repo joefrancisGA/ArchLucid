@@ -357,7 +357,48 @@ public sealed class TenantCostSettingsControllerTests
     }
 
     [Fact]
-    public async Task PutAsync_skips_duplicate_audit_when_identical_operator_retry()
+    public async Task PutAsync_uses_the_same_rounded_amounts_for_storage_response_and_audit()
+    {
+        Mock<ITenantCostSettingsRepository> repository = new();
+        repository
+            .Setup(r => r.UpsertAsync(It.IsAny<TenantCostSettingsRecord>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        AuditEvent? captured = null;
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        TenantCostSettingsController controller = CreateController(repository.Object, scopeProvider.Object, audit.Object);
+        IActionResult action = await controller.PutAsync(
+            new TenantCostSettingsPutRequest { ArchitectHourlyRateUsd = 0.005m, AverageIncidentCostUsd = 30_000.005m },
+            CancellationToken.None);
+
+        TenantCostSettingsGetResponse saved = action.Should().BeOfType<OkObjectResult>()
+            .Subject.Value.Should().BeOfType<TenantCostSettingsGetResponse>().Subject;
+        saved.ArchitectHourlyRateUsd.Should().Be(0.01m);
+        saved.AverageIncidentCostUsd.Should().Be(30_000.01m);
+
+        repository.Verify(
+            r => r.UpsertAsync(It.Is<TenantCostSettingsRecord>(row =>
+                row.ArchitectHourlyRateUsd == 0.01m && row.AverageIncidentCostUsd == 30_000.01m),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        captured.Should().NotBeNull();
+        using JsonDocument payload = JsonDocument.Parse(captured!.DataJson!);
+        payload.RootElement.GetProperty("architectHourlyRateUsd").GetDecimal().Should().Be(0.01m);
+        payload.RootElement.GetProperty("averageIncidentCostUsd").GetDecimal().Should().Be(30_000.01m);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task PutAsync_skips_duplicate_audit_when_identical_operator_retry(bool hasSubCentAmounts)
     {
         TenantCostSettingsRecord existing = new()
         {
@@ -393,8 +434,8 @@ public sealed class TenantCostSettingsControllerTests
 
         TenantCostSettingsPutRequest body = new()
         {
-            ArchitectHourlyRateUsd = 200m,
-            AverageIncidentCostUsd = 30_000m,
+            ArchitectHourlyRateUsd = hasSubCentAmounts ? 199.996m : 200m,
+            AverageIncidentCostUsd = hasSubCentAmounts ? 30_000.004m : 30_000m,
             EaDiscountPercentage = 10m,
         };
 

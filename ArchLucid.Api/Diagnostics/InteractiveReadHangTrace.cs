@@ -15,12 +15,12 @@ public static class InteractiveReadHangTrace
         if (string.IsNullOrWhiteSpace(path))
             return InteractiveReadHangKind.None;
 
-        string normalized = path.TrimEnd('/');
+        ReadOnlySpan<char> route = StripVersionOnePrefix(path.TrimEnd('/'));
 
-        if (string.Equals(normalized, "/v1/learning/plans", StringComparison.OrdinalIgnoreCase))
+        if (route.Equals("/learning/plans", StringComparison.OrdinalIgnoreCase))
             return InteractiveReadHangKind.LearningPlansList;
 
-        if (IsArchitectureDraftGetPath(normalized))
+        if (IsArchitectureDraftGetRoute(route))
             return InteractiveReadHangKind.ArchitectureDraftGet;
 
         return InteractiveReadHangKind.None;
@@ -30,12 +30,28 @@ public static class InteractiveReadHangTrace
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(normalizedPath);
 
-        const string prefix = "/v1/architecture/draft/";
+        return IsArchitectureDraftGetRoute(StripVersionOnePrefix(normalizedPath));
+    }
 
-        if (!normalizedPath.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+    private static ReadOnlySpan<char> StripVersionOnePrefix(string path)
+    {
+        if (path.StartsWith("/v1/", StringComparison.OrdinalIgnoreCase))
+            return path.AsSpan("/v1".Length);
+
+        if (path.StartsWith("/v1.0/", StringComparison.OrdinalIgnoreCase))
+            return path.AsSpan("/v1.0".Length);
+
+        return default;
+    }
+
+    private static bool IsArchitectureDraftGetRoute(ReadOnlySpan<char> route)
+    {
+        const string prefix = "/architecture/draft/";
+
+        if (!route.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
             return false;
 
-        string rest = normalizedPath[prefix.Length..];
+        ReadOnlySpan<char> rest = route[prefix.Length..];
 
         // Nested routes (/questions, /admit, /submit) are not the Resume-latest-draft hang path.
         if (rest.Contains('/'))

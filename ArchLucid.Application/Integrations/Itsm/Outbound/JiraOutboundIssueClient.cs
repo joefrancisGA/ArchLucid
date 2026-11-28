@@ -45,10 +45,10 @@ public sealed class JiraOutboundIssueClient(HttpClient http, ILogger<JiraOutboun
         using HttpRequestMessage request = new(HttpMethod.Post, issuePostUri);
         ItsmOutboundHttpAuthorizationHeaders.Apply(request, authorization);
         request.Content = JsonContent.Create(body, options: ContractJson.CamelCaseIgnoreNullCompact);
-        HttpResponseMessage response;
+        HttpResponseMessage received;
         try
         {
-            response = await _http.SendAsync(request, ct).ConfigureAwait(false);
+            received = await _http.SendAsync(request, ct).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -62,6 +62,7 @@ public sealed class JiraOutboundIssueClient(HttpClient http, ILogger<JiraOutboun
             return new JiraOutboundIssueHttpResult(false, null, null, HttpStatusCode.ServiceUnavailable, detail);
         }
 
+        using HttpResponseMessage response = received;
         string raw = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
         // ReSharper disable once InvertIf

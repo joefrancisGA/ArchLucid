@@ -4,6 +4,7 @@ using System.Text.Json;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Serialization;
+using ArchLucid.Application.Http;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Demo;
@@ -16,7 +17,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 
 namespace ArchLucid.Api.Controllers.Demo;
 
@@ -124,10 +124,7 @@ public sealed class DemoCommitPagePreviewController(
         Response.Headers["Cache-Control"] = PreviewCacheControl;
         Response.Headers["ETag"] = etag;
 
-        if (!Request.Headers.TryGetValue("If-None-Match", out StringValues inm))
-            return File(body, "application/json");
-
-        if (inm.OfType<string>().Any(candidate => string.Equals(candidate.Trim(), etag, StringComparison.Ordinal)))
+        if (ConditionalGetNegotiation.TryMatchIfNoneMatch(Request.Headers.IfNoneMatch, etag))
         {
             return StatusCode(StatusCodes.Status304NotModified);
         }

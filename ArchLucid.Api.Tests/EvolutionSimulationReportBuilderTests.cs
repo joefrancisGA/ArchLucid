@@ -123,4 +123,33 @@ public sealed class EvolutionSimulationReportBuilderTests
         markdown.Should().Contain("Evaluation scores");
         markdown.Should().Contain("All good.");
     }
+
+    [SkippableFact]
+    public void Build_UnreadableStoredOutcome_RetainsThatRowAndParsesOtherRows()
+    {
+        DateTime firstCompleted = new(2026, 7, 3, 10, 0, 0, DateTimeKind.Utc);
+        EvolutionSimulationRunRecord unreadable = new()
+        {
+            BaselineArchitectureRunId = "first",
+            CompletedUtc = firstCompleted,
+            OutcomeJson = "null"
+        };
+        EvolutionSimulationRunRecord valid = new()
+        {
+            BaselineArchitectureRunId = "second",
+            CompletedUtc = firstCompleted.AddMinutes(1),
+            OutcomeJson = """{"schemaVersion":"60R-v2","shadow":{"architectureRunId":"second"},"evaluation":{"simulationScore":0.5}}"""
+        };
+
+        EvolutionSimulationReportDocument report = EvolutionSimulationReportBuilder.Build(
+            new EvolutionCandidateChangeSetRecord(), [valid, unreadable], firstCompleted.AddMinutes(2));
+
+        report.SimulationRuns.Should().HaveCount(2);
+        report.SimulationRuns[0].OutcomeJson.Should().Be(unreadable.OutcomeJson);
+        report.SimulationRuns[0].OutcomeShadowKind.Should().Be("invalid");
+        report.SimulationRuns[0].EvaluationScore.Should().BeNull();
+        report.SimulationRuns[1].ShadowOutcome!.ArchitectureRunId.Should().Be("second");
+        report.SimulationRuns[1].EvaluationScore!.SimulationScore.Should().Be(0.5);
+        EvolutionSimulationReportMarkdownFormatter.Format(report).Should().Contain("parse kind: invalid");
+    }
 }

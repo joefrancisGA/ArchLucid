@@ -13,6 +13,7 @@ import { MarketingPricingEarlyAdopterBanner } from "@/components/marketing/Marke
 import { MarketingPricingFitMatrix } from "@/components/marketing/MarketingPricingFitMatrix";
 import { MarketingBetaEvaluationContentsStrip } from "@/components/marketing/MarketingBetaEvaluationContentsStrip";
 import { MarketingPricingUniversalIncludesStrip } from "@/components/marketing/MarketingPricingUniversalIncludesStrip";
+import { ARCHLUCID_BETA_EVALUATION_QUOTE_HREF } from "@/lib/marketing/archlucid-beta-evaluation-contents-copy";
 import { isPublicStripeTeamCheckoutEnabled } from "@/lib/marketing/is-public-stripe-team-checkout-enabled";
 import { buildMarketingSelfServeBillingHref } from "@/lib/marketing/marketing-billing-plan-href";
 import {
@@ -70,7 +71,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
 }
 
 function MarketingTierPricingClientFallback(props: MarketingTierPricingSectionProps): React.JSX.Element {
-  // Public pricing must not use the operator's persisted query cache.
+  // Public pricing uses its own query cache, separate from the operator singleton.
   const [queryClient] = useState(() => new QueryClient());
 
   return (
@@ -128,8 +129,6 @@ function MarketingTierPricingContent(
 
     setQuotePanelOnPage(document.getElementById(quoteSectionDomId) !== null);
   }, [quoteSectionDomId]);
-
-  const quoteButtonAriaControls = quotePanelOnPage ? quoteSectionDomId : undefined;
 
   return (
     <section
@@ -275,30 +274,23 @@ function MarketingTierPricingContent(
                     </div>
                     {cta !== undefined ? (
                     <div className="mt-auto flex min-h-[3.25rem] flex-col items-stretch justify-end gap-2 pt-5">
-                      {cta.primaryKind === "quote" ? (
-                        <Button
-                          type="button"
-                          variant={primaryCtaVariant}
-                          size="default"
-                          className="w-full"
-                          aria-controls={quoteButtonAriaControls}
-                          onClick={() => focusQuotePanel()}
-                        >
-                          {cta.primaryLabel}
-                        </Button>
-                      ) : null}
-
-                      {cta.primaryKind === "stripe" && props.preferSalesLedQuoteCta ? (
-                        <Button
-                          type="button"
-                          variant={primaryCtaVariant}
-                          size="default"
-                          className="w-full"
-                          aria-controls={quoteButtonAriaControls}
-                          onClick={() => focusQuotePanel()}
-                        >
-                          {cta.primaryLabel}
-                        </Button>
+                      {cta.primaryKind === "quote" || (cta.primaryKind === "stripe" && props.preferSalesLedQuoteCta) ? (
+                        quotePanelOnPage ? (
+                          <Button
+                            type="button"
+                            variant={primaryCtaVariant}
+                            size="default"
+                            className="w-full"
+                            aria-controls={quoteSectionDomId}
+                            onClick={focusQuotePanel}
+                          >
+                            {cta.primaryLabel}
+                          </Button>
+                        ) : (
+                          <Button asChild variant={primaryCtaVariant} size="default" className="w-full">
+                            <Link href={ARCHLUCID_BETA_EVALUATION_QUOTE_HREF}>{cta.primaryLabel}</Link>
+                          </Button>
+                        )
                       ) : null}
 
                       {cta.primaryKind === "stripe" && !props.preferSalesLedQuoteCta && billingHref !== null ? (

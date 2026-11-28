@@ -74,7 +74,17 @@ public sealed class ValueReportController(
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
         DateTimeOffset end = to ?? TimeProvider.System.GetUtcNow();
-        DateTimeOffset start = from ?? end.AddDays(-30);
+        DateTimeOffset start;
+        try
+        {
+            start = from ?? end.AddDays(-30);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return this.BadRequestProblem(
+                "Query parameter 'to' is too early for the default 30-day window. Specify 'from' explicitly.",
+                ProblemTypes.ValidationFailed);
+        }
 
         if (end <= start)
             return this.BadRequestProblem("Query parameter 'to' must be after 'from'.", ProblemTypes.ValidationFailed);

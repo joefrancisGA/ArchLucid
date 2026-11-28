@@ -27,8 +27,13 @@ internal static class EvolutionOutcomeShadowReader
             using JsonDocument doc = JsonDocument.Parse(outcomeJson);
             JsonElement root = doc.RootElement;
 
-            if (root.TryGetProperty("schemaVersion", out JsonElement sv) &&
-                string.Equals(sv.GetString(), EvolutionOutcomeParser.SchemaV2, StringComparison.Ordinal) &&
+            if (root.ValueKind != JsonValueKind.Object)
+            {
+                shadowKind = "invalid";
+                return;
+            }
+
+            if (EvolutionOutcomeParser.HasV2SchemaVersion(root) &&
                 root.TryGetProperty("shadow", out JsonElement sh) &&
                 sh.ValueKind == JsonValueKind.Object)
             {
