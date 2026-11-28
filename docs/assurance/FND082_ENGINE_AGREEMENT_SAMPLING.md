@@ -44,4 +44,39 @@ python3 scripts/assurance/sample_engine_agreements.py \
 
 Optionally pass `--comparison` to replay a supplied FND-078 report against the receipts. Pins use FND-078 canonical JSON, not the pretty-printed artifact bytes. A successful command means the report was produced, even if errors or unknowns were found. Invalid inputs fail without reporting a result.
 
-Only confirmed shared errors yield `fnd081LabelCandidates`. Each contains the exact case and fixture bindings, scoped label, and a digest of its independent proof and sampling context. To use one in [FND-081's advisory evaluator](https://github.com/joefrancisGA/ArchLucid/pull/8371), the cohort custodian reviews that evidence, adds the exact `label` to the matching fixture's cohort case, and issues a new trusted cohort pin. With a critical recall floor, an accepted shared miss must block even if neither engine regressed relative to the other. Keep proposals and approved corpus entries distinct. This tool does not publish a label, promote an engine, change release enforcement, or send anything to a human reviewer. Unknown cases can be reviewed separately and must not be inserted into the truth denominator.
+## Summarize a pinned cohort
+
+The cohort manifest has `schemaVersion: 1`, `cohortVersion`, `dataClass: reviewed_synthetic`, `products`, and `cases`. Every case records `product`, `caseId`, `fixtureSha256`, and the canonical `reportSha256`. The reviewed manifest is the complete expected case inventory, not a directory glob. The summarizer rejects missing and duplicate reports, detects identical inputs relabeled as separate cases within a product, and cross-checks recorded specimens against their stratum totals.
+
+```bash
+python3 scripts/assurance/summarize_engine_agreement_cohort.py \
+  --cohort cohort.json --cohort-sha256 "$REVIEWED_COHORT_PIN" \
+  --report archlucid-sampling.json --report securenow-sampling.json
+```
+
+Interpret the coverage and the error-range counts separately for each product, severity, and frame. Known shared false negatives have their own count. Cases with incomplete coverage are not eligible and do not narrow the error range. Rates use conservative outward rounding. Do not interpret them as statistical confidence intervals or make claims about an unregistered population.
+
+## Review, export, and hand off through FND-080
+
+The operator's sampling report contains a `reviewQueue` with a stable row digest for each sampled unknown or confirmed shared error, plus unresolved exclusions such as incomplete coverage. Correct, unsampled, and divergent cases do not enter this queue. Use the approved [FND-080 review policy and ledger](FND080_FINDING_ADJUDICATION.md) with the exact sampling report as `--report`, its canonical digest as the policy's `reportSha256`, and the chosen queue digest as `rowSha256`. The reviewed proof source must match the independent oracle source to export. For an unknown, it may be absent.
+
+Generate the blinded packet and use the existing `genesis` and `append` commands to record independent proposal and acceptance. Share only the blinded packet. The operator keeps the sampling report, receipts, proof and ledger private. Reviewers see neutral choices and the curated evidence, not which value the engines returned, whether they agreed with a proof, or their identities. Unknown integer cases have no fabricated alternative. Human judgments are recorded but never promoted to deterministic truth.
+
+For a reproducible regression, two eligible reviewers select and approve the independently verified value. Set `proofSha256` on the proposal to the digest of the selected row's `proof`, not the overall report. Then use the trusted ledger head and replay the unchanged inputs:
+
+```bash
+tool=(python3 scripts/assurance/review_divergent_findings.py)
+private=(--report agreement-sampling.json --policy approval.json --policy-sha256 "$POLICY_PIN" --secret-file case.key)
+"${tool[@]}" packet "${private[@]}" > reviewer-packet.json
+"${tool[@]}" export-agreement "${private[@]}" --ledger ledger.json --head "$ACTIVE_HEAD" \
+  --fixture fixture.json --plan plan.json --baseline baseline.json --candidate candidate.json \
+  --checks approved-checks.json --manifest manifest.json > regression.json
+"${tool[@]}" promotion-handoff --regression regression.json \
+  --regression-sha256 "$REVIEWED_REGRESSION_PIN" --active-head "$ACTIVE_HEAD" > promotion-handoff.json
+```
+
+Provide the original `--comparison` to `export-agreement` if used to produce the sampled report. Export replays the exact pinned comparison and the independent oracle. It fails for unproven or disputed decisions, holdout or tuning partitions, different receipts or approval source, and stale ledger heads. Use FND-080's `check-regression` to compare the exported expectation against a fresh pinned candidate receipt. For a proved negative expectation it requires complete coverage and no matching or ambiguous identity. For an assertion it requires the exact value, identity, and severity. No review or regression result mutates an engine or release path.
+
+For [FND-081 advisory evaluation](https://github.com/joefrancisGA/ArchLucid/pull/8371), the cohort custodian reviews the regression and fresh handoff, adds the scoped `label` to the matching case, attaches any `adjudications` to the matching run, and issues new trusted pins. Asserted findings use FND-081's accepted-adjudication contract. The current FND-081 schema represents a proved absence as an independent corpus label, so the custodian must recheck `sourceLedgerHeadSha256` and retire or repin that label if disputed. The original sampler's `fnd081LabelCandidates` remain unadjudicated proposals. A gate with a critical recall floor must block an approved shared miss even if neither engine regressed relative to the other.
+
+The workflow and tests exercise reviewed synthetic fixtures only. No live reviewers, production promotion, or mandatory release enforcement is activated here.

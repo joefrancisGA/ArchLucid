@@ -16,6 +16,7 @@ FRAMES = ("shared_silence", "shared_assertion")
 FORMS = {"positive_boolean_finding", "scalar_assertion"}
 TYPES = {"boolean": bool, "integer": int}
 ERRORS = {"shared_false_negative", "shared_false_positive", "shared_wrong_assertion"}
+REPORT_KIND = "independent-engine-agreement-sampling"
 MAX_TARGETS = 512
 
 
@@ -168,6 +169,25 @@ def handoff(result, bindings):
                       "evidenceSha256": digest(evidence)}}
 
 
+def review_rows(report):
+    """Return reviewable rows without treating an agreement as a divergence."""
+    require(isinstance(report, dict) and report.get("kind") == REPORT_KIND
+            and report.get("dataClass") == "reviewed_synthetic",
+            "expected a reviewed synthetic agreement report")
+    paired._version(report.get("schemaVersion"), "agreement report")
+    result = []
+    for row in verify._rows(report.get("sampledResults"), MAX_TARGETS, "sampled results"):
+        verify._fields(row, "target frame sharedValue outcome reason proof", "sampled result")
+        if one_of(row["outcome"], ERRORS | {"confirmed_correct", "unknown"}, "sample outcome") != "confirmed_correct":
+            result.append(row)
+    for row in verify._rows(report.get("excludedTargets"), MAX_TARGETS, "excluded targets"):
+        verify._fields(row, "target state reason", "excluded target")
+        if one_of(row["state"], {"unknown", "outside_agreement"}, "excluded state") == "unknown":
+            result.append({"target": row["target"], "outcome": "unknown", "reason": row["reason"],
+                           "frame": None, "sharedValue": None, "proof": None})
+    return result
+
+
 def sample(fixture, plan, baseline, candidate, checks, manifest, manifest_pin, *, original=None, clock=None):
     """Select only from reviewed targets and retain unknowns and unsampled cases separately."""
     partitions = paired.validate_fixture(fixture)
@@ -215,14 +235,18 @@ def sample(fixture, plan, baseline, candidate, checks, manifest, manifest_pin, *
                             "sampled": len(selected), "resolved": len(selected) - unknown,
                             "unknownSampled": unknown, "unsampled": unsampled, "confirmedErrors": error_count,
                             "errorCountRangeInEligibleFrame": [error_count, error_count + unknown + unsampled]})
-    return {
-        "schemaVersion": 1, "kind": "independent-engine-agreement-sampling", **bindings,
+    result = {
+        "schemaVersion": 1, "kind": REPORT_KIND, "dataClass": "reviewed_synthetic", **bindings,
+        "inputFingerprints": report["inputFingerprints"],
         "comparisonOrigin": origin, "policyVersion": manifest["policyVersion"],
         "selectionSeedSha256": manifest["selectionSeedSha256"], "requiresIndependentCohortApproval": True,
         "promotionAuthorized": False, "registeredTargets": len(targets),
         "frameSummaries": summary, "sampledResults": scores, "excludedTargets": excluded,
         "fnd081LabelCandidates": candidates, "checksUsed": budget.checks, "workUsed": budget.work,
     }
+    result["reviewQueue"] = [{"rowSha256": digest(row), "severity": row["target"]["severity"],
+                             "outcome": row["outcome"]} for row in review_rows(result)]
+    return result
 
 
 def main():
