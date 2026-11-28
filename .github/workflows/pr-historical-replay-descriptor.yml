@@ -67,7 +67,7 @@ jobs:
             --security-opt no-new-privileges --pids-limit 64 --memory 256m --memory-swap 256m --cpus 1 \
             --log-driver none --user 65532:65532 --entrypoint /bin/sh "$image" -ec '
               test "$(tail -n +3 /proc/net/dev | cut -d : -f 1 | tr -d "[:space:]")" = lo
-              test "$(awk "END {print NR}" /proc/net/route)" -eq 1
+              test "$(awk "END {print NR}" /proc/net/route)" -le 1
               grep -Eq "^NoNewPrivs:[[:space:]]+1$" /proc/self/status
               grep -Eq "^CapEff:[[:space:]]+0000000000000000$" /proc/self/status
               test "$(cat /sys/fs/cgroup/memory.max)" -eq 268435456

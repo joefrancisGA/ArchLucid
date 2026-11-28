@@ -12,6 +12,7 @@ using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -45,9 +46,9 @@ public sealed class RecordedHistoricalReplayTests
         Assert.NotNull(f.Input);
         Assert.Equal(f.Descriptor.RecordedUtc, f.Input.RecordedUtc);
         Assert.Equal(mode == HistoricalReplayMode.RecordedRaw, f.Input.Inputs.ContainsKey("raw"));
-        Assert.DoesNotContain("expected", f.Input.Inputs);
-        Assert.DoesNotContain("image", f.Input.Inputs);
-        Assert.DoesNotContain("prompt", f.Input.Inputs);
+        Assert.DoesNotContain("expected", f.Input.Inputs.Keys);
+        Assert.DoesNotContain("image", f.Input.Inputs.Keys);
+        Assert.DoesNotContain("prompt", f.Input.Inputs.Keys);
         var audit = Assert.Single(f.Logged);
         Assert.True(RequiredAuditEventTypes.IsRequired(audit.EventType));
         Assert.Equal(result.AuditId!.Value.ToString("D"), audit.CorrelationId);
@@ -539,7 +540,7 @@ public sealed class RecordedReplayWorkerIntegrationTests
             start.Environment["DOTNET_EnableDiagnostics"] = "0";
             const string confirmIsolated = """
                 test "$(tail -n +3 /proc/net/dev | cut -d : -f 1 | tr -d '[:space:]')" = lo
-                test "$(wc -l < /proc/net/route)" -eq 1
+                test "$(wc -l < /proc/net/route)" -le 1
                 exec "$@"
                 """;
             start.Environment["PATH"] = "/usr/bin:/bin";

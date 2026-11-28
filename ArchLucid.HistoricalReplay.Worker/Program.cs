@@ -156,6 +156,8 @@ RecordedReplayWorkerOutput ReplaySecureNow(RecordedReplayWorkerInput input)
     if (captureUtc > input.RecordedUtc || input.RecordedUtc - captureUtc > TimeSpan.FromHours(policy.MaximumCaptureAgeHours.Value))
         throw new InvalidDataException();
 
+    if (snapshot.Resources.Any(row => row.TenantId != header.TenantId || row.SnapshotId != header.SnapshotId))
+        throw new InvalidDataException();
     var graph = InventoryReachabilityPathGraph.Build(snapshot);
     if (!graph.ResourcesByArmId.TryGetValue(config.Target, out var resource))
         throw new InvalidDataException();
