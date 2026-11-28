@@ -17,9 +17,10 @@ public sealed class MicrosoftOpenApiJsonStringEnumSchemaTransformer : IOpenApiSc
     {
         _ = cancellationToken;
         Type clrType = context.JsonTypeInfo.Type;
+        Type enumType = Nullable.GetUnderlyingType(clrType) ?? clrType;
 
-        if (clrType.IsEnum)
-            OpenApiJsonStringEnumSchemaMutator.Apply(schema, clrType);
+        if (enumType.IsEnum)
+            OpenApiJsonStringEnumSchemaMutator.Apply(schema, enumType);
 
         return Task.CompletedTask;
     }

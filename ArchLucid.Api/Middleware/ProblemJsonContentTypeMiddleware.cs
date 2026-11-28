@@ -27,7 +27,10 @@ internal sealed class ProblemJsonContentTypeMiddleware(RequestDelegate next)
                 return Task.CompletedTask;
 
             if (contentType.Contains("problem+json", StringComparison.OrdinalIgnoreCase))
+            {
+                httpContext.Response.ContentType = ApplicationProblemMapper.ProblemJsonMediaType;
                 return Task.CompletedTask;
+            }
 
             if (!contentType.StartsWith("application/json", StringComparison.OrdinalIgnoreCase) &&
                 !contentType.StartsWith("text/json", StringComparison.OrdinalIgnoreCase))

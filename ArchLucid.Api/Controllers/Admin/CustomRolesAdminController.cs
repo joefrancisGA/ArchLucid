@@ -112,6 +112,13 @@ public sealed class CustomRolesAdminController(
         {
             return this.InvalidOperationProblem(ex, ProblemTypes.ValidationFailed);
         }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Unexpected error creating custom role.");
+            return this.BadRequestProblem(
+                "Custom role create request could not be completed.",
+                ProblemTypes.ValidationFailed);
+        }
     }
 
     [HttpPut("{roleId:guid}")]

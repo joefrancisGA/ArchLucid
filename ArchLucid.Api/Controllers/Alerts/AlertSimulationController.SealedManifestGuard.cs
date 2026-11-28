@@ -10,8 +10,6 @@ public sealed partial class AlertSimulationController
         exception is InvalidOperationException invalidOperationException
         && invalidOperationException.Message.Contains("Alert simulation blocked", StringComparison.Ordinal);
 
-    private IActionResult? MapSealedManifestSimulationBlockOrNull(Exception exception) =>
-        IsSealedManifestSimulationBlock(exception)
-            ? this.ConflictProblem(exception.Message, ProblemTypes.Conflict)
-            : null;
+    private IActionResult MapSealedManifestSimulationBlock(Exception exception) =>
+        this.ConflictProblem(exception.Message, ProblemTypes.Conflict);
 }

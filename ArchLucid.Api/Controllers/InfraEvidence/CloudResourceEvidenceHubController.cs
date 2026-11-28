@@ -36,6 +36,7 @@ public sealed partial class CloudResourceEvidenceHubController(
 {
     [HttpGet]
     [ProducesResponseType(typeof(PagedResponse<CloudResourceSummary>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     public async Task<IActionResult> ListCloudResources(
         [FromQuery] string? namePrefix,
         [FromQuery] string? resourceType,

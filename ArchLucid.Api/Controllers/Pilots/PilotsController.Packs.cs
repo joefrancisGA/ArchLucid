@@ -85,7 +85,7 @@ public sealed partial class PilotsController
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetFirstValueReport(string runId, CancellationToken cancellationToken)
     {
-        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken, careerExportConflictSchema: true);
 
         if (sealedGuardResult is not null)
             return sealedGuardResult;
@@ -102,7 +102,7 @@ public sealed partial class PilotsController
         }
         catch (ConflictException ex)
         {
-            return MapPilotPackSealedManifestConflict(ex);
+            return MapPilotPackSealedManifestConflict(ex, careerExportConflictSchema: true);
         }
     }
 
@@ -114,7 +114,7 @@ public sealed partial class PilotsController
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PostFirstValueReportPdf(string runId, CancellationToken cancellationToken)
     {
-        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken, careerExportConflictSchema: true);
 
         if (sealedGuardResult is not null)
             return sealedGuardResult;
@@ -138,7 +138,7 @@ public sealed partial class PilotsController
                 return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
             }
 
-            return MapPilotPackSealedManifestConflict(new ConflictException(ex.Message));
+            return MapPilotPackSealedManifestConflict(new ConflictException(ex.Message), careerExportConflictSchema: true);
 
         }
         catch (CareerArtifactExportBlockedException ex)
@@ -147,7 +147,7 @@ public sealed partial class PilotsController
         }
         catch (ConflictException ex)
         {
-            return MapPilotPackSealedManifestConflict(ex);
+            return MapPilotPackSealedManifestConflict(ex, careerExportConflictSchema: true);
         }
     }
 

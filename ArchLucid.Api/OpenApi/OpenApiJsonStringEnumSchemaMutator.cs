@@ -11,12 +11,14 @@ internal static class OpenApiJsonStringEnumSchemaMutator
 {
     internal static void Apply(OpenApiSchema schema, Type clrType)
     {
-        if (!clrType.IsEnum || schema is not OpenApiSchema mutable)
+        Type enumType = Nullable.GetUnderlyingType(clrType) ?? clrType;
+
+        if (!enumType.IsEnum || schema is not OpenApiSchema mutable)
             return;
 
         mutable.Type = JsonSchemaType.String;
         mutable.Format = null;
-        mutable.Enum = Enum.GetNames(clrType)
+        mutable.Enum = Enum.GetNames(enumType)
             .Select(static name => (JsonNode)JsonValue.Create(name)!)
             .ToList();
     }

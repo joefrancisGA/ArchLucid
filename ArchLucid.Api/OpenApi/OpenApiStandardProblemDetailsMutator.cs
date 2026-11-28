@@ -9,6 +9,8 @@ namespace ArchLucid.Api.OpenApi;
 /// </summary>
 internal static class OpenApiStandardProblemDetailsMutator
 {
+    internal const string ProblemJsonCharsetMediaType = "application/problem+json; charset=utf-8";
+
     private static readonly string[] StandardErrorStatusCodes =
     [
         "400",
@@ -17,6 +19,7 @@ internal static class OpenApiStandardProblemDetailsMutator
         "404",
         "405",
         "409",
+        "413",
         "415",
         "422",
         "429",
@@ -61,6 +64,9 @@ internal static class OpenApiStandardProblemDetailsMutator
 
         if (!mutable.Content.ContainsKey(ApplicationProblemMapper.ProblemJsonMediaType))
             mutable.Content[ApplicationProblemMapper.ProblemJsonMediaType] = CreateProblemDetailsMediaType();
+
+        if (!mutable.Content.ContainsKey(ProblemJsonCharsetMediaType))
+            mutable.Content[ProblemJsonCharsetMediaType] = CreateProblemDetailsMediaType();
     }
 
     private static OpenApiResponse CreateProblemDetailsResponse(string statusCode)
@@ -70,7 +76,8 @@ internal static class OpenApiStandardProblemDetailsMutator
             Description = DescribeStatusCode(statusCode),
             Content = new Dictionary<string, OpenApiMediaType>(StringComparer.Ordinal)
             {
-                [ApplicationProblemMapper.ProblemJsonMediaType] = CreateProblemDetailsMediaType()
+                [ApplicationProblemMapper.ProblemJsonMediaType] = CreateProblemDetailsMediaType(),
+                [ProblemJsonCharsetMediaType] = CreateProblemDetailsMediaType(),
             }
         };
     }
@@ -92,6 +99,7 @@ internal static class OpenApiStandardProblemDetailsMutator
             "404" => "Not Found.",
             "405" => "Method Not Allowed.",
             "409" => "Conflict.",
+            "413" => "Payload Too Large.",
             "415" => "Unsupported Media Type.",
             "422" => "Unprocessable Entity.",
             "429" => "Too Many Requests.",

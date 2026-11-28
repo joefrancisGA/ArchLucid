@@ -79,4 +79,16 @@ public sealed class OpenApiStandardProblemDetailsMutatorTests
         operation.Responses.Should().ContainKey("415");
         operation.Responses["415"].Content.Should().ContainKey("application/problem+json");
     }
+
+    [Fact]
+    public void ApplyToOperation_adds_413_and_charset_problem_json_variants()
+    {
+        OpenApiOperation operation = new();
+
+        OpenApiStandardProblemDetailsMutator.ApplyToOperation(operation);
+
+        operation.Responses.Should().ContainKey("413");
+        operation.Responses["413"].Content.Should().ContainKey("application/problem+json");
+        operation.Responses["413"].Content.Should().ContainKey(OpenApiStandardProblemDetailsMutator.ProblemJsonCharsetMediaType);
+    }
 }
