@@ -9,6 +9,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="ArchLucid.AgentRuntime" />
     <InternalsVisibleTo Include="ArchLucid.Application.Tests" />
+    <InternalsVisibleTo Include="ArchLucid.HistoricalReplay.Worker" />
     <InternalsVisibleTo Include="SecureNow.AnalysisRunCacheBench" />
     <InternalsVisibleTo Include="ArchLucid.Api" />
     <InternalsVisibleTo Include="ArchLucid.Api.Tests" />
