@@ -62,10 +62,12 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
                 && string.Equals(traceId, adjudication.TraceId, StringComparison.Ordinal);
             // A synthetic recovery result has no meaning outside its exact lease and must not
             // count as a normal observation (including if the lease expired before recording).
+
             if (!matchesProbe && string.Equals(adjudication.AdjudicatorKind, SecureNowRecoveryChallenge.Method, StringComparison.Ordinal))
                 return new ProviderQualityRecordResult(Snapshot(adjudication.Key, entry), false, null);
 
             bool newSample = entry.SampleIds.Add(adjudication.SampleId);
+
             if (!newSample && !matchesProbe)
                 return new ProviderQualityRecordResult(Snapshot(adjudication.Key, entry), false, null);
 
@@ -77,6 +79,7 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
             {
                 if (newSample)
                     entry.UnknownSamples++;
+
                 if (matchesProbe)
                 {
                     ReopenAfterProbe(entry, "Recovery probe was not independently adjudicated.");
@@ -214,6 +217,7 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
     internal bool SetOperatorOverride(ProviderQualityKey key, TimeSpan? duration, Guid auditEventId)
     {
         ArgumentNullException.ThrowIfNull(key);
+
         if (auditEventId == Guid.Empty || (duration is { } window
             && (window < TimeSpan.FromMinutes(1) || window > TimeSpan.FromHours(1))))
             return false;
@@ -244,6 +248,7 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
     private Entry Resolve(ProviderQualityKey key)
     {
         ProviderQualityKey normalized = ProviderQualityKey.Create(key.ProviderId, key.ModelId, key.ModelVersion);
+
         if (_entries.TryGetValue(normalized, out Entry? existing))
             return existing;
 
@@ -323,6 +328,7 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
 
         PersistedEntry[] entries = JsonSerializer.Deserialize<PersistedEntry[]>(payload)
             ?? throw new JsonException("Provider quality state must contain an array.");
+
         foreach (PersistedEntry row in entries)
             _entries.Add(row.Key, row.State);
     }

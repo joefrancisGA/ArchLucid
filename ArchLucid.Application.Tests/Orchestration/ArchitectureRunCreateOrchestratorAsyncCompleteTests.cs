@@ -108,7 +108,7 @@ public sealed class ArchitectureRunCreateOrchestratorAsyncCompleteTests
             c => c.CreateRunAsync(
                 It.IsAny<ArchitectureRequest>(),
                 It.IsAny<CancellationToken>(),
-                It.Is<IArchLucidUnitOfWork?>(uow => uow != null),
+                It.Is<IArchLucidUnitOfWork?>(uow => !ReferenceEquals(uow, null)),
                 It.IsAny<Guid?>()),
             Times.Never);
     }
