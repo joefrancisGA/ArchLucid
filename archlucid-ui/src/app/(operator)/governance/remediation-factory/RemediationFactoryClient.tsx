@@ -30,11 +30,9 @@ import { isSecureNowCollectionSetupComplete } from "@/lib/product-line/format-se
 import { SecureNowPilotWalkthroughBanner } from "@/components/product-line/SecureNowPilotWalkthroughBanner";
 import { SecureNowRemediationFactoryStepFocusBanner } from "@/components/product-line/SecureNowRemediationFactoryStepFocusBanner";
 import { SecureNowRemediationFactoryCollectionSetupBanner } from "@/components/product-line/SecureNowRemediationFactoryCollectionSetupBanner";
-        <>
-          <SecureNowAgentReadinessSubstrateAuto testId="remediation-factory-agent-readiness-substrate" />
-          <SecureNowAdoptionFrictionNextStepAuto testId="remediation-factory-adoption-friction-next-step" />
-          <SecureNowReaderScopeWorkbenchStrip testId="remediation-factory-reader-scope-workbench" />
-        </>
+import { SecureNowAgentReadinessSubstrateAuto } from "@/components/product-line/SecureNowAgentReadinessSubstrateAuto";
+import { SecureNowAdoptionFrictionNextStepAuto } from "@/components/product-line/SecureNowAdoptionFrictionNextStepAuto";
+import { SecureNowReaderScopeWorkbenchStrip } from "@/components/product-line/SecureNowReaderScopeWorkbenchStrip";
 import { SecureNowSponsorRoiCollectionScopeHonestyLine } from "@/components/product-line/SecureNowSponsorRoiCollectionScopeHonestyLine";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
