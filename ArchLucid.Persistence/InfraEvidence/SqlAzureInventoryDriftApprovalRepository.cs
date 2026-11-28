@@ -115,7 +115,7 @@ public sealed class SqlAzureInventoryDriftApprovalRepository(ISqlConnectionFacto
         return rows.Select(Map).ToList();
     }
 
-    private static AzureInventoryDriftApprovalRecord Map(ApprovalRow row) =>
+    internal static AzureInventoryDriftApprovalRecord Map(ApprovalRow row) =>
         new()
         {
             ApprovalId = row.ApprovalId,
@@ -128,11 +128,11 @@ public sealed class SqlAzureInventoryDriftApprovalRepository(ISqlConnectionFacto
             Reason = row.Reason,
             TicketReference = row.TicketReference,
             ExpirationUtc = row.ExpirationUtc,
-            Status = (AzureInventoryDriftApprovalStatus)row.Status,
+            Status = SecurityEvidenceSqlEnum.RequireOrdinal<AzureInventoryDriftApprovalStatus>(row.Status, nameof(row.Status)),
             CreatedUtc = row.CreatedUtc,
         };
 
-    private sealed class ApprovalRow
+    internal sealed class ApprovalRow
     {
         public Guid ApprovalId
         {
@@ -194,7 +194,7 @@ public sealed class SqlAzureInventoryDriftApprovalRepository(ISqlConnectionFacto
             init;
         }
 
-        public int Status
+        public int? Status
         {
             get;
             init;

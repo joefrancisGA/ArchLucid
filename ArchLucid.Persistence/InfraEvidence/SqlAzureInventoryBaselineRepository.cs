@@ -128,7 +128,7 @@ public sealed class SqlAzureInventoryBaselineRepository(ISqlConnectionFactory co
         return row is null ? null : Map(row);
     }
 
-    private static AzureInventoryBaselineRecord Map(BaselineRow row) =>
+    internal static AzureInventoryBaselineRecord Map(BaselineRow row) =>
         new()
         {
             BaselineId = row.BaselineId,
@@ -136,14 +136,14 @@ public sealed class SqlAzureInventoryBaselineRepository(ISqlConnectionFactory co
             WorkspaceId = row.WorkspaceId,
             ProjectId = row.ProjectId,
             SnapshotId = row.SnapshotId,
-            BaselineKind = (AzureInventoryBaselineKind)row.BaselineKind,
+            BaselineKind = SecurityEvidenceSqlEnum.RequireOrdinal<AzureInventoryBaselineKind>(row.BaselineKind, nameof(row.BaselineKind)),
             SubscriptionId = row.SubscriptionId,
             DesignatedBy = row.DesignatedBy,
             DesignatedUtc = row.DesignatedUtc,
             Notes = row.Notes,
         };
 
-    private sealed class BaselineRow
+    internal sealed class BaselineRow
     {
         public Guid BaselineId
         {
@@ -175,7 +175,7 @@ public sealed class SqlAzureInventoryBaselineRepository(ISqlConnectionFactory co
             init;
         }
 
-        public int BaselineKind
+        public int? BaselineKind
         {
             get;
             init;

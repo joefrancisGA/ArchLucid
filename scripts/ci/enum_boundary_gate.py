@@ -74,6 +74,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--reports", type=Path, required=True)
     parser.add_argument("--exceptions", type=Path, required=True)
+    parser.add_argument("--build-exit-code", type=int, default=0,
+                        help="Exit status of the existing compiler invocation; nonzero never passes.")
     parser.add_argument("--policy", type=Path,
                         default=audit.ROOT / "scripts/ci/data/enum_boundary_policy.json")
     scope = parser.add_mutually_exclusive_group(required=True)
@@ -90,18 +92,32 @@ def main() -> int:
         mode = "all"
     touched = changed_files(args.base_ref, audit.ROOT) if args.base_ref else set()
     directory = args.reports.resolve()
-    findings, report_count = audit.findings_from_reports(directory)
-    project_count = audit.check_report_coverage(directory)
+    evidence_errors = []
+    findings, report_count, project_count = [], len(list(directory.glob("*.sarif"))), None
+    try:
+        findings, report_count = audit.findings_from_reports(directory)
+    except (OSError, ValueError, KeyError, TypeError, AttributeError, SystemExit) as error:
+        evidence_errors.append(f"Invalid compiler findings evidence: {error}")
+    try:
+        project_count = audit.check_report_coverage(directory)
+    except (OSError, ValueError, KeyError, TypeError, AttributeError, SystemExit, subprocess.CalledProcessError) as error:
+        evidence_errors.append(f"Incomplete compiler project coverage: {error}")
     approved = load_exceptions(args.exceptions)
     blocked, legacy, stale = classify(findings, approved, touched, mode)
+    if evidence_errors or args.build_exit_code:
+        # A partial compiler run cannot establish the absence of a previously approved source site.
+        stale = set()
     evidence = {
         "commit": audit.git("rev-parse", "HEAD"),
         "mode": mode,
+        "build_exit_code": args.build_exit_code,
+        "evidence_errors": evidence_errors,
         "reports": report_count,
         "projects": project_count,
         "findings": findings,
         "blocking": blocked,
         "unreviewed_legacy": legacy,
+        "reviewed_exceptions": [row for row in findings if audit.key(row) in approved],
         "stale_exceptions": sorted(stale),
     }
     (directory / "enum-gate-result.json").write_text(
@@ -112,7 +128,11 @@ def main() -> int:
         print(f"::error file={row['path']},line={row['line']}::{row['rule']}: {row['message']}")
     if stale:
         print("::error::Remove stale enum exceptions; they no longer match the source.")
-    return 1 if blocked or stale else 0
+    for error in evidence_errors:
+        print(f"::error::{error}")
+    if args.build_exit_code:
+        print(f"::error::Compiler exited with status {args.build_exit_code}; inventory is not a passing verification.")
+    return 1 if blocked or stale or evidence_errors or args.build_exit_code else 0
 
 
 if __name__ == "__main__":

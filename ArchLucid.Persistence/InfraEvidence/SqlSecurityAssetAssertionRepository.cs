@@ -600,7 +600,7 @@ public sealed class SqlSecurityAssetAssertionRepository(ISqlConnectionFactory co
             record.RevokedByActorKey,
         };
 
-    private static SecurityAssetAssertionRecord Map(AssertionRow row) =>
+    internal static SecurityAssetAssertionRecord Map(AssertionRow row) =>
         new()
         {
             AssertionId = row.AssertionId,
@@ -608,16 +608,16 @@ public sealed class SqlSecurityAssetAssertionRepository(ISqlConnectionFactory co
             WorkspaceId = row.WorkspaceId,
             ProjectId = row.ProjectId,
             CloudResourceId = row.CloudResourceId,
-            DataSensitivity = (SecurityAssetDataSensitivity)row.DataSensitivity,
-            RegulatoryClass = (SecurityAssetRegulatoryClass)row.RegulatoryClass,
-            DeploymentEnvironment = (SecurityAssetDeploymentEnvironment)row.DeploymentEnvironment,
-            BusinessCriticality = (SecurityAssetBusinessCriticality)row.BusinessCriticality,
+            DataSensitivity = SecurityEvidenceSqlEnum.RequireOrdinal<SecurityAssetDataSensitivity>(row.DataSensitivity, nameof(row.DataSensitivity)),
+            RegulatoryClass = SecurityEvidenceSqlEnum.RequireOrdinal<SecurityAssetRegulatoryClass>(row.RegulatoryClass, nameof(row.RegulatoryClass)),
+            DeploymentEnvironment = SecurityEvidenceSqlEnum.RequireOrdinal<SecurityAssetDeploymentEnvironment>(row.DeploymentEnvironment, nameof(row.DeploymentEnvironment)),
+            BusinessCriticality = SecurityEvidenceSqlEnum.RequireOrdinal<SecurityAssetBusinessCriticality>(row.BusinessCriticality, nameof(row.BusinessCriticality)),
             IsRevenueImpact = row.IsRevenueImpact,
             IsPatientImpact = row.IsPatientImpact,
             Rationale = row.Rationale,
             EvidenceReference = row.EvidenceReference,
             ExpirationUtc = row.ExpirationUtc,
-            Status = (SecurityAssetAssertionStatus)row.Status,
+            Status = SecurityEvidenceSqlEnum.RequireOrdinal<SecurityAssetAssertionStatus>(row.Status, nameof(row.Status)),
             RequestedByActorKey = row.RequestedByActorKey,
             ApprovedByActorKey = row.ApprovedByActorKey,
             PayloadHashSha256 = row.PayloadHashSha256,
@@ -628,7 +628,7 @@ public sealed class SqlSecurityAssetAssertionRepository(ISqlConnectionFactory co
             RevokedByActorKey = row.RevokedByActorKey,
         };
 
-    private sealed class AssertionRow
+    internal sealed class AssertionRow
     {
         public Guid AssertionId
         {
@@ -660,25 +660,25 @@ public sealed class SqlSecurityAssetAssertionRepository(ISqlConnectionFactory co
             init;
         }
 
-        public int DataSensitivity
+        public int? DataSensitivity
         {
             get;
             init;
         }
 
-        public int RegulatoryClass
+        public int? RegulatoryClass
         {
             get;
             init;
         }
 
-        public int DeploymentEnvironment
+        public int? DeploymentEnvironment
         {
             get;
             init;
         }
 
-        public int BusinessCriticality
+        public int? BusinessCriticality
         {
             get;
             init;
@@ -714,7 +714,7 @@ public sealed class SqlSecurityAssetAssertionRepository(ISqlConnectionFactory co
             init;
         }
 
-        public int Status
+        public int? Status
         {
             get;
             init;
