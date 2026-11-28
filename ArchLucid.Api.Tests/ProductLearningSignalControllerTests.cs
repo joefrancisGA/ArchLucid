@@ -82,7 +82,53 @@ public sealed class ProductLearningSignalControllerTests
         repo.Verify(r => r.InsertAsync(It.IsAny<ProductLearningPilotSignalRecord>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    private static ProductLearningController BuildController(IProductLearningPilotSignalRepository repo)
+    [Fact]
+    public async Task PostSignal_rejects_oversized_json_without_persisting_or_auditing()
+    {
+        Mock<IProductLearningPilotSignalRepository> repository = new();
+        Mock<IAuditService> audit = new();
+        ProductLearningController sut = BuildController(repository.Object, audit);
+
+        IActionResult result = await sut.PostSignal(BuildRequestWithJsonLength(4001), CancellationToken.None);
+
+        ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        repository.Verify(r => r.InsertAsync(It.IsAny<ProductLearningPilotSignalRecord>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Theory]
+    [InlineData(3999)]
+    [InlineData(4000)]
+    public async Task PostSignal_preserves_json_inside_the_input_budget(int length)
+    {
+        Mock<IProductLearningPilotSignalRepository> repository = new();
+        ProductLearningSignalRequest request = BuildRequestWithJsonLength(length);
+        ProductLearningController sut = BuildController(repository.Object);
+
+        IActionResult result = await sut.PostSignal(request, CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+        repository.Verify(r => r.InsertAsync(
+            It.Is<ProductLearningPilotSignalRecord>(s => s.DetailJson == request.DetailJson),
+            CancellationToken.None), Times.Once);
+    }
+
+    private static ProductLearningSignalRequest BuildRequestWithJsonLength(int length)
+    {
+        int envelopeLength = System.Text.Json.JsonSerializer.Serialize(new { note = "" }).Length;
+        string detail = System.Text.Json.JsonSerializer.Serialize(new { note = new string('x', length - envelopeLength) });
+        detail.Length.Should().Be(length);
+        return new ProductLearningSignalRequest
+        {
+            SubjectType = "Finding",
+            Disposition = ProductLearningDispositionValues.Trusted,
+            DetailJson = detail
+        };
+    }
+
+    private static ProductLearningController BuildController(IProductLearningPilotSignalRepository repo, Mock<IAuditService>? audit = null)
     {
         Mock<IProductLearningDashboardService> dashboard = new();
         Mock<IActorContext> actor = new();
@@ -90,7 +136,7 @@ public sealed class ProductLearningSignalControllerTests
         actor.Setup(a => a.GetActor()).Returns("Pilot User");
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
-        Mock<IAuditService> audit = new();
+        audit ??= new();
         audit
             .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);

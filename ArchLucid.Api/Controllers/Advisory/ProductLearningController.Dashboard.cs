@@ -16,6 +16,8 @@ namespace ArchLucid.Api.Controllers.Advisory;
 
 public sealed partial class ProductLearningController
 {
+    private const int MaxSignalDetailJsonLength = 4000;
+
     /// <summary>KPIs and explanatory notes only (no aggregate arrays).</summary>
     [HttpGet("summary")]
     [ProducesResponseType(typeof(ProductLearningDashboardSummaryResponse), StatusCodes.Status200OK)]
@@ -78,6 +80,14 @@ public sealed partial class ProductLearningController
                 "Disposition must be Trusted, Rejected, Revised, or NeedsFollowUp.",
                 ProblemTypes.ValidationFailed);
 
+        string? detailJson = request.DetailJson?.Trim();
+
+        // The size budget is not a text truncation rule for a structured payload.
+        if (detailJson?.Length > MaxSignalDetailJsonLength)
+            return this.BadRequestProblem(
+                $"DetailJson must not exceed {MaxSignalDetailJsonLength} characters.",
+                ProblemTypes.ValidationFailed);
+
         ScopeContext scopeContext = scopeProvider.GetCurrentScope();
         ProductLearningPilotSignalRecord signal = new()
         {
@@ -92,7 +102,7 @@ public sealed partial class ProductLearningController
             PatternKey = NormalizeOptional(request.PatternKey, 200),
             ArtifactHint = NormalizeOptional(request.ArtifactHint, 512),
             CommentShort = NormalizeOptional(request.CommentShort, 2000),
-            DetailJson = NormalizeOptional(request.DetailJson, 4000),
+            DetailJson = string.IsNullOrEmpty(detailJson) ? null : detailJson,
             RecordedByUserId = actorContext.GetActorId(),
             RecordedByDisplayName = actorContext.GetActor()
         };
