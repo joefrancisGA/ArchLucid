@@ -1,10 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { FIRST_LOGIN_WORKSPACE_HELP_PRIMARY_CONTENT_ID } from "@/lib/help/first-login-workspace-help-page-copy";
+import { FIRST_LOGIN_WORKSPACE_HELP_PRIMARY_CONTENT_ID } from "@/lib/first-login-workspace-help-page-copy";
 import { HelpFirstLoginWorkspaceGuideView } from "./HelpFirstLoginWorkspaceGuideView";
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/first-login-workspace",
+  useRouter: () => ({ replace: vi.fn() }),
   useSearchParams: () => new URLSearchParams(),
 }));
 

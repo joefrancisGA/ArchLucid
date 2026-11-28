@@ -5,7 +5,7 @@ namespace ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 /// <summary>Explicit system-owned execution boundary. No public route or implicit scheduling.
 /// A failed publication must not silently assess a previously published envelope.</summary>
 internal sealed class RuntimeSecurityExecutionService(
-    RuntimeAttestationPublisher publisher, RuntimeFindingPersistenceService persistence,
+    RuntimeAttestationPublisher attestationPublisher, RuntimeFindingPersistenceService persistence,
     IRuntimeAttestationPublicationAuthority authority)
 {
     public async Task<RuntimeSecurityExecutionResult> ExecuteAsync(ScopeContext scope,
@@ -21,7 +21,7 @@ internal sealed class RuntimeSecurityExecutionService(
             !await authority.CanPublishAsync(request, ct))
             return new(false, false, false, 0);
 
-        if (!await publisher.PublishAsync(request, ct)) return new(false, false, false, 0);
+        if (!await attestationPublisher.PublishAsync(request, ct)) return new(false, false, false, 0);
         ct.ThrowIfCancellationRequested();
 
         if (!await authority.CanPublishAsync(request, ct)) return new(true, false, false, 0);

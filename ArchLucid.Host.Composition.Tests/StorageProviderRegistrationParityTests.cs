@@ -1,6 +1,7 @@
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Evidence;
+using ArchLucid.Core.Resilience;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Composition.Startup;
@@ -39,6 +40,8 @@ public sealed class StorageProviderRegistrationParityTests
 {
     private static readonly HashSet<Type> SqlOnlyServiceTypes =
     [
+        // Durable provider quality is unavailable for InMemory storage.
+        typeof(IProviderQualityStateStore),
         typeof(ITenantDatabaseBindingRepository),
         typeof(ITenantDatabaseResolver),
         typeof(ScopedRoutingSqlConnectionFactory),
@@ -91,6 +94,9 @@ public sealed class StorageProviderRegistrationParityTests
     {
         HashSet<Type> inMemoryTypes = CollectServiceTypesAfterStorage(CreateInMemoryConfiguration());
         HashSet<Type> sqlTypes = CollectServiceTypesAfterStorage(CreateSqlConfiguration());
+
+        sqlTypes.Should().Contain(typeof(IProviderQualityStateStore));
+        inMemoryTypes.Should().NotContain(typeof(IProviderQualityStateStore));
 
         IEnumerable<Type> onlyInMemory = inMemoryTypes.Except(sqlTypes);
         IEnumerable<Type> onlyInSql = sqlTypes.Except(inMemoryTypes);

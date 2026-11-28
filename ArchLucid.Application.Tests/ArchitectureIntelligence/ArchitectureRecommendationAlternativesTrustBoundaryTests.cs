@@ -21,6 +21,8 @@ public sealed class ArchitectureRecommendationAlternativesTrustBoundaryTests
             Title = "Internal tier trust boundary is undocumented",
             Rationale = "No trust-boundary element separates application and data tiers.",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 

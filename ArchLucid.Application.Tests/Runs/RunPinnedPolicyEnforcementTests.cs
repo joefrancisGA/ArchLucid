@@ -1,4 +1,5 @@
 using System.Text.Json;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Persistence.Ports;
@@ -12,6 +13,18 @@ namespace ArchLucid.Application.Tests.Runs;
 [Trait("Category", "Unit")]
 public sealed class RunPinnedPolicyEnforcementTests
 {
+    [Fact]
+    public void Empty_pin_arrays_are_valid_and_null_is_not()
+    {
+        Assert.True(RunHeaderPinDeserializer.TryDeserializePolicyPackRows("[]", out var policies));
+        Assert.Empty(policies);
+        Assert.True(RunHeaderPinDeserializer.TryDeserializeEvidenceRows("[]", out var evidence));
+        Assert.Empty(evidence);
+
+        Assert.False(RunHeaderPinDeserializer.TryDeserializePolicyPackRows("null", out _));
+        Assert.False(RunHeaderPinDeserializer.TryDeserializeEvidenceRows("null", out _));
+    }
+
     [Theory]
     [InlineData(false, false, null)]
     [InlineData(true, false, 1)]
@@ -30,7 +43,7 @@ public sealed class RunPinnedPolicyEnforcementTests
             PinnedPolicyPackIdsJson = JsonSerializer.Serialize(new[]
             {
                 new PinnedPolicyPackRow(packId.ToString("D"), "1.0", true, 3)
-            }),
+            }, ContractJson.CamelCaseIgnoreNullCompact),
         };
         Mock<IPolicyPackAssignmentRepository> repository = new();
         repository.Setup(r => r.ListByScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId,

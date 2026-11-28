@@ -421,10 +421,18 @@ public sealed class InfraEvidenceCompositionModuleTests
             displayName: "vm-1",
             CancellationToken.None);
 
+        CloudResourceEvidenceHubQuery query = new() { SnapshotId = snapshotId };
+        CloudResourceEvidenceHubQueryResult missing = await hubService.TryGetHubAsync(
+            scope, upserted.CloudResourceId, query, CancellationToken.None);
+
+        missing.Succeeded.Should().BeFalse();
+        missing.Hub.Should().BeNull();
+
+        // In-memory composition has no persisted inventory snapshot store.
         CloudResourceEvidenceHubQueryResult result = await hubService.TryGetHubAsync(
             scope,
             upserted.CloudResourceId,
-            new CloudResourceEvidenceHubQuery { SnapshotId = snapshotId },
+            new CloudResourceEvidenceHubQuery(),
             CancellationToken.None);
 
         result.Succeeded.Should().BeTrue(result.ErrorMessage);

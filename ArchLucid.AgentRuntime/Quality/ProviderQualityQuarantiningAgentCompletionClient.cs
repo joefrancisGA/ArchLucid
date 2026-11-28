@@ -25,6 +25,7 @@ public sealed class ProviderQualityQuarantiningAgentCompletionClient(
         ProviderQualityAdmission admission = await AdmitAsync(cancellationToken).ConfigureAwait(false);
         using ProviderQualityRecoveryResponse.Capture? capture =
             ProviderQualityRecoveryResponse.Begin(admission, IndependentProviderQualityObserver.IsObservingSecureNow);
+
         if (capture?.Probe.SecureNowChallenge is { } challenge)
         {
             // Reuse the admitted completion instead of making a second call. Do not send customer data on this lease.
@@ -69,6 +70,7 @@ public sealed class ProviderQualityQuarantiningAgentCompletionClient(
     {
         ProviderQualityAdmission admission = await _monitor.AdmitAsync(
             Descriptor.ProviderKind, Descriptor.ModelId, cancellationToken).ConfigureAwait(false);
+
         if (!admission.Allowed)
             throw new ProviderQualityQuarantinedException(CurrentKey(), admission.RetryAfterUtc, admission.Reason);
         return admission;

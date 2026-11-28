@@ -1,5 +1,8 @@
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Security;
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
+using Asp.Versioning;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,6 +11,7 @@ namespace ArchLucid.Api.Controllers;
 
 /// <summary>Historical evidence only. This endpoint never changes sealed findings.</summary>
 [ApiController]
+[ApiVersion("1.0")]
 [Authorize]
 [Route("api/securenow/runtime-finding-history")]
 public sealed class RuntimeFindingHistoryController : ControllerBase
@@ -22,14 +26,17 @@ public sealed class RuntimeFindingHistoryController : ControllerBase
             string.IsNullOrWhiteSpace(resourceId) || resourceId.Length > 2048 ||
             string.IsNullOrWhiteSpace(deploymentGeneration) || deploymentGeneration.Length > 256 ||
             string.IsNullOrWhiteSpace(runtimeFamily) || runtimeFamily.Length > 128 || limit is < 1 or > 20)
-            return BadRequest();
+            return this.BadRequestProblem("Provide a valid scope, runtime identity, and result limit.");
+
         if (User.Identity?.IsAuthenticated != true) return Unauthorized();
         var reader = HttpContext.RequestServices.GetRequiredService<SqlRuntimeFindingJournalReader>();
         var request = new RuntimeObservationRequest(tenantId, workspaceId, projectId, resourceId,
             deploymentGeneration, runtimeFamily);
         var rows = await reader.ReadAsync(request, limit, ct);
         // Do not distinguish an unauthorized scope from missing or invalid backing evidence.
-        if (rows is null) return NotFound();
+
+        if (rows is null)
+            return this.NotFoundProblem("Runtime finding history was not found.");
         return Ok(new { historical = true, currentStatusEstablished = false, entries = rows });
     }
 }

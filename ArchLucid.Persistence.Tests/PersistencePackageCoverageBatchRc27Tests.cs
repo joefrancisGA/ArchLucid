@@ -152,7 +152,7 @@ public sealed class PersistencePackageCoverageBatchRc27Tests
     }
 
     [Fact]
-    public void AgentResultEnrichmentMerger_replaces_result_from_enriched_json()
+    public void AgentResultEnrichmentMerger_replaces_json_fields_but_keeps_column_calibration()
     {
         AgentResult baseResult = new()
         {
@@ -187,7 +187,7 @@ public sealed class PersistencePackageCoverageBatchRc27Tests
 
         merged.Should().ContainSingle();
         merged[0].Confidence.Should().Be(0.88);
-        merged[0].CalibratedConfidence.Should().Be(0.77);
+        merged[0].CalibratedConfidence.Should().Be(0.5);
         merged[0].Claims.Should().ContainSingle().Which.Should().Be("enriched-claim");
     }
 

@@ -192,8 +192,10 @@ public sealed class ArchitectureRunCreateOrchestratorAsyncCompleteTests
 
         Mock<IEvidenceBundleRepository> evidence = new();
         evidence
-            .Setup(e => e.CreateAsync(
-                It.IsAny<EvidenceBundle>(),
+            .Setup(e => e.CreateForRunAsync(
+                It.Is<EvidenceBundle>(bundle => bundle.EvidenceBundleId == "eb-req-async-persist-fail"),
+                AuthorityTestScope,
+                runId,
                 It.IsAny<CancellationToken>(),
                 null,
                 null))

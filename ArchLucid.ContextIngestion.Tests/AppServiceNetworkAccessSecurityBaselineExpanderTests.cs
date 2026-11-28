@@ -16,6 +16,7 @@ public sealed class AppServiceNetworkAccessSecurityBaselineExpanderTests
     {
         CanonicalObject appService = new()
         {
+            ObjectId = "app-service-web-app",
             ObjectType = "TopologyResource",
             Name = "web-app",
             SourceType = "InfrastructureDeclaration",

@@ -605,21 +605,22 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         Mock<IActorContext> actor = ActorMock();
         Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
 
+        ScopeContext scope = DefaultScope();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(scope);
+
         AdminDiagnosticsService sut = CreateDiagnosticsService(
             factory,
             SqlOptions(),
             audit,
             actor,
+            scopeProvider.Object,
             out _,
             out _,
             out _,
             out Mock<IRunRepository> runs);
 
         Guid runId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
-        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
-        Guid workspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
-        Guid projectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
-        ScopeContext scope = DefaultScope();
 
         RunArchiveByIdsResult byIds = new()
         {
@@ -629,9 +630,9 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
                 new ArchivedRunScopeRow
                 {
                     RunId = runId,
-                    TenantId = tenantId,
-                    WorkspaceId = workspaceId,
-                    ScopeProjectId = projectId
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId
                 }
             ],
             Failed = [],
@@ -639,16 +640,20 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         };
 
         _ = runs
-            .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunRecord { RunId = runId, TenantId = tenantId });
+            .Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId, TenantId = scope.TenantId });
 
         _ = runs
-            .Setup(r => r.ArchiveRunsByIdsAsync(
+            .Setup(r => r.ArchiveRunsByIdsForScopeAsync(
+                scope,
                 It.Is<IReadOnlyList<Guid>>(list => list.Count == 1 && list[0] == runId),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(byIds);
 
-        _ = await sut.ArchiveRunsByIdsAsync(new[] { runId }, CancellationToken.None);
+        RunArchiveByIdsResult result = await sut.ArchiveRunsByIdsAsync([runId], CancellationToken.None);
+
+        Assert.Equal([runId], result.SucceededRunIds);
+        Assert.Empty(result.Failed);
 
         audit.Verify(
             service => service.LogAsync(
@@ -714,11 +719,16 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         Mock<IActorContext> actor = ActorMock();
         Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
 
+        ScopeContext scope = DefaultScope();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(scope);
+
         AdminDiagnosticsService sut = CreateDiagnosticsService(
             factory,
             SqlOptions(),
             audit,
             actor,
+            scopeProvider.Object,
             out _,
             out _,
             out _,
@@ -727,7 +737,6 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         List<Guid> succeededRunIds = Enumerable.Range(0, 65)
             .Select(static i => Guid.Parse($"20000000-0000-4000-8000-{i:x012}"))
             .ToList();
-        ScopeContext scope = DefaultScope();
 
         RunArchiveByIdsResult byIds = new()
         {
@@ -736,9 +745,9 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
                 [..succeededRunIds.Select(r => new ArchivedRunScopeRow
                 {
                     RunId = r,
-                    TenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-                    WorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
-                    ScopeProjectId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff")
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId
                 })],
             Failed = [],
             ChildCascade = new RunArchiveChildCascadeCounts()
@@ -747,15 +756,21 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         foreach (Guid runId in succeededRunIds)
         {
             _ = runs
-                .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+                .Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new RunRecord { RunId = runId, TenantId = scope.TenantId });
         }
 
         _ = runs
-            .Setup(r => r.ArchiveRunsByIdsAsync(succeededRunIds, It.IsAny<CancellationToken>()))
+            .Setup(r => r.ArchiveRunsByIdsForScopeAsync(
+                scope,
+                It.Is<IReadOnlyList<Guid>>(list => list.SequenceEqual(succeededRunIds)),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(byIds);
 
-        _ = await sut.ArchiveRunsByIdsAsync(succeededRunIds, CancellationToken.None);
+        RunArchiveByIdsResult result = await sut.ArchiveRunsByIdsAsync(succeededRunIds, CancellationToken.None);
+
+        Assert.Equal(succeededRunIds, result.SucceededRunIds);
+        Assert.Empty(result.Failed);
 
         audit.Verify(
             service => service.LogAsync(
@@ -1072,7 +1087,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         if (auditEvent.EventType != AuditEventTypes.ManifestArchived
             || auditEvent.ActorUserId != "test-admin"
             || auditEvent.ActorUserName != "test-admin"
-            || auditEvent.DataJson == null // CS8122: Moq expression trees — cannot use `is null` upstream of It.Is
+            || auditEvent.DataJson is null
             || !auditEvent.DataJson.Contains("createdBefore:", StringComparison.Ordinal))
             return false;
 
@@ -1099,7 +1114,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         if (auditEvent.EventType != AuditEventTypes.ManifestArchived
             || auditEvent.ActorUserId != "test-admin"
             || auditEvent.ActorUserName != "test-admin"
-            || auditEvent.DataJson == null // CS8122: Moq expression trees — cannot use `is null` upstream of It.Is
+            || auditEvent.DataJson is null
             || !auditEvent.DataJson.Contains("\"byIds\"", StringComparison.Ordinal))
             return false;
 
