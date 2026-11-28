@@ -36,6 +36,12 @@ internal static class EvolutionOutcomeParser
         };
     }
 
+    internal static bool HasV2SchemaVersion(JsonElement root) =>
+        root.ValueKind == JsonValueKind.Object &&
+        root.TryGetProperty("schemaVersion", out JsonElement version) &&
+        version.ValueKind == JsonValueKind.String &&
+        version.ValueEquals(SchemaV2);
+
     private static void TryParseV2(
         string outcomeJson,
         out EvaluationScoreResponse? evaluation,
@@ -53,22 +59,19 @@ internal static class EvolutionOutcomeParser
         {
             using JsonDocument doc = JsonDocument.Parse(outcomeJson);
 
-            if (!doc.RootElement.TryGetProperty("schemaVersion", out JsonElement ver))
-                return;
+            JsonElement root = doc.RootElement;
 
-            string? v = ver.GetString();
-
-            if (!string.Equals(v, SchemaV2, StringComparison.Ordinal))
+            if (!HasV2SchemaVersion(root))
                 return;
 
             schemaVersion = SchemaV2;
 
-            if (doc.RootElement.TryGetProperty("explanationSummary", out JsonElement es) &&
+            if (root.TryGetProperty("explanationSummary", out JsonElement es) &&
                 es.ValueKind == JsonValueKind.String)
 
                 explanationSummary = es.GetString();
 
-            if (!doc.RootElement.TryGetProperty("evaluation", out JsonElement ev) ||
+            if (!root.TryGetProperty("evaluation", out JsonElement ev) ||
                 ev.ValueKind is not (JsonValueKind.Object or JsonValueKind.Null))
                 return;
 

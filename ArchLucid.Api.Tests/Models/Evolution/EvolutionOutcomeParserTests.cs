@@ -93,6 +93,9 @@ public sealed class EvolutionOutcomeParserTests
     [Theory]
     [InlineData("{\"schemaVersion\":\"legacy\"}")]
     [InlineData("{not-json")]
+    [InlineData("null")]
+    [InlineData("[]")]
+    [InlineData("{\"schemaVersion\":1}")]
     public void ToRunWithEvaluation_ignores_unsupported_or_invalid_outcome_json(string outcomeJson)
     {
         EvolutionSimulationRunRecord record = new()
@@ -106,6 +109,7 @@ public sealed class EvolutionOutcomeParserTests
 
         EvolutionSimulationRunWithEvaluationResponse response = EvolutionOutcomeParser.ToRunWithEvaluation(record);
 
+        response.OutcomeJson.Should().Be(outcomeJson);
         response.EvaluationScore.Should().BeNull();
         response.EvaluationExplanationSummary.Should().BeNull();
         response.OutcomeSchemaVersion.Should().BeNull();
