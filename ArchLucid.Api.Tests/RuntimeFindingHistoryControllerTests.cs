@@ -3,7 +3,7 @@ using ArchLucid.Api.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
+using ArchLucid.Host.Core.ProblemDetails;
 
 namespace ArchLucid.Api.Tests;
 
@@ -26,11 +26,20 @@ public sealed class RuntimeFindingHistoryControllerTests
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
-        Assert.IsType<BadRequestResult>(await controller.GetAsync(Guid.Empty, Guid.NewGuid(), Guid.NewGuid(),
+        AssertValidationProblem(await controller.GetAsync(Guid.Empty, Guid.NewGuid(), Guid.NewGuid(),
             "resource", "generation", "php"));
         Assert.IsType<UnauthorizedResult>(await controller.GetAsync(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),
             "resource", "generation", "php"));
-        Assert.IsType<BadRequestResult>(await controller.GetAsync(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),
+        AssertValidationProblem(await controller.GetAsync(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),
             "resource", "generation", "php", 21));
+    }
+
+    private static void AssertValidationProblem(IActionResult result)
+    {
+        ObjectResult response = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(StatusCodes.Status400BadRequest, response.StatusCode);
+        Assert.Contains("application/problem+json", response.ContentTypes);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = Assert.IsType<Microsoft.AspNetCore.Mvc.ProblemDetails>(response.Value);
+        Assert.Equal(ProblemTypes.BadRequest, problem.Type);
     }
 }
