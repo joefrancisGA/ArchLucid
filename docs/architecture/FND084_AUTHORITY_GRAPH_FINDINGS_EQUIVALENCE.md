@@ -1,3 +1,5 @@
+> **Scope:** Contributor design for first-consumer Authority graph-to-findings comparison in shadow mode. This is not a rollout or authorization to reuse findings.
+
 # FND-084 first slice: Authority graph-to-findings equivalence
 
 Status: proposed design. The first executable slice is shadow-only and depends on the shared planner in [FND-083 PR #8358](https://github.com/joefrancisGA/ArchLucid/pull/8358). This proposal does not authorize reuse, move a checkpoint, or change a published finding.
