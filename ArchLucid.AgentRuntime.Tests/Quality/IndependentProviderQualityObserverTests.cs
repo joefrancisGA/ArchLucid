@@ -4,6 +4,7 @@ using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Quality;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Scoping;
