@@ -6,5 +6,6 @@ namespace ArchLucid.Api.Models;
 public sealed class CorePilotRailStepRequest
 {
     /// <summary>Zero-based Core Pilot checklist index (wizard sequence on operator home).</summary>
-    public int StepIndex { get; set; }
+    // Omission must not acknowledge the valid first step (index 0).
+    public int StepIndex { get; set; } = -1;
 }

@@ -1,4 +1,6 @@
-﻿using ArchLucid.Api.Controllers.Admin;
+﻿using System.Text.Json;
+
+using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Api.Models;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Telemetry;
@@ -12,6 +14,7 @@ using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
@@ -342,6 +345,21 @@ public sealed class ClientErrorTelemetryControllerTests
             controller.PostCorePilotRailChecklistStep(new CorePilotRailStepRequest { StepIndex = 4 });
 
         result.Should().BeAssignableTo<ObjectResult>();
+    }
+
+    [Theory]
+    [InlineData("{}", StatusCodes.Status400BadRequest)]
+    [InlineData("{\"stepIndex\":0}", StatusCodes.Status204NoContent)]
+    [InlineData("{\"stepIndex\":3}", StatusCodes.Status204NoContent)]
+    [InlineData("{\"stepIndex\":4}", StatusCodes.Status400BadRequest)]
+    public void PostCorePilotRail_deserialized_step_reports_expected_status(string json, int expectedStatus)
+    {
+        CorePilotRailStepRequest? body = JsonSerializer.Deserialize<CorePilotRailStepRequest>(
+            json, JsonSerializerOptions.Web);
+        IActionResult result = CreateController().PostCorePilotRailChecklistStep(body);
+        IStatusCodeActionResult status = Assert.IsAssignableFrom<IStatusCodeActionResult>(result);
+
+        Assert.Equal(expectedStatus, status.StatusCode);
     }
 
     [SkippableFact]
