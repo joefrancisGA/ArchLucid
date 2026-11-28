@@ -25,3 +25,10 @@ Consider A → B → C → A, plus disconnected D. Starting at A, and counting e
 ## Topology no-op and idempotence
 
 Under the empty-merge identity law, combining a graph with no proposals leaves its topology unchanged. The derived structure-gap set must therefore remain identical. Under the idempotence law for deterministic proposals, applying the same proposal twice has the same structural effect as applying it once. These tests compare relationships between runs. They do not prove the absolute correctness of a gap code or that any particular proposal should be accepted.
+
+
+## Inclusive intended reachability hop limit
+
+Owner decision, 2026-11-27. The limit counts edges traversed by the production intended reachability walk. A qualifying terminal at depth N is eligible when the hop limit is N. Do not follow any of that node's outgoing edges after reaching the limit. Evidence annotations are not additional traversed edges.
+
+For the constructed chain start → alpha → beta → gamma, the qualifying terminals sit at depths 1, 2 and 3. With a limit of 2, emit alpha and beta, omit gamma, and report truncation because gamma was not explored. At a limit of 3, emit all three. A return edge to an already visited vertex is not unexplored work. From start → alpha and start → beta, both terminals are one hop away, but a result-count or per-node fan-out cap of 1 still permits only the first branch. Terminal eligibility, scope filtering, cycle prevention, and the separate privilege-path traversal contract are unchanged.
