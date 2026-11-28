@@ -1,0 +1,101 @@
+name: Historical replay descriptor
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - '.github/workflows/pr-historical-replay-descriptor.yml'
+      - 'ArchLucid.Application/Replay/Historical/**'
+      - 'ArchLucid.Application/Replay/ReplayRunPrepareStage.cs'
+      - 'ArchLucid.Application.Tests/Replay/HistoricalReplayCompletenessTests.cs'
+      - 'ArchLucid.Application.Tests/Replay/HistoricalReplayRetentionTests.cs'
+      - 'ArchLucid.Core/Audit/AuditEventTypes.HistoricalReplay.cs'
+      - 'ArchLucid.Core/Audit/RequiredAuditEventTypes.cs'
+      - 'ArchLucid.Core/Persistence/ApplicationPorts/Audit/IAuditRepository.cs'
+      - 'ArchLucid.Persistence/Audit/DapperAuditRepository.CommittedLookup.cs'
+      - 'ArchLucid.Persistence/Audit/CachingAuditRepository.cs'
+      - 'ArchLucid.Core/Tenancy/TenantErasureEligibility.cs'
+      - 'ArchLucid.Persistence/BlobStore/LocalFileArtifactBlobStore.cs'
+      - 'ArchLucid.Application.Tests/Replay/ReplayRunPrepareStageTests.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/SecureNowOfflineQuestionReplayTests.cs'
+      - 'ArchLucid.Contracts/Agents/AgentExecutionTrace.cs'
+      - 'ArchLucid.Decisioning/Services/ManifestHashService.cs'
+      - 'ArchLucid.Core/Manifest/**'
+      - 'ArchLucid.Core/Persistence/Ports/IArtifactBundleRepository.cs'
+      - 'ArchLucid.Core/Persistence/ApplicationPorts/Models/RunRecord.cs'
+      - 'ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/AzureInventorySnapshotRecord.cs'
+      - 'docs/assurance/FND094_HISTORICAL_REPLAY_DESCRIPTOR.md'
+      - 'docs/assurance/FND096_GOVERNED_REPLAY_RETENTION.md'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: historical-replay-descriptor-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  historical-replay:
+    name: Verify sealed historical replay descriptor
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Run focused Release tests
+        env:
+          FND096_RESTORE_EVIDENCE: ${{ runner.temp }}/historical-replay-descriptor/fnd096-restore.json
+        run: >-
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~HistoricalReplayCompletenessTests|FullyQualifiedName~HistoricalReplayRetentionTests|FullyQualifiedName~ReplayRunPrepareStageTests|FullyQualifiedName~SecureNowOfflineQuestionReplayTests'
+          --results-directory "$RUNNER_TEMP/historical-replay-descriptor"
+          --logger 'trx;LogFileName=application.trx'
+      - name: Require executed passing descriptor and adjacent replay tests
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from xml.etree import ElementTree
+
+          result = Path(os.environ["RUNNER_TEMP"]) / "historical-replay-descriptor" / "application.trx"
+          root = ElementTree.parse(result)
+          counters = root.find(".//{*}Counters")
+          if counters is None:
+              raise SystemExit("Test result does not contain counters")
+          total, executed, passed = (int(counters.attrib[key]) for key in ("total", "executed", "passed"))
+          if not total or total != executed or executed != passed:
+              raise SystemExit(f"total={total}, executed={executed}, passed={passed}")
+          executed_ids = {
+              item.attrib.get("testId")
+              for item in root.findall(".//{*}Results/{*}UnitTestResult")
+              if item.attrib.get("outcome") == "Passed"
+          }
+          for suite in ("HistoricalReplayCompletenessTests", "HistoricalReplayRetentionTests",
+                        "ReplayRunPrepareStageTests", "SecureNowOfflineQuestionReplayTests"):
+              suite_ids = {
+                  unit.attrib["id"]
+                  for unit in root.findall(".//{*}TestDefinitions/{*}UnitTest")
+                  if (method := unit.find("{*}TestMethod")) is not None
+                  and method.attrib.get("className", "").endswith("." + suite)
+              }
+              if not executed_ids.intersection(suite_ids):
+                  raise SystemExit(f"No {suite} tests executed")
+          restore = json.loads(result.with_name("fnd096-restore.json").read_text(encoding="utf-8"))
+          if restore["archiveReads"] != 1 or restore["payloadBytes"] <= 0 or restore["storedBytes"] <= restore["payloadBytes"]:
+              raise SystemExit("Restore evidence did not record an encrypted archive round trip")
+          print(f"{passed} tests passed")
+          PY
+      - name: Publish governed restoration evidence
+        uses: actions/upload-artifact@v7
+        with:
+          name: historical-replay-retention-evidence
+          path: |
+            ${{ runner.temp }}/historical-replay-descriptor/application.trx
+            ${{ runner.temp }}/historical-replay-descriptor/fnd096-restore.json
+          if-no-files-found: error
