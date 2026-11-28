@@ -67,6 +67,9 @@ public static class RequiredAuditEventTypes
         AuditEventTypes.DraftIntakeForceOverwriteApplied,
         AuditEventTypes.ArchitectureWorkLeaseAcquired,
         AuditEventTypes.ArchitectureWorkLeaseStolen,
+        AuditEventTypes.HistoricalRecordedReplayCompleted,
+        AuditEventTypes.HistoricalReplayArtifactErased,
+        AuditEventTypes.HistoricalReplayArtifactVerifiedForUse,
     ];
 
     /// <summary>
@@ -107,6 +110,9 @@ public static class RequiredAuditEventTypes
         nameof(AuditEventTypes.DraftIntakeForceOverwriteApplied),
         nameof(AuditEventTypes.ArchitectureWorkLeaseAcquired),
         nameof(AuditEventTypes.ArchitectureWorkLeaseStolen),
+        nameof(AuditEventTypes.HistoricalRecordedReplayCompleted),
+        nameof(AuditEventTypes.HistoricalReplayArtifactErased),
+        nameof(AuditEventTypes.HistoricalReplayArtifactVerifiedForUse),
     ];
 
     public static bool IsRequired(string? eventType)

@@ -124,6 +124,10 @@ public sealed class CachingAuditRepository(
         => _inner.CountFilteredAsync(tenantId, workspaceId, projectId, filter, ct);
 
     /// <inheritdoc />
+    public Task<bool?> HasCommittedEventAsync(ProjectScopeKey scope, string eventType, string correlationId, CancellationToken ct)
+        => _inner.HasCommittedEventAsync(scope, eventType, correlationId, ct);
+
+    /// <inheritdoc />
     public Task<IReadOnlyList<AuditEvent>> GetExportAsync(
         Guid tenantId,
         Guid workspaceId,
