@@ -5,6 +5,8 @@ using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
+using Microsoft.Extensions.Time.Testing;
+
 using Moq;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
@@ -373,6 +375,31 @@ public sealed class RemediationPortfolioGraphTests
         await Assert.ThrowsAsync<ArgumentException>(() => f.Reader.ReadAsync(f.Scope,
             f.Proposal with { Actions = [f.First, f.First] }, f.Pin));
         f.Snapshots.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Read_graph_handoff_preserves_canonical_actions_in_the_advisory_plan()
+    {
+        var fixture = new Fixture();
+        var graph = await fixture.ReadAsync();
+        var action = Assert.Single(graph.Actions);
+        var scenario = Assert.Single(graph.Scenarios);
+        var pin = new PortfolioOptimizationPin(graph.Binding, graph.GraphSha256);
+        var request = new PortfolioOptimizationRequest(pin, "scenario-policy-v1", "estimate-policy-v1",
+            new("USD", 25, [], 0), [new(scenario.Id, 42)],
+            [new(action.Id, "reviewed-v1", new(25, PortfolioEstimateKind.ReviewedEstimate),
+                [], PortfolioEstimateKind.Measured, new(0, PortfolioEstimateKind.Measured))],
+            [], new(pin, "rank-v1", fixture.FindingIds, 2), new(25, 25, TimeSpan.FromSeconds(1)));
+
+        var result = new BoundedRemediationPortfolioOptimizer(new FakeTimeProvider()).Optimize(pin, graph, request);
+
+        Assert.Equal(PortfolioOptimizationStatus.Optimal, result.Status);
+        var plan = Assert.IsType<PortfolioAdvisoryPlan>(result.BestFeasiblePlan);
+        Assert.Equal(action.Id, Assert.Single(plan.SelectedActionIds));
+        Assert.Equal(scenario.Id, Assert.Single(plan.CoveredScenarioIds));
+        Assert.Equal(42, plan.ModeledCoveragePoints);
+        Assert.Equal(action.Id, Assert.Single(result.TopN.Plan!.SelectedActionIds));
+        Assert.Equal(25, result.TopN.Plan.Usage.Cost);
     }
 
     private sealed class Fixture

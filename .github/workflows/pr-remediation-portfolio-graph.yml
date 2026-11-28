@@ -9,10 +9,12 @@ on:
       - 'ArchLucid.Application/InfraEvidence/RemediationPatterns/**'
       - 'ArchLucid.Application/InfraEvidence/SecureNowArchitect/*CutPoint*.cs'
       - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPortfolioGraphTests.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPortfolioOptimizationTests.cs'
       - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPatternMatcherServiceTests.cs'
       - 'ArchLucid.Application.Tests/InfraEvidence/CutPointAnalysisEngineTests.cs'
       - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPrioritization*Tests.cs'
       - 'docs/assurance/FND088_REMEDIATION_PORTFOLIO_GRAPH.md'
+      - 'docs/assurance/FND089_REMEDIATION_PORTFOLIO_OPTIMIZER.md'
 
 permissions:
   contents: read
@@ -23,7 +25,7 @@ concurrency:
 
 jobs:
   graph-contract:
-    name: Verify scoped evidence and distinct scenario coverage
+    name: Verify scoped evidence, distinct coverage, and feasible portfolios
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -37,7 +39,7 @@ jobs:
       - name: Run focused Release tests
         run: >-
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~RemediationPortfolioGraphTests|FullyQualifiedName~RemediationPatternMatcherServiceTests|FullyQualifiedName~CutPointAnalysisEngineTests|FullyQualifiedName~RemediationPrioritizationAndWaveServiceTests|FullyQualifiedName~RemediationPrioritizationRankBatchTests'
+          --filter 'FullyQualifiedName~RemediationPortfolioGraphTests|FullyQualifiedName~RemediationPortfolioOptimizationTests|FullyQualifiedName~RemediationPatternMatcherServiceTests|FullyQualifiedName~CutPointAnalysisEngineTests|FullyQualifiedName~RemediationPrioritizationAndWaveServiceTests|FullyQualifiedName~RemediationPrioritizationRankBatchTests'
           --results-directory "$RUNNER_TEMP/remediation-portfolio-graph"
           --logger 'trx;LogFileName=application.trx'
       - name: Require executed passing tests
@@ -48,11 +50,23 @@ jobs:
           from xml.etree import ElementTree
 
           result = Path(os.environ["RUNNER_TEMP"]) / "remediation-portfolio-graph" / "application.trx"
-          counters = ElementTree.parse(result).find(".//{*}Counters")
+          root = ElementTree.parse(result)
+          counters = root.find(".//{*}Counters")
           if counters is None:
               raise SystemExit("Test result does not contain counters")
           total, executed, passed = (int(counters.attrib[key]) for key in ("total", "executed", "passed"))
           if not total or total != executed or executed != passed:
               raise SystemExit(f"total={total}, executed={executed}, passed={passed}")
+          optimizer_ids = {
+              unit.attrib["id"]
+              for unit in root.findall(".//{*}TestDefinitions/{*}UnitTest")
+              if (method := unit.find("{*}TestMethod")) is not None
+              and method.attrib.get("className", "").endswith(".RemediationPortfolioOptimizationTests")
+          }
+          if not any(
+              item.attrib.get("testId") in optimizer_ids and item.attrib.get("outcome") == "Passed"
+              for item in root.findall(".//{*}Results/{*}UnitTestResult")
+          ):
+              raise SystemExit("No portfolio optimizer tests executed")
           print(f"{passed} tests passed")
           PY
