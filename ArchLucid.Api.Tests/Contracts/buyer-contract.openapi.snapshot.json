@@ -2522,7 +2522,14 @@
         ],
         "type": "object"
       },
-      "AgentOutputQualityGateOutcome": {},
+      "AgentOutputQualityGateOutcome": {
+        "enum": [
+          "Accepted",
+          "Warned",
+          "Rejected"
+        ],
+        "type": "string"
+      },
       "AgentOutputSemanticScore": {
         "properties": {
           "agentResultEmbeddingFaithfulnessMeanCosine": {
@@ -15883,8 +15890,21 @@
         },
         "type": "object"
       },
-      "FindingClassification": {},
-      "FindingConfidenceLevel": {},
+      "FindingClassification": {
+        "enum": [
+          "DecisionGradeFinding",
+          "ChecklistCoverage"
+        ],
+        "type": "string"
+      },
+      "FindingConfidenceLevel": {
+        "enum": [
+          "High",
+          "Medium",
+          "Low"
+        ],
+        "type": "string"
+      },
       "FindingCorrelationMethod": {
         "enum": [
           "None",
@@ -16760,7 +16780,15 @@
         },
         "type": "object"
       },
-      "FindingSemanticSupportBand": {},
+      "FindingSemanticSupportBand": {
+        "enum": [
+          "Supported",
+          "Unchecked",
+          "Unsupported",
+          "NotScored"
+        ],
+        "type": "string"
+      },
       "FindingSeverity": {
         "enum": [
           "Info",
@@ -16900,7 +16928,13 @@
         ],
         "type": "object"
       },
-      "FindingTreatment": {},
+      "FindingTreatment": {
+        "enum": [
+          "Promote",
+          "DemoteToChecklist"
+        ],
+        "type": "string"
+      },
       "FindingUnmuteRequest": {
         "properties": {
           "runId": {
@@ -21066,7 +21100,12 @@
         "type": "object"
       },
       "LlmModelTier": {
-        "type": "integer"
+        "enum": [
+          "Standard",
+          "Premium",
+          "Economy"
+        ],
+        "type": "string"
       },
       "LlmMonthlyTenantDollarBudgetStatusResult": {
         "properties": {
@@ -24275,10 +24314,25 @@
         "type": "object"
       },
       "PathConfidenceBand": {
-        "type": "integer"
+        "enum": [
+          "Confirmed",
+          "HighlyLikely",
+          "Probable",
+          "Possible",
+          "InsufficientEvidence"
+        ],
+        "type": "string"
       },
       "PathKind": {
-        "type": "integer"
+        "enum": [
+          "Privilege",
+          "IntendedReachability",
+          "CapabilityToFlow",
+          "SharedControlBlastRadius",
+          "ToxicCombination",
+          "FourRealityDrift"
+        ],
+        "type": "string"
       },
       "PatternEvidence": {
         "properties": {
@@ -27986,7 +28040,19 @@
         "type": "object"
       },
       "ReReviewTrigger": {
-        "type": "integer"
+        "enum": [
+          "SystemBoundaryChange",
+          "MajorTopologyChange",
+          "NewTrustBoundary",
+          "NewDataClassification",
+          "NewJurisdiction",
+          "CriticalQualityAttributeChange",
+          "ModelOrPolicyPackUpgrade",
+          "EvidenceGraphSchemaChange",
+          "PeriodicMilestone",
+          "EvidenceAdded"
+        ],
+        "type": "string"
       },
       "RealizedValueAttestationResponse": {
         "properties": {
@@ -28214,7 +28280,12 @@
         "type": "object"
       },
       "RecommendationConfidence": {
-        "type": "integer"
+        "enum": [
+          "High",
+          "Medium",
+          "Low"
+        ],
+        "type": "string"
       },
       "RecommendationImproveLoopEvidenceResponse": {
         "properties": {
@@ -30217,7 +30288,14 @@
         "type": "object"
       },
       "RemediationPatternStatus": {
-        "type": "integer"
+        "enum": [
+          "Draft",
+          "UnderReview",
+          "Approved",
+          "Deprecated",
+          "Retired"
+        ],
+        "type": "string"
       },
       "RemediationPatternVersionActionRequest": {
         "properties": {
@@ -36241,7 +36319,13 @@
         "type": "string"
       },
       "SemanticSupportAssessment": {
-        "type": "integer"
+        "enum": [
+          "Supports",
+          "PartiallySupports",
+          "Contradicts",
+          "DoesNotEstablish"
+        ],
+        "type": "string"
       },
       "ServiceCatalogEvidence": {
         "properties": {
@@ -42443,6 +42527,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -42450,6 +42539,11 @@
           "401": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -42463,6 +42557,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Forbidden."
@@ -42470,6 +42569,11 @@
           "404": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -42483,6 +42587,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Method Not Allowed."
@@ -42493,13 +42602,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict."
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -42513,6 +42647,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -42520,6 +42659,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -42533,6 +42677,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -42540,6 +42689,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -42637,6 +42791,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -42644,6 +42803,11 @@
           "401": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -42657,6 +42821,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Forbidden."
@@ -42664,6 +42833,11 @@
           "404": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -42677,6 +42851,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Method Not Allowed."
@@ -42687,13 +42866,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict."
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -42707,6 +42911,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -42714,6 +42923,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -42727,6 +42941,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -42734,6 +42953,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -42831,6 +43055,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -42838,6 +43067,11 @@
           "401": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -42851,6 +43085,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Forbidden."
@@ -42858,6 +43097,11 @@
           "404": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -42871,6 +43115,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Method Not Allowed."
@@ -42881,13 +43130,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict."
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -42901,6 +43175,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -42908,6 +43187,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -42921,6 +43205,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -42928,6 +43217,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43008,6 +43302,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -43015,6 +43314,11 @@
           "401": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43028,6 +43332,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Forbidden."
@@ -43035,6 +43344,11 @@
           "404": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43048,6 +43362,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Method Not Allowed."
@@ -43058,13 +43377,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict."
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43078,6 +43422,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -43085,6 +43434,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43098,6 +43452,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -43105,6 +43464,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43171,6 +43535,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -43183,6 +43552,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43212,6 +43586,11 @@
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
@@ -43237,6 +43616,11 @@
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
@@ -43256,6 +43640,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Method Not Allowed."
@@ -43268,6 +43657,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43285,9 +43679,29 @@
             },
             "description": "Conflict"
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43298,6 +43712,11 @@
           "422": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43313,6 +43732,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43336,6 +43760,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -43343,6 +43772,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43390,6 +43824,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -43400,6 +43839,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unauthorized."
@@ -43407,6 +43851,11 @@
           "403": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43425,6 +43874,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Not Found"
@@ -43432,6 +43886,11 @@
           "405": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43445,13 +43904,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict."
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43465,6 +43949,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -43472,6 +43961,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43485,6 +43979,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -43492,6 +43991,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43545,6 +44049,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -43555,6 +44064,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unauthorized."
@@ -43562,6 +44076,11 @@
           "403": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43580,6 +44099,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Not Found"
@@ -43587,6 +44111,11 @@
           "405": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43600,13 +44129,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict."
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43620,6 +44174,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -43627,6 +44186,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43640,6 +44204,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -43647,6 +44216,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43750,6 +44324,11 @@
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
@@ -43769,6 +44348,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unauthorized."
@@ -43776,6 +44360,11 @@
           "403": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43789,6 +44378,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Not Found."
@@ -43796,6 +44390,11 @@
           "405": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43809,13 +44408,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict."
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43829,6 +44453,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -43836,6 +44465,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43849,6 +44483,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -43856,6 +44495,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43929,6 +44573,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -43941,6 +44590,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43964,6 +44618,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Forbidden."
@@ -43976,6 +44635,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -43999,6 +44663,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Method Not Allowed."
@@ -44011,6 +44680,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44028,9 +44702,29 @@
             },
             "description": "Conflict"
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44044,6 +44738,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -44051,6 +44750,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44064,6 +44768,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -44071,6 +44780,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44137,6 +44851,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -44149,6 +44868,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44172,6 +44896,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Forbidden."
@@ -44179,6 +44908,11 @@
           "404": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44192,6 +44926,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Method Not Allowed."
@@ -44202,13 +44941,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict."
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44222,6 +44986,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -44229,6 +44998,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44242,6 +45016,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -44249,6 +45028,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44314,6 +45098,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -44326,6 +45115,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44349,6 +45143,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Forbidden."
@@ -44361,6 +45160,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44384,6 +45188,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Method Not Allowed."
@@ -44394,13 +45203,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict."
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44414,6 +45248,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -44421,6 +45260,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44434,6 +45278,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -44441,6 +45290,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44506,6 +45360,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -44518,6 +45377,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44541,6 +45405,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Forbidden."
@@ -44553,6 +45422,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44576,6 +45450,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Method Not Allowed."
@@ -44586,13 +45465,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict."
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44606,6 +45510,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -44613,6 +45522,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44626,6 +45540,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -44633,6 +45552,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44678,6 +45602,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -44685,6 +45614,11 @@
           "401": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44698,6 +45632,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Forbidden."
@@ -44705,6 +45644,11 @@
           "404": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44720,6 +45664,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44743,13 +45692,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict."
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44763,6 +45737,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -44770,6 +45749,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44783,6 +45767,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -44790,6 +45779,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44863,6 +45857,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -44873,6 +45872,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unauthorized."
@@ -44880,6 +45884,11 @@
           "403": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44895,6 +45904,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44918,6 +45932,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Method Not Allowed."
@@ -44930,6 +45949,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44947,9 +45971,29 @@
             },
             "description": "Conflict"
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44963,6 +46007,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -44970,6 +46019,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -44983,6 +46037,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -44990,6 +46049,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45056,6 +46120,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -45066,6 +46135,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unauthorized."
@@ -45073,6 +46147,11 @@
           "403": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45088,6 +46167,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45111,6 +46195,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Method Not Allowed."
@@ -45123,6 +46212,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45140,9 +46234,29 @@
             },
             "description": "Conflict"
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45156,6 +46270,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -45163,6 +46282,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45176,6 +46300,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -45183,6 +46312,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45249,6 +46383,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -45259,6 +46398,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unauthorized."
@@ -45266,6 +46410,11 @@
           "403": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45281,6 +46430,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45304,6 +46458,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Method Not Allowed."
@@ -45316,6 +46475,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45333,9 +46497,29 @@
             },
             "description": "Conflict"
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45349,6 +46533,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -45356,6 +46545,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45369,6 +46563,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -45376,6 +46575,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45450,6 +46654,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -45460,6 +46669,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unauthorized."
@@ -45467,6 +46681,11 @@
           "403": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45482,6 +46701,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45505,6 +46729,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Method Not Allowed."
@@ -45517,6 +46746,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45534,9 +46768,29 @@
             },
             "description": "Conflict"
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45550,6 +46804,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -45557,6 +46816,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45570,6 +46834,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -45577,6 +46846,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45680,6 +46954,11 @@
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
@@ -45699,6 +46978,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unauthorized."
@@ -45706,6 +46990,11 @@
           "403": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45721,6 +47010,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45744,6 +47038,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Method Not Allowed."
@@ -45756,6 +47055,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45773,9 +47077,29 @@
             },
             "description": "Conflict"
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45789,6 +47113,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -45796,6 +47125,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45809,6 +47143,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -45816,6 +47155,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45890,6 +47234,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -45900,6 +47249,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unauthorized."
@@ -45907,6 +47261,11 @@
           "403": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45922,6 +47281,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45945,6 +47309,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Method Not Allowed."
@@ -45957,6 +47326,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45974,9 +47348,29 @@
             },
             "description": "Conflict"
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -45990,6 +47384,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -45997,6 +47396,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46010,6 +47414,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -46017,6 +47426,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46123,6 +47537,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -46133,6 +47552,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unauthorized."
@@ -46140,6 +47564,11 @@
           "403": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46155,6 +47584,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46178,6 +47612,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Method Not Allowed."
@@ -46190,6 +47629,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46207,9 +47651,29 @@
             },
             "description": "Conflict"
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46223,6 +47687,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -46230,6 +47699,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46243,6 +47717,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -46250,6 +47729,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46336,6 +47820,11 @@
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
@@ -46355,6 +47844,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unauthorized."
@@ -46362,6 +47856,11 @@
           "403": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46375,6 +47874,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Not Found."
@@ -46382,6 +47886,11 @@
           "405": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46395,13 +47904,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict."
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46415,6 +47949,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -46422,6 +47961,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46435,6 +47979,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -46442,6 +47991,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46485,6 +48039,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -46495,6 +48054,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unauthorized."
@@ -46502,6 +48066,11 @@
           "403": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46520,6 +48089,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Not Found"
@@ -46527,6 +48101,11 @@
           "405": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46540,13 +48119,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict."
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46560,6 +48164,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -46567,6 +48176,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46580,6 +48194,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -46587,6 +48206,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46673,6 +48297,11 @@
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
@@ -46692,6 +48321,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unauthorized."
@@ -46699,6 +48333,11 @@
           "403": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46712,6 +48351,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Not Found."
@@ -46719,6 +48363,11 @@
           "405": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46732,13 +48381,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict."
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46752,6 +48426,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -46759,6 +48438,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46772,6 +48456,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -46779,6 +48468,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46882,6 +48576,11 @@
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
@@ -46901,6 +48600,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unauthorized."
@@ -46908,6 +48612,11 @@
           "403": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46921,6 +48630,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Not Found."
@@ -46928,6 +48642,11 @@
           "405": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46941,13 +48660,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict."
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46958,6 +48702,11 @@
           "422": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46973,6 +48722,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -46996,6 +48750,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -47008,6 +48767,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47082,6 +48846,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -47089,6 +48858,11 @@
           "401": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47102,6 +48876,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Forbidden."
@@ -47109,6 +48888,11 @@
           "404": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47122,6 +48906,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Method Not Allowed."
@@ -47132,13 +48921,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict."
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47152,6 +48966,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -47159,6 +48978,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47172,6 +48996,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -47179,6 +49008,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47236,6 +49070,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -47243,6 +49082,11 @@
           "401": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47256,6 +49100,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Forbidden."
@@ -47263,6 +49112,11 @@
           "404": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47276,6 +49130,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Method Not Allowed."
@@ -47286,13 +49145,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict."
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47306,6 +49190,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -47313,6 +49202,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47326,6 +49220,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -47333,6 +49232,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47388,6 +49292,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -47398,6 +49307,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unauthorized."
@@ -47405,6 +49319,11 @@
           "403": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47423,6 +49342,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Not Found"
@@ -47430,6 +49354,11 @@
           "405": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47443,13 +49372,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict."
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47463,6 +49417,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -47470,6 +49429,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47483,6 +49447,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -47490,6 +49459,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47533,6 +49507,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -47543,6 +49522,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unauthorized."
@@ -47550,6 +49534,11 @@
           "403": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47568,6 +49557,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Not Found"
@@ -47575,6 +49569,11 @@
           "405": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47588,13 +49587,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict."
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47608,6 +49632,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -47615,6 +49644,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47628,6 +49662,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -47635,6 +49674,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47684,6 +49728,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -47691,6 +49740,11 @@
           "401": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47704,6 +49758,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Forbidden."
@@ -47711,6 +49770,11 @@
           "404": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47724,6 +49788,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Method Not Allowed."
@@ -47734,13 +49803,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict."
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47754,6 +49848,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -47761,6 +49860,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47774,6 +49878,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -47781,6 +49890,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47824,6 +49938,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -47834,6 +49953,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unauthorized."
@@ -47841,6 +49965,11 @@
           "403": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47859,6 +49988,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Not Found"
@@ -47866,6 +50000,11 @@
           "405": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47879,13 +50018,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict."
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47899,6 +50063,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -47906,6 +50075,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47919,6 +50093,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -47926,6 +50105,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -47981,6 +50165,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -47993,6 +50182,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48011,6 +50205,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Forbidden"
@@ -48021,6 +50220,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Not Found."
@@ -48028,6 +50232,11 @@
           "405": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48046,13 +50255,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict"
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48066,6 +50300,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -48073,6 +50312,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48086,6 +50330,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -48093,6 +50342,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48148,6 +50402,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -48160,6 +50419,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48178,6 +50442,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Forbidden"
@@ -48193,6 +50462,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Not Found"
@@ -48200,6 +50474,11 @@
           "405": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48218,13 +50497,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict"
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48238,6 +50542,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -48245,6 +50554,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48258,6 +50572,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -48265,6 +50584,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48312,6 +50636,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -48324,6 +50653,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48342,6 +50676,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Forbidden"
@@ -48352,6 +50691,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Not Found."
@@ -48359,6 +50703,11 @@
           "405": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48377,13 +50726,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict"
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48397,6 +50771,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -48404,6 +50783,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48417,6 +50801,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -48424,6 +50813,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48477,6 +50871,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -48489,6 +50888,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48507,6 +50911,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Forbidden"
@@ -48517,6 +50926,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Not Found."
@@ -48524,6 +50938,11 @@
           "405": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48542,13 +50961,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict"
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48562,6 +51006,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -48569,6 +51018,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48582,6 +51036,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -48589,6 +51048,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48654,6 +51118,11 @@
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "text/markdown": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
@@ -48670,6 +51139,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48694,6 +51168,11 @@
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "text/markdown": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
@@ -48708,6 +51187,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Not Found."
@@ -48715,6 +51199,11 @@
           "405": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48734,6 +51223,11 @@
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "text/markdown": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
@@ -48742,9 +51236,29 @@
             },
             "description": "Conflict"
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48758,6 +51272,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -48765,6 +51284,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48778,6 +51302,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -48785,6 +51314,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48838,6 +51372,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -48850,6 +51389,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48868,6 +51412,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Forbidden"
@@ -48878,6 +51427,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Not Found."
@@ -48885,6 +51439,11 @@
           "405": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48903,13 +51462,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict"
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48923,6 +51507,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -48930,6 +51519,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -48943,6 +51537,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -48950,6 +51549,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -49003,6 +51607,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Bad Request (validation or malformed input)."
@@ -49015,6 +51624,11 @@
                 }
               },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -49033,6 +51647,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Forbidden"
@@ -49043,6 +51662,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Not Found."
@@ -49050,6 +51674,11 @@
           "405": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -49068,13 +51697,38 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Conflict"
           },
+          "413": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large."
+          },
           "415": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -49088,6 +51742,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Unprocessable Entity."
@@ -49095,6 +51754,11 @@
           "429": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -49108,6 +51772,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
             "description": "Internal Server Error."
@@ -49115,6 +51784,11 @@
           "503": {
             "content": {
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson; charset=utf-8": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
