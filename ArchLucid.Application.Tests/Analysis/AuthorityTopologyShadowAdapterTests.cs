@@ -228,10 +228,103 @@ public sealed class AuthorityTopologyShadowAdapterTests
         Assert.Equal(1, rig.GraphReads);
     }
 
-    private static AnalysisRecoveryClaim Claim(Guid output, long fence = 1, string? version = null) => new()
+    [Fact]
+    public async Task Authorized_adjacent_generation_can_be_observed_without_making_history_current()
+    {
+        var rig = new Rehearsal();
+        rig.PreparePredecessor();
+        rig.Baseline.CreatedUtc = new DateTime(2026, 11, 27, 12, 0, 0, DateTimeKind.Utc);
+        rig.Candidate.CreatedUtc = rig.Baseline.CreatedUtc.AddMinutes(1);
+        rig.Candidate.Nodes.Reverse();
+
+        AuthorityTopologyComparison result = await rig.ObservePredecessorAsync();
+
+        Assert.Equal(AuthorityTopologyComparisonOutcome.EquivalentForConsumer, result.Outcome);
+        Assert.Equal(result.BaselineFingerprint, result.CandidateFingerprint);
+        Assert.Equal(2, rig.HistoryReads);
+        Assert.Equal(2, rig.GraphReads);
+        Assert.NotEqual(rig.Baseline.GraphSnapshotId, rig.Candidate.GraphSnapshotId);
+        Assert.Equal(rig.Candidate.GraphSnapshotId.ToString("D"), rig.GraphClaim!.ResultReference);
+    }
+
+    [Theory]
+    [InlineData("missing_history")]
+    [InlineData("nonadjacent_fence")]
+    [InlineData("nonadjacent_attempt")]
+    [InlineData("same_output")]
+    [InlineData("same_version")]
+    [InlineData("changed_context")]
+    [InlineData("invalid_reference")]
+    public async Task Ambiguous_lineage_is_rejected_before_loading_any_graph(string issue)
+    {
+        var rig = new Rehearsal();
+        rig.PreparePredecessor();
+        AuthorityGraphCheckpointPredecessor saved = rig.Predecessor!;
+        rig.Predecessor = issue switch
+        {
+            "missing_history" => null,
+            "nonadjacent_fence" => saved with { Fence = 9 },
+            "nonadjacent_attempt" => saved with { Attempts = 2 },
+            "same_output" => saved with { ResultReference = rig.GraphId.ToString("D") },
+            "same_version" => saved with { InputVersion = rig.GraphClaim!.InputVersion },
+            "invalid_reference" => saved with { ResultReference = "opaque-reference" },
+            _ => saved,
+        };
+
+        if (issue == "changed_context")
+            rig.ContextClaim = Claim(rig.ContextId, fence: 2);
+
+        AuthorityTopologyComparison result = await rig.ObservePredecessorAsync();
+
+        Assert.Equal(AuthorityTopologyComparisonOutcome.Inconclusive, result.Outcome);
+        Assert.Equal("checkpoint_lineage_unverified", result.Reason);
+        Assert.Equal(0, rig.GraphReads);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Mid_comparison_history_or_active_replacement_discards_a_match(bool historyChanged)
+    {
+        var rig = new Rehearsal();
+        rig.PreparePredecessor();
+        rig.AfterCandidateRead = () =>
+        {
+            if (historyChanged)
+            {
+                rig.Predecessor = null;
+            }
+            else
+            {
+                rig.GraphClaim = Claim(rig.GraphId, fence: 3, attempts: 3);
+            }
+        };
+
+        AuthorityTopologyComparison result = await rig.ObservePredecessorAsync();
+
+        Assert.Equal(AuthorityTopologyComparisonOutcome.Inconclusive, result.Outcome);
+        Assert.Equal(historyChanged ? "checkpoint_lineage_changed_during_observation" : "checkpoint_changed_during_observation", result.Reason);
+        Assert.Null(result.EngineMultisetMatches);
+    }
+
+    [Fact]
+    public async Task Historical_artifact_must_still_reference_the_exact_current_context()
+    {
+        var rig = new Rehearsal();
+        rig.PreparePredecessor();
+        rig.Baseline.ContextSnapshotId = Guid.NewGuid();
+
+        AuthorityTopologyComparison result = await rig.ObservePredecessorAsync();
+
+        Assert.Equal(AuthorityTopologyComparisonOutcome.Inconclusive, result.Outcome);
+        Assert.Equal("effective_input_unverified", result.Reason);
+        Assert.Equal(1, rig.GraphReads);
+    }
+
+    private static AnalysisRecoveryClaim Claim(Guid output, long fence = 1, string? version = null, int attempts = 1) => new()
     {
         State = "succeeded", InputVersion = version ?? new string('A', 64),
-        ResultReference = output.ToString("D"), Fence = fence, Attempts = 1,
+        ResultReference = output.ToString("D"), Fence = fence, Attempts = attempts,
     };
 
     private sealed class Rehearsal
@@ -285,16 +378,28 @@ public sealed class AuthorityTopologyShadowAdapterTests
                     AfterCandidateRead?.Invoke();
                     return Candidate;
                 });
+            graphs.Setup(x => x.GetByIdAsync(It.Is<ScopeContext>(scope => InScope(scope)), PredecessorGraphId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() =>
+                {
+                    GraphReads++;
+                    AfterBaselineRead?.Invoke(this);
+                    return Baseline;
+                });
             Mock<IAnalysisRecoveryRepository> checkpoints = new(MockBehavior.Strict);
             checkpoints.Setup(x => x.ReadAsync(new AnalysisRecoveryStageKey(_project, "authority", _runId, "context_ingestion"), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() => { CheckpointReads++; return ContextClaim; });
             checkpoints.Setup(x => x.ReadAsync(new AnalysisRecoveryStageKey(_project, "authority", _runId, "graph"), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() => { CheckpointReads++; return GraphClaim; });
+            checkpoints.Setup(x => x.ReadImmediateAuthorityGraphPredecessorAsync(_project, _runId, 2, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => { HistoryReads++; return Predecessor; });
             _adapter = new(scopeProvider.Object, runs.Object, graphs.Object, checkpoints.Object, new FakeTimeProvider());
         }
 
         public Guid ContextId { get; } = Guid.NewGuid();
         public Guid GraphId { get; } = Guid.NewGuid();
+        public Guid PredecessorGraphId { get; } = Guid.NewGuid();
+        public AuthorityGraphCheckpointPredecessor? Predecessor { get; set; }
+        public int HistoryReads { get; private set; }
         public EvidencePackagePin Pin { get; } = new()
         {
             PackageId = Guid.NewGuid(), Provider = "azure", CollectionUtc = new DateTime(2026, 11, 27, 12, 0, 0, DateTimeKind.Utc),
@@ -314,6 +419,17 @@ public sealed class AuthorityTopologyShadowAdapterTests
 
         public Task<AuthorityTopologyComparison> ObserveAsync(AuthorityTopologyShadowPreparation? candidate = null, CancellationToken ct = default) =>
             _adapter.ObserveAsync(_project, _runId, Preparation, candidate ?? Preparation, ct);
+
+        public Task<AuthorityTopologyComparison> ObservePredecessorAsync() =>
+            _adapter.ObservePredecessorAsync(_project, _runId, Preparation, Preparation, CancellationToken.None);
+
+        public void PreparePredecessor()
+        {
+            Baseline.GraphSnapshotId = PredecessorGraphId;
+            GraphClaim = Claim(GraphId, fence: 2, version: new string('C', 64), attempts: 2);
+            Predecessor = new(new string('A', 64), 1, 1, PredecessorGraphId.ToString("D"),
+                new DateTime(2026, 11, 27, 13, 0, 0, DateTimeKind.Utc));
+        }
 
         public FindingAnalysisContext Context(EvidencePackagePin pin) => new()
         {

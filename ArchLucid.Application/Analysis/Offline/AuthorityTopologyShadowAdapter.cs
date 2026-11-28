@@ -23,8 +23,16 @@ internal sealed class AuthorityTopologyShadowAdapter(
     IScopeContextProvider scopeProvider, IRunRepository runs, IGraphSnapshotRepository graphs,
     IAnalysisRecoveryRepository checkpoints, TimeProvider clock)
 {
-    internal async Task<AuthorityTopologyComparison> ObserveAsync(ProjectScopeKey project, Guid runId,
-        AuthorityTopologyShadowPreparation baseline, AuthorityTopologyShadowPreparation candidate, CancellationToken ct)
+    internal Task<AuthorityTopologyComparison> ObserveAsync(ProjectScopeKey project, Guid runId,
+        AuthorityTopologyShadowPreparation baseline, AuthorityTopologyShadowPreparation candidate, CancellationToken ct) =>
+        ObserveCoreAsync(project, runId, baseline, candidate, usePredecessor: false, ct);
+
+    internal Task<AuthorityTopologyComparison> ObservePredecessorAsync(ProjectScopeKey project, Guid runId,
+        AuthorityTopologyShadowPreparation baseline, AuthorityTopologyShadowPreparation candidate, CancellationToken ct) =>
+        ObserveCoreAsync(project, runId, baseline, candidate, usePredecessor: true, ct);
+
+    private async Task<AuthorityTopologyComparison> ObserveCoreAsync(ProjectScopeKey project, Guid runId,
+        AuthorityTopologyShadowPreparation baseline, AuthorityTopologyShadowPreparation candidate, bool usePredecessor, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
 
@@ -40,7 +48,23 @@ internal sealed class AuthorityTopologyShadowAdapter(
         if (binding is null)
             return Inconclusive("checkpoint_or_run_unverified");
 
-        AuthorityTopologyRehearsalInput? left = await ReadEffectiveInputAsync(scope, binding, baseline, ct);
+        AuthorityGraphCheckpointPredecessor? predecessor = null;
+        Guid baselineGraphId = binding.GraphId;
+
+        if (usePredecessor)
+        {
+            // History does not identify the superseded graph's upstream context generation. Only the first context fence is provable.
+
+            if (binding.ContextFence != 1 || binding.GraphFence <= 1 || !IsActive(project))
+                return Inconclusive("checkpoint_lineage_unverified");
+
+            predecessor = await checkpoints.ReadImmediateAuthorityGraphPredecessorAsync(project, runId, binding.GraphFence, ct);
+
+            if (!TryGetPredecessorGraphId(binding, predecessor, out baselineGraphId))
+                return Inconclusive("checkpoint_lineage_unverified");
+        }
+
+        AuthorityTopologyRehearsalInput? left = await ReadEffectiveInputAsync(scope, binding, baselineGraphId, baseline, ct);
 
         if (left is null)
             return Inconclusive("effective_input_unverified");
@@ -48,7 +72,7 @@ internal sealed class AuthorityTopologyShadowAdapter(
         if (!IsActive(project) || binding != await ReadBindingAsync(project, scope, runId, ct))
             return Inconclusive("checkpoint_changed_during_observation");
 
-        AuthorityTopologyRehearsalInput? right = await ReadEffectiveInputAsync(scope, binding, candidate, ct);
+        AuthorityTopologyRehearsalInput? right = await ReadEffectiveInputAsync(scope, binding, binding.GraphId, candidate, ct);
 
         if (right is null)
             return Inconclusive("effective_input_unverified");
@@ -58,7 +82,24 @@ internal sealed class AuthorityTopologyShadowAdapter(
         if (!IsActive(project) || binding != await ReadBindingAsync(project, scope, runId, ct))
             return Inconclusive("checkpoint_changed_during_observation");
 
+        if (predecessor is not null && (!IsActive(project) || predecessor !=
+            await checkpoints.ReadImmediateAuthorityGraphPredecessorAsync(project, runId, binding.GraphFence, ct)))
+            return Inconclusive("checkpoint_lineage_changed_during_observation");
+
         return observation;
+    }
+
+    private static bool TryGetPredecessorGraphId(AuthorityTopologyShadowBinding active,
+        AuthorityGraphCheckpointPredecessor? predecessor, out Guid graphId)
+    {
+        graphId = Guid.Empty;
+        return predecessor is { Fence: > 0, Attempts: > 0 }
+            && predecessor.Fence == active.GraphFence - 1 && predecessor.Attempts == active.GraphAttempts - 1
+            && predecessor.SupersededUtc != default && IsDigest(predecessor.InputVersion)
+            && predecessor.InputVersion != active.GraphVersion
+            && Guid.TryParseExact(predecessor.ResultReference, "D", out graphId)
+            && graphId != Guid.Empty && graphId != active.GraphId
+            && string.Equals(predecessor.ResultReference, graphId.ToString("D"), StringComparison.Ordinal);
     }
 
     private bool IsActive(ProjectScopeKey project)
@@ -116,7 +157,8 @@ internal sealed class AuthorityTopologyShadowAdapter(
     }
 
     private async Task<AuthorityTopologyRehearsalInput?> ReadEffectiveInputAsync(
-        ScopeContext scope, AuthorityTopologyShadowBinding binding, AuthorityTopologyShadowPreparation prepared, CancellationToken ct)
+        ScopeContext scope, AuthorityTopologyShadowBinding binding, Guid graphId,
+        AuthorityTopologyShadowPreparation prepared, CancellationToken ct)
     {
         if (!IsActive(prepared.Scope) || prepared.Context.ContextSnapshotId != binding.ContextId || prepared.PolicyPinWitness != binding.PolicyPin
             || prepared.EvidencePinWitness != binding.EvidencePin
@@ -126,9 +168,9 @@ internal sealed class AuthorityTopologyShadowAdapter(
             || !prepared.Context.EvidencePins.Any(pin => SamePin(pin, prepared.Context.EvidencePin!)))
             return null;
 
-        GraphSnapshot? stored = await graphs.GetByIdAsync(scope, binding.GraphId, ct);
+        GraphSnapshot? stored = await graphs.GetByIdAsync(scope, graphId, ct);
 
-        if (stored is null || stored.GraphSnapshotId != binding.GraphId || stored.RunId != binding.RunId
+        if (stored is null || stored.GraphSnapshotId != graphId || stored.RunId != binding.RunId
             || stored.ContextSnapshotId != binding.ContextId)
             return null;
 
