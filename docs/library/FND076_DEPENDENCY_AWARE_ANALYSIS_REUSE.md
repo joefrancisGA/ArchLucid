@@ -1,3 +1,5 @@
+> **Scope:** Contributor reference for the exact dependency and output matches required for Authority and SecureNow recovery. This does not authorize semantic equivalence or cross-scope reuse.
+
 # FND-076 dependency-aware analysis reuse
 
 FND-075 records completed work and owns leases, deadlines, retries and fencing. FND-076 determines whether completed work still matches the requested stage inputs. The v2 fingerprint hashes the scoped stage identity, versioned input values and the exact upstream output references. It does not equate different outputs on semantic grounds.

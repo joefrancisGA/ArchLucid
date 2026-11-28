@@ -38,7 +38,7 @@ export const SECURENOW_PILOT_SPINE_ACCELERATOR_LINKS: readonly SecureNowPilotSpi
     id: "golden-sponsor",
     href: SECURENOW_GOLDEN_SPONSOR_WALKTHROUGH_HREF,
     label: "Golden sponsor export walkthrough",
-    hint: "Illustrative ArchLucid sample review only — exports stay separate from live workspace data.",
+    hint: "Illustrative architecture review sample only — exports stay separate from live workspace data.",
   },
   {
     id: "fixture-path-03",

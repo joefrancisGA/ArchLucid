@@ -8,10 +8,10 @@ import {
 import { SECURENOW_SAMPLE_FIXTURE_LINE } from "@/lib/marketing/securenow-sample-copy";
 
 describe("SecureNow scenario home copy", () => {
-  it("offers six fixture walks without customer claims", () => {
+  it("offers seven fixture walks without customer claims", () => {
     expect(SECURENOW_SCENARIO_HOME_SECTION_HEADING).toBe("Fixture walks");
     expect(SECURENOW_SCENARIO_HOME_SECTION_LEAD).toMatch(/NO_GO/);
-    expect(SECURENOW_SCENARIO_HOME_ROWS).toHaveLength(6);
+    expect(SECURENOW_SCENARIO_HOME_ROWS).toHaveLength(7);
     expect(SECURENOW_SCENARIO_HOME_ROWS[0]?.href).toBe(
       "/security/remediation-factory?pathId=fixture-path-01",
     );
@@ -20,6 +20,13 @@ describe("SecureNow scenario home copy", () => {
     expect(fixturePath02?.href).toBe("/security/remediation-factory?pathId=fixture-path-02");
     expect(fixturePath02?.recommendedFirst).toBe(true);
     expect(fixturePath02?.summary).toMatch(/Path inspect/i);
+
+    expect(SECURENOW_SCENARIO_HOME_ROWS).toEqual(expect.arrayContaining([
+      expect.objectContaining({ href: "/securenow-sample#fixture-path-03" }),
+      expect.objectContaining({
+        href: "/administration/securenow-scenario-walks#contributor-role-between-snapshots",
+      }),
+    ]));
 
     const copy = [
       SECURENOW_SCENARIO_HOME_SECTION_HEADING,

@@ -129,17 +129,19 @@ def test_hypotheses_section_counters_are_not_duplicates() -> None:
     assert lint_ledger.duplicate_counter_zone_ids(ledger) == []
 
 
-def test_parse_uses_last_counter_values() -> None:
+def test_parse_uses_last_header_value_when_the_header_has_duplicates() -> None:
     ledger = """
 ## Zone: zone-open
 
 - **id:** zone-open
 - **hunts:** 5
 - **bugs-found:** 9
-
-### Hypotheses
 - **hunts:** 10
 - **bugs-found:** 3
+
+### Hypotheses
+- **hunts:** 30
+- **bugs-found:** 1
 """
     zones = lint_ledger.parse_zone_counters(ledger)
 
@@ -168,6 +170,43 @@ def test_repo_ledger_has_no_open_invariant_violations() -> None:
     # Retired zones without excess are intentionally absent after a picker reset.
     assert {zone.zone_id for zone in retired} <= set(lint_ledger.RETIRED_COUNTER_ALLOWLIST)
     assert {zone.zone_id for zone in baselined} <= set(lint_ledger.HISTORICAL_EXCESS_BASELINE)
+
+
+def test_hypothesis_diary_cannot_override_the_canonical_counters() -> None:
+    ledger = """
+## Zone: copied-diary
+
+- **id:** copied-diary
+- **hunts:** 25
+- **bugs-found:** 12
+
+### Hypotheses
+- **hunts:** 8
+- **bugs-found:** 12
+"""
+    assert lint_ledger.parse_zone_counters(ledger) == [
+        lint_ledger.ZoneCounters("copied-diary", hunts=25, bugs_found=12)
+    ]
+    assert lint_ledger.lint_ledger(ledger) == ([], [], [])
+
+
+def test_duplicate_or_inflated_header_is_not_hidden_by_a_diary_counter() -> None:
+    ledger = """
+## Zone: inflated-header
+
+- **id:** inflated-header
+- **hunts:** 9
+- **hunts:** 10
+- **bugs-found:** 12
+
+### Hypotheses
+- **hunts:** 30
+- **bugs-found:** 1
+"""
+    assert lint_ledger.duplicate_counter_zone_ids(ledger) == ["inflated-header"]
+    assert lint_ledger.lint_ledger(ledger)[0] == [
+        lint_ledger.ZoneCounters("inflated-header", hunts=10, bugs_found=12)
+    ]
 
 
 if __name__ == "__main__":

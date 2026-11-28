@@ -363,6 +363,8 @@ public sealed class ArchitectureRecommendationEngineTests
             Title = title,
             Rationale = "Rationale for " + title,
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
             Confidence = 0.8,
         };

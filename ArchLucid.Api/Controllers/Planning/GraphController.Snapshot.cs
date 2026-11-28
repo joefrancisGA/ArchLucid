@@ -40,11 +40,13 @@ public sealed partial class GraphController
         {
             // The optional exchange format is hidden unless a server-side feature gate explicitly enables it.
             // Resolve from DI fail-closed: absence of the provider must never enable the capability.
+
             if (secureNowExchange)
             {
                 IFeatureFlags? flags = HttpContext.RequestServices.GetService<IFeatureFlags>();
+
                 if (flags is null || !await flags.IsEnabledAsync("SecureNow.ReadOnlySnapshotExchange", ct))
-                    return NotFound();
+                    return ExchangeSnapshotNotFoundProblem();
             }
 
             if (runId == Guid.Empty)
@@ -58,22 +60,27 @@ public sealed partial class GraphController
             // FND-010: authorize the SecureNow evidence exchange before any run/evidence read.
             // The requested run ID is the scoped anchor resource, not a claim that
             // the resolved graph snapshot has already been authorized.
+
             if (secureNowExchange)
             {
                 EvidenceReadAuthorizationGate? gate =
                     HttpContext.RequestServices.GetService<EvidenceReadAuthorizationGate>();
+
                 if (gate is null)
-                    return NotFound();
+                    return ExchangeSnapshotNotFoundProblem();
                 EvidenceReadDecision access = await gate.AuthorizeAsync(
                     User, scope.TenantId, scope.WorkspaceId, scope.ProjectId, runId, ct);
+
                 if (!access.Allowed)
-                    return NotFound();
+                    return ExchangeSnapshotNotFoundProblem();
             }
 
             RunRecord? anchor = await runRepository.GetByIdAsync(scope, runId, ct);
 
             if (anchor is null || (!secureNowExchange && !await CanReadSnapshotArchitectureAsync(anchor, scope, ct)))
-                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+                return secureNowExchange
+                    ? ExchangeSnapshotNotFoundProblem()
+                    : this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
             DateTime boundaryUtc = DateTime.SpecifyKind(asOf.Value.UtcDateTime, DateTimeKind.Utc);
 
@@ -85,33 +92,40 @@ public sealed partial class GraphController
                  (resolved.ArchitectureId != anchor.ArchitectureId &&
                   !await CanReadSnapshotArchitectureAsync(resolved, scope, ct)))))
             {
-                return this.NotFoundProblem(
-                    $"No persisted architecture graph exists for project '{anchor.ProjectId}' at or before the requested instant.",
-                    ProblemTypes.ResourceNotFound);
+                return secureNowExchange
+                    ? ExchangeSnapshotNotFoundProblem()
+                    : this.NotFoundProblem(
+                        $"No persisted architecture graph exists for project '{anchor.ProjectId}' at or before the requested instant.",
+                        ProblemTypes.ResourceNotFound);
             }
 
             // FND-010: the temporal resolver may select a different run than the
             // anchor. Reauthorize the actual resolved resource before reading
             // any graph details, and reject cross-project resolution.
+
             if (secureNowExchange)
             {
                 if (resolved.ProjectId != anchor.ProjectId)
-                    return NotFound();
+                    return ExchangeSnapshotNotFoundProblem();
 
                 EvidenceReadAuthorizationGate? resolvedGate =
                     HttpContext.RequestServices.GetService<EvidenceReadAuthorizationGate>();
+
                 if (resolvedGate is null)
-                    return NotFound();
+                    return ExchangeSnapshotNotFoundProblem();
                 EvidenceReadDecision resolvedAccess = await resolvedGate.AuthorizeAsync(
                     User, scope.TenantId, scope.WorkspaceId, scope.ProjectId, resolved.RunId, ct);
+
                 if (!resolvedAccess.Allowed)
-                    return NotFound();
+                    return ExchangeSnapshotNotFoundProblem();
             }
 
             RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, resolved.RunId, ct);
 
             if (detail is null)
-                return this.NotFoundProblem($"Run '{resolved.RunId}' was not found.", ProblemTypes.RunNotFound);
+                return secureNowExchange
+                    ? ExchangeSnapshotNotFoundProblem()
+                    : this.NotFoundProblem($"Run '{resolved.RunId}' was not found.", ProblemTypes.RunNotFound);
 
             RunDetailDto? anchorCompareDetail =
                 await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, runId, ct);
@@ -149,9 +163,11 @@ public sealed partial class GraphController
 
             if (detail.GraphSnapshot is null)
             {
-                return this.NotFoundProblem(
-                    $"Run '{resolved.RunId}' does not have a graph snapshot.",
-                    ProblemTypes.ResourceNotFound);
+                return secureNowExchange
+                    ? ExchangeSnapshotNotFoundProblem()
+                    : this.NotFoundProblem(
+                        $"Run '{resolved.RunId}' does not have a graph snapshot.",
+                        ProblemTypes.ResourceNotFound);
             }
 
             KnowledgeGraphLimitsOptions limits = knowledgeGraphLimits.Value;
@@ -177,7 +193,7 @@ public sealed partial class GraphController
                 catch (ArgumentException)
                 {
                     // A malformed persisted graph must not be exposed through the SecureNow exchange.
-                    return Conflict();
+                    return this.ConflictProblem("The stored graph snapshot cannot be exchanged.");
                 }
             }
 
@@ -197,6 +213,10 @@ public sealed partial class GraphController
             return MapGraphSealedManifestConflict(ex);
         }
     }
+
+    // Disabled, denied, and absent exchanges have the same outward response.
+    private IActionResult ExchangeSnapshotNotFoundProblem() =>
+        this.NotFoundProblem("The requested snapshot exchange was not found.");
 
     private async Task<bool> CanReadSnapshotArchitectureAsync(RunRecord run, ScopeContext scope, CancellationToken ct)
     {

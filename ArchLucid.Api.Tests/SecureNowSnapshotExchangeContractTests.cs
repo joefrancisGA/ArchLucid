@@ -172,6 +172,7 @@ public sealed class SecureNowSnapshotExchangeContractTests
             anchorAllowed ? Times.Once() : Times.Never());
         runs.Verify(r => r.GetLatestWithGraphAtOrBeforeAsync(Scope, "proj-a", It.IsAny<DateTime>(), ct),
             anchorAllowed ? Times.Once() : Times.Never());
+
         if (anchorAllowed && historyAllowed)
         {
             authority.Verify(a => a.GetRunDetailAsync(Scope, historical.RunId, ct), Times.Once);
@@ -194,7 +195,7 @@ public sealed class SecureNowSnapshotExchangeContractTests
         var (controller, runs, authority) = Build(1, 500, false);
         IActionResult response = await controller.GetArchitectureGraphTemporalSnapshot(
             Run, DateTimeOffset.UtcNow, secureNowExchange: true);
-        response.Should().BeOfType<NotFoundResult>();
+        response.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         runs.VerifyNoOtherCalls();
         authority.VerifyNoOtherCalls();
     }

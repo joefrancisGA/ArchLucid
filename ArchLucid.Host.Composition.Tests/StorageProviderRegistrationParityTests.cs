@@ -1,6 +1,10 @@
+using ArchLucid.Application.Analysis;
+using ArchLucid.Application.InfraEvidence;
+using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Evidence;
+using ArchLucid.Core.Resilience;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Composition.Startup;
@@ -12,6 +16,7 @@ using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Orchestration;
+using ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 using ArchLucid.Persistence.Planning;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Retrieval;
@@ -37,8 +42,22 @@ namespace ArchLucid.Host.Composition.Tests;
 [Trait("Category", "Unit")]
 public sealed class StorageProviderRegistrationParityTests
 {
+    // The durable recovery path needs SQL transactions, unlike the in-memory inline executor.
+    private static readonly Type[] SqlDurabilityServiceTypes =
+    [
+        typeof(IProviderQualityStateStore),
+        typeof(AuthorityPipelineStagesExecutor), // SQL also exposes its executor under the interface.
+        typeof(IAnalysisRecoveryRepository),
+        typeof(AuthorityRecoveryPipeline),
+        typeof(AnalysisDependencyConfiguration),
+        typeof(SecureNowDependencyInputs),
+        typeof(ISecureNowAnalysisRecoveryJobs),
+        typeof(SecureNowAnalysisDurableRecovery),
+    ];
+
     private static readonly HashSet<Type> SqlOnlyServiceTypes =
     [
+        ..SqlDurabilityServiceTypes,
         typeof(ITenantDatabaseBindingRepository),
         typeof(ITenantDatabaseResolver),
         typeof(ScopedRoutingSqlConnectionFactory),
@@ -92,17 +111,24 @@ public sealed class StorageProviderRegistrationParityTests
         HashSet<Type> inMemoryTypes = CollectServiceTypesAfterStorage(CreateInMemoryConfiguration());
         HashSet<Type> sqlTypes = CollectServiceTypesAfterStorage(CreateSqlConfiguration());
 
+        sqlTypes.Should().Contain(typeof(IAuthorityPipelineStagesExecutor));
+        inMemoryTypes.Should().Contain(typeof(IAuthorityPipelineStagesExecutor));
+        sqlTypes.Should().Contain(SqlDurabilityServiceTypes);
+        inMemoryTypes.Should().NotIntersectWith(SqlDurabilityServiceTypes);
+
         IEnumerable<Type> onlyInMemory = inMemoryTypes.Except(sqlTypes);
         IEnumerable<Type> onlyInSql = sqlTypes.Except(inMemoryTypes);
 
-        IEnumerable<Type> unexpectedInMemory = onlyInMemory.Where(t => !InMemoryOnlyServiceTypes.Contains(t));
-        IEnumerable<Type> unexpectedSql = onlyInSql.Where(t => !SqlOnlyServiceTypes.Contains(t));
+        Type[] unexpectedInMemory = onlyInMemory.Where(t => !InMemoryOnlyServiceTypes.Contains(t)).ToArray();
+        Type[] unexpectedSql = onlyInSql.Where(t => !SqlOnlyServiceTypes.Contains(t)).ToArray();
 
         unexpectedInMemory.Should().BeEmpty(
-            "every service type registered only for InMemory should be allowlisted (or added to both paths)");
+            "every service type registered only for InMemory should be allowlisted (or added to both paths). Unexpected: " +
+            string.Join(", ", unexpectedInMemory.Select(t => t.FullName)));
 
         unexpectedSql.Should().BeEmpty(
-            "every service type registered only for Sql should be allowlisted (or added to both paths)");
+            "every service type registered only for Sql should be allowlisted (or added to both paths). Unexpected: " +
+            string.Join(", ", unexpectedSql.Select(t => t.FullName)));
     }
 
     private static HashSet<Type> CollectServiceTypesAfterStorage(IConfiguration configuration)

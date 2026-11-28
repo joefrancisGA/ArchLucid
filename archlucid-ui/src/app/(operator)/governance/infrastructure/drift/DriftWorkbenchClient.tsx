@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
+import { SecureNowTimeToValueNextStepAuto } from "@/components/product-line/SecureNowTimeToValueNextStepAuto";
 import { KeyboardShortcutBadge } from "@/components/KeyboardShortcutBadge";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { CollapsibleSection } from "@/components/CollapsibleSection";

@@ -195,10 +195,12 @@ public sealed class ApprovalSlaMonitorTests
         return request;
     }
 
-    private ApprovalSlaMonitor CreateWebhookSut(HttpClient client)
+    private ApprovalSlaMonitor CreateWebhookSut(HttpClient client) => CreateWebhookSut(() => client);
+
+    private ApprovalSlaMonitor CreateWebhookSut(Func<HttpClient> createClient)
     {
         _httpClientFactory.Setup(f => f.CreateClient(ApprovalSlaMonitor.SlaEscalationHttpClientName))
-            .Returns(client);
+            .Returns(createClient);
         return CreateSut(new PreCommitGovernanceGateOptions
         {
             ApprovalSlaHours = 24,
@@ -226,9 +228,8 @@ public sealed class ApprovalSlaMonitorTests
     public async Task FailedHttpWebhook_RemainsUnnotifiedAndRetriesOnNextCheck()
     {
         GovernanceApprovalRequest request = await CreateBreachedRequestAsync();
-        StubWebhookHandler handler = new(() => new HttpResponseMessage(System.Net.HttpStatusCode.BadRequest));
-        using HttpClient client = new(handler);
-        ApprovalSlaMonitor sut = CreateWebhookSut(client);
+        using StubWebhookHandler handler = new(() => new HttpResponseMessage(System.Net.HttpStatusCode.BadRequest));
+        ApprovalSlaMonitor sut = CreateWebhookSut(() => new HttpClient(handler, disposeHandler: false));
 
         await sut.CheckAndEscalateAsync(CancellationToken.None);
         GovernanceApprovalRequest? first = await _approvalRepo.GetByIdAsync(request.ApprovalRequestId, CancellationToken.None);

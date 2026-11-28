@@ -60,7 +60,7 @@ public sealed class InMemoryRunExportRecordRepositoryContractTests : RunExportRe
     }
 
     [Fact]
-    public async Task CreateAsync_replaces_run_list_entry_when_only_export_id_padding_differs()
+    public async Task CreateAsync_rejects_padded_duplicate_and_preserves_original_export()
     {
         InMemoryRunExportRecordRepository repo = new();
         string runId = Guid.NewGuid().ToString("N");
@@ -80,7 +80,7 @@ public sealed class InMemoryRunExportRecordRepositoryContractTests : RunExportRe
             },
             CancellationToken.None);
 
-        await repo.CreateAsync(
+        Func<Task> duplicate = () => repo.CreateAsync(
             new RunExportRecord
             {
                 ExportRecordId = $"  {exportId}  ",
@@ -92,9 +92,12 @@ public sealed class InMemoryRunExportRecordRepositoryContractTests : RunExportRe
             },
             CancellationToken.None);
 
+        await duplicate.Should().ThrowAsync<InvalidOperationException>();
+
         IReadOnlyList<RunExportRecord> list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
 
         list.Should().HaveCount(1);
-        list[0].FileName.Should().Be("b.md");
+        list[0].FileName.Should().Be("a.md");
+        list[0].CreatedUtc.Should().Be(older);
     }
 }

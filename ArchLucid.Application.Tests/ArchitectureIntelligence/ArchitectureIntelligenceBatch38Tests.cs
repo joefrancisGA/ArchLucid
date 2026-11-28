@@ -99,6 +99,8 @@ public sealed class ArchitectureIntelligenceBatch38Tests
             Title = "Public endpoint lacks documented trust boundary",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
         SpecialistReviewFinding reliabilityFinding = new()
@@ -108,6 +110,8 @@ public sealed class ArchitectureIntelligenceBatch38Tests
             Title = "Stated recovery objective may not be achievable",
             Rationale = "RTO conflict",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -135,6 +139,8 @@ public sealed class ArchitectureIntelligenceBatch38Tests
             Title = "Sensitive data mentioned without documented data flows",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 

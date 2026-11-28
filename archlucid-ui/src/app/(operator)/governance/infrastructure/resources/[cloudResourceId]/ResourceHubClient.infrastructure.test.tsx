@@ -1,11 +1,16 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+const navigation = vi.hoisted(() => ({
+  searchParams: new URLSearchParams("tab=overview"),
+  router: { replace: vi.fn(), push: vi.fn() },
+}));
+
 vi.mock("next/navigation", () => ({
   usePathname: () =>
     "/infrastructure/resources/11111111-1111-1111-1111-111111111111",
-  useSearchParams: () => new URLSearchParams("tab=overview"),
-  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => navigation.searchParams,
+  useRouter: () => navigation.router,
 }));
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({

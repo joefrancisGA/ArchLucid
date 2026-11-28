@@ -59,7 +59,7 @@ export function AccessibilityMarketingPublicView(props: AccessibilityMarketingPu
         {ACCESSIBILITY_MARKETING_SKIP_LINK_LABEL}
       </a>
 
-      <main
+      <div
         id={ACCESSIBILITY_MARKETING_PRIMARY_CONTENT_ID}
         tabIndex={-1}
         data-testid="accessibility-marketing-primary-content"
@@ -183,7 +183,7 @@ export function AccessibilityMarketingPublicView(props: AccessibilityMarketingPu
             </div>
           </div>
         </div>
-      </main>
+      </div>
     </MarketingPageShell>
   );
 }

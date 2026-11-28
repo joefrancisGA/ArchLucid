@@ -29,6 +29,7 @@ using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
 
 using JetBrains.Annotations;
@@ -217,7 +218,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
         {
             histograms.Should().Contain(h =>
                 h.Tags.Any(t => t.Key == "stage" && Equals(t.Value, stage))
-                && h.Tags.Any(t => t.Key == "outcome" && Equals(t.Value, "success")));
+                && h.Tags.Any(t => t.Key == "outcome" && Equals(t.Value, AnalysisStageOutcome.Succeeded)));
         }
     }
 
@@ -310,7 +311,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
 
         histograms.Should().ContainSingle(h =>
             h.Tags.Any(t => t.Key == "stage" && Equals(t.Value, "context_ingestion"))
-            && h.Tags.Any(t => t.Key == "outcome" && Equals(t.Value, "error")));
+            && h.Tags.Any(t => t.Key == "outcome" && Equals(t.Value, AnalysisStageOutcome.Failed)));
 
     }
 
@@ -602,7 +603,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
                 It.Is<AuditEvent>(e =>
                     e.EventType == AuditEventTypes.ArtifactSynthesisFailed
                     && e.RunId == runGuid
-                    && e.ManifestId == null),
+                    && !e.ManifestId.HasValue),
                 It.IsAny<IArchLucidUnitOfWork>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
