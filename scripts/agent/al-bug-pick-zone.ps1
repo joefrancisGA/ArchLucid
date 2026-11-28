@@ -1188,6 +1188,19 @@ function Read-AlBugHuntLedger {
             $fields[$match.Groups[1].Value.Trim().ToLowerInvariant()] = $match.Groups[2].Value.Trim()
         }
 
+        # Counter writes update the header, not examples pasted below Hypotheses.
+        $counterHeader = [regex]::Match(
+            $part, '(?ms)^\s*-\s+\*\*id:\*\*.*?(?=^### Hypotheses\s*$|\z)'
+        ).Value
+        foreach ($counter in @('hunts', 'bugs-found')) {
+            $pattern = '(?m)^\s*-\s+\*\*' + $counter + ':\*\*\s+(\d+)\s*$'
+            $headerMatches = [regex]::Matches($counterHeader, $pattern)
+            $fields.Remove($counter)
+            if ($headerMatches.Count -gt 0) {
+                $fields[$counter] = $headerMatches[$headerMatches.Count - 1].Groups[1].Value
+            }
+        }
+
         if (-not $fields.ContainsKey('id') -or [string]::IsNullOrWhiteSpace($fields['id'])) {
             continue
         }

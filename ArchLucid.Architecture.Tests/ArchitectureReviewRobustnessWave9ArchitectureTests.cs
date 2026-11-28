@@ -130,7 +130,8 @@ public sealed class ArchitectureReviewRobustnessWave9ArchitectureTests
 
         string deserializer = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/RunHeaderPinDeserializer.cs");
 
-        deserializer.Should().Contain("if (parsed is not null)");
+        deserializer.Should().Contain("if (parsed is not null && parsed.All(")
+            .And.Contain("rows = parsed;");
     }
 
     [Fact]

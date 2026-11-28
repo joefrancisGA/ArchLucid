@@ -1,4 +1,5 @@
 using System.Text.Json;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance.PolicyPacks;
@@ -21,7 +22,7 @@ public sealed class FindingPinnedEvidenceReferenceTests
             PinnedEvidencePackagePinsJson = JsonSerializer.Serialize(new[]
             {
                 new PinnedEvidencePackageRow("azure-extractor", packageId, null)
-            }),
+            }, ContractJson.CamelCaseIgnoreNullCompact),
         };
         Finding finding = new()
         {
@@ -42,6 +43,6 @@ public sealed class FindingPinnedEvidenceReferenceTests
         if (explicitReference)
             Assert.Empty(reasons);
         else
-            Assert.Single(reasons);
+            Assert.Contains("lacks resolvable evidence linkage", Assert.Single(reasons));
     }
 }

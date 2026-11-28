@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Host.Core.ProblemDetails;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
@@ -87,7 +88,7 @@ public sealed class SecureNowSnapshotHttpBoundaryTests
         GraphController controller = Controller(false, runs);
         IActionResult result = await controller.GetArchitectureGraphTemporalSnapshot(
             Run, DateTimeOffset.UtcNow, secureNowExchange: true);
-        result.Should().BeOfType<NotFoundResult>();
+        AssertExchangeNotFoundProblem(result);
         runs.VerifyNoOtherCalls();
     }
 
@@ -100,8 +101,7 @@ public sealed class SecureNowSnapshotHttpBoundaryTests
         GraphController controller = Controller(true, runs);
         IActionResult result = await controller.GetArchitectureGraphTemporalSnapshot(
             Run, DateTimeOffset.UtcNow, secureNowExchange: true);
-        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
-        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        AssertExchangeNotFoundProblem(result);
         runs.Verify(r => r.GetByIdAsync(Scope, Run, It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -112,7 +112,7 @@ public sealed class SecureNowSnapshotHttpBoundaryTests
         GraphController controller = Controller(true, runs, entitled: false);
         IActionResult result = await controller.GetArchitectureGraphTemporalSnapshot(
             Run, DateTimeOffset.UtcNow, secureNowExchange: true);
-        result.Should().BeOfType<NotFoundResult>();
+        AssertExchangeNotFoundProblem(result);
         runs.VerifyNoOtherCalls();
     }
 
@@ -127,5 +127,15 @@ public sealed class SecureNowSnapshotHttpBoundaryTests
             Run, DateTimeOffset.UtcNow);
         result.Should().BeOfType<ObjectResult>();
         runs.Verify(r => r.GetByIdAsync(Scope, Run, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    private static void AssertExchangeNotFoundProblem(IActionResult result)
+    {
+        ObjectResult response = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(StatusCodes.Status404NotFound, response.StatusCode);
+        Assert.Contains("application/problem+json", response.ContentTypes);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = Assert.IsType<Microsoft.AspNetCore.Mvc.ProblemDetails>(response.Value);
+        Assert.Equal(ProblemTypes.ResourceNotFound, problem.Type);
+        Assert.Equal("The requested snapshot exchange was not found.", problem.Detail);
     }
 }

@@ -21,6 +21,8 @@ public sealed class ArchitectureRecommendationAlternativesDistinctnessTests
             Title = "Sensitive data mentioned without documented data flows",
             Rationale = "Sensitive or customer data is referenced in the model, but no DataFlow element maps movement or storage.",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -51,6 +53,8 @@ public sealed class ArchitectureRecommendationAlternativesDistinctnessTests
             Title = "Stated cost ceiling is not reflected in cost drivers",
             Rationale = "Cost drivers omit the stated monthly ceiling.",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "Medium",
         };
 
@@ -81,6 +85,8 @@ public sealed class ArchitectureRecommendationAlternativesDistinctnessTests
             Title = "Peak load is unspecified for the checkout service",
             Rationale = "No capacity expectation records peak load or scaling approach.",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "Medium",
         };
 

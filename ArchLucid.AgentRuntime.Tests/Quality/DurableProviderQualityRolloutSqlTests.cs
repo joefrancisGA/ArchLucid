@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 
 using ArchLucid.AgentRuntime.Quality;
+using ArchLucid.Core.Agents;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Resilience;
@@ -130,6 +131,7 @@ public sealed class DurableProviderQualityRolloutSqlTests(ITestOutputHelper outp
                 ProviderQualitySnapshot snapshot = Assert.IsType<ProviderQualitySnapshot>(finalSnapshot);
                 cohortResults.Add(new(profile.Name, profile.Degraded, tripped,
                     snapshot.KnownSampleCount, snapshot.UnknownSampleCount));
+
                 if (tripped)
                 {
                     if (profile.Degraded)

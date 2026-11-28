@@ -142,7 +142,7 @@ describe("ResourceHubClient buyer-polished chrome", () => {
       `#${GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_PRIMARY_CONTENT_ID}`,
     );
     expect(screen.getByTestId("infra-resource-hub-claim-discipline")).toBeInTheDocument();
-    expect(screen.getByTestId("governance-infrastructure-resource-hub-sources")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-resource-hub-sources")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
     expect(screen.getByTestId("infra-resource-hub-cloud-resource-id-disclosure")).toBeInTheDocument();

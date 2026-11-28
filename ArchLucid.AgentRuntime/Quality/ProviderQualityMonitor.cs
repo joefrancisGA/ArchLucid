@@ -5,30 +5,6 @@ using ArchLucid.Core.Agents;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Quality;
-public sealed class ProviderQualityOptions
-{
-    public const string SectionPath = "ArchLucid:Agents:ProviderQuality";
-
-    // Enable only after the system-catalog migration is deployed and verified.
-    public bool UseDurableState { get; set; }
-
-    public bool Enabled { get; set; } = true;
-    public bool EnforceQuarantine { get; set; } = true;
-    public int MinimumIndependentKnownSamples { get; set; } = 30;
-    public double MaximumWeightedBadRate { get; set; } = 0.35;
-    public double MinimumWilsonBadRate { get; set; } = 0.20;
-    public int QuarantineSeconds { get; set; } = 900;
-    public int RecoveryProbeLeaseSeconds { get; set; } = 120;
-
-    public void Normalize()
-    {
-        MinimumIndependentKnownSamples = Math.Clamp(MinimumIndependentKnownSamples, 5, 10_000);
-        MaximumWeightedBadRate = Math.Clamp(MaximumWeightedBadRate, 0.01, 1.0);
-        MinimumWilsonBadRate = Math.Clamp(MinimumWilsonBadRate, 0.0, 1.0);
-        QuarantineSeconds = Math.Clamp(QuarantineSeconds, 30, 86_400);
-        RecoveryProbeLeaseSeconds = Math.Clamp(RecoveryProbeLeaseSeconds, 10, 3_600);
-    }
-}
 
 /// <summary>
 /// Process-local enforcement cache fed only by independently adjudicated outcomes. Durable trace/audit rows remain the
@@ -86,10 +62,12 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
                 && string.Equals(traceId, adjudication.TraceId, StringComparison.Ordinal);
             // A synthetic recovery result has no meaning outside its exact lease and must not
             // count as a normal observation (including if the lease expired before recording).
+
             if (!matchesProbe && string.Equals(adjudication.AdjudicatorKind, SecureNowRecoveryChallenge.Method, StringComparison.Ordinal))
                 return new ProviderQualityRecordResult(Snapshot(adjudication.Key, entry), false, null);
 
             bool newSample = entry.SampleIds.Add(adjudication.SampleId);
+
             if (!newSample && !matchesProbe)
                 return new ProviderQualityRecordResult(Snapshot(adjudication.Key, entry), false, null);
 
@@ -101,6 +79,7 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
             {
                 if (newSample)
                     entry.UnknownSamples++;
+
                 if (matchesProbe)
                 {
                     ReopenAfterProbe(entry, "Recovery probe was not independently adjudicated.");
@@ -238,6 +217,7 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
     internal bool SetOperatorOverride(ProviderQualityKey key, TimeSpan? duration, Guid auditEventId)
     {
         ArgumentNullException.ThrowIfNull(key);
+
         if (auditEventId == Guid.Empty || (duration is { } window
             && (window < TimeSpan.FromMinutes(1) || window > TimeSpan.FromHours(1))))
             return false;
@@ -268,6 +248,7 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
     private Entry Resolve(ProviderQualityKey key)
     {
         ProviderQualityKey normalized = ProviderQualityKey.Create(key.ProviderId, key.ModelId, key.ModelVersion);
+
         if (_entries.TryGetValue(normalized, out Entry? existing))
             return existing;
 
@@ -347,6 +328,7 @@ public sealed class ProviderQualityMonitor : IProviderQualityMonitor
 
         PersistedEntry[] entries = JsonSerializer.Deserialize<PersistedEntry[]>(payload)
             ?? throw new JsonException("Provider quality state must contain an array.");
+
         foreach (PersistedEntry row in entries)
             _entries.Add(row.Key, row.State);
     }
