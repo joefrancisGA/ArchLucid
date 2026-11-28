@@ -1,0 +1,77 @@
+name: Remediation portfolio graph contract
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - '.github/workflows/pr-remediation-portfolio-graph.yml'
+      - 'ArchLucid.Application/InfraEvidence/RemediationPortfolio/**'
+      - 'ArchLucid.Application/InfraEvidence/RemediationPatterns/**'
+      - 'ArchLucid.Application/InfraEvidence/SecureNowArchitect/*CutPoint*.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPortfolioGraphTests.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPortfolioOptimizationTests.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPortfolioImpactTests.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPatternMatcherServiceTests.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/CutPointAnalysisEngineTests.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPrioritization*Tests.cs'
+      - 'docs/assurance/FND088_REMEDIATION_PORTFOLIO_GRAPH.md'
+      - 'docs/assurance/FND089_REMEDIATION_PORTFOLIO_OPTIMIZER.md'
+      - 'docs/assurance/FND090_OFFLINE_PORTFOLIO_IMPACT.md'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: remediation-portfolio-graph-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  graph-contract:
+    name: Verify scoped evidence, distinct coverage, and feasible portfolios
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Run focused Release tests
+        run: >-
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~RemediationPortfolioGraphTests|FullyQualifiedName~RemediationPortfolioOptimizationTests|FullyQualifiedName~RemediationPortfolioImpactTests|FullyQualifiedName~RemediationPatternMatcherServiceTests|FullyQualifiedName~CutPointAnalysisEngineTests|FullyQualifiedName~RemediationPrioritizationAndWaveServiceTests|FullyQualifiedName~RemediationPrioritizationRankBatchTests'
+          --results-directory "$RUNNER_TEMP/remediation-portfolio-graph"
+          --logger 'trx;LogFileName=application.trx'
+      - name: Require executed passing tests
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          from xml.etree import ElementTree
+
+          result = Path(os.environ["RUNNER_TEMP"]) / "remediation-portfolio-graph" / "application.trx"
+          root = ElementTree.parse(result)
+          counters = root.find(".//{*}Counters")
+          if counters is None:
+              raise SystemExit("Test result does not contain counters")
+          total, executed, passed = (int(counters.attrib[key]) for key in ("total", "executed", "passed"))
+          if not total or total != executed or executed != passed:
+              raise SystemExit(f"total={total}, executed={executed}, passed={passed}")
+          executed_ids = {
+              item.attrib.get("testId")
+              for item in root.findall(".//{*}Results/{*}UnitTestResult")
+              if item.attrib.get("outcome") == "Passed"
+          }
+          for suite in ("RemediationPortfolioGraphTests", "RemediationPortfolioOptimizationTests", "RemediationPortfolioImpactTests"):
+              suite_ids = {
+                  unit.attrib["id"]
+                  for unit in root.findall(".//{*}TestDefinitions/{*}UnitTest")
+                  if (method := unit.find("{*}TestMethod")) is not None
+                  and method.attrib.get("className", "").endswith("." + suite)
+              }
+              if not executed_ids.intersection(suite_ids):
+                  raise SystemExit(f"No {suite} tests executed")
+          print(f"{passed} tests passed")
+          PY
