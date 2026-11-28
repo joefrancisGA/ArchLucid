@@ -55,11 +55,11 @@ public sealed class AzureBoardsOutboundIssueClient(HttpClient http, ILogger<Azur
             Encoding.UTF8,
             "application/json-patch+json");
 
-        HttpResponseMessage response;
+        HttpResponseMessage received;
 
         try
         {
-            response = await _http.SendAsync(request, ct).ConfigureAwait(false);
+            received = await _http.SendAsync(request, ct).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -73,6 +73,7 @@ public sealed class AzureBoardsOutboundIssueClient(HttpClient http, ILogger<Azur
             return new AzureBoardsOutboundIssueHttpResult(false, null, null, HttpStatusCode.ServiceUnavailable, detail);
         }
 
+        using HttpResponseMessage response = received;
         string raw = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
@@ -117,7 +118,7 @@ public sealed class AzureBoardsOutboundIssueClient(HttpClient http, ILogger<Azur
 
         try
         {
-            HttpResponseMessage response = await _http.SendAsync(request, ct).ConfigureAwait(false);
+            using HttpResponseMessage response = await _http.SendAsync(request, ct).ConfigureAwait(false);
             string raw = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -160,7 +161,7 @@ public sealed class AzureBoardsOutboundIssueClient(HttpClient http, ILogger<Azur
 
         try
         {
-            HttpResponseMessage response = await _http.SendAsync(request, ct).ConfigureAwait(false);
+            using HttpResponseMessage response = await _http.SendAsync(request, ct).ConfigureAwait(false);
             string raw = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
