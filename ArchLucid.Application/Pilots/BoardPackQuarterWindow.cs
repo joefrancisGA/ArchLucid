@@ -15,6 +15,13 @@ public static class BoardPackQuarterWindow
         DateTimeOffset? overrideStartUtc,
         DateTimeOffset? overrideEndUtc)
     {
+        if (overrideStartUtc.HasValue != overrideEndUtc.HasValue)
+        {
+            throw new ArgumentOutOfRangeException(
+                overrideStartUtc.HasValue ? nameof(overrideEndUtc) : nameof(overrideStartUtc),
+                "Supply both periodStartUtc and periodEndUtc for a custom reporting window.");
+        }
+
         if (overrideStartUtc is { } os && overrideEndUtc is { } oe)
         {
             return oe <= os
