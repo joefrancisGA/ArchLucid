@@ -91,7 +91,7 @@ FOCUSED = {
         "FindingsSnapshotJsonFallbackMapperTests", "FindingsCoverageProjectionMapperTests",
         "ArtifactBundleStatusParserTests", "SynthesizedArtifactSliceStatusParserTests",
         "AgentModelCatalogRepositoryCoreTests", "BillingWebhookTrialActivatorTests",
-        "SqlSecurityEvidenceEnumBoundaryTests",
+        "SqlSecurityEvidenceEnumBoundaryTests", "SqlAuditEnumBoundaryTests",
     ],
     "ArchLucid.Application.Tests": [
         "DraftRequestListStatusFilterTests", "AgentOutputQualityGateOptionsResolverTests",
@@ -114,7 +114,7 @@ FOCUSED = {
 CI_FOCUSED = {
     "ArchLucid.Analyzers.Tests": ["EnumBoundaryReviewAnalyzerTests"],
     "ArchLucid.Contracts.Tests": ["AuthorityEnumPresenceTests"],
-    "ArchLucid.Persistence.Tests": ["SqlSecurityEvidenceEnumBoundaryTests"],
+    "ArchLucid.Persistence.Tests": ["SqlSecurityEvidenceEnumBoundaryTests", "SqlAuditEnumBoundaryTests"],
 }
 
 def check_report_coverage(directory):

@@ -19,3 +19,18 @@ The local Release compilation produced four SARIF files and confirmed `ENUM000` 
 - Finish the source-generated/custom JSON and historical catalog compatibility review. An unavailable source is an open coverage gap.
 - Keep `ENUM002` blocking. Keep the checked-in `ENUM001` policy at `changed-files` until the complete inventory and catalog evidence allow `all`. Verify failing and compliant controls on the release path before recording closure. An explicit inventory run is not release acceptance.
 - Keep this targeted work out of the ordinary Aspects density series.
+
+## Follow-up triage of the 110 scoped diagnostics
+
+The starting SARIF inventory was from the scoped Release build for PR #8415's initial change. It contained 86 Persistence diagnostics and 24 Core diagnostics. Every site was assigned a review queue by consumer. Queue membership is a priority decision, not a finding disposition, a reviewed exception, or proof that the site is safe.
+
+| Scoped queue | Sites | Disposition |
+| --- | ---: | --- |
+| Audit and finding verification materializers | 12 | Replaced unchecked conversions in the manual evidence, control evaluation, evidence snapshot, and finding verification repositories. Scoped and unscoped audit item queries now share one validated projection. |
+| Action lifecycle, collection and identity | 19 | Review next, beginning with remediation state and automation level, tenant routing, and operational finding state. Inspect existing guard and absence semantics before changing behavior. |
+| Provenance, applicability and inventory | 46 | Review observed-versus-inferred evidence, ownership and scope, crosswalks, audit framework and assessment state, and inventory coverage before presentation-only paths. |
+| Display and finding metadata | 9 | Preserve historical names and absence semantics. Repair any unsafe conversion even if the immediate consumer is descriptive. |
+| Core contracts and readers | 24 | Verify each semantic guard and fallback individually. A cast after a membership check is a ratchet finding, not automatically a confirmed application defect. |
+| **Total** | **110** | **12 addressed in this pass and 98 left for investigation. No exemptions approved.** |
+
+In the fixed projections an absent SQL value can no longer become `Collected`, `ObservedFact`, or `Materialized` through zero initialization. SQL read models preserve absence and reject undefined ordinals. Explicit historical zeros and legal nonzero states are retained. The catalog preflight now covers the additional ten stored fields, including the verification status's historical `TINYINT` shape. It has not been run against any live catalog.

@@ -5,6 +5,7 @@ using ArchLucid.Core.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Sql;
 
 using Dapper;
@@ -377,16 +378,7 @@ public sealed class SqlFindingVerificationReportRepository(ISqlConnectionFactory
                 new { ReportId = reportId },
                 cancellationToken: cancellationToken));
 
-        IReadOnlyList<FindingVerificationResultRecord> results = resultRows
-            .Select(row => new FindingVerificationResultRecord
-            {
-                ResultId = row.ResultId,
-                ReportId = row.ReportId,
-                FindingId = row.FindingId,
-                Status = (FindingVerificationStatus)row.Status,
-                TraceText = row.TraceText,
-            })
-            .ToList();
+        IReadOnlyList<FindingVerificationResultRecord> results = resultRows.Select(MapResult).ToList();
 
         return new FindingVerificationReportRecord
         {
@@ -404,6 +396,16 @@ public sealed class SqlFindingVerificationReportRepository(ISqlConnectionFactory
             Results = results,
         };
     }
+
+    internal static FindingVerificationResultRecord MapResult(FindingVerificationResultSqlRow row) =>
+        new()
+        {
+            ResultId = row.ResultId,
+            ReportId = row.ReportId,
+            FindingId = row.FindingId,
+            Status = SecurityEvidenceSqlEnum.RequireOrdinal<FindingVerificationStatus>(row.Status, nameof(row.Status)),
+            TraceText = row.TraceText,
+        };
 
     private sealed class FindingVerificationReportSqlRow
     {
@@ -474,7 +476,7 @@ public sealed class SqlFindingVerificationReportRepository(ISqlConnectionFactory
         }
     }
 
-    private sealed class FindingVerificationResultSqlRow
+    internal sealed class FindingVerificationResultSqlRow
     {
         public Guid ResultId
         {
@@ -494,7 +496,7 @@ public sealed class SqlFindingVerificationReportRepository(ISqlConnectionFactory
             init;
         } = string.Empty;
 
-        public byte Status
+        public byte? Status
         {
             get;
             init;

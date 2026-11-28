@@ -246,22 +246,7 @@ public sealed class SqlAuditControlEvaluationRepository(ISqlConnectionFactory co
                 new { TenantId = tenantId, EvaluationId = evaluationId },
                 cancellationToken: cancellationToken));
 
-        return rows
-            .Select(row => new AuditEvidenceItemRecord
-            {
-                EvidenceItemId = row.EvidenceItemId,
-                EvaluationId = row.EvaluationId,
-                RequirementId = row.RequirementId,
-                TenantId = row.TenantId,
-                CloudResourceId = row.CloudResourceId,
-                AzureResourceId = row.AzureResourceId,
-                EvidenceType = row.EvidenceType,
-                Summary = row.Summary,
-                CollectionStatus = (AuditEvidenceCollectionStatus)row.CollectionStatus,
-                ProvenanceKind = (ProvenanceKind)row.ProvenanceKind,
-                CreatedUtc = row.CreatedUtc,
-            })
-            .ToList();
+        return rows.Select(MapEvidenceItem).ToList();
     }
 
     public async Task<IReadOnlyList<AuditEvidenceItemRecord>> ListEvidenceItemsByEvaluationInScopeAsync(
@@ -290,17 +275,26 @@ public sealed class SqlAuditControlEvaluationRepository(ISqlConnectionFactory co
             {
                 scope.TenantId, scope.WorkspaceId, scope.ProjectId, EvaluationId = evaluationId,
             }, cancellationToken: cancellationToken));
-        return rows.Select(row => new AuditEvidenceItemRecord
-        {
-            EvidenceItemId = row.EvidenceItemId, EvaluationId = row.EvaluationId, RequirementId = row.RequirementId,
-            TenantId = row.TenantId, CloudResourceId = row.CloudResourceId, AzureResourceId = row.AzureResourceId,
-            EvidenceType = row.EvidenceType, Summary = row.Summary,
-            CollectionStatus = (AuditEvidenceCollectionStatus)row.CollectionStatus,
-            ProvenanceKind = (ProvenanceKind)row.ProvenanceKind, CreatedUtc = row.CreatedUtc,
-        }).ToList();
+        return rows.Select(MapEvidenceItem).ToList();
     }
 
-    private static AuditControlEvaluationRecord Map(EvaluationRow row)
+    internal static AuditEvidenceItemRecord MapEvidenceItem(EvidenceItemRow row) =>
+        new()
+        {
+            EvidenceItemId = row.EvidenceItemId,
+            EvaluationId = row.EvaluationId,
+            RequirementId = row.RequirementId,
+            TenantId = row.TenantId,
+            CloudResourceId = row.CloudResourceId,
+            AzureResourceId = row.AzureResourceId,
+            EvidenceType = row.EvidenceType,
+            Summary = row.Summary,
+            CollectionStatus = SecurityEvidenceSqlEnum.RequireOrdinal<AuditEvidenceCollectionStatus>(row.CollectionStatus, nameof(row.CollectionStatus)),
+            ProvenanceKind = SecurityEvidenceSqlEnum.RequireOrdinal<ProvenanceKind>(row.ProvenanceKind, nameof(row.ProvenanceKind)),
+            CreatedUtc = row.CreatedUtc,
+        };
+
+    internal static AuditControlEvaluationRecord Map(EvaluationRow row)
     {
         IReadOnlyList<Guid> requirementIds = [];
         IReadOnlyList<string> exceptionIds = [];
@@ -318,7 +312,7 @@ public sealed class SqlAuditControlEvaluationRepository(ISqlConnectionFactory co
             FrameworkId = row.FrameworkId,
             SnapshotId = row.SnapshotId,
             TenantId = row.TenantId,
-            Outcome = (AuditEvaluationOutcome)row.Outcome,
+            Outcome = SecurityEvidenceSqlEnum.RequireOrdinal<AuditEvaluationOutcome>(row.Outcome, nameof(row.Outcome)),
             PassCount = row.PassCount,
             ApplicableCount = row.ApplicableCount,
             Confidence = row.Confidence,
@@ -326,14 +320,14 @@ public sealed class SqlAuditControlEvaluationRepository(ISqlConnectionFactory co
             Formula = row.Formula,
             RequirementIds = requirementIds,
             ExceptionIds = exceptionIds,
-            ProvenanceKind = (ProvenanceKind)row.ProvenanceKind,
+            ProvenanceKind = SecurityEvidenceSqlEnum.RequireOrdinal<ProvenanceKind>(row.ProvenanceKind, nameof(row.ProvenanceKind)),
             HumanDisposition = row.HumanDisposition,
             Notes = row.Notes,
             CreatedUtc = row.CreatedUtc,
         };
     }
 
-    private sealed class EvaluationRow
+    internal sealed class EvaluationRow
     {
         public Guid EvaluationId
         {
@@ -365,7 +359,7 @@ public sealed class SqlAuditControlEvaluationRepository(ISqlConnectionFactory co
             init;
         }
 
-        public int Outcome
+        public int? Outcome
         {
             get;
             init;
@@ -413,7 +407,7 @@ public sealed class SqlAuditControlEvaluationRepository(ISqlConnectionFactory co
             init;
         } = string.Empty;
 
-        public int ProvenanceKind
+        public int? ProvenanceKind
         {
             get;
             init;
@@ -438,7 +432,7 @@ public sealed class SqlAuditControlEvaluationRepository(ISqlConnectionFactory co
         }
     }
 
-    private sealed class EvidenceItemRow
+    internal sealed class EvidenceItemRow
     {
         public Guid EvidenceItemId
         {
@@ -488,13 +482,13 @@ public sealed class SqlAuditControlEvaluationRepository(ISqlConnectionFactory co
             init;
         } = string.Empty;
 
-        public int CollectionStatus
+        public int? CollectionStatus
         {
             get;
             init;
         }
 
-        public int ProvenanceKind
+        public int? ProvenanceKind
         {
             get;
             init;

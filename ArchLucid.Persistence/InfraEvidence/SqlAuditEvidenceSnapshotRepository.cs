@@ -696,7 +696,7 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
         };
     }
 
-    private static AuditEvidenceSnapshotItemRecord MapItem(ItemRow row) =>
+    internal static AuditEvidenceSnapshotItemRecord MapItem(ItemRow row) =>
         new()
         {
             EvidenceRowId = row.EvidenceRowId,
@@ -711,11 +711,11 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
             NormalizedPointer = row.NormalizedPointer,
             RawPointer = row.RawPointer,
             EvidenceHashSha256 = row.EvidenceHashSha256,
-            CollectionStatus = (AuditEvidenceCollectionStatus)row.CollectionStatus,
-            FreshnessStatus = (AuditEvidenceFreshnessStatus)row.FreshnessStatus,
+            CollectionStatus = SecurityEvidenceSqlEnum.RequireOrdinal<AuditEvidenceCollectionStatus>(row.CollectionStatus, nameof(row.CollectionStatus)),
+            FreshnessStatus = SecurityEvidenceSqlEnum.RequireOrdinal<AuditEvidenceFreshnessStatus>(row.FreshnessStatus, nameof(row.FreshnessStatus)),
             Confidence = row.Confidence,
             Summary = row.Summary,
-            ProvenanceKind = (ProvenanceKind)row.ProvenanceKind,
+            ProvenanceKind = SecurityEvidenceSqlEnum.RequireOrdinal<ProvenanceKind>(row.ProvenanceKind, nameof(row.ProvenanceKind)),
             SelectorVersion = row.SelectorVersion,
             AzureScope = row.AzureScope,
             ApiQueryId = row.ApiQueryId,
@@ -808,7 +808,7 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
         }
     }
 
-    private sealed class ItemRow
+    internal sealed class ItemRow
     {
         public Guid EvidenceRowId
         {
@@ -882,13 +882,13 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
             init;
         } = [];
 
-        public int CollectionStatus
+        public int? CollectionStatus
         {
             get;
             init;
         }
 
-        public int FreshnessStatus
+        public int? FreshnessStatus
         {
             get;
             init;
@@ -906,7 +906,7 @@ public sealed class SqlAuditEvidenceSnapshotRepository(ISqlConnectionFactory con
             init;
         } = string.Empty;
 
-        public int ProvenanceKind
+        public int? ProvenanceKind
         {
             get;
             init;
