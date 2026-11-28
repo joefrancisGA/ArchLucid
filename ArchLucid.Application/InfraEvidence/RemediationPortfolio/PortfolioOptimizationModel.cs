@@ -185,21 +185,29 @@ internal sealed class PortfolioOptimizationModel
         return (money, disruption);
     }
 
-    internal PortfolioAdvisoryPlan Describe(UInt128 selected)
+    internal PortfolioResourceUsage ResourceUsage(UInt128 selected)
     {
         long money = 0;
         long disruption = 0;
         var staff = new long[input.Limits.Staff.Count];
-        List<string> actions = [];
         for (UInt128 bits = selected; bits != 0; bits &= bits - 1)
         {
             int i = Index(bits);
-            actions.Add(graph.Actions[i].Id);
             money += costs[i].Money;
             disruption += costs[i].Disruption;
             for (int t = 0; t < staff.Length; t++)
                 staff[t] += costs[i].Staff[t];
         }
+
+        return new(money, RemediationPortfolioGraph.Freeze(input.Limits.Staff.Select((team, i) => team with { Minutes = staff[i] })),
+            disruption);
+    }
+
+    internal PortfolioAdvisoryPlan Describe(UInt128 selected)
+    {
+        List<string> actions = [];
+        for (UInt128 bits = selected; bits != 0; bits &= bits - 1)
+            actions.Add(graph.Actions[Index(bits)].Id);
 
         var evaluated = graph.EvaluateSelection(actions);
 
@@ -213,7 +221,7 @@ internal sealed class PortfolioOptimizationModel
             throw new InvalidOperationException("Portfolio coverage disagreed with the pinned dependency graph.");
 
         return new(RemediationPortfolioGraph.Freeze(actions), evaluated.CoveredScenarioIds, evaluated.UnknownScenarioIds, graphScore,
-            new(money, RemediationPortfolioGraph.Freeze(input.Limits.Staff.Select((team, i) => team with { Minutes = staff[i] })), disruption));
+            ResourceUsage(selected));
     }
 
     internal static bool Contains(UInt128 set, UInt128 subset) => (set & subset) == subset;

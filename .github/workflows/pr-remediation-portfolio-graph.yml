@@ -11,12 +11,14 @@ on:
       - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPortfolioGraphTests.cs'
       - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPortfolioOptimizationTests.cs'
       - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPortfolioParetoTests.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPortfolioExplanationTests.cs'
       - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPatternMatcherServiceTests.cs'
       - 'ArchLucid.Application.Tests/InfraEvidence/CutPointAnalysisEngineTests.cs'
       - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPrioritization*Tests.cs'
       - 'docs/assurance/FND088_REMEDIATION_PORTFOLIO_GRAPH.md'
       - 'docs/assurance/FND089_REMEDIATION_PORTFOLIO_OPTIMIZER.md'
       - 'docs/assurance/FND091_REMEDIATION_PORTFOLIO_PARETO.md'
+      - 'docs/assurance/FND092_REMEDIATION_PORTFOLIO_EXPLANATIONS.md'
 
 permissions:
   contents: read
@@ -41,7 +43,7 @@ jobs:
       - name: Run focused Release tests
         run: >-
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~RemediationPortfolioGraphTests|FullyQualifiedName~RemediationPortfolioOptimizationTests|FullyQualifiedName~RemediationPortfolioParetoTests|FullyQualifiedName~RemediationPatternMatcherServiceTests|FullyQualifiedName~CutPointAnalysisEngineTests|FullyQualifiedName~RemediationPrioritizationAndWaveServiceTests|FullyQualifiedName~RemediationPrioritizationRankBatchTests'
+          --filter 'FullyQualifiedName~RemediationPortfolioGraphTests|FullyQualifiedName~RemediationPortfolioOptimizationTests|FullyQualifiedName~RemediationPortfolioParetoTests|FullyQualifiedName~RemediationPortfolioExplanationTests|FullyQualifiedName~RemediationPatternMatcherServiceTests|FullyQualifiedName~CutPointAnalysisEngineTests|FullyQualifiedName~RemediationPrioritizationAndWaveServiceTests|FullyQualifiedName~RemediationPrioritizationRankBatchTests'
           --results-directory "$RUNNER_TEMP/remediation-portfolio-graph"
           --logger 'trx;LogFileName=application.trx'
       - name: Require executed passing tests
@@ -64,7 +66,11 @@ jobs:
               for item in root.findall(".//{*}Results/{*}UnitTestResult")
               if item.attrib.get("outcome") == "Passed"
           }
-          for suite in ("RemediationPortfolioOptimizationTests", "RemediationPortfolioParetoTests"):
+          for suite in (
+              "RemediationPortfolioOptimizationTests",
+              "RemediationPortfolioParetoTests",
+              "RemediationPortfolioExplanationTests",
+          ):
               suite_ids = {
                   unit.attrib["id"]
                   for unit in root.findall(".//{*}TestDefinitions/{*}UnitTest")
