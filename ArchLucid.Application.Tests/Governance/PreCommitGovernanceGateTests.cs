@@ -46,10 +46,10 @@ public sealed class PreCommitGovernanceGateTests
 
     private static string EmptyPinnedPolicyPackIdsJson => "[]";
 
-    private static string BuildPinnedPolicyPackIdsJson(params (Guid policyPackId, string version)[] rows)
+    private static string BuildPinnedPolicyPackIdsJson(params (Guid policyPackId, string version, bool blockCritical, int? minimumSeverity)[] rows)
     {
         PinnedPolicyPackRow[] pinRows = rows
-            .Select(row => new PinnedPolicyPackRow(row.policyPackId.ToString("D"), row.version))
+            .Select(row => new PinnedPolicyPackRow(row.policyPackId.ToString("D"), row.version, row.blockCritical, row.minimumSeverity))
             .ToArray();
 
         return JsonSerializer.Serialize(pinRows, ContractJson.CamelCaseIgnoreNullCompact);
@@ -74,7 +74,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0", true, null)),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -155,7 +155,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0", true, null)),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -257,7 +257,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"), "1.0.0")),
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"), "1.0.0", true, null)),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -339,7 +339,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0", true, null)),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -417,7 +417,7 @@ public sealed class PreCommitGovernanceGateTests
     }
 
     [SkippableFact]
-    public async Task EvaluateAsync_allows_when_runId_is_not_parseable_guid()
+    public async Task EvaluateAsync_blocks_invalid_run_id_without_resolving_scope()
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         PreCommitGovernanceGate sut = CreateGate(
@@ -429,7 +429,8 @@ public sealed class PreCommitGovernanceGateTests
 
         PreCommitGateResult r = await sut.EvaluateAsync("not-a-guid", CancellationToken.None);
 
-        r.Blocked.Should().BeFalse();
+        r.Blocked.Should().BeTrue();
+        r.Reason.Should().Contain("run id is invalid");
         scopeProvider.Verify(s => s.GetCurrentScope(), Times.Never);
     }
 
@@ -451,7 +452,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = null,
-                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0", true, null)),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -505,7 +506,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0", false, null)),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -584,7 +585,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
+                PinnedPolicyPackIdsJson = EmptyPinnedPolicyPackIdsJson,
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -663,7 +664,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0", true, null)),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -717,7 +718,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0", true, null)),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -820,8 +821,8 @@ public sealed class PreCommitGovernanceGateTests
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
                 PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson(
-                    (olderPackId, "1.0.0"),
-                    (newerPackId, "1.0.0")),
+                    (olderPackId, "1.0.0", true, null),
+                    (newerPackId, "1.0.0", true, null)),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -919,8 +920,8 @@ public sealed class PreCommitGovernanceGateTests
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
                 PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson(
-                    (olderPackId, "1.0.0"),
-                    (newerPackId, "1.0.0")),
+                    (olderPackId, "1.0.0", false, null),
+                    (newerPackId, "1.0.0", true, null)),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -1016,7 +1017,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0", false, (int)FindingSeverity.Error)),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -1099,7 +1100,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0", false, (int)FindingSeverity.Error)),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -1179,7 +1180,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0", true, null)),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -1271,7 +1272,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-1",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0", false, (int)FindingSeverity.Error)),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -1530,7 +1531,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-tech",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0", false, (int)FindingSeverity.Error)),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);
@@ -1724,7 +1725,7 @@ public sealed class PreCommitGovernanceGateTests
                 ArchitectureRequestId = "req-linkage-enforce",
                 LegacyRunStatus = "ReadyForCommit",
                 FindingsSnapshotId = snapshotId,
-                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0", false, (int)FindingSeverity.Error)),
                 CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             },
             CancellationToken.None);

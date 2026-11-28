@@ -80,19 +80,26 @@ public sealed class AzureExtractorPreparedZipPersistStageTests
         string legacyUpper = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString()).ToUpperInvariant();
         const string bundleId = "bundle-azure-extractor-legacy";
 
-        ScopeContext scopeContext = new() { TenantId = Guid.NewGuid() };
+        ScopeContext scopeContext = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scopeContext);
 
         InMemoryEvidenceBundleRepository evidenceRepository = new();
-        await evidenceRepository.CreateAsync(
+        await evidenceRepository.CreateForRunAsync(
             new EvidenceBundle
             {
                 EvidenceBundleId = bundleId,
                 RequestDescription = "desc",
                 Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
             },
+            scopeContext,
+            runGuid,
             CancellationToken.None);
 
         InMemoryAgentTaskRepository taskRepository = new();
@@ -170,7 +177,7 @@ public sealed class AzureExtractorPreparedZipPersistStageTests
         AzureExtractorIngestResult result = await sut.PersistAsync(context, CancellationToken.None);
 
         result.Succeeded.Should().BeTrue();
-        EvidenceBundle? updated = await evidenceRepository.GetByIdAsync(bundleId, CancellationToken.None);
+        EvidenceBundle? updated = await evidenceRepository.GetForRunAsync(scopeContext, runGuid, bundleId, CancellationToken.None);
         updated.Should().NotBeNull();
         updated!.Metadata.Should().ContainKey(AzureExtractorEvidenceBundleMerger.MetadataPackageIdKey);
     }

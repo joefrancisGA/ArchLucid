@@ -20,6 +20,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Public endpoint lacks documented trust boundary",
             Rationale = "Public API without trust boundary.",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -42,6 +44,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Stated recovery objective may not be achievable",
             Rationale = "RTO 30 minutes vs 4-hour backup.",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -342,6 +346,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Public endpoint lacks documented trust boundary",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -352,6 +358,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Stated recovery objective may not be achievable",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -379,6 +387,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Public endpoint lacks documented trust boundary",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -389,6 +399,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Stated recovery objective may not be achievable",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -416,6 +428,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Stated recovery objective may not be achievable",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -426,6 +440,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Spend exceeds stated ceiling",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -453,6 +469,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Public endpoint lacks documented trust boundary",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -463,6 +481,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Stated recovery objective may not be achievable",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -490,6 +510,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Stated recovery objective may not be achievable",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -500,6 +522,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Spend exceeds stated ceiling",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -527,6 +551,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Public endpoint lacks documented trust boundary",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -537,6 +563,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Stated recovery objective may not be achievable",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -564,6 +592,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Third-party webhook retries are undocumented",
             Rationale = "No failure handling recorded.",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "Medium",
         };
 
@@ -587,6 +617,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Single-region deployment lacks documented failover",
             Rationale = "No secondary region recorded.",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -608,6 +640,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Data residency obligations are undocumented",
             Rationale = "No jurisdiction controls recorded.",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "Medium",
         };
 
@@ -632,6 +666,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Stated recovery objective may not be achievable",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -642,6 +678,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Spend exceeds stated ceiling",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -669,6 +707,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Stated recovery objective may not be achievable",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -679,6 +719,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Spend exceeds stated ceiling",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -706,6 +748,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Stated recovery objective may not be achievable",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -716,6 +760,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Public endpoint lacks documented trust boundary",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -744,6 +790,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Unmapped spend drivers exceed forecast",
             Rationale = "Forecast variance is unexplained.",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -765,6 +813,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Public endpoint lacks documented trust boundary",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -775,6 +825,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Stated recovery objective may not be achievable",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -802,6 +854,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Public endpoint lacks documented trust boundary",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -812,6 +866,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Stated recovery objective may not be achievable",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -839,6 +895,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Public endpoint lacks documented trust boundary",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -849,6 +907,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Spend exceeds stated ceiling",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -887,6 +947,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Public endpoint lacks documented trust boundary",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -897,6 +959,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Spend exceeds stated ceiling",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -926,6 +990,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Spend exceeds stated ceiling",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -936,6 +1002,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Public endpoint lacks documented trust boundary",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -964,6 +1032,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Spend exceeds stated ceiling",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -974,6 +1044,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Stated recovery objective may not be achievable",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -1003,6 +1075,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Public endpoint lacks documented trust boundary",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -1013,6 +1087,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Spend exceeds stated ceiling",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -1040,6 +1116,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Public endpoint lacks documented trust boundary",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -1050,6 +1128,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Spend exceeds stated ceiling",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -1077,6 +1157,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Public endpoint lacks documented trust boundary",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 
@@ -1087,6 +1169,8 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             Title = "Spend exceeds stated ceiling",
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 

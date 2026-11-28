@@ -1,7 +1,9 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
+using ArchLucid.Core.Http;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Host.Core.Http;
 using ArchLucid.Persistence.InfraEvidence;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -38,11 +40,11 @@ internal static class RuntimeTelemetryRegistration
         services.AddScoped<IRuntimeAttestationPublicationAuthority, ProvisionedRuntimePublicationAuthority>();
         services.AddScoped<IRuntimeAttestationPublicationStore, AtomicRuntimeAttestationPublicationStore>();
         services.AddHttpClient("SecureNowRuntimeKeyVault", client => client.Timeout = TimeSpan.FromSeconds(15))
-            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-            {
-                AllowAutoRedirect = false,
-                UseCookies = false,
-            });
+            .ConfigureArchLucidOutboundSocketsHandler(
+                OutboundHttpSocketsHandlerProfile.CloudControlPlane,
+                allowAutoRedirect: false,
+                rejectPrivateNetworkConnectEndpoints: false,
+                useCookies: false);
         services.AddScoped<IScopedRuntimeDigestSigner>(provider => new KeyVaultRuntimeDigestSigner(
             provider.GetRequiredService<IConfiguration>(),
             new Azure.Identity.ManagedIdentityCredential(Azure.Identity.ManagedIdentityId.SystemAssigned),

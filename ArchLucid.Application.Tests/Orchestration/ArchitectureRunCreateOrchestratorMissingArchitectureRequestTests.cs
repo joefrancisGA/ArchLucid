@@ -61,6 +61,7 @@ public sealed class ArchitectureRunCreateOrchestratorMissingArchitectureRequestT
             .Callback(() => sequence.Add("request"))
             .Returns(Task.CompletedTask);
 
+        Guid runGuid = Guid.NewGuid();
         Mock<IArchitectureRunAuthorityCoordination> coordination = new();
         coordination
             .Setup(c => c.CreateRunAsync(
@@ -68,11 +69,17 @@ public sealed class ArchitectureRunCreateOrchestratorMissingArchitectureRequestT
                 It.IsAny<CancellationToken>(),
                 It.IsAny<IArchLucidUnitOfWork?>()))
             .Callback(() => sequence.Add("coordinate"))
-            .ReturnsAsync(BuildSuccessfulCoordination("req-first"));
+            .ReturnsAsync(BuildSuccessfulCoordination("req-first", runGuid.ToString("N")));
 
         Mock<IEvidenceBundleRepository> evidence = new();
         evidence
-            .Setup(e => e.CreateAsync(It.IsAny<EvidenceBundle>(), It.IsAny<CancellationToken>(), null, null))
+            .Setup(e => e.CreateForRunAsync(
+                It.Is<EvidenceBundle>(bundle => bundle.EvidenceBundleId == "eb-req-first"),
+                AuthorityTestScope,
+                runGuid,
+                It.IsAny<CancellationToken>(),
+                null,
+                null))
             .Callback(() => sequence.Add("evidence"))
             .Returns(Task.CompletedTask);
 
@@ -119,17 +126,24 @@ public sealed class ArchitectureRunCreateOrchestratorMissingArchitectureRequestT
                 null))
             .Returns(Task.CompletedTask);
 
+        Guid runGuid = Guid.NewGuid();
         Mock<IArchitectureRunAuthorityCoordination> coordination = new();
         coordination
             .Setup(c => c.CreateRunAsync(
                 It.IsAny<ArchitectureRequest>(),
                 It.IsAny<CancellationToken>(),
                 It.IsAny<IArchLucidUnitOfWork?>()))
-            .ReturnsAsync(BuildSuccessfulCoordination("req-once"));
+            .ReturnsAsync(BuildSuccessfulCoordination("req-once", runGuid.ToString("N")));
 
         Mock<IEvidenceBundleRepository> evidence = new();
         evidence
-            .Setup(e => e.CreateAsync(It.IsAny<EvidenceBundle>(), It.IsAny<CancellationToken>(), null, null))
+            .Setup(e => e.CreateForRunAsync(
+                It.Is<EvidenceBundle>(bundle => bundle.EvidenceBundleId == "eb-req-once"),
+                AuthorityTestScope,
+                runGuid,
+                It.IsAny<CancellationToken>(),
+                null,
+                null))
             .Returns(Task.CompletedTask);
 
         ArchitectureRunCreateOrchestrator sut = CreateSut(
@@ -187,7 +201,13 @@ public sealed class ArchitectureRunCreateOrchestratorMissingArchitectureRequestT
 
         Mock<IEvidenceBundleRepository> evidence = new();
         evidence
-            .Setup(e => e.CreateAsync(It.IsAny<EvidenceBundle>(), It.IsAny<CancellationToken>(), null, null))
+            .Setup(e => e.CreateForRunAsync(
+                It.Is<EvidenceBundle>(bundle => bundle.EvidenceBundleId == "eb-req-compensate"),
+                AuthorityTestScope,
+                runGuid,
+                It.IsAny<CancellationToken>(),
+                null,
+                null))
             .ThrowsAsync(new InvalidOperationException("evidence persist failed"));
 
         Mock<IRunRepository> runs = new();

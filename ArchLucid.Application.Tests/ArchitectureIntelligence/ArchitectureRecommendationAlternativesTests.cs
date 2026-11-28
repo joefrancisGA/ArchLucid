@@ -226,6 +226,8 @@ public sealed class ArchitectureRecommendationAlternativesTests
             Title = title,
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
     }
