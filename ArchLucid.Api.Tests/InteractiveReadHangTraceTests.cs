@@ -31,6 +31,17 @@ public sealed class InteractiveReadHangTraceTests
             .Be(InteractiveReadHangKind.ArchitectureDraftGet);
     }
 
+    [Theory]
+    [InlineData("/v1.0/learning/plans/", InteractiveReadHangKind.LearningPlansList)]
+    [InlineData("/V1.0/architecture/draft/cf9ddef7-3a8b-4e10-aebb-79302e7c691c", InteractiveReadHangKind.ArchitectureDraftGet)]
+    [InlineData("/v1.0/architecture/draft/cf9ddef7-3a8b-4e10-aebb-79302e7c691c/questions", InteractiveReadHangKind.None)]
+    [InlineData("/v1.1/learning/plans", InteractiveReadHangKind.None)]
+    [InlineData("/v10/learning/plans", InteractiveReadHangKind.None)]
+    public void Classify_matches_v1_zero_alias_without_widening_the_routes(string path, InteractiveReadHangKind expected)
+    {
+        InteractiveReadHangTrace.Classify("GET", path).Should().Be(expected);
+    }
+
     [Fact]
     public void Classify_ignores_nested_draft_routes_and_non_gets()
     {
