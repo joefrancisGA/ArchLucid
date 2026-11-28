@@ -67,7 +67,7 @@ public sealed class RemediationRiskScoreResult
 }
 
 /// <summary>Deterministic, explainable remediation priority scoring (no LLM).</summary>
-public static class RemediationRiskScoreEvaluator
+public static partial class RemediationRiskScoreEvaluator
 {
     public static IReadOnlyDictionary<RemediationRiskFactor, decimal> DefaultWeights() =>
         new Dictionary<RemediationRiskFactor, decimal>
@@ -242,17 +242,22 @@ public static class RemediationRiskScoreEvaluator
         });
     }
 
-    private static decimal NormalizeSeverity(string? severity) =>
+    private static decimal NormalizeSeverity(string? severity) => RecognizedSeverity(severity) ?? 0.1m;
+
+    private static decimal? RecognizedSeverity(string? severity) =>
         (severity ?? string.Empty).Trim().ToLowerInvariant() switch
         {
             "critical" => 1.0m,
             "high" => 0.75m,
             "medium" => 0.5m,
             "low" => 0.25m,
-            _ => 0.1m,
+            "info" or "informational" => 0.1m,
+            _ => null,
         };
 
-    private static decimal NormalizeLevel(string? level) =>
+    private static decimal NormalizeLevel(string? level) => RecognizedLevel(level) ?? 0.2m;
+
+    private static decimal? RecognizedLevel(string? level) =>
         (level ?? string.Empty).Trim().ToLowerInvariant() switch
         {
             "critical" => 1.0m,
@@ -260,29 +265,29 @@ public static class RemediationRiskScoreEvaluator
             "medium" => 0.55m,
             "low" => 0.3m,
             "none" => 0.0m,
-            _ => 0.2m,
+            _ => null,
         };
 
-    private static decimal NormalizeBoolean(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return 0m;
+    private static decimal NormalizeBoolean(string? value) => RecognizedBoolean(value) ?? 0m;
 
-        return value.Trim().ToLowerInvariant() switch
+    private static decimal? RecognizedBoolean(string? value) =>
+        (value ?? string.Empty).Trim().ToLowerInvariant() switch
         {
             "true" or "yes" or "1" or "active" or "known" => 1.0m,
-            _ => 0m,
+            "false" or "no" or "0" or "inactive" => 0m,
+            _ => null,
         };
-    }
 
-    private static decimal NormalizeAutomationComplexity(RemediationAutomationLevel level) =>
+    private static decimal NormalizeAutomationComplexity(RemediationAutomationLevel level) => RecognizedAutomation(level) ?? 0.5m;
+
+    private static decimal? RecognizedAutomation(RemediationAutomationLevel level) =>
         level switch
         {
             RemediationAutomationLevel.Manual => 0.25m,
             RemediationAutomationLevel.Guided => 0.5m,
             RemediationAutomationLevel.SemiAutomated => 0.75m,
             RemediationAutomationLevel.Automated => 1.0m,
-            _ => 0.5m,
+            _ => null,
         };
 
     private static string? GetMetadata(IReadOnlyDictionary<string, string?> metadata, params string[] keys)

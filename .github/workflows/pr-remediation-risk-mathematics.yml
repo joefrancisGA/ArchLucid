@@ -1,0 +1,56 @@
+name: Remediation risk-ranking mathematics
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - '.github/workflows/pr-remediation-risk-mathematics.yml'
+      - 'ArchLucid.Application/InfraEvidence/RemediationPrioritization/**'
+      - 'ArchLucid.Application.Tests/InfraEvidence/RemediationRiskScoreMathematicsTests.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPrioritization*Tests.cs'
+      - 'ArchLucid.Core/InfraEvidence/RemediationRiskFactor.cs'
+      - 'ArchLucid.Core/InfraEvidence/RemediationPrioritizationConstants.cs'
+      - 'docs/assurance/FND087_RISK_RANKING_MATHEMATICS.md'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: remediation-risk-mathematics-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic-risk-factors:
+    name: Verify historical and shadow IE-15 scoring
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Run focused Release tests
+        run: >-
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~RemediationRiskScoreMathematicsTests|FullyQualifiedName~RemediationPrioritizationAndWaveServiceTests|FullyQualifiedName~RemediationPrioritizationRankBatchTests|FullyQualifiedName~SecurityEvidencePathRankCalculatorTests|FullyQualifiedName~PathRankingEngineTests'
+          --results-directory "$RUNNER_TEMP/remediation-risk-mathematics"
+          --logger 'trx;LogFileName=application.trx'
+      - name: Require executed passing tests
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          from xml.etree import ElementTree
+
+          result = Path(os.environ["RUNNER_TEMP"]) / "remediation-risk-mathematics" / "application.trx"
+          counters = ElementTree.parse(result).find(".//{*}Counters")
+          if counters is None:
+              raise SystemExit("Test result does not contain counters")
+          total, executed, passed = (int(counters.attrib[key]) for key in ("total", "executed", "passed"))
+          if not total or total != executed or executed != passed:
+              raise SystemExit(f"total={total}, executed={executed}, passed={passed}")
+          print(f"{passed} tests passed")
+          PY
