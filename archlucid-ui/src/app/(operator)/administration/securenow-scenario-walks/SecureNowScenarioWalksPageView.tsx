@@ -6,6 +6,8 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SecureNowAcceleratorScenarioRelatedRail } from "@/components/product-line/SecureNowAcceleratorScenarioRelatedRail";
 import { SecureNowAdminSecondCapturePathDeltaStrip } from "@/components/product-line/SecureNowAdminSecondCapturePathDeltaStrip";
+import { SecureNowAcceleratorTemplateRichnessHonestyStrip } from "@/components/product-line/SecureNowAcceleratorTemplateRichnessHonestyStrip";
+import { resolveSecureNowAcceleratorTemplateRichnessHonesty } from "@/lib/product-line/resolve-securenow-accelerator-template-richness-honesty";
 import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
 import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -41,6 +43,11 @@ export function SecureNowScenarioWalksPageView(): React.JSX.Element {
         />
 
         <SecureNowAdminSecondCapturePathDeltaStrip testIdPrefix="securenow-scenario-walks" />
+
+        <SecureNowAcceleratorTemplateRichnessHonestyStrip
+          testId="securenow-scenario-walks-template-richness-honesty"
+          honesty={resolveSecureNowAcceleratorTemplateRichnessHonesty()}
+        />
 
         <section aria-labelledby="securenow-scenario-walks-list-heading" className="space-y-2">
           <h2 id="securenow-scenario-walks-list-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
