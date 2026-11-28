@@ -118,4 +118,9 @@
     <Using Include="ArchLucid.Core.Manifest" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\ArchLucid.Persistence.Tests\Scripts\PersistenceContractSupplement.sql"
+          Link="Scripts\PersistenceContractSupplement.sql" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

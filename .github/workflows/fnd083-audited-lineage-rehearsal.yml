@@ -1,0 +1,86 @@
+name: FND-083 audited lineage rehearsal
+
+on:
+  pull_request:
+    branches: [master, main, 'fix/fnd083-analysis-dependency-graph']
+    paths:
+      - '.github/workflows/fnd083-audited-lineage-rehearsal.yml'
+      - 'ArchLucid.Application.Tests/Analysis/Fnd083DurableLineageSqlRehearsalTests.cs'
+      - 'ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj'
+      - 'ArchLucid.Application/Analysis/Dependencies/**'
+      - 'ArchLucid.Application/Analysis/AnalysisRecoveryLease.cs'
+      - 'ArchLucid.Persistence/Orchestration/AnalysisRecovery/SqlAnalysisRecoveryRepository*.cs'
+      - 'ArchLucid.Persistence.Tests/Scripts/PersistenceContractSupplement.sql'
+      - 'scripts/ci/wait-for-sqlserver.sh'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fnd083-audited-lineage-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  audited-lineage-sql:
+    name: Verify dependency audit commits and rolls back with checkpoints
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SQL_TEST: ArchLucid.Application.Tests.Analysis.Fnd083DurableLineageSqlRehearsalTests.Authority_and_SecureNow_lineage_commits_and_rolls_back_with_the_checkpoint
+      SQL_RESULTS: TestResults/fnd083-audited-lineage
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - name: Start isolated SQL Server
+        shell: bash
+        run: |
+          set -euo pipefail
+          password="Fnd083!$(openssl rand -hex 20)"
+          echo "::add-mask::$password"
+          docker run -d --name fnd083-lineage-sql -e ACCEPT_EULA=Y \
+            -e MSSQL_PID=Developer -e MSSQL_SA_PASSWORD="$password" \
+            -p 127.0.0.1:1433:1433 mcr.microsoft.com/mssql/server:2022-latest
+          SA_PASSWORD="$password" bash scripts/ci/wait-for-sqlserver.sh
+          connection="Server=127.0.0.1,1433;Initial Catalog=master;User ID=sa;Password=$password;Encrypt=True;TrustServerCertificate=True;Connect Timeout=5"
+          echo "::add-mask::$connection"
+          echo "ARCHLUCID_FND083_REHEARSAL_SQL=$connection" >> "$GITHUB_ENV"
+      - name: Run the named rehearsal
+        shell: bash
+        run: |
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj \
+            -c Release -p:TreatWarningsAsErrors=true \
+            --filter "FullyQualifiedName=$SQL_TEST" \
+            --logger 'trx;LogFileName=fnd083-audited-lineage.trx' \
+            --results-directory "$SQL_RESULTS"
+      - name: Require the named SQL case to execute and pass
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          report = Path(os.environ["SQL_RESULTS"]) / "fnd083-audited-lineage.trx"
+          ns = {"t": "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}
+          rows = ET.parse(report).findall(".//t:UnitTestResult", ns)
+          actual = [(row.get("testName"), row.get("outcome")) for row in rows]
+          expected = [(os.environ["SQL_TEST"], "Passed")]
+          if actual != expected:
+              raise SystemExit(f"Expected exactly one executed SQL case: {expected}. Got {actual}.")
+          print("Verified the Authority and SecureNow audit/checkpoint transaction rehearsal passed.")
+          PY
+      - name: Preserve rehearsal evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: fnd083-audited-lineage-trx
+          path: TestResults/fnd083-audited-lineage/*.trx
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Remove disposable SQL Server
+        if: always()
+        run: docker rm -f fnd083-lineage-sql || true
