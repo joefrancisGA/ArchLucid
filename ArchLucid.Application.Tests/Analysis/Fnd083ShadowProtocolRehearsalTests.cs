@@ -130,6 +130,7 @@ public sealed class Fnd083ShadowProtocolRehearsalTests
                 SecureNowRecoverySession session = new(store.Object, job, 3, clock, log, CancellationToken.None,
                     versioned: true, useGraph: false, observeGraph: observe);
                 Assert.Equal(route, await session.PinPlanAsync("test-plan", route, CancellationToken.None));
+
                 foreach (string stage in stages)
                 {
                     Assert.Equal(stage, await session.ExecuteAsync(stage, _ =>
@@ -144,6 +145,7 @@ public sealed class Fnd083ShadowProtocolRehearsalTests
             Assert.Equal(stages.Length + 1, writes.Count);
             Assert.Equal(observe ? 2 * (stages.Length + 1) : 0, log.Decisions.Count);
             Assert.All(log.Decisions, d => Assert.Equal("shadow", d.Mode));
+
             if (observe)
                 Assert.All(log.Decisions.Skip(stages.Length + 1), d => Assert.True(d.LegacyReuse));
             return writes;
@@ -214,6 +216,7 @@ public sealed class Fnd083ShadowProtocolRehearsalTests
             if (state is IEnumerable<KeyValuePair<string, object?>> values)
             {
                 var fields = values.ToDictionary();
+
                 if (fields.TryGetValue("Mode", out object? mode) && fields.TryGetValue("LegacyReuse", out object? reuse))
                     Decisions.Add(((string)mode!, (bool)reuse!));
             }
