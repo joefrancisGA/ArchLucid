@@ -1,5 +1,6 @@
 
 import { SECURENOW_ACCELERATOR_INDEX_ROWS } from "@/lib/product-line/securenow-accelerator-index-copy";
+import { SECURENOW_SPECIALTY_TEMPLATES_HREF } from "@/lib/product-line/securenow-accelerator-template-links";
 
 export type SecureNowAcceleratorCatalogFamily = "collection" | "walks" | "procurement" | "templates";
 
@@ -21,6 +22,7 @@ const FAMILY_BY_HREF: Record<string, SecureNowAcceleratorCatalogFamily> = {
   "/administration/securenow-reviewer-packet": "procurement",
   "/administration/securenow-quote-packet": "procurement",
   "/administration/securenow-specialty-templates": "templates",
+  [SECURENOW_SPECIALTY_TEMPLATES_HREF]: "templates",
 };
 
 export const SECURENOW_ACCELERATOR_CATALOG_FILTER_LABELS: Record<SecureNowAcceleratorCatalogTag, string> = {
@@ -32,8 +34,8 @@ export const SECURENOW_ACCELERATOR_CATALOG_FILTER_LABELS: Record<SecureNowAccele
 };
 
 export function resolveSecureNowAcceleratorCatalogMeta(href: string): SecureNowAcceleratorCatalogMeta {
-  const normalized = href.split("#")[0] ?? href;
-  const family = FAMILY_BY_HREF[normalized] ?? "walks";
+  const pathname = href.split(/[?#]/, 1)[0] ?? href;
+  const family = FAMILY_BY_HREF[pathname] ?? "walks";
   return { href, family };
 }
 
