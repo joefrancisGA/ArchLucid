@@ -61,6 +61,28 @@ public sealed class StreamingJsonAnswerExtractorTests
     }
 
     [Fact]
+    public void AppendChunk_streams_an_escaped_top_level_answer_name()
+    {
+        StreamingJsonAnswerExtractor extractor = new();
+
+        extractor.AppendChunkAndTakeAnswerDelta("""{"metadata":{"\u0061nswer":"nested"},"\u00""").Should().BeEmpty();
+        extractor.AppendChunkAndTakeAnswerDelta("""61nswer":"Hel""").Should().Be("Hel");
+        extractor.AppendChunkAndTakeAnswerDelta("""lo"}""").Should().Be("lo");
+        extractor.RawJson.Should().Be("""{"metadata":{"\u0061nswer":"nested"},"\u0061nswer":"Hello"}""");
+    }
+
+    [Theory]
+    [InlineData("""\u006deta""")]
+    [InlineData("""\uD83D""")]
+    public void AppendChunk_ignores_unrelated_escaped_property_names(string escapedName)
+    {
+        StreamingJsonAnswerExtractor extractor = new();
+
+        extractor.AppendChunkAndTakeAnswerDelta($$"""{"{{escapedName}}":"metadata","answer":"Hello"}""")
+            .Should().Be("Hello");
+    }
+
+    [Fact]
     public void AppendChunk_does_not_emit_half_of_a_raw_surrogate_pair()
     {
         StreamingJsonAnswerExtractor extractor = new();

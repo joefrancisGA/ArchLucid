@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using System.Text.Json;
 
 namespace ArchLucid.AgentRuntime;
 
@@ -67,7 +68,7 @@ public sealed class StreamingJsonAnswerExtractor
 
                 int separator = SkipJsonWhitespace(span, end + 1);
                 if (depth == 1 && separator < span.Length && span[separator] == ':'
-                    && span[(cursor + 1)..end].Equals("answer", StringComparison.OrdinalIgnoreCase))
+                    && IsAnswerProperty(span[cursor..(end + 1)]))
                 {
                     int valueStart = SkipJsonWhitespace(span, separator + 1);
                     return valueStart < span.Length && span[valueStart] == '"'
@@ -89,6 +90,23 @@ public sealed class StreamingJsonAnswerExtractor
         }
 
         return null;
+    }
+
+    private static bool IsAnswerProperty(ReadOnlySpan<char> quotedName)
+    {
+        ReadOnlySpan<char> name = quotedName[1..^1];
+        if (!name.Contains('\\'))
+            return name.Equals("answer", StringComparison.OrdinalIgnoreCase);
+
+        try
+        {
+            string? decoded = JsonSerializer.Deserialize<string>(quotedName);
+            return string.Equals(decoded, "answer", StringComparison.OrdinalIgnoreCase);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
     }
 
     private static int FindStringEnd(ReadOnlySpan<char> span, int start)
