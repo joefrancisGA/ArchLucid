@@ -65,6 +65,8 @@ internal sealed class AuthorityTopologyGraphProjection
         JsonObject document = JsonSerializer.SerializeToNode(graph)!.AsObject();
         GraphSnapshot copy = document.Deserialize<GraphSnapshot>()!;
         document.Remove(nameof(GraphSnapshot.GraphSnapshotId));
+        // Graph creation time is an envelope field, not the pinned evidence observation/collection time.
+        document.Remove(nameof(GraphSnapshot.CreatedUtc));
         SortRows(document, nameof(GraphSnapshot.Nodes), nameof(GraphNode.NodeId));
         SortRows(document, nameof(GraphSnapshot.Edges), nameof(GraphEdge.EdgeId));
         return new AuthorityTopologyGraphProjection(copy, AnalysisDependencyFingerprint.Digest(document));

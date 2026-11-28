@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 
 namespace ArchLucid.Persistence.Orchestration.AnalysisRecovery;
@@ -5,6 +6,10 @@ namespace ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 public interface IAnalysisRecoveryRepository
 {
     Task<AnalysisRecoveryClaim?> ReadAsync(AnalysisRecoveryStageKey key, CancellationToken cancellationToken);
+
+    /// <summary>Observes the adjacent successful graph generation of a current, unsealed Authority run.</summary>
+    Task<AuthorityGraphCheckpointPredecessor?> ReadImmediateAuthorityGraphPredecessorAsync(
+        ProjectScopeKey scope, Guid runId, long activeFence, CancellationToken cancellationToken);
 
     /// <summary>Acquires a new or reclaimable stage, or returns its current non-owned state.</summary>
     Task<AnalysisRecoveryClaim> ClaimAsync(

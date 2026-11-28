@@ -12,7 +12,7 @@ namespace ArchLucid.Application.Analysis;
 /// <summary>Bounded offline evidence for a single graph-only engine. Deliberately unregistered and not called by runtime orchestration.</summary>
 internal static class AuthorityTopologyOfflineComparison
 {
-    internal const string ProjectionVersion = "authority/topology-anti-pattern/shadow/v1";
+    internal const string ProjectionVersion = "authority/topology-anti-pattern/shadow/v2";
 
     internal static Guid EngineBuild => typeof(TopologyAntiPatternFindingEngine).Module.ModuleVersionId;
 

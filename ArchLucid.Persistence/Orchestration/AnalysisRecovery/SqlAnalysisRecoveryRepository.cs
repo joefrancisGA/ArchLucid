@@ -11,7 +11,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Orchestration.AnalysisRecovery;
 
 /// <summary>Tenant-routed checkpoint storage. Every state transition is scoped and fenced in SQL.</summary>
-public sealed class SqlAnalysisRecoveryRepository(
+public sealed partial class SqlAnalysisRecoveryRepository(
     ISqlConnectionFactory connectionFactory, IScopeContextProvider scopeProvider) : IAnalysisRecoveryRepository
 {
     private const string KeyPredicate = """

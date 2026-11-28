@@ -1,0 +1,85 @@
+name: FND-084 Authority lineage SQL
+
+on:
+  pull_request:
+    branches: [master, main]
+    paths:
+      - '.github/workflows/fnd084-authority-lineage-sql.yml'
+      - 'scripts/ci/wait-for-sqlserver.sh'
+      - 'ArchLucid.Core/Persistence/ApplicationPorts/AnalysisRecovery/**'
+      - 'ArchLucid.Persistence/Orchestration/AnalysisRecovery/SqlAnalysisRecoveryRepository*.cs'
+      - 'ArchLucid.Persistence/Migrations/*_AnalysisStageRecovery*.sql'
+      - 'ArchLucid.Persistence.Tests/Orchestration/AnalysisRecovery/SqlAuthorityGraphCheckpointHistoryTests.cs'
+      - 'ArchLucid.Persistence.Tests/SqlServerPersistenceFixture.cs'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fnd084-authority-lineage-sql-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  authority-lineage-sql:
+    name: Verify adjacent Authority checkpoint history
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SQL_TEST: ArchLucid.Persistence.Tests.Orchestration.AnalysisRecovery.SqlAuthorityGraphCheckpointHistoryTests.Only_the_adjacent_successful_current_unsealed_graph_predecessor_is_visible
+      SQL_RESULTS: TestResults/fnd084-authority-lineage
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - name: Start disposable SQL Server
+        shell: bash
+        run: |
+          set -euo pipefail
+          password="Fnd084!$(openssl rand -hex 20)"
+          echo "::add-mask::$password"
+          docker run -d --name fnd084-authority-sql -e ACCEPT_EULA=Y \
+            -e MSSQL_PID=Developer -e MSSQL_SA_PASSWORD="$password" \
+            -p 127.0.0.1:1433:1433 mcr.microsoft.com/mssql/server:2022-latest
+          SA_PASSWORD="$password" bash scripts/ci/wait-for-sqlserver.sh
+          connection="Server=127.0.0.1,1433;Initial Catalog=ArchLucidPersistenceTestsFnd084;User ID=sa;Password=$password;Encrypt=True;TrustServerCertificate=True;Connect Timeout=5"
+          echo "::add-mask::$connection"
+          echo "ARCHLUCID_SQL_TEST=$connection" >> "$GITHUB_ENV"
+      - name: Run the checkpoint history regression
+        shell: bash
+        run: |
+          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj \
+            -c Release -p:TreatWarningsAsErrors=true \
+            --filter "FullyQualifiedName=$SQL_TEST" \
+            --logger 'trx;LogFileName=authority-lineage-sql.trx' \
+            --results-directory "$SQL_RESULTS"
+      - name: Require the named SQL test to execute and pass
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          report = Path(os.environ["SQL_RESULTS"]) / "authority-lineage-sql.trx"
+          ns = {"t": "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}
+          results = ET.parse(report).findall(".//t:UnitTestResult", ns)
+          actual = [(test.get("testName"), test.get("outcome")) for test in results]
+          expected = [(os.environ["SQL_TEST"], "Passed")]
+          if actual != expected:
+              raise SystemExit(f"Expected exactly one passing SQL lineage test: {expected}. Got {actual}.")
+          print("Verified the Authority SQL checkpoint lineage case passed.")
+          PY
+      - name: Preserve regression evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: fnd084-authority-lineage-sql-trx
+          path: TestResults/fnd084-authority-lineage/*.trx
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Remove disposable SQL Server
+        if: always()
+        run: docker rm -f fnd084-authority-sql || true
