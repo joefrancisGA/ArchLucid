@@ -1,0 +1,37 @@
+name: Engine promotion advisory contract
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - '.github/workflows/pr-engine-promotion-advisory.yml'
+      - 'docs/assurance/FND081_ENGINE_PROMOTION_GATE.md'
+      - 'scripts/assurance/evaluate_engine_promotion.py'
+      - 'scripts/assurance/paired_engine_evaluation.py'
+      - 'scripts/assurance/verify_divergent_findings.py'
+      - 'scripts/ci/tests/test_evaluate_engine_promotion.py'
+      - 'scripts/ci/tests/test_paired_engine_evaluation.py'
+      - 'scripts/ci/tests/test_verify_divergent_findings.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: engine-promotion-advisory-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  synthetic-assurance:
+    name: Verify advisory promotion and rollback evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Run the focused engine evaluation contracts
+        run: |
+          python3 -m unittest discover -s scripts/ci/tests -p 'test_paired_engine_evaluation.py' -v
+          python3 -m unittest discover -s scripts/ci/tests -p 'test_verify_divergent_findings.py' -v
+          python3 -m unittest discover -s scripts/ci/tests -p 'test_evaluate_engine_promotion.py' -v
