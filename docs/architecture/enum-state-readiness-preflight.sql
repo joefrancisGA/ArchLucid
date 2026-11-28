@@ -31,3 +31,62 @@ DEALLOCATE checks;
 SELECT * FROM @results ORDER BY table_name;
 IF EXISTS(SELECT 1 FROM @results WHERE column_present=0 OR trusted_enabled_check=0 OR invalid_rows IS NULL OR invalid_rows<>0)
     THROW 51000,'Enum state preflight failed: assess missing schema, untrusted checks or corrupt states before deployment.',1;
+
+-- The security-evidence mappers also require explicitly stored integer ordinals.
+-- These original migrations did not install enum range checks, so measure the actual
+-- declared SQL column shape and historical row values. This is not a schema change.
+DECLARE @ordinal_fields TABLE (table_name sysname, column_name sysname, max_ordinal int, additional_ordinal int NULL, sql_type sysname NOT NULL);
+INSERT @ordinal_fields VALUES
+    (N'AzureInventoryDriftApprovals', N'Status', 2, NULL, N'int'),
+    (N'OperationalSecurityExceptions', N'Status', 2, NULL, N'int'),
+    (N'SecurityDeclaredConnections', N'Status', 2, NULL, N'int'),
+    (N'SecurityDeclaredConnections', N'RelationshipType', 1, NULL, N'int'),
+    (N'AzureInventoryBaselines', N'BaselineKind', 3, NULL, N'int'),
+    (N'SecurityAssetAssertions', N'Status', 2, NULL, N'int'),
+    (N'SecurityAssetAssertions', N'DataSensitivity', 5, NULL, N'int'),
+    (N'SecurityAssetAssertions', N'RegulatoryClass', 3, 99, N'int'),
+    (N'SecurityAssetAssertions', N'DeploymentEnvironment', 2, NULL, N'int'),
+    (N'SecurityAssetAssertions', N'BusinessCriticality', 4, NULL, N'int'),
+    (N'AuditManualEvidenceSubmissions', N'ReviewStatus', 2, NULL, N'int'),
+    (N'AuditManualEvidenceSubmissions', N'ProvenanceKind', 4, NULL, N'int'),
+    (N'AuditEvidenceSnapshotItems', N'CollectionStatus', 2, NULL, N'int'),
+    (N'AuditEvidenceSnapshotItems', N'FreshnessStatus', 5, NULL, N'int'),
+    (N'AuditEvidenceSnapshotItems', N'ProvenanceKind', 4, NULL, N'int'),
+    (N'AuditControlEvaluations', N'Outcome', 2, NULL, N'int'),
+    (N'AuditControlEvaluations', N'ProvenanceKind', 4, NULL, N'int'),
+    (N'AuditEvidenceItems', N'CollectionStatus', 2, NULL, N'int'),
+    (N'AuditEvidenceItems', N'ProvenanceKind', 4, NULL, N'int'),
+    (N'FindingVerificationResults', N'Status', 3, NULL, N'tinyint');
+
+DECLARE @ordinal_results TABLE (
+    table_name sysname, column_name sysname, nonnullable_ordinal_type bit, invalid_rows bigint NULL
+);
+DECLARE @max_ordinal int, @additional int, @ordinal_sql_type sysname, @is_expected bit;
+DECLARE ordinal_fields CURSOR LOCAL FAST_FORWARD FOR SELECT table_name, column_name, max_ordinal, additional_ordinal, sql_type FROM @ordinal_fields;
+OPEN ordinal_fields;
+FETCH NEXT FROM ordinal_fields INTO @t, @c, @max_ordinal, @additional, @ordinal_sql_type;
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    SET @qualified = N'dbo.' + QUOTENAME(@t);
+    SET @is_expected = CASE WHEN EXISTS (
+        SELECT 1 FROM sys.columns
+        WHERE object_id = OBJECT_ID(@qualified, N'U') AND name = @c
+            AND system_type_id = TYPE_ID(@ordinal_sql_type) AND is_nullable = 0
+    ) THEN 1 ELSE 0 END;
+    SET @bad = NULL;
+    IF @is_expected = 1
+    BEGIN
+        SET @sql = N'SELECT @n = COUNT_BIG(*) FROM ' + @qualified + N' WHERE ' + QUOTENAME(@c)
+            + N' IS NULL OR (' + QUOTENAME(@c) + N' NOT BETWEEN 0 AND @maximum AND (@extra IS NULL OR '
+            + QUOTENAME(@c) + N' <> @extra));';
+        EXEC sys.sp_executesql @sql, N'@n bigint OUTPUT, @maximum int, @extra int', @n = @bad OUTPUT,
+            @maximum = @max_ordinal, @extra = @additional;
+    END;
+    INSERT @ordinal_results VALUES (@t, @c, @is_expected, @bad);
+    FETCH NEXT FROM ordinal_fields INTO @t, @c, @max_ordinal, @additional, @ordinal_sql_type;
+END;
+CLOSE ordinal_fields;
+DEALLOCATE ordinal_fields;
+SELECT * FROM @ordinal_results ORDER BY table_name, column_name;
+IF EXISTS (SELECT 1 FROM @ordinal_results WHERE nonnullable_ordinal_type = 0 OR invalid_rows IS NULL OR invalid_rows <> 0)
+    THROW 51001, 'Enum ordinal preflight failed: assess missing schema or corrupt security evidence states before deployment.', 1;

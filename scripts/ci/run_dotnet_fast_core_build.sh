@@ -18,12 +18,14 @@ if compgen -G "$enum_audit_dir/*.sarif" > /dev/null; then
   exit 1
 fi
 
+build_status=0
 dotnet build ArchLucid.sln --no-restore -c Release "/p:SourceRevisionId=$(git rev-parse HEAD)" \
   -p:RunAnalyzers=true -p:RunAnalyzersDuringBuild=true -p:EnumAuditInventory=true \
-  "-p:EnumAuditLogDirectory=$enum_audit_dir"
+  "-p:EnumAuditLogDirectory=$enum_audit_dir" || build_status=$?
 
 python3 -m unittest discover -s scripts/ci/tests -p "test_enum_boundary_gate.py"
-gate_args=(--reports "$enum_audit_dir" --exceptions scripts/ci/data/enum_boundary_exceptions.json)
+gate_args=(--reports "$enum_audit_dir" --exceptions scripts/ci/data/enum_boundary_exceptions.json
+  --build-exit-code "$build_status")
 case "${GITHUB_EVENT_NAME:-}" in
   pull_request|merge_group)
     : "${ENUM_AUDIT_BASE_SHA:?Missing enum audit base SHA}"
@@ -39,9 +41,8 @@ case "${GITHUB_EVENT_NAME:-}" in
 esac
 python3 scripts/ci/enum_boundary_gate.py "${gate_args[@]}"
 
-# Reuse the already-built test assembly; never restore or compile a second time.
-dotnet test ArchLucid.Analyzers.Tests/ArchLucid.Analyzers.Tests.csproj \
-  --no-build --no-restore -c Release --filter "FullyQualifiedName~EnumBoundaryReviewAnalyzerTests"
+# Reuse the already-built test assemblies and attach per-suite TRX to the same evidence artifact.
+python3 scripts/ci/enum_boundary_audit.py --compiled-tests-only --output "$enum_audit_dir"
 
 export ASPNETCORE_ENVIRONMENT=Development
 dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj --no-build -c Release -- config lint

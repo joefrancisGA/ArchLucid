@@ -441,7 +441,7 @@ public sealed partial class SqlOperationalSecurityExceptionRepository(ISqlConnec
             record.RevokedByActorKey,
         };
 
-    private static OperationalSecurityExceptionRecord Map(ExceptionRow row) =>
+    internal static OperationalSecurityExceptionRecord Map(ExceptionRow row) =>
         new()
         {
             ExceptionId = row.ExceptionId,
@@ -457,7 +457,7 @@ public sealed partial class SqlOperationalSecurityExceptionRepository(ISqlConnec
             CompensatingControls = row.CompensatingControls,
             EvidenceReference = row.EvidenceReference,
             ExpirationUtc = row.ExpirationUtc,
-            Status = (OperationalSecurityExceptionStatus)row.Status,
+            Status = SecurityEvidenceSqlEnum.RequireOrdinal<OperationalSecurityExceptionStatus>(row.Status, nameof(row.Status)),
             RequestedByActorKey = row.RequestedByActorKey,
             ApprovedByActorKey = row.ApprovedByActorKey,
             PayloadHashSha256 = row.PayloadHashSha256,
@@ -468,7 +468,7 @@ public sealed partial class SqlOperationalSecurityExceptionRepository(ISqlConnec
             RevokedByActorKey = row.RevokedByActorKey,
         };
 
-    private sealed class ExceptionRow
+    internal sealed class ExceptionRow
     {
         public Guid ExceptionId
         {
@@ -548,7 +548,7 @@ public sealed partial class SqlOperationalSecurityExceptionRepository(ISqlConnec
             init;
         }
 
-        public int Status
+        public int? Status
         {
             get;
             init;

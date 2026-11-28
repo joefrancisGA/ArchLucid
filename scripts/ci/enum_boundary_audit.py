@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Explicit master/RC49 enum boundary verification; never approves findings automatically."""
+"""Explicit master/RC49/RC50 enum boundary verification; never approves findings automatically."""
 import argparse
 import hashlib
 import json
@@ -21,25 +21,32 @@ def run(*args):
 
 def assert_audit_ref():
     head = git("rev-parse", "--abbrev-ref", "HEAD")
-    if head in {"master", "RC49"}:
+    if head in {"master", "RC49", "RC50"}:
         return
-    if (head == "HEAD" and os.environ.get("GITHUB_REF") in {"refs/heads/master", "refs/heads/RC49"}
+    if (head == "HEAD" and os.environ.get("GITHUB_REF") in {"refs/heads/master", "refs/heads/RC49", "refs/heads/RC50"}
             and os.environ.get("GITHUB_SHA") == git("rev-parse", "HEAD")):
         return
-    raise SystemExit("Explicit full enum inventory is restricted to master or RC49.")
+    raise SystemExit("Explicit full enum inventory is restricted to master, RC49 or RC50.")
 
 def findings_from_reports(directory):
     findings = {}
+    sources = {}
     reports = sorted(directory.glob("*.sarif"))
     if not reports:
         raise SystemExit("No compiler SARIF reports; audit cannot pass.")
     for report in reports:
-        for run_data in json.loads(report.read_text(encoding="utf-8-sig")).get("runs", []):
+        runs = json.loads(report.read_text(encoding="utf-8-sig")).get("runs")
+        if not isinstance(runs, list) or not runs:
+            raise ValueError(f"Missing compiler run in {report.name}.")
+        for run_data in runs:
             for item in run_data.get("results", []):
                 rule = item.get("ruleId")
                 if rule not in IDS:
                     continue
-                for location in item.get("locations", []):
+                locations = item.get("locations")
+                if not isinstance(locations, list) or len(locations) != 1:
+                    raise ValueError(f"{rule} lacks one exact compiler source location in {report.name}.")
+                for location in locations:
                     loc = location["physicalLocation"]
                     uri = loc["artifactLocation"]["uri"]
                     parsed = urlparse(uri)
@@ -55,7 +62,9 @@ def findings_from_reports(directory):
                     region = loc["region"]
                     start = region["startLine"]
                     end = region.get("endLine", start)
-                    source = path.read_text(encoding="utf-8-sig").splitlines()
+                    if path not in sources:
+                        sources[path] = path.read_text(encoding="utf-8-sig").splitlines()
+                    source = sources[path]
                     if not 1 <= start <= end <= len(source):
                         raise ValueError(f"Invalid source region {relative}:{start}-{end}")
                     snippet = "\n".join(source[start-1:end])
@@ -82,6 +91,7 @@ FOCUSED = {
         "FindingsSnapshotJsonFallbackMapperTests", "FindingsCoverageProjectionMapperTests",
         "ArtifactBundleStatusParserTests", "SynthesizedArtifactSliceStatusParserTests",
         "AgentModelCatalogRepositoryCoreTests", "BillingWebhookTrialActivatorTests",
+        "SqlSecurityEvidenceEnumBoundaryTests", "SqlAuditEnumBoundaryTests",
     ],
     "ArchLucid.Application.Tests": [
         "DraftRequestListStatusFilterTests", "AgentOutputQualityGateOptionsResolverTests",
@@ -99,6 +109,12 @@ FOCUSED = {
     "ArchLucid.Architecture.Tests": ["ArchLucidApiJsonSourceGenerationTests"],
     "ArchLucid.KnowledgeGraph.Tests": ["RequestActorMaterializerTests"],
     "ArchLucid.Analyzers.Tests": ["EnumBoundaryReviewAnalyzerTests"],
+}
+
+CI_FOCUSED = {
+    "ArchLucid.Analyzers.Tests": ["EnumBoundaryReviewAnalyzerTests"],
+    "ArchLucid.Contracts.Tests": ["AuthorityEnumPresenceTests"],
+    "ArchLucid.Persistence.Tests": ["SqlSecurityEvidenceEnumBoundaryTests", "SqlAuditEnumBoundaryTests"],
 }
 
 def check_report_coverage(directory):
@@ -125,17 +141,17 @@ def check_report_coverage(directory):
                         for run_data in data.get("runs", [])
                         for item in run_data.get("results", [])
                         if item.get("ruleId") == "ENUM000"]
-            if not any(f"'{name}'" in message for message in messages):
+            if messages != [f"Enum boundary analyzer executed for '{name}'"]:
                 raise SystemExit(f"Missing enum analyzer execution marker: {report.name}")
     return len(expected)
 
-def run_focused_tests(directory):
+def run_focused_tests(directory, projects=FOCUSED, *, require_all_passed=False):
     results = {}
-    for project, classes in FOCUSED.items():
+    for project, classes in projects.items():
         target = directory / "tests" / project
         target.mkdir(parents=True, exist_ok=False)
         filter_text = "|".join("FullyQualifiedName~" + name for name in classes)
-        run("dotnet", "test", f"{project}/{project}.csproj", "-c", "Release", "--no-build",
+        run("dotnet", "test", f"{project}/{project}.csproj", "-c", "Release", "--no-build", "--no-restore",
             "--filter", filter_text, "--logger", "trx", "--results-directory", str(target))
         tests = []
         for trx in target.glob("*.trx"):
@@ -144,7 +160,7 @@ def run_focused_tests(directory):
         for name in classes:
             if not any(name in test.get("testName", "") for test in passed):
                 raise SystemExit(f"No passing focused test recorded for {project}/{name}")
-        if any(test.get("outcome") == "Failed" for test in tests):
+        if (require_all_passed and len(passed) != len(tests)) or any(test.get("outcome") == "Failed" for test in tests):
             raise SystemExit(f"Failed focused tests in {project}")
         results[project] = {"passed": len(passed), "reported": len(tests)}
     (directory / "focused-tests.json").write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
@@ -154,9 +170,17 @@ def main():
     parser.add_argument("--verify", action="store_true", help="Reject any finding without a specific reviewed exception.")
     parser.add_argument("--exceptions", type=Path, help="JSON array of reviewed entries with rationale; never generated automatically.")
     parser.add_argument("--output", type=Path, default=ROOT / "artifacts" / "enum-audit")
+    parser.add_argument("--compiled-tests-only", action="store_true",
+                        help="Run the CI-focused suites against the existing compilation; never build or restore.")
     args = parser.parse_args()
-    assert_audit_ref()
     directory = args.output.resolve()
+    if args.compiled_tests_only:
+        if args.verify or args.exceptions is not None:
+            parser.error("Test-only mode cannot verify or approve inventory exceptions.")
+        directory.mkdir(parents=True, exist_ok=True)
+        run_focused_tests(directory, CI_FOCUSED, require_all_passed=True)
+        return 0
+    assert_audit_ref()
     directory.mkdir(parents=True, exist_ok=True)
     if any(directory.glob("*.sarif")):
         raise SystemExit("Choose a clean output directory; stale compiler reports are not accepted.")

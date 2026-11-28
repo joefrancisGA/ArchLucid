@@ -75,6 +75,81 @@ class EnumBoundaryGateTests(unittest.TestCase):
                 }]}]}))
                 self.assertEqual(1, audit.check_report_coverage(reports))
 
+    def test_compiler_enum_diagnostic_without_a_location_cannot_disappear(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            reports = Path(tmp)
+            (reports / "ArchLucid.Core-net10.0.sarif").write_text(json.dumps({
+                "runs": [{"results": [{"ruleId": "ENUM002"}]}],
+            }))
+            with self.assertRaisesRegex(ValueError, "exact compiler source location"):
+                audit.findings_from_reports(reports)
+
+    def test_failed_build_and_missing_coverage_publish_failure_receipt(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            reports = Path(tmp)
+            exc = reports / "exceptions.json"
+            exc.write_text("[]")
+            policy = reports / "policy.json"
+            policy.write_text('{"mode":"changed-files"}')
+            argv = ["gate", "--reports", str(reports), "--exceptions", str(exc),
+                    "--policy", str(policy), "--inventory-only"]
+            with patch.object(audit, "git", return_value="compiled-commit"), patch.object(
+                audit, "check_report_coverage", side_effect=SystemExit("Missing Core report")
+            ), patch.object(sys, "argv", [*argv, "--build-exit-code", "1"]):
+                self.assertEqual(1, gate.main())
+            receipt = json.loads((reports / "enum-gate-result.json").read_text())
+            self.assertEqual("compiled-commit", receipt["commit"])
+            self.assertEqual(1, receipt["build_exit_code"])
+            self.assertTrue(any("Missing Core report" in error for error in receipt["evidence_errors"]))
+            self.assertIsNone(receipt["projects"])
+
+    def test_existing_lane_cannot_pass_on_nonzero_compiler_exit_or_downgrade_all_mode(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            reports = Path(tmp)
+            exc = reports / "exceptions.json"
+            exc.write_text("[]")
+            policy = reports / "policy.json"
+            policy.write_text('{"mode":"all"}')
+            argv = ["gate", "--reports", str(reports), "--exceptions", str(exc),
+                    "--policy", str(policy), "--inventory-only"]
+            with patch.object(audit, "git", return_value="compiled-commit"), patch.object(
+                audit, "check_report_coverage", return_value=1
+            ), patch.object(audit, "findings_from_reports", return_value=([], 1)):
+                with patch.object(sys, "argv", argv):
+                    self.assertEqual(0, gate.main())
+                with patch.object(sys, "argv", [*argv, "--build-exit-code", "7"]):
+                    self.assertEqual(1, gate.main())
+            with patch.object(audit, "git", return_value="compiled-commit"), patch.object(
+                audit, "check_report_coverage", return_value=1
+            ), patch.object(audit, "findings_from_reports", return_value=([row()], 1)), patch.object(sys, "argv", argv):
+                self.assertEqual(1, gate.main())
+            receipt = json.loads((reports / "enum-gate-result.json").read_text())
+            self.assertEqual("all", receipt["mode"])
+            self.assertEqual([row()], receipt["blocking"])
+
+    def test_ci_focused_suite_rejects_missing_or_skipped_result_without_rebuilding(self):
+        import xml.etree.ElementTree as ET
+
+        for reported, allowed in [[["Passed"], True], [["NotExecuted"], False], [["Passed", "NotExecuted"], False]]:
+            with self.subTest(reported=reported), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                def emit(*cmd):
+                    self.assertIn("--no-build", cmd)
+                    self.assertIn("--no-restore", cmd)
+                    target = Path(cmd[cmd.index("--results-directory") + 1])
+                    xml = ET.Element("TestRun")
+                    results = ET.SubElement(xml, "Results")
+                    for outcome in reported:
+                        ET.SubElement(results, "UnitTestResult", outcome=outcome, testName="Probe.ExpectedClass.Case")
+                    ET.ElementTree(xml).write(target / "test.trx")
+                with patch.object(audit, "run", side_effect=emit):
+                    if allowed:
+                        audit.run_focused_tests(root, {"Probe": ["ExpectedClass"]}, require_all_passed=True)
+                        self.assertTrue((root / "focused-tests.json").exists())
+                    else:
+                        with self.assertRaises(SystemExit):
+                            audit.run_focused_tests(root, {"Probe": ["ExpectedClass"]}, require_all_passed=True)
+
     def test_actual_git_diff_includes_renamed_or_added_files(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

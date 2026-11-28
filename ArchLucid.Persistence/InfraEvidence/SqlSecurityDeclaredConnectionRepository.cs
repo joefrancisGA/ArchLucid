@@ -537,7 +537,7 @@ public sealed class SqlSecurityDeclaredConnectionRepository(ISqlConnectionFactor
             record.RevokedByActorKey,
         };
 
-    private static SecurityDeclaredConnectionRecord Map(ConnectionRow row) =>
+    internal static SecurityDeclaredConnectionRecord Map(ConnectionRow row) =>
         new()
         {
             ConnectionId = row.ConnectionId,
@@ -546,11 +546,11 @@ public sealed class SqlSecurityDeclaredConnectionRepository(ISqlConnectionFactor
             ProjectId = row.ProjectId,
             FromCloudResourceId = row.FromCloudResourceId,
             ToCloudResourceId = row.ToCloudResourceId,
-            RelationshipType = (SecurityDeclaredConnectionRelationshipType)row.RelationshipType,
+            RelationshipType = SecurityEvidenceSqlEnum.RequireOrdinal<SecurityDeclaredConnectionRelationshipType>(row.RelationshipType, nameof(row.RelationshipType)),
             Rationale = row.Rationale,
             EvidenceReference = row.EvidenceReference,
             ExpirationUtc = row.ExpirationUtc,
-            Status = (SecurityDeclaredConnectionStatus)row.Status,
+            Status = SecurityEvidenceSqlEnum.RequireOrdinal<SecurityDeclaredConnectionStatus>(row.Status, nameof(row.Status)),
             RequestedByActorKey = row.RequestedByActorKey,
             ApprovedByActorKey = row.ApprovedByActorKey,
             PayloadHashSha256 = row.PayloadHashSha256,
@@ -561,7 +561,7 @@ public sealed class SqlSecurityDeclaredConnectionRepository(ISqlConnectionFactor
             RevokedByActorKey = row.RevokedByActorKey,
         };
 
-    private sealed class ConnectionRow
+    internal sealed class ConnectionRow
     {
         public Guid ConnectionId
         {
@@ -599,7 +599,7 @@ public sealed class SqlSecurityDeclaredConnectionRepository(ISqlConnectionFactor
             init;
         }
 
-        public int RelationshipType
+        public int? RelationshipType
         {
             get;
             init;
@@ -623,7 +623,7 @@ public sealed class SqlSecurityDeclaredConnectionRepository(ISqlConnectionFactor
             init;
         }
 
-        public int Status
+        public int? Status
         {
             get;
             init;

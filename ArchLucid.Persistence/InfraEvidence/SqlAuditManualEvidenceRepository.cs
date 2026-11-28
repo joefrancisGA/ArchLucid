@@ -524,7 +524,7 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
         return rows.Select(MapArchitectureLink).ToList();
     }
 
-    private static AuditManualEvidenceSubmissionRecord MapSubmission(SubmissionRow row) =>
+    internal static AuditManualEvidenceSubmissionRecord MapSubmission(SubmissionRow row) =>
         new()
         {
             SubmissionId = row.SubmissionId,
@@ -542,8 +542,8 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
             DocumentKind = row.DocumentKind,
             EvidenceHashSha256 = row.EvidenceHashSha256,
             BlobPointer = row.BlobPointer,
-            ReviewStatus = (AuditEvidenceReviewStatus)row.ReviewStatus,
-            ProvenanceKind = (ProvenanceKind)row.ProvenanceKind,
+            ReviewStatus = SecurityEvidenceSqlEnum.RequireOrdinal<AuditEvidenceReviewStatus>(row.ReviewStatus, nameof(row.ReviewStatus)),
+            ProvenanceKind = SecurityEvidenceSqlEnum.RequireOrdinal<ProvenanceKind>(row.ProvenanceKind, nameof(row.ProvenanceKind)),
             ItsmProvider = row.ItsmProvider,
             ItsmExternalKey = row.ItsmExternalKey,
         };
@@ -562,7 +562,7 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
             LinkedUtc = row.LinkedUtc,
         };
 
-    private sealed class SubmissionRow
+    internal sealed class SubmissionRow
     {
         public Guid SubmissionId
         {
@@ -654,13 +654,13 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
             init;
         } = string.Empty;
 
-        public int ReviewStatus
+        public int? ReviewStatus
         {
             get;
             init;
         }
 
-        public int ProvenanceKind
+        public int? ProvenanceKind
         {
             get;
             init;
