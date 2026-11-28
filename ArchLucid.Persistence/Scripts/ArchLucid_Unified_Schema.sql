@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 436_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 440_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -11706,6 +11706,7 @@ BEGIN
         CONSTRAINT PK_ArchitectureIntelligenceStandaloneRuns PRIMARY KEY (RunId)
     );
 END;
+
 GO
 
 -- Forward-only requester binding. Legacy outbox rows are intentionally not updated.
@@ -11775,6 +11776,7 @@ BEGIN
         CONSTRAINT CK_AzureDevOpsThreadCreateClaims_PullRequestId CHECK (PullRequestId > 0)
     );
 END;
+
 GO
 
 /* Append-only one-shot reservations. A reservation does not confirm remote delivery. */
@@ -11789,4 +11791,3 @@ BEGIN
         CONSTRAINT PK_OutboundWebhookDispatchClaims PRIMARY KEY (TenantId, EventId, DestinationHash)
     );
 END;
-GO

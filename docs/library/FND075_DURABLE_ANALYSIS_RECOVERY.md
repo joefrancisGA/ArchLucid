@@ -1,3 +1,5 @@
+> **Scope:** Contributor reference for the durable checkpoint, lease and fencing protocol used by Authority and SecureNow analysis. This does not authorize replay outside the recorded scope.
+
 # FND-075 durable analysis recovery
 
 FND-074 bounds attempts. FND-075 makes eligible completed work recoverable from durable state instead of inferring completion from a timeline or an in-memory result.
