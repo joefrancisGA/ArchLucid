@@ -1,0 +1,44 @@
+name: Engine agreement sampling contract
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - '.github/workflows/pr-engine-agreement-sampling.yml'
+      - 'docs/assurance/FND082_ENGINE_AGREEMENT_SAMPLING.md'
+      - 'scripts/assurance/sample_engine_agreements.py'
+      - 'scripts/assurance/summarize_engine_agreement_cohort.py'
+      - 'scripts/assurance/review_divergent_findings.py'
+      - 'scripts/assurance/paired_engine_evaluation.py'
+      - 'scripts/assurance/verify_divergent_findings.py'
+      - 'scripts/ci/tests/test_sample_engine_agreements.py'
+      - 'scripts/ci/tests/test_fnd082_agreement_completion.py'
+      - 'scripts/ci/tests/test_review_divergent_findings.py'
+      - 'scripts/ci/tests/test_paired_engine_evaluation.py'
+      - 'scripts/ci/tests/test_verify_divergent_findings.py'
+      - 'tests/golden-corpus/agent-output-reference-cases.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: engine-agreement-sampling-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  synthetic-agreement-sampling:
+    name: Verify shared engine errors and independent controls
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Run focused engine comparison and sampling tests
+        run: |
+          python3 -m unittest discover -s scripts/ci/tests -p 'test_paired_engine_evaluation.py' -v
+          python3 -m unittest discover -s scripts/ci/tests -p 'test_verify_divergent_findings.py' -v
+          python3 -m unittest discover -s scripts/ci/tests -p 'test_sample_engine_agreements.py' -v
+          python3 -m unittest discover -s scripts/ci/tests -p 'test_review_divergent_findings.py' -v
+          python3 -m unittest discover -s scripts/ci/tests -p 'test_fnd082_agreement_completion.py' -v
