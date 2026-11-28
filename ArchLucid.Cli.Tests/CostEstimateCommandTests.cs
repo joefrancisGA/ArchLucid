@@ -139,6 +139,36 @@ public sealed class CostEstimateCommandTests
         }
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData(" -")]
+    public async Task Cost_estimate_preserves_a_quoted_filename_prefix(string prefix)
+    {
+        string relativePath = $"{prefix}cost-estimate-{Guid.NewGuid():N}.json";
+        string absolutePath = Path.GetFullPath(relativePath);
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
+            out TextWriter prevErr);
+
+        try
+        {
+            await File.WriteAllTextAsync(absolutePath, ManifestWithTwoBillableNodes);
+
+            int exit = await Program.RunAsync(["--json", "cost-estimate", relativePath]);
+
+            exit.Should().Be(CliExitCode.Success);
+            using System.Text.Json.JsonDocument result = System.Text.Json.JsonDocument.Parse(outWriter.ToString());
+            result.RootElement.GetProperty("inputPath").GetString().Should().Be(absolutePath);
+            result.RootElement.GetProperty("systemName").GetString().Should().Be("cost-demo");
+            errWriter.ToString().Should().BeEmpty();
+        }
+        finally
+        {
+            RestoreConsole(prevOut, prevErr);
+            File.Delete(absolutePath);
+        }
+    }
+
     private static void RedirectConsole(out StringWriter outWriter, out StringWriter errWriter,
         out TextWriter prevOut, out TextWriter prevErr)
     {

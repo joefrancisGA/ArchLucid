@@ -151,11 +151,8 @@ internal static partial class CostEstimateCommand
         error = null;
         string? resolvedPath = null;
 
-        foreach (string argRaw in args)
+        foreach (string arg in args)
         {
-            string arg =
-                argRaw.Trim();
-
             if (string.IsNullOrWhiteSpace(arg))
                 continue;
 
@@ -180,7 +177,7 @@ internal static partial class CostEstimateCommand
                 return false;
             }
 
-            resolvedPath = arg.Trim();
+            resolvedPath = arg;
         }
 
         if (resolvedPath is null)
