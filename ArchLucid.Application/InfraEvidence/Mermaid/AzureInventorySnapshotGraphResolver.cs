@@ -11,7 +11,8 @@ using ArchLucid.Persistence.InfraEvidence;
 namespace ArchLucid.Application.InfraEvidence.Mermaid;
 
 public sealed class AzureInventorySnapshotGraphResolver(
-    IAzureInventorySnapshotRepository snapshotRepository) : IAzureInventorySnapshotGraphResolver
+    IAzureInventorySnapshotRepository snapshotRepository,
+    SecureNowProjectionReuseObserver? reuseObserver = null) : IAzureInventorySnapshotGraphResolver
 {
     private readonly IAzureInventorySnapshotRepository _snapshotRepository =
         snapshotRepository ?? throw new ArgumentNullException(nameof(snapshotRepository));
@@ -46,7 +47,14 @@ public sealed class AzureInventorySnapshotGraphResolver(
             };
         }
 
-        return ResolveGraphFromSnapshot(snapshot, includeNeverShowArmTypes, retainIdentityDiagramArmTypes);
+        long? observation = reuseObserver?.Start(snapshot, scope, snapshotId);
+        AzureInventorySnapshotGraphResolveResult result =
+            ResolveGraphFromSnapshot(snapshot, includeNeverShowArmTypes, retainIdentityDiagramArmTypes);
+
+        if (observation is long started && result.Graph is { } graph)
+            reuseObserver!.Record(snapshot.Header, graph, started, includeNeverShowArmTypes, retainIdentityDiagramArmTypes);
+
+        return result;
     }
 
     public AzureInventorySnapshotGraphResolveResult ResolveGraphFromSnapshot(
@@ -160,6 +168,7 @@ public sealed class AzureInventorySnapshotGraphResolver(
         hiddenArmIds.ExceptWith(AzureInventoryVisibleSnapshotProjection.BuildVisibleArmIdSet(graphSnapshot.Resources));
 
         // Visibility removes collected hidden resources; absent endpoints are retained as references.
+
         foreach (AzureInventoryResourceRelationshipReadModel relationship in snapshot.Relationships
                      .OrderBy(candidate => ReadRelationshipArmId(candidate.FromAzureResourceId), StringComparer.Ordinal)
                      .ThenBy(candidate => ReadRelationshipArmId(candidate.ToAzureResourceId), StringComparer.Ordinal)
@@ -167,6 +176,7 @@ public sealed class AzureInventorySnapshotGraphResolver(
         {
             string fromArmId = ArmResourceIdNormalizer.Normalize(relationship.FromAzureResourceId);
             string toArmId = ArmResourceIdNormalizer.Normalize(relationship.ToAzureResourceId);
+
             if (!includeNeverShowArmTypes
                 && (AzureInventoryReferencedEndpointNodeFactory.IsHiddenEndpoint(fromArmId, collectedArmIds, hiddenArmIds, retainIdentityDiagramArmTypes)
                     || AzureInventoryReferencedEndpointNodeFactory.IsHiddenEndpoint(toArmId, collectedArmIds, hiddenArmIds, retainIdentityDiagramArmTypes)))
