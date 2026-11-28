@@ -324,6 +324,7 @@ public sealed class ProviderQualityMonitorTests
             lock (_sync)
             {
                 (string? replacement, TResult result) = update(_states.GetValueOrDefault(deploymentKey));
+
                 if (replacement is not null)
                     _states[deploymentKey] = replacement;
                 return Task.FromResult(result);

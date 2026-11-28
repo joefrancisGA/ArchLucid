@@ -131,6 +131,7 @@ public sealed class DurableProviderQualityRolloutSqlTests(ITestOutputHelper outp
                 ProviderQualitySnapshot snapshot = Assert.IsType<ProviderQualitySnapshot>(finalSnapshot);
                 cohortResults.Add(new(profile.Name, profile.Degraded, tripped,
                     snapshot.KnownSampleCount, snapshot.UnknownSampleCount));
+
                 if (tripped)
                 {
                     if (profile.Degraded)
