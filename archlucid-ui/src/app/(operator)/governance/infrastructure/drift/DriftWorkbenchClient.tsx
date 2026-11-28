@@ -229,7 +229,8 @@ import { DriftChangeRiskCell } from "./DriftChangeRiskCell";
 import { DriftChangeResourceCells } from "./DriftChangeResourceCell";
 import { DriftChangesPagination } from "./DriftChangesPagination";
 import { DriftLaterCapturesAvailability } from "./DriftLaterCapturesAvailability";
-import { SecureNowTimeToValueNextStepAuto } from "@/components/product-line/SecureNowTimeToValueNextStepAuto";
+import { SecureNowAdoptionFrictionNextStepAuto } from "@/components/product-line/SecureNowAdoptionFrictionNextStepAuto";
+import { SecureNowSecondCapturePathDeltaHonestyStrip } from "@/components/product-line/SecureNowSecondCapturePathDeltaHonestyStrip";
 import { DRIFT_WORKBENCH_SECOND_CAPTURE_PATH_DELTA_LINE } from "@/lib/infra-evidence/drift-workbench-second-capture-path-delta-copy";
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
 import { DriftResumeLastComparisonRow } from "./DriftResumeLastComparisonRow";
@@ -1604,15 +1605,18 @@ export function DriftWorkbenchClient() {
               <DriftLaterCapturesAvailability partition={laterSnapshotsPartition} />
 
               {isSecureNowProductLine(productLine) && !loadingSnapshots ? (
-                <SecureNowTimeToValueNextStepAuto
-                  testId="infra-drift-time-to-value-next-step"
-                  middleLine={
-                    countSuccessfulInfraCaptures(snapshots) === 1
-                      ? DRIFT_WORKBENCH_SECOND_CAPTURE_PATH_DELTA_LINE
-                      : undefined
-                  }
-                  cloudConnectionsTestId="infra-drift-time-to-value-cloud-connections"
-                  extractUploadTestId="infra-drift-time-to-value-extract-upload"
+                <SecureNowAdoptionFrictionNextStepAuto testId="infra-drift-adoption-friction-next-step" />
+              ) : null}
+
+              {isSecureNowProductLine(productLine) &&
+              !loadingSnapshots &&
+              countSuccessfulInfraCaptures(snapshots) === 1 ? (
+                <SecureNowSecondCapturePathDeltaHonestyStrip
+                  testId="infra-drift-second-capture-path-delta"
+                  returnPath={partialCaptureReturnPath}
+                  middleLine={DRIFT_WORKBENCH_SECOND_CAPTURE_PATH_DELTA_LINE}
+                  cloudConnectionsTestId="infra-drift-second-capture-cloud-connections"
+                  extractUploadTestId="infra-drift-second-capture-extract-upload"
                 />
               ) : null}
 

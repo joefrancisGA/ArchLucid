@@ -42,6 +42,7 @@ public sealed class ImportRequestFileService(
 
     private const int MaxFileBytes = 512 * 1024;
     private const int MaxSourceFileNameLength = 400;
+    private static readonly UTF8Encoding StrictUtf8 = new(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
 
     public async Task<ImportRequestFileResult> ImportAsync(IFormFile? file, CancellationToken ct, string? correlationId = null)
     {
@@ -178,6 +179,6 @@ public sealed class ImportRequestFileService(
             ms.Write(buffer, 0, read);
         }
 
-        return Encoding.UTF8.GetString(ms.ToArray());
+        return StrictUtf8.GetString(ms.ToArray());
     }
 }

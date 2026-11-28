@@ -1,0 +1,34 @@
+name: Divergent finding verification contract
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - '.github/workflows/pr-divergent-finding-verification.yml'
+      - 'scripts/assurance/verify_divergent_findings.py'
+      - 'scripts/assurance/paired_engine_evaluation.py'
+      - 'scripts/ci/tests/test_verify_divergent_findings.py'
+      - 'scripts/ci/tests/test_paired_engine_evaluation.py'
+      - 'tests/golden-corpus/agent-output-reference-cases.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: divergent-finding-verification-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic-verification:
+    name: Verify offline disagreement cases
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Run paired evaluation controls
+        run: python3 -m unittest discover -s scripts/ci/tests -p 'test_paired_engine_evaluation.py' -v
+      - name: Run independent verification controls
+        run: python3 -m unittest discover -s scripts/ci/tests -p 'test_verify_divergent_findings.py' -v

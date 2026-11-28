@@ -92,13 +92,16 @@ public static class FastPathContextModelBuilder
 
     private static string SlugToTitle(string slug)
     {
+        const string fallbackTitle = "Target system";
         if (string.IsNullOrWhiteSpace(slug))
-            return "Target system";
+            return fallbackTitle;
+
         string[] parts = slug.Split(['-', '_'], StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0)
+            return fallbackTitle;
+
         for (int i = 0; i < parts.Length; i++)
         {
-            if (parts[i].Length == 0)
-                continue;
             string p = parts[i];
             parts[i] = char.ToUpperInvariant(p[0]) + (p.Length > 1 ? p[1..].ToLowerInvariant() : "");
         }

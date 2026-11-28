@@ -21,6 +21,7 @@ import { useLatestSnapshotCaptureIsPartial } from "@/hooks/use-latest-snapshot-c
 import { useLatestPartialCaptureSnapshotId } from "@/hooks/use-latest-partial-capture-snapshot-id";
 import { useSecureNowPartialCaptureReturnPath } from "@/hooks/use-securenow-partial-capture-return-path";
 import { SecureNowPartialCaptureRecoveryParagraph } from "@/components/product-line/SecureNowPartialCaptureRecoveryLinks";
+import { SecureNowAgentReadinessSubstrateAuto } from "@/components/product-line/SecureNowAgentReadinessSubstrateAuto";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { INFRASTRUCTURE_ASK_PARTIAL_CAPTURE_HONESTY_LINE } from "@/lib/infra-evidence/infrastructure-ask-partial-capture-honesty-copy";
 import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
@@ -1057,7 +1058,12 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
         data-testid="infra-ask-primary-content"
       >
 
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-ask-insufficient-evidence-honesty">
+      
+      {isSecureNowProductLine(productLine) ? (
+        <SecureNowAgentReadinessSubstrateAuto testId="infra-ask-agent-readiness-substrate" />
+      ) : null}
+
+<p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-ask-insufficient-evidence-honesty">
         {INFRASTRUCTURE_ASK_INSUFFICIENT_EVIDENCE_HONESTY_LINE}
       </p>
 

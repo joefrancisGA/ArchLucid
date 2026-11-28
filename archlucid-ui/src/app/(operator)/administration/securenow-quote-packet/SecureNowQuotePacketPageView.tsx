@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { SecureNowMarketabilityBuyerPathAuto } from "@/components/product-line/SecureNowMarketabilityBuyerPathAuto";
 import { SecureNowAdminPartialCaptureStrip } from "@/components/product-line/SecureNowAdminPartialCaptureStrip";
 import { SecureNowBetaSkuContentsSection } from "@/components/product-line/SecureNowBetaSkuContentsSection";
 import { SecureNowFixtureWorkspaceNotEntitlementLine } from "@/components/product-line/SecureNowFixtureWorkspaceNotEntitlementLine";
@@ -37,6 +38,8 @@ export function SecureNowQuotePacketPageView(): React.JSX.Element {
         titleTestId="securenow-quote-packet-heading"
         subtitleTestId="securenow-quote-packet-lead"
       />
+
+      <SecureNowMarketabilityBuyerPathAuto testId="securenow-quote-packet-marketability-buyer-path" />
 
       <main id="main-content" tabIndex={-1} className="mt-6 max-w-3xl space-y-6">
         <SecureNowAdminPartialCaptureStrip
