@@ -71,6 +71,12 @@ public sealed class BrandAssetController(
         {
             return StatusCode(StatusCodes.Status503ServiceUnavailable, ex.Message);
         }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            return this.BadRequestProblem(
+                "Brand asset upload could not be completed.",
+                ProblemTypes.ValidationFailed);
+        }
 
         if (!result.Succeeded || result.Asset is null)
             return this.BadRequestProblem(result.ErrorMessage ?? "Brand asset upload failed.", ProblemTypes.ValidationFailed);

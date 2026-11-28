@@ -1,5 +1,6 @@
 using ArchLucid.Api.OpenApi;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.InfraEvidence;
 
 using FluentAssertions;
 
@@ -29,5 +30,24 @@ public sealed class OpenApiJsonStringEnumSchemaMutatorTests
             .ToList();
         enumNames.Should().Contain("DecisionGradeFinding");
         enumNames.Should().Contain("ChecklistCoverage");
+    }
+
+    [Fact]
+    public void Apply_rewrites_nullable_enum_schema_to_string_values()
+    {
+        OpenApiSchema schema = new()
+        {
+            Type = JsonSchemaType.Integer
+        };
+
+        OpenApiJsonStringEnumSchemaMutator.Apply(schema, typeof(RemediationPatternStatus?));
+
+        schema.Type.Should().Be(JsonSchemaType.String);
+        IList<string> enumNames = schema.Enum!
+            .Select(static node => node?.GetValue<string>())
+            .Where(static name => name is not null)
+            .Cast<string>()
+            .ToList();
+        enumNames.Should().Contain("Draft");
     }
 }

@@ -685,7 +685,8 @@ export interface components {
             recorded?: null | components["schemas"]["AgentOutputEvaluationPerspective"];
             runId?: string;
         };
-        AgentOutputQualityGateOutcome: number;
+        /** @enum {string} */
+        AgentOutputQualityGateOutcome: "Accepted" | "Warned" | "Rejected";
         AgentOutputSemanticScore: {
             /** Format: double */
             agentResultEmbeddingFaithfulnessMeanCosine?: null | number | string;
@@ -4580,8 +4581,10 @@ export interface components {
             /** Format: uuid */
             threadId?: null | string;
         };
-        FindingClassification: "DecisionGradeFinding" | "ChecklistCoverage" | null;
-        FindingConfidenceLevel: "High" | "Medium" | "Low" | null;
+        /** @enum {string} */
+        FindingClassification: "DecisionGradeFinding" | "ChecklistCoverage";
+        /** @enum {string} */
+        FindingConfidenceLevel: "High" | "Medium" | "Low";
         /** @enum {string} */
         FindingCorrelationMethod: "None" | "PolicyRuleAndFingerprint" | "MessageCategoryFuzzy";
         /** @enum {string} */
@@ -4790,7 +4793,8 @@ export interface components {
             /** Format: uuid */
             runId?: string;
         };
-        FindingSemanticSupportBand: unknown;
+        /** @enum {string} */
+        FindingSemanticSupportBand: "Supported" | "Unchecked" | "Unsupported" | "NotScored";
         /** @enum {string} */
         FindingSeverity: "Info" | "Warning" | "Error" | "Critical";
         FindingTraceCompletenessScore: {
@@ -4824,7 +4828,8 @@ export interface components {
             traceConfidenceLabel: string;
             treatment?: null | components["schemas"]["FindingTreatment"];
         };
-        FindingTreatment: number;
+        /** @enum {string} */
+        FindingTreatment: "Promote" | "DemoteToChecklist";
         FindingUnmuteRequest: {
             /** Format: uuid */
             runId?: string;
@@ -6135,7 +6140,8 @@ export interface components {
             workspaceId?: string;
             workspaceName?: string;
         };
-        LlmModelTier: number;
+        /** @enum {string} */
+        LlmModelTier: "Standard" | "Premium" | "Economy";
         LlmMonthlyTenantDollarBudgetStatusResult: {
             /** Format: double */
             assumedNextCallReservationUsd?: null | number | string;
@@ -7026,8 +7032,10 @@ export interface components {
         PatchTechnologyLedgerEntryResponse: {
             entry?: components["schemas"]["TechnologyLedgerEntryResponse"];
         };
-        PathConfidenceBand: number;
-        PathKind: number;
+        /** @enum {string} */
+        PathConfidenceBand: "Confirmed" | "HighlyLikely" | "Probable" | "Possible" | "InsufficientEvidence";
+        /** @enum {string} */
+        PathKind: "Privilege" | "IntendedReachability" | "CapabilityToFlow" | "SharedControlBlastRadius" | "ToxicCombination" | "FourRealityDrift";
         PatternEvidence: {
             applicableCapabilities?: string[];
             name?: string;
@@ -8187,7 +8195,8 @@ export interface components {
             includeGlobalInvariantChecks?: boolean;
             trigger?: null | components["schemas"]["ReReviewTrigger"];
         };
-        ReReviewTrigger: number;
+        /** @enum {string} */
+        ReReviewTrigger: "SystemBoundaryChange" | "MajorTopologyChange" | "NewTrustBoundary" | "NewDataClassification" | "NewJurisdiction" | "CriticalQualityAttributeChange" | "ModelOrPolicyPackUpgrade" | "EvidenceGraphSchemaChange" | "PeriodicMilestone" | "EvidenceAdded";
         RealizedValueAttestationResponse: {
             /** Format: int32 */
             attestedIncidentsAvoided?: null | number;
@@ -8254,7 +8263,8 @@ export interface components {
             path?: string;
             validationCriteria?: string;
         };
-        RecommendationConfidence: number;
+        /** @enum {string} */
+        RecommendationConfidence: "High" | "Medium" | "Low";
         RecommendationImproveLoopEvidenceResponse: {
             diffEntries?: components["schemas"]["ArchitectureModelDiffEntry"][];
             fullReReviewTriggered?: boolean;
@@ -8860,7 +8870,8 @@ export interface components {
             advisoryTerraformTemplateRef?: null | string;
             runbookRef?: null | string;
         };
-        RemediationPatternStatus: number;
+        /** @enum {string} */
+        RemediationPatternStatus: "Draft" | "UnderReview" | "Approved" | "Deprecated" | "Retired";
         RemediationPatternVersionActionRequest: {
             version?: string;
         };
@@ -10584,7 +10595,8 @@ export interface components {
         };
         /** @enum {string} */
         SemanticAssessmentMethod: "Unknown" | "NotPerformed" | "Heuristic" | "Model";
-        SemanticSupportAssessment: number;
+        /** @enum {string} */
+        SemanticSupportAssessment: "Supports" | "PartiallySupports" | "Contradicts" | "DoesNotEstablish";
         ServiceCatalogEvidence: {
             category?: string;
             recommendedUseCases?: string[];
