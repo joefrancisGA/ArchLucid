@@ -10,11 +10,13 @@ on:
       - 'ArchLucid.Application/InfraEvidence/SecureNowArchitect/*CutPoint*.cs'
       - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPortfolioGraphTests.cs'
       - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPortfolioOptimizationTests.cs'
+      - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPortfolioImpactTests.cs'
       - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPatternMatcherServiceTests.cs'
       - 'ArchLucid.Application.Tests/InfraEvidence/CutPointAnalysisEngineTests.cs'
       - 'ArchLucid.Application.Tests/InfraEvidence/RemediationPrioritization*Tests.cs'
       - 'docs/assurance/FND088_REMEDIATION_PORTFOLIO_GRAPH.md'
       - 'docs/assurance/FND089_REMEDIATION_PORTFOLIO_OPTIMIZER.md'
+      - 'docs/assurance/FND090_OFFLINE_PORTFOLIO_IMPACT.md'
 
 permissions:
   contents: read
@@ -39,7 +41,7 @@ jobs:
       - name: Run focused Release tests
         run: >-
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~RemediationPortfolioGraphTests|FullyQualifiedName~RemediationPortfolioOptimizationTests|FullyQualifiedName~RemediationPatternMatcherServiceTests|FullyQualifiedName~CutPointAnalysisEngineTests|FullyQualifiedName~RemediationPrioritizationAndWaveServiceTests|FullyQualifiedName~RemediationPrioritizationRankBatchTests'
+          --filter 'FullyQualifiedName~RemediationPortfolioGraphTests|FullyQualifiedName~RemediationPortfolioOptimizationTests|FullyQualifiedName~RemediationPortfolioImpactTests|FullyQualifiedName~RemediationPatternMatcherServiceTests|FullyQualifiedName~CutPointAnalysisEngineTests|FullyQualifiedName~RemediationPrioritizationAndWaveServiceTests|FullyQualifiedName~RemediationPrioritizationRankBatchTests'
           --results-directory "$RUNNER_TEMP/remediation-portfolio-graph"
           --logger 'trx;LogFileName=application.trx'
       - name: Require executed passing tests
@@ -57,16 +59,19 @@ jobs:
           total, executed, passed = (int(counters.attrib[key]) for key in ("total", "executed", "passed"))
           if not total or total != executed or executed != passed:
               raise SystemExit(f"total={total}, executed={executed}, passed={passed}")
-          optimizer_ids = {
-              unit.attrib["id"]
-              for unit in root.findall(".//{*}TestDefinitions/{*}UnitTest")
-              if (method := unit.find("{*}TestMethod")) is not None
-              and method.attrib.get("className", "").endswith(".RemediationPortfolioOptimizationTests")
-          }
-          if not any(
-              item.attrib.get("testId") in optimizer_ids and item.attrib.get("outcome") == "Passed"
+          executed_ids = {
+              item.attrib.get("testId")
               for item in root.findall(".//{*}Results/{*}UnitTestResult")
-          ):
-              raise SystemExit("No portfolio optimizer tests executed")
+              if item.attrib.get("outcome") == "Passed"
+          }
+          for suite in ("RemediationPortfolioGraphTests", "RemediationPortfolioOptimizationTests", "RemediationPortfolioImpactTests"):
+              suite_ids = {
+                  unit.attrib["id"]
+                  for unit in root.findall(".//{*}TestDefinitions/{*}UnitTest")
+                  if (method := unit.find("{*}TestMethod")) is not None
+                  and method.attrib.get("className", "").endswith("." + suite)
+              }
+              if not executed_ids.intersection(suite_ids):
+                  raise SystemExit(f"No {suite} tests executed")
           print(f"{passed} tests passed")
           PY
