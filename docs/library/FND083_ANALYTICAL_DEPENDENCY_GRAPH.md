@@ -1,3 +1,5 @@
+> **Scope:** Contributor reference for the shared Authority and SecureNow dependency graph and recovery boundaries. This does not enable the protocol or define an operating policy.
+
 # FND-083 analytical dependency graph
 
 Authority formerly described its checkpoint prerequisites in the recovery loop. SecureNow had a different list where an absent stage witness could look like an inapplicable branch. The shared planner validates each topology, traverses dependencies in order, and binds an exact witness for each required output. An unknown change invalidates the wider known graph. A missing prerequisite blocks its dependents, not the independent stages.
