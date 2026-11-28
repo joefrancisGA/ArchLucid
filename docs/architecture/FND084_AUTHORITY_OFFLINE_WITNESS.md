@@ -1,3 +1,5 @@
+> **Scope:** Contributor reference for the offline and read-only Authority graph shadow comparison. This is not rollout, reuse, or early-stop guidance.
+
 # FND-084 offline Authority graph comparison
 
 This is the executable preparation for [the FND-084 design](https://github.com/joefrancisGA/ArchLucid/pull/8360). It is not registered in Authority orchestration, does not read storage or call providers, and never approves reuse. The fixture caller supplies project scope, exact input digests, known coverage and the effective graph. Format and same-scope checks are not a substitute for resolving those inputs through authorization when a shadow caller is eventually added.
