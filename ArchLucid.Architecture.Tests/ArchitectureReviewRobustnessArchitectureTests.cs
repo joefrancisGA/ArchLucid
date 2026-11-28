@@ -248,13 +248,27 @@ public sealed class ArchitectureReviewRobustnessArchitectureTests
         string decisioningStage = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/Pipeline/Stages/AuthorityPipelineDecisioningStage.cs");
 
         int strengthenIndex = decisioningStage.IndexOf("TryStrengthenManifestAsync", StringComparison.Ordinal);
-        int saveManifestIndex = decisioningStage.IndexOf("SaveManifestAsync", StringComparison.Ordinal);
-        int computeHashIndex = decisioningStage.IndexOf("ComputeHash", StringComparison.Ordinal);
+        int draftHashIndex = decisioningStage.IndexOf("ComputeHash", StringComparison.Ordinal);
+        int carryForwardIndex = decisioningStage.IndexOf("context.Manifest = manifest", StringComparison.Ordinal);
 
         strengthenIndex.Should().BeGreaterThan(0);
-        saveManifestIndex.Should().BeGreaterThan(strengthenIndex);
-        computeHashIndex.Should().BeGreaterThan(strengthenIndex);
-        computeHashIndex.Should().BeLessThan(saveManifestIndex);
+        draftHashIndex.Should().BeGreaterThan(strengthenIndex);
+        carryForwardIndex.Should().BeGreaterThan(draftHashIndex);
+        decisioningStage.Should().NotContain("SaveManifestAsync");
+
+        string executor = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/Pipeline/AuthorityPipelineStagesExecutor.cs");
+        int decisioningIndex = executor.IndexOf("token => _decisioningStage.ExecuteAsync", StringComparison.Ordinal);
+        int artifactsIndex = executor.IndexOf("token => _artifactsStage.ExecuteAsync", StringComparison.Ordinal);
+        decisioningIndex.Should().BeGreaterThanOrEqualTo(0);
+        artifactsIndex.Should().BeGreaterThan(decisioningIndex);
+
+        string artifactsStage = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/Pipeline/Stages/AuthorityPipelineArtifactsStage.cs");
+        int readManifestIndex = artifactsStage.IndexOf("manifest = context.Manifest", StringComparison.Ordinal);
+        int finalHashIndex = artifactsStage.IndexOf("ComputeHash(manifest)", StringComparison.Ordinal);
+        int saveManifestIndex = artifactsStage.IndexOf("SaveManifestAsync", StringComparison.Ordinal);
+        readManifestIndex.Should().BeGreaterThanOrEqualTo(0);
+        finalHashIndex.Should().BeGreaterThan(readManifestIndex);
+        saveManifestIndex.Should().BeGreaterThan(finalHashIndex);
 
         string strengtheningPass = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/ArchitectureIntelligence/AuthorityClosedLoopStrengtheningPass.cs");
 

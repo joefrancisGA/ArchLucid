@@ -7,6 +7,8 @@ using System.Security.Claims;
 
 namespace ArchLucid.Api.Tests;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class RuntimeFindingHistoryControllerTests
 {
     [Fact]
