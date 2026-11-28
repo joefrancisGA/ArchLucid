@@ -20,13 +20,23 @@ public static class OutboundSocketsHttpClientBuilderExtensions
         this IHttpClientBuilder builder,
         OutboundHttpSocketsHandlerProfile profile = OutboundHttpSocketsHandlerProfile.ExternalIntegration,
         bool allowAutoRedirect = true,
-        bool rejectPrivateNetworkConnectEndpoints = false)
+        bool rejectPrivateNetworkConnectEndpoints = false) =>
+        builder.ConfigureArchLucidOutboundSocketsHandler(
+            profile, allowAutoRedirect, rejectPrivateNetworkConnectEndpoints, useCookies: true);
+
+    /// <summary>Configures the tuned pool with an explicit cookie policy.</summary>
+    public static IHttpClientBuilder ConfigureArchLucidOutboundSocketsHandler(
+        this IHttpClientBuilder builder,
+        OutboundHttpSocketsHandlerProfile profile,
+        bool allowAutoRedirect,
+        bool rejectPrivateNetworkConnectEndpoints,
+        bool useCookies)
     {
         ArgumentNullException.ThrowIfNull(builder);
 
         builder.ConfigurePrimaryHttpMessageHandler(() =>
         {
-            SocketsHttpHandler handler = new() { AllowAutoRedirect = allowAutoRedirect };
+            SocketsHttpHandler handler = new() { AllowAutoRedirect = allowAutoRedirect, UseCookies = useCookies };
 
             if (rejectPrivateNetworkConnectEndpoints)
             {

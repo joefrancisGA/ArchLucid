@@ -4,6 +4,7 @@ using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Quality;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Scoping;
@@ -98,6 +99,7 @@ public sealed class IndependentProviderQualityObserverTests
         using JsonDocument payload = JsonDocument.Parse(persisted!.DataJson);
         payload.RootElement.GetProperty("explanationId").GetGuid().Should().Be(explanationId);
         JsonElement provenance = payload.RootElement.GetProperty("inventoryFalsification");
+
         if (scenario == "scoped")
             provenance.Deserialize<InventoryFalsificationProbe>().Should().Be(probe);
         else
@@ -211,6 +213,7 @@ public sealed class IndependentProviderQualityObserverTests
 
         inner.Verify(x => x.CompleteJsonAsync(SecureNowRecoveryChallenge.SystemPrompt, It.IsAny<string>(),
             128, null, It.IsAny<CancellationToken>()), Times.Once);
+
         if (scenario == "copy")
         {
             observed.Sample.Should().BeNull();
@@ -220,6 +223,7 @@ public sealed class IndependentProviderQualityObserverTests
 
         observed.Sample.Should().NotBeNull();
         observed.Sample!.IsSyntheticRecovery.Should().BeTrue();
+
         if (scenario == "wrong-trace")
         {
             // Consume the still-current lease's binding through the monitor, under a different trace.
@@ -228,6 +232,7 @@ public sealed class IndependentProviderQualityObserverTests
             Guid leaseId = state.RootElement.EnumerateArray().Single().GetProperty("State").GetProperty("RecoveryLeaseId").GetGuid();
             monitor.BindRecoveryTrace(key, leaseId, "unrelated-trace").Should().BeTrue();
         }
+
         if (scenario == "expired")
             clock.Advance(TimeSpan.FromSeconds(leaseSeconds + 1));
 
@@ -236,12 +241,14 @@ public sealed class IndependentProviderQualityObserverTests
             true, null, CancellationToken.None);
         ProviderQualitySnapshot current = monitor.GetSnapshot(key);
         current.Quarantined.Should().Be(quarantined);
+
         if (scenario is "wrong-trace" or "expired")
         {
             current.KnownSampleCount.Should().Be(5);
             current.UnknownSampleCount.Should().Be(0);
             recorded.Should().BeNull();
         }
+
         if (!quarantined)
         {
             current.DecisionWindowKnownSamples.Should().Be(0);
@@ -267,8 +274,10 @@ public sealed class IndependentProviderQualityObserverTests
 
         if (scenario == "partial")
             results = results[..^1];
+
         if (scenario == "contradiction")
             results[0] = results[0] == "enabled" ? "disabled" : "enabled";
+
         if (scenario == "wrong-nonce")
             nonce = Guid.NewGuid().ToString("N");
         return scenario == "extra"

@@ -2076,6 +2076,8 @@ public sealed class ArchitectureRecommendationTradeOffBuilderTests
             Title = title,
             Rationale = "Gap",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
     }

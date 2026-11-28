@@ -9,6 +9,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.DataConsistency;
@@ -196,6 +197,7 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
                         "\"dryRun\":false",
                         "\"deletedCount\":1",
                         "audit-target")),
+                It.IsAny<IArchLucidUnitOfWork>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
 
@@ -337,6 +339,7 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
                         auditEvent.DataJson,
                         "\"dryRun\":false",
                         manifestId.ToString("D", CultureInfo.InvariantCulture))),
+                It.IsAny<IArchLucidUnitOfWork>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
 
@@ -494,6 +497,7 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
                         auditEvent.DataJson,
                         "\"dryRun\":false",
                         snapshotId.ToString("D", CultureInfo.InvariantCulture))),
+                It.IsAny<IArchLucidUnitOfWork>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
 

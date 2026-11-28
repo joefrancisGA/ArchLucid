@@ -1,3 +1,5 @@
+> **Scope:** Contributor reference for the production outbound resilience controls and adoption evidence for the listed integrations. This is not a guarantee for every external dependency.
+
 # FND-065 outbound resilience adoption and completion evidence
 
 Scope: production outbound policy registrations and direct inventory/catalog SDK or CLI paths named below. Baseline `62bc3b8`, including merged AWS/GCP hosted collection deadlines (#8310). This matrix counts client registrations or independently controlled operation surfaces, not individual URLs, tenants, or endpoint verbs. The rows describe the proposed closing implementation until merged and verified by CI. Related LLM quality and shared analysis scheduling remain tracked under FND-073 and FND-074.

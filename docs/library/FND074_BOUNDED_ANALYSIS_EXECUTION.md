@@ -1,3 +1,5 @@
+> **Scope:** Contributor reference for the execution budgets and cancellation rules shared by Authority and SecureNow analysis. This does not describe provider rollback.
+
 # FND-074 bounded analysis execution
 
 The Authority pipeline and SecureNow Azure inventory analysis share a monotonic, cancellation-aware execution budget. Each stage gets the smaller of its configured limit and the overall time remaining. A stage that returns after its deadline cannot advance a dependent stage or publish overall success. Cancellation is cooperative. A provider that has already accepted a write cannot be rolled back by canceling its token.

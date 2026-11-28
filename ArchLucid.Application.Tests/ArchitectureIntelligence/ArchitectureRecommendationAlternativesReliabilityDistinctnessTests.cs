@@ -21,6 +21,8 @@ public sealed class ArchitectureRecommendationAlternativesReliabilityDistinctnes
             Title = "Stated recovery objective may not be achievable",
             Rationale = "RTO 30 minutes vs 4-hour backup.",
             Conclusion = ReviewConclusion.Fail,
+            EvidenceCondition = EvidenceCondition.Sufficient,
+            Provenance = RecommendationTestEvidence.DirectlyEstablished(),
             Severity = "High",
         };
 

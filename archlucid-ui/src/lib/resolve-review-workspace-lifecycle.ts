@@ -8,9 +8,10 @@ function hasManifest(manifestId: string | null | undefined): boolean {
 
 /** TB-2367 — coarse lifecycle for the unified review workspace shell. */
 export function resolveReviewWorkspaceLifecycle(
-  input: ResolveReviewDetailVisibleTabsInput & {
-    readonly showArchitectureCreatedHome?: boolean;
-  },
+  input: Pick<ResolveReviewDetailVisibleTabsInput, "manifestId"> &
+    Partial<Omit<ResolveReviewDetailVisibleTabsInput, "manifestId">> & {
+      readonly showArchitectureCreatedHome?: boolean;
+    },
 ): ReviewWorkspaceLifecycle {
   if (input.showArchitectureCreatedHome === true) {
     return "create-home";

@@ -8,6 +8,8 @@ from pathlib import Path
 import re
 import unittest
 
+from scripts.ci.tests.remediation_disposable_catalog_contract import assert_uses_disposable_catalog
+
 ROOT = Path(__file__).resolve().parents[3]
 MIGRATION = ROOT / "ArchLucid.Persistence/Migrations/426_RemediationRoleWritePermissions.sql"
 PROCEDURES = ROOT / "ArchLucid.Persistence/Migrations/427_RemediationProcedureOnlyUpdates.sql"
@@ -158,6 +160,7 @@ class RemediationSqlRolePermissionsTests(unittest.TestCase):
 
     def test_sql_integration_uses_impersonated_broad_writer_and_real_migration(self):
         code = SQL_TEST.read_text()
+        assert_uses_disposable_catalog(self, ROOT, code)
         for expression in (
             "GetManifestResourceNames()",
             "foreach (int migrationNumber in new[] { 426, 427, 428 })",
@@ -169,7 +172,6 @@ class RemediationSqlRolePermissionsTests(unittest.TestCase):
             "HAS_PERMS_BY_NAME",
             "REVERT;",
             "UPDATE dbo.RemediationInstances",
-            "builder.InitialCatalog.Should().Contain(\"Test\"",
         ):
             with self.subTest(expression=expression):
                 self.assertIn(expression, code)

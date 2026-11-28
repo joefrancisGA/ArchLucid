@@ -1,4 +1,5 @@
 using System.Text.Json;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance.PolicyPacks;
@@ -24,7 +25,7 @@ public sealed class EvidencePackageReferenceTokenBoundaryTests
             PinnedEvidencePackagePinsJson = JsonSerializer.Serialize(new[]
             {
                 new PinnedEvidencePackageRow("azure-extractor", id, null)
-            })
+            }, ContractJson.CamelCaseIgnoreNullCompact)
         };
         Finding finding = new()
         {
