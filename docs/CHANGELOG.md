@@ -11,6 +11,12 @@
 
 **Surfaces.** SecureNow reviewer home section, signed-in quote packet, pilot decision, drift guard and mounted-contract tests.
 
+## 2026-11-27 - Score lift round 151 (batch wave H4): SecureNow AI and agent readiness substrate
+
+**Outcome.** Remediation factory, infrastructure Ask, and attack-path report name simulator versus Real agent mode, deterministic rank discipline, and citation bounds — not an autonomous subscription agent.
+
+**Surfaces.** Remediation factory client, infrastructure Ask page, attack-path report section, drift guard and mounted-contract tests.
+
 ## 2026-11-27 - Score lift round 150 (batch wave H2): SecureNow adoption friction next step
 
 **Outcome.** Infrastructure overview, remediation factory, and drift workbench name Reader-scoped collection blockers or ongoing scope discipline with a single primary CTA — not a self-service certification.
