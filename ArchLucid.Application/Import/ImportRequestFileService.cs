@@ -60,6 +60,10 @@ public sealed class ImportRequestFileService(
         {
             text = await ReadUtf8CappedAsync(file, ct);
         }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             logger.LogWarningWithSanitizedUserArg(ex, "Failed to read import file {FileName}.", file.FileName);
